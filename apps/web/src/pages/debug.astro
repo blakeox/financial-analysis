@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Debug Navbar">
+  <div class="min-h-screen bg-gray-50 p-8">
+    <h1 class="text-3xl font-bold mb-8">Navbar Debug Page</h1>
+    
+    <!-- Test basic Tailwind classes -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Basic Tailwind Test</h2>
+      <div class="bg-blue-500 text-white p-4 rounded">
+        If you can see this blue box with white text, Tailwind is working!
+      </div>
+    </div>
+
+    <!-- Test responsive classes -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Responsive Test</h2>
+      <div class="bg-red-500 sm:bg-green-500 md:bg-blue-500 lg:bg-purple-500 text-white p-4 rounded">
+        <p>This box changes color based on screen size:</p>
+        <ul class="list-disc list-inside mt-2">
+          <li>Red on mobile (default)</li>
+          <li>Green on small screens (sm: 640px+)</li>
+          <li>Blue on medium screens (md: 768px+)</li>
+          <li>Purple on large screens (lg: 1024px+)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Test hidden/flex classes -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Hidden/Flex Test</h2>
+      <div class="hidden sm:block bg-green-100 p-4 rounded mb-2">
+        <p class="text-green-800">This should be HIDDEN on mobile and VISIBLE on sm+ screens</p>
+      </div>
+      <div class="block sm:hidden bg-red-100 p-4 rounded">
+        <p class="text-red-800">This should be VISIBLE on mobile and HIDDEN on sm+ screens</p>
+      </div>
+    </div>
+
+    <!-- Manual navbar test -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Manual Navbar Test</h2>
+      <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex">
+              <div class="flex-shrink-0 flex items-center">
+                <span class="text-xl font-bold text-blue-600">Test Brand</span>
+              </div>
+              <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                <a href="#" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-500 text-sm font-medium text-gray-900">Home</a>
+                <a href="#" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Models</a>
+                <a href="#" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Analysis</a>
+              </div>
+            </div>
+            <div class="flex items-center sm:hidden">
+              <button type="button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Current screen size indicator -->
+    <div class="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-sm">
+      <span class="sm:hidden">XS</span>
+      <span class="hidden sm:inline md:hidden">SM</span>
+      <span class="hidden md:inline lg:hidden">MD</span>
+      <span class="hidden lg:inline xl:hidden">LG</span>
+      <span class="hidden xl:inline">XL</span>
+    </div>
+  </div>
+</Layout>

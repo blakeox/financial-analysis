@@ -1,0 +1,34 @@
+# Code Owners
+# This file defines who should review changes to different parts of the codebase
+# For more info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners (must review all changes)
+* @blakeox
+
+# Frontend (Astro + React)
+apps/web/ @blakeox
+packages/ui/ @blakeox
+
+# Backend (Cloudflare Workers + API)
+/workers/api/ @blakeox
+/packages/tools/ @blakeox
+
+# Analysis Engines (Financial Logic)
+/packages/analysis/ @blakeox
+
+# Documentation
+docs/ @blakeox
+*.md @blakeox
+
+# Configuration Files
+.github/ @blakeox
+*.config.* @blakeox
+wrangler.* @blakeox
+
+# Build and CI/CD
+package.json @blakeox
+pnpm-workspace.yaml @blakeox
+tsconfig.json @blakeox
+vitest.config.ts @blakeox
+.eslintrc.json @blakeox
+.prettierrc @blakeox

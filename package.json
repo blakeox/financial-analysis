@@ -1,0 +1,38 @@
+{
+  "name": "financial-analysis",
+  "version": "0.1.0",
+  "description": "Financial analysis tooling with LLM integration via MCP",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --recursive run build",
+    "dev": "pnpm --recursive run dev",
+    "test": "pnpm --recursive run test",
+    "lint": "pnpm --recursive run lint",
+    "format": "pnpm --recursive run format",
+    "typecheck": "pnpm --recursive run typecheck",
+    "clean": "pnpm --recursive run clean",
+    "deploy:api": "cd workers/api && pnpm run deploy",
+    "deploy:web": "wrangler pages deploy apps/web/dist --config wrangler.pages.toml",
+    "deploy:all": "pnpm run deploy:api && pnpm run deploy:web",
+    "install:all": "pnpm install",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "prettier": "^3.0.0",
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "wrangler": "^3.0.0",
+    "husky": "^9.0.0",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

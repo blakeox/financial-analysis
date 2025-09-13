@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "astro-build.astro-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-vscode-remote.remote-containers",
+    "ms-vscode.vscode-jest",
+    "vitest.explorer",
+    "ms-vscode.test-adapter-converter",
+    "gruntfuggly.todo-tree",
+    "ms-vscode.vscode-github-issue-notebooks",
+    "github.copilot",
+    "github.copilot-chat"
+  ],
+  "unwantedRecommendations": ["ms-vscode.vscode-typescript", "hookyqr.beautify"]
+}

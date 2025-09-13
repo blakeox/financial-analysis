@@ -1,0 +1,32 @@
+{
+  "name": "@financial-analysis/api",
+  "version": "0.1.0",
+  "description": "Cloudflare Workers API with MCP server for financial analysis",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --local",
+    "dev:remote": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run",
+    "test": "echo 'No tests in workers/api yet'",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "@financial-analysis/tools": "workspace:*",
+    "zod": "^3.22.0",
+    "itty-router": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^3.0.0",
+    "vitest": "^1.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "prettier": "^3.0.0"
+  }
+}

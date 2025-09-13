@@ -1,0 +1,255 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Lease Analysis" description="Analyze lease agreements with precision financial calculations">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2">Lease Analysis</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Calculate lease payments, amortization schedules, and financial insights
+      </p>
+
+      <!-- Analysis Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6">Lease Parameters</h2>
+
+        <form id="analysis-form" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Principal Amount -->
+            <div>
+              <label for="principal" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Principal Amount ($)
+              </label>
+              <input
+                type="number"
+                id="principal"
+                name="principal"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="50000"
+                required
+              />
+            </div>
+
+            <!-- Annual Interest Rate -->
+            <div>
+              <label for="annualRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Annual Interest Rate (%)
+              </label>
+              <input
+                type="number"
+                id="annualRate"
+                name="annualRate"
+                step="0.01"
+                min="0"
+                max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="5.0"
+                required
+              />
+            </div>
+
+            <!-- Term in Months -->
+            <div>
+              <label for="termMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Term (Months)
+              </label>
+              <input
+                type="number"
+                id="termMonths"
+                name="termMonths"
+                min="1"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="60"
+                required
+              />
+            </div>
+
+            <!-- Residual Value -->
+            <div>
+              <label for="residualValue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Residual Value ($)
+              </label>
+              <input
+                type="number"
+                id="residualValue"
+                name="residualValue"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="10000"
+              />
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              id="analyze-btn"
+            >
+              Analyze Lease
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="results-section" class="hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-xl font-semibold mb-6">Analysis Results</h2>
+          <div id="results-content">
+            <!-- Results will be populated here -->
+          </div>
+        </div>
+
+        <!-- Amortization Schedule -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-6">Amortization Schedule</h2>
+          <div id="schedule-content" class="overflow-x-auto">
+            <!-- Schedule table will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-state" class="hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3 text-gray-600 dark:text-gray-400">Analyzing lease...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-state" class="hidden">
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div class="text-red-600 dark:text-red-400">
+            <h3 class="font-semibold mb-2">Analysis Error</h3>
+            <p id="error-message">An error occurred while analyzing the lease. Please check your inputs and try again.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-side JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const formEl = document.getElementById('analysis-form');
+      const analyzeBtnEl = document.getElementById('analyze-btn');
+      const resultsSectionEl = document.getElementById('results-section');
+      const loadingStateEl = document.getElementById('loading-state');
+      const errorStateEl = document.getElementById('error-state');
+      const resultsContentEl = document.getElementById('results-content');
+      const scheduleContentEl = document.getElementById('schedule-content');
+
+      if (
+        !(formEl instanceof HTMLFormElement) ||
+        !(analyzeBtnEl instanceof HTMLButtonElement) ||
+        !(resultsSectionEl instanceof HTMLDivElement) ||
+        !(loadingStateEl instanceof HTMLDivElement) ||
+        !(errorStateEl instanceof HTMLDivElement) ||
+        !(resultsContentEl instanceof HTMLDivElement) ||
+        !(scheduleContentEl instanceof HTMLDivElement)
+      ) {
+        console.error('Required elements not found or have unexpected types.');
+        return;
+      }
+
+      const form = formEl;
+      const analyzeBtn = analyzeBtnEl;
+      const resultsSection = resultsSectionEl;
+      const loadingState = loadingStateEl;
+      const errorState = errorStateEl;
+      const resultsContent = resultsContentEl;
+      const scheduleContent = scheduleContentEl;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Show loading state
+        loadingState.classList.remove('hidden');
+        resultsSection.classList.add('hidden');
+        errorState.classList.add('hidden');
+        analyzeBtn.disabled = true;
+
+        try {
+          const formData = new FormData(form);
+          const data = {
+            principal: parseFloat(formData.get('principal') as string),
+            annualRate: parseFloat(formData.get('annualRate') as string) / 100,
+            termMonths: parseInt(formData.get('termMonths') as string),
+            residualValue: parseFloat(formData.get('residualValue') as string) || 0
+          };
+
+          // Call API (placeholder - will be implemented)
+          console.log('Analysis data:', data);
+
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Show results (placeholder)
+          resultsContent.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h3 class="font-semibold text-blue-900 dark:text-blue-100">Monthly Payment</h3>
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">$1,234.56</p>
+              </div>
+              <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <h3 class="font-semibold text-green-900 dark:text-green-100">Total Interest</h3>
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">$12,345.67</p>
+              </div>
+              <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                <h3 class="font-semibold text-purple-900 dark:text-purple-100">Total Cost</h3>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">$62,345.67</p>
+              </div>
+            </div>
+          `;
+
+          scheduleContent.innerHTML = `
+            <table class="min-w-full table-auto">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800">
+                  <th class="px-4 py-2 text-left">Month</th>
+                  <th class="px-4 py-2 text-left">Payment</th>
+                  <th class="px-4 py-2 text-left">Principal</th>
+                  <th class="px-4 py-2 text-left">Interest</th>
+                  <th class="px-4 py-2 text-left">Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="px-4 py-2">1</td>
+                  <td class="px-4 py-2">$1,234.56</td>
+                  <td class="px-4 py-2">$1,067.89</td>
+                  <td class="px-4 py-2">$166.67</td>
+                  <td class="px-4 py-2">$48,932.11</td>
+                </tr>
+                <!-- More rows would be populated here -->
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td colspan="5" class="px-4 py-4 text-center text-gray-500">
+                    ... Full schedule will be displayed here ...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          `;
+
+          resultsSection.classList.remove('hidden');
+
+        } catch (error) {
+          console.error('Analysis error:', error);
+          errorState.classList.remove('hidden');
+        } finally {
+          loadingState.classList.add('hidden');
+          analyzeBtn.disabled = false;
+        }
+      });
+    });
+  </script>
+</Layout>
