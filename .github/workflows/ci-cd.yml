@@ -137,7 +137,6 @@ jobs:
     if: github.event_name == 'pull_request'
     environment:
       name: preview
-      url: ${{ steps.deploy-web.outputs.deployment-url }}
 
     steps:
       - name: Checkout code
@@ -166,10 +165,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Deploy Web to Cloudflare Pages (Preview)
+      - name: Deploy Web to Cloudflare Workers (Preview)
         id: deploy-web
         run: |
-          npx wrangler pages deploy apps/web/dist --config wrangler.pages.toml --branch ${{ github.head_ref }}
+          cd workers/web
+          npx wrangler deploy --dry-run
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -183,7 +183,6 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: ${{ steps.deploy-web.outputs.deployment-url }}
 
     steps:
       - name: Checkout code
@@ -212,10 +211,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Deploy Web to Cloudflare Pages (Production)
+      - name: Deploy Web to Cloudflare Workers (Production)
         id: deploy-web
         run: |
-          npx wrangler pages deploy apps/web/dist --config wrangler.pages.toml --branch main
+          cd workers/web
+          npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

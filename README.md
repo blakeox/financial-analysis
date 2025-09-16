@@ -1,5 +1,7 @@
 # Financial Analysis Tooling
 
+![CI](https://github.com/blakeox/financial-analysis/actions/workflows/ci.yml/badge.svg)
+
 Advanced financial analysis tooling with LLM-powered insights, built with modern web technologies and Cloudflare infrastructure.
 
 ## 🚀 Features
@@ -14,7 +16,7 @@ Advanced financial analysis tooling with LLM-powered insights, built with modern
 
 ## 🏗️ Architecture
 
-```
+```text
 financial-analysis/
 ├── apps/web/          # Astro frontend application
 ├── workers/api/       # Cloudflare Workers API with MCP server
@@ -139,19 +141,37 @@ pnpm run test --watch
 pnpm run test lease.test.ts
 ```
 
+### E2E Accessibility Tests (Playwright + axe)
+
+```bash
+# One-time: install Playwright browsers
+cd apps/web
+npx playwright install --with-deps
+
+# Build site for preview server (Astro static)
+pnpm build
+
+# Run e2e a11y tests
+pnpm test:e2e
+```
+
+Notes:
+- Tests run against the Astro preview server at http://127.0.0.1:4321.
+- Pages checked: /, /models, /analysis. The suite fails on any WCAG A/AA violations.
+
 ## 🚢 Deployment
 
 ### Development
 
 ```bash
 pnpm run deploy:api   # Deploy API to Cloudflare Workers
-pnpm run deploy:web   # Deploy frontend to Cloudflare Pages
+pnpm run deploy:web   # Deploy frontend as a standalone Cloudflare Worker (serving Astro build)
 ```
 
 ### Production
 
 ```bash
-pnpm run deploy:all   # Deploy both API and frontend
+pnpm run deploy:all   # Deploy both API and frontend workers
 ```
 
 ### Environment Setup
@@ -159,11 +179,12 @@ pnpm run deploy:all   # Deploy both API and frontend
 1. Create Cloudflare account and install Wrangler CLI
 2. Set up D1 database, R2 bucket, and KV namespace
 3. Configure environment variables in Cloudflare dashboard
-4. Update `wrangler.toml` with your resource IDs
+4. Update `workers/api/wrangler.toml` with your resource IDs
+5. Build the Astro site before running the web worker locally: `pnpm --filter @financial-analysis/web build`
 
 ## 📚 Documentation
 
-- [API Documentation](./docs/api.md)
+- [API Documentation](./docs/API.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)

@@ -5,6 +5,25 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@fina
 
 <Layout title="Financial Analysis" description="Advanced financial analysis tools powered by AI and deterministic calculations">
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Structured Data -->
+    <script type="application/ld+json" is:inline>
+      {JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Financial Analysis',
+        url: Astro.url.origin,
+        description: 'Advanced financial analysis tools powered by AI and deterministic calculations.'
+      })}
+    </script>
+    <script type="application/ld+json" is:inline>
+      {JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Financial Analysis',
+        url: Astro.url.origin,
+        logo: new URL('/favicon.svg', Astro.url).toString(),
+      })}
+    </script>
     <!-- Hero Section -->
     <section class="bg-white dark:bg-gray-800">
       <div class="container mx-auto px-4 py-16 sm:py-24">

@@ -1,6 +1,6 @@
 {
   "name": "@financial-analysis/analysis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic financial analysis engines",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -10,7 +10,7 @@
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest run",
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
@@ -19,11 +19,11 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "eslint": "^8.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^9.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
     "prettier": "^3.0.0",
-    "vitest": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0"
+    "vitest": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0"
   }
 }

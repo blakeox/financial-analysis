@@ -74,8 +74,10 @@ async function checkRateLimit(request: Request, env: Env): Promise<boolean> {
 }
 
 // Error handling wrapper
-function withErrorHandler(handler: Function) {
-  return async (request: Request, env: Env) => {
+type RouteHandler = (request: Request, env: Env) => Response | Promise<Response>;
+
+function withErrorHandler(handler: RouteHandler) {
+  return async (request: Request, env: Env): Promise<Response> => {
     try {
       return await handler(request, env);
     } catch (error) {
@@ -121,16 +123,21 @@ function logRequest(request: Request, env: Env, startTime?: number) {
 }
 
 // Health check endpoint
-router.get('/health', () => {
+router.get('/health', (_req: Request, env: Env) => {
   return new Response(JSON.stringify({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    environment: 'production', // Will be overridden by env var
+    environment: env.ENVIRONMENT,
     version: 'v1'
   }), {
     headers: defaultHeaders
   });
 });
+
+// CORS preflight for API and MCP endpoints
+router.options('/mcp', () => new Response(null, { headers: corsHeaders }));
+router.options('/api/*', () => new Response(null, { headers: corsHeaders }));
+router.options('/v1/*', () => new Response(null, { headers: corsHeaders }));
 
 // MCP server endpoint for LLM integration
 router.post('/mcp', withErrorHandler(async (request: Request, env: Env) => {
@@ -146,7 +153,7 @@ router.post('/mcp', withErrorHandler(async (request: Request, env: Env) => {
   const mcpRequestSchema = z.object({
     jsonrpc: z.literal('2.0'),
     id: z.union([z.string(), z.number()]),
-    method: z.string().min(1).max(100),
+    method: z.enum(['initialize', 'tools/list', 'tools/call']),
     params: z.any().optional()
   });
 
@@ -188,47 +195,16 @@ router.get('/v1/api/analysis', withErrorHandler(async (request: Request, env: En
 }));
 
 // Legacy route (redirect to v1)
-router.get('/api/analysis', withErrorHandler(async (request: Request, env: Env) => {
-  // Parse and validate query parameters
+router.get('/api/analysis', withErrorHandler(async (request: Request) => {
   const url = new URL(request.url);
-  const type = url.searchParams.get('type');
-
-  // Basic validation for analysis type
-  const validTypes = ['lease', 'amortization', 'cashflow'];
-  if (type && !validTypes.includes(type)) {
-    throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
-  }
-
-  // Placeholder for analysis endpoints
-  return new Response(JSON.stringify({
-    message: 'Analysis API endpoint (legacy - use /v1/api/analysis)',
-    version: 'v1',
-    environment: env.ENVIRONMENT,
-    ...(type && { requestedType: type })
-  }), {
-    headers: defaultHeaders
-  });
-}));
-
-// API routes for financial analysis
-router.get('/api/analysis', withErrorHandler(async (request: Request, env: Env) => {
-  // Parse and validate query parameters
-  const url = new URL(request.url);
-  const type = url.searchParams.get('type');
-
-  // Basic validation for analysis type
-  const validTypes = ['lease', 'amortization', 'cashflow'];
-  if (type && !validTypes.includes(type)) {
-    throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
-  }
-
-  // Placeholder for analysis endpoints
-  return new Response(JSON.stringify({
-    message: 'Analysis API endpoint',
-    environment: env.ENVIRONMENT,
-    ...(type && { requestedType: type })
-  }), {
-    headers: defaultHeaders
+  const params = url.searchParams.toString();
+  const location = `/v1/api/analysis${params ? `?${params}` : ''}`;
+  return new Response(null, {
+    status: 308,
+    headers: {
+      ...defaultHeaders,
+      Location: location,
+    },
   });
 }));
 

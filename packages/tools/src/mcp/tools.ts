@@ -73,9 +73,10 @@ export async function handleMCPRequest(
         return await tool.execute(args);
       }
 
-    default:
+    default: {
       // Exhaustiveness check
       const neverMethod: never = method as never;
       throw new Error(`Method ${neverMethod as string} not supported`);
+    }
   }
 }

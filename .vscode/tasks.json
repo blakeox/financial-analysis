@@ -1,0 +1,48 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Typecheck and lint after edits",
+			"type": "shell",
+			"command": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint",
+			"problemMatcher": [
+				"$tsc",
+				"$eslint - stylish"
+			]
+		},
+		{
+			"label": "Install deps (no frozen)",
+			"type": "shell",
+			"command": "pnpm install --no-frozen-lockfile",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Typecheck, lint, test",
+			"type": "shell",
+			"command": "pnpm typecheck && pnpm lint && pnpm test",
+			"problemMatcher": [
+				"$tsc",
+				"$eslint - stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Typecheck again",
+			"type": "shell",
+			"command": "pnpm --filter @financial-analysis/web-worker typecheck && pnpm --filter @financial-analysis/api typecheck && pnpm --filter @financial-analysis/analysis typecheck",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Install new lint deps",
+			"type": "shell",
+			"command": "pnpm install --no-frozen-lockfile",
+			"group": "build"
+		}
+	]
+}

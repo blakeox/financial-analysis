@@ -1,3 +1,6 @@
+export { AppNav } from './components/AppNav';
+export type { NavItem } from './components/navTypes';
+export { navConfig } from './components/navConfig';
 // UI Components
 export { Button } from './components/Button';
 export { Input } from './components/Input';
