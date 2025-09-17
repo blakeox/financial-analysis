@@ -8,7 +8,7 @@
     "dev:remote": "wrangler dev",
     "deploy": "wrangler deploy",
     "build": "wrangler deploy --dry-run",
-    "test": "echo 'No tests in workers/api yet'",
+  "test": "vitest run",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit"
@@ -16,6 +16,8 @@
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250913.0",
     "@financial-analysis/tools": "workspace:*",
+    "@financial-analysis/analysis": "workspace:*",
+    "@asteasolutions/zod-to-openapi": "^7.1.1",
     "zod": "^3.22.0",
     "itty-router": "^4.0.0"
   },

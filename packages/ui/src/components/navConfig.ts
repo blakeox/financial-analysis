@@ -1,4 +1,4 @@
-export { navConfig } from './navConfig.tsx';
+export { navConfig } from './navMenu';
 export type { NavItem } from './navTypes';
 
 

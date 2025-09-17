@@ -30,6 +30,29 @@ Currently, no authentication is required. Rate limiting is applied per IP addres
 
 ## Endpoints
 
+### OpenAPI Spec
+
+Get the OpenAPI v3.0.3 JSON document that describes this API.
+
+**Endpoint:** `GET /openapi.json`
+
+**Response (200):**
+
+Content-Type: application/json; body is a standard OpenAPI document including servers, paths, and schemas.
+
+You can import this URL into tools like Postman, Insomnia, or ReDoc.
+
+### Interactive API Docs
+
+A built-in documentation UI is available, powered by RapiDoc. It loads the OpenAPI spec from `/openapi.json` and renders interactive docs.
+
+**Endpoint:** `GET /docs`
+
+Notes:
+- Strict CSP is applied; only the RapiDoc CDN script is allowed.
+- No authentication controls are exposed in the UI.
+- Use this for read-only exploration of endpoints and schemas.
+
 ### Health Check
 
 Get the health status of the API.
@@ -54,7 +77,8 @@ Handle MCP protocol requests for AI integration.
 **Endpoint:** `POST /mcp`
 
 **Headers:**
-```
+
+```http
 Content-Type: application/json
 ```
 
@@ -107,6 +131,7 @@ Perform financial analysis calculations.
 **Endpoint:** `GET /v1/api/analysis`
 
 **Query Parameters:**
+
 - `type` (optional): Analysis type (`lease`, `amortization`, `cashflow`)
 
 **Example:** `GET /v1/api/analysis?type=lease`
@@ -149,6 +174,7 @@ All endpoints return consistent error responses:
 ```
 
 **Common Error Codes:**
+
 - `RATE_LIMIT_EXCEEDED` (429): Too many requests
 - `INTERNAL_ERROR` (500): Server error
 - `VALIDATION_ERROR` (400): Invalid input

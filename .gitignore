@@ -189,4 +189,3 @@ workers/*/dist/
 
 # Monorepo specific
 .turbo/
-.changeset/
