@@ -14,5 +14,6 @@ describe('OpenAPI document', () => {
     // sanity check for registered paths
     expect(doc.paths).toBeDefined();
     expect(Object.keys(doc.paths ?? {})).toContain('/health');
+    expect(Object.keys(doc.paths ?? {})).toContain('/v1/api/analysis/lease');
   });
 });

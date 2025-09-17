@@ -1,6 +1,7 @@
 import { Router } from 'itty-router';
 import { z } from 'zod';
 import { handleMCPRequest } from '@financial-analysis/tools';
+import { FinancialInputSchema, LeaseAnalyzer } from '@financial-analysis/analysis';
 import { getOpenApiDocument } from './openapi';
 
 interface Env {
@@ -101,7 +102,7 @@ function withErrorHandler(handler: RouteHandler) {
 }
 
 // Logging utility
-function logRequest(request: Request, env: Env, startTime?: number) {
+function logRequest(request: Request, env: Env, startTime?: number, requestId?: string) {
   const timestamp = new Date().toISOString();
   const method = request.method;
   const url = new URL(request.url);
@@ -111,6 +112,7 @@ function logRequest(request: Request, env: Env, startTime?: number) {
                    'unknown';
 
   const logEntry = {
+    ...(requestId && { requestId }),
     timestamp,
     method,
     path: url.pathname,
@@ -194,6 +196,45 @@ router.get('/v1/api/analysis', withErrorHandler(async (request: Request, env: En
     ...(type && { requestedType: type })
   }), {
     headers: defaultHeaders
+  });
+}));
+
+// Lease analysis endpoint
+router.post('/v1/api/analysis/lease', withErrorHandler(async (request: Request, _env: Env) => {
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Content-Type must be application/json',
+        code: 'INVALID_CONTENT_TYPE'
+      }
+    }), { status: 415, headers: defaultHeaders });
+  }
+
+  const body = await request.json().catch(() => undefined);
+
+  // Validate input using shared schema
+  const parseResult = FinancialInputSchema.safeParse(body);
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues.map((i) => ({
+      path: i.path.join('.'),
+      message: i.message,
+      code: i.code,
+    }));
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Invalid request body',
+        code: 'BAD_REQUEST',
+        issues,
+      }
+    }), { status: 400, headers: defaultHeaders });
+  }
+
+  const result = LeaseAnalyzer.analyze(parseResult.data);
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: defaultHeaders,
   });
 }));
 
@@ -288,15 +329,17 @@ router.all('*', () => new Response(JSON.stringify({ error: 'Not Found' }), {
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const startTime = Date.now();
+    // Generate request id (uuid v4 style without external deps)
+    const requestId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
 
-    // Log incoming request
-    logRequest(request, env);
+  // Log incoming request
+  logRequest(request, env, undefined, requestId);
 
     // Apply rate limiting to API routes
     if (request.url.includes('/api/') || request.url.includes('/mcp')) {
       const withinLimit = await checkRateLimit(request, env);
       if (!withinLimit) {
-        logRequest(request, env, startTime);
+        logRequest(request, env, startTime, requestId);
         return new Response(JSON.stringify({
           error: {
             message: 'Rate limit exceeded. Please try again later.',
@@ -312,10 +355,15 @@ export default {
       }
     }
 
-    const response = await router.handle(request, env, ctx);
+  let response = await router.handle(request, env, ctx);
 
-    // Log response
-    logRequest(request, env, startTime);
+  // Attach request id header to response
+  const newHeaders = new Headers(response.headers);
+  newHeaders.set('X-Request-ID', requestId);
+  response = new Response(response.body, { status: response.status, statusText: response.statusText, headers: newHeaders });
+
+  // Log response
+  logRequest(request, env, startTime, requestId);
 
     return response;
   },

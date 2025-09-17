@@ -18,6 +18,24 @@ const HealthSchema = z.object({
 registry.register('FinancialInput', FinancialInputSchema);
 registry.register('Health', HealthSchema);
 
+// Lease analysis response schema
+const LeaseScheduleItem = z.object({
+  month: z.number(),
+  payment: z.number(),
+  principal: z.number(),
+  interest: z.number(),
+  balance: z.number(),
+});
+
+const LeaseAnalysisResultSchema = z.object({
+  monthlyPayment: z.number(),
+  totalPayments: z.number(),
+  totalInterest: z.number(),
+  schedule: z.array(LeaseScheduleItem),
+});
+
+registry.register('LeaseAnalysisResult', LeaseAnalysisResultSchema);
+
 // Paths
 registry.registerPath({
   method: 'get',
@@ -56,6 +74,37 @@ registry.registerPath({
           }),
         },
       },
+    },
+  },
+});
+
+// Lease analysis endpoint
+registry.registerPath({
+  method: 'post',
+  path: '/v1/api/analysis/lease',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: FinancialInputSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Lease analysis result',
+      content: {
+        'application/json': {
+          schema: LeaseAnalysisResultSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request body',
+    },
+    415: {
+      description: 'Unsupported Media Type',
     },
   },
 });
