@@ -1,0 +1,21 @@
+name = "financial-analysis-web"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "development"
+
+[assets]
+directory = "../../apps/web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[build]
+command = "pnpm --filter @financial-analysis/web build"
+
+[dev]
+port = 8788
+local_protocol = "http"
+upstream_protocol = "https"
+host = "localhost"

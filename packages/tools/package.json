@@ -1,6 +1,6 @@
 {
   "name": "@financial-analysis/tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Financial tool modules for MCP integration",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "eslint": "^8.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^9.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
     "prettier": "^3.0.0",
     "vitest": "^1.0.0"
   }
