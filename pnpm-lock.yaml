@@ -100,8 +100,8 @@ importers:
         version: 3.22.3
     devDependencies:
       '@astrojs/check':
-        specifier: ^0.5.0
-        version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)
+        specifier: ^0.9.4
+        version: 0.9.4(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)
       '@axe-core/playwright':
         specifier: ^4.10.2
         version: 4.10.2(playwright-core@1.55.0)
@@ -407,8 +407,8 @@ packages:
     peerDependencies:
       zod: ^3.20.2
 
-  '@astrojs/check@0.5.10':
-    resolution: {integrity: sha512-vliHXM9cu/viGeKiksUM4mXfO816ohWtawTl2ADPgTsd4nUMjFiyAl7xFZhF34yy4hq4qf7jvK1F2PlR3b5I5w==}
+  '@astrojs/check@0.9.4':
+    resolution: {integrity: sha512-IOheHwCtpUfvogHHsvu0AbeRZEnjJg3MopdLddkJE70mULItS/Vh37BHcI00mcOJcH1vhD3odbpvWokpxam7xA==}
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -418,6 +418,9 @@ packages:
 
   '@astrojs/compiler@2.12.2':
     resolution: {integrity: sha512-w2zfvhjNCkNMmMMOn5b0J8+OmUaBL1o40ipMvqcG6NRpdC+lKxmTi48DT8Xw0SzJ3AfmeFLB45zXZXtmbsjcgw==}
+
+  '@astrojs/compiler@2.13.0':
+    resolution: {integrity: sha512-mqVORhUJViA28fwHYaWmsXSzLO9osbdZ5ImUfxBarqsYdMlPbqAqGJCxsNzvppp1BEzc1mJNjOVvQqeDN8Vspw==}
 
   '@astrojs/internal-helpers@0.7.2':
     resolution: {integrity: sha512-KCkCqR3Goym79soqEtbtLzJfqhTWMyVaizUi35FLzgGSzBotSw8DB1qwsu7U96ihOJgYhDk2nVPz+3LnXPeX6g==}
@@ -2582,10 +2585,6 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
-  binary-extensions@2.3.0:
-    resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
-    engines: {node: '>=8'}
-
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
 
@@ -2670,10 +2669,6 @@ packages:
   check-error@2.1.1:
     resolution: {integrity: sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==}
     engines: {node: '>= 16'}
-
-  chokidar@3.6.0:
-    resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
-    engines: {node: '>= 8.10.0'}
 
   chokidar@4.0.3:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
@@ -3395,10 +3390,6 @@ packages:
 
   is-arrayish@0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
-
-  is-binary-path@2.1.0:
-    resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
-    engines: {node: '>=8'}
 
   is-docker@3.0.0:
     resolution: {integrity: sha512-eljcgEDlEns/7AXFosB5K/2nCM4P7FQPkGc/DWLy5rmFEWvZayGrik1d9/QIY5nJ4f9YsVvBkA6kJpHn9rISdQ==}
@@ -4278,10 +4269,6 @@ packages:
   read-yaml-file@1.1.0:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
     engines: {node: '>=6'}
-
-  readdirp@3.6.0:
-    resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
-    engines: {node: '>=8.10.0'}
 
   readdirp@4.1.2:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
@@ -5290,11 +5277,10 @@ snapshots:
       openapi3-ts: 4.5.0
       zod: 3.22.3
 
-  '@astrojs/check@0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)':
+  '@astrojs/check@0.9.4(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)':
     dependencies:
       '@astrojs/language-server': 2.15.4(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)
-      chokidar: 3.6.0
-      fast-glob: 3.3.3
+      chokidar: 4.0.3
       kleur: 4.1.5
       typescript: 5.9.2
       yargs: 17.7.2
@@ -5306,11 +5292,13 @@ snapshots:
 
   '@astrojs/compiler@2.12.2': {}
 
+  '@astrojs/compiler@2.13.0': {}
+
   '@astrojs/internal-helpers@0.7.2': {}
 
   '@astrojs/language-server@2.15.4(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)':
     dependencies:
-      '@astrojs/compiler': 2.12.2
+      '@astrojs/compiler': 2.13.0
       '@astrojs/yaml2ts': 0.2.2
       '@jridgewell/sourcemap-codec': 1.5.5
       '@volar/kit': 2.4.23(typescript@5.9.2)
@@ -7545,8 +7533,6 @@ snapshots:
     dependencies:
       is-windows: 1.0.2
 
-  binary-extensions@2.3.0: {}
-
   blake3-wasm@2.1.5: {}
 
   blob-to-buffer@1.2.9: {}
@@ -7639,18 +7625,6 @@ snapshots:
       get-func-name: 2.0.2
 
   check-error@2.1.1: {}
-
-  chokidar@3.6.0:
-    dependencies:
-      anymatch: 3.1.3
-      braces: 3.0.3
-      glob-parent: 5.1.2
-      is-binary-path: 2.1.0
-      is-glob: 4.0.3
-      normalize-path: 3.0.0
-      readdirp: 3.6.0
-    optionalDependencies:
-      fsevents: 2.3.3
 
   chokidar@4.0.3:
     dependencies:
@@ -8476,10 +8450,6 @@ snapshots:
   is-arrayish@0.2.1: {}
 
   is-arrayish@0.3.2: {}
-
-  is-binary-path@2.1.0:
-    dependencies:
-      binary-extensions: 2.3.0
 
   is-docker@3.0.0: {}
 
@@ -9459,10 +9429,6 @@ snapshots:
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
-
-  readdirp@3.6.0:
-    dependencies:
-      picomatch: 2.3.1
 
   readdirp@4.1.2: {}
 
