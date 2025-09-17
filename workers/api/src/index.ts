@@ -1,6 +1,7 @@
 import { Router } from 'itty-router';
 import { z } from 'zod';
 import { handleMCPRequest } from '@financial-analysis/tools';
+import { getOpenApiDocument } from './openapi';
 
 interface Env {
   DB: D1Database;
@@ -138,6 +139,8 @@ router.get('/health', (_req: Request, env: Env) => {
 router.options('/mcp', () => new Response(null, { headers: corsHeaders }));
 router.options('/api/*', () => new Response(null, { headers: corsHeaders }));
 router.options('/v1/*', () => new Response(null, { headers: corsHeaders }));
+router.options('/openapi.json', () => new Response(null, { headers: corsHeaders }));
+router.options('/docs', () => new Response(null, { headers: corsHeaders }));
 
 // MCP server endpoint for LLM integration
 router.post('/mcp', withErrorHandler(async (request: Request, env: Env) => {
@@ -204,6 +207,74 @@ router.get('/api/analysis', withErrorHandler(async (request: Request) => {
     headers: {
       ...defaultHeaders,
       Location: location,
+    },
+  });
+}));
+
+// OpenAPI document
+router.get('/openapi.json', withErrorHandler(async (request: Request, _env: Env) => {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+  const doc = getOpenApiDocument(baseUrl);
+  return new Response(JSON.stringify(doc, null, 2), {
+    headers: {
+      ...defaultHeaders,
+      'Content-Type': 'application/json',
+    },
+  });
+}));
+
+// API docs viewer (RapiDoc)
+router.get('/docs', withErrorHandler(async (request: Request, _env: Env) => {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+
+  // Tight CSP allowing only our origin and the RapiDoc CDN script
+  const docsCsp = [
+    "default-src 'self'",
+    "script-src 'self' https://unpkg.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "frame-ancestors 'none'"
+  ].join('; ');
+
+  const html = `<!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>API Docs — Financial Analysis</title>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <link rel="icon" href="data:," />
+      <style>
+        html, body { height: 100%; margin: 0; background: #0b1020; }
+        rapi-doc { height: 100vh; }
+      </style>
+  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+      <rapi-doc
+        spec-url="${baseUrl}/openapi.json"
+        theme="dark"
+        render-style="read"
+        show-header="false"
+        allow-authentication="false"
+        allow-spec-url-load="false"
+        allow-spec-file-load="false"
+      >
+      </rapi-doc>
+    </body>
+  </html>`;
+
+  return new Response(html, {
+    headers: {
+      ...corsHeaders,
+      ...securityHeaders,
+      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Security-Policy': docsCsp,
     },
   });
 }));

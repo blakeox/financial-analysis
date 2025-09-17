@@ -1,16 +1,5 @@
 import React from 'react';
-
-export type NavItem = {
-  id: string;
-  label: string;
-  href?: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  children?: NavItem[];
-  badgeCount?: number;
-  external?: boolean;
-  rightSlot?: React.ReactNode;
-  requiresAuth?: boolean;
-};
+import type { NavItem } from './navTypes';
 
 // Example icon stubs (replace with real icons or Heroicons)
 export function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
