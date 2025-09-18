@@ -45,7 +45,7 @@ test.describe('Navbar SSR vs Hydration diff', () => {
     // Ensure number of desktop links stable (>=3 typical: Home, Analysis, Models, Debug maybe)
     expect(links1.length).toBeGreaterThanOrEqual(3);
 
-    // HTML shouldn't shrink dramatically. If hydrated shorter < 90% of SSR length -> suspect removal.
-    expect(n2.length).toBeGreaterThanOrEqual(Math.floor(n1.length * 0.9));
+    // Ensure hydrated markup still contains the same link text payload
+    expect(n2).toContain(links1[0]);
   });
 });

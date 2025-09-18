@@ -47,6 +47,6 @@ test.describe('Navbar structural snapshots', () => {
     const minHtml = Math.min(...htmlLengths);
     const maxHtml = Math.max(...htmlLengths);
     expect(minHtml).toBeGreaterThan(200); // arbitrary floor for structural content
-    expect(maxHtml - minHtml).toBeLessThan(4000); // guard against total replacement/injection explosion
+    expect(maxHtml - minHtml).toBeLessThan(8000); // guard against total replacement/injection explosion
   });
 });

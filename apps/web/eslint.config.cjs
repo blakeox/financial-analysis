@@ -1,15 +1,26 @@
 const tsParser = require('@typescript-eslint/parser');
 
 module.exports = [
+	// Use the Playwright tsconfig for tests and Playwright config file
 	{
-		files: ['**/*.ts', '**/*.tsx'],
+		files: ['playwright.config.ts', 'tests/**/*.ts'],
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
-				project: [__dirname + '/tsconfig.json'],
-				tsconfigRootDir: __dirname,
+				project: ['./tsconfig.playwright.json'],
+			},
+		},
+	},
+	{
+		files: ['src/**/*.ts', 'src/**/*.tsx'],
+		languageOptions: {
+			parser: tsParser,
+			parserOptions: {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+				project: ['./tsconfig.json'],
 			},
 		},
 	},

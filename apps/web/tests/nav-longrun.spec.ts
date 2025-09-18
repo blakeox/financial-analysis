@@ -20,33 +20,42 @@ test.describe('Navbar long-run stability', () => {
     let prevWidth:number|undefined;
 
     for (let i=0;i<20;i++) { // 20 * 500ms = 10s
-      const count = await nav.locator('.desktop-nav a').count();
-      expect(count, `Iteration ${i}: link count drifted`).toBe(initialCount);
+      const snapshot = await page.evaluate(() => {
+        const navEl = document.getElementById('site-nav');
+        if (!navEl) {
+          return { count: -1, display: 'none', visibility: 'hidden', opacity: 0, box: null as DOMRect | null, dataset: null };
+        }
+        const links = navEl.querySelectorAll('.desktop-nav a');
+        const cs = getComputedStyle(navEl);
+        const box = navEl.getBoundingClientRect();
+        return {
+          count: links.length,
+          display: cs.display,
+          visibility: cs.visibility,
+          opacity: parseFloat(cs.opacity || '1'),
+          box: { width: box.width, height: box.height },
+          dataset: { ...navEl.dataset },
+        };
+      });
 
-      const box = await nav.boundingBox();
+      expect(snapshot.count, `Iteration ${i}: link count drifted ${JSON.stringify(snapshot.dataset)}`).toBe(initialCount);
+
+      const box = snapshot.box;
       expect(box).toBeTruthy();
       if(box){
-        // Height should not collapse below 40px (approx nav inner collapse)
         expect(box.height).toBeGreaterThan(40);
-        // Width should stay near viewport width (allow some scroll bar variation)
         if(prevWidth !== undefined){
-          expect(Math.abs(box.width - prevWidth)).toBeLessThan(40); // tolerance
+          expect(Math.abs(box.width - prevWidth)).toBeLessThan(40);
         }
         prevWidth = box.width;
         if(prevHeight !== undefined){
-          expect(Math.abs(box.height - prevHeight)).toBeLessThan(30); // avoid sudden shrink
+          expect(Math.abs(box.height - prevHeight)).toBeLessThan(30);
         }
         prevHeight = box.height;
       }
 
-      // Style checks executed in the page context
-      const styleOk = await nav.evaluate(el => {
-        const cs = getComputedStyle(el);
-        return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.1;
-      });
-      expect(styleOk, `Iteration ${i}: style hidden`).toBeTruthy();
+      expect(snapshot.display !== 'none' && snapshot.visibility !== 'hidden' && snapshot.opacity > 0.1, `Iteration ${i}: style hidden`).toBeTruthy();
 
-      // Hit-test: ensure a point near center top gives nav or descendant
       const hitOk = await page.evaluate(() => {
         const el = document.getElementById('site-nav');
         if(!el) return false;

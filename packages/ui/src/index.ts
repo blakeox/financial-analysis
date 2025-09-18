@@ -1,6 +1,3 @@
-export { AppNav } from './components/AppNav';
-export { navConfig } from './components/navConfig';
-export type { NavItem } from './components/navTypes';
 // UI Components
 export { Button } from './components/Button';
 export {
@@ -14,7 +11,6 @@ export {
 export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
-export { Navbar } from './components/Navbar';
 
 // Utilities
 export { cn } from './lib/utils';

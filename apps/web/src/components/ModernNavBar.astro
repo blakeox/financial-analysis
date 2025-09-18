@@ -15,12 +15,12 @@ export interface Props {
 
 const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.props;
 ---
-<nav id="site-nav" class="modern-nav fixed top-0 inset-x-0 z-50 print:relative print:backdrop-filter-none print:bg-white">
-  <div class="max-w-6xl mx-auto h-16 px-3 sm:px-5 lg:px-6 flex items-center justify-between nav-inner">
+<nav id="site-nav" data-testid="nav-root" class="modern-nav fixed top-0 inset-x-0 z-50 print:relative print:backdrop-filter-none print:bg-white">
+  <div class="max-w-6xl mx-auto h-16 px-3 sm:px-5 lg:px-6 flex items-center justify-between nav-inner relative">
     <!-- Brand -->
-    <a href="/" class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 rounded-md" aria-label="Home">
+  <a href="/" class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 rounded-md relative z-10" aria-label="Home">
       <!-- Coffee Logo -->
-      <span class="inline-flex items-center justify-center w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow ring-2 ring-amber-400/40 dark:ring-amber-500/40">
+      <span class="brand-mark inline-flex items-center justify-center w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow ring-2 ring-amber-400/40 dark:ring-amber-500/40">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" class="w-5 h-5" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h13v6a4 4 0 01-4 4H7a4 4 0 01-4-4v-6zm13 0h2a3 3 0 010 6h-2M8 6h.01M12 6h.01M16 6h.01" />
         </svg>
@@ -28,31 +28,31 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       <span class="font-semibold tracking-tight text-gray-900 dark:text-white text-sm sm:text-base select-none">{brand}</span>
     </a>
 
-    <!-- Desktop Navigation -->
-  <ul class="desktop-nav flex items-center gap-1" role="menubar">
+    <!-- Desktop Navigation (center-aligned) -->
+  <ul class="desktop-nav hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" data-testid="nav-desktop">
       {links.map(link => {
         const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
         return (
-          <li role="none">
+          <li>
             <a
               href={link.href}
+              data-testid="nav-desktop-link"
               class={`desktop-nav-link relative nav-link focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 transition-colors hover:text-gray-900 dark:hover:text-white ${active ? 'text-gray-900 dark:text-white active' : 'text-gray-600 dark:text-gray-300'}`}
               aria-current={active ? 'page' : undefined}
-              role="menuitem"
             >
               <span>{link.label}</span>
-              {active && <span class="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" aria-hidden="true"></span>}
             </a>
           </li>
         );
       })}
     </ul>
 
-    <!-- Right side / Mobile toggle -->
-    <div class="flex items-center gap-1 sm:gap-2">
+  <!-- Right side / Mobile toggle -->
+  <div class="flex items-center gap-1 sm:gap-2 relative z-10">
       <!-- Theme Toggle -->
       <button
         id="theme-toggle"
+        data-testid="nav-theme-toggle"
         type="button"
         class="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/60 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
         aria-label="Toggle color theme"
@@ -64,6 +64,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       <!-- Search Trigger -->
       <button
         id="search-toggle"
+        data-testid="nav-search-toggle"
         type="button"
         class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/60 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
         aria-label="Open search"
@@ -73,6 +74,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       </button>
       <button
         id="nav-toggle"
+        data-testid="nav-mobile-toggle"
         type="button"
         class="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-300/70 dark:border-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 bg-white/60 dark:bg-gray-800/60 transition"
         aria-label="Toggle navigation menu"
@@ -96,9 +98,10 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
     class="md:hidden mobile-nav-panel pointer-events-none opacity-0 -translate-y-2 transition-all duration-200 ease-out will-change-transform"
     data-mobile-panel
     aria-label="Mobile navigation"
+    data-testid="nav-mobile-panel"
   >
     <div class="px-4 pt-3 pb-6 bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm shadow-sm rounded-b-lg shadow-gray-900/5 dark:shadow-black/40">
-      <ul class="flex flex-col gap-1" role="menu">
+  <ul class="flex flex-col gap-1">
         {links.map(link => {
           const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
           return (
@@ -107,7 +110,6 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
                 href={link.href}
                 class={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${active ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-400/10' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'}`}
                 aria-current={active ? 'page' : undefined}
-                role="menuitem"
                 data-mobile-link
               >{link.label}</a>
             </li>
@@ -119,13 +121,13 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
 </nav>
 
 <!-- Search Overlay -->
-<div id="search-overlay" class="fixed inset-0 z-40 hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60" aria-modal="true" role="dialog" aria-label="Site search" data-search-overlay>
+<div id="search-overlay" data-testid="nav-search-overlay" class="fixed inset-0 z-[70] hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60" aria-modal="true" role="dialog" aria-label="Site search" data-search-overlay>
   <div class="w-full max-w-xl mx-auto px-4">
     <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
       <div class="flex items-center px-4 h-14 gap-3">
         <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
         <input id="search-input" type="text" placeholder="Search (placeholder)…" class="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400" aria-label="Search input" />
-        <button type="button" id="search-close" aria-label="Close search" class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70">
+  <button type="button" id="search-close" data-testid="nav-search-close" aria-label="Close search" class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           <span class="sr-only">Close search</span>
         </button>
@@ -144,7 +146,6 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
 <script is:inline>
   // Progressive enhancement: mobile menu, theme toggle, search overlay, scroll elevation
   (function(){
-    try {
       const toggle = document.querySelector('[data-nav-toggle]');
       const panel = document.querySelector('[data-mobile-panel]');
       const themeToggle = document.getElementById('theme-toggle');
@@ -154,6 +155,17 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       const searchClose = document.getElementById('search-close');
   const live = document.getElementById('live-region');
   const nav = document.getElementById('site-nav');
+    const inner = nav?.querySelector('.nav-inner');
+      // Lightweight persistent guard logs for field debugging
+      const win = window;
+      if(!('___navLogs' in win)) { try { Object.defineProperty(win,'___navLogs',{ value: [], writable: true, configurable: true }); } catch{} }
+      const pushLog = (type, details) => {
+        try {
+          const entry = { ts: Date.now(), type, details };
+          win.___navLogs.push(entry);
+          if(win.___navLogs.length > 200) win.___navLogs.splice(0, win.___navLogs.length - 200);
+        } catch{}
+      };
       // --- Snapshot Instrumentation (diagnostic) ---
       // Capture structural stability over time in data attributes without console noise
       const recordPhase = (phase) => {
@@ -171,10 +183,16 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       requestAnimationFrame(()=>{
         recordPhase('Raf');
       });
-      window.addEventListener('load', ()=>{
-        recordPhase('Load');
-        setTimeout(()=>recordPhase('T2000'), 2000);
-      }, { once:true });
+      // Ensure Load/T2000 phases are recorded even if this script runs after load
+      const onLoadPhases = () => {
+        try { recordPhase('Load'); } catch{}
+        try { setTimeout(()=>recordPhase('T2000'), 2000); } catch{}
+      };
+      if (document.readyState === 'complete') {
+        onLoadPhases();
+      } else {
+        window.addEventListener('load', onLoadPhases, { once:true });
+      }
       // Guard: detect unexpected hidden desktop nav on large screens (>=768px)
       const startTs = Date.now();
       const ensureDesktopVisible = (reason) => {
@@ -204,6 +222,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
             }
             // Force visibility (inline style has high precedence over normal utility ordering)
             el.style.display = 'flex';
+            pushLog('guard-fix', { reason, fixCount, width: w, className: el.className, offenders });
             console.groupCollapsed(`[nav-guard] Forced desktop-nav display:flex (reason=${reason}, fix #${fixCount})`);
             console.log('viewportWidth', w);
             console.log('elementClasses', el.className);
@@ -214,14 +233,50 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
           }
         } catch(e){}
       };
-      window.addEventListener('load', ()=> setTimeout(()=> ensureDesktopVisible('post-load'), 60), { once: true });
+      // Expose a manual check for quick field testing
+      try { win.__navCheck = () => ensureDesktopVisible('manual'); } catch{}
+
+      // Observe late-added stylesheets or <style> tags that could alter nav visibility
+      try {
+        const headObserver = new MutationObserver((mutations)=>{
+          for(const m of mutations){
+            m.addedNodes && m.addedNodes.forEach((n)=>{
+              if(n && n.nodeType === 1){
+                const el = n; // Element
+                const tag = (el.tagName||'').toLowerCase();
+                if(tag === 'style' || (tag === 'link' && el.getAttribute('rel') === 'stylesheet')){
+                  pushLog('style-added', { tag, href: el.getAttribute('href')||'', snippet: (el.outerHTML||'').slice(0,200) });
+                }
+              }
+            });
+          }
+        });
+        headObserver.observe(document.head, { childList: true, subtree: true });
+      } catch{}
+      const onLoadReady = () => {
+        // mark nav ready shortly after load to enable transitions
+        setTimeout(()=>{ try { nav?.setAttribute('data-ready','1'); } catch{} }, 80);
+        setTimeout(()=> ensureDesktopVisible('post-load'), 60);
+      };
+      if (document.readyState === 'complete') {
+        onLoadReady();
+      } else {
+        window.addEventListener('load', onLoadReady, { once: true });
+      }
       const interval = setInterval(()=>{
         ensureDesktopVisible('interval');
         if(Date.now() - startTs > 15000) clearInterval(interval); // stop after 15s
       }, 1200);
+      // Lightweight periodic sampler to keep phase data warm and help external tests sample states reliably
+      try {
+        const samplerStart = Date.now();
+        const sampler = setInterval(()=>{
+          try { recordPhase('Beat'); } catch{}
+          if(Date.now() - samplerStart > 3200) clearInterval(sampler);
+        }, 250);
+      } catch{}
       // --- End Snapshot Instrumentation ---
-      if(!toggle || !panel) return;
-      const bars = toggle.querySelectorAll('[data-bar]');
+    const bars = toggle ? toggle.querySelectorAll('[data-bar]') : [];
   let lastFocus = null; // (focus element reference)
       const announce = (msg) => { if(live){ live.textContent = msg; setTimeout(()=>{ if(live?.textContent===msg) live.textContent=''; }, 1000);} };
 
@@ -229,31 +284,48 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         toggle.setAttribute('aria-expanded','false');
         panel.classList.add('pointer-events-none','opacity-0');
         panel.classList.remove('opacity-100');
+        // Ensure starting offset is reapplied so next open animates from above
+        panel.classList.add('-translate-y-2');
         document.body.style.overflow = '';
         bars.forEach((b,i)=>{ b.classList.remove('translate-y-1','-translate-y-1','rotate-45','-rotate-45','opacity-0'); });
+        // Temporary inline clamp to avoid flash-revert during CSS injection or race
+        try { panel.style.transform = 'translateY(-0.5rem)'; panel.style.opacity = '0'; setTimeout(()=>{ panel.style.transform=''; panel.style.opacity=''; }, 240); } catch {}
+        try { panel.removeAttribute('data-open'); } catch {}
+        // Clear explicit top when closed
+        try { if(panel instanceof HTMLElement) panel.style.top = ''; } catch{}
+        stabilizePanel('closed');
         announce('Navigation menu closed');
       };
       const openPanel = () => {
         toggle.setAttribute('aria-expanded','true');
         panel.classList.remove('pointer-events-none','opacity-0');
         panel.classList.add('opacity-100');
+        // Remove offset so transform resolves to 0 and avoids conflicting rules
+        panel.classList.remove('-translate-y-2');
         document.body.style.overflow = 'hidden';
+        // Anchor panel to the live header height
+        try { if(panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{}
         // Animate bars into X
-    const inner = nav.querySelector('.nav-inner');
+        // Temporary inline clamp to avoid flash-revert during CSS injection or race
+        try { panel.style.transform = 'translateY(0)'; panel.style.opacity = '1'; setTimeout(()=>{ panel.style.transform=''; panel.style.opacity=''; }, 240); } catch {}
+        try { panel.setAttribute('data-open','1'); } catch {}
+        stabilizePanel('open');
         
         bars[0]?.classList.add('translate-y-1','rotate-45');
         bars[1]?.classList.add('opacity-0');
         bars[2]?.classList.add('-translate-y-1','-rotate-45');
         announce('Navigation menu opened');
       };
-      const togglePanel = () => {
-        const expanded = toggle.getAttribute('aria-expanded') === 'true';
-        expanded ? closePanel() : openPanel();
-      };
-      toggle.addEventListener('click', togglePanel, { passive: true });
-      panel.querySelectorAll('[data-mobile-link]').forEach(a=>{
-        a.addEventListener('click', ()=> closePanel(), { passive: true });
-      });
+      if (toggle && panel) {
+        const togglePanel = () => {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          expanded ? closePanel() : openPanel();
+        };
+        toggle.addEventListener('click', togglePanel, { passive: true });
+        panel.querySelectorAll('[data-mobile-link]').forEach(a=>{
+          a.addEventListener('click', ()=> closePanel(), { passive: true });
+        });
+      }
       // Theme toggle
       const applyTheme = (mode) => {
         const root = document.documentElement;
@@ -284,17 +356,22 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         if(!searchOverlay) return; searchOverlay.classList.add('hidden'); searchOverlay.classList.remove('flex'); document.body.style.overflow='';
         lastFocus?.focus(); announce('Search closed');
       };
-      searchToggle?.addEventListener('click', openSearch, { passive: true });
-      searchClose?.addEventListener('click', closeSearch, { passive: true });
-      searchOverlay?.addEventListener('click', (e)=>{ if(e.target === searchOverlay) closeSearch(); });
+      if (searchToggle && searchOverlay) {
+        searchToggle.addEventListener('click', openSearch, { passive: true });
+      }
+      if (searchClose && searchOverlay) {
+        searchClose.addEventListener('click', closeSearch, { passive: true });
+      }
+      if (searchOverlay) {
+        searchOverlay.addEventListener('click', (e)=>{ if(e.target === searchOverlay) closeSearch(); });
+      }
 
       // Global key handlers
       document.addEventListener('keydown', (e)=>{ 
-        if(e.key==='Escape'){ closePanel(); closeSearch(); }
+        if(e.key==='Escape'){ try{ closePanel(); }catch{} try{ closeSearch(); }catch{} }
         if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); openSearch(); }
       });
-
-      // Scroll elevation / shrink
+        // Animate bars into X
       let elevated = false;
       const onScroll = () => {
         const y = window.scrollY;
@@ -305,17 +382,47 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
           nav?.classList.remove('is-scrolled');
           elevated = false;
         }
+        // Keep mobile panel aligned to header height if open
+        try { if(toggle && toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{}
       };
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
-    } catch(_) { /* noop */ }
+      window.addEventListener('resize', () => { try { if(toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{} }, { passive: true });
+
+      // Stabilize mobile panel after toggles to counteract late class mutations
+      function stabilizePanel(state){
+        try {
+          const wantOpen = state === 'open';
+          const fix = () => {
+            if(!panel) return;
+            const has = (c) => panel.classList.contains(c);
+            let changed = false;
+            if(wantOpen){
+              if(has('pointer-events-none')) { panel.classList.remove('pointer-events-none'); changed = true; }
+              if(has('opacity-0')) { panel.classList.remove('opacity-0'); changed = true; }
+              if(!has('opacity-100')) { panel.classList.add('opacity-100'); changed = true; }
+              if(has('-translate-y-2')) { panel.classList.remove('-translate-y-2'); changed = true; }
+            } else {
+              if(!has('pointer-events-none')) { panel.classList.add('pointer-events-none'); changed = true; }
+              if(!has('opacity-0')) { panel.classList.add('opacity-0'); changed = true; }
+              if(has('opacity-100')) { panel.classList.remove('opacity-100'); changed = true; }
+              if(!has('-translate-y-2')) { panel.classList.add('-translate-y-2'); changed = true; }
+            }
+            if(changed) pushLog('panel-guard-fix', { state: state, className: panel.className });
+          };
+          // Run a few times after the frame to catch late mutations
+          setTimeout(fix, 32);
+          setTimeout(fix, 120);
+          setTimeout(fix, 260);
+        } catch{}
+      }
   })();
 </script>
 
 
 <style is:inline>
   /* Modern nav visual styling */
-  .modern-nav { 
+  #site-nav.modern-nav { 
     --nav-bg-light: rgba(255,255,255,0.72);
     --nav-bg-dark: rgba(17,24,39,0.72);
     background: linear-gradient(to bottom, rgba(255,255,255,0.92), var(--nav-bg-light));
@@ -324,46 +431,74 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
     border-bottom: 1px solid rgba(0,0,0,0.06);
     transition: background .4s ease, box-shadow .4s ease;
   }
-  .dark .modern-nav {
+  .dark #site-nav.modern-nav {
     background: linear-gradient(to bottom, rgba(17,24,39,0.94), var(--nav-bg-dark));
     border-bottom: 1px solid rgba(255,255,255,0.06);
   }
-  .modern-nav.is-scrolled { box-shadow: 0 4px 16px -4px rgba(0,0,0,0.18), 0 2px 4px -2px rgba(0,0,0,0.12); }
-  .dark .modern-nav.is-scrolled { box-shadow: 0 4px 18px -6px rgba(0,0,0,0.55), 0 2px 6px -2px rgba(0,0,0,0.45); }
-  .modern-nav .nav-inner { transition: height .5s cubic-bezier(.4,0,.2,1); }
-  .modern-nav.is-scrolled .nav-inner { height:60px; }
+  #site-nav.modern-nav.is-scrolled { box-shadow: 0 4px 16px -4px rgba(0,0,0,0.18), 0 2px 4px -2px rgba(0,0,0,0.12); }
+  .dark #site-nav.modern-nav.is-scrolled { box-shadow: 0 4px 18px -6px rgba(0,0,0,0.55), 0 2px 6px -2px rgba(0,0,0,0.45); }
+  #site-nav.modern-nav .nav-inner { transition: height .5s cubic-bezier(.4,0,.2,1); }
+  #site-nav.modern-nav.is-scrolled .nav-inner { height:60px; }
+
+  /* Reduce initial flicker: disable transitions until nav is ready */
+  #site-nav:not([data-ready='1']) { transition: none !important; }
+  #site-nav:not([data-ready='1']) .nav-inner { transition: none !important; }
+  #site-nav:not([data-ready='1']) .mobile-nav-panel { transition: none !important; }
+  #site-nav:not([data-ready='1']) .brand-mark { transition: none !important; }
+
+  /* Inline fallback for brand mark to avoid first-paint flash before utilities load */
+  #site-nav .brand-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.25rem; height: 2.25rem; border-radius: 0.375rem; color: #fff;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
 
   /* Desktop links */
-  .desktop-nav a { font-size: .875rem; font-weight:500; letter-spacing:.015em; padding:.65rem 1rem; position:relative; border-radius:.65rem; }
-  .desktop-nav a.active { color:#111827; }
-  .dark .desktop-nav a.active { color:#f9fafb; }
-  .desktop-nav a:not(.active){ color:#4b5563; }
-  .dark .desktop-nav a:not(.active){ color:#9ca3af; }
-  .desktop-nav a:hover:not(.active){ background:rgba(0,0,0,0.04); }
-  .dark .desktop-nav a:hover:not(.active){ background:rgba(255,255,255,0.05); }
-  .desktop-nav a:focus-visible{ outline:2px solid #3b82f6; outline-offset:2px; }
-  .desktop-nav a.active::after { content:''; position:absolute; left:1rem; right:1rem; bottom:4px; height:2px; background:linear-gradient(to right,#3b82f6,#6366f1); border-radius:2px; }
-  .dark .desktop-nav a.active::after { background:linear-gradient(to right,#60a5fa,#818cf8); }
-  .desktop-nav a:not(.active)::after { content:''; position:absolute; left:1rem; right:1rem; bottom:4px; height:2px; background:linear-gradient(to right,#3b82f6,#6366f1); opacity:0; transform:scaleX(.4); transform-origin:center; transition:.35s; border-radius:2px; pointer-events:none; }
-  .dark .desktop-nav a:not(.active)::after { background:linear-gradient(to right,#60a5fa,#818cf8); }
-  .desktop-nav a:hover:not(.active)::after, .desktop-nav a:focus-visible:not(.active)::after { opacity:.55; transform:scaleX(1); }
+  #site-nav .desktop-nav a { font-size: .875rem; font-weight:500; letter-spacing:.015em; padding:.65rem 1rem; position:relative; border-radius:.65rem; }
+  #site-nav .desktop-nav a.active { color:#111827; }
+  .dark #site-nav .desktop-nav a.active { color:#f9fafb; }
+  #site-nav .desktop-nav a:not(.active){ color:#4b5563; }
+  .dark #site-nav .desktop-nav a:not(.active){ color:#9ca3af; }
+  #site-nav .desktop-nav a:hover:not(.active){ background:rgba(0,0,0,0.04); }
+  .dark #site-nav .desktop-nav a:hover:not(.active){ background:rgba(255,255,255,0.05); }
+  #site-nav .desktop-nav a:focus-visible{ outline:2px solid #3b82f6; outline-offset:2px; }
+  #site-nav .desktop-nav a.active::after { content:''; position:absolute; left:1rem; right:1rem; bottom:4px; height:2px; background:linear-gradient(to right,#3b82f6,#6366f1); border-radius:2px; }
+  .dark #site-nav .desktop-nav a.active::after { background:linear-gradient(to right,#60a5fa,#818cf8); }
+  #site-nav .desktop-nav a:not(.active)::after { content:''; position:absolute; left:1rem; right:1rem; bottom:4px; height:2px; background:linear-gradient(to right,#3b82f6,#6366f1); opacity:0; transform:scaleX(.4); transform-origin:center; transition:.35s; border-radius:2px; pointer-events:none; }
+  .dark #site-nav .desktop-nav a:not(.active)::after { background:linear-gradient(to right,#60a5fa,#818cf8); }
+  #site-nav .desktop-nav a:hover:not(.active)::after, #site-nav .desktop-nav a:focus-visible:not(.active)::after { opacity:.55; transform:scaleX(1); }
 
   /* (Debug styles removed for production) */
 
   /* Mobile */
-  .mobile-nav-panel { position: fixed; top: 64px; left:0; right:0; }
-  .mobile-nav-panel.opacity-100 { pointer-events:auto; transform:translateY(0); }
+  #site-nav .mobile-nav-panel { position: fixed; top: 64px; left:0; right:0; }
+  #site-nav .mobile-nav-panel.opacity-100 { pointer-events:auto; transform:translateY(0); }
   /* Responsive visibility: hide desktop nav under 768px (override utilities removal) */
-  @media (max-width: 767.98px){ .desktop-nav { display:none !important; } }
+  @media (max-width: 767.98px){ #site-nav .desktop-nav { display:none !important; } }
   @media (min-width: 768px){ #mobile-nav-panel { display:none !important; } }
+  /* Enforce desktop layout visibility on >=768px to prevent late CSS from hiding it */
+  @media (min-width: 768px){ #site-nav .desktop-nav { display:flex !important; } }
   @media (prefers-reduced-motion: reduce){
-    .mobile-nav-panel { transition: none !important; }
-    [data-bar] { transition: none !important; }
+    #site-nav .mobile-nav-panel { transition: none !important; }
+    #site-nav [data-bar] { transition: none !important; }
   }
-  [data-bar] { transform-origin: center; }
+  #site-nav [data-bar] { transform-origin: center; }
   #search-overlay { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   #search-input::-webkit-search-cancel-button{ display:none; }
   #site-nav ::selection { background: rgba(59,130,246,0.35); color: #fff; }
   /* Selection nicer in dark */
   .dark #site-nav ::selection { background: rgba(96,165,250,0.45); }
+
+  /* Local fallback: sr-only helper (in case global.css fails to load) */
+  #site-nav .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
 </style>

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoPath, waitForNavReady } from './utils/nav';
 
 // Extended behavioral tests to catch conditions leading to nav disappearance.
 
@@ -8,7 +9,7 @@ async function wait(ms:number){ return new Promise(r=>setTimeout(r, ms)); }
 
 test.describe('ModernNavBar extended', () => {
   test('desktop links remain present for 5s and brand visible', async ({ page }) => {
-    await page.goto(HOME);
+    await gotoPath(page, HOME);
     const nav = page.locator('#site-nav');
     await expect(nav).toBeVisible();
     const brand = nav.locator('text=Financial Analysis');
@@ -29,7 +30,7 @@ test.describe('ModernNavBar extended', () => {
 
   test('mobile menu toggles and closes after selecting link', async ({ page }) => {
     await page.setViewportSize({ width: 460, height: 900 });
-    await page.goto(HOME);
+    await gotoPath(page, HOME);
     const toggle = page.locator('#nav-toggle');
     await expect(toggle).toBeVisible();
     await toggle.click();
@@ -41,7 +42,7 @@ test.describe('ModernNavBar extended', () => {
   });
 
   test('search overlay opens via button and Cmd/Ctrl+K then closes on Esc', async ({ page }) => {
-    await page.goto(HOME);
+    await gotoPath(page, HOME);
     const openBtn = page.locator('#search-toggle');
     await openBtn.click();
     const overlay = page.locator('#search-overlay');
@@ -63,26 +64,27 @@ test.describe('ModernNavBar extended', () => {
   });
 
   test('theme toggle persists across reload', async ({ page }) => {
-    await page.goto(HOME);
+    await gotoPath(page, HOME);
     const btn = page.locator('#theme-toggle');
     await expect(btn).toBeVisible();
     const html = page.locator('html');
-    const hadDarkInitially = await html.getAttribute('class').then(c=>!!c?.includes('dark'));
+    const hadDarkInitially = await html.evaluate((el) => el.classList.contains('dark'));
 
     await btn.click();
     await page.waitForTimeout(150);
-    const afterClick = await html.getAttribute('class').then(c=>!!c?.includes('dark'));
+    const afterClick = await html.evaluate((el) => el.classList.contains('dark'));
     expect(afterClick).not.toBe(hadDarkInitially);
 
     // reload
     await page.reload();
     await page.waitForTimeout(50);
-    const afterReload = await html.getAttribute('class').then(c=>!!c?.includes('dark'));
+    await waitForNavReady(page);
+    const afterReload = await html.evaluate((el) => el.classList.contains('dark'));
     expect(afterReload).toBe(afterClick);
   });
 
   test('no unexpected removal of nav subtree (MutationObserver simulation)', async ({ page }) => {
-    await page.goto(HOME);
+    await gotoPath(page, HOME);
     // Inject a small script to record element removal counts for nav with typed window augmentation
     await page.addInitScript(() => {
       interface NavDebugWindow extends Window { __navRemovals?: number; __navMO?: MutationObserver }

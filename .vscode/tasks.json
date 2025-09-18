@@ -43,6 +43,11 @@
 			"type": "shell",
 			"command": "pnpm install --no-frozen-lockfile",
 			"group": "build"
+		},
+		{
+			"label": "Rebuild app for updated nav markup",
+			"type": "shell",
+			"command": "pnpm -w --filter @financial-analysis/web build"
 		}
 	]
 }

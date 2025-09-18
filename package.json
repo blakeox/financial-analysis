@@ -11,6 +11,8 @@
     "dev:web:worker": "cd workers/web && pnpm dev",
     "dev:workers": "(cd workers/api && pnpm dev) & (cd workers/web && pnpm dev) && wait",
     "dev:all": "node scripts/dev-all.mjs",
+    "rebuild:ui": "pnpm --filter @financial-analysis/ui run build",
+    "clean:vite:web": "rm -rf apps/web/node_modules/.vite",
     "test": "pnpm --recursive run test",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
@@ -48,5 +50,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@10.17.0"
 }

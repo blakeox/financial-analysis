@@ -8,11 +8,23 @@ test.describe('Navbar late stylesheet injections', () => {
 
     // Collect stylesheet href/inline signatures at ~load time
     await page.waitForLoadState('load');
-    const initial = await page.evaluate(() => Array.from(document.styleSheets).map(ss => ss.href || 'inline-'+Array.from((ss as CSSStyleSheet).cssRules||[]).length));
+    const initial = await page.evaluate(() => Array.from(document.styleSheets).map(ss => {
+      try {
+        return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
+      } catch {
+        return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
+      }
+    }));
 
     // Wait 3s and collect again
     await page.waitForTimeout(3000);
-    const later = await page.evaluate(() => Array.from(document.styleSheets).map(ss => ss.href || 'inline-'+Array.from((ss as CSSStyleSheet).cssRules||[]).length));
+    const later = await page.evaluate(() => Array.from(document.styleSheets).map(ss => {
+      try {
+        return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
+      } catch {
+        return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
+      }
+    }));
 
     // Compare sets
     const initialSet = new Set(initial);

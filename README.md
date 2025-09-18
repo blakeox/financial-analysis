@@ -160,6 +160,10 @@ Notes:
 - Tests run against the Astro preview server at http://127.0.0.1:4321.
 - Pages checked: /, /models, /analysis. The suite fails on any WCAG A/AA violations.
 
+CI note:
+
+- The web app has a `prebuild` script that rebuilds the `@financial-analysis/ui` package and clears `apps/web/node_modules/.vite` to avoid stale optimized chunks during builds. Ensure CI uses `pnpm --filter @financial-analysis/web build` (or invokes the app’s build script) before Playwright runs so the latest UI dist is consumed.
+
 ## 🚢 Deployment
 
 ### Development

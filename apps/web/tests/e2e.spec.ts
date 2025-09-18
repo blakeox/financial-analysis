@@ -4,17 +4,19 @@ import { expect, test } from '@playwright/test';
 test('homepage loads and displays site title', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/Financial Analysis/i);
-  await expect(page.locator('header')).toContainText(/Financial Analysis/i);
+  await expect(page.locator('#site-nav')).toContainText(/Financial Analysis/i);
 });
 
 // Navigation test
 test('navigation links work', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: /Models/i }).click();
+  const header = page.locator('#site-nav');
+  await expect(header).toBeVisible();
+  await header.locator('.desktop-nav a', { hasText: 'Models' }).first().click();
   await expect(page).toHaveURL(/\/models/);
   await expect(page.locator('main')).toContainText(/Models/i);
 
-  await page.getByRole('link', { name: /Analysis/i }).click();
+  await header.locator('.desktop-nav a', { hasText: 'Analysis' }).first().click();
   await expect(page).toHaveURL(/\/analysis/);
   await expect(page.locator('main')).toContainText(/Analysis/i);
 });

@@ -9,9 +9,10 @@ export interface Props {
   description?: string;
   canonical?: string;
   image?: string;
+  showNav?: boolean;
 }
 
-const { title, description = "Financial Analysis Tooling", canonical, image } = Astro.props;
+const { title, description = "Financial Analysis Tooling", canonical, image, showNav = true } = Astro.props as Props;
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -25,6 +26,7 @@ const navLinks = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} />
@@ -37,6 +39,23 @@ const navLinks = [
         document.documentElement.classList.add('dark');
       }
     </script>
+
+      {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
+      {import.meta.env.PROD && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+            rel="stylesheet"
+          />
+        </>
+      )}
+
+      {/* Dev: force system font to avoid font-swap metric shifts */}
+      {import.meta.env.DEV && (
+        <style is:inline>{`:root{--font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;}`}</style>
+      )}
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen font-sans">
     <!-- Skip Link (visually hidden until focus) -->
@@ -49,12 +68,17 @@ const navLinks = [
     
 
     <!-- Header / Navigation -->
-    <div id="site-header">
-      <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Analysis" />
-    </div>
+    {showNav && (
+      <div id="site-header">
+        <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Analysis" />
+      </div>
+    )}
+
+      {/* Spacer to reserve header height and prevent content jump (h-16 = 4rem) */}
+      <div aria-hidden="true" class="h-16" />
 
     <!-- Main Content -->
-    <main id="main-content" tabindex="-1" class="flex-1 mt-20">
+      <main id="main-content" tabindex="-1" class="flex-1">
       <slot />
     </main>
 

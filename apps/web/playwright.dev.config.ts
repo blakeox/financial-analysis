@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { defineConfig, devices } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -11,19 +10,19 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: 'http://127.0.0.1:4323',
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm build && pnpm preview -- --port 4321 --host 127.0.0.1 --strictPort',
+    command: 'pnpm dev -- --port 4323 --host 127.0.0.1',
     cwd: __dirname,
-  url: 'http://localhost:4321',
+    url: 'http://127.0.0.1:4323',
     timeout: 240_000,
     reuseExistingServer: !process.env.CI,
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'chromium-dev',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
