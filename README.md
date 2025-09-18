@@ -156,6 +156,7 @@ pnpm test:e2e
 ```
 
 Notes:
+
 - Tests run against the Astro preview server at http://127.0.0.1:4321.
 - Pages checked: /, /models, /analysis. The suite fails on any WCAG A/AA violations.
 

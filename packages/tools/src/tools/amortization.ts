@@ -1,4 +1,7 @@
-import { AmortizationAnalyzer, type AmortizationAnalysisResult } from '@financial-analysis/analysis';
+import {
+  AmortizationAnalyzer,
+  type AmortizationAnalysisResult,
+} from '@financial-analysis/analysis';
 import { z } from 'zod';
 
 const AmortizationToolInputSchema = z.object({

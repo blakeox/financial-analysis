@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import api from '../index';
 
 function makeEnv() {
@@ -9,13 +9,13 @@ function makeEnv() {
       get: async () => null,
       put: async () => undefined,
       delete: async () => undefined,
-      list: async () => ({ keys: [], list_complete: true })
+      list: async () => ({ keys: [], list_complete: true }),
     } as unknown as KVNamespace,
     DOCUMENTS: {} as unknown as R2Bucket,
   };
   const ctx: ExecutionContext = {
     waitUntil: () => {},
-    passThroughOnException: () => {}
+    passThroughOnException: () => {},
   } as unknown as ExecutionContext;
   return { env, ctx };
 }
@@ -30,8 +30,8 @@ describe('MCP endpoint', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-  const json = (await res.json()) as unknown as { result?: { protocolVersion?: string } };
-  expect(json.result?.protocolVersion).toBeDefined();
+    const json = (await res.json()) as unknown as { result?: { protocolVersion?: string } };
+    expect(json.result?.protocolVersion).toBeDefined();
   });
 
   it('lists tools', async () => {
@@ -43,8 +43,8 @@ describe('MCP endpoint', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-  const json = (await res.json()) as unknown as { result?: { tools?: Array<{ name: string }> } };
-  const tools = json.result?.tools ?? [];
+    const json = (await res.json()) as unknown as { result?: { tools?: Array<{ name: string }> } };
+    const tools = json.result?.tools ?? [];
     expect(Array.isArray(tools)).toBe(true);
     const leaseTool = tools.find((t) => t.name === 'analyze_lease');
     const amortTool = tools.find((t) => t.name === 'analyze_amortization');
@@ -69,8 +69,10 @@ describe('MCP endpoint', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-  const json = (await res.json()) as unknown as { result: { monthlyPayment: number; schedule: unknown[] } };
-  const result = json.result;
+    const json = (await res.json()) as unknown as {
+      result: { monthlyPayment: number; schedule: unknown[] };
+    };
+    const result = json.result;
     expect(result).toHaveProperty('monthlyPayment');
     expect(Array.isArray(result.schedule)).toBe(true);
   });
@@ -94,7 +96,9 @@ describe('MCP amortization tool', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-    const json = (await res.json()) as unknown as { result: { monthlyPayment: number; schedule: unknown[] } };
+    const json = (await res.json()) as unknown as {
+      result: { monthlyPayment: number; schedule: unknown[] };
+    };
     const result = json.result;
     expect(result).toHaveProperty('monthlyPayment');
     expect(Array.isArray(result.schedule)).toBe(true);

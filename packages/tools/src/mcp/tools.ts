@@ -1,5 +1,5 @@
-import { LeaseTool } from '../tools/lease';
 import { AmortizationTool } from '../tools/amortization';
+import { LeaseTool } from '../tools/lease';
 
 export interface MCPTool {
   name: string;
@@ -69,15 +69,14 @@ export async function handleMCPRequest(
         })),
       };
 
-    case 'tools/call':
-      {
-        const { name, arguments: args } = params as MCPCallParams;
-        const tool = tools.find((t) => t.name === name);
+    case 'tools/call': {
+      const { name, arguments: args } = params as MCPCallParams;
+      const tool = tools.find((t) => t.name === name);
       if (!tool) {
-          throw new Error(`Tool ${name} not found`);
+        throw new Error(`Tool ${name} not found`);
       }
-        return await tool.execute(args);
-      }
+      return await tool.execute(args);
+    }
 
     default: {
       // Exhaustiveness check

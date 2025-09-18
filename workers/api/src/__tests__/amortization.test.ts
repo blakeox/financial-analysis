@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import api from '../index';
 
 function makeEnv() {
@@ -9,13 +9,13 @@ function makeEnv() {
       get: async () => null,
       put: async () => undefined,
       delete: async () => undefined,
-      list: async () => ({ keys: [], list_complete: true })
+      list: async () => ({ keys: [], list_complete: true }),
     } as unknown as KVNamespace,
     DOCUMENTS: {} as unknown as R2Bucket,
   };
   const ctx: ExecutionContext = {
     waitUntil: () => {},
-    passThroughOnException: () => {}
+    passThroughOnException: () => {},
   } as unknown as ExecutionContext;
   return { env, ctx };
 }
@@ -40,7 +40,13 @@ describe('POST /v1/api/analysis/amortization', () => {
       monthlyPayment: number;
       totalPayments: number;
       totalInterest: number;
-      schedule: Array<{ month: number; payment: number; principal: number; interest: number; balance: number }>;
+      schedule: Array<{
+        month: number;
+        payment: number;
+        principal: number;
+        interest: number;
+        balance: number;
+      }>;
     };
     expect(json).toHaveProperty('monthlyPayment');
     expect(json).toHaveProperty('totalPayments');

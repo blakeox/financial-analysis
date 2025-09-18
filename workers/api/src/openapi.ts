@@ -1,6 +1,10 @@
+import {
+  OpenAPIRegistry,
+  OpenApiGeneratorV3,
+  extendZodWithOpenApi,
+} from '@asteasolutions/zod-to-openapi';
+import { AmortizationInputSchema, FinancialInputSchema } from '@financial-analysis/analysis';
 import { z } from 'zod';
-import { FinancialInputSchema, AmortizationInputSchema } from '@financial-analysis/analysis';
-import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 const registry = new OpenAPIRegistry();
 

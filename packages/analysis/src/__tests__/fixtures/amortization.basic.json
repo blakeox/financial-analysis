@@ -1,0 +1,8 @@
+{
+  "input": { "principal": 10000, "annualRate": 0.06, "termMonths": 24 },
+  "expected": {
+    "monthlyPayment": 443.21,
+    "totalPayments": 10637.04,
+    "totalInterest": 637.04
+  }
+}

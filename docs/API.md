@@ -94,7 +94,12 @@ Examples:
     "method": "tools/call",
     "params": {
       "name": "analyze_lease",
-      "arguments": { "principal": 10000, "annualRate": 0.05, "termMonths": 12, "residualValue": 1000 }
+      "arguments": {
+        "principal": 10000,
+        "annualRate": 0.05,
+        "termMonths": 12,
+        "residualValue": 1000
+      }
     }
   }
   ```
@@ -129,22 +134,22 @@ Request body (application/json):
 Example:
 
 {
-  "principal": 10000,
-  "annualRate": 0.06,
-  "termMonths": 12,
-  "residualValue": 1000
+"principal": 10000,
+"annualRate": 0.06,
+"termMonths": 12,
+"residualValue": 1000
 }
 
 Response 200 (application/json):
 
 {
-  "monthlyPayment": 450.12,
-  "totalPayments": 5401.44,
-  "totalInterest": 401.44,
-  "schedule": [
-    { "month": 1, "payment": 450.12, "principal": 400.00, "interest": 50.12, "balance": 9600.00 },
-    // ... per-month schedule entries
-  ]
+"monthlyPayment": 450.12,
+"totalPayments": 5401.44,
+"totalInterest": 401.44,
+"schedule": [
+{ "month": 1, "payment": 450.12, "principal": 400.00, "interest": 50.12, "balance": 9600.00 },
+// ... per-month schedule entries
+]
 }
 
 Errors:
@@ -177,11 +182,23 @@ Response 200 (application/json):
 ```json
 {
   "monthlyPayment": 1266.71,
-  "totalPayments": 456015.60,
-  "totalInterest": 206015.60,
+  "totalPayments": 456015.6,
+  "totalInterest": 206015.6,
   "schedule": [
-    { "month": 1, "payment": 1266.71, "principal": 329.21, "interest": 937.50, "balance": 249670.79 },
-    { "month": 2, "payment": 1266.71, "principal": 330.44, "interest": 936.27, "balance": 249340.35 },
+    {
+      "month": 1,
+      "payment": 1266.71,
+      "principal": 329.21,
+      "interest": 937.5,
+      "balance": 249670.79
+    },
+    {
+      "month": 2,
+      "payment": 1266.71,
+      "principal": 330.44,
+      "interest": 936.27,
+      "balance": 249340.35
+    }
     // ... per-month schedule entries
   ]
 }
@@ -227,8 +244,8 @@ Content-Type: application/json
   "id": "123",
   "result": {
     "monthlyPayment": 1910.46,
-    "totalPayments": 114627.60,
-    "totalInterest": 14627.60
+    "totalPayments": 114627.6,
+    "totalInterest": 14627.6
   }
 }
 ```
