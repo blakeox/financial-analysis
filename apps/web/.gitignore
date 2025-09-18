@@ -1,0 +1,3 @@
+# Ignore Astro build output and cache
+.astro/
+dist/

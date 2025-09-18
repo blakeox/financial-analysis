@@ -137,6 +137,19 @@ router.get('/health', (_req: Request, env: Env) => {
   });
 });
 
+// Root route -> health (friendly JSON + links)
+router.get('/', (_req: Request, env: Env) => {
+  return new Response(JSON.stringify({
+    status: 'ok',
+    service: 'financial-analysis-api',
+    timestamp: new Date().toISOString(),
+    environment: env.ENVIRONMENT,
+    docs: '/docs',
+    openapi: '/openapi.json',
+    health: '/health'
+  }), { headers: defaultHeaders });
+});
+
 // CORS preflight for API and MCP endpoints
 router.options('/mcp', () => new Response(null, { headers: corsHeaders }));
 router.options('/api/*', () => new Response(null, { headers: corsHeaders }));

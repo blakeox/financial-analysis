@@ -22,9 +22,6 @@ binding = "DOCUMENTS"
 bucket_name = "financial-analysis-documents"
 preview_bucket_name = "financial-analysis-documents"
 
-[build]
-command = "npm run build"
-
 # Development configuration
 [dev]
 port = 8787

@@ -12,5 +12,11 @@ export default defineConfig({
         '@ui': '../../../packages/ui/src',
       },
     },
+    // Prevent watcher from triggering on build output
+    server: {
+      watch: {
+        ignored: ['**/dist/**', '**/.astro/**'],
+      },
+    },
   },
 });

@@ -4,9 +4,11 @@ Thank you for your interest in contributing to the `financial-analysis` project!
 
 ## Development Setup
 
+
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+
+- pnpm 8+ (<https://pnpm.io/installation>)
 - Cloudflare account (for Workers deployment)
 - Git
 
@@ -19,10 +21,10 @@ Thank you for your interest in contributing to the `financial-analysis` project!
    cd financial-analysis
    ```
 
-2. Install dependencies:
+2. Install dependencies (monorepo):
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Set up Cloudflare Workers:
@@ -31,11 +33,67 @@ Thank you for your interest in contributing to the `financial-analysis` project!
    npx wrangler auth login
    ```
 
-4. Start development server:
+4. Start all dev servers (API, web, workers):
 
    ```bash
-   npm run dev
+   pnpm run dev
+   # or for just the API: pnpm run dev:api
+   # or for just the web worker: pnpm run dev:web:worker
+   # or for just the Astro web: cd apps/web && pnpm dev
    ```
+
+### Orchestrated Dev Flow (Port Stability & Single Build)
+
+The root `pnpm run dev` uses `scripts/dev-all.mjs` to:
+
+1. Build the Astro site once (no rebuild loop).
+2. Start the static asset worker (`workers/web`) on port 8788.
+3. Ensure API port 8787 is free (kills any orphan wrangler using lsof on macOS) before starting the API worker.
+4. Launch the API worker (`workers/api`) on 8787.
+5. Provide graceful shutdown (Ctrl+C stops both processes).
+
+If port 8787 is stuck:
+
+- The orchestrator will attempt to terminate the holding PID (SIGINT then SIGKILL fallback) and retry.
+- If you still see bind errors, run: `lsof -n -iTCP:8787 -sTCP:LISTEN -P` manually to investigate.
+
+Rationale:
+
+- Eliminates race conditions from parallel shell backgrounding.
+- Avoids double Astro builds (previous wrangler `[build]` hook removed).
+- Provides deterministic startup order and rapid feedback.
+
+Future Extensions (optional):
+
+- Add a watch mode that triggers `astro build` incrementally or swaps to `astro dev` with an assets proxy.
+- Integrate a smoke health check hitting `/` and `/openapi.json` after startup.
+
+
+#### Monorepo Quality Commands
+
+Run tests, typecheck, and lint across the monorepo:
+
+   ```bash
+   pnpm test         # Run all tests (unit, e2e)
+   pnpm typecheck    # Typecheck all packages
+   pnpm lint         # Lint all packages
+   ```
+
+#### Debugging Tips
+
+If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web/.gitignore` and `astro.config.mjs`).
+
+- Use `pnpm run dev:all` to build the web app and run both workers in parallel.
+- For Playwright e2e tests: `cd apps/web && pnpm test:e2e`
+- For accessibility tests: `cd apps/web && pnpm test:e2e` (see `a11y.spec.ts`)
+- For API tests: `cd workers/api && pnpm test`
+- For analysis engine tests: `cd packages/analysis && pnpm test`
+
+#### Common Tasks
+
+- Build all packages: `pnpm build`
+- Clean all build artifacts: `pnpm clean`
+- Format code: `pnpm format`
 
 ## How to Contribute
 

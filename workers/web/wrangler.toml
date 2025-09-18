@@ -11,8 +11,8 @@ directory = "../../apps/web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 
-[build]
-command = "pnpm --filter @financial-analysis/web build"
+
+# Removed [build] custom command to prevent duplicate astro build runs during dev.
 
 [dev]
 port = 8788
