@@ -1,0 +1,24 @@
+---
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Static Nav Debug</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body class="bg-gray-900 text-white">
+    <nav id="static-test-nav" class="fixed top-0 inset-x-0 z-50 bg-gray-900/90 backdrop-blur border-b border-gray-800">
+      <div class="max-w-6xl mx-auto h-16 px-4 flex items-center gap-6">
+        <a href="/" class="font-semibold">Financial Analysis</a>
+        <a href="/models" class="text-gray-300 hover:text-white">Models</a>
+        <a href="/analysis" class="text-gray-300 hover:text-white">Analysis</a>
+      </div>
+    </nav>
+    <main class="pt-20 max-w-2xl mx-auto p-6 space-y-4">
+      <h1 class="text-2xl font-bold">Static Nav Page</h1>
+      <p>No JavaScript enhancement runs here. If this nav renders consistently while the dynamic one does not, the issue lies in interactive scripts.</p>
+    </main>
+  </body>
+</html>
