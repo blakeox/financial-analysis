@@ -87,6 +87,7 @@ Examples:
 
 - Call tool:
 
+  ```json
   {
     "jsonrpc": "2.0",
     "id": 3,
@@ -96,6 +97,21 @@ Examples:
       "arguments": { "principal": 10000, "annualRate": 0.05, "termMonths": 12, "residualValue": 1000 }
     }
   }
+  ```
+
+- Call amortization tool:
+
+  ```json
+  {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "tools/call",
+    "params": {
+      "name": "analyze_amortization",
+      "arguments": { "principal": 250000, "annualRate": 0.045, "termMonths": 360 }
+    }
+  }
+  ```
 
 ## Analysis Endpoints
 
@@ -130,6 +146,46 @@ Response 200 (application/json):
     // ... per-month schedule entries
   ]
 }
+
+Errors:
+
+- 400 — Invalid request body (returns issues array)
+- 415 — Unsupported Media Type (Content-Type must be application/json)
+
+### POST /v1/api/analysis/amortization
+
+Analyze an amortization schedule and return payment breakdown and summary metrics.
+
+Request body (application/json):
+
+- principal: number (positive) — Principal amount
+- annualRate: number (0-1) — Annual interest rate as a decimal
+- termMonths: integer (positive) — Amortization term in months
+
+Example:
+
+```json
+{
+  "principal": 250000,
+  "annualRate": 0.045,
+  "termMonths": 360
+}
+```
+
+Response 200 (application/json):
+
+```json
+{
+  "monthlyPayment": 1266.71,
+  "totalPayments": 456015.60,
+  "totalInterest": 206015.60,
+  "schedule": [
+    { "month": 1, "payment": 1266.71, "principal": 329.21, "interest": 937.50, "balance": 249670.79 },
+    { "month": 2, "payment": 1266.71, "principal": 330.44, "interest": 936.27, "balance": 249340.35 },
+    // ... per-month schedule entries
+  ]
+}
+```
 
 Errors:
 
@@ -268,7 +324,8 @@ The API includes MCP server functionality for seamless integration with AI model
 
 ### Available MCP Tools
 
-- Lease analysis tools
+- **analyze_lease** - Lease analysis calculations
+- **analyze_amortization** - Amortization schedule calculations
 - Financial calculation tools
 - Document processing tools
 

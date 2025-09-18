@@ -1,4 +1,6 @@
 export { LeaseAnalyzer } from './engines/lease';
+export { AmortizationAnalyzer } from './engines/amortization';
+export { AmortizationInputSchema } from './engines/amortization';
 import { z } from 'zod';
 export const FinancialInputSchema = z.object({
     principal: z.number().positive(),

@@ -1,4 +1,5 @@
 import { LeaseTool } from '../tools/lease';
+import { AmortizationTool } from '../tools/amortization';
 
 export interface MCPTool {
   name: string;
@@ -18,7 +19,12 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: LeaseTool.inputSchema,
       execute: (input) => LeaseTool.execute(input),
     },
-    // Add more tools here as they are implemented
+    {
+      name: AmortizationTool.toolName,
+      description: AmortizationTool.description,
+      inputSchema: AmortizationTool.inputSchema,
+      execute: (input) => AmortizationTool.execute(input),
+    },
   ];
 }
 

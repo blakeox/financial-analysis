@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FinancialInputSchema } from '@financial-analysis/analysis';
+import { FinancialInputSchema, AmortizationInputSchema } from '@financial-analysis/analysis';
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 const registry = new OpenAPIRegistry();
@@ -35,6 +35,16 @@ const LeaseAnalysisResultSchema = z.object({
 });
 
 registry.register('LeaseAnalysisResult', LeaseAnalysisResultSchema);
+
+// Amortization analysis response schema (same shape as lease schedule)
+const AmortizationScheduleItem = LeaseScheduleItem;
+const AmortizationAnalysisResultSchema = z.object({
+  monthlyPayment: z.number(),
+  totalPayments: z.number(),
+  totalInterest: z.number(),
+  schedule: z.array(AmortizationScheduleItem),
+});
+registry.register('AmortizationAnalysisResult', AmortizationAnalysisResultSchema);
 
 // Paths
 registry.registerPath({
@@ -97,6 +107,37 @@ registry.registerPath({
       content: {
         'application/json': {
           schema: LeaseAnalysisResultSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request body',
+    },
+    415: {
+      description: 'Unsupported Media Type',
+    },
+  },
+});
+
+// Amortization analysis endpoint
+registry.registerPath({
+  method: 'post',
+  path: '/v1/api/analysis/amortization',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: AmortizationInputSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Amortization analysis result',
+      content: {
+        'application/json': {
+          schema: AmortizationAnalysisResultSchema,
         },
       },
     },

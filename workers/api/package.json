@@ -8,6 +8,7 @@
     "dev:remote": "wrangler dev",
     "deploy": "wrangler deploy",
     "build": "wrangler deploy --dry-run",
+    "pretest": "pnpm -w --filter @financial-analysis/analysis build",
   "test": "vitest run",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",

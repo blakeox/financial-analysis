@@ -1,7 +1,7 @@
 import { Router } from 'itty-router';
 import { z } from 'zod';
 import { handleMCPRequest } from '@financial-analysis/tools';
-import { FinancialInputSchema, LeaseAnalyzer } from '@financial-analysis/analysis';
+import { FinancialInputSchema, LeaseAnalyzer, AmortizationAnalyzer, AmortizationInputSchema } from '@financial-analysis/analysis';
 import { getOpenApiDocument } from './openapi';
 
 interface Env {
@@ -231,6 +231,44 @@ router.post('/v1/api/analysis/lease', withErrorHandler(async (request: Request, 
   }
 
   const result = LeaseAnalyzer.analyze(parseResult.data);
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: defaultHeaders,
+  });
+}));
+
+// Amortization analysis endpoint
+router.post('/v1/api/analysis/amortization', withErrorHandler(async (request: Request, _env: Env) => {
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Content-Type must be application/json',
+        code: 'INVALID_CONTENT_TYPE'
+      }
+    }), { status: 415, headers: defaultHeaders });
+  }
+
+  const body = await request.json().catch(() => undefined);
+
+  const parseResult = AmortizationInputSchema.safeParse(body);
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+      path: i.path.join('.'),
+      message: i.message,
+      code: i.code,
+    }));
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Invalid request body',
+        code: 'BAD_REQUEST',
+        issues,
+      }
+    }), { status: 400, headers: defaultHeaders });
+  }
+
+  const result = AmortizationAnalyzer.analyze(parseResult.data);
 
   return new Response(JSON.stringify(result), {
     status: 200,
