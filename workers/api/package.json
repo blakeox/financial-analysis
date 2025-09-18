@@ -4,7 +4,7 @@
   "description": "Cloudflare Workers API with MCP server for financial analysis",
   "main": "src/index.ts",
   "scripts": {
-  "dev": "wrangler dev --port 8787 --local",
+    "dev": "wrangler dev --port 8787 --local",
     "dev:remote": "wrangler dev",
     "deploy": "wrangler deploy",
     "deploy:dry-run": "wrangler deploy --dry-run",

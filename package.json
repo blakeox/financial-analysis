@@ -10,7 +10,7 @@
     "dev:web:build": "cd apps/web && pnpm build",
     "dev:web:worker": "cd workers/web && pnpm dev",
     "dev:workers": "(cd workers/api && pnpm dev) & (cd workers/web && pnpm dev) && wait",
-  "dev:all": "node scripts/dev-all.mjs",
+    "dev:all": "node scripts/dev-all.mjs",
     "test": "pnpm --recursive run test",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",

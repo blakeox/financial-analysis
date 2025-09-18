@@ -9,11 +9,10 @@
  * 4. Graceful shutdown on SIGINT/SIGTERM
  * 5. Optional debounce for rapid file change restarts (wrangler sometimes double-triggers)
  */
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import net from 'node:net';
-import { execSync } from 'node:child_process';
-import { setTimeout as delay } from 'node:timers/promises';
 import process from 'node:process';
+import { setTimeout as delay } from 'node:timers/promises';
 
 // Root directory of repository (executed from root via package script)
 const root = process.cwd();
@@ -22,7 +21,7 @@ function run(cmd, args, opts = {}) {
   const child = spawn(cmd, args, {
     stdio: 'inherit',
     cwd: opts.cwd || root,
-    env: { ...process.env, FORCE_COLOR: '1' }
+    env: { ...process.env, FORCE_COLOR: '1' },
   });
   child.on('exit', (code, signal) => {
     if (code != null && code !== 0) {
@@ -34,13 +33,15 @@ function run(cmd, args, opts = {}) {
   return child;
 }
 
-let webProc; let apiProc; let shuttingDown = false;
+let webProc;
+let apiProc;
+let shuttingDown = false;
 
 async function main() {
   console.log('\n[dev-all] Building Astro web app once...');
   const build = run('pnpm', ['--filter', '@financial-analysis/web', 'build']);
   await new Promise((res, rej) => {
-    build.on('exit', code => code === 0 ? res() : rej(new Error('Astro build failed')));
+    build.on('exit', (code) => (code === 0 ? res() : rej(new Error('Astro build failed'))));
   });
   console.log('[dev-all] Astro build complete. Starting web worker...');
   webProc = run('pnpm', ['--filter', '@financial-analysis/web-worker', 'dev']);
@@ -54,9 +55,18 @@ async function main() {
   // Handle restarts if needed in future (placeholder hook)
 }
 
-
 function startApi(port) {
-  const args = ['--filter', '@financial-analysis/api', 'exec', '--', 'wrangler', 'dev', '--port', String(port), '--local'];
+  const args = [
+    '--filter',
+    '@financial-analysis/api',
+    'exec',
+    '--',
+    'wrangler',
+    'dev',
+    '--port',
+    String(port),
+    '--local',
+  ];
   const child = spawn('pnpm', args, { stdio: 'inherit', cwd: root, env: process.env });
   child.on('exit', (code) => {
     if (!shuttingDown && code !== 0) {
@@ -69,11 +79,17 @@ function startApi(port) {
 async function ensurePortFree(port) {
   const isFree = await isPortFree(port);
   if (isFree) return;
-  console.log(`[dev-all] Port ${port} appears in use; attempting to identify and terminate process (macOS).`);
+  console.log(
+    `[dev-all] Port ${port} appears in use; attempting to identify and terminate process (macOS).`
+  );
   try {
-    const output = execSync(`lsof -n -iTCP:${port} -sTCP:LISTEN -P | tail -n +2 || true`, { encoding: 'utf8' });
+    const output = execSync(`lsof -n -iTCP:${port} -sTCP:LISTEN -P | tail -n +2 || true`, {
+      encoding: 'utf8',
+    });
     if (!output.trim()) {
-      console.log('[dev-all] No listener found despite bind error (might be TIME_WAIT). Waiting briefly...');
+      console.log(
+        '[dev-all] No listener found despite bind error (might be TIME_WAIT). Waiting briefly...'
+      );
       await delay(1200);
       return;
     }
@@ -101,8 +117,9 @@ async function ensurePortFree(port) {
 }
 
 function isPortFree(port) {
-  return new Promise(resolve => {
-    const tester = net.createServer()
+  return new Promise((resolve) => {
+    const tester = net
+      .createServer()
       .once('error', () => resolve(false))
       .once('listening', () => tester.close(() => resolve(true)))
       .listen(port, '127.0.0.1');
@@ -110,7 +127,8 @@ function isPortFree(port) {
 }
 
 async function shutdown() {
-  if (shuttingDown) return; shuttingDown = true;
+  if (shuttingDown) return;
+  shuttingDown = true;
   console.log('\n[dev-all] Shutting down...');
   for (const proc of [apiProc, webProc]) {
     if (proc && !proc.killed) proc.kill('SIGINT');
@@ -123,7 +141,7 @@ async function shutdown() {
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
-main().catch(err => {
+main().catch((err) => {
   console.error('[dev-all] Failed to start:', err);
   shutdown();
 });

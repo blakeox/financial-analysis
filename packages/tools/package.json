@@ -22,7 +22,7 @@
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "prettier": "^3.0.0",
-  "vitest": "3.2.4",
-  "esbuild": "0.25.10"
+    "vitest": "3.2.4",
+    "esbuild": "0.25.10"
   }
 }

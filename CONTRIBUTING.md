@@ -4,7 +4,6 @@ Thank you for your interest in contributing to the `financial-analysis` project!
 
 ## Development Setup
 
-
 ### Prerequisites
 
 - Node.js 18+
@@ -68,16 +67,15 @@ Future Extensions (optional):
 - Add a watch mode that triggers `astro build` incrementally or swaps to `astro dev` with an assets proxy.
 - Integrate a smoke health check hitting `/` and `/openapi.json` after startup.
 
-
 #### Monorepo Quality Commands
 
 Run tests, typecheck, and lint across the monorepo:
 
-   ```bash
-   pnpm test         # Run all tests (unit, e2e)
-   pnpm typecheck    # Typecheck all packages
-   pnpm lint         # Lint all packages
-   ```
+```bash
+pnpm test         # Run all tests (unit, e2e)
+pnpm typecheck    # Typecheck all packages
+pnpm lint         # Lint all packages
+```
 
 #### Debugging Tips
 
