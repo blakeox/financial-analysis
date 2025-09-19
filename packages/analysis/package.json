@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "decimal.js": "^10.4.0",
-    "zod": "^3.22.0"
+    "zod": "^4.1.9"
   },
   "devDependencies": {
     "@financial-analysis/config": "workspace:*",
