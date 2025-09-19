@@ -93,8 +93,8 @@ importers:
         specifier: ^4.1.13
         version: 4.1.13
       zod:
-        specifier: ^3.22.0
-        version: 3.22.3
+        specifier: ^4.1.9
+        version: 4.1.9
     devDependencies:
       '@astrojs/check':
         specifier: ^0.5.0
@@ -145,8 +145,8 @@ importers:
         specifier: ^10.4.0
         version: 10.6.0
       zod:
-        specifier: ^3.22.0
-        version: 3.22.3
+        specifier: ^4.1.9
+        version: 4.1.9
     devDependencies:
       '@financial-analysis/config':
         specifier: workspace:*
@@ -209,8 +209,8 @@ importers:
         specifier: workspace:*
         version: link:../analysis
       zod:
-        specifier: ^3.22.0
-        version: 3.22.3
+        specifier: ^4.1.9
+        version: 4.1.9
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.12.2
@@ -305,7 +305,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^7.1.1
-        version: 7.3.4(zod@3.22.3)
+        version: 7.3.4(zod@4.1.9)
       '@cloudflare/workers-types':
         specifier: ^4.20250913.0
         version: 4.20250913.0
@@ -319,8 +319,8 @@ importers:
         specifier: ^4.0.0
         version: 4.2.2
       zod:
-        specifier: ^3.22.0
-        version: 3.22.3
+        specifier: ^4.1.9
+        version: 4.1.9
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -4607,6 +4607,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.1.9:
+    resolution: {integrity: sha512-HI32jTq0AUAC125z30E8bQNz0RQ+9Uc+4J7V97gLYjZVKRjeydPgGt6dvQzFrav7MYOUGFqqOGiHpA/fdbd0cQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -4629,10 +4632,10 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@asteasolutions/zod-to-openapi@7.3.4(zod@3.22.3)':
+  '@asteasolutions/zod-to-openapi@7.3.4(zod@4.1.9)':
     dependencies:
       openapi3-ts: 4.5.0
-      zod: 3.22.3
+      zod: 4.1.9
 
   '@astrojs/check@0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.6.2)(typescript@5.9.2)':
     dependencies:
@@ -9284,5 +9287,7 @@ snapshots:
   zod@3.22.3: {}
 
   zod@3.25.76: {}
+
+  zod@4.1.9: {}
 
   zwitch@2.0.4: {}

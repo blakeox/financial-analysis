@@ -20,7 +20,7 @@
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/analysis": "workspace:*",
     "@asteasolutions/zod-to-openapi": "^7.1.1",
-    "zod": "^3.22.0",
+    "zod": "^4.1.9",
     "itty-router": "^4.0.0"
   },
   "devDependencies": {
