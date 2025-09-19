@@ -214,10 +214,12 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
               let rules; try { rules = ss.cssRules; } catch { continue; }
               if(!rules) continue;
               for(const r of rules){
-                if(r.type === CSSRule.STYLE_RULE && r.selectorText && r.selectorText.includes('.desktop-nav')){
-                  const d = r.style && r.style.display;
-                  offenders.push({selector: r.selectorText, display: d||'', snippet: (r.cssText||'').slice(0,160)});
-                }
+                try {
+                  if(r instanceof CSSStyleRule && r.selectorText && r.selectorText.includes('.desktop-nav')){
+                    const d = r.style && r.style.display;
+                    offenders.push({selector: r.selectorText, display: d||'', snippet: (r.cssText||'').slice(0,160)});
+                  }
+                } catch {}
               }
             }
             // Force visibility (inline style has high precedence over normal utility ordering)
@@ -276,7 +278,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         }, 250);
       } catch{}
       // --- End Snapshot Instrumentation ---
-    const bars = toggle ? toggle.querySelectorAll('[data-bar]') : [];
+  const bars = toggle ? toggle.querySelectorAll('[data-bar]') : [];
   let lastFocus = null; // (focus element reference)
       const announce = (msg) => { if(live){ live.textContent = msg; setTimeout(()=>{ if(live?.textContent===msg) live.textContent=''; }, 1000);} };
 
@@ -287,7 +289,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         // Ensure starting offset is reapplied so next open animates from above
         panel.classList.add('-translate-y-2');
         document.body.style.overflow = '';
-        bars.forEach((b,i)=>{ b.classList.remove('translate-y-1','-translate-y-1','rotate-45','-rotate-45','opacity-0'); });
+  bars.forEach((b)=>{ b.classList.remove('translate-y-1','-translate-y-1','rotate-45','-rotate-45','opacity-0'); });
         // Temporary inline clamp to avoid flash-revert during CSS injection or race
         try { panel.style.transform = 'translateY(-0.5rem)'; panel.style.opacity = '0'; setTimeout(()=>{ panel.style.transform=''; panel.style.opacity=''; }, 240); } catch {}
         try { panel.removeAttribute('data-open'); } catch {}

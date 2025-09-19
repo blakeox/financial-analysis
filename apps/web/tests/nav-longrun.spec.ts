@@ -19,7 +19,15 @@ test.describe('Navbar long-run stability', () => {
     let prevHeight:number|undefined;
     let prevWidth:number|undefined;
 
+    const startUrl = page.url();
+
     for (let i=0;i<20;i++) { // 20 * 500ms = 10s
+      // Guard against dev-server navigations or context reloads
+      const currentUrl = page.url();
+      expect(currentUrl).toBe(startUrl);
+      if (await page.isClosed()) {
+        throw new Error(`Page closed unexpectedly at iteration ${i}`);
+      }
       const snapshot = await page.evaluate(() => {
         const navEl = document.getElementById('site-nav');
         if (!navEl) {
@@ -67,7 +75,11 @@ test.describe('Navbar long-run stability', () => {
       });
       expect(hitOk, `Iteration ${i}: hit test failed`).toBeTruthy();
 
-      await sleep(500);
+      try {
+        await sleep(500);
+      } catch {
+        // ignore sleep interruption
+      }
     }
   });
 });

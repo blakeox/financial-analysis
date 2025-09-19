@@ -14,7 +14,11 @@ async function sample<T>(fn: () => Promise<T> | T, ms: number, duration: number)
   return samples;
 }
 
+// This test requires the dev server with HMR. Skip in preview/CI runs.
+const DEV = process.env.PLAYWRIGHT_DEV === '1' || process.env.HMR === '1';
+
 test.describe('Navbar dev HMR stability', () => {
+  test.skip(!DEV, 'HMR test requires dev server. Run: PLAYWRIGHT_DEV=1 pnpm --filter @financial-analysis/web test:e2e:dev');
   test('no flicker during HMR CSS change', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#site-nav')).toBeVisible();
