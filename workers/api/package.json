@@ -24,7 +24,7 @@
     "itty-router": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^24.5.2",
     "typescript": "^5.0.0",
     "wrangler": "^4.0.0",
     "vitest": "3.2.4",
