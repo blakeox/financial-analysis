@@ -1,17 +1,18 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { gotoPath, setViewportDesktop, waitForNavReady } from './utils/nav';
 
 const NAV_ROOT = '#site-nav';
 
-async function sampleNavComputed(page: Parameters<typeof test>[0]['page']) {
-  return page.evaluate((selector) => {
+async function sampleNavComputed(page: Page) {
+  return page.evaluate((selector: string) => {
     const nav = document.querySelector(selector) as HTMLElement | null;
     if (!nav) return null;
     const style = getComputedStyle(nav);
     return {
       backgroundImage: style.backgroundImage,
       backdropFilter: style.backdropFilter,
-      webkitBackdropFilter: (style as any).webkitBackdropFilter,
+      webkitBackdropFilter: (style as unknown as Record<string, string>)['webkitBackdropFilter'],
       borderBottomColor: style.borderBottomColor,
       boxShadow: style.boxShadow,
     };

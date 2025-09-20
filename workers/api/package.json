@@ -7,7 +7,11 @@
     "dev": "wrangler dev --port 8787 --local",
     "dev:remote": "wrangler dev",
     "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env=preview",
+    "deploy:production": "wrangler deploy --env=production",
     "deploy:dry-run": "wrangler deploy --dry-run",
+    "deploy:dry-run:preview": "wrangler deploy --dry-run --env=preview",
+    "deploy:dry-run:production": "wrangler deploy --dry-run --env=production",
     "build": "tsc --noEmit",
     "pretest": "pnpm -w --filter @financial-analysis/analysis build",
     "test": "vitest run --config ./vitest.config.mjs",
@@ -16,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20250913.0",
+    "@cloudflare/workers-types": "^4.20250917.0",
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/analysis": "workspace:*",
     "@asteasolutions/zod-to-openapi": "^7.1.1",
@@ -26,7 +30,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0",
-    "wrangler": "^4.0.0",
+    "wrangler": "^4.38.0",
     "vitest": "3.2.4",
     "esbuild": "0.25.10",
     "eslint": "^9.13.0",

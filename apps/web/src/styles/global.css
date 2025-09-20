@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Configure Tailwind v4 dark mode */
+@variant dark (&.dark);
+
 /* Tell Tailwind where to scan for class usage (v4) */
 @source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
 /* From apps/web/src/styles -> to repo root packages/ui/src: ../../../../packages/ui/src */
@@ -94,6 +97,16 @@
   .card {
     @apply rounded-lg border bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm;
   }
+}
+
+/* Custom utility styles */
+@layer utilities {
+  .z-60 { z-index: 60; }
+  .z-70 { z-index: 70; }
+  .z-80 { z-index: 80; }
+  .will-change-transform { will-change: transform; }
+  .will-change-transform-opacity { will-change: transform, opacity; }
+  .gpu { transform: translateZ(0); backface-visibility: hidden; }
 }
 
 /* hmr-ping-1758302193953 */

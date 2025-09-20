@@ -14,7 +14,10 @@ describe('OpenAPI document', () => {
     // sanity check for registered paths
     expect(doc.paths).toBeDefined();
     expect(Object.keys(doc.paths ?? {})).toContain('/health');
-    expect(Object.keys(doc.paths ?? {})).toContain('/v1/api/analysis/lease');
+    const paths = Object.keys(doc.paths ?? {});
+    expect(paths).toContain('/v1/api/analysis/lease');
+    expect(paths).toContain('/ping');
+    expect(paths).toContain('/version');
   });
 
   it('includes amortization analysis path', () => {
