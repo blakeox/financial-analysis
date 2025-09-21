@@ -19,3 +19,13 @@ port = 8788
 local_protocol = "http"
 upstream_protocol = "https"
 host = "localhost"
+
+# Preview environment
+[env.preview]
+[env.preview.vars]
+ENVIRONMENT = "preview"
+
+# Production environment
+[env.production]
+[env.production.vars]
+ENVIRONMENT = "production"

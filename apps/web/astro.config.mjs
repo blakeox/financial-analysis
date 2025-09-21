@@ -3,13 +3,12 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   integrations: [react()],
-  output: 'static', // Changed from 'server' for development
-  // adapter: undefined, // Will be configured for Cloudflare Pages later
+  output: 'static', // Static site for Cloudflare Pages
+  // No adapter needed for static output
   vite: {
     resolve: {
       alias: {
         '@': '/src',
-        '@ui': '../../../packages/ui/src',
       },
     },
     // Prevent watcher from triggering on build output

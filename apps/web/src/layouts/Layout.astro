@@ -1,5 +1,5 @@
 ---
-import { Footer } from '@financial-analysis/ui';
+import { Footer, ChatPanel } from '@financial-analysis/ui';
 import SEO from '../components/SEO.astro';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
@@ -84,5 +84,8 @@ const navLinks = [
 
     <!-- Footer -->
     <Footer client:load />
+
+    <!-- Floating Chat Assistant (right-side drawer) -->
+    <ChatPanel client:load title="Financial Analysis" />
   </body>
 </html>

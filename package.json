@@ -20,11 +20,16 @@
     "changeset": "changeset",
     "clean": "pnpm --recursive run clean",
     "smoke": "node scripts/smoke.mjs",
-    "deploy:api": "cd workers/api && pnpm run deploy",
-    "deploy:web": "cd workers/web && pnpm run deploy",
+  "deploy:api": "cd workers/api && pnpm run deploy",
+  "deploy:web": "cd workers/web && pnpm run deploy",
+  "deploy:api:preview": "cd workers/api && pnpm run deploy:preview",
+  "deploy:api:production": "cd workers/api && pnpm run deploy:production",
+  "deploy:web:preview": "cd workers/web && pnpm run deploy:preview",
+  "deploy:web:production": "cd workers/web && pnpm run deploy:production",
     "deploy:all": "pnpm run deploy:api && pnpm run deploy:web",
     "install:all": "pnpm install",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:e2e:hmr:web": "pnpm --filter @financial-analysis/web run test:e2e:hmr"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
@@ -45,7 +50,7 @@
     "undici": "^7.16.0",
     "vite": "7.1.5",
     "vitest": "3.2.4",
-    "wrangler": "^4.37.1"
+    "wrangler": "^4.38.0"
   },
   "engines": {
     "node": ">=18.0.0"

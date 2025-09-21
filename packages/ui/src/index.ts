@@ -11,6 +11,8 @@ export {
 export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
+export { ChatPanel } from './components/ChatPanel';
+export { StorageUsageCard } from './components/StorageUsageCard';
 
 // Utilities
 export { cn } from './lib/utils';

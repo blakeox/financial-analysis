@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import {
   gotoPath,
   setViewportDesktop,
@@ -10,9 +11,8 @@ const OVERLAY = '[data-testid="nav-search-overlay"]';
 const SEARCH_TOGGLE = '[data-testid="nav-search-toggle"]';
 const MOBILE_TOGGLE = '[data-testid="nav-mobile-toggle"]';
 const MOBILE_PANEL = '[data-testid="nav-mobile-panel"]';
-const THEME_TOGGLE = '[data-testid="nav-theme-toggle"]';
 
-async function pollBodyOverflow(page: Parameters<typeof test>[0]['page']) {
+async function pollBodyOverflow(page: Page) {
   return page.evaluate(() => document.body.style.overflow || '');
 }
 
