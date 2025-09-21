@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { StorageUsageCard } from '@financial-analysis/ui';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:8787';
+---
+
+<Layout title="System Status">
+  <div class="min-h-screen bg-gray-50 p-6">
+    <h1 class="text-3xl font-bold mb-6">System Status</h1>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div>
+        <h2 class="text-lg font-semibold mb-3">R2 Storage</h2>
+        <StorageUsageCard client:idle apiBase={apiBase} />
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold mb-3">Notes</h2>
+        <ul class="list-disc list-inside text-sm text-gray-700">
+          <li>Usage refreshes automatically every 30 seconds.</li>
+          <li>Locked state indicates uploads are temporarily disabled.</li>
+          <li>Admins can reconcile usage via /v1/storage/reconcile.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</Layout>
