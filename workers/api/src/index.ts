@@ -17,6 +17,8 @@ interface Env {
   ENVIRONMENT: string; // 'development' | 'preview' | 'production'
   ALLOWED_ORIGIN?: string; // optional CORS allowlist origin
   COMMIT_SHA?: string; // optional commit SHA for /version
+  // Optional admin token for privileged operations (e.g., manual reconcile)
+  ADMIN_API_TOKEN?: string;
   // Optional Workers AI binding and model configuration
   AI?: Ai; // Cloudflare Workers AI binding (optional)
   WORKERS_AI_MODEL?: string; // e.g. "@cf/meta/llama-3.1-8b-instruct"
@@ -182,6 +184,39 @@ async function adjustApproxBytes(env: Env, delta: number): Promise<number> {
   const next = Math.max(0, curr + Math.floor(delta));
   await kvPutNumber(env, QUOTA_KEY, next);
   return next;
+}
+
+// Reconcile helper shared by scheduled and admin endpoint
+async function reconcileBucketUsage(env: Env): Promise<{ bytes: number; locked: boolean; scanned: number }> {
+  if (!env.DOCUMENTS || !env.SESSIONS) return { bytes: await getApproxBytes(env), locked: await isQuotaLocked(env), scanned: 0 };
+  const bucket: R2Bucket = env.DOCUMENTS;
+  const { softLimit } = getThresholds(env);
+  let cursor: string | undefined = undefined;
+  let total = 0;
+  let scanned = 0;
+  const MAX_KEYS = 10000; // safety bound to limit Class A operations
+  do {
+    const opts = cursor ? { cursor, limit: 1000 } : { limit: 1000 };
+    const list = await bucket.list(opts as R2ListOptions);
+    for (const obj of list.objects) {
+      total += obj.size;
+      scanned++;
+      if (scanned >= MAX_KEYS) break;
+    }
+    cursor = list.truncated && scanned < MAX_KEYS ? list.cursor : undefined;
+  } while (cursor && scanned < MAX_KEYS);
+  await kvPutNumber(env, QUOTA_KEY, total);
+  // Decide lock state deterministically
+  let nextLock: boolean;
+  if (total > softLimit) {
+    nextLock = true;
+  } else if (total < softLimit * 0.8) {
+    nextLock = false;
+  } else {
+    nextLock = await isQuotaLocked(env);
+  }
+  await setQuotaLocked(env, nextLock);
+  return { bytes: total, locked: nextLock, scanned };
 }
 
 // ---- Error handling wrapper ----
@@ -442,6 +477,26 @@ router.get(
         timestamp: new Date().toISOString(),
       }),
       { headers: buildDefaultHeaders(env) }
+    );
+  })
+);
+
+// Admin-only reconcile endpoint (requires Authorization: Bearer <ADMIN_API_TOKEN>)
+router.post(
+  '/v1/storage/reconcile',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const auth = request.headers.get('authorization') || '';
+    const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
+    if (!env.ADMIN_API_TOKEN || token !== env.ADMIN_API_TOKEN) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
+        { status: 401, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const result = await reconcileBucketUsage(env);
+    return new Response(
+      JSON.stringify({ usedBytes: result.bytes, locked: result.locked, scanned: result.scanned, timestamp: new Date().toISOString() }),
+      { status: 200, headers: buildDefaultHeaders(env) }
     );
   })
 );
@@ -852,40 +907,8 @@ export default {
   // Scheduled reconciliation of approximate bucket usage to keep KV counters honest.
   // Runs based on wrangler.toml [triggers.crons] schedule.
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-  if (!env.DOCUMENTS || !env.SESSIONS) return; // nothing to do without bucket+KV
-  const bucket: R2Bucket = env.DOCUMENTS;
-    const { softLimit } = getThresholds(env);
-    async function reconcile() {
-      let cursor: string | undefined = undefined;
-      let total = 0;
-      let scanned = 0;
-      const MAX_KEYS = 10000; // safety bound to limit Class A operations
-      do {
-        const opts = cursor ? { cursor, limit: 1000 } : { limit: 1000 };
-  const list = await bucket.list(opts as R2ListOptions);
-        for (const obj of list.objects) {
-          total += obj.size;
-          scanned++;
-          if (scanned >= MAX_KEYS) break;
-        }
-        cursor = list.truncated && scanned < MAX_KEYS ? list.cursor : undefined;
-      } while (cursor && scanned < MAX_KEYS);
-      await kvPutNumber(env, QUOTA_KEY, total);
-      // Decide lock state deterministically to ensure the KV key is always set
-      let nextLock: boolean;
-      if (total > softLimit) {
-        nextLock = true;
-      } else if (total < softLimit * 0.8) {
-        // unlock if we are safely back under 80% of soft limit
-        nextLock = false;
-      } else {
-        // between 80% and 100% of soft limit: preserve current state (defaults to unlocked if missing)
-        nextLock = await isQuotaLocked(env);
-      }
-      await setQuotaLocked(env, nextLock);
-    }
     // In production, run reconciliation asynchronously; in tests, await so assertions see updates.
-    const promise = reconcile();
+    const promise = reconcileBucketUsage(env);
     ctx.waitUntil(promise);
     if (env.ENVIRONMENT === 'test') {
       await promise;

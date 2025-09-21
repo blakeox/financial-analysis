@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { StorageUsageCard } from '@financial-analysis/ui';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:8787';
 ---
 
 <Layout title="Debug Navbar" showNav={false}>
@@ -65,6 +67,12 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
       </nav>
+    </div>
+
+    <!-- Storage usage (R2) -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Storage Usage</h2>
+      <StorageUsageCard client:idle apiBase={apiBase} />
     </div>
 
     <!-- Current screen size indicator -->

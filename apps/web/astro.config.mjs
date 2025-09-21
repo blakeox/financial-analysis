@@ -9,7 +9,6 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': '/src',
-        '@ui': '../../../packages/ui/src',
       },
     },
     // Prevent watcher from triggering on build output

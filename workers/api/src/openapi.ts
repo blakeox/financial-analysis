@@ -311,6 +311,28 @@ registry.registerPath({
   },
 });
 
+// Admin-triggered reconcile (requires Authorization: Bearer <ADMIN_API_TOKEN>)
+registry.registerPath({
+  method: 'post',
+  path: '/v1/storage/reconcile',
+  responses: {
+    200: {
+      description: 'Reconciled usage and lock state',
+      content: {
+        'application/json': {
+          schema: z.object({
+            usedBytes: z.number(),
+            locked: z.boolean(),
+            scanned: z.number(),
+            timestamp: z.string(),
+          }),
+        },
+      },
+    },
+    401: { description: 'Unauthorized' },
+  },
+});
+
 // Upload object: body is binary; requires Content-Length or X-Content-Length header (documented)
 registry.registerPath({
   method: 'put',

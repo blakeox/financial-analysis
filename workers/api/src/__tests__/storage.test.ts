@@ -226,3 +226,55 @@ describe('Scheduled reconciliation', () => {
     expect(locked).toBe('1');
   });
 });
+
+describe('Admin reconcile endpoint', () => {
+  it('returns 401 without valid bearer token', async () => {
+    const kv = makeKV();
+    const r2 = makeR2();
+    const env = {
+      ENVIRONMENT: 'test',
+      SESSIONS: kv,
+      DOCUMENTS: r2.bucket,
+      ADMIN_API_TOKEN: 'secret',
+    } as unknown as Record<string, unknown>;
+    const ctx = makeCtx();
+    const req = new Request('https://example.com/v1/storage/reconcile', { method: 'POST' });
+    const res = await (api as unknown as { fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response> }).fetch(
+      req,
+      env,
+      ctx
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('returns reconciled usage when authorized', async () => {
+    const kv = makeKV();
+    const r2 = makeR2();
+    r2.objects.set('x', { size: 123 });
+    r2.objects.set('y', { size: 456 });
+    const env = {
+      ENVIRONMENT: 'test',
+      SESSIONS: kv,
+      DOCUMENTS: r2.bucket,
+      ADMIN_API_TOKEN: 'secret',
+      R2_SOFT_LIMIT_BYTES: String(1000),
+      R2_HARD_LIMIT_BYTES: String(2000),
+    } as unknown as Record<string, unknown>;
+    const ctx = makeCtx();
+    const req = new Request('https://example.com/v1/storage/reconcile', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' },
+    });
+    const res = await (api as unknown as { fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response> }).fetch(
+      req,
+      env,
+      ctx
+    );
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { usedBytes: number; locked: boolean; scanned: number; timestamp: string };
+    expect(data.usedBytes).toBe(579);
+    expect(typeof data.locked).toBe('boolean');
+    expect(data.scanned).toBeGreaterThan(0);
+    expect(new Date(data.timestamp).toString()).not.toBe('Invalid Date');
+  });
+});
