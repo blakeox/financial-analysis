@@ -58,6 +58,16 @@ const StorageStatusSchema = z.object({
 });
 registry.register('StorageStatus', StorageStatusSchema);
 
+const StorageUsageSchema = z.object({
+  usedBytes: z.number(),
+  softLimit: z.number(),
+  hardLimit: z.number(),
+  maxObjectSize: z.number(),
+  locked: z.boolean(),
+  timestamp: z.string(),
+});
+registry.register('StorageUsage', StorageUsageSchema);
+
 const StorageUploadResponseSchema = z.object({
   key: z.string(),
   etag: z.string().nullable(),
@@ -279,6 +289,22 @@ registry.registerPath({
       content: {
         'application/json': {
           schema: StorageStatusSchema,
+        },
+      },
+    },
+  },
+});
+
+// Usage: normalized usage response with thresholds and lock
+registry.registerPath({
+  method: 'get',
+  path: '/v1/storage/usage',
+  responses: {
+    200: {
+      description: 'Current approximate usage and thresholds',
+      content: {
+        'application/json': {
+          schema: StorageUsageSchema,
         },
       },
     },

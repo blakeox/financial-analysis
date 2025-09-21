@@ -426,6 +426,26 @@ router.get(
   })
 );
 
+router.get(
+  '/v1/storage/usage',
+  withErrorHandler(async (_request: Request, env: Env) => {
+    const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
+    const usedBytes = await getApproxBytes(env);
+    const locked = await isQuotaLocked(env);
+    return new Response(
+      JSON.stringify({
+        usedBytes,
+        softLimit,
+        hardLimit,
+        maxObjectSize,
+        locked,
+        timestamp: new Date().toISOString(),
+      }),
+      { headers: buildDefaultHeaders(env) }
+    );
+  })
+);
+
 router.put(
   '/v1/storage/object/:key',
   withErrorHandler(async (request: Request, env: Env) => {

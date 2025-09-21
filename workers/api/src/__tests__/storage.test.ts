@@ -97,6 +97,27 @@ describe('Storage endpoints', () => {
     expect(data.hardLimit).toBe(6000);
   });
 
+  it('returns storage usage with thresholds and timestamp', async () => {
+    // Seed a value in approx bytes
+    await env.SESSIONS.put('quota:bytes', '1234');
+    const res = await api.fetch(new Request('https://example.com/v1/storage/usage'), env, ctx);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as {
+      usedBytes: number;
+      softLimit: number;
+      hardLimit: number;
+      maxObjectSize: number;
+      locked: boolean;
+      timestamp: string;
+    };
+    expect(data.usedBytes).toBe(1234);
+    expect(data.softLimit).toBe(5000);
+    expect(data.hardLimit).toBe(6000);
+    expect(data.maxObjectSize).toBe(3000);
+    expect(typeof data.locked).toBe('boolean');
+    expect(new Date(data.timestamp).toString()).not.toBe('Invalid Date');
+  });
+
   it('rejects upload without Content-Length', async () => {
     const req = new Request('https://example.com/v1/storage/object/test.txt', {
       method: 'PUT',
