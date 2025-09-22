@@ -1,0 +1,10 @@
+# Ignore Playwright and wrangler temp artifacts
+node_modules/
+dist/
+coverage/
+.wrangler/
+playwright-report/
+playwright/.cache/
+.test-results/
+.test-snapshots/
+test-results/
