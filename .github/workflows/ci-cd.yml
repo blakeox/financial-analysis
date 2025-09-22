@@ -200,6 +200,10 @@ jobs:
       - name: Deploy API to Cloudflare Workers (Preview)
         id: deploy-api
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping preview deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/api
           npx wrangler deploy --dry-run
         env:
@@ -209,6 +213,10 @@ jobs:
       - name: Deploy Web to Cloudflare Workers (Preview)
         id: deploy-web
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping preview deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/web
           npx wrangler deploy --dry-run
         env:
@@ -252,6 +260,10 @@ jobs:
       - name: Deploy API to Cloudflare Workers (Production)
         id: deploy-api
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping production deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/api
           npx wrangler deploy
         env:
@@ -261,6 +273,10 @@ jobs:
       - name: Deploy Web to Cloudflare Workers (Production)
         id: deploy-web
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping production deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/web
           npx wrangler deploy
         env:
