@@ -1,0 +1,10 @@
+# Ignore Cloudflare Wrangler temp/build artifacts
+.wrangler/
+
+# Common build outputs
+/dist/
+/build/
+/coverage/
+
+# Node modules (usually ignored by default, but explicit here)
+/node_modules/

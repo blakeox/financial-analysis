@@ -35,17 +35,26 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <a href="/models" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/models"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       Financial Models
                     </a>
                   </li>
                   <li>
-                    <a href="/analysis" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/analysis"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       Analysis Engine
                     </a>
                   </li>
                   <li>
-                    <a href="/lease" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/lease"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       Lease Analysis
                     </a>
                   </li>
@@ -57,17 +66,26 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <a href="/docs" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/docs"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       Documentation
                     </a>
                   </li>
                   <li>
-                    <a href="/api" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/api"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       API Reference
                     </a>
                   </li>
                   <li>
-                    <a href="/health" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <a
+                      href="/health"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
                       System Status
                     </a>
                   </li>

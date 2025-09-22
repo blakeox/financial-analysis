@@ -9,7 +9,11 @@ export interface ChatPanelProps {
   initialOpen?: boolean;
 }
 
-export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = false }: ChatPanelProps) {
+export function ChatPanel({
+  apiUrl = '',
+  title = 'Assistant',
+  initialOpen = false,
+}: ChatPanelProps) {
   const [open, setOpen] = useState(initialOpen);
   const [hydrated, setHydrated] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -55,7 +59,10 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
       });
       if (!res.ok) {
         const text = await res.text().catch(() => 'Error');
-        setMessages((m) => [...m, { role: 'assistant', content: `Request failed (${res.status}): ${text}` }]);
+        setMessages((m) => [
+          ...m,
+          { role: 'assistant', content: `Request failed (${res.status}): ${text}` },
+        ]);
       } else {
         const data = (await res.json()) as { role?: Role; content?: string };
         const reply: Message = { role: data.role ?? 'assistant', content: data.content ?? '' };
@@ -64,7 +71,10 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
     } catch (err) {
       setMessages((m) => [
         ...m,
-        { role: 'assistant', content: `Error: ${err instanceof Error ? err.message : 'Unknown error'}` },
+        {
+          role: 'assistant',
+          content: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        },
       ]);
     } finally {
       setBusy(false);
@@ -100,10 +110,17 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
         aria-haspopup="dialog"
         aria-label="Open chat assistant"
         data-hydrated={hydrated ? 'true' : 'false'}
-  data-z-fallback="80"
-  className="fixed z-100 safe-bottom safe-right inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
+        data-z-fallback="80"
+        className="fixed z-100 safe-bottom safe-right inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path d="M21 15a4 4 0 01-4 4H7l-4 4V7a4 4 0 014-4h10a4 4 0 014 4v8z" />
         </svg>
         <span className="hidden sm:block">Chat</span>
@@ -127,57 +144,75 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
             data-z-fallback="90"
             className="fixed z-90 top-0 right-0 h-full w-full sm:w-[380px] md:w-[420px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl transform transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0"
           >
-        {/* Header */}
-        <div className="h-14 px-3 sm:px-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-600 text-white">AI</span>
-            <span>{title}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={closePanel}
-              aria-label="Close"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div ref={listRef} className="h-[calc(100%-7rem)] overflow-y-auto px-3 sm:px-4 py-3 space-y-3">
-          {messages.map((m, idx) => (
-            <div key={idx} className={`text-sm ${m.role === 'user' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-800 dark:text-gray-200'}`}>
-              <div className={`inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 ${m.role === 'user' ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40' : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'}`}>
-                {m.content}
+            {/* Header */}
+            <div className="h-14 px-3 sm:px-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-600 text-white">
+                  AI
+                </span>
+                <span>{title}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={closePanel}
+                  aria-label="Close"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
-          ))}
-          {busy && (
-            <div className="text-xs text-gray-500">Thinking…</div>
-          )}
-        </div>
 
-        {/* Composer */}
-        <div className="h-14 px-3 sm:px-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKeyDown}
-            placeholder={busy ? 'Please wait…' : 'Type a message (⌘/Ctrl+Enter to send)'}
-            className="flex-1 resize-none h-10 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
-            disabled={busy}
-          />
-          <button
-            type="button"
-            onClick={onSend}
-            disabled={busy || !input.trim()}
-            className="inline-flex h-10 px-3 items-center justify-center rounded-md bg-blue-600 text-white text-sm font-medium shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
-          >
-            Send
-          </button>
-        </div>
+            {/* Messages */}
+            <div
+              ref={listRef}
+              className="h-[calc(100%-7rem)] overflow-y-auto px-3 sm:px-4 py-3 space-y-3"
+            >
+              {messages.map((m, idx) => (
+                <div
+                  key={idx}
+                  className={`text-sm ${m.role === 'user' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-800 dark:text-gray-200'}`}
+                >
+                  <div
+                    className={`inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 ${m.role === 'user' ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40' : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'}`}
+                  >
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+              {busy && <div className="text-xs text-gray-500">Thinking…</div>}
+            </div>
+
+            {/* Composer */}
+            <div className="h-14 px-3 sm:px-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder={busy ? 'Please wait…' : 'Type a message (⌘/Ctrl+Enter to send)'}
+                className="flex-1 resize-none h-10 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                disabled={busy}
+              />
+              <button
+                type="button"
+                onClick={onSend}
+                disabled={busy || !input.trim()}
+                className="inline-flex h-10 px-3 items-center justify-center rounded-md bg-blue-600 text-white text-sm font-medium shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </>
       )}

@@ -16,9 +16,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-  ],
+  extends: ['eslint:recommended'],
   settings: {
     'astro/typescript': {
       // is in monorepo; let plugin resolve tsconfigs per project
@@ -65,9 +63,15 @@ module.exports = {
         '@typescript-eslint/no-unsafe-member-access': 'off',
       },
     },
-  
+
     {
-      files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+      files: [
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/__tests__/**/*.ts',
+        '**/*.test.tsx',
+        '**/*.spec.tsx',
+      ],
       env: {
         node: true,
         es2021: true,

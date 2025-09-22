@@ -17,6 +17,7 @@
     "test": "vitest run --config ./vitest.config.mjs",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

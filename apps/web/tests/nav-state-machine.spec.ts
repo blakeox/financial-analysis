@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import {
-  gotoPath,
-  setViewportDesktop,
-  setViewportMobile,
-  waitForNavReady,
-} from './utils/nav';
+import { gotoPath, setViewportDesktop, setViewportMobile, waitForNavReady } from './utils/nav';
 
 const OVERLAY = '[data-testid="nav-search-overlay"]';
 const SEARCH_TOGGLE = '[data-testid="nav-search-toggle"]';
@@ -97,7 +92,8 @@ test.describe('Navbar state machine', () => {
     expect(datasetLater?.desktopFix).toBeUndefined();
 
     const guardFixes = await page.evaluate(() => {
-      const logs = (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
+      const logs =
+        (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
       return logs.filter((entry) => entry?.type === 'guard-fix');
     });
     expect(guardFixes).toHaveLength(0);

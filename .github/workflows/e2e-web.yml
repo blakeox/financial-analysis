@@ -2,11 +2,18 @@ name: E2E Web
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'apps/web/**'
       - 'packages/ui/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   e2e:
@@ -20,7 +27,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -32,6 +38,8 @@ jobs:
 
       - name: Install Playwright Browsers
         working-directory: apps/web
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: npx playwright install --with-deps chromium
 
       - name: Build web

@@ -2,10 +2,8 @@
 const base = require('@financial-analysis/config/eslint.config.cjs');
 
 module.exports = [
-	...base,
-	{
-		ignores: [
-			'src/**/*.d.ts',
-		],
-	},
+  ...base,
+  {
+    ignores: ['src/**/*.d.ts'],
+  },
 ];

@@ -60,7 +60,8 @@ describe('POST /v1/chat', () => {
 
   it('performs local amortization calc when user asks and provides JSON', async () => {
     const { env, ctx } = makeEnv();
-    const content = 'Can you run an amortization for this? {"principal": 10000, "annualRate": 0.06, "termMonths": 12}';
+    const content =
+      'Can you run an amortization for this? {"principal": 10000, "annualRate": 0.06, "termMonths": 12}';
     const req = new Request('https://example.com/v1/chat', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -104,18 +105,25 @@ describe('POST /v1/chat', () => {
     let stored: { count: number; resetTime: number } | null = null;
     const now = Date.now();
     const kvImpl: Partial<KVNamespace> = {
-      get: (async () => JSON.stringify(stored ?? { count: 100, resetTime: now + 60_000 })) as unknown as KVNamespace['get'],
+      get: (async () =>
+        JSON.stringify(
+          stored ?? { count: 100, resetTime: now + 60_000 }
+        )) as unknown as KVNamespace['get'],
       put: (async (_k: string, v: string) => {
         stored = JSON.parse(v);
       }) as unknown as KVNamespace['put'],
     };
-    const env: { ENVIRONMENT: string; DB: D1Database; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket } = {
-      ENVIRONMENT: 'test',
-      DB: {} as unknown as D1Database,
-      SESSIONS: kvImpl as KVNamespace,
-      DOCUMENTS: {} as unknown as R2Bucket,
-    };
-    const ctx: ExecutionContext = { waitUntil: () => {}, passThroughOnException: () => {} } as unknown as ExecutionContext;
+    const env: { ENVIRONMENT: string; DB: D1Database; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket } =
+      {
+        ENVIRONMENT: 'test',
+        DB: {} as unknown as D1Database,
+        SESSIONS: kvImpl as KVNamespace,
+        DOCUMENTS: {} as unknown as R2Bucket,
+      };
+    const ctx: ExecutionContext = {
+      waitUntil: () => {},
+      passThroughOnException: () => {},
+    } as unknown as ExecutionContext;
 
     const req = new Request('https://example.com/v1/chat', {
       method: 'POST',

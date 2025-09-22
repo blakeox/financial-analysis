@@ -32,7 +32,9 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${apiBase}/v1/storage/usage`, { headers: { 'Accept': 'application/json' } });
+        const res = await fetch(`${apiBase}/v1/storage/usage`, {
+          headers: { Accept: 'application/json' },
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = (await res.json()) as Usage;
         if (!cancelled) setData(json);
@@ -67,17 +69,37 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
         {error && <p className="text-red-600">{error}</p>}
         {data && (
           <div className="space-y-2">
-            <div className="flex justify-between"><span>Used</span><span>{formatBytes(data.usedBytes)}</span></div>
-            <div className="flex justify-between"><span>Soft limit</span><span>{formatBytes(data.softLimit)}</span></div>
-            <div className="flex justify-between"><span>Hard limit</span><span>{formatBytes(data.hardLimit)}</span></div>
-            <div className="flex justify-between"><span>Max object</span><span>{formatBytes(data.maxObjectSize)}</span></div>
-            <div className="flex justify-between"><span>Status</span><span className={data.locked ? 'text-red-600' : 'text-green-600'}>{data.locked ? 'Locked' : 'OK'}</span></div>
+            <div className="flex justify-between">
+              <span>Used</span>
+              <span>{formatBytes(data.usedBytes)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Soft limit</span>
+              <span>{formatBytes(data.softLimit)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Hard limit</span>
+              <span>{formatBytes(data.hardLimit)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Max object</span>
+              <span>{formatBytes(data.maxObjectSize)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Status</span>
+              <span className={data.locked ? 'text-red-600' : 'text-green-600'}>
+                {data.locked ? 'Locked' : 'OK'}
+              </span>
+            </div>
             {data.locked && (
               <div className="mt-3 rounded-md border border-red-200 bg-red-50 text-red-700 text-sm p-3">
-                Uploads are temporarily disabled due to storage limits. Try again later or remove unused files.
+                Uploads are temporarily disabled due to storage limits. Try again later or remove
+                unused files.
               </div>
             )}
-            <div className="text-xs text-gray-500">Updated {new Date(data.timestamp).toLocaleString()}</div>
+            <div className="text-xs text-gray-500">
+              Updated {new Date(data.timestamp).toLocaleString()}
+            </div>
           </div>
         )}
       </CardContent>

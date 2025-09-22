@@ -8,9 +8,6 @@
     "types": ["astro/client", "node"],
     "paths": {}
   },
-  "include": [
-    "src",
-    "env.d.ts"
-  ],
+  "include": ["src", "env.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

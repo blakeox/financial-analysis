@@ -7,7 +7,9 @@ test.describe('UI Navbar collision guard', () => {
   test('no UI Navbar id pattern present', async ({ page }) => {
     await page.goto('/');
     // Search for any element whose id starts with "primary-navigation-"
-    const hasUiNavbar = await page.evaluate(() => !!document.querySelector('[id^="primary-navigation-"]'));
+    const hasUiNavbar = await page.evaluate(
+      () => !!document.querySelector('[id^="primary-navigation-"]')
+    );
     expect(hasUiNavbar).toBeFalsy();
   });
 });

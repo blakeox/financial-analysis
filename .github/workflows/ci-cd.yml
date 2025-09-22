@@ -7,6 +7,16 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+# Default, least-privilege permissions for all jobs; override per-job when needed
+permissions:
+  contents: read
+  actions: read
+
+# Avoid duplicate runs on the same ref
+concurrency:
+  group: ci-cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Quality Checks
   quality:
@@ -22,7 +32,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -34,7 +48,7 @@ jobs:
         run: pnpm run lint
 
       - name: Format check
-        run: pnpm run format --check
+        run: pnpm run format:check
 
   # Testing
   test:
@@ -50,7 +64,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -79,13 +97,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm run build
+        run: |
+          # Build UI library first (for Astro prebuild)
+          pnpm -C packages/ui run build
+          # Build Astro web app to produce apps/web/dist for the web worker assets
+          pnpm -C apps/web run build
+          # Build Workers (web dry-run and API typecheck build)
+          pnpm --filter @financial-analysis/web-worker run build
+          pnpm --filter @financial-analysis/api run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -103,6 +132,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [quality]
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -112,7 +145,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -134,7 +171,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [build]
-    if: github.event_name == 'pull_request'
+    # Only run on PRs explicitly labeled for preview deploy
+    if: github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'deploy-preview')
     environment:
       name: preview
 
@@ -146,7 +184,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -159,6 +201,10 @@ jobs:
       - name: Deploy API to Cloudflare Workers (Preview)
         id: deploy-api
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping preview deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/api
           npx wrangler deploy --dry-run
         env:
@@ -168,6 +214,10 @@ jobs:
       - name: Deploy Web to Cloudflare Workers (Preview)
         id: deploy-web
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping preview deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/web
           npx wrangler deploy --dry-run
         env:
@@ -183,6 +233,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -192,7 +244,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -205,6 +261,10 @@ jobs:
       - name: Deploy API to Cloudflare Workers (Production)
         id: deploy-api
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping production deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/api
           npx wrangler deploy
         env:
@@ -214,6 +274,10 @@ jobs:
       - name: Deploy Web to Cloudflare Workers (Production)
         id: deploy-web
         run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "Skipping production deploy: missing Cloudflare secrets";
+            exit 0;
+          fi
           cd workers/web
           npx wrangler deploy
         env:

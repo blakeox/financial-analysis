@@ -8,7 +8,9 @@ describe('Footer', () => {
     render(<Footer />);
     const footer = screen.getByRole('contentinfo');
     // Brand heading exists
-    expect(within(footer).getByRole('heading', { name: /Financial Analysis/i })).toBeInTheDocument();
+    expect(
+      within(footer).getByRole('heading', { name: /Financial Analysis/i })
+    ).toBeInTheDocument();
     // Copyright contains the current year
     const year = new Date().getFullYear();
     expect(within(footer).getByText(new RegExp(String(year)))).toBeInTheDocument();

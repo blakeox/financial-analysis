@@ -3,11 +3,11 @@ import { test, expect } from '@playwright/test';
 // Compares the server-rendered nav HTML to hydrated DOM after scripts run.
 // Ensures link count, order, and text remain stable (allowing whitespace normalization).
 
-function normalize(html: string){
+function normalize(html: string) {
   return html
-    .replace(/\s+/g,' ') // collapse whitespace
-    .replace(/ data-phase-[a-z]+="[^"]*"/g,'') // remove dynamic phase attrs
-    .replace(/ data-desktopfix="[^"]*"/g,'')
+    .replace(/\s+/g, ' ') // collapse whitespace
+    .replace(/ data-phase-[a-z]+="[^"]*"/g, '') // remove dynamic phase attrs
+    .replace(/ data-desktopfix="[^"]*"/g, '')
     .trim();
 }
 
@@ -38,8 +38,12 @@ test.describe('Navbar SSR vs Hydration diff', () => {
 
     // Allow hydration to add a data attribute or aria states but not remove links
     // Compare link texts sequence
-    const links1 = await page.evaluate(() => Array.from(document.querySelectorAll('nav a')).map(a => a.textContent?.trim()||''));
-    const links2 = await page.evaluate(() => Array.from(document.querySelectorAll('nav a')).map(a => a.textContent?.trim()||''));
+    const links1 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('nav a')).map((a) => a.textContent?.trim() || '')
+    );
+    const links2 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('nav a')).map((a) => a.textContent?.trim() || '')
+    );
     expect(links1).toEqual(links2);
 
     // Ensure number of desktop links stable (>=3 typical: Home, Analysis, Models, Debug maybe)

@@ -61,6 +61,8 @@ Requirements:
    ```bash
    cp .env.example .env.local
 
+   ```
+
 4. **Start development servers**
 
    ```bash
@@ -301,7 +303,6 @@ Note on COMMIT_SHA:
 
 - The `/version` endpoint reads `env.COMMIT_SHA`. The preview deploy workflow passes `--var COMMIT_SHA:${GITHUB_SHA}` so the value is available at runtime.
 
-
 ### Environment Setup
 
 1. Create Cloudflare account and install Wrangler CLI
@@ -313,6 +314,7 @@ Note on COMMIT_SHA:
 ## 📚 Documentation
 
 - [API Documentation](./docs/API.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)

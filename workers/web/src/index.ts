@@ -30,7 +30,9 @@ function getSecurityHeaders(env: Env): Record<string, string> {
     'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Content-Security-Policy': csp,
-    ...(isProd ? { 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload' } : {}),
+    ...(isProd
+      ? { 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload' }
+      : {}),
   };
 }
 
@@ -76,10 +78,13 @@ export default {
     // Set caching for static assets based on path; respect upstream for HTML
     const path = url.pathname;
     if (resp.status === 200) {
-      if (path.startsWith('/_astro/') || /\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$/i.test(path)) {
+      if (
+        path.startsWith('/_astro/') ||
+        /\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$/i.test(path)
+      ) {
         // Long cache for hashed assets
         headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-      } else if (path.endsWith('.html') || path === '/' ) {
+      } else if (path.endsWith('.html') || path === '/') {
         // No cache for HTML entrypoints
         headers.set('Cache-Control', 'no-store');
       }

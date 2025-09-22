@@ -16,9 +16,7 @@ const tryRun = (cmd) => {
 
 // macOS/Linux using lsof; guard against empty PID list
 if (
-  !tryRun(
-    `PIDS=$(lsof -ti tcp:${port} 2>/dev/null); if [[ -n "$PIDS" ]]; then kill -9 $PIDS; fi`
-  )
+  !tryRun(`PIDS=$(lsof -ti tcp:${port} 2>/dev/null); if [[ -n "$PIDS" ]]; then kill -9 $PIDS; fi`)
 ) {
   // Ubuntu fallback using fuser
   tryRun(`fuser -k ${port}/tcp 2>/dev/null`);

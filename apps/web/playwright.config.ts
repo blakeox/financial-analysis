@@ -15,7 +15,8 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'node ./scripts/ensure-port-free.mjs && pnpm build && astro preview --port 4321 --host 127.0.0.1 --strictPort',
+    command:
+      'node ./scripts/ensure-port-free.mjs && pnpm build && astro preview --port 4321 --host 127.0.0.1 --strictPort',
     cwd: __dirname,
     url: 'http://127.0.0.1:4321',
     timeout: 240_000,

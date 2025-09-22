@@ -8,29 +8,36 @@ test.describe('Navbar late stylesheet injections', () => {
 
     // Collect stylesheet href/inline signatures at ~load time
     await page.waitForLoadState('load');
-    const initial = await page.evaluate(() => Array.from(document.styleSheets).map(ss => {
-      try {
-        return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
-      } catch {
-        return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
-      }
-    }));
+    const initial = await page.evaluate(() =>
+      Array.from(document.styleSheets).map((ss) => {
+        try {
+          return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
+        } catch {
+          return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
+        }
+      })
+    );
 
     // Wait 3s and collect again
     await page.waitForTimeout(3000);
-    const later = await page.evaluate(() => Array.from(document.styleSheets).map(ss => {
-      try {
-        return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
-      } catch {
-        return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
-      }
-    }));
+    const later = await page.evaluate(() =>
+      Array.from(document.styleSheets).map((ss) => {
+        try {
+          return ss.href || 'inline-' + Array.from((ss as CSSStyleSheet).cssRules || []).length;
+        } catch {
+          return ss.href ? `blocked:${ss.href}` : 'blocked-inline';
+        }
+      })
+    );
 
     // Compare sets
     const initialSet = new Set(initial);
-    const newOnes = later.filter(l => !initialSet.has(l));
+    const newOnes = later.filter((l) => !initialSet.has(l));
 
     // Allow 1 (some dev tools inject) but fail on 2+ new stylesheets
-    expect(newOnes.length, `Unexpected late stylesheet injections: ${JSON.stringify(newOnes)}`).toBeLessThanOrEqual(1);
+    expect(
+      newOnes.length,
+      `Unexpected late stylesheet injections: ${JSON.stringify(newOnes)}`
+    ).toBeLessThanOrEqual(1);
   });
 });

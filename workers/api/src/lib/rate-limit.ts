@@ -11,16 +11,18 @@ export type RateLimitInfo = {
 
 export async function checkRateLimit(request: Request, env: Env): Promise<RateLimitInfo> {
   const clientIP =
-    request.headers.get('CF-Connecting-IP') ||
-    request.headers.get('X-Forwarded-For') ||
-    'unknown';
+    request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
 
   const key = `ratelimit:${clientIP}`;
   const now = Date.now();
 
   try {
     if (!env.SESSIONS) {
-      return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS, resetTime: now + RATE_LIMIT_WINDOW };
+      return {
+        allowed: true,
+        remaining: RATE_LIMIT_MAX_REQUESTS,
+        resetTime: now + RATE_LIMIT_WINDOW,
+      };
     }
     const data = await env.SESSIONS.get(key);
     const rateLimitData: { count: number; resetTime: number } = data
@@ -44,7 +46,11 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
     return { allowed, remaining, resetTime: rateLimitData.resetTime };
   } catch (error) {
     console.warn('Rate limiting check failed:', error);
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS, resetTime: now + RATE_LIMIT_WINDOW };
+    return {
+      allowed: true,
+      remaining: RATE_LIMIT_MAX_REQUESTS,
+      resetTime: now + RATE_LIMIT_WINDOW,
+    };
   }
 }
 
