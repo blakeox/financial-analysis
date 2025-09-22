@@ -171,7 +171,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [build]
-    if: github.event_name == 'pull_request'
+    # Only run on PRs explicitly labeled for preview deploy
+    if: github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'deploy-preview')
     environment:
       name: preview
 

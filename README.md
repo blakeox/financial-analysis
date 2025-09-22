@@ -314,6 +314,7 @@ Note on COMMIT_SHA:
 ## 📚 Documentation
 
 - [API Documentation](./docs/API.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)
