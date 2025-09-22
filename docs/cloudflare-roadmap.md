@@ -99,10 +99,13 @@ Goal: Reduce cost and improve latency for deterministic results.
 
 Deliverables:
 
-- Cache API for idempotent analysis responses using stable cache keys
-- ETag/If-None-Match for docs/openapi.json & static API responses
-- CDN/static caching headers for the web worker (immutable assets)
-- Pre-computed or compiled image service for Astro at build time
+- (✅) Cache API for idempotent analysis responses using stable cache keys
+  - Implemented for `/v1/api/analysis/{lease,amortization}` with TTL controlled by `ANALYSIS_CACHE_TTL_SECONDS` (0 disables; default 0 in all envs)
+  - Stable cache key: `sha256Hex(stableStringify({ route, input }))`
+  - Includes `Cache-Control: public, max-age=TTL` and is safely disabled in Node/vitest
+- ETag/If-None-Match for docs/openapi.json & static API responses (🔜)
+- CDN/static caching headers for the web worker (immutable assets) (🔜)
+- Pre-computed or compiled image service for Astro at build time (🧩)
 
 ---
 

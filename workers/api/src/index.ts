@@ -28,6 +28,15 @@ interface Env {
   MAX_OBJECT_SIZE_BYTES?: string;
   // Optional comma-separated MIME prefixes to allow (e.g., "application/pdf,application/vnd.openxmlformats").
   ALLOWED_UPLOAD_MIME_PREFIXES?: string;
+  // Optional TTL (seconds) for deterministic analysis caching; 0 or unset disables Cache API.
+  ANALYSIS_CACHE_TTL_SECONDS?: string;
+}
+
+// Helper: get Cloudflare Workers default Cache if available
+function getDefaultCache(): Cache | undefined {
+  if (typeof caches === 'undefined') return undefined;
+  const cs = caches as CacheStorage & { default?: Cache };
+  return cs.default;
 }
 
 const router = Router();
@@ -160,6 +169,33 @@ function hasControlChars(s: string): boolean {
     if ((code >= 0 && code <= 31) || code === 127) return true;
   }
   return false;
+}
+
+// ---- Deterministic cache helpers ----
+function stableStringify(value: unknown): string {
+  // JSON stringify with stable key ordering for objects/arrays
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((v) => stableStringify(v)).join(',')}]`;
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).sort();
+  const parts: string[] = [];
+  for (const k of keys) parts.push(`${JSON.stringify(k)}:${stableStringify(obj[k])}`);
+  return `{${parts.join(',')}}`;
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const enc = new TextEncoder();
+  const bytes = enc.encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const arr = new Uint8Array(digest);
+  let hex = '';
+  for (const b of arr) hex += b.toString(16).padStart(2, '0');
+  return hex;
+}
+
+function getAnalysisCacheTtl(env: Env): number {
+  const n = Number(env.ANALYSIS_CACHE_TTL_SECONDS ?? 0);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 }
 
 async function kvGetNumber(env: Env, key: string, def = 0): Promise<number> {
@@ -769,12 +805,25 @@ router.post(
       );
     }
 
-    const result = LeaseAnalyzer.analyze(parseResult.data);
+    // Optional deterministic caching (Cache API)
+    const ttl = getAnalysisCacheTtl(env);
+    const cache = ttl > 0 ? getDefaultCache() : undefined;
+    if (ttl > 0 && cache) {
+      const keyStr = await sha256Hex(stableStringify({ route: 'lease', input: parseResult.data }));
+      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+      const cached = await cache.match(cacheReq);
+      if (cached) return cached;
+      const result = LeaseAnalyzer.analyze(parseResult.data);
+      const res = new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}` },
+      });
+      void cache.put(cacheReq, res.clone());
+      return res;
+    }
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: buildDefaultHeaders(env),
-    });
+    const result = LeaseAnalyzer.analyze(parseResult.data);
+    return new Response(JSON.stringify(result), { status: 200, headers: buildDefaultHeaders(env) });
   })
 );
 
@@ -815,12 +864,25 @@ router.post(
       );
     }
 
-    const result = AmortizationAnalyzer.analyze(parseResult.data);
+    // Optional deterministic caching (Cache API)
+    const ttl = getAnalysisCacheTtl(env);
+    const cache = ttl > 0 ? getDefaultCache() : undefined;
+    if (ttl > 0 && cache) {
+      const keyStr = await sha256Hex(stableStringify({ route: 'amortization', input: parseResult.data }));
+      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+      const cached = await cache.match(cacheReq);
+      if (cached) return cached;
+      const result = AmortizationAnalyzer.analyze(parseResult.data);
+      const res = new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}` },
+      });
+      void cache.put(cacheReq, res.clone());
+      return res;
+    }
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: buildDefaultHeaders(env),
-    });
+    const result = AmortizationAnalyzer.analyze(parseResult.data);
+    return new Response(JSON.stringify(result), { status: 200, headers: buildDefaultHeaders(env) });
   })
 );
 
