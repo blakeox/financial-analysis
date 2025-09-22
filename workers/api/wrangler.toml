@@ -1,6 +1,6 @@
 name = "financial-analysis-api"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
@@ -8,6 +8,10 @@ ENVIRONMENT = "development"
 R2_SOFT_LIMIT_BYTES = 1073741824     # 1 GiB (dev)
 R2_HARD_LIMIT_BYTES = 2147483648     # 2 GiB (dev)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0       # 0 disables Cache API for analysis responses by default
+# Comma-separated MIME type prefixes allowed for uploads. Tighten as needed per env.
+# Example covers PDFs and modern Office docs (docx/xlsx/pptx via vnd.openxmlformats).
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 
 [triggers]
 # Reconcile approximate R2 usage hourly to enforce soft-limit lock/unlock.
@@ -42,6 +46,9 @@ ENVIRONMENT = "preview"
 R2_SOFT_LIMIT_BYTES = 2147483648     # 2 GiB (preview)
 R2_HARD_LIMIT_BYTES = 3221225472     # 3 GiB (preview)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0
+# Tighten MIME allowlist in preview if needed for testing stricter policies.
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 
 [env.preview.triggers]
 crons = ["0 * * * *"]
@@ -66,6 +73,9 @@ ENVIRONMENT = "production"
 R2_SOFT_LIMIT_BYTES = 8589934592     # 8 GiB (prod)
 R2_HARD_LIMIT_BYTES = 9663676416     # 9 GiB (prod)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0
+# Consider making this stricter in production if business rules require fewer types.
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 
 [env.production.triggers]
 crons = ["0 * * * *"]

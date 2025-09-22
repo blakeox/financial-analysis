@@ -53,7 +53,14 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   return (
     <Card className="w-full max-w-xl">
       <CardHeader>
-        <CardTitle>Storage Usage</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>Storage Usage</CardTitle>
+          {data?.locked && (
+            <span className="inline-flex items-center rounded-md bg-red-100 text-red-700 text-xs font-medium px-2 py-1">
+              Locked
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {loading && <p className="text-gray-500">Loading…</p>}
@@ -65,6 +72,11 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
             <div className="flex justify-between"><span>Hard limit</span><span>{formatBytes(data.hardLimit)}</span></div>
             <div className="flex justify-between"><span>Max object</span><span>{formatBytes(data.maxObjectSize)}</span></div>
             <div className="flex justify-between"><span>Status</span><span className={data.locked ? 'text-red-600' : 'text-green-600'}>{data.locked ? 'Locked' : 'OK'}</span></div>
+            {data.locked && (
+              <div className="mt-3 rounded-md border border-red-200 bg-red-50 text-red-700 text-sm p-3">
+                Uploads are temporarily disabled due to storage limits. Try again later or remove unused files.
+              </div>
+            )}
             <div className="text-xs text-gray-500">Updated {new Date(data.timestamp).toLocaleString()}</div>
           </div>
         )}
