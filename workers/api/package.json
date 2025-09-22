@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20250917.0",
+    "@cloudflare/workers-types": "^4.20250922.0",
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/analysis": "workspace:*",
     "@asteasolutions/zod-to-openapi": "^7.1.1",
