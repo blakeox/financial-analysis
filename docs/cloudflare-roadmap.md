@@ -6,6 +6,19 @@ Status legend: (✅ done) (🔜 next) (🧪 experiment) (📝 docs) (🧩 option
 
 ---
 
+## Immediate quick wins (safe, high impact)
+
+- (✅) Add ETag/If-None-Match for `/openapi.json` and `/docs` HTML responses (improves perf and bandwidth)
+- (✅) Add `X-Cache` response header on analysis routes to indicate cache hit/miss (observability)
+- (✅) Enforce JSON body size caps for analysis endpoints (64KB default, env-configurable) and return 413 on exceed
+- (✅) Add explicit `OPTIONS` handler for CORS preflight with `Access-Control-Allow-*` headers
+- (✅) Add ETag/If-None-Match for root `/` JSON response with short Cache-Control
+- (✅) Harden MIME allowlist value in wrangler (e.g., `application/pdf,application/vnd.openxmlformats`) via `ALLOWED_UPLOAD_MIME_PREFIXES`
+- Document R2 lifecycle policy examples (cold data retention) and checksum verification steps (📝)
+- Rotate `ADMIN_API_TOKEN` procedure with `wrangler secret` and repo environment docs (📝)
+
+---
+
 ## Phase 1 — Core foundations (✅)
 
 Completed:
@@ -43,6 +56,7 @@ Deliverables:
 - Signed URLs for uploads/downloads:
   - Short-lived PUT/GET URLs with strict content-type validation
   - Maximum object size from `MAX_OBJECT_SIZE_BYTES`
+  - Include object checksums (e.g., SHA-256) to detect corruption and enable dedupe later (🧩)
 - D1 metadata table:
   - `documents(id, key, size, content_type, hash, created_at, user_id?, status)`
 - Tests:
@@ -58,6 +72,11 @@ Notes:
 - Use `head()` before computing checksums; compute client-side hash optionally to dedupe
 - Consider lifecycle policy for stale objects (manually documented steps)
 
+### Acceptance criteria (Phase 2)
+
+- Hard-limit rejections return 413/403 with guidance and are logged
+- Reconcile job updates KV snapshot within 5 minutes of schedule
+
 ---
 
 ## Phase 3 — Secure session & auth (🔜)
@@ -67,18 +86,22 @@ Goal: Safeguard endpoints and add light user/session boundaries.
 Options:
 
 - Cloudflare Turnstile for unauthenticated rate-limited flows (🧪)
-- Cloudflare Access or JWT-backed sessions for admin APIs (🧩)
 - KV-backed sessions with rotating session IDs, secure cookies, `SameSite=Lax`, `HttpOnly`, `Secure`
 
 Deliverables:
 
-- Session middleware (KV)
 - Opt-in auth for management routes (`/v1/admin/*`)
 - Tests for session expiry & cookie flags
+- Admin routes return 401 without valid bearer or session
+
+### Acceptance criteria (Phase 3)
+
+- Session cookie set with secure flags (HttpOnly, Secure, SameSite)
+- Admin routes protected and tested for 401 without auth
 
 ---
 
-## Phase 4 — Observability & SLOs (🔜)
+## Phase 4 — Observability & alerting (🔜)
 
 Goal: Gain visibility and detect regressions early.
 
@@ -86,10 +109,18 @@ Deliverables:
 
 - Workers Analytics Engine or Logpush for structured logs (json lines)
 - Tail filters & sampling strategies for high-traffic routes
-- SLOs & synthetic checks:
-  - 99th percentile latency for `/v1/api/analysis/*`
-  - Uptime check for `/health`
 - Error budgets and alerting (PagerDuty/Webhooks/Email via Workers or third-party) (🧩)
+
+### Implementation notes
+
+- Use env `ENVIRONMENT` to separate metrics by env
+- Alert fires on error budget burn or uptime failure
+- Tail filters allow quick slice by `CF-RAY` and `requestId`
+
+### Acceptance criteria (Phase 4)
+
+- Logs visible in Analytics Engine/Logpush; latency dashboards live
+- Alerting wired to on-call channel with sample incident
 
 ---
 
@@ -99,31 +130,33 @@ Goal: Reduce cost and improve latency for deterministic results.
 
 Deliverables:
 
-- Cache API for idempotent analysis responses using stable cache keys
-- ETag/If-None-Match for docs/openapi.json & static API responses
-- CDN/static caching headers for the web worker (immutable assets)
-- Pre-computed or compiled image service for Astro at build time
+- (✅) Cache API for idempotent analysis responses using stable cache keys
+  - Implemented for `/v1/api/analysis/{lease,amortization}` with TTL controlled by `ANALYSIS_CACHE_TTL_SECONDS` (0 disables; default 0 in all envs)
+- CDN/static caching headers for the web worker (immutable assets) (🔜)
+- Pre-computed or compiled image service for Astro at build time (🧩)
+
+### Acceptance criteria (Phase 5)
+
+- >50% cache hit rate for repeated analysis payloads in staging
 
 ---
 
 ## Phase 6 — CI/CD & environments (🔜)
 
-Goal: Safe, repeatable deployments.
-
 Deliverables:
 
-- GitHub Actions: preview deploys on PRs, production on main
-- `wrangler deploy --dry-run` + smoke tests
-- Secrets management via `wrangler secret` and repo environments
 - Promotion workflow (preview → production) with approvals
+
+### Acceptance criteria (Phase 6)
+
+- PRs automatically deploy to preview; link posted in PR
+- Production deploys are gated and recorded; smoke tests pass post-deploy
 
 ---
 
 ## Phase 7 — Data durability & migrations (🔜)
 
 Goal: Reliable data evolution.
-
-Deliverables:
 
 - D1 migrations via `wrangler d1 migrations` (versioned SQL)
 - Indexes for frequent queries (lookups by user/session, object key)
@@ -133,27 +166,30 @@ Deliverables:
 
 ## Phase 8 — Security hardening (🔜)
 
-Goal: Defense in depth.
-
-Deliverables:
-
 - WAF rules for abusive paths, method allow-lists
 - CSP review (docs viewer done; add for web worker output if needed)
 - Secrets rotation cadence
 - File-type validation (`.pdf`, `.docx`) with content sniffing and size caps
 - Optional malware scanning pipeline (🧩)
 
+### Acceptance criteria (Phase 8)
+
+- Basic WAF in place with allow-listing for methods and known routes
+- File uploads rejected when content-type sniffing fails
+
 ---
 
 ## Phase 9 — Cost controls & guardrails (🔜)
 
-Goal: Keep predictable spend.
-
 Deliverables:
 
-- Budget alerts on R2/KV/Workers usage (manual + scriptable via API) (🧩)
 - Per-tenant/session quotas for API calls and storage
 - Periodic purge policies for stale cache & documents
+
+### Acceptance criteria
+
+- Alerts trigger when monthly usage exceeds thresholds
+- Quota violations block requests and are observable in logs
 
 ---
 
@@ -161,11 +197,7 @@ Deliverables:
 
 Goal: Make local iteration smooth.
 
-Deliverables:
-
 - `wrangler dev` multitarget helper script (API + Web)
-- Local proxy for API base URL used by Astro during tests
-- Makefile targets refined for single-step dev, test, deploy
 
 ---
 
@@ -176,6 +208,15 @@ Deliverables:
 - Phase 4: Logs visible in Analytics Engine/Logpush; latency dashboards live
 - Phase 5: Cache yields >70% hit ratio for repeated analysis payloads in staging tests
 - Phase 6: Preview deployments triggered on PR; production gated and traceable
+
+---
+
+## Backlog (optional/advanced)
+
+- Durable Object-backed global rate limiter with sliding window and IP/user keys
+- Cache Reserve for long-lived asset caching (cost optimization)
+- Tiered Cache for origin fetch reduction (web worker static assets)
+- Automated chaos/load tests (k6/Artillery) in CI for SLO validation
 
 ---
 
