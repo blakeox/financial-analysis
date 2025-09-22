@@ -8,6 +8,13 @@ on:
       - 'packages/ui/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
