@@ -97,7 +97,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm run build
+        run: |
+          # Build UI library first (for Astro prebuild)
+          pnpm -C packages/ui run build
+          # Build Astro web app to produce apps/web/dist for the web worker assets
+          pnpm -C apps/web run build
+          # Build Workers (web dry-run and API typecheck build)
+          pnpm --filter @financial-analysis/web-worker run build
+          pnpm --filter @financial-analysis/api run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
