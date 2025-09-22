@@ -199,7 +199,6 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         window.addEventListener('load', onLoadPhases, { once:true });
       }
       // Guard: detect unexpected hidden desktop nav on large screens (>=768px)
-      const startTs = Date.now();
       function ensureDesktopVisible(reason) {
         try {
           if(!nav) return;
