@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { getOpenApiDocument } from '../openapi';
 
 describe('OpenAPI document', () => {
@@ -14,5 +14,16 @@ describe('OpenAPI document', () => {
     // sanity check for registered paths
     expect(doc.paths).toBeDefined();
     expect(Object.keys(doc.paths ?? {})).toContain('/health');
+    const paths = Object.keys(doc.paths ?? {});
+    expect(paths).toContain('/v1/api/analysis/lease');
+    expect(paths).toContain('/ping');
+    expect(paths).toContain('/version');
+  });
+
+  it('includes amortization analysis path', () => {
+    const baseUrl = 'https://example.workers.dev';
+    const doc = getOpenApiDocument(baseUrl);
+    expect(doc.paths).toBeDefined();
+    expect(Object.keys(doc.paths ?? {})).toContain('/v1/api/analysis/amortization');
   });
 });

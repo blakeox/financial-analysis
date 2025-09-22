@@ -49,9 +49,6 @@ A built-in documentation UI is available, powered by RapiDoc. It loads the OpenA
 **Endpoint:** `GET /docs`
 
 Notes:
-- Strict CSP is applied; only the RapiDoc CDN script is allowed.
-- No authentication controls are exposed in the UI.
-- Use this for read-only exploration of endpoints and schemas.
 
 ### Health Check
 
@@ -69,6 +66,148 @@ Get the health status of the API.
   "environment": "production"
 }
 ```
+
+### Request IDs
+
+Every response includes an `X-Request-ID` header for traceability. Include this value when reporting issues.
+
+### MCP Endpoint
+
+Programmatic MCP access is exposed at `POST /mcp` using JSON-RPC 2.0.
+
+Examples:
+
+- Initialize:
+
+  { "jsonrpc": "2.0", "id": 1, "method": "initialize" }
+
+- List tools:
+
+  { "jsonrpc": "2.0", "id": 2, "method": "tools/list" }
+
+- Call tool:
+
+  ```json
+  {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "analyze_lease",
+      "arguments": {
+        "principal": 10000,
+        "annualRate": 0.05,
+        "termMonths": 12,
+        "residualValue": 1000
+      }
+    }
+  }
+  ```
+
+- Call amortization tool:
+
+  ```json
+  {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "tools/call",
+    "params": {
+      "name": "analyze_amortization",
+      "arguments": { "principal": 250000, "annualRate": 0.045, "termMonths": 360 }
+    }
+  }
+  ```
+
+## Analysis Endpoints
+
+### POST /v1/api/analysis/lease
+
+Analyze a lease agreement and return payment schedule and summary metrics.
+
+Request body (application/json):
+
+- principal: number (positive) — Principal amount
+- annualRate: number (0-1) — Annual interest rate as a decimal
+- termMonths: integer (positive) — Lease term in months
+- residualValue: number (>=0, default 0) — Residual value at end of term
+
+Example:
+
+{
+"principal": 10000,
+"annualRate": 0.06,
+"termMonths": 12,
+"residualValue": 1000
+}
+
+Response 200 (application/json):
+
+{
+"monthlyPayment": 450.12,
+"totalPayments": 5401.44,
+"totalInterest": 401.44,
+"schedule": [
+{ "month": 1, "payment": 450.12, "principal": 400.00, "interest": 50.12, "balance": 9600.00 },
+// ... per-month schedule entries
+]
+}
+
+Errors:
+
+- 400 — Invalid request body (returns issues array)
+- 415 — Unsupported Media Type (Content-Type must be application/json)
+
+### POST /v1/api/analysis/amortization
+
+Analyze an amortization schedule and return payment breakdown and summary metrics.
+
+Request body (application/json):
+
+- principal: number (positive) — Principal amount
+- annualRate: number (0-1) — Annual interest rate as a decimal
+- termMonths: integer (positive) — Amortization term in months
+
+Example:
+
+```json
+{
+  "principal": 250000,
+  "annualRate": 0.045,
+  "termMonths": 360
+}
+```
+
+Response 200 (application/json):
+
+```json
+{
+  "monthlyPayment": 1266.71,
+  "totalPayments": 456015.6,
+  "totalInterest": 206015.6,
+  "schedule": [
+    {
+      "month": 1,
+      "payment": 1266.71,
+      "principal": 329.21,
+      "interest": 937.5,
+      "balance": 249670.79
+    },
+    {
+      "month": 2,
+      "payment": 1266.71,
+      "principal": 330.44,
+      "interest": 936.27,
+      "balance": 249340.35
+    }
+    // ... per-month schedule entries
+  ]
+}
+```
+
+Errors:
+
+- 400 — Invalid request body (returns issues array)
+- 415 — Unsupported Media Type (Content-Type must be application/json)
 
 ### MCP Server
 
@@ -105,8 +244,8 @@ Content-Type: application/json
   "id": "123",
   "result": {
     "monthlyPayment": 1910.46,
-    "totalPayments": 114627.60,
-    "totalInterest": 14627.60
+    "totalPayments": 114627.6,
+    "totalInterest": 14627.6
   }
 }
 ```
@@ -202,7 +341,8 @@ The API includes MCP server functionality for seamless integration with AI model
 
 ### Available MCP Tools
 
-- Lease analysis tools
+- **analyze_lease** - Lease analysis calculations
+- **analyze_amortization** - Amortization schedule calculations
 - Financial calculation tools
 - Document processing tools
 

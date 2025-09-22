@@ -1,3 +1,4 @@
+import { AmortizationTool } from '../tools/amortization';
 import { LeaseTool } from '../tools/lease';
 
 export interface MCPTool {
@@ -18,7 +19,12 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: LeaseTool.inputSchema,
       execute: (input) => LeaseTool.execute(input),
     },
-    // Add more tools here as they are implemented
+    {
+      name: AmortizationTool.toolName,
+      description: AmortizationTool.description,
+      inputSchema: AmortizationTool.inputSchema,
+      execute: (input) => AmortizationTool.execute(input),
+    },
   ];
 }
 
@@ -63,15 +69,14 @@ export async function handleMCPRequest(
         })),
       };
 
-    case 'tools/call':
-      {
-        const { name, arguments: args } = params as MCPCallParams;
-        const tool = tools.find((t) => t.name === name);
+    case 'tools/call': {
+      const { name, arguments: args } = params as MCPCallParams;
+      const tool = tools.find((t) => t.name === name);
       if (!tool) {
-          throw new Error(`Tool ${name} not found`);
+        throw new Error(`Tool ${name} not found`);
       }
-        return await tool.execute(args);
-      }
+      return await tool.execute(args);
+    }
 
     default: {
       // Exhaustiveness check

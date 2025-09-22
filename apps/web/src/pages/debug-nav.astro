@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<!-- Nav Isolation Debug Page: Renders minimal content to test navbar persistence without other page sections. -->
+<Layout title="Nav Debug" description="Debug navbar persistence">
+  <div class="max-w-xl mx-auto py-24 space-y-6 text-sm">
+    <h1 class="text-2xl font-semibold">Navbar Debug Page</h1>
+    <p>This page intentionally has minimal DOM so we can observe whether the navigation bar disappears independently of complex page content.</p>
+    <ol class="list-decimal pl-5 space-y-2">
+      <li>Open DevTools Console and watch for [NAV MUTATION] or [NAV RESTORE] logs.</li>
+      <li>If the nav disappears visually, capture the last 10 console lines.</li>
+      <li>Run in console: <code>window.__navCheck && window.__navCheck()</code> to force an integrity check.</li>
+      <li>Report any mutation stack traces you see here.</li>
+    </ol>
+    <p>If this page keeps the nav stable while another page does not, the issue likely relates to content/scripts specific to that other page.</p>
+  </div>
+</Layout>

@@ -7,9 +7,7 @@ test.describe('Accessibility', () => {
   for (const path of paths) {
     test(`no a11y violations on ${path}`, async ({ page }) => {
       await page.goto(path);
-
-      // Ensure skip links are focusable
-      await page.keyboard.press('Tab');
+      await page.waitForLoadState('networkidle');
 
       const accessibilityScanResults = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])

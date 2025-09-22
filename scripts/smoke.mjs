@@ -12,12 +12,14 @@ const targets = [
   { name: 'WEB', url: 'http://localhost:8788/' },
 ];
 
-function now() { return performance.now(); }
+function now() {
+  return performance.now();
+}
 
 async function check({ name, url }) {
   const start = now();
   try {
-  const res = await fetchFn(url, { redirect: 'manual' });
+    const res = await fetchFn(url, { redirect: 'manual' });
     const ms = Math.round(now() - start);
     const ok = res.ok;
     const status = res.status;
@@ -25,7 +27,10 @@ async function check({ name, url }) {
     try {
       const ct = res.headers.get('content-type') || '';
       if (ct.includes('application/json')) {
-        const json = await res.clone().json().catch(() => undefined);
+        const json = await res
+          .clone()
+          .json()
+          .catch(() => undefined);
         if (json && json.status) info = ` status=${json.status}`;
       }
     } catch (err) {

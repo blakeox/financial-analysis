@@ -1,4 +1,5 @@
 // Tool Modules
+export { AmortizationTool } from './tools/amortization';
 export { LeaseTool } from './tools/lease';
 
 // MCP Integration

@@ -1,16 +1,25 @@
 ---
-import { Navbar, Footer } from '@financial-analysis/ui';
+import { Footer, ChatPanel } from '@financial-analysis/ui';
 import SEO from '../components/SEO.astro';
 import '../styles/global.css';
+import ModernNavBar from '../components/ModernNavBar.astro';
 
 export interface Props {
   title: string;
   description?: string;
   canonical?: string;
   image?: string;
+  showNav?: boolean;
 }
 
-const { title, description = "Financial Analysis Tooling", canonical, image } = Astro.props;
+const { title, description = "Financial Analysis Tooling", canonical, image, showNav = true } = Astro.props as Props;
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Models', href: '/models' },
+  { label: 'Analysis', href: '/analysis' },
+  { label: 'Status', href: '/status' },
+];
 ---
 
 <!doctype html>
@@ -18,6 +27,7 @@ const { title, description = "Financial Analysis Tooling", canonical, image } = 
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} />
@@ -30,23 +40,53 @@ const { title, description = "Financial Analysis Tooling", canonical, image } = 
         document.documentElement.classList.add('dark');
       }
     </script>
+
+      {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
+      {import.meta.env.PROD && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+            rel="stylesheet"
+          />
+        </>
+      )}
+
+      {/* Dev: force system font to avoid font-swap metric shifts */}
+      {import.meta.env.DEV && (
+        <style is:inline>{`:root{--font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;}`}</style>
+      )}
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen font-sans">
-    <!-- Skip Links -->
+    <!-- Skip Link (visually hidden until focus) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <a href="#site-header" class="skip-link">Skip to navigation</a>
+    <style is:inline>
+      .skip-link {position:absolute;left:0;top:0;transform:translateY(-120%);background:#1f2937;color:#fff;padding:.5rem .75rem;border-radius:0 0 .5rem 0;font-size:.875rem;font-weight:500;outline:2px solid transparent;transition:transform .25s;z-index:60;text-decoration:none;}
+      .skip-link:focus {transform:translateY(0);outline:2px solid #3b82f6;}
+      .dark .skip-link {background:#111827;}
+    </style>
+    
 
     <!-- Header / Navigation -->
-    <header id="site-header">
-      <Navbar client:load sticky currentPath={Astro.url.pathname} />
-    </header>
+    {showNav && (
+      <div id="site-header">
+        <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Analysis" />
+      </div>
+    )}
+
+      {/* Spacer to reserve header height and prevent content jump (h-16 = 4rem) */}
+      <div aria-hidden="true" class="h-16" />
 
     <!-- Main Content -->
-    <main id="main-content" tabindex="-1" class="flex-1">
+      <main id="main-content" tabindex="-1" class="flex-1">
       <slot />
     </main>
 
     <!-- Footer -->
     <Footer client:load />
+
+    <!-- Floating Chat Assistant (right-side drawer) -->
+    <ChatPanel client:load title="Financial Analysis" />
   </body>
 </html>

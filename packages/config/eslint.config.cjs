@@ -8,7 +8,7 @@ const astroPlugin = require('eslint-plugin-astro');
 module.exports = [
   js.configs.recommended,
   {
-    ignores: ['**/*.d.ts']
+    ignores: ['**/*.d.ts'],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -20,7 +20,7 @@ module.exports = [
         projectService: true,
         // Allow files to be linted even if the TS Project Service doesn't find them
         allowDefaultProject: true,
-  // Let TS ESLint fall back to default project when file isn't part of a configured project
+        // Let TS ESLint fall back to default project when file isn't part of a configured project
       },
     },
     plugins: { '@typescript-eslint': tsPlugin },

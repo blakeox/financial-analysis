@@ -1,0 +1,108 @@
+name: Monitor R2 Quotas (prod)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # every 30 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitor-r2-quotas
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check storage status
+        id: status
+        env:
+          API_URL: ${{ vars.PROD_API_URL }}
+        run: |
+          set -euo pipefail
+          API="${API_URL:-https://financial-analysis-api-production.blakeoxford.workers.dev}"
+          resp=$(curl -sfSL "$API/v1/storage/status")
+          echo "Response: $resp"
+          locked=$(echo "$resp" | jq -r '.locked')
+          approx=$(echo "$resp" | jq -r '.approxBytes')
+          soft=$(echo "$resp" | jq -r '.softLimit')
+          # 80% threshold using integer arithmetic
+          thresh=$(( soft * 80 / 100 ))
+          echo "api=$API" >> "$GITHUB_OUTPUT"
+          echo "locked=$locked" >> "$GITHUB_OUTPUT"
+          echo "approx=$approx" >> "$GITHUB_OUTPUT"
+          echo "soft=$soft" >> "$GITHUB_OUTPUT"
+          echo "thresh=$thresh" >> "$GITHUB_OUTPUT"
+          if [ "$locked" = "true" ]; then
+            echo "R2 uploads locked due to quota"
+            exit 1
+          fi
+          if [ "$approx" -ge "$thresh" ]; then
+            echo "R2 usage approaching soft limit (>=80%)"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Notify (optional Slack)
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            msg="R2 quota alert. locked=${{ steps.status.outputs.locked }}, approx=${{ steps.status.outputs.approx }}, soft=${{ steps.status.outputs.soft }}, thresh=${{ steps.status.outputs.thresh }}"
+            curl -X POST -H 'Content-type: application/json' --data "{\"text\": \"$msg\"}" "$SLACK_WEBHOOK_URL"
+          else
+            echo "No SLACK_WEBHOOK_URL configured; skipping notification"
+          fi
+
+      - name: Create or update GitHub Issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { locked, approx, soft, thresh, api } = {
+              locked: process.env.LOCKED || '${{ steps.status.outputs.locked }}',
+              approx: process.env.APPROX || '${{ steps.status.outputs.approx }}',
+              soft: process.env.SOFT || '${{ steps.status.outputs.soft }}',
+              thresh: process.env.THRESH || '${{ steps.status.outputs.thresh }}',
+              api: process.env.API || '${{ steps.status.outputs.api }}',
+            };
+            const title = `R2 quota alert: ${locked === 'true' ? 'LOCKED' : 'HIGH USAGE'}`;
+            const body = [
+              `Automated alert from Monitor R2 Quotas workflow.`,
+              '',
+              `- API: ${api}`,
+              `- locked: ${locked}`,
+              `- approxBytes: ${approx}`,
+              `- softLimit: ${soft}`,
+              `- 80% threshold: ${thresh}`,
+              `- Timestamp: ${new Date().toISOString()}`,
+              '',
+              `This issue is created automatically when R2 usage is locked or ≥80% of the soft limit. It will be reused for subsequent alerts.`,
+            ].join('\n');
+
+            // Try to find an existing open issue with our label and similar title
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const label = 'alert:R2-quota';
+            // Ensure label exists (ignore errors if already exists)
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: label });
+            } catch {
+              try { await github.rest.issues.createLabel({ owner, repo, name: label, color: 'B60205', description: 'R2 quota monitoring alerts' }); } catch {}
+            }
+
+            const { data: issues } = await github.rest.issues.listForRepo({ owner, repo, state: 'open', labels: label });
+            const existing = issues.find(i => i.title.startsWith('R2 quota alert'));
+
+            if (existing) {
+              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body });
+              core.info(`Commented on existing issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
+              core.info(`Created issue #${created.data.number}`);
+            }

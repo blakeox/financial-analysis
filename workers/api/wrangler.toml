@@ -1,29 +1,36 @@
 name = "financial-analysis-api"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "development"
+R2_SOFT_LIMIT_BYTES = 1073741824     # 1 GiB (dev)
+R2_HARD_LIMIT_BYTES = 2147483648     # 2 GiB (dev)
+MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0       # 0 disables Cache API for analysis responses by default
+# Comma-separated MIME type prefixes allowed for uploads. Tighten as needed per env.
+# Example covers PDFs and modern Office docs (docx/xlsx/pptx via vnd.openxmlformats).
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 
-# Bindings for local development
+[triggers]
+# Reconcile approximate R2 usage hourly to enforce soft-limit lock/unlock.
+crons = ["0 * * * *"]
+
+# Resource bindings (development/local)
 [[d1_databases]]
 binding = "DB"
 database_name = "financial-analysis-db"
-database_id = "your_d1_database_id_here"
+database_id = "d7308084-125e-4675-88ae-bbb096af5167"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "your_kv_namespace_id_here"
-preview_id = "your_kv_namespace_id_here"
+id = "2b02898694364a2693681466265c912d"
 
 [[r2_buckets]]
 binding = "DOCUMENTS"
+# Replace with your actual bucket name (existing)
 bucket_name = "financial-analysis-documents"
-preview_bucket_name = "financial-analysis-documents"
-
-[build]
-command = "npm run build"
 
 # Development configuration
 [dev]
@@ -31,3 +38,57 @@ port = 8787
 local_protocol = "http"
 upstream_protocol = "https"
 host = "localhost"
+
+# Preview environment
+[env.preview]
+[env.preview.vars]
+ENVIRONMENT = "preview"
+R2_SOFT_LIMIT_BYTES = 2147483648     # 2 GiB (preview)
+R2_HARD_LIMIT_BYTES = 3221225472     # 3 GiB (preview)
+MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0
+# Tighten MIME allowlist in preview if needed for testing stricter policies.
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
+
+[env.preview.triggers]
+crons = ["0 * * * *"]
+
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "financial-analysis-db"
+database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+
+[[env.preview.kv_namespaces]]
+binding = "SESSIONS"
+id = "2b02898694364a2693681466265c912d"
+
+[[env.preview.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "financial-analysis-documents"
+
+# Production environment
+[env.production]
+[env.production.vars]
+ENVIRONMENT = "production"
+R2_SOFT_LIMIT_BYTES = 8589934592     # 8 GiB (prod)
+R2_HARD_LIMIT_BYTES = 9663676416     # 9 GiB (prod)
+MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+ANALYSIS_CACHE_TTL_SECONDS = 0
+# Consider making this stricter in production if business rules require fewer types.
+ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
+
+[env.production.triggers]
+crons = ["0 * * * *"]
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "financial-analysis-db"
+database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+
+[[env.production.kv_namespaces]]
+binding = "SESSIONS"
+id = "2b02898694364a2693681466265c912d"
+
+[[env.production.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "financial-analysis-documents"

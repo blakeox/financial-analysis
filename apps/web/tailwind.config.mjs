@@ -4,7 +4,6 @@ export default {
     './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
     '../../packages/ui/src/**/*.{js,jsx,ts,tsx}', // Include UI package components (relative to apps/web)
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {

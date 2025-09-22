@@ -1,8 +1,11 @@
 // Financial Analysis Engines
 export { LeaseAnalyzer } from './engines/lease';
+export { AmortizationAnalyzer } from './engines/amortization';
 
 // Types
 export type { LeaseAnalysisResult } from './engines/lease';
+export type { AmortizationAnalysisResult } from './engines/amortization';
+export { AmortizationInputSchema } from './engines/amortization';
 
 // Utilities (placeholder - to be implemented)
 import { z } from 'zod';

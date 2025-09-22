@@ -1,6 +1,6 @@
 name = "financial-analysis-web"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
@@ -11,11 +11,21 @@ directory = "../../apps/web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 
-[build]
-command = "pnpm --filter @financial-analysis/web build"
+
+# Removed [build] custom command to prevent duplicate astro build runs during dev.
 
 [dev]
 port = 8788
 local_protocol = "http"
 upstream_protocol = "https"
 host = "localhost"
+
+# Preview environment
+[env.preview]
+[env.preview.vars]
+ENVIRONMENT = "preview"
+
+# Production environment
+[env.production]
+[env.production.vars]
+ENVIRONMENT = "production"

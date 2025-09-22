@@ -29,18 +29,12 @@ financial-analysis/
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Astro, React, Tailwind CSS
-- **Backend**: Cloudflare Workers, TypeScript
-- **Database**: Cloudflare D1 (SQLite)
-- **Storage**: Cloudflare R2
 - **Sessions**: Cloudflare KV
 - **LLM**: MCP Protocol for AI integration
 - **Math**: Decimal.js for financial precision
 - **Testing**: Vitest, Testing Library
-- **Code Quality**: ESLint, Prettier
-- **Package Manager**: pnpm with workspaces
 
-## 📋 Prerequisites
+Requirements:
 
 - Node.js 18+
 - pnpm 8+
@@ -66,8 +60,6 @@ financial-analysis/
 
    ```bash
    cp .env.example .env.local
-   # Edit .env.local with your configuration
-   ```
 
 4. **Start development servers**
 
@@ -141,6 +133,13 @@ pnpm run test --watch
 pnpm run test lease.test.ts
 ```
 
+### Rate limiting headers
+
+- All API and MCP responses include:
+  - `X-RateLimit-Remaining` and `X-RateLimit-Reset` (epoch seconds) when applicable.
+- When over the limit, responses return `429` with `Retry-After` seconds and `X-RateLimit-*`.
+- Non-API routes (e.g., `/health`, `/docs`, `/openapi.json`) omit rate limit headers.
+
 ### E2E Accessibility Tests (Playwright + axe)
 
 ```bash
@@ -156,14 +155,58 @@ pnpm test:e2e
 ```
 
 Notes:
-- Tests run against the Astro preview server at http://127.0.0.1:4321.
+
+- Tests run against the Astro preview server at <http://127.0.0.1:4321>.
 - Pages checked: /, /models, /analysis. The suite fails on any WCAG A/AA violations.
+
+Dev-only HMR stability test:
+
+- This suite requires the Astro dev server (HMR enabled). It is skipped in CI/preview by default.
+
+```bash
+# From repo root (convenience script)
+pnpm run test:e2e:hmr:web
+
+# Or from apps/web
+pnpm --filter @financial-analysis/web run test:e2e:hmr
+```
+
+The script starts the dev server (via Playwright webServer in `playwright.dev.config.ts`) and runs only the `Navbar dev HMR stability` tests. It sets `PLAYWRIGHT_DEV=1` to opt-in.
+
+CI note:
+
+- The web app has a `prebuild` script that rebuilds the `@financial-analysis/ui` package and clears `apps/web/node_modules/.vite` to avoid stale optimized chunks during builds. Ensure CI uses `pnpm --filter @financial-analysis/web build` (or invokes the app’s build script) before Playwright runs so the latest UI dist is consumed.
 
 ## 🚢 Deployment
 
 ### Development
 
 ```bash
+
+## R2 storage guardrails
+
+To keep storage within free-tier bounds, the API worker enforces conservative R2 quotas with a KV-backed approximate counter and a scheduled reconciliation:
+
+- Endpoints
+  - `GET /v1/storage/status` — returns bucket status, approximate bytes, soft/hard limits, and whether uploads are locked
+  - `PUT /v1/storage/object/:key` — requires `Content-Length` (or `X-Content-Length`) and enforces size/quotas
+  - `DELETE /v1/storage/object/:key` — deletes object and decrements approximate bytes using HEAD size
+- Limits (configured in `workers/api/wrangler.toml` per env)
+  - `R2_SOFT_LIMIT_BYTES` — crossing this triggers a lock to prevent further uploads
+  - `R2_HARD_LIMIT_BYTES` — absolute max; uploads above this are rejected
+  - `MAX_OBJECT_SIZE_BYTES` — per-object cap
+- Lock/unlock behavior
+  - Uploads that would exceed soft or hard limits are rejected and set a lock flag in KV
+  - A scheduled job (hourly cron) totals bucket usage and updates the approximate counter
+  - The job locks when total > soft limit, unlocks when total < 80% of soft limit (hysteresis), otherwise preserves current lock state
+
+Recommended operations
+
+- Lifecycle rules: configure R2 lifecycle policies (expiration by prefix, age, or size) to keep usage comfortably below soft limits
+- Monitoring: alert on the `locked` flag (e.g., poll `/v1/storage/status`) and on rapid growth of `approxBytes`
+- Safety: keep `MAX_OBJECT_SIZE_BYTES` small (e.g., 10 MiB) while iterating; raise thoughtfully if needed
+
+See `workers/api/src/index.ts` for the implementation and `workers/api/src/openapi.ts` for documentation. Unit tests in `workers/api/src/__tests__/storage.test.ts` cover status/upload/delete and reconciliation.
 pnpm run deploy:api   # Deploy API to Cloudflare Workers
 pnpm run deploy:web   # Deploy frontend as a standalone Cloudflare Worker (serving Astro build)
 ```
@@ -173,6 +216,91 @@ pnpm run deploy:web   # Deploy frontend as a standalone Cloudflare Worker (servi
 ```bash
 pnpm run deploy:all   # Deploy both API and frontend workers
 ```
+
+### Explicit environments
+
+Use explicit environments to avoid ambiguity when multiple envs exist in wrangler.toml.
+
+```bash
+# Preview
+pnpm run deploy:api:preview
+pnpm run deploy:web:preview
+
+# Production
+pnpm run deploy:api:production
+pnpm run deploy:web:production
+```
+
+Expected bindings:
+
+- API worker:
+  - D1: DB
+  - KV: SESSIONS
+  - R2: DOCUMENTS
+  - Env vars: ENVIRONMENT (development|preview|production), optional ALLOWED_ORIGIN
+- Web worker:
+  - ASSETS bound to apps/web/dist
+  - Env var: ENVIRONMENT
+
+Dry runs:
+
+```bash
+cd workers/api && pnpm run deploy:dry-run:preview   # or :production
+cd workers/web && pnpm run build                    # dry-run deploy
+```
+
+### CI and Preview Deploys
+
+This repo includes GitHub Actions for CI and preview deploys:
+
+- `.github/workflows/ci.yml`: Typecheck, lint, and run unit tests on PRs and pushes to `main`.
+- `.github/workflows/deploy-preview.yml`: Builds the site and deploys both Workers to Cloudflare preview. It injects `COMMIT_SHA` so `/version` returns the current commit.
+
+Required GitHub secrets (Repository Settings → Secrets and variables → Actions):
+
+- `CLOUDFLARE_API_TOKEN`: API token with permissions for Workers Writes, KV Read/Write, R2 Read/Write, and D1 Edit.
+- `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID.
+
+How to find Cloudflare resource IDs with Wrangler:
+
+```bash
+# Login
+pnpm dlx wrangler login
+
+# Account ID
+pnpm dlx wrangler whoami
+
+# KV namespaces
+pnpm dlx wrangler kv namespaces list
+
+# R2 buckets
+pnpm dlx wrangler r2 bucket list
+
+# D1 databases
+pnpm dlx wrangler d1 list
+```
+
+Then update `workers/api/wrangler.toml` replacing placeholders:
+
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "financial-analysis-db"
+database_id = "<YOUR_D1_DATABASE_ID>"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "<YOUR_KV_NAMESPACE_ID>"
+
+[[r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "<YOUR_R2_BUCKET_NAME>"
+```
+
+Note on COMMIT_SHA:
+
+- The `/version` endpoint reads `env.COMMIT_SHA`. The preview deploy workflow passes `--var COMMIT_SHA:${GITHUB_SHA}` so the value is available at runtime.
+
 
 ### Environment Setup
 

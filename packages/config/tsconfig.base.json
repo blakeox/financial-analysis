@@ -11,7 +11,7 @@
     "declaration": true,
     "declarationMap": true,
     "stripInternal": true,
-    
+
     "removeComments": true,
     "importHelpers": true,
     "downlevelIteration": true,

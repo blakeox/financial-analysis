@@ -1,4 +1,11 @@
-// Reuse shared flat config
+// Reuse shared flat config and add package-local ignores
+const base = require('@financial-analysis/config/eslint.config.cjs');
+
 module.exports = [
-  ...require('@financial-analysis/config/eslint.config.cjs'),
+	...base,
+	{
+		ignores: [
+			'src/**/*.d.ts',
+		],
+	},
 ];
