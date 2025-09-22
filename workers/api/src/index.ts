@@ -8,71 +8,33 @@ import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
 import { z } from 'zod';
 import { getOpenApiDocument } from './openapi';
-
-interface Env {
-  // Make resource bindings optional so we can deploy without provisioning
-  DB?: D1Database;
-  SESSIONS?: KVNamespace; // optional KV for rate limiting; if absent, RL is a no-op
-  DOCUMENTS?: R2Bucket;
-  ENVIRONMENT: string; // 'development' | 'preview' | 'production'
-  ALLOWED_ORIGIN?: string; // optional CORS allowlist origin
-  COMMIT_SHA?: string; // optional commit SHA for /version
-  // Optional admin token for privileged operations (e.g., manual reconcile)
-  ADMIN_API_TOKEN?: string;
-  // Optional Workers AI binding and model configuration
-  AI?: Ai; // Cloudflare Workers AI binding (optional)
-  WORKERS_AI_MODEL?: string; // e.g. "@cf/meta/llama-3.1-8b-instruct"
-  // Optional quota/limits (string to allow env var parsing)
-  R2_SOFT_LIMIT_BYTES?: string;
-  R2_HARD_LIMIT_BYTES?: string;
-  MAX_OBJECT_SIZE_BYTES?: string;
-  // Optional comma-separated MIME prefixes to allow (e.g., "application/pdf,application/vnd.openxmlformats").
-  ALLOWED_UPLOAD_MIME_PREFIXES?: string;
-  // Optional TTL (seconds) for deterministic analysis caching; 0 or unset disables Cache API.
-  ANALYSIS_CACHE_TTL_SECONDS?: string;
-}
+import type { Env } from './types';
+// Lib barrel export consolidates helpers in one place for tidy imports
+import {
+  getCorsHeaders,
+  getSecurityHeaders,
+  buildDefaultHeaders,
+  getDefaultCache,
+  sha256Hex,
+  stableStringify,
+  getAnalysisCacheTtl,
+  getMaxJsonBytes,
+  getThresholds,
+  checkRateLimit,
+  attachRateLimitHeaders,
+  type RateLimitInfo,
+  getApproxBytes,
+  isQuotaLocked,
+  setQuotaLocked,
+  adjustApproxBytes,
+  reconcileBucketUsage,
+} from './lib';
+import { registerHealthRoute } from './routes/health';
 
 // Helper: get Cloudflare Workers default Cache if available
-function getDefaultCache(): Cache | undefined {
-  if (typeof caches === 'undefined') return undefined;
-  const cs = caches as CacheStorage & { default?: Cache };
-  return cs.default;
-}
-
 const router = Router();
 
 // ---- Headers helpers ----
-function getCorsHeaders(env: Env): Record<string, string> {
-  const origin = env.ALLOWED_ORIGIN || '*';
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    Vary: 'Origin',
-  };
-}
-
-function getSecurityHeaders(env: Env): Record<string, string> {
-  const isProd = env.ENVIRONMENT === 'production';
-  return {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Content-Security-Policy': "default-src 'self'",
-    ...(isProd
-      ? { 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload' }
-      : {}),
-  };
-}
-
-function buildDefaultHeaders(env: Env): Record<string, string> {
-  return {
-    'Content-Type': 'application/json',
-    ...getCorsHeaders(env),
-    ...getSecurityHeaders(env),
-  };
-}
 
 // ---- Chat types (minimal, OpenAI-compatible-ish) ----
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
@@ -90,78 +52,10 @@ type ChatResponse = {
   usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
 };
 
-// ---- Rate limiting (simple KV-based) ----
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100; // requests per window
-
-type RateLimitInfo = {
-  allowed: boolean;
-  remaining: number;
-  resetTime: number; // epoch ms
-};
-
-async function checkRateLimit(request: Request, env: Env): Promise<RateLimitInfo> {
-  const clientIP =
-    request.headers.get('CF-Connecting-IP') ||
-    request.headers.get('X-Forwarded-For') ||
-    'unknown';
-
-  const key = `ratelimit:${clientIP}`;
-  const now = Date.now();
-
-  try {
-    // If KV is not bound, skip persistence and allow the request.
-    if (!env.SESSIONS) {
-      return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS, resetTime: now + RATE_LIMIT_WINDOW };
-    }
-    const data = await env.SESSIONS.get(key);
-    const rateLimitData: { count: number; resetTime: number } = data
-      ? JSON.parse(data)
-      : { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
-
-    if (now > rateLimitData.resetTime) {
-      rateLimitData.count = 1;
-      rateLimitData.resetTime = now + RATE_LIMIT_WINDOW;
-    } else {
-      rateLimitData.count++;
-    }
-
-    const remaining = Math.max(0, RATE_LIMIT_MAX_REQUESTS - rateLimitData.count);
-    const allowed = rateLimitData.count <= RATE_LIMIT_MAX_REQUESTS;
-
-    await env.SESSIONS.put(key, JSON.stringify(rateLimitData), {
-      expirationTtl: Math.ceil((rateLimitData.resetTime - now) / 1000),
-    });
-
-    return { allowed, remaining, resetTime: rateLimitData.resetTime };
-  } catch (error) {
-    console.warn('Rate limiting check failed:', error);
-    // If RL fails, allow request with sentinel headers
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS, resetTime: now + RATE_LIMIT_WINDOW };
-  }
-}
-
-function attachRateLimitHeaders(headers: Headers, info: RateLimitInfo) {
-  headers.set('X-RateLimit-Limit', String(RATE_LIMIT_MAX_REQUESTS));
-  headers.set('X-RateLimit-Remaining', String(info.remaining));
-  headers.set('X-RateLimit-Reset', String(Math.ceil(info.resetTime / 1000))); // seconds epoch
-}
+// Rate limiting now lives in ./lib/rate-limit
 
 // ---- R2 quota guardrails (KV-backed approximate counters) ----
-const QUOTA_KEY = 'quota:bytes';
-const QUOTA_LOCK_KEY = 'quota:locked';
-
-function getThresholds(env: Env) {
-  const GiB = 1024 * 1024 * 1024;
-  const soft = Number(env.R2_SOFT_LIMIT_BYTES ?? 8.5 * GiB);
-  const hard = Number(env.R2_HARD_LIMIT_BYTES ?? 9.5 * GiB);
-  const maxObj = Number(env.MAX_OBJECT_SIZE_BYTES ?? 25 * 1024 * 1024); // 25MB
-  // Ensure sane ordering
-  const softLimit = Math.min(soft, hard - 1);
-  const hardLimit = hard;
-  const maxObjectSize = Math.max(1, maxObj);
-  return { softLimit, hardLimit, maxObjectSize };
-}
+// Quota helpers now live in ./lib/quota
 
 function hasControlChars(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
@@ -171,100 +65,10 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
-// ---- Deterministic cache helpers ----
-function stableStringify(value: unknown): string {
-  // JSON stringify with stable key ordering for objects/arrays
-  if (value === null || typeof value !== 'object') return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map((v) => stableStringify(v)).join(',')}]`;
-  const obj = value as Record<string, unknown>;
-  const keys = Object.keys(obj).sort();
-  const parts: string[] = [];
-  for (const k of keys) parts.push(`${JSON.stringify(k)}:${stableStringify(obj[k])}`);
-  return `{${parts.join(',')}}`;
-}
 
-async function sha256Hex(input: string): Promise<string> {
-  const enc = new TextEncoder();
-  const bytes = enc.encode(input);
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  const arr = new Uint8Array(digest);
-  let hex = '';
-  for (const b of arr) hex += b.toString(16).padStart(2, '0');
-  return hex;
-}
 
-function getAnalysisCacheTtl(env: Env): number {
-  const n = Number(env.ANALYSIS_CACHE_TTL_SECONDS ?? 0);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
-}
 
-async function kvGetNumber(env: Env, key: string, def = 0): Promise<number> {
-  if (!env.SESSIONS) return def;
-  const v = await env.SESSIONS.get(key);
-  if (!v) return def;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : def;
-}
-
-async function kvPutNumber(env: Env, key: string, value: number): Promise<void> {
-  if (!env.SESSIONS) return;
-  await env.SESSIONS.put(key, String(Math.max(0, Math.floor(value))));
-}
-
-async function isQuotaLocked(env: Env): Promise<boolean> {
-  if (!env.SESSIONS) return false;
-  const v = await env.SESSIONS.get(QUOTA_LOCK_KEY);
-  return v === '1';
-}
-
-async function setQuotaLocked(env: Env, locked: boolean): Promise<void> {
-  if (!env.SESSIONS) return;
-  await env.SESSIONS.put(QUOTA_LOCK_KEY, locked ? '1' : '0');
-}
-
-async function getApproxBytes(env: Env): Promise<number> {
-  return kvGetNumber(env, QUOTA_KEY, 0);
-}
-
-async function adjustApproxBytes(env: Env, delta: number): Promise<number> {
-  const curr = await getApproxBytes(env);
-  const next = Math.max(0, curr + Math.floor(delta));
-  await kvPutNumber(env, QUOTA_KEY, next);
-  return next;
-}
-
-// Reconcile helper shared by scheduled and admin endpoint
-async function reconcileBucketUsage(env: Env): Promise<{ bytes: number; locked: boolean; scanned: number }> {
-  if (!env.DOCUMENTS || !env.SESSIONS) return { bytes: await getApproxBytes(env), locked: await isQuotaLocked(env), scanned: 0 };
-  const bucket: R2Bucket = env.DOCUMENTS;
-  const { softLimit } = getThresholds(env);
-  let cursor: string | undefined = undefined;
-  let total = 0;
-  let scanned = 0;
-  const MAX_KEYS = 10000; // safety bound to limit Class A operations
-  do {
-    const opts = cursor ? { cursor, limit: 1000 } : { limit: 1000 };
-    const list = await bucket.list(opts as R2ListOptions);
-    for (const obj of list.objects) {
-      total += obj.size;
-      scanned++;
-      if (scanned >= MAX_KEYS) break;
-    }
-    cursor = list.truncated && scanned < MAX_KEYS ? list.cursor : undefined;
-  } while (cursor && scanned < MAX_KEYS);
-  await kvPutNumber(env, QUOTA_KEY, total);
-  // Decide lock state deterministically
-  let nextLock: boolean;
-  if (total > softLimit) {
-    nextLock = true;
-  } else if (total < softLimit * 0.8) {
-    nextLock = false;
-  } else {
-    nextLock = await isQuotaLocked(env);
-  }
-  await setQuotaLocked(env, nextLock);
-  return { bytes: total, locked: nextLock, scanned };
-}
+// Quota helpers moved to ./lib/quota
 
 // ---- Error handling wrapper ----
 type RouteHandler = (request: Request, env: Env) => Response | Promise<Response>;
@@ -327,20 +131,8 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
 }
 
 // ---- Routes ----
-// Health check endpoint
-router.get('/health', (_req: Request, env: Env) => {
-  return new Response(
-    JSON.stringify({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      environment: env.ENVIRONMENT,
-      version: 'v1',
-    }),
-    {
-      headers: buildDefaultHeaders(env),
-    }
-  );
-});
+// Health check endpoint (registered from routes module)
+registerHealthRoute(router as unknown as import('itty-router').RouterType);
 
 // Lightweight ping endpoint for uptime checks
 router.get('/ping', (_req: Request, env: Env) => {
@@ -367,38 +159,73 @@ router.get('/version', (_req: Request, env: Env) => {
 });
 
 // Root route -> health (friendly JSON + links)
-router.get('/', (_req: Request, env: Env) => {
-  return new Response(
-    JSON.stringify({
-      status: 'ok',
-      service: 'financial-analysis-api',
-      timestamp: new Date().toISOString(),
-      environment: env.ENVIRONMENT,
-      docs: '/docs',
-      openapi: '/openapi.json',
-      health: '/health',
-      storage: '/v1/storage/status',
-    }),
-    { headers: buildDefaultHeaders(env) }
-  );
+router.get('/', async (request: Request, env: Env) => {
+  const payload = {
+    status: 'ok',
+    service: 'financial-analysis-api',
+    environment: env.ENVIRONMENT,
+    docs: '/docs',
+    openapi: '/openapi.json',
+    health: '/health',
+    storage: '/v1/storage/status',
+  } as const;
+  const json = JSON.stringify(payload);
+  const etagHex = await sha256Hex(json);
+  const etag = `"${etagHex}"`;
+  const inm = request.headers.get('if-none-match');
+  const matches = (a: string, b: string) => {
+    const norm = (s: string) => s.trim().replace(/^W\//i, '').replace(/^"|"$/g, '');
+    return norm(a) === norm(b);
+  };
+  if (inm && matches(inm, etag)) {
+    return new Response(null, {
+      status: 304,
+      headers: {
+        ...getCorsHeaders(env),
+        ...getSecurityHeaders(env),
+        'Content-Type': 'application/json',
+        ETag: etag,
+        'Cache-Control': 'public, max-age=60',
+      },
+    });
+  }
+
+  return new Response(json, {
+    headers: {
+      ...buildDefaultHeaders(env),
+      'Content-Type': 'application/json',
+      ETag: etag,
+      'Cache-Control': 'public, max-age=60',
+    },
+  });
 });
 
 // CORS preflight for API and MCP endpoints
-router.options('/mcp', (_req: Request, env: Env) =>
-  new Response(null, { headers: getCorsHeaders(env) })
-);
-router.options('/api/*', (_req: Request, env: Env) =>
-  new Response(null, { headers: getCorsHeaders(env) })
-);
-router.options('/v1/*', (_req: Request, env: Env) =>
-  new Response(null, { headers: getCorsHeaders(env) })
-);
-router.options('/openapi.json', (_req: Request, env: Env) =>
-  new Response(null, { headers: getCorsHeaders(env) })
-);
-router.options('/docs', (_req: Request, env: Env) =>
-  new Response(null, { headers: getCorsHeaders(env) })
-);
+router.options('/mcp', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'POST, OPTIONS');
+  return new Response(null, { headers });
+});
+router.options('/api/*', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'GET, POST, PUT, DELETE, OPTIONS');
+  return new Response(null, { headers });
+});
+router.options('/v1/*', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'GET, POST, PUT, DELETE, OPTIONS');
+  return new Response(null, { headers });
+});
+router.options('/openapi.json', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'GET, OPTIONS');
+  return new Response(null, { headers });
+});
+router.options('/docs', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'GET, OPTIONS');
+  return new Response(null, { headers });
+});
 
 // ---- Workers AI Chat endpoint ----
 router.post(
@@ -784,7 +611,29 @@ router.post(
       );
     }
 
-    const body = await request.json().catch(() => undefined);
+    // Enforce JSON body size cap
+    const maxBytes = getMaxJsonBytes(env);
+    const declaredLen = request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    if (declaredLen && Number(declaredLen) > maxBytes) {
+      return new Response(
+        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const text = await request.text();
+    if (text.length > maxBytes) {
+      return new Response(
+        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const body = (() => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return undefined;
+      }
+    })();
 
     const parseResult = FinancialInputSchema.safeParse(body);
     if (!parseResult.success) {
@@ -812,18 +661,22 @@ router.post(
       const keyStr = await sha256Hex(stableStringify({ route: 'lease', input: parseResult.data }));
       const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
       const cached = await cache.match(cacheReq);
-      if (cached) return cached;
+      if (cached) {
+        const hitHeaders = new Headers(cached.headers);
+        hitHeaders.set('X-Cache', 'HIT');
+        return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers: hitHeaders });
+      }
       const result = LeaseAnalyzer.analyze(parseResult.data);
       const res = new Response(JSON.stringify(result), {
         status: 200,
-        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}` },
+        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}`, 'X-Cache': 'MISS' },
       });
       void cache.put(cacheReq, res.clone());
       return res;
     }
 
     const result = LeaseAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), { status: 200, headers: buildDefaultHeaders(env) });
+    return new Response(JSON.stringify(result), { status: 200, headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' } });
   })
 );
 
@@ -843,7 +696,29 @@ router.post(
         { status: 415, headers: buildDefaultHeaders(env) }
       );
     }
-    const body = await request.json().catch(() => undefined);
+    // Enforce JSON body size cap
+    const maxBytes = getMaxJsonBytes(env);
+    const declaredLen = request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    if (declaredLen && Number(declaredLen) > maxBytes) {
+      return new Response(
+        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const text = await request.text();
+    if (text.length > maxBytes) {
+      return new Response(
+        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const body = (() => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return undefined;
+      }
+    })();
 
     const parseResult = AmortizationInputSchema.safeParse(body);
     if (!parseResult.success) {
@@ -871,18 +746,22 @@ router.post(
       const keyStr = await sha256Hex(stableStringify({ route: 'amortization', input: parseResult.data }));
       const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
       const cached = await cache.match(cacheReq);
-      if (cached) return cached;
+      if (cached) {
+        const hitHeaders = new Headers(cached.headers);
+        hitHeaders.set('X-Cache', 'HIT');
+        return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers: hitHeaders });
+      }
       const result = AmortizationAnalyzer.analyze(parseResult.data);
       const res = new Response(JSON.stringify(result), {
         status: 200,
-        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}` },
+        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}`, 'X-Cache': 'MISS' },
       });
       void cache.put(cacheReq, res.clone());
       return res;
     }
 
     const result = AmortizationAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), { status: 200, headers: buildDefaultHeaders(env) });
+    return new Response(JSON.stringify(result), { status: 200, headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' } });
   })
 );
 
@@ -907,8 +786,29 @@ router.get(
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
     const doc = getOpenApiDocument(baseUrl);
-    return new Response(JSON.stringify(doc, null, 2), {
-      headers: { ...buildDefaultHeaders(env), 'Content-Type': 'application/json' },
+    const json = JSON.stringify(doc, null, 2);
+    const etagHex = await sha256Hex(json);
+    const etag = `"${etagHex}"`;
+    const inm = request.headers.get('if-none-match');
+    if (inm && inm.replace(/^W\//, '') === etag) {
+      return new Response(null, {
+        status: 304,
+        headers: {
+          ...getCorsHeaders(env),
+          ...getSecurityHeaders(env),
+          ETag: etag,
+          'Cache-Control': 'public, max-age=300',
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    return new Response(json, {
+      headers: {
+        ...buildDefaultHeaders(env),
+        'Content-Type': 'application/json',
+        ETag: etag,
+        'Cache-Control': 'public, max-age=300',
+      },
     });
   })
 );
@@ -959,12 +859,31 @@ router.get(
       </body>
     </html>`;
 
+    const etagHex = await sha256Hex(html);
+    const etag = `"${etagHex}"`;
+    const inm = request.headers.get('if-none-match');
+    if (inm && inm.replace(/^W\//, '') === etag) {
+      return new Response(null, {
+        status: 304,
+        headers: {
+          ...getCorsHeaders(env),
+          ...getSecurityHeaders(env),
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Security-Policy': docsCsp,
+          ETag: etag,
+          'Cache-Control': 'public, max-age=300',
+        },
+      });
+    }
+
     return new Response(html, {
       headers: {
         ...getCorsHeaders(env),
         ...getSecurityHeaders(env),
         'Content-Type': 'text/html; charset=utf-8',
         'Content-Security-Policy': docsCsp,
+        ETag: etag,
+        'Cache-Control': 'public, max-age=300',
       },
     });
   })
