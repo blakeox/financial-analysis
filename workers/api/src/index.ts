@@ -26,6 +26,8 @@ interface Env {
   R2_SOFT_LIMIT_BYTES?: string;
   R2_HARD_LIMIT_BYTES?: string;
   MAX_OBJECT_SIZE_BYTES?: string;
+  // Optional comma-separated MIME prefixes to allow (e.g., "application/pdf,application/vnd.openxmlformats").
+  ALLOWED_UPLOAD_MIME_PREFIXES?: string;
 }
 
 const router = Router();
@@ -131,6 +133,7 @@ async function checkRateLimit(request: Request, env: Env): Promise<RateLimitInfo
 }
 
 function attachRateLimitHeaders(headers: Headers, info: RateLimitInfo) {
+  headers.set('X-RateLimit-Limit', String(RATE_LIMIT_MAX_REQUESTS));
   headers.set('X-RateLimit-Remaining', String(info.remaining));
   headers.set('X-RateLimit-Reset', String(Math.ceil(info.resetTime / 1000))); // seconds epoch
 }
@@ -149,6 +152,14 @@ function getThresholds(env: Env) {
   const hardLimit = hard;
   const maxObjectSize = Math.max(1, maxObj);
   return { softLimit, hardLimit, maxObjectSize };
+}
+
+function hasControlChars(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const code = s.charCodeAt(i);
+    if ((code >= 0 && code <= 31) || code === 127) return true;
+  }
+  return false;
 }
 
 async function kvGetNumber(env: Env, key: string, def = 0): Promise<number> {
@@ -258,6 +269,10 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
     request.headers.get('CF-Connecting-IP') ||
     request.headers.get('X-Forwarded-For') ||
     'unknown';
+  // Cloudflare edge metadata (may be undefined in tests/local)
+  const cfRay = request.headers.get('CF-RAY') || undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const colo = (request as any).cf?.colo as string | undefined;
 
   const logEntry = {
     ...(requestId && { requestId }),
@@ -266,6 +281,8 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
     path: url.pathname,
     userAgent,
     clientIP,
+    ...(cfRay && { cfRay }),
+    ...(colo && { colo }),
     environment: env.ENVIRONMENT,
     ...(startTime && { duration: Date.now() - startTime }),
   };
@@ -513,9 +530,16 @@ router.put(
 
     const url = new URL(request.url);
     const key = decodeURIComponent(url.pathname.replace(/^.*\/object\//, ''));
+    // Basic key hygiene: non-empty, no trailing slash, length cap, safe charset, and no dot segments
     if (!key || key.endsWith('/')) {
       return new Response(
         JSON.stringify({ error: { message: 'Invalid object key', code: 'BAD_KEY' } }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+    if (key.length > 1024 || hasControlChars(key) || /(^|\/)\.\.(\/|$)/.test(key)) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unsafe object key', code: 'BAD_KEY' } }),
         { status: 400, headers: buildDefaultHeaders(env) }
       );
     }
@@ -569,10 +593,44 @@ router.put(
     }
 
     const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
+    // Optional MIME allowlist
+    if (env.ALLOWED_UPLOAD_MIME_PREFIXES) {
+      const allowed = String(env.ALLOWED_UPLOAD_MIME_PREFIXES)
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const ok = allowed.length === 0 || allowed.some((p) => contentType.startsWith(p));
+      if (!ok) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' } }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+    }
+
+    // Conditional semantics (minimal): support If-None-Match: * (create-only) and If-Match: * (update-only)
+    const ifNoneMatch = request.headers.get('If-None-Match');
+    const ifMatch = request.headers.get('If-Match');
+    const existingHead = await env.DOCUMENTS.head(key);
+    if (ifNoneMatch === '*' && existingHead) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Precondition failed (exists)', code: 'PRECONDITION_FAILED' } }),
+        { status: 412, headers: buildDefaultHeaders(env) }
+      );
+    }
+    if (ifMatch === '*' && !existingHead) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Precondition failed (missing)', code: 'PRECONDITION_FAILED' } }),
+        { status: 412, headers: buildDefaultHeaders(env) }
+      );
+    }
+
     const putRes = await env.DOCUMENTS.put(key, request.body as ReadableStream, {
       httpMetadata: { contentType },
     });
-    await adjustApproxBytes(env, contentLength);
+    // Adjust approximate counter by delta (new - old) to avoid double counting overwrites
+    const prevSize = existingHead && typeof existingHead.size === 'number' ? existingHead.size : 0;
+    await adjustApproxBytes(env, contentLength - prevSize);
     return new Response(
       JSON.stringify({ key, etag: putRes?.etag ?? null, size: contentLength }),
       { status: 201, headers: buildDefaultHeaders(env) }
@@ -893,6 +951,12 @@ export default {
 
     const newHeaders = new Headers(response.headers);
     newHeaders.set('X-Request-ID', requestId);
+    // Echo Cloudflare tracing info for correlation (if present)
+    const cfRay = request.headers.get('CF-RAY');
+    if (cfRay) newHeaders.set('CF-RAY', cfRay);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const colo = (request as any).cf?.colo as string | undefined;
+    if (colo) newHeaders.set('X-Colo', colo);
     if (rateInfo) attachRateLimitHeaders(newHeaders, rateInfo);
     response = new Response(response.body, {
       status: response.status,
