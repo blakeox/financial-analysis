@@ -36,11 +36,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Setup Playwright (browsers + deps)
-        uses: microsoft/playwright-github-action@v1
-        with:
-          # Let the action use the version from your project; limit to chromium for speed
-          browsers: chromium
+      - name: Install Playwright Browsers
+        working-directory: apps/web
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: npx playwright install --with-deps chromium
 
       - name: Build web
         working-directory: apps/web
