@@ -9,14 +9,20 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={cn('bg-white border-t border-gray-200', className)}>
+    <footer
+      className={cn(
+        // Match site theme: light/dark backgrounds and subtle top border
+        'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800',
+        className
+      )}
+    >
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
-            <h3 className="text-sm font-semibold text-gray-700 tracking-wider uppercase">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
               Financial Analysis
             </h3>
-            <p className="text-gray-600 text-base">
+            <p className="text-base text-gray-600 dark:text-gray-400">
               Advanced financial analysis tools powered by AI and deterministic calculations. Built
               for precision and reliability in financial decision making.
             </p>
@@ -24,44 +30,44 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
                   Analysis Tools
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <a href="/models" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/models" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       Financial Models
                     </a>
                   </li>
                   <li>
-                    <a href="/analysis" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/analysis" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       Analysis Engine
                     </a>
                   </li>
                   <li>
-                    <a href="/lease" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/lease" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       Lease Analysis
                     </a>
                   </li>
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-700 tracking-wider uppercase">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
                   Resources
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <a href="/docs" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/docs" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       Documentation
                     </a>
                   </li>
                   <li>
-                    <a href="/api" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/api" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       API Reference
                     </a>
                   </li>
                   <li>
-                    <a href="/health" className="text-base text-gray-600 hover:text-gray-900">
+                    <a href="/health" className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                       System Status
                     </a>
                   </li>
@@ -70,8 +76,8 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
             </div>
           </div>
         </div>
-        <div className="mt-12 border-t border-gray-200 pt-8">
-          <p className="text-base text-gray-600 xl:text-center">
+        <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
+          <p className="text-base text-gray-600 dark:text-gray-400 xl:text-center">
             &copy; {currentYear} Financial Analysis. All rights reserved.
           </p>
         </div>

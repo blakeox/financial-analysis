@@ -1,8 +1,6 @@
 import type { RouterType } from 'itty-router';
-
-interface Env {
-  ENVIRONMENT: string;
-}
+import type { Env } from '../types';
+import { buildDefaultHeaders } from '../lib/headers';
 
 export function registerHealthRoute(router: RouterType) {
   router.get('/health', (_req: Request, env: Env) => {
@@ -13,7 +11,7 @@ export function registerHealthRoute(router: RouterType) {
         environment: env.ENVIRONMENT,
         version: 'v1',
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: buildDefaultHeaders(env) }
     );
   });
 }

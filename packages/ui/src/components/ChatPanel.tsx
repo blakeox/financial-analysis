@@ -98,8 +98,10 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
         type="button"
         onClick={openPanel}
         aria-haspopup="dialog"
+        aria-label="Open chat assistant"
         data-hydrated={hydrated ? 'true' : 'false'}
-        className="fixed z-40 bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
+  data-z-fallback="80"
+  className="fixed z-100 safe-bottom safe-right inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
           <path d="M21 15a4 4 0 01-4 4H7l-4 4V7a4 4 0 014-4h10a4 4 0 014 4v8z" />
@@ -122,7 +124,8 @@ export function ChatPanel({ apiUrl = '', title = 'Assistant', initialOpen = fals
             role="dialog"
             aria-modal="true"
             aria-label="Chat assistant"
-            className="fixed z-80 top-0 right-0 h-full w-full sm:w-[380px] md:w-[420px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl transform transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0"
+            data-z-fallback="90"
+            className="fixed z-90 top-0 right-0 h-full w-full sm:w-[380px] md:w-[420px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl transform transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0"
           >
         {/* Header */}
         <div className="h-14 px-3 sm:px-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">

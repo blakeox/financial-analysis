@@ -1,0 +1,18 @@
+// Shared Env type for API worker
+export interface Env {
+  DB?: D1Database;
+  SESSIONS?: KVNamespace;
+  DOCUMENTS?: R2Bucket;
+  ENVIRONMENT: string;
+  ALLOWED_ORIGIN?: string;
+  COMMIT_SHA?: string;
+  ADMIN_API_TOKEN?: string;
+  AI?: Ai;
+  WORKERS_AI_MODEL?: string;
+  R2_SOFT_LIMIT_BYTES?: string;
+  R2_HARD_LIMIT_BYTES?: string;
+  MAX_OBJECT_SIZE_BYTES?: string;
+  ALLOWED_UPLOAD_MIME_PREFIXES?: string;
+  ANALYSIS_CACHE_TTL_SECONDS?: string;
+  ANALYSIS_MAX_JSON_BYTES?: string;
+}

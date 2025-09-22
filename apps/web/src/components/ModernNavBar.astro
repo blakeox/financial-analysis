@@ -102,7 +102,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
   >
     <div class="px-4 pt-3 pb-6 bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm shadow-sm rounded-b-lg shadow-gray-900/5 dark:shadow-black/40">
   <ul class="flex flex-col gap-1">
-        {links.map(link => {
+        {links.filter(l => l.href !== '/status').map(link => {
           const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
           return (
             <li>
@@ -180,13 +180,18 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       };
       // Initial sync capture (before any raf)
       recordPhase('Initial');
+      // Proactively ensure desktop links are visible at >=md
+      ensureDesktopVisible('init');
       requestAnimationFrame(()=>{
         recordPhase('Raf');
+        ensureDesktopVisible('raf');
+        try { nav?.setAttribute('data-ready','1'); } catch {}
       });
       // Ensure Load/T2000 phases are recorded even if this script runs after load
       const onLoadPhases = () => {
         try { recordPhase('Load'); } catch{}
-        try { setTimeout(()=>recordPhase('T2000'), 2000); } catch{}
+        try { ensureDesktopVisible('load'); } catch{}
+        try { setTimeout(()=>{ recordPhase('T2000'); ensureDesktopVisible('t2000'); }, 2000); } catch{}
       };
       if (document.readyState === 'complete') {
         onLoadPhases();
@@ -195,7 +200,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       }
       // Guard: detect unexpected hidden desktop nav on large screens (>=768px)
       const startTs = Date.now();
-      const ensureDesktopVisible = (reason) => {
+      function ensureDesktopVisible(reason) {
         try {
           if(!nav) return;
           const el = nav.querySelector('.desktop-nav');
@@ -230,104 +235,9 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
             console.log('elementClasses', el.className);
             console.log('inlineStyleAfter', el.getAttribute('style'));
             console.table(offenders);
-            console.trace('[nav-guard] stack');
-            console.groupEnd();
           }
-        } catch(e){}
+        } catch {}
       };
-      // Expose a manual check for quick field testing
-      try { win.__navCheck = () => ensureDesktopVisible('manual'); } catch{}
-
-      // Observe late-added stylesheets or <style> tags that could alter nav visibility
-      try {
-        const headObserver = new MutationObserver((mutations)=>{
-          for(const m of mutations){
-            m.addedNodes && m.addedNodes.forEach((n)=>{
-              if(n && n.nodeType === 1){
-                const el = n; // Element
-                const tag = (el.tagName||'').toLowerCase();
-                if(tag === 'style' || (tag === 'link' && el.getAttribute('rel') === 'stylesheet')){
-                  pushLog('style-added', { tag, href: el.getAttribute('href')||'', snippet: (el.outerHTML||'').slice(0,200) });
-                }
-              }
-            });
-          }
-        });
-        headObserver.observe(document.head, { childList: true, subtree: true });
-      } catch{}
-      const onLoadReady = () => {
-        // mark nav ready shortly after load to enable transitions
-        setTimeout(()=>{ try { nav?.setAttribute('data-ready','1'); } catch{} }, 80);
-        setTimeout(()=> ensureDesktopVisible('post-load'), 60);
-      };
-      if (document.readyState === 'complete') {
-        onLoadReady();
-      } else {
-        window.addEventListener('load', onLoadReady, { once: true });
-      }
-      const interval = setInterval(()=>{
-        ensureDesktopVisible('interval');
-        if(Date.now() - startTs > 15000) clearInterval(interval); // stop after 15s
-      }, 1200);
-      // Lightweight periodic sampler to keep phase data warm and help external tests sample states reliably
-      try {
-        const samplerStart = Date.now();
-        const sampler = setInterval(()=>{
-          try { recordPhase('Beat'); } catch{}
-          if(Date.now() - samplerStart > 3200) clearInterval(sampler);
-        }, 250);
-      } catch{}
-      // --- End Snapshot Instrumentation ---
-  const bars = toggle ? toggle.querySelectorAll('[data-bar]') : [];
-  let lastFocus = null; // (focus element reference)
-      const announce = (msg) => { if(live){ live.textContent = msg; setTimeout(()=>{ if(live?.textContent===msg) live.textContent=''; }, 1000);} };
-
-      const closePanel = () => {
-        toggle.setAttribute('aria-expanded','false');
-        panel.classList.add('pointer-events-none','opacity-0');
-        panel.classList.remove('opacity-100');
-        // Ensure starting offset is reapplied so next open animates from above
-        panel.classList.add('-translate-y-2');
-        document.body.style.overflow = '';
-  bars.forEach((b)=>{ b.classList.remove('translate-y-1','-translate-y-1','rotate-45','-rotate-45','opacity-0'); });
-        // Temporary inline clamp to avoid flash-revert during CSS injection or race
-        try { panel.style.transform = 'translateY(-0.5rem)'; panel.style.opacity = '0'; setTimeout(()=>{ panel.style.transform=''; panel.style.opacity=''; }, 240); } catch {}
-        try { panel.removeAttribute('data-open'); } catch {}
-        // Clear explicit top when closed
-        try { if(panel instanceof HTMLElement) panel.style.top = ''; } catch{}
-        stabilizePanel('closed');
-        announce('Navigation menu closed');
-      };
-      const openPanel = () => {
-        toggle.setAttribute('aria-expanded','true');
-        panel.classList.remove('pointer-events-none','opacity-0');
-        panel.classList.add('opacity-100');
-        // Remove offset so transform resolves to 0 and avoids conflicting rules
-        panel.classList.remove('-translate-y-2');
-        document.body.style.overflow = 'hidden';
-        // Anchor panel to the live header height
-        try { if(panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{}
-        // Animate bars into X
-        // Temporary inline clamp to avoid flash-revert during CSS injection or race
-        try { panel.style.transform = 'translateY(0)'; panel.style.opacity = '1'; setTimeout(()=>{ panel.style.transform=''; panel.style.opacity=''; }, 240); } catch {}
-        try { panel.setAttribute('data-open','1'); } catch {}
-        stabilizePanel('open');
-        
-        bars[0]?.classList.add('translate-y-1','rotate-45');
-        bars[1]?.classList.add('opacity-0');
-        bars[2]?.classList.add('-translate-y-1','-rotate-45');
-        announce('Navigation menu opened');
-      };
-      if (toggle && panel) {
-        const togglePanel = () => {
-          const expanded = toggle.getAttribute('aria-expanded') === 'true';
-          expanded ? closePanel() : openPanel();
-        };
-        toggle.addEventListener('click', togglePanel, { passive: true });
-        panel.querySelectorAll('[data-mobile-link]').forEach(a=>{
-          a.addEventListener('click', ()=> closePanel(), { passive: true });
-        });
-      }
       // Theme toggle
       const applyTheme = (mode) => {
         const root = document.documentElement;
@@ -345,7 +255,11 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         announce(`Theme switched to ${next}`);
       }, { passive: true });
 
+      // Live region announcements
+      const announce = (msg) => { try { if(!live) return; live.textContent = ''; setTimeout(()=>{ live.textContent = String(msg||''); }, 1); } catch{} };
+
       // Search overlay logic
+      let lastFocus = null;
       const openSearch = () => {
         if(!searchOverlay) return; lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         searchOverlay.classList.remove('hidden');
@@ -374,6 +288,14 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); openSearch(); }
       });
         // Animate bars into X
+  function openPanel(){ try { if(!panel) return; toggle?.setAttribute('aria-expanded','true'); panel.classList.remove('pointer-events-none','opacity-0','-translate-y-2'); panel.classList.add('opacity-100'); document.body.style.overflow='hidden'; stabilizePanel('open'); announce('Menu opened'); } catch{} }
+  function closePanel(){ try { if(!panel) return; toggle?.setAttribute('aria-expanded','false'); panel.classList.add('pointer-events-none','opacity-0','-translate-y-2'); panel.classList.remove('opacity-100'); document.body.style.overflow=''; stabilizePanel('closed'); announce('Menu closed'); } catch{} }
+      if(toggle){
+        toggle.addEventListener('click', ()=>{
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          if(expanded) closePanel(); else openPanel();
+        }, { passive: true });
+      }
       let elevated = false;
       const onScroll = () => {
         const y = window.scrollY;
@@ -389,7 +311,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       };
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
-      window.addEventListener('resize', () => { try { if(toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{} }, { passive: true });
+  window.addEventListener('resize', () => { try { ensureDesktopVisible('resize'); if(toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; if(window.innerWidth >= 768){ closePanel(); } } } catch{} }, { passive: true });
 
       // Stabilize mobile panel after toggles to counteract late class mutations
       function stabilizePanel(state){
