@@ -23,7 +23,7 @@
     "@cloudflare/workers-types": "^4.20250917.0",
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/analysis": "workspace:*",
-    "@asteasolutions/zod-to-openapi": "^7.1.1",
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "zod": "^3.22.0",
     "itty-router": "^4.0.0"
   },
