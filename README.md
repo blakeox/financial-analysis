@@ -61,6 +61,8 @@ Requirements:
    ```bash
    cp .env.example .env.local
 
+   ```
+
 4. **Start development servers**
 
    ```bash
@@ -300,7 +302,6 @@ bucket_name = "<YOUR_R2_BUCKET_NAME>"
 Note on COMMIT_SHA:
 
 - The `/version` endpoint reads `env.COMMIT_SHA`. The preview deploy workflow passes `--var COMMIT_SHA:${GITHUB_SHA}` so the value is available at runtime.
-
 
 ### Environment Setup
 

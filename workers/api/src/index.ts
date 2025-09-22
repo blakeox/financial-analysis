@@ -65,9 +65,6 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
-
-
-
 // Quota helpers moved to ./lib/quota
 
 // ---- Error handling wrapper ----
@@ -86,9 +83,7 @@ function withErrorHandler(handler: RouteHandler) {
         JSON.stringify({
           error: {
             message:
-              isDevelopment && error instanceof Error
-                ? error.message
-                : 'Internal server error',
+              isDevelopment && error instanceof Error ? error.message : 'Internal server error',
             code: 'INTERNAL_ERROR',
             ...(isDevelopment && error instanceof Error && { stack: error.stack }),
           },
@@ -106,9 +101,7 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
   const url = new URL(request.url);
   const userAgent = request.headers.get('User-Agent') || 'unknown';
   const clientIP =
-    request.headers.get('CF-Connecting-IP') ||
-    request.headers.get('X-Forwarded-For') ||
-    'unknown';
+    request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
   // Cloudflare edge metadata (may be undefined in tests/local)
   const cfRay = request.headers.get('CF-RAY') || undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -234,7 +227,9 @@ router.post(
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return new Response(
-        JSON.stringify({ error: { message: 'Content-Type must be application/json', code: 'INVALID_CONTENT_TYPE' } }),
+        JSON.stringify({
+          error: { message: 'Content-Type must be application/json', code: 'INVALID_CONTENT_TYPE' },
+        }),
         { status: 415, headers: buildDefaultHeaders(env) }
       );
     }
@@ -258,10 +253,18 @@ router.post(
           role: 'assistant',
           content: typeof result === 'string' ? result : JSON.stringify(result),
         };
-        return new Response(JSON.stringify(reply), { status: 200, headers: buildDefaultHeaders(env) });
+        return new Response(JSON.stringify(reply), {
+          status: 200,
+          headers: buildDefaultHeaders(env),
+        });
       } catch (err) {
         return new Response(
-          JSON.stringify({ error: { message: err instanceof Error ? err.message : 'Tool call failed', code: 'TOOL_CALL_FAILED' } }),
+          JSON.stringify({
+            error: {
+              message: err instanceof Error ? err.message : 'Tool call failed',
+              code: 'TOOL_CALL_FAILED',
+            },
+          }),
           { status: 400, headers: buildDefaultHeaders(env) }
         );
       }
@@ -282,7 +285,10 @@ router.post(
               role: 'assistant',
               content: `Computed amortization. Monthly payment: ${result.monthlyPayment.toFixed(2)}; total interest: ${result.totalInterest.toFixed(2)}.`,
             };
-            return new Response(JSON.stringify(reply), { status: 200, headers: buildDefaultHeaders(env) });
+            return new Response(JSON.stringify(reply), {
+              status: 200,
+              headers: buildDefaultHeaders(env),
+            });
           }
         }
       } catch {
@@ -297,14 +303,20 @@ router.post(
         content:
           'AI model is not configured in this environment. You can still call analysis endpoints directly (e.g., POST /v1/api/analysis/amortization).',
       };
-      return new Response(JSON.stringify(reply), { status: 200, headers: buildDefaultHeaders(env) });
+      return new Response(JSON.stringify(reply), {
+        status: 200,
+        headers: buildDefaultHeaders(env),
+      });
     }
 
     const model = body.model || env.WORKERS_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct';
 
     // Compose a prompt from messages
     const system = body.messages.find((m) => m.role === 'system');
-    const userParts = body.messages.filter((m) => m.role === 'user').map((m) => m.content).join('\n');
+    const userParts = body.messages
+      .filter((m) => m.role === 'user')
+      .map((m) => m.content)
+      .join('\n');
     const prompt = `${system ? system.content + '\n\n' : ''}${userParts}`.slice(0, 10000);
 
     // Call Workers AI text generation endpoint
@@ -312,7 +324,11 @@ router.post(
     const ai = env.AI as any;
     const aiRes = await ai.run(model, { prompt });
     const text: string = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
-    const reply: ChatResponse = { role: 'assistant', content: String(text || '').slice(0, 12000), model };
+    const reply: ChatResponse = {
+      role: 'assistant',
+      content: String(text || '').slice(0, 12000),
+      model,
+    };
     return new Response(JSON.stringify(reply), { status: 200, headers: buildDefaultHeaders(env) });
   })
 );
@@ -375,7 +391,12 @@ router.post(
     }
     const result = await reconcileBucketUsage(env);
     return new Response(
-      JSON.stringify({ usedBytes: result.bytes, locked: result.locked, scanned: result.scanned, timestamp: new Date().toISOString() }),
+      JSON.stringify({
+        usedBytes: result.bytes,
+        locked: result.locked,
+        scanned: result.scanned,
+        timestamp: new Date().toISOString(),
+      }),
       { status: 200, headers: buildDefaultHeaders(env) }
     );
   })
@@ -409,8 +430,9 @@ router.put(
 
     // Enforce lock and thresholds
     const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
-  // Prefer Content-Length; allow X-Content-Length as a fallback (browsers can't set Content-Length)
-  const contentLengthHeader = request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    // Prefer Content-Length; allow X-Content-Length as a fallback (browsers can't set Content-Length)
+    const contentLengthHeader =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
     if (!contentLengthHeader) {
       return new Response(
         JSON.stringify({ error: { message: 'Content-Length required', code: 'LENGTH_REQUIRED' } }),
@@ -465,7 +487,9 @@ router.put(
       const ok = allowed.length === 0 || allowed.some((p) => contentType.startsWith(p));
       if (!ok) {
         return new Response(
-          JSON.stringify({ error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' } }),
+          JSON.stringify({
+            error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' },
+          }),
           { status: 415, headers: buildDefaultHeaders(env) }
         );
       }
@@ -477,13 +501,17 @@ router.put(
     const existingHead = await env.DOCUMENTS.head(key);
     if (ifNoneMatch === '*' && existingHead) {
       return new Response(
-        JSON.stringify({ error: { message: 'Precondition failed (exists)', code: 'PRECONDITION_FAILED' } }),
+        JSON.stringify({
+          error: { message: 'Precondition failed (exists)', code: 'PRECONDITION_FAILED' },
+        }),
         { status: 412, headers: buildDefaultHeaders(env) }
       );
     }
     if (ifMatch === '*' && !existingHead) {
       return new Response(
-        JSON.stringify({ error: { message: 'Precondition failed (missing)', code: 'PRECONDITION_FAILED' } }),
+        JSON.stringify({
+          error: { message: 'Precondition failed (missing)', code: 'PRECONDITION_FAILED' },
+        }),
         { status: 412, headers: buildDefaultHeaders(env) }
       );
     }
@@ -494,10 +522,10 @@ router.put(
     // Adjust approximate counter by delta (new - old) to avoid double counting overwrites
     const prevSize = existingHead && typeof existingHead.size === 'number' ? existingHead.size : 0;
     await adjustApproxBytes(env, contentLength - prevSize);
-    return new Response(
-      JSON.stringify({ key, etag: putRes?.etag ?? null, size: contentLength }),
-      { status: 201, headers: buildDefaultHeaders(env) }
-    );
+    return new Response(JSON.stringify({ key, etag: putRes?.etag ?? null, size: contentLength }), {
+      status: 201,
+      headers: buildDefaultHeaders(env),
+    });
   })
 );
 
@@ -613,17 +641,28 @@ router.post(
 
     // Enforce JSON body size cap
     const maxBytes = getMaxJsonBytes(env);
-    const declaredLen = request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    const declaredLen =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
     if (declaredLen && Number(declaredLen) > maxBytes) {
       return new Response(
-        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
         { status: 413, headers: buildDefaultHeaders(env) }
       );
     }
     const text = await request.text();
     if (text.length > maxBytes) {
       return new Response(
-        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
         { status: 413, headers: buildDefaultHeaders(env) }
       );
     }
@@ -664,19 +703,30 @@ router.post(
       if (cached) {
         const hitHeaders = new Headers(cached.headers);
         hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers: hitHeaders });
+        return new Response(cached.body, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: hitHeaders,
+        });
       }
       const result = LeaseAnalyzer.analyze(parseResult.data);
       const res = new Response(JSON.stringify(result), {
         status: 200,
-        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}`, 'X-Cache': 'MISS' },
+        headers: {
+          ...buildDefaultHeaders(env),
+          'Cache-Control': `public, max-age=${ttl}`,
+          'X-Cache': 'MISS',
+        },
       });
       void cache.put(cacheReq, res.clone());
       return res;
     }
 
     const result = LeaseAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), { status: 200, headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' } });
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+    });
   })
 );
 
@@ -698,17 +748,28 @@ router.post(
     }
     // Enforce JSON body size cap
     const maxBytes = getMaxJsonBytes(env);
-    const declaredLen = request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    const declaredLen =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
     if (declaredLen && Number(declaredLen) > maxBytes) {
       return new Response(
-        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
         { status: 413, headers: buildDefaultHeaders(env) }
       );
     }
     const text = await request.text();
     if (text.length > maxBytes) {
       return new Response(
-        JSON.stringify({ error: { message: `JSON body too large (max ${maxBytes} bytes)`, code: 'PAYLOAD_TOO_LARGE' } }),
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
         { status: 413, headers: buildDefaultHeaders(env) }
       );
     }
@@ -743,25 +804,38 @@ router.post(
     const ttl = getAnalysisCacheTtl(env);
     const cache = ttl > 0 ? getDefaultCache() : undefined;
     if (ttl > 0 && cache) {
-      const keyStr = await sha256Hex(stableStringify({ route: 'amortization', input: parseResult.data }));
+      const keyStr = await sha256Hex(
+        stableStringify({ route: 'amortization', input: parseResult.data })
+      );
       const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
       const cached = await cache.match(cacheReq);
       if (cached) {
         const hitHeaders = new Headers(cached.headers);
         hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers: hitHeaders });
+        return new Response(cached.body, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: hitHeaders,
+        });
       }
       const result = AmortizationAnalyzer.analyze(parseResult.data);
       const res = new Response(JSON.stringify(result), {
         status: 200,
-        headers: { ...buildDefaultHeaders(env), 'Cache-Control': `public, max-age=${ttl}`, 'X-Cache': 'MISS' },
+        headers: {
+          ...buildDefaultHeaders(env),
+          'Cache-Control': `public, max-age=${ttl}`,
+          'X-Cache': 'MISS',
+        },
       });
       void cache.put(cacheReq, res.clone());
       return res;
     }
 
     const result = AmortizationAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), { status: 200, headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' } });
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+    });
   })
 );
 
@@ -909,11 +983,18 @@ export default {
     logRequest(request, env, undefined, requestId);
 
     let rateInfo: RateLimitInfo | undefined;
-    if (request.url.includes('/api/') || request.url.includes('/mcp') || request.url.includes('/v1/chat')) {
+    if (
+      request.url.includes('/api/') ||
+      request.url.includes('/mcp') ||
+      request.url.includes('/v1/chat')
+    ) {
       rateInfo = await checkRateLimit(request, env);
       if (!rateInfo.allowed) {
         logRequest(request, env, startTime, requestId);
-        const headers = new Headers({ ...buildDefaultHeaders(env), 'Retry-After': String(Math.ceil((rateInfo.resetTime - Date.now()) / 1000)) });
+        const headers = new Headers({
+          ...buildDefaultHeaders(env),
+          'Retry-After': String(Math.ceil((rateInfo.resetTime - Date.now()) / 1000)),
+        });
         headers.set('X-Request-ID', requestId);
         attachRateLimitHeaders(headers, rateInfo);
         return new Response(

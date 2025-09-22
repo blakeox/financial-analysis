@@ -5,7 +5,9 @@ import { gotoPath, waitForNavReady } from './utils/nav';
 
 const HOME = '/';
 
-async function wait(ms:number){ return new Promise(r=>setTimeout(r, ms)); }
+async function wait(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 test.describe('ModernNavBar extended', () => {
   test('desktop links remain present for 5s and brand visible', async ({ page }) => {
@@ -20,7 +22,7 @@ test.describe('ModernNavBar extended', () => {
     expect(initialLinks.length).toBeGreaterThan(0);
 
     // Poll every 500ms for 5s to ensure links don't disappear
-    for (let i=0;i<10;i++) {
+    for (let i = 0; i < 10; i++) {
       await wait(500);
       const still = await nav.locator('.desktop-nav a').count();
       expect(still, `Desktop link count changed at iteration ${i}`).toBe(initialLinks.length);
@@ -87,17 +89,24 @@ test.describe('ModernNavBar extended', () => {
     await gotoPath(page, HOME);
     // Inject a small script to record element removal counts for nav with typed window augmentation
     await page.addInitScript(() => {
-      interface NavDebugWindow extends Window { __navRemovals?: number; __navMO?: MutationObserver }
+      interface NavDebugWindow extends Window {
+        __navRemovals?: number;
+        __navMO?: MutationObserver;
+      }
       const w = window as unknown as NavDebugWindow;
       const nav = document.getElementById('site-nav');
-      if(!nav) return;
+      if (!nav) return;
       w.__navRemovals = 0;
-      const mo = new MutationObserver(muts => {
-        muts.forEach(m => {
-          m.removedNodes.forEach(n => { if(n instanceof HTMLElement && nav.contains(n)) { if(typeof w.__navRemovals === 'number') w.__navRemovals++; } });
+      const mo = new MutationObserver((muts) => {
+        muts.forEach((m) => {
+          m.removedNodes.forEach((n) => {
+            if (n instanceof HTMLElement && nav.contains(n)) {
+              if (typeof w.__navRemovals === 'number') w.__navRemovals++;
+            }
+          });
         });
       });
-      mo.observe(nav, { subtree:true, childList:true });
+      mo.observe(nav, { subtree: true, childList: true });
       w.__navMO = mo;
     });
     // Wait some time letting site load fully

@@ -137,7 +137,7 @@ Deliverables:
 
 ### Acceptance criteria (Phase 5)
 
-- >50% cache hit rate for repeated analysis payloads in staging
+- > 50% cache hit rate for repeated analysis payloads in staging
 
 ---
 

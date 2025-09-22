@@ -31,11 +31,11 @@ function makeR2() {
       // size is tracked via Content-Length in API; we don't need body here.
       // Create or update a placeholder entry; size tracking is handled via KV.
       if (!objects.has(key)) objects.set(key, { size: 0 });
-  return { etag: 'mock-etag' } as { etag: string };
+      return { etag: 'mock-etag' } as { etag: string };
     },
     async head(key: string) {
       const obj = objects.get(key);
-  return obj ? ({ size: obj.size } as unknown as R2Object) : null;
+      return obj ? ({ size: obj.size } as unknown as R2Object) : null;
     },
     async delete(key: string) {
       objects.delete(key);
@@ -45,7 +45,7 @@ function makeR2() {
       const limit = opts?.limit ?? objects.size;
       const keys = Array.from(objects.keys()).slice(0, limit);
       const items = keys.map((k) => ({ key: k, size: objects.get(k)?.size ?? 0 }));
-  return { objects: items as unknown as R2Object[], truncated: false } as unknown as R2Objects;
+      return { objects: items as unknown as R2Object[], truncated: false } as unknown as R2Objects;
     },
     // unimplemented methods not used in tests
   } as unknown as R2Bucket;
@@ -62,7 +62,12 @@ function makeCtx(): ExecutionContext {
 describe('Storage endpoints', () => {
   let kv: KVNamespace;
   let r2: ReturnType<typeof makeR2>;
-  let env: { [k: string]: unknown; ENVIRONMENT: string; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket };
+  let env: {
+    [k: string]: unknown;
+    ENVIRONMENT: string;
+    SESSIONS: KVNamespace;
+    DOCUMENTS: R2Bucket;
+  };
   let ctx: ExecutionContext;
 
   beforeEach(() => {
@@ -148,7 +153,7 @@ describe('Storage endpoints', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(403);
-  const body = (await res.json()) as { error: { message: string; code: string } };
+    const body = (await res.json()) as { error: { message: string; code: string } };
     expect(body.error.code).toBe('SOFT_LIMIT');
     // Lock flag should be set
     const locked = await env.SESSIONS.get('quota:locked');
@@ -164,7 +169,7 @@ describe('Storage endpoints', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(403);
-  const body = (await res.json()) as { error: { message: string; code: string } };
+    const body = (await res.json()) as { error: { message: string; code: string } };
     expect(['QUOTA_LOCKED', 'SOFT_LIMIT']).toContain(body.error.code);
   });
 
@@ -176,7 +181,7 @@ describe('Storage endpoints', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(201);
-  const body = (await res.json()) as { key: string; etag: string | null; size: number };
+    const body = (await res.json()) as { key: string; etag: string | null; size: number };
     expect(body.key).toBe('ok.bin');
     expect(body.size).toBe(1000);
     // KV counter should reflect +1000
@@ -188,9 +193,11 @@ describe('Storage endpoints', () => {
     // Seed KV counter and make head() return size
     await env.SESSIONS.put('quota:bytes', '2000');
     // add object with size 500 in our mock objects map
-  r2.objects.set('del.bin', { size: 500 });
+    r2.objects.set('del.bin', { size: 500 });
 
-    const delReq = new Request('https://example.com/v1/storage/object/del.bin', { method: 'DELETE' });
+    const delReq = new Request('https://example.com/v1/storage/object/del.bin', {
+      method: 'DELETE',
+    });
     const res = await api.fetch(delReq, env, ctx);
     expect(res.status).toBe(200);
     const after = await env.SESSIONS.get('quota:bytes');
@@ -200,13 +207,19 @@ describe('Storage endpoints', () => {
 
 describe('Scheduled reconciliation', () => {
   it('reconciles approx usage and toggles lock based on soft limit', async () => {
-  const kv = makeKV();
-  const r2 = makeR2();
+    const kv = makeKV();
+    const r2 = makeR2();
     // Create multiple objects totalling 5200 bytes
     r2.objects.set('a', { size: 2000 });
     r2.objects.set('b', { size: 2000 });
     r2.objects.set('c', { size: 1200 });
-    const env: { ENVIRONMENT: string; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket; R2_SOFT_LIMIT_BYTES: string; R2_HARD_LIMIT_BYTES: string } = {
+    const env: {
+      ENVIRONMENT: string;
+      SESSIONS: KVNamespace;
+      DOCUMENTS: R2Bucket;
+      R2_SOFT_LIMIT_BYTES: string;
+      R2_HARD_LIMIT_BYTES: string;
+    } = {
       ENVIRONMENT: 'test',
       SESSIONS: kv,
       DOCUMENTS: r2.bucket,
@@ -215,11 +228,15 @@ describe('Scheduled reconciliation', () => {
     };
     const ctx = makeCtx();
     // Access scheduled handler via index (avoids TS complaining about structural type)
-    await (api as unknown as { scheduled: (e: ScheduledEvent, env: Record<string, unknown>, ctx: ExecutionContext) => Promise<void> }).scheduled(
-      {} as ScheduledEvent,
-      env,
-      ctx
-    );
+    await (
+      api as unknown as {
+        scheduled: (
+          e: ScheduledEvent,
+          env: Record<string, unknown>,
+          ctx: ExecutionContext
+        ) => Promise<void>;
+      }
+    ).scheduled({} as ScheduledEvent, env, ctx);
     const bytes = await env.SESSIONS.get('quota:bytes');
     expect(bytes).toBe('5200');
     const locked = await env.SESSIONS.get('quota:locked');
@@ -239,11 +256,11 @@ describe('Admin reconcile endpoint', () => {
     } as unknown as Record<string, unknown>;
     const ctx = makeCtx();
     const req = new Request('https://example.com/v1/storage/reconcile', { method: 'POST' });
-    const res = await (api as unknown as { fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response> }).fetch(
-      req,
-      env,
-      ctx
-    );
+    const res = await (
+      api as unknown as {
+        fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response>;
+      }
+    ).fetch(req, env, ctx);
     expect(res.status).toBe(401);
   });
 
@@ -265,13 +282,18 @@ describe('Admin reconcile endpoint', () => {
       method: 'POST',
       headers: { Authorization: 'Bearer secret' },
     });
-    const res = await (api as unknown as { fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response> }).fetch(
-      req,
-      env,
-      ctx
-    );
+    const res = await (
+      api as unknown as {
+        fetch: (r: Request, e: Record<string, unknown>, c: ExecutionContext) => Promise<Response>;
+      }
+    ).fetch(req, env, ctx);
     expect(res.status).toBe(200);
-    const data = (await res.json()) as { usedBytes: number; locked: boolean; scanned: number; timestamp: string };
+    const data = (await res.json()) as {
+      usedBytes: number;
+      locked: boolean;
+      scanned: number;
+      timestamp: string;
+    };
     expect(data.usedBytes).toBe(579);
     expect(typeof data.locked).toBe('boolean');
     expect(data.scanned).toBeGreaterThan(0);

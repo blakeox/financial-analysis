@@ -7,7 +7,7 @@ test.describe('Navbar responsive persistence', () => {
     const nav = page.locator('#site-nav');
     await expect(nav).toBeVisible();
     const initialDesktop = await nav.locator('.desktop-nav a').count();
-    if(initialDesktop === 0) test.skip();
+    if (initialDesktop === 0) test.skip();
 
     // Shrink to mobile
     await page.setViewportSize({ width: 500, height: 900 });

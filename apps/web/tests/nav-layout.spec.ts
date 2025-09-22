@@ -15,7 +15,7 @@ async function centerDelta(page: Page) {
   const { navCenter, listCenter } = await page.evaluate(() => {
     const nav = document.querySelector('#site-nav .nav-inner') as HTMLElement | null;
     const list = document.querySelector('#site-nav .desktop-nav') as HTMLElement | null;
-    if(!nav || !list) return { navCenter: 0, listCenter: 0 };
+    if (!nav || !list) return { navCenter: 0, listCenter: 0 };
     const nr = nav.getBoundingClientRect();
     const lr = list.getBoundingClientRect();
     const navCenter = nr.left + nr.width / 2;
@@ -66,9 +66,11 @@ test.describe('Navbar layout', () => {
 
     // Hit-test at a point where overlay should cover header area
     const ok = await page.evaluate(() => {
-      const overlay = document.querySelector('[data-testid="nav-search-overlay"]') as HTMLElement | null;
+      const overlay = document.querySelector(
+        '[data-testid="nav-search-overlay"]'
+      ) as HTMLElement | null;
       const nav = document.getElementById('site-nav');
-      if(!overlay || !nav) return false;
+      if (!overlay || !nav) return false;
       const r = nav.getBoundingClientRect();
       const x = Math.min(r.left + 20, window.innerWidth - 5);
       const y = Math.min(r.top + 10, window.innerHeight - 5);
@@ -89,7 +91,7 @@ test.describe('Navbar layout', () => {
     const approx = await page.evaluate(() => {
       const nav = document.querySelector('#site-nav .nav-inner') as HTMLElement | null;
       const spacer = document.querySelector('[aria-hidden="true"].h-16') as HTMLElement | null;
-      if(!nav || !spacer) return { h: 0, s: 0 };
+      if (!nav || !spacer) return { h: 0, s: 0 };
       const h = Math.round(nav.getBoundingClientRect().height);
       // Tailwind h-16 = 64px, allow some variance for borders/shadows
       const s = 64;

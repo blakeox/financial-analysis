@@ -32,7 +32,9 @@ test.describe('Navbar advanced appearance', () => {
     await page.click('[data-testid="nav-theme-toggle"]');
     await waitForNavReady(page);
 
-    const isNowDark = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+    const isNowDark = await page.evaluate(() =>
+      document.documentElement.classList.contains('dark')
+    );
     expect(isNowDark).toBe(!wasDark);
 
     const toggledStyle = await sampleNavComputed(page);
@@ -79,7 +81,9 @@ test.describe('Navbar advanced appearance', () => {
     await waitForNavReady(page);
 
     const activeAfter = await page.evaluate(() => {
-      const active = document.querySelector('#site-nav .desktop-nav a.active') as HTMLElement | null;
+      const active = document.querySelector(
+        '#site-nav .desktop-nav a.active'
+      ) as HTMLElement | null;
       if (!active) return null;
       const underline = getComputedStyle(active, '::after');
       return {
@@ -96,7 +100,9 @@ test.describe('Navbar advanced appearance', () => {
     await inactiveLink.hover();
     await page.waitForTimeout(150);
     const hoverAfter = await page.evaluate(() => {
-      const target = document.querySelector('#site-nav .desktop-nav li:nth-of-type(2) a') as HTMLElement | null;
+      const target = document.querySelector(
+        '#site-nav .desktop-nav li:nth-of-type(2) a'
+      ) as HTMLElement | null;
       if (!target) return null;
       const underline = getComputedStyle(target, '::after');
       return { opacity: underline.opacity, backgroundImage: underline.backgroundImage };
@@ -123,7 +129,8 @@ test.describe('Navbar advanced appearance', () => {
     expect(postNavigation?.backgroundImage).toMatch(/(17, ?24, ?39)|(255, ?255, ?255)/);
 
     const guardFixes = await page.evaluate(() => {
-      const logs = (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
+      const logs =
+        (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
       return logs.filter((entry) => entry?.type === 'guard-fix');
     });
     expect(guardFixes).toHaveLength(0);

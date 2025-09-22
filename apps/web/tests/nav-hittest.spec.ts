@@ -9,9 +9,9 @@ test.describe('Navbar hit-test & overlay guard', () => {
 
     const isTop = await page.evaluate(() => {
       const nav = document.getElementById('site-nav');
-      if(!nav) return false;
+      if (!nav) return false;
       const r = nav.getBoundingClientRect();
-      const y = r.top + (r.height/2);
+      const y = r.top + r.height / 2;
       const target = document.elementFromPoint(r.left + 10, y);
       return !!target && nav.contains(target);
     });

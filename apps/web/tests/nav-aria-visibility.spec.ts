@@ -5,11 +5,9 @@ test.describe('Navbar accessibility styling', () => {
     await page.goto('/');
 
     const srOnlySnapshots = await page.evaluate(() => {
-      const nodes = Array.from(
-        document.querySelectorAll<HTMLElement>('#site-nav .sr-only'),
-      );
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>('#site-nav .sr-only'));
 
-      return nodes.map(node => {
+      return nodes.map((node) => {
         const style = getComputedStyle(node);
         const rect = node.getBoundingClientRect();
         return {
@@ -30,8 +28,7 @@ test.describe('Navbar accessibility styling', () => {
       expect(snap.width).toBeLessThanOrEqual(1);
       expect(snap.height).toBeLessThanOrEqual(1);
       expect(
-        snap.clipPath === 'inset(50%)' ||
-          snap.clip === 'rect(0px, 0px, 0px, 0px)',
+        snap.clipPath === 'inset(50%)' || snap.clip === 'rect(0px, 0px, 0px, 0px)'
       ).toBeTruthy();
     }
   });
@@ -41,9 +38,9 @@ test.describe('Navbar accessibility styling', () => {
     await page.waitForTimeout(3200);
 
     const guardFixes = await page.evaluate(() => {
-      const logs = (window as typeof window & { ___navLogs?: Array<{ type?: string }> })
-        .___navLogs || [];
-      return logs.filter(entry => entry?.type === 'guard-fix');
+      const logs =
+        (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
+      return logs.filter((entry) => entry?.type === 'guard-fix');
     });
 
     expect.soft(guardFixes).toHaveLength(0);

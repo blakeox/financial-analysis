@@ -163,7 +163,8 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: 'Assistant reply (uses Workers AI when configured, otherwise a deterministic response)',
+      description:
+        'Assistant reply (uses Workers AI when configured, otherwise a deterministic response)',
       content: {
         'application/json': {
           schema: ChatResponseSchema,

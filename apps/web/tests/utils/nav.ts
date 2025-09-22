@@ -19,14 +19,19 @@ export async function waitForNavReady(page: Page) {
     const cnt = await nav.locator('.desktop-nav a').count();
     expect(cnt).toBeGreaterThan(0);
   }
-  await expect.poll(async () => {
-    return page.evaluate(() => {
-      const navEl = document.getElementById('site-nav');
-      if (!navEl) return null;
-      const { phaseInitial, phaseRaf, phaseLoad } = navEl.dataset as Record<string, string | undefined>;
-      return phaseInitial && phaseRaf && phaseLoad ? true : false;
-    });
-  }).toBeTruthy();
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        const navEl = document.getElementById('site-nav');
+        if (!navEl) return null;
+        const { phaseInitial, phaseRaf, phaseLoad } = navEl.dataset as Record<
+          string,
+          string | undefined
+        >;
+        return phaseInitial && phaseRaf && phaseLoad ? true : false;
+      });
+    })
+    .toBeTruthy();
   return nav;
 }
 

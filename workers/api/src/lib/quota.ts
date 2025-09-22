@@ -39,8 +39,11 @@ export async function adjustApproxBytes(env: Env, delta: number): Promise<number
   return next;
 }
 
-export async function reconcileBucketUsage(env: Env): Promise<{ bytes: number; locked: boolean; scanned: number }> {
-  if (!env.DOCUMENTS || !env.SESSIONS) return { bytes: await getApproxBytes(env), locked: await isQuotaLocked(env), scanned: 0 };
+export async function reconcileBucketUsage(
+  env: Env
+): Promise<{ bytes: number; locked: boolean; scanned: number }> {
+  if (!env.DOCUMENTS || !env.SESSIONS)
+    return { bytes: await getApproxBytes(env), locked: await isQuotaLocked(env), scanned: 0 };
   const bucket: R2Bucket = env.DOCUMENTS;
   const { softLimit } = getThresholds(env);
   let cursor: string | undefined = undefined;

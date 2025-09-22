@@ -14,7 +14,7 @@ test.describe('Static Nav Debug Page', () => {
 
     const texts = await links.allInnerTexts();
     expect(texts).toContain('Financial Analysis');
-    expect(texts.some(t => /Models/i.test(t))).toBeTruthy();
-    expect(texts.some(t => /Analysis/i.test(t))).toBeTruthy();
+    expect(texts.some((t) => /Models/i.test(t))).toBeTruthy();
+    expect(texts.some((t) => /Analysis/i.test(t))).toBeTruthy();
   });
 });

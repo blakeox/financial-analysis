@@ -11,17 +11,20 @@ test.describe('Navbar HTML hash stability', () => {
 
     const hashes: string[] = [];
     const take = async () => {
-      const html = await nav.evaluate(el => {
+      const html = await nav.evaluate((el) => {
         const clone = el.cloneNode(true) as HTMLElement;
         // Remove phase data attributes for stable hashing
-  Array.from(clone.attributes).forEach(a => { if(a.name.startsWith('data-phase-')) clone.removeAttribute(a.name); });
-        return clone.innerHTML.replace(/\s+/g,' ');
+        Array.from(clone.attributes).forEach((a) => {
+          if (a.name.startsWith('data-phase-')) clone.removeAttribute(a.name);
+        });
+        return clone.innerHTML.replace(/\s+/g, ' ');
       });
       const h = crypto.createHash('sha256').update(html).digest('hex');
       hashes.push(h);
     };
 
-    for(let i=0;i<21;i++){ // ~10s sampling every 500ms
+    for (let i = 0; i < 21; i++) {
+      // ~10s sampling every 500ms
       await take();
       await page.waitForTimeout(500);
     }

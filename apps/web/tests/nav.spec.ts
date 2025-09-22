@@ -25,11 +25,11 @@ test.describe('Navbar visibility', () => {
     expect(laterLinks.length).toBeGreaterThan(0);
 
     // Ensure at least one overlapping link label remained (not fully replaced with empty)
-    const overlap = initialLinks.filter(l => laterLinks.includes(l));
+    const overlap = initialLinks.filter((l) => laterLinks.includes(l));
     expect(overlap.length).toBeGreaterThan(0);
 
     // Height should remain non-trivial
-    const height = await nav.evaluate(el => (el as HTMLElement).offsetHeight);
+    const height = await nav.evaluate((el) => (el as HTMLElement).offsetHeight);
     expect(height).toBeGreaterThan(30);
   });
 });

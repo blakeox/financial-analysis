@@ -55,8 +55,8 @@ docs              # Documentation (API, Architecture, etc.)
 
 - The API upload endpoint enforces an optional MIME allowlist via the `ALLOWED_UPLOAD_MIME_PREFIXES` env var (set in `workers/api/wrangler.toml`).
 - Value is a comma-separated list of MIME type prefixes. Example (enabled by default):
-	- `application/pdf,application/vnd.openxmlformats`
-	- This allows PDFs and modern Office formats (docx/xlsx/pptx).
+  - `application/pdf,application/vnd.openxmlformats`
+  - This allows PDFs and modern Office formats (docx/xlsx/pptx).
 - Tighten or relax per environment under `[vars]`, `[env.preview.vars]`, and `[env.production.vars]`.
 - If set and an upload's `Content-Type` does not start with any allowed prefix, the API returns `415 Unsupported Media Type`.
 
@@ -86,4 +86,3 @@ Notable behaviors validated by tests:
 - Deterministic ETag handling for `/`, `/openapi.json`, `/docs` with proper 304 on `If-None-Match`.
 - Optional deterministic Cache API for analysis endpoints with `X-Cache: HIT/MISS/BYPASS`.
 - OPTIONS preflight routes set `Allow` and CORS headers for `/mcp`, `/api/*`, `/v1/*`, `/openapi.json`, `/docs`.
-

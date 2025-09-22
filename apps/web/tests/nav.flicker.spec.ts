@@ -25,13 +25,27 @@ test.describe('Navbar flicker detection', () => {
     await expect(nav).toBeVisible();
 
     // Sample computed styles for a short period after load
-    const displays = await sample(async () => {
-      return page.evaluate(() => getComputedStyle(document.querySelector('#site-nav .desktop-nav') as HTMLElement)?.display);
-    }, 25, 1500);
+    const displays = await sample(
+      async () => {
+        return page.evaluate(
+          () =>
+            getComputedStyle(document.querySelector('#site-nav .desktop-nav') as HTMLElement)
+              ?.display
+        );
+      },
+      25,
+      1500
+    );
 
-    const visibilities = await sample(async () => {
-      return page.evaluate(() => getComputedStyle(document.querySelector('#site-nav') as HTMLElement)?.visibility);
-    }, 25, 1500);
+    const visibilities = await sample(
+      async () => {
+        return page.evaluate(
+          () => getComputedStyle(document.querySelector('#site-nav') as HTMLElement)?.visibility
+        );
+      },
+      25,
+      1500
+    );
 
     // Ensure desktop nav is consistently flex and nav is visible
     expect(new Set(displays)).toEqual(new Set(['flex']));
@@ -42,12 +56,26 @@ test.describe('Navbar flicker detection', () => {
     await page.goto('/');
 
     // Poll className instead of MutationObserver to avoid context-destroyed on nav
-    const rootSamples = await sample(async () => {
-      return page.evaluate(() => (document.getElementById('site-nav') as HTMLElement | null)?.className || '');
-    }, 50, 2000);
-    const desktopSamples = await sample(async () => {
-      return page.evaluate(() => (document.querySelector('#site-nav .desktop-nav') as HTMLElement | null)?.className || '');
-    }, 50, 2000);
+    const rootSamples = await sample(
+      async () => {
+        return page.evaluate(
+          () => (document.getElementById('site-nav') as HTMLElement | null)?.className || ''
+        );
+      },
+      50,
+      2000
+    );
+    const desktopSamples = await sample(
+      async () => {
+        return page.evaluate(
+          () =>
+            (document.querySelector('#site-nav .desktop-nav') as HTMLElement | null)?.className ||
+            ''
+        );
+      },
+      50,
+      2000
+    );
 
     const rootUnique = Array.from(new Set(rootSamples)).filter(Boolean);
     const desktopUnique = Array.from(new Set(desktopSamples)).filter(Boolean);
@@ -72,7 +100,9 @@ test.describe('Navbar flicker detection', () => {
         if (!ss.href) result.inlineSheets += 1;
         try {
           const rules = Array.from((ss as CSSStyleSheet).cssRules || []);
-          const hits = rules.filter((r) => (r as CSSStyleRule).selectorText?.includes('.desktop-nav')) as CSSStyleRule[];
+          const hits = rules.filter((r) =>
+            (r as CSSStyleRule).selectorText?.includes('.desktop-nav')
+          ) as CSSStyleRule[];
           if (hits.length > 0) result.desktopNavRuleSheets += 1;
           result.totalHits += hits.length;
         } catch {
@@ -91,31 +121,61 @@ test.describe('Navbar flicker detection', () => {
     await page.goto('/');
 
     // Track layout rect of the nav wrapper while navigating between pages
-    const rectsHome = await sample(async () => {
-      return page.evaluate(() => (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON());
-    }, 20, 500);
+    const rectsHome = await sample(
+      async () => {
+        return page.evaluate(() =>
+          (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON()
+        );
+      },
+      20,
+      500
+    );
 
     // Navigate to models, then back
     await page.click('#site-nav .desktop-nav a:has-text("Models")');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
 
-    const rectsModels = await sample(async () => {
-      return page.evaluate(() => (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON());
-    }, 20, 500);
+    const rectsModels = await sample(
+      async () => {
+        return page.evaluate(() =>
+          (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON()
+        );
+      },
+      20,
+      500
+    );
 
     await page.goBack();
     await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
 
-    const rectsBack = await sample(async () => {
-      return page.evaluate(() => (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON());
-    }, 20, 500);
+    const rectsBack = await sample(
+      async () => {
+        return page.evaluate(() =>
+          (document.querySelector('#site-nav') as HTMLElement).getBoundingClientRect().toJSON()
+        );
+      },
+      20,
+      500
+    );
 
     // The height should remain constant across samples (no collapse/expand flicker)
-    type Rect = { x: number; y: number; width: number; height: number; top: number; right: number; bottom: number; left: number };
-    const heights = [...(rectsHome as Rect[]), ...(rectsModels as Rect[]), ...(rectsBack as Rect[])]
-      .map((r) => Math.round(r.height));
+    type Rect = {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      top: number;
+      right: number;
+      bottom: number;
+      left: number;
+    };
+    const heights = [
+      ...(rectsHome as Rect[]),
+      ...(rectsModels as Rect[]),
+      ...(rectsBack as Rect[]),
+    ].map((r) => Math.round(r.height));
     const uniqueHeights = Array.from(new Set(heights));
     expect(uniqueHeights.length).toBe(1);
   });

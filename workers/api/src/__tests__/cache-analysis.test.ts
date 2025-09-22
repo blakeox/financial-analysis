@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import api from '../index';
 
 function makeEnv(ttlSeconds?: string) {
-  const env: { ENVIRONMENT: string; ANALYSIS_CACHE_TTL_SECONDS?: string; DB: D1Database; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket } = {
+  const env: {
+    ENVIRONMENT: string;
+    ANALYSIS_CACHE_TTL_SECONDS?: string;
+    DB: D1Database;
+    SESSIONS: KVNamespace;
+    DOCUMENTS: R2Bucket;
+  } = {
     ENVIRONMENT: 'test',
     ...(ttlSeconds !== undefined ? { ANALYSIS_CACHE_TTL_SECONDS: ttlSeconds } : {}),
     DB: {} as unknown as D1Database,
@@ -33,7 +39,10 @@ class MemoryCache implements Cache {
     this.store.set(key, response);
   }
   // Not used in our tests
-  async delete(_request: RequestInfo | URL, _options?: CacheQueryOptions | undefined): Promise<boolean> {
+  async delete(
+    _request: RequestInfo | URL,
+    _options?: CacheQueryOptions | undefined
+  ): Promise<boolean> {
     return false;
   }
 }
@@ -56,7 +65,9 @@ describe('Analysis cache behavior', () => {
     const { env, ctx } = makeEnv('60');
     // Inject an in-memory default cache on global
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).caches = { default: new MemoryCache() } as unknown as CacheStorage & { default: Cache };
+    (globalThis as any).caches = { default: new MemoryCache() } as unknown as CacheStorage & {
+      default: Cache;
+    };
 
     const body = { principal: 12345, annualRate: 0.05, termMonths: 24, residualValue: 500 };
     const req1 = new Request('https://example.com/v1/api/analysis/lease', {

@@ -10,20 +10,24 @@ test.describe('Navbar DOM churn', () => {
     await expect(nav).toBeVisible();
 
     // Sample every 150ms for 2.5s
-    const samples: Array<{t:number,len:number}> = [];
-    for(let i=0;i<17;i++) { // ~2.55s
-      const len = await nav.evaluate(el => (el as HTMLElement).innerHTML.length);
+    const samples: Array<{ t: number; len: number }> = [];
+    for (let i = 0; i < 17; i++) {
+      // ~2.55s
+      const len = await nav.evaluate((el) => (el as HTMLElement).innerHTML.length);
       samples.push({ t: performance.now(), len });
       await page.waitForTimeout(150);
     }
 
     // Compute large swings (delta > 3500 chars) which indicate almost full subtree replacement
     let largeSwings = 0;
-    for(let i=1;i<samples.length;i++){
-      if(Math.abs(samples[i].len - samples[i-1].len) > 3500) largeSwings++;
+    for (let i = 1; i < samples.length; i++) {
+      if (Math.abs(samples[i].len - samples[i - 1].len) > 3500) largeSwings++;
     }
 
     // Allow up to 2 big swings (e.g., initial hydration + search overlay mount), more implies dueling renders.
-    expect(largeSwings, `Excessive nav DOM replacement swings detected: ${largeSwings}`).toBeLessThanOrEqual(2);
+    expect(
+      largeSwings,
+      `Excessive nav DOM replacement swings detected: ${largeSwings}`
+    ).toBeLessThanOrEqual(2);
   });
 });

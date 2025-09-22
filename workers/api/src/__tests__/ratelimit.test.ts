@@ -48,7 +48,10 @@ describe('Rate limit headers', () => {
     let stored: { count: number; resetTime: number } | null = null;
     const now = Date.now();
     const kvImpl: Partial<KVNamespace> = {
-      get: (async () => JSON.stringify(stored ?? { count: 100, resetTime: now + 60_000 })) as unknown as KVNamespace['get'],
+      get: (async () =>
+        JSON.stringify(
+          stored ?? { count: 100, resetTime: now + 60_000 }
+        )) as unknown as KVNamespace['get'],
       put: (async (_k: string, v: string) => {
         stored = JSON.parse(v);
       }) as unknown as KVNamespace['put'],

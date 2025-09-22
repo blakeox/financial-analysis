@@ -16,14 +16,16 @@ const OVERLAY = '[data-testid="nav-search-overlay"]';
 
 // Utility to query dataset phases quickly
 async function waitForPhases(page: Page) {
-  await expect.poll(async () => {
-    return page.evaluate(() => {
-      const el = document.getElementById('site-nav');
-      if(!el) return false;
-      const d = el.dataset as Record<string, string | undefined>;
-      return !!(d.phaseInitial && d.phaseRaf && d.phaseLoad);
-    });
-  }).toBeTruthy();
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        const el = document.getElementById('site-nav');
+        if (!el) return false;
+        const d = el.dataset as Record<string, string | undefined>;
+        return !!(d.phaseInitial && d.phaseRaf && d.phaseLoad);
+      });
+    })
+    .toBeTruthy();
 }
 
 // Focus-safe overlay open/close
@@ -48,13 +50,17 @@ test.describe('Navbar process flows', () => {
     // Navigate to another route
     await goto(page, '/models');
     await waitForPhases(page);
-    const afterRoute = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+    const afterRoute = await page.evaluate(() =>
+      document.documentElement.classList.contains('dark')
+    );
     expect(afterRoute).toBe(after);
 
     // Reload (soft)
     await page.reload();
     await waitForPhases(page);
-    const afterReload = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+    const afterReload = await page.evaluate(() =>
+      document.documentElement.classList.contains('dark')
+    );
     expect(afterReload).toBe(after);
   });
 
@@ -70,9 +76,11 @@ test.describe('Navbar process flows', () => {
     // Switch to desktop width
     await page.setViewportSize({ width: 1200, height: 800 });
     // Panel should be non-interactive/hidden at desktop
-    const isHidden = await page.locator(MOBILE_PANEL).evaluate(el => {
+    const isHidden = await page.locator(MOBILE_PANEL).evaluate((el) => {
       const cs = getComputedStyle(el as HTMLElement);
-      return cs.opacity === '0' || cs.display === 'none' || el.classList.contains('pointer-events-none');
+      return (
+        cs.opacity === '0' || cs.display === 'none' || el.classList.contains('pointer-events-none')
+      );
     });
     expect(isHidden).toBeTruthy();
 
@@ -82,14 +90,18 @@ test.describe('Navbar process flows', () => {
     expect(cnt).toBeGreaterThan(0);
   });
 
-  test('is-scrolled resets after navigation and search toggle works across pages', async ({ page }) => {
+  test('is-scrolled resets after navigation and search toggle works across pages', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await goto(page, '/');
     await waitForPhases(page);
 
     // Scroll to set is-scrolled
     await page.evaluate(() => window.scrollTo({ top: 300, behavior: 'instant' as ScrollBehavior }));
-    await expect.poll(async () => (await page.locator(NAV).getAttribute('class')) || '').toMatch(/is-scrolled/);
+    await expect
+      .poll(async () => (await page.locator(NAV).getAttribute('class')) || '')
+      .toMatch(/is-scrolled/);
 
     // Navigate and expect reset
     await goto(page, '/models');
