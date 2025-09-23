@@ -10,7 +10,8 @@
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'No tests for tools package'"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",

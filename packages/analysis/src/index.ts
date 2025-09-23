@@ -1,11 +1,26 @@
 // Financial Analysis Engines
 export { LeaseAnalyzer } from './engines/lease';
 export { AmortizationAnalyzer } from './engines/amortization';
+export { EbitdaForecaster } from './engines/ebitda-forecasting';
 
 // Types
 export type { LeaseAnalysisResult } from './engines/lease';
 export type { AmortizationAnalysisResult } from './engines/amortization';
+export type { 
+  EbitdaForecastResult, 
+  MonthlyForecast,
+  MonthlyFinancials,
+  Employee,
+  ExpenseType,
+  ScenarioInput
+} from './engines/ebitda-forecasting';
 export { AmortizationInputSchema } from './engines/amortization';
+export { 
+  MonthlyFinancialsSchema,
+  EmployeeSchema,
+  ExpenseTypeSchema,
+  ScenarioInputSchema
+} from './engines/ebitda-forecasting';
 
 // Utilities (placeholder - to be implemented)
 import { z } from 'zod';

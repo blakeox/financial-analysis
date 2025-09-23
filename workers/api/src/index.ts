@@ -1,8 +1,10 @@
 import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
+  // EbitdaForecaster,
   FinancialInputSchema,
   LeaseAnalyzer,
+  // ScenarioInputSchema,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -604,7 +606,7 @@ router.get(
     const type = url.searchParams.get('type');
 
     // Basic validation for analysis type
-    const validTypes = ['lease', 'amortization', 'cashflow'];
+    const validTypes = ['lease', 'amortization', 'cashflow']; // , 'ebitda-forecasting'
     if (type && !validTypes.includes(type)) {
       throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
     }
