@@ -676,7 +676,7 @@ router.post(
 
     const parseResult = FinancialInputSchema.safeParse(body);
     if (!parseResult.success) {
-      const issues = parseResult.error.issues.map((i) => ({
+      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
         path: i.path.join('.'),
         message: i.message,
         code: i.code,

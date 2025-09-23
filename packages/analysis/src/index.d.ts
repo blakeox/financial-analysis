@@ -60,4 +60,5 @@ export declare const AmortizationInputSchema: z.ZodObject<
     termMonths: number;
   }
 >;
+export { z } from 'zod';
 //# sourceMappingURL=index.d.ts.map

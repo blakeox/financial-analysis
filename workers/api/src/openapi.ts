@@ -1,15 +1,10 @@
-import {
-  OpenAPIRegistry,
-  OpenApiGeneratorV3,
-  extendZodWithOpenApi,
-} from '@asteasolutions/zod-to-openapi';
-import { AmortizationInputSchema, FinancialInputSchema } from '@financial-analysis/analysis';
-import { z } from 'zod';
+import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { z } from '@financial-analysis/analysis';
 
-const registry = new OpenAPIRegistry();
-
-// Extend Zod to support OpenAPI metadata (.openapi)
+// Extend Zod to support OpenAPI metadata (.openapi) on the same Zod instance
+// that created the schemas from @financial-analysis/analysis
 extendZodWithOpenApi(z);
+const registry = new OpenAPIRegistry();
 
 // Schemas
 const HealthSchema = z.object({
@@ -19,7 +14,15 @@ const HealthSchema = z.object({
   version: z.string(),
 });
 
-registry.register('FinancialInput', FinancialInputSchema);
+// Define OpenAPI-only versions using the locally-extended Zod instance to avoid cross-package extension issues
+const FinancialInputOpenAPISchema = z.object({
+  principal: z.number().positive(),
+  annualRate: z.number().min(0).max(1),
+  termMonths: z.number().positive().int(),
+  residualValue: z.number().min(0).default(0),
+});
+
+registry.register('FinancialInput', FinancialInputOpenAPISchema);
 registry.register('Health', HealthSchema);
 
 const VersionSchema = z.object({
@@ -225,7 +228,7 @@ registry.registerPath({
     body: {
       content: {
         'application/json': {
-          schema: FinancialInputSchema,
+          schema: FinancialInputOpenAPISchema,
         },
       },
     },
@@ -256,7 +259,12 @@ registry.registerPath({
     body: {
       content: {
         'application/json': {
-          schema: AmortizationInputSchema,
+          // Use OpenAPI-only schema built with locally-extended Zod instance
+          schema: z.object({
+            principal: z.number(),
+            annualRate: z.number(),
+            termMonths: z.number(),
+          }),
         },
       },
     },

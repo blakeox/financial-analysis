@@ -9,6 +9,9 @@ export { AmortizationInputSchema } from './engines/amortization';
 
 // Utilities (placeholder - to be implemented)
 import { z } from 'zod';
+// Re-export the Zod instance so downstream packages (API/UI) can share the same instance
+// This ensures extensions like zod-to-openapi apply consistently across schemas.
+export { z } from 'zod';
 
 export const FinancialInputSchema = z.object({
   principal: z.number().positive(),
