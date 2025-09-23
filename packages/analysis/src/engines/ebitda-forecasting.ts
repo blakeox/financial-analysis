@@ -314,6 +314,7 @@ export class EbitdaForecaster {
         name,
         ...(description && { description }),
         forecastPeriodMonths,
+        ...(economicFactors && { economicFactors }),
       },
       forecast,
       summary: {

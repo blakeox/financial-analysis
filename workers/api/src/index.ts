@@ -1,10 +1,10 @@
 import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
-  // EbitdaForecaster,
+  EbitdaForecaster,
   FinancialInputSchema,
   LeaseAnalyzer,
-  // ScenarioInputSchema,
+  ScenarioInputSchema,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -80,6 +80,52 @@ function withErrorHandler(handler: RouteHandler) {
       console.error('API Error:', error);
 
       const isDevelopment = env.ENVIRONMENT === 'development';
+
+      // Handle Zod validation errors with 400 status
+      if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Validation error',
+              code: 'VALIDATION_ERROR',
+              ...(isDevelopment && { details: error }),
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Handle generic errors and explicit Error instances
+      if (error instanceof Error) {
+        // Check for specific error messages that should return 400
+        if (error.message.includes('Content-Type must be application/json')) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: error.message,
+                code: 'INVALID_CONTENT_TYPE',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Check for JSON parsing errors
+        if (
+          error.message.includes('Unexpected token') ||
+          error.message.includes('is not valid JSON')
+        ) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Invalid JSON format',
+                code: 'INVALID_JSON',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+      }
 
       return new Response(
         JSON.stringify({
@@ -209,6 +255,7 @@ router.options('/api/*', (_req: Request, env: Env) => {
 router.options('/v1/*', (_req: Request, env: Env) => {
   const headers = new Headers(getCorsHeaders(env));
   headers.set('Allow', 'GET, POST, PUT, DELETE, OPTIONS');
+  headers.set('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   return new Response(null, { headers });
 });
 router.options('/openapi.json', (_req: Request, env: Env) => {
@@ -277,20 +324,56 @@ router.post(
     const last = body.messages[body.messages.length - 1];
     if (last && last.role === 'user' && /amortization/i.test(last.content)) {
       try {
-        const jsonMatch = last.content.match(/\{[\s\S]*\}$/);
+        // Look for any JSON object in the content, supporting nested structures
+        const jsonMatch = last.content.match(/\{.*\}/);
         if (jsonMatch) {
-          const maybe = JSON.parse(jsonMatch[0]);
-          const parseResult = AmortizationInputSchema.safeParse(maybe);
-          if (parseResult.success) {
-            const result = AmortizationAnalyzer.analyze(parseResult.data);
-            const reply: ChatResponse = {
-              role: 'assistant',
-              content: `Computed amortization. Monthly payment: ${result.monthlyPayment.toFixed(2)}; total interest: ${result.totalInterest.toFixed(2)}.`,
+          const apiInput = JSON.parse(jsonMatch[0]);
+          
+          // Support both old format (interestRate, termInYears) and new format (annualRate, termMonths)
+          let analysisInput: { principal: number; annualRate: number; termMonths: number } | null = null;
+          
+          // New format: annualRate (decimal), termMonths (number)
+          if (typeof apiInput.principal === 'number' && 
+              typeof apiInput.annualRate === 'number' && 
+              typeof apiInput.termMonths === 'number' &&
+              apiInput.principal > 0 && 
+              apiInput.annualRate >= 0 && 
+              apiInput.termMonths > 0) {
+            
+            analysisInput = {
+              principal: apiInput.principal,
+              annualRate: apiInput.annualRate,
+              termMonths: apiInput.termMonths,
             };
-            return new Response(JSON.stringify(reply), {
-              status: 200,
-              headers: buildDefaultHeaders(env),
-            });
+          }
+          // Old format: interestRate (percentage), termInYears (number)
+          else if (typeof apiInput.principal === 'number' && 
+                   typeof apiInput.interestRate === 'number' && 
+                   typeof apiInput.termInYears === 'number' &&
+                   apiInput.principal > 0 && 
+                   apiInput.interestRate >= 0 && 
+                   apiInput.termInYears > 0) {
+            
+            analysisInput = {
+              principal: apiInput.principal,
+              annualRate: apiInput.interestRate / 100, // Convert percentage to decimal
+              termMonths: Math.round(apiInput.termInYears * 12), // Convert years to months
+            };
+          }
+          
+          if (analysisInput) {
+            const parseResult = AmortizationInputSchema.safeParse(analysisInput);
+            if (parseResult.success) {
+              const result = AmortizationAnalyzer.analyze(parseResult.data);
+              const reply: ChatResponse = {
+                role: 'assistant',
+                content: `Computed amortization. Monthly payment: ${result.monthlyPayment.toFixed(2)}; total interest: ${result.totalInterest.toFixed(2)}.`,
+              };
+              return new Response(JSON.stringify(reply), {
+                status: 200,
+                headers: buildDefaultHeaders(env),
+              });
+            }
           }
         }
       } catch {
@@ -606,7 +689,7 @@ router.get(
     const type = url.searchParams.get('type');
 
     // Basic validation for analysis type
-    const validTypes = ['lease', 'amortization', 'cashflow']; // , 'ebitda-forecasting'
+    const validTypes = ['lease', 'amortization', 'cashflow', 'ebitda-forecast'];
     if (type && !validTypes.includes(type)) {
       throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
     }
@@ -732,9 +815,9 @@ router.post(
   })
 );
 
-// Amortization analysis endpoint
+// EBITDA forecast analysis endpoint
 router.post(
-  '/v1/api/analysis/amortization',
+  '/v1/api/analysis/ebitda-forecast',
   withErrorHandler(async (request: Request, env: Env) => {
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
@@ -783,13 +866,262 @@ router.post(
       }
     })();
 
-    const parseResult = AmortizationInputSchema.safeParse(body);
+    const parseResult = ScenarioInputSchema.safeParse(body);
     if (!parseResult.success) {
       const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
         path: i.path.join('.'),
         message: i.message,
         code: i.code,
       }));
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Invalid request body',
+            code: 'BAD_REQUEST',
+            issues,
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Optional deterministic caching (Cache API)
+    const ttl = getAnalysisCacheTtl(env);
+    const cache = ttl > 0 ? getDefaultCache() : undefined;
+    if (ttl > 0 && cache) {
+      const keyStr = await sha256Hex(
+        stableStringify({ route: 'ebitda-forecast', input: parseResult.data })
+      );
+      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+      const cached = await cache.match(cacheReq);
+      if (cached) {
+        const hitHeaders = new Headers(cached.headers);
+        hitHeaders.set('X-Cache', 'HIT');
+        return new Response(cached.body, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: hitHeaders,
+        });
+      }
+      const result = EbitdaForecaster.forecast(parseResult.data);
+      const res = new Response(JSON.stringify(result), {
+        status: 200,
+        headers: {
+          ...buildDefaultHeaders(env),
+          'Cache-Control': `public, max-age=${ttl}`,
+          'X-Cache': 'MISS',
+        },
+      });
+      void cache.put(cacheReq, res.clone());
+      return res;
+    }
+
+    const result = EbitdaForecaster.forecast(parseResult.data);
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+    });
+  })
+);
+
+// Amortization analysis endpoint
+router.post(
+  '/v1/api/analysis/amortization',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Content-Type must be application/json',
+            code: 'INVALID_CONTENT_TYPE',
+          },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Enforce JSON body size cap
+    const maxBytes = getMaxJsonBytes(env);
+    const declaredLen =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    if (declaredLen && Number(declaredLen) > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const text = await request.text();
+    if (text.length > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const body = (() => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return undefined;
+      }
+    })();
+
+    // Transform API request format to analysis format
+    if (!body || typeof body !== 'object') {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Invalid JSON body',
+            code: 'BAD_REQUEST',
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Convert from AmortizationRequest format to AmortizationInputSchema format
+    // Support both old format (interestRate, termInYears) and new format (annualRate, termMonths)
+    const apiInput = body as {
+      principal?: number;
+      interestRate?: number;
+      termInYears?: number;
+      annualRate?: number;
+      termMonths?: number;
+      startDate?: string;
+      paymentFrequency?: string;
+    };
+
+    // Debug: Log raw input
+    console.log('Raw API input:', {
+      body: body,
+      apiInput: apiInput,
+      interestRate: apiInput.interestRate,
+      termInYears: apiInput.termInYears,
+      principal: apiInput.principal,
+    });
+
+    // Validate required fields exist and are numbers
+    if (typeof apiInput.principal !== 'number' || apiInput.principal <= 0) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'principal must be a positive number',
+            code: 'BAD_REQUEST',
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Check if using old format (interestRate, termInYears) or new format (annualRate, termMonths)
+    let analysisInput: { principal: number; annualRate: number; termMonths: number };
+    
+    if (apiInput.interestRate !== undefined && apiInput.termInYears !== undefined) {
+      // Old format validation
+      if (typeof apiInput.interestRate !== 'number' || apiInput.interestRate < 0) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'interestRate must be a non-negative number',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      if (typeof apiInput.termInYears !== 'number' || apiInput.termInYears <= 0) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'termInYears must be a positive number',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Convert old format to new format
+      analysisInput = {
+        principal: apiInput.principal,
+        annualRate: apiInput.interestRate / 100, // Convert percentage to decimal
+        termMonths: Math.round(apiInput.termInYears * 12), // Convert years to months and round to integer
+      };
+    } else if (apiInput.annualRate !== undefined && apiInput.termMonths !== undefined) {
+      // New format validation
+      if (typeof apiInput.annualRate !== 'number' || apiInput.annualRate < 0) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'annualRate must be a non-negative number',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      if (typeof apiInput.termMonths !== 'number' || apiInput.termMonths <= 0) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'termMonths must be a positive number',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Use new format directly
+      analysisInput = {
+        principal: apiInput.principal,
+        annualRate: apiInput.annualRate,
+        termMonths: Math.round(apiInput.termMonths), // Ensure integer
+      };
+    } else {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Must provide either (interestRate and termInYears) or (annualRate and termMonths)',
+            code: 'BAD_REQUEST',
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Debug: Log the conversion
+    console.log('Amortization input conversion:', {
+      original: apiInput,
+      converted: analysisInput,
+    });
+
+    const parseResult = AmortizationInputSchema.safeParse(analysisInput);
+    if (!parseResult.success) {
+      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+        path: i.path.join('.'),
+        message: i.message,
+        code: i.code,
+      }));
+      // Debug: Log validation failure details
+      console.error('Amortization validation failed:', {
+        input: analysisInput,
+        issues: issues,
+      });
       return new Response(
         JSON.stringify({
           error: {
@@ -820,7 +1152,23 @@ router.post(
           headers: hitHeaders,
         });
       }
-      const result = AmortizationAnalyzer.analyze(parseResult.data);
+
+      const analysisResult = AmortizationAnalyzer.analyze(parseResult.data);
+
+      // Transform analysis result to API response format
+      const result = {
+        monthlyPayment: analysisResult.monthlyPayment,
+        totalInterest: analysisResult.totalInterest,
+        totalAmount: analysisResult.totalPayments,
+        schedule: analysisResult.schedule.map((payment) => ({
+          month: payment.month,
+          payment: payment.payment,
+          principal: payment.principal,
+          interest: payment.interest,
+          balance: payment.balance,
+        })),
+      };
+
       const res = new Response(JSON.stringify(result), {
         status: 200,
         headers: {
@@ -833,7 +1181,22 @@ router.post(
       return res;
     }
 
-    const result = AmortizationAnalyzer.analyze(parseResult.data);
+    const analysisResult = AmortizationAnalyzer.analyze(parseResult.data);
+
+    // Transform analysis result to API response format
+    const result = {
+      monthlyPayment: analysisResult.monthlyPayment,
+      totalInterest: analysisResult.totalInterest,
+      totalAmount: analysisResult.totalPayments,
+      schedule: analysisResult.schedule.map((payment) => ({
+        month: payment.month,
+        payment: payment.payment,
+        principal: payment.principal,
+        interest: payment.interest,
+        balance: payment.balance,
+      })),
+    };
+
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },

@@ -40,7 +40,7 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
     const allowed = rateLimitData.count <= RATE_LIMIT_MAX_REQUESTS;
 
     await env.SESSIONS.put(key, JSON.stringify(rateLimitData), {
-      expirationTtl: Math.ceil((rateLimitData.resetTime - now) / 1000),
+      expirationTtl: Math.max(60, Math.ceil((rateLimitData.resetTime - now) / 1000)),
     });
 
     return { allowed, remaining, resetTime: rateLimitData.resetTime };
