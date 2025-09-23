@@ -80,41 +80,32 @@ describe('Chat Endpoint Integration Tests', () => {
         tool_call: {
           name: 'ebitda_forecasting',
           arguments: {
-            name: 'Consulting Business Forecast',
-            currentMonthlyFinancials: [
-              {
-                month: 1,
-                year: 2024,
-                revenue: 200000,
-                expenses: {
-                  salaries: 110000,
-                  benefits: 22000,
-                  rent: 12000,
-                  utilities: 2000,
-                  software: 5000,
-                  marketing: 8000,
-                  travel: 4000,
-                  professional_services: 3000
-                }
-              }
-            ],
-            currentEmployees: [
-              {
-                name: 'Senior Consultant',
-                salary: 110000,
-                benefits: 22000,
-                startDate: '2024-01-01',
-                role: 'Senior Consultant',
-                department: 'Consulting'
-              }
-            ],
-            economicFactors: {
-              inflation: 0.03,
-              gdpGrowth: 0.025,
-              unemploymentRate: 0.035,
-              marketGrowthRate: 0.03
+            currentYear: {
+              january: 50000,
+              february: 52000,
+              march: 48000,
+              april: 55000,
+              may: 60000,
+              june: 58000,
+              july: 62000,
+              august: 59000,
+              september: 61000,
+              october: 65000,
+              november: 63000,
+              december: 70000
             },
-            forecastPeriods: 6
+            employees: [
+              {
+                id: 'emp1',
+                name: 'Senior Consultant',
+                currentSalary: 120000,
+                billableHoursPerMonth: 160,
+                hourlyRate: 150,
+                department: 'Consulting',
+                isActive: true
+              }
+            ],
+            projectionMonths: 6
           }
         }
       };
@@ -127,6 +118,10 @@ describe('Chat Endpoint Integration Tests', () => {
         body: JSON.stringify(chatRequest),
       });
 
+      if (response.status !== 200) {
+        const errorText = await response.text();
+        console.log('EBITDA forecasting tool call error response:', errorText);
+      }
       expect(response.status).toBe(200);
       const result = (await response.json()) as ChatResponse;
       
@@ -138,49 +133,61 @@ describe('Chat Endpoint Integration Tests', () => {
       // Parse the result content as JSON to verify structure
       const forecastResult = JSON.parse(result.content);
       expect(forecastResult.scenario).toBeDefined();
-      expect(forecastResult.monthlyForecasts).toBeDefined();
-      expect(Array.isArray(forecastResult.monthlyForecasts)).toBe(true);
-      expect(forecastResult.monthlyForecasts.length).toBe(6);
+      expect(forecastResult.forecast).toBeDefined();
+      expect(Array.isArray(forecastResult.forecast)).toBe(true);
+      expect(forecastResult.forecast.length).toBe(6);
       expect(forecastResult.summary).toBeDefined();
     });
 
     it('should handle EBITDA scenario comparison tool calls', async () => {
       const baseScenario = {
         name: 'Base Scenario',
-        currentMonthlyFinancials: [
-          {
-            month: 1,
-            year: 2024,
-            revenue: 180000,
-            expenses: {
-              salaries: 95000,
-              benefits: 19000,
-              rent: 10000,
-              utilities: 1800,
-              software: 4500,
-              marketing: 7000,
-              travel: 3500,
-              professional_services: 2500
-            }
-          }
-        ],
-        currentEmployees: [
-          {
-            name: 'Consultant',
-            salary: 95000,
-            benefits: 19000,
-            startDate: '2024-01-01',
-            role: 'Consultant',
-            department: 'Consulting'
-          }
-        ],
-        economicFactors: {
-          inflation: 0.03,
-          gdpGrowth: 0.025,
-          unemploymentRate: 0.04,
-          marketGrowthRate: 0.02
+        currentYear: {
+          january: 50000,
+          february: 52000,
+          march: 54000,
+          april: 56000,
+          may: 58000,
+          june: 60000,
+          july: 62000,
+          august: 64000,
+          september: 66000,
+          october: 68000,
+          november: 70000,
+          december: 72000
         },
-        forecastPeriods: 4
+        employees: [
+          {
+            id: 'emp-1',
+            name: 'Consultant',
+            currentSalary: 95000,
+            billableHoursPerMonth: 120,
+            hourlyRate: 150,
+            department: 'Consulting',
+            isActive: true
+          }
+        ],
+        expenseTypes: [
+          {
+            id: 'rent',
+            name: 'Office Rent',
+            category: 'fixed' as const,
+            currentMonthlyAmount: 10000,
+            growthRate: 0,
+            isActive: true
+          },
+          {
+            id: 'utilities',
+            name: 'Utilities',
+            category: 'fixed' as const,
+            currentMonthlyAmount: 1800,
+            growthRate: 0,
+            isActive: true
+          }
+        ],
+        projectionMonths: 4,
+        revenueGrowthRate: 0.02,
+        marketGrowthFactor: 1.025
       };
 
       const chatRequest: ChatRequest = {
@@ -198,18 +205,12 @@ describe('Chat Endpoint Integration Tests', () => {
               {
                 ...baseScenario,
                 name: 'Conservative Growth',
-                economicFactors: {
-                  ...baseScenario.economicFactors,
-                  marketGrowthRate: 0.01
-                }
+                marketGrowthFactor: 1.01
               },
               {
                 ...baseScenario,
                 name: 'Aggressive Growth',
-                economicFactors: {
-                  ...baseScenario.economicFactors,
-                  marketGrowthRate: 0.05
-                }
+                marketGrowthFactor: 1.05
               }
             ]
           }
@@ -234,11 +235,12 @@ describe('Chat Endpoint Integration Tests', () => {
       
       // Parse the result content to verify comparison structure
       const comparisonResult = JSON.parse(result.content);
-      expect(comparisonResult.baseScenario).toBeDefined();
-      expect(comparisonResult.alternativeScenarios).toBeDefined();
-      expect(Array.isArray(comparisonResult.alternativeScenarios)).toBe(true);
-      expect(comparisonResult.alternativeScenarios.length).toBe(2);
       expect(comparisonResult.comparison).toBeDefined();
+      expect(Array.isArray(comparisonResult.comparison)).toBe(true);
+      expect(comparisonResult.comparison.length).toBe(3); // base + 2 alternatives
+      expect(comparisonResult.bestScenario).toBeDefined();
+      expect(comparisonResult.insights).toBeDefined();
+      expect(Array.isArray(comparisonResult.insights)).toBe(true);
     });
 
     it('should handle amortization queries with JSON input', async () => {
@@ -377,57 +379,86 @@ describe('Chat Endpoint Integration Tests', () => {
         tool_call: {
           name: 'ebitda_forecasting',
           arguments: {
-            name: 'Complex Consulting Firm Forecast',
-            currentMonthlyFinancials: [
-              {
-                month: 1,
-                year: 2024,
-                revenue: 300000,
-                expenses: {
-                  salaries: 355000,
-                  benefits: 71000,
-                  rent: 25000,
-                  utilities: 4500,
-                  software: 8000,
-                  marketing: 15000,
-                  travel: 12000,
-                  professional_services: 6000
-                }
-              }
-            ],
-            currentEmployees: [
-              {
-                name: 'Senior Partner',
-                salary: 150000,
-                benefits: 30000,
-                startDate: '2024-01-01',
-                role: 'Senior Partner',
-                department: 'Management'
-              },
-              {
-                name: 'Senior Consultant',
-                salary: 120000,
-                benefits: 24000,
-                startDate: '2024-01-01',
-                role: 'Senior Consultant',
-                department: 'Consulting'
-              },
-              {
-                name: 'Junior Consultant',
-                salary: 85000,
-                benefits: 17000,
-                startDate: '2024-01-01',
-                role: 'Junior Consultant',
-                department: 'Consulting'
-              }
-            ],
-            economicFactors: {
-              inflation: 0.03,
-              gdpGrowth: 0.025,
-              unemploymentRate: 0.035,
-              marketGrowthRate: 0.04
+            currentYear: {
+              january: 280000,
+              february: 290000,
+              march: 320000,
+              april: 350000,
+              may: 330000,
+              june: 315000,
+              july: 260000,
+              august: 275000,
+              september: 365000,
+              october: 380000,
+              november: 335000,
+              december: 295000
             },
-            forecastPeriods: 12,
+            employees: [
+              {
+                id: 'emp-1',
+                name: 'Senior Partner',
+                currentSalary: 150000,
+                billableHoursPerMonth: 80,
+                hourlyRate: 250,
+                department: 'Management',
+                isActive: true
+              },
+              {
+                id: 'emp-2',
+                name: 'Senior Consultant',
+                currentSalary: 120000,
+                billableHoursPerMonth: 120,
+                hourlyRate: 180,
+                department: 'Consulting',
+                isActive: true
+              },
+              {
+                id: 'emp-3',
+                name: 'Junior Consultant',
+                currentSalary: 85000,
+                billableHoursPerMonth: 140,
+                hourlyRate: 120,
+                department: 'Consulting',
+                isActive: true
+              }
+            ],
+            expenseTypes: [
+              {
+                id: 'rent',
+                name: 'Office Rent',
+                category: 'fixed' as const,
+                currentMonthlyAmount: 25000,
+                growthRate: 0,
+                isActive: true
+              },
+              {
+                id: 'utilities',
+                name: 'Utilities',
+                category: 'fixed' as const,
+                currentMonthlyAmount: 4500,
+                growthRate: 0,
+                isActive: true
+              },
+              {
+                id: 'software',
+                name: 'Software',
+                category: 'variable' as const,
+                currentMonthlyAmount: 8000,
+                growthRate: 0.02,
+                isActive: true
+              },
+              {
+                id: 'marketing',
+                name: 'Marketing',
+                category: 'variable' as const,
+                currentMonthlyAmount: 15000,
+                growthRate: 0.05,
+                isActive: true
+              }
+            ],
+            projectionMonths: 12,
+            revenueGrowthRate: 0.04,
+            marketGrowthFactor: 1.04,
             seasonalityFactors: [
               0.85, 0.90, 1.05, 1.10, 1.00, 0.95,
               0.80, 0.85, 1.15, 1.20, 1.05, 0.90
@@ -454,8 +485,8 @@ describe('Chat Endpoint Integration Tests', () => {
       // Verify the complex scenario produces valid results
       const forecastResult = JSON.parse(result.content);
       expect(forecastResult.scenario).toBeDefined();
-      expect(forecastResult.monthlyForecasts).toBeDefined();
-      expect(forecastResult.monthlyForecasts.length).toBe(12);
+      expect(forecastResult.forecast).toBeDefined();
+      expect(forecastResult.forecast.length).toBe(12);
       expect(forecastResult.summary).toBeDefined();
       expect(forecastResult.summary.totalRevenue).toBeGreaterThan(0);
       expect(forecastResult.summary.finalEmployeeCount).toBe(3);

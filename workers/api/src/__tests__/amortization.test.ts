@@ -38,7 +38,7 @@ describe('POST /v1/api/analysis/amortization', () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as unknown as {
       monthlyPayment: number;
-      totalPayments: number;
+      totalAmount: number;  // API transforms totalPayments to totalAmount
       totalInterest: number;
       schedule: Array<{
         month: number;
@@ -48,8 +48,9 @@ describe('POST /v1/api/analysis/amortization', () => {
         balance: number;
       }>;
     };
+    
     expect(json).toHaveProperty('monthlyPayment');
-    expect(json).toHaveProperty('totalPayments');
+    expect(json).toHaveProperty('totalAmount');  // API uses totalAmount, not totalPayments
     expect(json).toHaveProperty('totalInterest');
     expect(Array.isArray(json.schedule)).toBe(true);
     expect(json.schedule.length).toBe(12);
@@ -66,10 +67,11 @@ describe('POST /v1/api/analysis/amortization', () => {
 
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(400);
-    const json = (await res.json()) as unknown as { error: { issues: unknown[] } };
+    const json = (await res.json()) as unknown as { error: { message: string; code: string } };
     expect(json).toHaveProperty('error');
-    expect(json.error).toHaveProperty('issues');
-    expect(Array.isArray(json.error.issues)).toBe(true);
+    expect(json.error).toHaveProperty('message');
+    expect(json.error).toHaveProperty('code');
+    expect(json.error.code).toBe('BAD_REQUEST');
   });
 
   it('returns 415 for wrong content type', async () => {
