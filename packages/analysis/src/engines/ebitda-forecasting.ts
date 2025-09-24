@@ -35,6 +35,7 @@ export const ExpenseTypeSchema = z.object({
   frequency: z.enum(['monthly', 'quarterly', 'annually']),
   isRecurring: z.boolean().default(true),
   description: z.string().optional(),
+  growthRate: z.number().min(-1).max(1).default(0),
 });
 
 export const ScenarioInputSchema = z.object({
@@ -214,11 +215,20 @@ export class EbitdaForecaster {
           let expenseAmount = 0;
           
           if (exp.frequency === 'monthly') {
-            expenseAmount = exp.amount;
+            const growthMultiplier = new Decimal(1)
+              .plus(exp.growthRate ?? 0)
+              .pow(Math.max(monthsSinceStart - 1, 0));
+            expenseAmount = Number(new Decimal(exp.amount).times(growthMultiplier).toFixed(2));
           } else if (exp.frequency === 'quarterly' && monthsSinceStart % 3 === 0) {
-            expenseAmount = exp.amount;
+            const growthMultiplier = new Decimal(1)
+              .plus(exp.growthRate ?? 0)
+              .pow(Math.max(monthsSinceStart - 1, 0));
+            expenseAmount = Number(new Decimal(exp.amount).times(growthMultiplier).toFixed(2));
           } else if (exp.frequency === 'annually' && monthsSinceStart % 12 === 0) {
-            expenseAmount = exp.amount;
+            const growthMultiplier = new Decimal(1)
+              .plus(exp.growthRate ?? 0)
+              .pow(Math.max(monthsSinceStart - 1, 0));
+            expenseAmount = Number(new Decimal(exp.amount).times(growthMultiplier).toFixed(2));
           }
           
           // Apply inflation

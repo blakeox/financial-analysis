@@ -2,9 +2,15 @@ import { Input } from './Input';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 
 export interface ScenarioConfigData {
+  scenarioName: string;
+  scenarioDescription?: string;
   projectionMonths: number;
   revenueGrowthRate: number;
   marketGrowthFactor: number;
+  operatingExpenseGrowthRate: number;
+  billableHoursGrowthRate: number;
+  inflationRate: number;
+  competitionFactor: number;
   seasonalityFactors?: number[];
 }
 
@@ -18,6 +24,14 @@ const months = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
+
+const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
+
+const describeCompetition = (factor: number) => {
+  if (factor <= 0.85) return 'Low competitive pressure';
+  if (factor >= 1.15) return 'High competitive pressure';
+  return 'Moderate competition';
+};
 
 export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioConfigProps) {
   const updateField = <K extends keyof ScenarioConfigData>(
@@ -45,6 +59,31 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         <CardTitle>Scenario Configuration</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Scenario Naming */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
+          <Input
+            label="Scenario Name"
+            value={data.scenarioName}
+            onChange={(e) => updateField('scenarioName', e.target.value)}
+            disabled={readonly}
+            placeholder="e.g. Growth Plan FY25"
+          />
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="scenario-description">
+              Scenario Description
+            </label>
+            <textarea
+              id="scenario-description"
+              value={data.scenarioDescription ?? ''}
+              onChange={(e) => updateField('scenarioDescription', e.target.value)}
+              disabled={readonly}
+              rows={3}
+              placeholder="Short summary of assumptions and goals"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            />
+          </div>
+        </div>
+
         {/* Basic Settings */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
@@ -77,9 +116,60 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             onChange={(e) => updateField('marketGrowthFactor', Number(e.target.value))}
             step="0.1"
             min="0.1"
-            max="3"
+            max="2"
             disabled={readonly}
             helperText="Market conditions multiplier (1.0 = normal)"
+          />
+        </div>
+
+        {/* Advanced Growth Controls */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Input
+            label="Operating Expense Growth (%)"
+            type="number"
+            value={(data.operatingExpenseGrowthRate * 100).toFixed(2)}
+            onChange={(e) => updateField('operatingExpenseGrowthRate', Number(e.target.value) / 100)}
+            step="0.1"
+            min="-50"
+            max="100"
+            disabled={readonly}
+            helperText="Monthly operating expense growth"
+          />
+          <Input
+            label="Billable Hours Growth (%)"
+            type="number"
+            value={(data.billableHoursGrowthRate * 100).toFixed(2)}
+            onChange={(e) => updateField('billableHoursGrowthRate', Number(e.target.value) / 100)}
+            step="0.1"
+            min="-50"
+            max="100"
+            disabled={readonly}
+            helperText="Monthly growth in billable hours"
+          />
+          <Input
+            label="Inflation Rate (%)"
+            type="number"
+            value={(data.inflationRate * 100).toFixed(2)}
+            onChange={(e) => updateField('inflationRate', Number(e.target.value) / 100)}
+            step="0.1"
+            min="0"
+            max="100"
+            disabled={readonly}
+            helperText="Annual inflation assumption"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Input
+            label="Competition Factor"
+            type="number"
+            value={data.competitionFactor.toFixed(2)}
+            onChange={(e) => updateField('competitionFactor', Number(e.target.value))}
+            step="0.05"
+            min="0.1"
+            max="2"
+            disabled={readonly}
+            helperText="Higher values represent tougher competition"
           />
         </div>
 
@@ -100,6 +190,39 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
               {data.marketGrowthFactor > 1.1 ? 'Favorable' : 
                data.marketGrowthFactor < 0.9 ? 'Challenging' : 'Normal'}
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <span className="font-medium">OpEx Growth:</span>{' '}
+              {formatPercent(data.operatingExpenseGrowthRate)} monthly
+            </div>
+            <div>
+              <span className="font-medium">Billable Hours Growth:</span>{' '}
+              {formatPercent(data.billableHoursGrowthRate)} monthly
+            </div>
+            <div>
+              <span className="font-medium">Inflation Assumption:</span>{' '}
+              {formatPercent(data.inflationRate)} annually
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
+            <div>
+              <span className="font-medium">Competition Outlook:</span>{' '}
+              {describeCompetition(data.competitionFactor)}
+            </div>
+            <div>
+              <span className="font-medium">Competition Factor:</span>{' '}
+              {data.competitionFactor.toFixed(2)}
+            </div>
+            {data.seasonalityFactors && (
+              <div>
+                <span className="font-medium">Seasonality Avg:</span>{' '}
+                {(
+                  (data.seasonalityFactors.reduce((sum, factor) => sum + factor, 0) || 0) /
+                  (data.seasonalityFactors.length || 1)
+                ).toFixed(2)}
+              </div>
+            )}
           </div>
         </div>
 

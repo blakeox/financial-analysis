@@ -1261,7 +1261,7 @@ router.get(
     // Tight CSP allowing only our origin and the RapiDoc CDN script
     const docsCsp = [
       "default-src 'self'",
-      "script-src 'self' https://unpkg.com",
+      "script-src 'self' https://unpkg.com https://cdn.tailwindcss.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "connect-src 'self'",
@@ -1271,30 +1271,53 @@ router.get(
     ].join('; ');
 
     const html = `<!doctype html>
-    <html lang="en">
+    <html lang="en" class="h-full bg-slate-950">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>API Docs — Financial Analysis</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <link rel="icon" href="data:," />
-        <style>
-          html, body { height: 100%; margin: 0; background: #0b1020; }
-          rapi-doc { height: 100vh; }
-        </style>
-    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" crossorigin="anonymous"></script>
+        <meta name="description" content="Interactive API explorer for the Financial Analysis service." />
+        <script defer src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" crossorigin="anonymous"></script>
       </head>
-      <body>
-        <rapi-doc
-          spec-url="${baseUrl}/openapi.json"
-          theme="dark"
-          render-style="read"
-          show-header="false"
-          allow-authentication="false"
-          allow-spec-url-load="false"
-          allow-spec-file-load="false"
-        >
-        </rapi-doc>
+      <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+        <div class="flex min-h-screen flex-col">
+          <header class="border-b border-slate-800/70 bg-slate-950/80 backdrop-blur">
+            <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-5 py-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Financial Analysis</p>
+                <h1 class="text-lg font-semibold text-white">API Reference</h1>
+                <p class="text-sm text-slate-400">Interact with the OpenAPI schema served from ${baseUrl}</p>
+              </div>
+              <a
+                href="/"
+                class="inline-flex items-center gap-2 rounded-md border border-slate-700/60 bg-slate-900/80 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-900"
+              >
+                <span>← Back to site</span>
+              </a>
+            </div>
+          </header>
+          <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-0 py-4 sm:px-5">
+            <div class="rounded-xl border border-slate-800/60 bg-slate-900/70 shadow-lg shadow-slate-950/20">
+              <rapi-doc
+                class="h-[calc(100vh-9rem)] w-full"
+                spec-url="${baseUrl}/openapi.json"
+                theme="dark"
+                render-style="read"
+                show-header="false"
+                allow-authentication="false"
+                allow-spec-url-load="false"
+                allow-spec-file-load="false"
+              >
+              </rapi-doc>
+            </div>
+          </main>
+          <footer class="border-t border-slate-800/70 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
+            Served from Cloudflare Workers • Spec cached for fast loads
+          </footer>
+        </div>
       </body>
     </html>`;
 

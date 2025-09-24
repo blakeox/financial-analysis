@@ -17,25 +17,74 @@ import {
   type EbitdaForecastResult,
 } from '@financial-analysis/ui';
 
+type DashboardScenarioConfig = ScenarioConfigData & {
+  scenarioName: string;
+  scenarioDescription?: string;
+  operatingExpenseGrowthRate: number;
+  billableHoursGrowthRate: number;
+  inflationRate: number;
+  competitionFactor: number;
+  seasonalityFactors?: number[];
+};
+
 interface DashboardState {
   financials: MonthlyFinancialsData;
   employees: EmployeeData[];
   expenseTypes: ExpenseTypeData[];
-  scenarioConfig: ScenarioConfigData;
+  scenarioConfig: DashboardScenarioConfig;
   isLoading: boolean;
   results: EbitdaForecastResult | null;
   error: string | null;
   isHydrated: boolean;
 }
 
+const monthOrder: Array<keyof MonthlyFinancialsData> = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+];
+
+const monthIndexMap: Record<keyof MonthlyFinancialsData, number> = {
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+};
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
 const initialState: DashboardState = {
   financials: {},
   employees: [],
   expenseTypes: [],
   scenarioConfig: {
+    scenarioName: 'Baseline Plan',
+    scenarioDescription: '',
     projectionMonths: 12,
     revenueGrowthRate: 0.05,
     marketGrowthFactor: 1.0,
+    operatingExpenseGrowthRate: 0.02,
+    billableHoursGrowthRate: 0.01,
+    inflationRate: 0.03,
+    competitionFactor: 1.0,
+    seasonalityFactors: undefined,
   },
   isLoading: false,
   results: null,
@@ -76,29 +125,108 @@ export function EbitdaDashboard() {
   }, []);
 
   const updateScenarioConfig = useCallback((scenarioConfig: ScenarioConfigData) => {
-    setState(prev => ({ ...prev, scenarioConfig, results: null, error: null }));
+    setState(prev => ({
+      ...prev,
+      scenarioConfig: {
+        ...prev.scenarioConfig,
+        ...scenarioConfig,
+      },
+      results: null,
+      error: null,
+    }));
   }, []);
 
   const generateForecast = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const payload = {
-        currentYear: state.financials,
-        employees: state.employees,
-        expenseTypes: state.expenseTypes,
-        projectionMonths: state.scenarioConfig.projectionMonths,
-        revenueGrowthRate: state.scenarioConfig.revenueGrowthRate,
-        marketGrowthFactor: state.scenarioConfig.marketGrowthFactor,
-        seasonalityFactors: state.scenarioConfig.seasonalityFactors,
+      const currentYear = new Date().getFullYear();
+      const monthlyFinancials = monthOrder
+        .map((monthKey) => {
+          const revenue = state.financials[monthKey];
+          if (revenue === undefined || revenue === null || revenue <= 0) {
+            return null;
+          }
+          return {
+            month: monthIndexMap[monthKey],
+            year: currentYear,
+            revenue,
+            costOfGoodsSold: 0,
+            operatingExpenses: 0,
+            depreciation: 0,
+            amortization: 0,
+            interestExpense: 0,
+            taxes: 0,
+          };
+        })
+        .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+
+      if (monthlyFinancials.length === 0) {
+        throw new Error('Please provide revenue for at least one month before generating a forecast.');
+      }
+
+      const currentEmployees = state.employees.map((employee) => ({
+        id: employee.id,
+        name: employee.name,
+        role: employee.department || 'Employee',
+        department: employee.department || 'General',
+        billableHoursPerMonth: employee.billableHoursPerMonth ?? 0,
+        hourlyRate: employee.hourlyRate ?? 0,
+        salary: employee.currentSalary ?? 0,
+        benefits: 0,
+        startDate: new Date(currentYear, 0, 1).toISOString(),
+        isActive: employee.isActive,
+      }));
+
+      const additionalExpenses = state.expenseTypes
+        .filter((expense) => expense.isActive)
+        .map((expense) => ({
+          id: expense.id,
+          name: expense.name,
+          category: expense.category === 'mixed' ? 'semi-variable' : expense.category,
+          amount: expense.currentMonthlyAmount,
+          frequency: 'monthly' as const,
+          isRecurring: true,
+          description: `${expense.name} expense`,
+          startMonth: 1,
+          growthRate: expense.growthRate ?? 0,
+        }));
+
+      const scenarioConfig = state.scenarioConfig;
+      const hasSeasonality = Array.isArray(scenarioConfig.seasonalityFactors) && scenarioConfig.seasonalityFactors.length === 12;
+      const marketGrowthRate = clamp(scenarioConfig.marketGrowthFactor - 1, -1, 1);
+      const scenarioName = scenarioConfig.scenarioName.trim() || 'EBITDA Forecast Scenario';
+      const scenarioDescription = scenarioConfig.scenarioDescription?.trim();
+
+      const scenarioPayload = {
+        name: scenarioName,
+        ...(scenarioDescription ? { description: scenarioDescription } : {}),
+        forecastPeriodMonths: scenarioConfig.projectionMonths,
+        currentMonthlyFinancials: monthlyFinancials,
+        currentEmployees,
+        newEmployees: [],
+        revenueGrowthRate: scenarioConfig.revenueGrowthRate,
+        billableHoursGrowthRate: scenarioConfig.billableHoursGrowthRate,
+        additionalExpenses,
+        operatingExpenseGrowthRate: scenarioConfig.operatingExpenseGrowthRate,
+        inflationRate: scenarioConfig.inflationRate,
+        ...((marketGrowthRate !== 0 || scenarioConfig.competitionFactor !== 1 || hasSeasonality)
+          ? {
+              economicFactors: {
+                marketGrowth: marketGrowthRate,
+                competitionFactor: scenarioConfig.competitionFactor,
+                ...(hasSeasonality ? { seasonalityFactors: scenarioConfig.seasonalityFactors } : {}),
+              },
+            }
+          : {}),
       };
 
-      const response = await fetch('/v1/api/analysis/ebitda-forecasting', {
+      const response = await fetch('/v1/api/analysis/ebitda-forecast', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(scenarioPayload),
       });
 
       if (!response.ok) {

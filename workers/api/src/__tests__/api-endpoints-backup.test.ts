@@ -78,6 +78,14 @@ interface ErrorResponse {
   };
 }
 
+const assertDefined = <T>(value: T | null | undefined, message: string): NonNullable<T> => {
+  if (value === undefined || value === null) {
+    throw new Error(message);
+  }
+
+  return value as NonNullable<T>;
+};
+
 interface MonthlyForecast {
   month: number;
   year: number;
@@ -226,13 +234,15 @@ describe('API Endpoint Integration Tests', () => {
       expect(result.summary.totalRevenue).toBeGreaterThan(0);
 
       // Verify monthly forecast structure
-      const firstMonth = result.forecast[0];
-      expect(firstMonth).toBeDefined();
-      expect(firstMonth!.month).toBe(1);
-      expect(firstMonth!.revenue).toBeGreaterThan(0);
-      expect(firstMonth!.operatingExpenses).toBeGreaterThan(0);
-      expect(firstMonth!.ebitda).toBeDefined();
-      expect(firstMonth!.employeeCount).toBe(2);
+      const firstMonth = assertDefined(
+        result.forecast[0],
+        'Expected forecast to include at least one month of data',
+      );
+      expect(firstMonth.month).toBe(1);
+      expect(firstMonth.revenue).toBeGreaterThan(0);
+      expect(firstMonth.operatingExpenses).toBeGreaterThan(0);
+      expect(firstMonth.ebitda).toBeDefined();
+      expect(firstMonth.employeeCount).toBe(2);
     });
 
     it('should handle EBITDA forecasting with seasonality factors', async () => {
@@ -424,9 +434,11 @@ describe('API Endpoint Integration Tests', () => {
       expect(result.summary.totalRevenue).toBeGreaterThan(5000000); // Over 2 years
       
       // Verify employee growth
-      const finalMonth = result.forecast[23];
-      expect(finalMonth).toBeDefined();
-      expect(finalMonth!.employeeCount).toBe(3); // Should include new hire
+      const finalMonth = assertDefined(
+        result.forecast[23],
+        'Expected forecast to include a final month entry',
+      );
+      expect(finalMonth.employeeCount).toBe(3); // Should include new hire
     });
   });
 
@@ -484,10 +496,12 @@ describe('API Endpoint Integration Tests', () => {
       expect(result.schedule.length).toBe(180); // 15 years * 12 months
       
       // Verify first payment breakdown
-      const firstPayment = result.schedule[0];
-      expect(firstPayment).toBeDefined();
-      expect(firstPayment!.month).toBe(1);
-      expect(firstPayment!.payment).toEqual(result.monthlyPayment);
+      const firstPayment = assertDefined(
+        result.schedule[0],
+        'Expected amortization schedule to include the first payment',
+      );
+      expect(firstPayment.month).toBe(1);
+      expect(firstPayment.payment).toEqual(result.monthlyPayment);
       // For 3.25% interest rate, principal portion might be higher than interest in early payments
       expect(firstPayment?.interest).toBeGreaterThan(0);
       expect(firstPayment?.principal).toBeGreaterThan(0);

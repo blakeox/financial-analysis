@@ -175,6 +175,7 @@ export class EbitdaForecastingTool {
       isRecurring: true,
       description: `${expense.name} expense`,
       startMonth: 1,
+      growthRate: expense.growthRate ?? 0,
     }));
 
     const scenarioInput = {
@@ -278,6 +279,7 @@ export class EbitdaScenarioComparisonTool {
         isRecurring: true,
         description: `${expense.name} expense`,
         startMonth: 1,
+        growthRate: expense.growthRate ?? 0,
       }));
 
       return {

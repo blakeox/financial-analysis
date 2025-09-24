@@ -22,7 +22,7 @@ export interface EmployeeManagerProps {
 export function EmployeeManager({ employees, onChange, readonly = false }: EmployeeManagerProps) {
   const [newEmployee, setNewEmployee] = useState<Partial<EmployeeData>>({
     name: '',
-    currentSalary: 0,
+    currentSalary: 80000,
     billableHoursPerMonth: 160,
     hourlyRate: 0,
     department: '',
@@ -45,7 +45,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
     onChange([...employees, employee]);
     setNewEmployee({
       name: '',
-      currentSalary: 0,
+      currentSalary: 80000,
       billableHoursPerMonth: 160,
       hourlyRate: 0,
       department: '',
@@ -63,13 +63,22 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
     ));
   };
 
-  const totalMonthlySalaries = employees.reduce((sum, emp) => 
+  const totalAnnualSalaries = employees.reduce((sum, emp) => 
     sum + (emp.isActive ? emp.currentSalary : 0), 0
   );
+
+  const totalMonthlySalaries = totalAnnualSalaries / 12;
 
   const totalMonthlyRevenuePotential = employees.reduce((sum, emp) => 
     sum + (emp.isActive ? emp.billableHoursPerMonth * emp.hourlyRate : 0), 0
   );
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(value);
 
   return (
     <Card>
@@ -78,7 +87,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {employees.filter(emp => emp.isActive).length}
@@ -87,15 +96,21 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              ${totalMonthlySalaries.toLocaleString()}
+              {formatCurrency(totalAnnualSalaries)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Salaries</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Annual Payroll</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+              {formatCurrency(totalMonthlySalaries)}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Payroll</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              ${totalMonthlyRevenuePotential.toLocaleString()}
+              {formatCurrency(totalMonthlyRevenuePotential)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Revenue Potential</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Revenue Potential</div>
           </div>
         </div>
 
@@ -117,7 +132,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   disabled={readonly}
                 />
                 <Input
-                  label="Monthly Salary"
+                  label="Annual Salary"
                   type="number"
                   value={employee.currentSalary}
                   onChange={(e) => updateEmployee(employee.id, 'currentSalary', Number(e.target.value))}
@@ -185,11 +200,11 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 placeholder="Engineering, Sales, etc."
               />
               <Input
-                label="Monthly Salary"
+                label="Annual Salary"
                 type="number"
                 value={newEmployee.currentSalary || ''}
                 onChange={(e) => setNewEmployee({ ...newEmployee, currentSalary: Number(e.target.value) })}
-                placeholder="0"
+                placeholder="80000"
                 min="0"
               />
               <Input
