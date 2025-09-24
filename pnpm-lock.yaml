@@ -32,6 +32,9 @@ importers:
       astro-eslint-parser:
         specifier: ^1.2.2
         version: 1.2.2
+      chokidar:
+        specifier: ^3.6.0
+        version: 3.6.0
       esbuild:
         specifier: 0.25.10
         version: 0.25.10

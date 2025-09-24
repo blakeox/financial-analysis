@@ -40,7 +40,9 @@ import { EbitdaDashboard } from '../components/EbitdaDashboard';
       </p>
 
       <!-- React Dashboard Component -->
-      <EbitdaDashboard client:load />
+      <div id="ebitda-dashboard-container">
+        <EbitdaDashboard client:only="react" />
+      </div>
     </div>
   </div>
 </Layout>

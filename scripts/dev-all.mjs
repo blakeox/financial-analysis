@@ -10,9 +10,12 @@
  * 5. Optional debounce for rapid file change restarts (wrangler sometimes double-triggers)
  */
 import { execSync, spawn } from 'node:child_process';
+import chokidar from 'chokidar';
 import net from 'node:net';
+import path from 'node:path';
 import process from 'node:process';
 import { setTimeout as delay } from 'node:timers/promises';
+import { clearTimeout as cancelTimeout, setTimeout as scheduleTimeout } from 'node:timers';
 
 // Root directory of repository (executed from root via package script)
 const root = process.cwd();
@@ -36,6 +39,11 @@ function run(cmd, args, opts = {}) {
 let webProc;
 let apiProc;
 let shuttingDown = false;
+let webWatcher;
+let rebuildProc;
+/** @type {NodeJS.Timeout | undefined} */
+let rebuildTimeout;
+let pendingRebuildReason;
 
 async function main() {
   console.log('\n[dev-all] Building Astro web app once...');
@@ -43,7 +51,9 @@ async function main() {
   await new Promise((res, rej) => {
     build.on('exit', (code) => (code === 0 ? res() : rej(new Error('Astro build failed'))));
   });
-  console.log('[dev-all] Astro build complete. Starting web worker...');
+  console.log('[dev-all] Astro build complete. Starting asset watcher...');
+  await startWebWatcher();
+  console.log('[dev-all] Starting web worker...');
   webProc = run('pnpm', ['--filter', '@financial-analysis/web-worker', 'dev']);
   // Give the web worker a moment to bind port
   await delay(1500);
@@ -53,6 +63,58 @@ async function main() {
   apiProc = startApi(preferred, preferred);
 
   // Handle restarts if needed in future (placeholder hook)
+}
+
+async function startWebWatcher() {
+  if (webWatcher) return;
+  const watchTargets = [
+    path.join(root, 'apps/web/src'),
+    path.join(root, 'apps/web/public'),
+    path.join(root, 'packages/ui/src'),
+  ];
+  webWatcher = chokidar.watch(watchTargets, {
+    ignoreInitial: true,
+  });
+
+  const scheduleRebuild = (reason, file) => {
+    if (shuttingDown) return;
+    const rel = file ? path.relative(root, file) : undefined;
+    const label = rel ? `${reason}: ${rel}` : reason;
+  if (rebuildTimeout) cancelTimeout(rebuildTimeout);
+  rebuildTimeout = scheduleTimeout(() => triggerRebuild(label), 150);
+  };
+
+  const triggerRebuild = (label) => {
+    if (rebuildProc) {
+      pendingRebuildReason = label || 'subsequent changes';
+      return;
+    }
+    const prettyLabel = label || 'file change';
+    console.log(`\n[dev-all] Rebuilding Astro web (${prettyLabel})...`);
+    rebuildProc = run('pnpm', ['--filter', '@financial-analysis/web', 'build']);
+    rebuildProc.on('exit', (code) => {
+      rebuildProc = null;
+      if (code === 0) {
+        console.log('[dev-all] Astro rebuild complete.');
+      } else {
+        console.log('[dev-all] Astro rebuild failed. Waiting for next change...');
+      }
+      if (pendingRebuildReason) {
+        const nextLabel = pendingRebuildReason;
+        pendingRebuildReason = undefined;
+        triggerRebuild(nextLabel);
+      }
+    });
+  };
+
+  webWatcher.on('all', (event, filePath) => {
+    const reason = `change (${event})`;
+    scheduleRebuild(reason, filePath);
+  });
+
+  webWatcher.on('error', (err) => {
+    console.log('[dev-all] Web watcher error:', err);
+  });
 }
 
 function startApi(port) {
@@ -130,8 +192,19 @@ async function shutdown() {
   if (shuttingDown) return;
   shuttingDown = true;
   console.log('\n[dev-all] Shutting down...');
+  if (rebuildTimeout) {
+    cancelTimeout(rebuildTimeout);
+    rebuildTimeout = undefined;
+  }
+  if (webWatcher) {
+    await webWatcher.close().catch((err) => console.log('[dev-all] Watcher close error:', err));
+    webWatcher = undefined;
+  }
   for (const proc of [apiProc, webProc]) {
     if (proc && !proc.killed) proc.kill('SIGINT');
+  }
+  if (rebuildProc && !rebuildProc.killed) {
+    rebuildProc.kill('SIGINT');
   }
   // small grace period
   await delay(300);

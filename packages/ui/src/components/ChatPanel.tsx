@@ -24,6 +24,16 @@ export function ChatPanel({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
 
+  // Handle client-side hydration safety
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // Don't render until hydrated to prevent SSR/client mismatch
+  if (!hydrated) {
+    return null;
+  }
+
   const chatEndpoint = useMemo(() => {
     // Accept absolute or relative. If not provided, default to same-origin /v1/chat
     const base = apiUrl?.trim();
@@ -38,11 +48,6 @@ export function ChatPanel({
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [messages, open]);
-
-  // Mark component as hydrated for tests and progressive enhancement hooks
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   const onSend = useCallback(async () => {
     const content = input.trim();

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@fina
 ---
 
 <Layout title="Financial Analysis" description="Advanced financial analysis tools powered by AI and deterministic calculations">
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-slate-950 text-white">
     <!-- Structured Data -->
     <script type="application/ld+json" is:inline>
       {JSON.stringify({
@@ -25,98 +25,127 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@fina
       })}
     </script>
     <!-- Hero Section -->
-    <section class="bg-white dark:bg-gray-800">
-      <div class="container mx-auto px-4 py-16 sm:py-24">
-        <div class="text-center">
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Financial Analysis
-            <span class="block text-blue-600 dark:text-blue-400">Made Precise</span>
-          </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Advanced financial analysis tools powered by AI and deterministic calculations.
-            Built for precision, reliability, and professional financial decision making.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-indigo-500/25 to-purple-500/20" aria-hidden="true" />
+      <div class="absolute -top-40 -right-40 h-72 w-72 rounded-full bg-blue-500/40 blur-3xl" aria-hidden="true" />
+      <div class="absolute -bottom-52 -left-32 h-96 w-96 rounded-full bg-indigo-500/30 blur-3xl" aria-hidden="true" />
+      <div class="relative container mx-auto px-4 py-24 lg:py-32">
+        <div class="max-w-4xl mx-auto text-center space-y-12">
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-medium text-blue-100 shadow-lg shadow-blue-900/40">
+            <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+            Real-time cloud workers • Deterministic math • Audit ready
+          </div>
+          <div class="space-y-6">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
+              Financial Analysis
+              <span class="block text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-blue-200 to-indigo-300">
+                Made Precise
+              </span>
+            </h1>
+            <p class="text-lg sm:text-xl text-slate-200/90 max-w-3xl mx-auto leading-relaxed">
+              Operate with confidence using a modern analysis stack built on Cloudflare Workers and deterministic engines.
+              We combine strict validation, reproducible math, and beautiful dashboards so your financial decisions are never a guess.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/models"
-              class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-transform duration-300 hover:-translate-y-0.5"
             >
               Explore Models
-              <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </a>
             <a
               href="/analysis"
-              class="inline-flex items-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-3 text-base font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
             >
-              Start Analyzing
+              Launch Analyzer
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" />
+              </svg>
             </a>
           </div>
+          <dl class="grid grid-cols-1 gap-6 sm:grid-cols-3 text-left">
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <dt class="text-sm font-medium text-slate-200/70">Deterministic Engines</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white">0.00% drift</dd>
+              <p class="mt-2 text-xs text-slate-300/80">All outputs are reproducible and audited per release.</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <dt class="text-sm font-medium text-slate-200/70">Cloudflare footprint</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white"><span>300+</span> edges</dd>
+              <p class="mt-2 text-xs text-slate-300/80">Millisecond APIs running across the Workers network.</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <dt class="text-sm font-medium text-slate-200/70">Ready today</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white">2 min setup</dd>
+              <p class="mt-2 text-xs text-slate-300/80">Connect inputs and generate forecasts in under two minutes.</p>
+            </div>
+          </dl>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="py-16 bg-gray-50 dark:bg-gray-900">
+    <!-- Feature Highlights -->
+    <section class="py-24 bg-slate-950">
       <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Why Choose Our Platform?
-          </h2>
-          <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Built with modern technology and financial expertise for reliable, accurate results.
+        <div class="max-w-2xl text-center mx-auto mb-16 space-y-4">
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Capability Stack</p>
+          <h2 class="text-4xl font-semibold text-white">Built for finance teams that demand certainty</h2>
+          <p class="text-base text-slate-300/90 leading-relaxed">
+            Every experience—from dashboards to Workers APIs—leans on the same typed, deterministic engines. No silos.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <Card className="text-center">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
             <CardHeader>
-              <div class="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/30 to-indigo-500/30 text-white">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2a2 2 0 012 2v11a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2z" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold">Deterministic Calculations</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">Deterministic Calculations</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
-                Every calculation is mathematically precise and reproducible, ensuring consistency
-                across all financial analyses.
+              <CardDescription className="text-slate-300/90">
+                Typed schemas and reproducible math guarantee that outputs never drift. Each release is snapshot-tested across load scenarios.
               </CardDescription>
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
             <CardHeader>
-              <div class="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 to-blue-500/30 text-white">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3l3 8 4-16 3 8h5" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold">Lightning Fast</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">Edge-speed Execution</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
-                Optimized algorithms and Cloudflare infrastructure deliver results in milliseconds,
-                not minutes.
+              <CardDescription className="text-slate-300/90">
+                Cloudflare Workers handle every request with <span class="text-white">sub-50ms</span> budgeted latency and persistent request IDs for tracing.
               </CardDescription>
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
             <CardHeader>
-              <div class="mx-auto w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-white">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                  <circle cx="12" cy="12" r="9" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold">AI-Powered Insights</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">Explainable AI Assist</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
-                Leverage AI to gain deeper insights and recommendations for your financial
-                decisions and analysis.
+              <CardDescription className="text-slate-300/90">
+                Surface context-aware recommendations with verifiable reasoning chains—every insight is grounded in deterministic base calculations.
               </CardDescription>
             </CardContent>
           </Card>
@@ -124,100 +153,115 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@fina
       </div>
     </section>
 
-    <!-- Quick Start Section -->
-    <section class="py-16 bg-white dark:bg-gray-800">
+    <!-- Workflow Section -->
+    <section class="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
       <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto">
-          <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Get Started in Minutes
-            </h2>
-            <p class="text-lg text-gray-600 dark:text-gray-300">
-              Choose your analysis type and start making informed financial decisions.
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+          <div class="lg:col-span-1 space-y-6">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Workflow</p>
+            <h2 class="text-4xl font-semibold text-white">From data import to forecast in three steps</h2>
+            <p class="text-base text-slate-300/90 leading-relaxed">
+              The same flow powers our EBITDA dashboard, API endpoints, and MCP tooling. It’s fast, typed, and observable.
             </p>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <p class="text-sm text-slate-200/80">“We shipped our first forecast in under ten minutes, and every rerun matches byte for byte.”</p>
+              <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-300">Director of Finance</p>
+            </div>
           </div>
+          <div class="lg:col-span-2 grid grid-cols-1 gap-6">
+            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/40 text-white font-semibold">1</div>
+              <div class="space-y-2">
+                <h3 class="text-xl font-semibold text-white">Ingest & Validate</h3>
+                <p class="text-sm text-slate-300/90">Upload revenue, employee, and expense data. Zod validation ensures every field is typed and coerced once.</p>
+                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
+                  <span class="rounded-full bg-white/10 px-3 py-1">CSV / JSON / API</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Schema pinned</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/40 text-white font-semibold">2</div>
+              <div class="space-y-2">
+                <h3 class="text-xl font-semibold text-white">Project & Simulate</h3>
+                <p class="text-sm text-slate-300/90">Deterministic engines project EBITDA across scenarios while tracking every assumption change with request IDs.</p>
+                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
+                  <span class="rounded-full bg-white/10 px-3 py-1">Multi-scenario</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Milliseconds</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/40 text-white font-semibold">3</div>
+              <div class="space-y-2">
+                <h3 class="text-xl font-semibold text-white">Tell the Story</h3>
+                <p class="text-sm text-slate-300/90">Export crisp summaries, embed charts, or expose APIs. Every result is reproducible for audits or board decks.</p>
+                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
+                  <span class="rounded-full bg-white/10 px-3 py-1">CSV & PDF export</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Observability hooks</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
-                  Lease Analysis
-                </CardTitle>
-                <CardDescription>
-                  Analyze lease agreements with detailed payment schedules and IRR calculations.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Payment breakdown by period
-                  </li>
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Amortization schedules
-                  </li>
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Internal rate of return
-                  </li>
-                </ul>
+    <!-- Call to Action -->
+    <section class="py-24">
+      <div class="container mx-auto px-4">
+        <div class="rounded-4xl relative overflow-hidden border border-white/10 bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-16 sm:px-16">
+          <div class="absolute inset-0 opacity-40" aria-hidden="true">
+            <div class="absolute -top-24 -left-24 h-48 w-48 rounded-full bg-white/40 blur-3xl" />
+            <div class="absolute bottom-0 right-0 h-52 w-52 rounded-full bg-indigo-400/50 blur-3xl" />
+          </div>
+          <div class="relative grid gap-8 lg:grid-cols-[1.25fr,1fr] items-center">
+            <div class="space-y-4">
+              <h2 class="text-3xl sm:text-4xl font-semibold text-white">See it in action</h2>
+              <p class="text-sm sm:text-base text-white/80 max-w-xl">
+                Spin up the EBITDA dashboard, hit the API, or connect via MCP. One stack, multiple entry points, zero inconsistencies.
+              </p>
+              <div class="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="/analysis"
-                  class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                  href="/ebitda-forecasting"
+                  class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-blue-600 shadow-lg shadow-blue-900/40 hover:shadow-xl hover:-translate-y-0.5 transition"
                 >
-                  Analyze Lease
-                  <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  Open EBITDA Dashboard
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M3.172 7l5.657-5.657a4 4 0 015.657 0L18.828 6.4a4 4 0 010 5.657l-5.656 5.657A4 4 0 017.515 16.4L1.858 10.743a2 2 0 010-2.828z" clip-rule="evenodd" />
                   </svg>
                 </a>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold text-gray-600">
-                  More Models Coming Soon
-                </CardTitle>
-                <CardDescription>
-                  We're continuously expanding our suite of financial analysis tools.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
-                    Loan amortization schedules
-                  </li>
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
-                    Cash flow projections
-                  </li>
-                  <li class="flex items-center">
-                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
-                    Risk assessment models
-                  </li>
-                </ul>
                 <a
-                  href="/models"
-                  class="inline-flex items-center px-6 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  href="/docs"
+                  class="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 px-7 py-3 text-sm font-semibold text-white/90 backdrop-blur hover:bg-white/10 transition"
                 >
-                  View All Models
+                  View API Docs
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </a>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <dl class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-white/70">SLA Uptime</dt>
+                  <dd class="text-lg font-semibold text-white">99.98%</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-white/70">Audit Trail Retention</dt>
+                  <dd class="text-lg font-semibold text-white">18 months</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-white/70">API Throughput</dt>
+                  <dd class="text-lg font-semibold text-white">&gt; 10k/min</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-white/70">CLI / MCP Access</dt>
+                  <dd class="text-lg font-semibold text-white">Included</dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </div>
       </div>

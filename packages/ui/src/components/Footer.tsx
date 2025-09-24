@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '../lib/utils';
 
 interface FooterProps {
@@ -6,6 +6,18 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ className }) => {
+  const [hydrated, setHydrated] = useState(false);
+
+  // Handle client-side hydration safety
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // Don't render until hydrated to prevent SSR/client mismatch
+  if (!hydrated) {
+    return null;
+  }
+
   const currentYear = new Date().getFullYear();
 
   return (

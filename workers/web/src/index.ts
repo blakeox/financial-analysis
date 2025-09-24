@@ -46,6 +46,7 @@ function buildDefaultHeaders(env: Env) {
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const defaults = buildDefaultHeaders(env);
+    const isProduction = env.ENVIRONMENT === 'production';
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: defaults });
     }
@@ -82,8 +83,11 @@ export default {
         path.startsWith('/_astro/') ||
         /\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$/i.test(path)
       ) {
-        // Long cache for hashed assets
-        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        // Long cache for hashed assets in production, disable in dev to avoid stale assets
+        headers.set(
+          'Cache-Control',
+          isProduction ? 'public, max-age=31536000, immutable' : 'no-store'
+        );
       } else if (path.endsWith('.html') || path === '/') {
         // No cache for HTML entrypoints
         headers.set('Cache-Control', 'no-store');

@@ -25,6 +25,28 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   const [data, setData] = React.useState<Usage | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [hydrated, setHydrated] = React.useState<boolean>(false);
+
+  // Handle client-side hydration safety
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // Don't render until hydrated to prevent SSR/client mismatch
+  if (!hydrated) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Storage Usage</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+            Loading...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   React.useEffect(() => {
     let cancelled = false;

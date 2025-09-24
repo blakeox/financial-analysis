@@ -55,17 +55,14 @@ const navLinks = [
 
       {/* Dev: force system font to avoid font-swap metric shifts */}
       {import.meta.env.DEV && (
-        <style is:inline>{`:root{--font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;}`}</style>
+        <script is:inline>
+          {"document.documentElement.dataset.devFontSans='system';"}
+        </script>
       )}
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen font-sans">
     <!-- Skip Link (visually hidden until focus) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <style is:inline>
-      .skip-link {position:absolute;left:0;top:0;transform:translateY(-120%);background:#1f2937;color:#fff;padding:.5rem .75rem;border-radius:0 0 .5rem 0;font-size:.875rem;font-weight:500;outline:2px solid transparent;transition:transform .25s;z-index:60;text-decoration:none;}
-      .skip-link:focus {transform:translateY(0);outline:2px solid #3b82f6;}
-      .dark .skip-link {background:#111827;}
-    </style>
     
 
     <!-- Header / Navigation -->
@@ -84,9 +81,9 @@ const navLinks = [
     </main>
 
     <!-- Footer -->
-    <Footer client:load />
+    <Footer client:only="react" />
 
     <!-- Floating Chat Assistant (right-side drawer) -->
-    <ChatPanel client:load title="Financial Analysis" />
+    <ChatPanel client:only="react" title="Financial Analysis" />
   </body>
 </html>
