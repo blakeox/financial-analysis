@@ -1,6 +1,8 @@
 import {
   AmortizationAnalyzer,
+  computeAmortizationInsights,
   type AmortizationAnalysisResult,
+  type AmortizationInsights,
 } from '@financial-analysis/analysis';
 import { z } from 'zod';
 
@@ -9,6 +11,11 @@ const AmortizationToolInputSchema = z.object({
   annualRate: z.number().min(0).max(1),
   termMonths: z.number().positive().int(),
 });
+
+export interface AmortizationToolResponse {
+  result: AmortizationAnalysisResult;
+  insights: AmortizationInsights;
+}
 
 export class AmortizationTool {
   static readonly toolName = 'analyze_amortization';
@@ -24,8 +31,10 @@ export class AmortizationTool {
     required: ['principal', 'annualRate', 'termMonths'],
   };
 
-  static execute(input: unknown): Promise<AmortizationAnalysisResult> {
+  static execute(input: unknown): Promise<AmortizationToolResponse> {
     const validated = AmortizationToolInputSchema.parse(input);
-    return Promise.resolve(AmortizationAnalyzer.analyze(validated));
+    const result = AmortizationAnalyzer.analyze(validated);
+    const insights = computeAmortizationInsights(result);
+    return Promise.resolve({ result, insights });
   }
 }

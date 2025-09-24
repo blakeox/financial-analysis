@@ -1,7 +1,6 @@
-import React from 'react';
-import { render, screen, within } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
+import '@testing-library/jest-dom';
+import { render, screen, within } from '@testing-library/react';
 import { AmortizationResults } from './AmortizationResults';
 
 describe('AmortizationResults', () => {
@@ -32,17 +31,22 @@ describe('AmortizationResults', () => {
       screen.getByRole('heading', { name: /amortization schedule/i, level: 3 })
     ).toBeInTheDocument();
 
-  const monthlyPaymentCard = screen.getByText(/monthly payment/i).closest('div');
-  expect(monthlyPaymentCard).not.toBeNull();
-  expect(within(monthlyPaymentCard as HTMLDivElement).getByText('$856.07')).toBeInTheDocument();
+    const monthlyPaymentCard = screen.getByText(/monthly payment/i).closest('div');
+    expect(monthlyPaymentCard).not.toBeNull();
+    expect(within(monthlyPaymentCard as HTMLDivElement).getByText('$856.07')).toBeInTheDocument();
     expect(screen.getByText('$272.84')).toBeInTheDocument();
     expect(screen.getAllByRole('row').length).toBeGreaterThan(5);
+    expect(screen.getByRole('button', { name: /loan payoff/i })).toBeInTheDocument();
   });
 
   it('can hide chart and table when requested', () => {
     render(<AmortizationResults result={sampleResult} showChart={false} showTable={false} />);
 
-    expect(screen.queryByRole('img', { name: /amortization schedule chart/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('table', { name: /amortization schedule table/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('img', { name: /amortization schedule chart/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('table', { name: /amortization schedule table/i })
+    ).not.toBeInTheDocument();
   });
 });

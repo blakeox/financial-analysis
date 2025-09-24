@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AmortizationResults } from './AmortizationResults';
 
 type Role = 'system' | 'user' | 'assistant';
@@ -92,19 +92,21 @@ export function ChatPanel({
             typeof raw?.totalInterest === 'number' &&
             Array.isArray(raw?.schedule)
           ) {
-            const schedule = raw.schedule.map((item, index): AmortizationAnalysisResult['schedule'][number] => {
-              const monthValue =
-                item && typeof item.month === 'number'
-                  ? item.month
-                  : Number(item?.month ?? index + 1);
-              return {
-                month: Number.isFinite(monthValue) ? Number(monthValue) : index + 1,
-                payment: Number(item?.payment ?? 0),
-                principal: Number(item?.principal ?? 0),
-                interest: Number(item?.interest ?? 0),
-                balance: Number(item?.balance ?? 0),
-              };
-            });
+            const schedule = raw.schedule.map(
+              (item, index): AmortizationAnalysisResult['schedule'][number] => {
+                const monthValue =
+                  item && typeof item.month === 'number'
+                    ? item.month
+                    : Number(item?.month ?? index + 1);
+                return {
+                  month: Number.isFinite(monthValue) ? Number(monthValue) : index + 1,
+                  payment: Number(item?.payment ?? 0),
+                  principal: Number(item?.principal ?? 0),
+                  interest: Number(item?.interest ?? 0),
+                  balance: Number(item?.balance ?? 0),
+                };
+              }
+            );
             analysis = {
               kind: 'amortization',
               result: {

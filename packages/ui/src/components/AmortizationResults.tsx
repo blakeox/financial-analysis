@@ -1,8 +1,11 @@
+import {
+  type AmortizationAnalysisResult,
+  computeAmortizationInsights,
+} from '@financial-analysis/analysis';
 import React, { useMemo } from 'react';
-import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
-import { Card, CardContent } from './Card';
-import { AmortizationChart } from './AmortizationChart';
 import { cn } from '../lib/utils';
+import { AmortizationChart } from './AmortizationChart';
+import { Card, CardContent } from './Card';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
 
@@ -34,6 +37,7 @@ export function AmortizationResults({
   );
   const totalCost = totalPrincipal + result.totalInterest;
   const interestShare = totalCost === 0 ? 0 : (result.totalInterest / totalCost) * 100;
+  const insights = useMemo(() => computeAmortizationInsights(result), [result]);
 
   return (
     <div className={cn('space-y-8', className)} {...props}>
@@ -41,7 +45,9 @@ export function AmortizationResults({
         <Card className="bg-blue-600 text-white dark:bg-blue-500">
           <CardContent className="space-y-2">
             <p className="text-sm uppercase tracking-wide opacity-90">Monthly payment</p>
-            <p className="text-3xl font-semibold">{currencyFormatter.format(result.monthlyPayment)}</p>
+            <p className="text-3xl font-semibold">
+              {currencyFormatter.format(result.monthlyPayment)}
+            </p>
           </CardContent>
         </Card>
 
@@ -51,7 +57,9 @@ export function AmortizationResults({
             <p className="text-2xl font-semibold text-emerald-500 dark:text-emerald-400">
               {currencyFormatter.format(result.totalInterest)}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{interestShare.toFixed(1)}% of total cost</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {interestShare.toFixed(1)}% of total cost
+            </p>
           </CardContent>
         </Card>
 
@@ -68,11 +76,20 @@ export function AmortizationResults({
         </Card>
       </div>
 
-      {showChart ? <AmortizationChart schedule={schedule} title={chartTitle} /> : null}
+      {showChart ? (
+        <AmortizationChart
+          schedule={schedule}
+          title={chartTitle}
+          milestones={insights.milestones}
+        />
+      ) : null}
 
       {showTable ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full table-fixed border-collapse" aria-label="Amortization schedule table">
+          <table
+            className="min-w-full table-fixed border-collapse"
+            aria-label="Amortization schedule table"
+          >
             <thead>
               <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-300">
                 <th className="px-4 py-3">Month</th>
@@ -84,7 +101,10 @@ export function AmortizationResults({
             </thead>
             <tbody>
               {schedule.map((item: ScheduleItem) => (
-                <tr key={item.month} className="border-t border-gray-100 text-sm dark:border-gray-700/60">
+                <tr
+                  key={item.month}
+                  className="border-t border-gray-100 text-sm dark:border-gray-700/60"
+                >
                   <td className="px-4 py-2 text-gray-600 dark:text-gray-300">{item.month}</td>
                   <td className="px-4 py-2">{currencyFormatter.format(item.payment)}</td>
                   <td className="px-4 py-2 text-emerald-600 dark:text-emerald-400">

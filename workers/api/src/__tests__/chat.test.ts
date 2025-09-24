@@ -72,7 +72,10 @@ describe('POST /v1/chat', () => {
     const json = (await res.json()) as {
       role: string;
       content: string;
-      analysis?: { kind: string; result: { monthlyPayment: number; schedule: Array<{ month: number }> } };
+      analysis?: {
+        kind: string;
+        result: { monthlyPayment: number; schedule: Array<{ month: number }> };
+      };
     };
     expect(json.role).toBe('assistant');
     expect(json.content).toMatch(/Monthly payment:/);

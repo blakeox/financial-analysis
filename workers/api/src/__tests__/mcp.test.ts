@@ -72,9 +72,9 @@ describe('MCP endpoint', () => {
     const json = (await res.json()) as unknown as {
       result: { monthlyPayment: number; schedule: unknown[] };
     };
-    const result = json.result;
-    expect(result).toHaveProperty('monthlyPayment');
-    expect(Array.isArray(result.schedule)).toBe(true);
+    const payload = json.result;
+    expect(payload).toHaveProperty('monthlyPayment');
+    expect(Array.isArray(payload.schedule)).toBe(true);
   });
 });
 
@@ -97,10 +97,11 @@ describe('MCP amortization tool', () => {
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
     const json = (await res.json()) as unknown as {
-      result: { monthlyPayment: number; schedule: unknown[] };
+      result: { result: { monthlyPayment: number; schedule: unknown[] }; insights: unknown };
     };
-    const result = json.result;
+    const { result, insights } = json.result;
     expect(result).toHaveProperty('monthlyPayment');
     expect(Array.isArray(result.schedule)).toBe(true);
+    expect(insights).toBeDefined();
   });
 });
