@@ -126,19 +126,9 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- Results Section -->
       <div id="results-section" class="hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-          <h2 class="text-xl font-semibold mb-6">Analysis Results</h2>
-          <div id="results-content">
-            <!-- Results will be populated here -->
-          </div>
-        </div>
-
-        <!-- Amortization Schedule -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-6">Amortization Schedule</h2>
-          <div id="schedule-content" class="overflow-x-auto">
-            <!-- Schedule table will be populated here -->
-          </div>
+          <h2 class="text-xl font-semibold mb-6">Analysis Results</h2>
+          <div id="amortization-results-root"></div>
         </div>
       </div>
 
@@ -165,15 +155,15 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <!-- Client-side JavaScript -->
-  <script>
+  <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
       const formEl = document.getElementById('analysis-form');
       const analyzeBtnEl = document.getElementById('analyze-btn');
       const resultsSectionEl = document.getElementById('results-section');
       const loadingStateEl = document.getElementById('loading-state');
       const errorStateEl = document.getElementById('error-state');
-      const resultsContentEl = document.getElementById('results-content');
-      const scheduleContentEl = document.getElementById('schedule-content');
+      const errorMessageEl = document.getElementById('error-message');
+      const resultsRootEl = document.getElementById('amortization-results-root');
 
       if (
         !(formEl instanceof HTMLFormElement) ||
@@ -181,8 +171,8 @@ import Layout from '../layouts/Layout.astro';
         !(resultsSectionEl instanceof HTMLDivElement) ||
         !(loadingStateEl instanceof HTMLDivElement) ||
         !(errorStateEl instanceof HTMLDivElement) ||
-        !(resultsContentEl instanceof HTMLDivElement) ||
-        !(scheduleContentEl instanceof HTMLDivElement)
+        !(errorMessageEl instanceof HTMLElement) ||
+        !(resultsRootEl instanceof HTMLDivElement)
       ) {
         console.error('Required elements not found or have unexpected types.');
         return;
@@ -193,13 +183,54 @@ import Layout from '../layouts/Layout.astro';
       const resultsSection = resultsSectionEl;
       const loadingState = loadingStateEl;
       const errorState = errorStateEl;
-      const resultsContent = resultsContentEl;
-      const scheduleContent = scheduleContentEl;
+      const errorMessage = errorMessageEl;
+      const resultsRoot = resultsRootEl;
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      let reactRoot = null;
+      /** @type {Promise<{ React: typeof import('react'); createRoot: typeof import('react-dom/client')['createRoot']; AmortizationResults: import('@financial-analysis/ui').AmortizationResults }>} */
+      let lazyModulesPromise = null;
 
-        // Show loading state
+      const loadReactModules = async () => {
+        if (lazyModulesPromise) return lazyModulesPromise;
+
+        lazyModulesPromise = Promise.all([
+          import('react'),
+          import('react-dom/client'),
+          import('@financial-analysis/ui'),
+        ]).then(([reactModule, reactDomModule, uiModule]) => {
+          const React = reactModule.default ?? reactModule;
+          const createRoot = reactDomModule.createRoot ?? reactDomModule.default?.createRoot;
+          const { AmortizationResults } = uiModule;
+
+          if (!createRoot) {
+            throw new Error('react-dom/client createRoot not available');
+          }
+
+          if (typeof AmortizationResults !== 'function') {
+            throw new Error('AmortizationResults component not available');
+          }
+
+          return { React, createRoot, AmortizationResults };
+        });
+
+        return lazyModulesPromise;
+      };
+
+      const renderResults = async (analysisResult) => {
+        const { React, createRoot, AmortizationResults } = await loadReactModules();
+        if (!reactRoot) {
+          reactRoot = createRoot(resultsRoot);
+        }
+        reactRoot.render(
+          React.createElement(AmortizationResults, {
+            result: analysisResult,
+          })
+        );
+      };
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
         loadingState.classList.remove('hidden');
         resultsSection.classList.add('hidden');
         errorState.classList.add('hidden');
@@ -207,71 +238,51 @@ import Layout from '../layouts/Layout.astro';
 
         try {
           const formData = new FormData(form);
-          const data = {
-            principal: parseFloat(formData.get('principal') as string),
-            annualRate: parseFloat(formData.get('annualRate') as string) / 100,
-            termMonths: parseInt(formData.get('termMonths') as string),
-            residualValue: parseFloat(formData.get('residualValue') as string) || 0
+          const principal = Number.parseFloat(String(formData.get('principal') ?? '0'));
+          const annualRatePercent = Number.parseFloat(String(formData.get('annualRate') ?? '0'));
+          const termMonths = Number.parseInt(String(formData.get('termMonths') ?? '0'), 10);
+
+          const response = await fetch('/v1/api/analysis/amortization', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              principal,
+              annualRate: annualRatePercent / 100,
+              termMonths,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Request failed (${response.status})`);
+          }
+
+          const payload = await response.json();
+          const rawSchedule = Array.isArray(payload.schedule) ? payload.schedule : [];
+
+          const schedule = rawSchedule.map((item, index) => ({
+            month: Number(item && item.month != null ? item.month : index + 1),
+            payment: Number(item && item.payment != null ? item.payment : 0),
+            principal: Number(item && item.principal != null ? item.principal : 0),
+            interest: Number(item && item.interest != null ? item.interest : 0),
+            balance: Number(item && item.balance != null ? item.balance : 0),
+          }));
+
+          const normalizedResult = {
+            monthlyPayment: Number(payload.monthlyPayment ?? 0),
+            totalPayments: Number(payload.totalAmount ?? payload.totalPayments ?? 0),
+            totalInterest: Number(payload.totalInterest ?? 0),
+            schedule,
           };
 
-          // Call API (placeholder - will be implemented)
-          console.log('Analysis data:', data);
-
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Show results (placeholder)
-          resultsContent.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h3 class="font-semibold text-blue-900 dark:text-blue-100">Monthly Payment</h3>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">$1,234.56</p>
-              </div>
-              <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                <h3 class="font-semibold text-green-900 dark:text-green-100">Total Interest</h3>
-                <p class="text-2xl font-bold text-green-600 dark:text-green-400">$12,345.67</p>
-              </div>
-              <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-                <h3 class="font-semibold text-purple-900 dark:text-purple-100">Total Cost</h3>
-                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">$62,345.67</p>
-              </div>
-            </div>
-          `;
-
-          scheduleContent.innerHTML = `
-            <table class="min-w-full table-auto">
-              <thead>
-                <tr class="bg-gray-50 dark:bg-gray-800">
-                  <th class="px-4 py-2 text-left">Month</th>
-                  <th class="px-4 py-2 text-left">Payment</th>
-                  <th class="px-4 py-2 text-left">Principal</th>
-                  <th class="px-4 py-2 text-left">Interest</th>
-                  <th class="px-4 py-2 text-left">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="border-t border-gray-200 dark:border-gray-700">
-                  <td class="px-4 py-2">1</td>
-                  <td class="px-4 py-2">$1,234.56</td>
-                  <td class="px-4 py-2">$1,067.89</td>
-                  <td class="px-4 py-2">$166.67</td>
-                  <td class="px-4 py-2">$48,932.11</td>
-                </tr>
-                <!-- More rows would be populated here -->
-                <tr class="border-t border-gray-200 dark:border-gray-700">
-                  <td colspan="5" class="px-4 py-4 text-center text-gray-500">
-                    ... Full schedule will be displayed here ...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          `;
-
+          await renderResults(normalizedResult);
           resultsSection.classList.remove('hidden');
-
         } catch (error) {
           console.error('Analysis error:', error);
           errorState.classList.remove('hidden');
+          errorMessage.textContent = error instanceof Error ? error.message : 'Unexpected error';
         } finally {
           loadingState.classList.add('hidden');
           analyzeBtn.disabled = false;

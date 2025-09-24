@@ -239,6 +239,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@financial-analysis/analysis':
+        specifier: workspace:*
+        version: link:../analysis
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

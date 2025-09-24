@@ -69,9 +69,16 @@ describe('POST /v1/chat', () => {
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-    const json = (await res.json()) as { role: string; content: string };
+    const json = (await res.json()) as {
+      role: string;
+      content: string;
+      analysis?: { kind: string; result: { monthlyPayment: number; schedule: Array<{ month: number }> } };
+    };
     expect(json.role).toBe('assistant');
     expect(json.content).toMatch(/Monthly payment:/);
+    expect(json.analysis?.kind).toBe('amortization');
+    expect(json.analysis?.result.monthlyPayment).toBeGreaterThan(0);
+    expect(Array.isArray(json.analysis?.result.schedule)).toBe(true);
   });
 
   it('supports server-side MCP tool_call for lease analysis', async () => {

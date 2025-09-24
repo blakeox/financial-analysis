@@ -5,6 +5,7 @@ import {
   FinancialInputSchema,
   LeaseAnalyzer,
   ScenarioInputSchema,
+  type AmortizationAnalysisResult,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -52,6 +53,10 @@ type ChatResponse = {
   content: string;
   model?: string;
   usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  analysis?: {
+    kind: 'amortization';
+    result: AmortizationAnalysisResult;
+  };
 };
 
 // Rate limiting now lives in ./lib/rate-limit
@@ -371,6 +376,10 @@ router.post(
               const reply: ChatResponse = {
                 role: 'assistant',
                 content: `Computed amortization. Monthly payment: ${result.monthlyPayment.toFixed(2)}; total interest: ${result.totalInterest.toFixed(2)}.`,
+                analysis: {
+                  kind: 'amortization',
+                  result,
+                },
               };
               return new Response(JSON.stringify(reply), {
                 status: 200,

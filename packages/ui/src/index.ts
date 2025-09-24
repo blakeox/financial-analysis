@@ -13,6 +13,8 @@ export { Footer } from './components/Footer';
 export { Input } from './components/Input';
 export { ChatPanel } from './components/ChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
+export { AmortizationChart } from './components/AmortizationChart';
+export { AmortizationResults } from './components/AmortizationResults';
 
 // EBITDA Forecasting Components
 export { FinancialsInputForm } from './components/FinancialsInputForm';

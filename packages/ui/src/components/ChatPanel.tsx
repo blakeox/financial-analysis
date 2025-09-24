@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
+import { AmortizationResults } from './AmortizationResults';
 
 type Role = 'system' | 'user' | 'assistant';
-type Message = { role: Role; content: string };
+type AnalysisAttachment = {
+  kind: 'amortization';
+  result: AmortizationAnalysisResult;
+};
+
+type Message = { role: Role; content: string; analysis?: AnalysisAttachment };
 
 export interface ChatPanelProps {
   apiUrl?: string; // Base URL for API (defaults to '')
@@ -57,10 +64,11 @@ export function ChatPanel({
     setInput('');
     setBusy(true);
     try {
+      const payloadMessages = nextMessages.map((m) => ({ role: m.role, content: m.content }));
       const res = await fetch(chatEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: nextMessages }),
+        body: JSON.stringify({ messages: payloadMessages }),
       });
       if (!res.ok) {
         const text = await res.text().catch(() => 'Error');
@@ -69,8 +77,51 @@ export function ChatPanel({
           { role: 'assistant', content: `Request failed (${res.status}): ${text}` },
         ]);
       } else {
-        const data = (await res.json()) as { role?: Role; content?: string };
-        const reply: Message = { role: data.role ?? 'assistant', content: data.content ?? '' };
+        const data = (await res.json()) as {
+          role?: Role;
+          content?: string;
+          analysis?: { kind?: string; result?: unknown };
+        };
+
+        let analysis: AnalysisAttachment | undefined;
+        if (data.analysis && data.analysis.kind === 'amortization' && data.analysis.result) {
+          const raw = data.analysis.result as Partial<AmortizationAnalysisResult>;
+          if (
+            typeof raw?.monthlyPayment === 'number' &&
+            typeof raw?.totalPayments === 'number' &&
+            typeof raw?.totalInterest === 'number' &&
+            Array.isArray(raw?.schedule)
+          ) {
+            const schedule = raw.schedule.map((item, index): AmortizationAnalysisResult['schedule'][number] => {
+              const monthValue =
+                item && typeof item.month === 'number'
+                  ? item.month
+                  : Number(item?.month ?? index + 1);
+              return {
+                month: Number.isFinite(monthValue) ? Number(monthValue) : index + 1,
+                payment: Number(item?.payment ?? 0),
+                principal: Number(item?.principal ?? 0),
+                interest: Number(item?.interest ?? 0),
+                balance: Number(item?.balance ?? 0),
+              };
+            });
+            analysis = {
+              kind: 'amortization',
+              result: {
+                monthlyPayment: raw.monthlyPayment,
+                totalPayments: raw.totalPayments,
+                totalInterest: raw.totalInterest,
+                schedule,
+              },
+            };
+          }
+        }
+
+        const reply: Message = {
+          role: data.role ?? 'assistant',
+          content: data.content ?? '',
+          ...(analysis ? { analysis } : {}),
+        };
         setMessages((m) => [...m, reply]);
       }
     } catch (err) {
@@ -190,10 +241,24 @@ export function ChatPanel({
                   className={`text-sm ${m.role === 'user' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-800 dark:text-gray-200'}`}
                 >
                   <div
-                    className={`inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 ${m.role === 'user' ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40' : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'}`}
+                    className={`inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 ${
+                      m.role === 'user'
+                        ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40'
+                        : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'
+                    }`}
                   >
                     {m.content}
                   </div>
+                  {m.analysis?.kind === 'amortization' ? (
+                    <div className="mt-4 max-w-full">
+                      <AmortizationResults
+                        result={m.analysis.result}
+                        showTable={false}
+                        chartTitle="Amortization breakdown"
+                        className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm"
+                      />
+                    </div>
+                  ) : null}
                 </div>
               ))}
               {busy && <div className="text-xs text-gray-500">Thinking…</div>}
