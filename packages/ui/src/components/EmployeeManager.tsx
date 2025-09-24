@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Input } from './Input';
 import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { Input } from './Input';
 
 export interface EmployeeData {
   id: string;
@@ -54,23 +54,27 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
   };
 
   const removeEmployee = (id: string) => {
-    onChange(employees.filter(emp => emp.id !== id));
+    onChange(employees.filter((emp) => emp.id !== id));
   };
 
-  const updateEmployee = (id: string, field: keyof EmployeeData, value: string | number | boolean) => {
-    onChange(employees.map(emp => 
-      emp.id === id ? { ...emp, [field]: value } : emp
-    ));
+  const updateEmployee = (
+    id: string,
+    field: keyof EmployeeData,
+    value: string | number | boolean
+  ) => {
+    onChange(employees.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)));
   };
 
-  const totalAnnualSalaries = employees.reduce((sum, emp) => 
-    sum + (emp.isActive ? emp.currentSalary : 0), 0
+  const totalAnnualSalaries = employees.reduce(
+    (sum, emp) => sum + (emp.isActive ? emp.currentSalary : 0),
+    0
   );
 
   const totalMonthlySalaries = totalAnnualSalaries / 12;
 
-  const totalMonthlyRevenuePotential = employees.reduce((sum, emp) => 
-    sum + (emp.isActive ? emp.billableHoursPerMonth * emp.hourlyRate : 0), 0
+  const totalMonthlyRevenuePotential = employees.reduce(
+    (sum, emp) => sum + (emp.isActive ? emp.billableHoursPerMonth * emp.hourlyRate : 0),
+    0
   );
 
   const formatCurrency = (value: number) =>
@@ -90,7 +94,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {employees.filter(emp => emp.isActive).length}
+              {employees.filter((emp) => emp.isActive).length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Active Employees</div>
           </div>
@@ -110,7 +114,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {formatCurrency(totalMonthlyRevenuePotential)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Revenue Potential</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              Monthly Revenue Potential
+            </div>
           </div>
         </div>
 
@@ -135,7 +141,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   label="Annual Salary"
                   type="number"
                   value={employee.currentSalary}
-                  onChange={(e) => updateEmployee(employee.id, 'currentSalary', Number(e.target.value))}
+                  onChange={(e) =>
+                    updateEmployee(employee.id, 'currentSalary', Number(e.target.value))
+                  }
                   disabled={readonly}
                   min="0"
                 />
@@ -143,7 +151,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   label="Billable Hours/Month"
                   type="number"
                   value={employee.billableHoursPerMonth}
-                  onChange={(e) => updateEmployee(employee.id, 'billableHoursPerMonth', Number(e.target.value))}
+                  onChange={(e) =>
+                    updateEmployee(employee.id, 'billableHoursPerMonth', Number(e.target.value))
+                  }
                   disabled={readonly}
                   min="0"
                   max="744"
@@ -152,7 +162,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   label="Hourly Rate"
                   type="number"
                   value={employee.hourlyRate}
-                  onChange={(e) => updateEmployee(employee.id, 'hourlyRate', Number(e.target.value))}
+                  onChange={(e) =>
+                    updateEmployee(employee.id, 'hourlyRate', Number(e.target.value))
+                  }
                   disabled={readonly}
                   min="0"
                 />
@@ -168,11 +180,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                     <span className="text-sm">Active</span>
                   </label>
                   {!readonly && (
-                    <Button
-                      onClick={() => removeEmployee(employee.id)}
-                      variant="outline"
-                      size="sm"
-                    >
+                    <Button onClick={() => removeEmployee(employee.id)} variant="outline" size="sm">
                       Remove
                     </Button>
                   )}
@@ -203,7 +211,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 label="Annual Salary"
                 type="number"
                 value={newEmployee.currentSalary || ''}
-                onChange={(e) => setNewEmployee({ ...newEmployee, currentSalary: Number(e.target.value) })}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, currentSalary: Number(e.target.value) })
+                }
                 placeholder="80000"
                 min="0"
               />
@@ -211,7 +221,9 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 label="Billable Hours/Month"
                 type="number"
                 value={newEmployee.billableHoursPerMonth || ''}
-                onChange={(e) => setNewEmployee({ ...newEmployee, billableHoursPerMonth: Number(e.target.value) })}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, billableHoursPerMonth: Number(e.target.value) })
+                }
                 placeholder="160"
                 min="0"
                 max="744"
@@ -220,16 +232,15 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 label="Hourly Rate"
                 type="number"
                 value={newEmployee.hourlyRate || ''}
-                onChange={(e) => setNewEmployee({ ...newEmployee, hourlyRate: Number(e.target.value) })}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, hourlyRate: Number(e.target.value) })
+                }
                 placeholder="0"
                 min="0"
               />
             </div>
             <div className="mt-3">
-              <Button 
-                onClick={addEmployee}
-                disabled={!newEmployee.name || !newEmployee.department}
-              >
+              <Button onClick={addEmployee} disabled={!newEmployee.name || !newEmployee.department}>
                 Add Employee
               </Button>
             </div>

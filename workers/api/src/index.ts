@@ -13,23 +13,23 @@ import { getOpenApiDocument } from './openapi';
 import type { Env } from './types';
 // Lib barrel export consolidates helpers in one place for tidy imports
 import {
-  getCorsHeaders,
-  getSecurityHeaders,
+  adjustApproxBytes,
+  attachRateLimitHeaders,
   buildDefaultHeaders,
+  checkRateLimit,
+  getAnalysisCacheTtl,
+  getApproxBytes,
+  getCorsHeaders,
   getDefaultCache,
+  getMaxJsonBytes,
+  getSecurityHeaders,
+  getThresholds,
+  isQuotaLocked,
+  reconcileBucketUsage,
+  setQuotaLocked,
   sha256Hex,
   stableStringify,
-  getAnalysisCacheTtl,
-  getMaxJsonBytes,
-  getThresholds,
-  checkRateLimit,
-  attachRateLimitHeaders,
   type RateLimitInfo,
-  getApproxBytes,
-  isQuotaLocked,
-  setQuotaLocked,
-  adjustApproxBytes,
-  reconcileBucketUsage,
 } from './lib';
 import { registerHealthRoute } from './routes/health';
 
@@ -328,18 +328,20 @@ router.post(
         const jsonMatch = last.content.match(/\{.*\}/);
         if (jsonMatch) {
           const apiInput = JSON.parse(jsonMatch[0]);
-          
+
           // Support both old format (interestRate, termInYears) and new format (annualRate, termMonths)
-          let analysisInput: { principal: number; annualRate: number; termMonths: number } | null = null;
-          
+          let analysisInput: { principal: number; annualRate: number; termMonths: number } | null =
+            null;
+
           // New format: annualRate (decimal), termMonths (number)
-          if (typeof apiInput.principal === 'number' && 
-              typeof apiInput.annualRate === 'number' && 
-              typeof apiInput.termMonths === 'number' &&
-              apiInput.principal > 0 && 
-              apiInput.annualRate >= 0 && 
-              apiInput.termMonths > 0) {
-            
+          if (
+            typeof apiInput.principal === 'number' &&
+            typeof apiInput.annualRate === 'number' &&
+            typeof apiInput.termMonths === 'number' &&
+            apiInput.principal > 0 &&
+            apiInput.annualRate >= 0 &&
+            apiInput.termMonths > 0
+          ) {
             analysisInput = {
               principal: apiInput.principal,
               annualRate: apiInput.annualRate,
@@ -347,20 +349,21 @@ router.post(
             };
           }
           // Old format: interestRate (percentage), termInYears (number)
-          else if (typeof apiInput.principal === 'number' && 
-                   typeof apiInput.interestRate === 'number' && 
-                   typeof apiInput.termInYears === 'number' &&
-                   apiInput.principal > 0 && 
-                   apiInput.interestRate >= 0 && 
-                   apiInput.termInYears > 0) {
-            
+          else if (
+            typeof apiInput.principal === 'number' &&
+            typeof apiInput.interestRate === 'number' &&
+            typeof apiInput.termInYears === 'number' &&
+            apiInput.principal > 0 &&
+            apiInput.interestRate >= 0 &&
+            apiInput.termInYears > 0
+          ) {
             analysisInput = {
               principal: apiInput.principal,
               annualRate: apiInput.interestRate / 100, // Convert percentage to decimal
               termMonths: Math.round(apiInput.termInYears * 12), // Convert years to months
             };
           }
-          
+
           if (analysisInput) {
             const parseResult = AmortizationInputSchema.safeParse(analysisInput);
             if (parseResult.success) {
@@ -1027,7 +1030,7 @@ router.post(
 
     // Check if using old format (interestRate, termInYears) or new format (annualRate, termMonths)
     let analysisInput: { principal: number; annualRate: number; termMonths: number };
-    
+
     if (apiInput.interestRate !== undefined && apiInput.termInYears !== undefined) {
       // Old format validation
       if (typeof apiInput.interestRate !== 'number' || apiInput.interestRate < 0) {
@@ -1096,7 +1099,8 @@ router.post(
       return new Response(
         JSON.stringify({
           error: {
-            message: 'Must provide either (interestRate and termInYears) or (annualRate and termMonths)',
+            message:
+              'Must provide either (interestRate and termInYears) or (annualRate and termMonths)',
             code: 'BAD_REQUEST',
           },
         }),

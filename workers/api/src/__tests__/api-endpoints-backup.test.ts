@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeAll, afterAll } from 'vitest';
-import { unstable_dev } from 'wrangler';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Unstable_DevWorker } from 'wrangler';
+import { unstable_dev } from 'wrangler';
 
 interface EbitdaForecastRequest {
   name: string;
@@ -223,8 +223,8 @@ describe('API Endpoint Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('application/json');
-      
-      const result = await response.json() as EbitdaForecastResponse;
+
+      const result = (await response.json()) as EbitdaForecastResponse;
       expect(result).toBeDefined();
       expect(result.scenario).toBeDefined();
       expect(result.forecast).toBeDefined();
@@ -236,7 +236,7 @@ describe('API Endpoint Integration Tests', () => {
       // Verify monthly forecast structure
       const firstMonth = assertDefined(
         result.forecast[0],
-        'Expected forecast to include at least one month of data',
+        'Expected forecast to include at least one month of data'
       );
       expect(firstMonth.month).toBe(1);
       expect(firstMonth.revenue).toBeGreaterThan(0);
@@ -286,10 +286,7 @@ describe('API Endpoint Integration Tests', () => {
         economicFactors: {
           marketGrowth: 0.0,
           competitionFactor: 1.0,
-          seasonalityFactors: [
-            0.8, 0.85, 1.1, 1.15, 1.05, 0.95,
-            0.75, 0.8, 1.2, 1.25, 1.1, 0.9,
-          ],
+          seasonalityFactors: [0.8, 0.85, 1.1, 1.15, 1.05, 0.95, 0.75, 0.8, 1.2, 1.25, 1.1, 0.9],
         },
       };
 
@@ -302,11 +299,11 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const result = await response.json() as EbitdaForecastResponse;
-      
+      const result = (await response.json()) as EbitdaForecastResponse;
+
       expect(result.scenario.economicFactors?.seasonalityFactors).toBeDefined();
       expect(result.forecast.length).toBe(12);
-      
+
       // Verify seasonal variations are applied
       const revenues = result.forecast.map((m: MonthlyForecast) => m.revenue);
       expect(Math.max(...revenues) > Math.min(...revenues)).toBe(true);
@@ -333,7 +330,7 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(400);
-      const result = await response.json() as ErrorResponse;
+      const result = (await response.json()) as ErrorResponse;
       expect(result.error).toBeDefined();
       expect(result.error.code).toBe('BAD_REQUEST');
     });
@@ -428,15 +425,15 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const result = await response.json() as EbitdaForecastResponse;
-      
+      const result = (await response.json()) as EbitdaForecastResponse;
+
       expect(result.forecast.length).toBe(24);
       expect(result.summary.totalRevenue).toBeGreaterThan(5000000); // Over 2 years
-      
+
       // Verify employee growth
       const finalMonth = assertDefined(
         result.forecast[23],
-        'Expected forecast to include a final month entry',
+        'Expected forecast to include a final month entry'
       );
       expect(finalMonth.employeeCount).toBe(3); // Should include new hire
     });
@@ -462,8 +459,8 @@ describe('API Endpoint Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('application/json');
-      
-      const result = await response.json() as AmortizationResponse;
+
+      const result = (await response.json()) as AmortizationResponse;
       expect(result.monthlyPayment).toBeCloseTo(1266.71, 2);
       expect(result.totalInterest).toBeGreaterThan(200000);
       expect(result.totalAmount).toBeCloseTo(456015.6, 1); // Use actual calculated value
@@ -489,16 +486,16 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const result = await response.json() as AmortizationResponse;
-      
+      const result = (await response.json()) as AmortizationResponse;
+
       expect(result.monthlyPayment).toBeGreaterThan(3000);
       expect(result.monthlyPayment).toBeLessThan(4000);
       expect(result.schedule.length).toBe(180); // 15 years * 12 months
-      
+
       // Verify first payment breakdown
       const firstPayment = assertDefined(
         result.schedule[0],
-        'Expected amortization schedule to include the first payment',
+        'Expected amortization schedule to include the first payment'
       );
       expect(firstPayment.month).toBe(1);
       expect(firstPayment.payment).toEqual(result.monthlyPayment);
@@ -523,7 +520,7 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(400);
-      const result = await response.json() as ErrorResponse;
+      const result = (await response.json()) as ErrorResponse;
       expect(result.error).toBeDefined();
       expect(result.error.code).toBe('BAD_REQUEST');
     });
@@ -546,16 +543,16 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const result = await response.json() as AmortizationResponse;
-      
+      const result = (await response.json()) as AmortizationResponse;
+
       expect(result.monthlyPayment).toBeGreaterThan(1000);
       expect(result.totalInterest).toBeGreaterThan(15000);
-      
+
       // Verify that payment remains constant
-      const payments = result.schedule.map(p => p.payment);
+      const payments = result.schedule.map((p) => p.payment);
       const firstPayment = payments[0];
       if (firstPayment !== undefined) {
-        const allPaymentsEqual = payments.every(p => Math.abs(p - firstPayment) < 0.01);
+        const allPaymentsEqual = payments.every((p) => Math.abs(p - firstPayment) < 0.01);
         expect(allPaymentsEqual).toBe(true);
       }
     });
@@ -584,7 +581,7 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(415);
-      const result = await response.json() as ErrorResponse;
+      const result = (await response.json()) as ErrorResponse;
       expect(result.error.code).toBe('INVALID_CONTENT_TYPE');
     });
 
@@ -620,7 +617,7 @@ describe('API Endpoint Integration Tests', () => {
       });
 
       expect(response.status).toBe(400);
-      const result = await response.json() as ErrorResponse;
+      const result = (await response.json()) as ErrorResponse;
       expect(result.error.code).toBe('BAD_REQUEST');
     });
 

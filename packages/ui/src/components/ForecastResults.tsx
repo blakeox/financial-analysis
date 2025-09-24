@@ -94,8 +94,18 @@ const formatPercentage = (value: number) => {
 
 const getMonthName = (month: number) => {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   return months[month - 1] || 'Unknown';
 };
@@ -208,18 +218,21 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
 
   const breakEvenIndex = summary.breakEvenMonth
     ? summary.breakEvenMonth - 1
-    : forecast.findIndex(month => month.ebitda >= 0);
+    : forecast.findIndex((month) => month.ebitda >= 0);
 
   const breakEvenLabel =
     breakEvenIndex >= 0 && forecast[breakEvenIndex]
       ? `${getMonthName(forecast[breakEvenIndex].month)} ${forecast[breakEvenIndex].year}`
       : 'Not reached';
 
-  const revenueSeries = forecast.map(month => month.revenue);
-  const ebitdaSeries = forecast.map(month => month.ebitda);
-  const marginSeries = forecast.map(month => month.ebitdaMargin ?? (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0));
+  const revenueSeries = forecast.map((month) => month.revenue);
+  const ebitdaSeries = forecast.map((month) => month.ebitda);
+  const marginSeries = forecast.map(
+    (month) =>
+      month.ebitdaMargin ?? (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0)
+  );
 
-  const hasNotes = forecast.some(month => month.notes && month.notes.length > 0);
+  const hasNotes = forecast.some((month) => month.notes && month.notes.length > 0);
 
   const economicFactors = scenario.economicFactors;
 
@@ -275,9 +288,14 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
           <CardContent className="p-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {formatCurrency(summary.totalOperatingExpenses ?? forecast.reduce((sum, month) => sum + computeTotalExpenses(month), 0))}
+                {formatCurrency(
+                  summary.totalOperatingExpenses ??
+                    forecast.reduce((sum, month) => sum + computeTotalExpenses(month), 0)
+                )}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Operating Expenses</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">
+                Total Operating Expenses
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -301,7 +319,9 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
         </CardHeader>
         <CardContent className="space-y-4">
           {scenario.description && (
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{scenario.description}</p>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              {scenario.description}
+            </p>
           )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <div>
@@ -313,14 +333,15 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
               {summary.finalEmployeeCount}
             </div>
             <div>
-              <span className="font-medium">Break-even:</span>{' '}
-              {breakEvenLabel}
+              <span className="font-medium">Break-even:</span> {breakEvenLabel}
             </div>
             <div>
               <span className="font-medium">Total Employee Costs:</span>{' '}
               {summary.totalEmployeeCosts !== undefined
                 ? formatCurrency(summary.totalEmployeeCosts)
-                : formatCurrency(forecast.reduce((sum, month) => sum + (month.employeeCosts ?? 0), 0))}
+                : formatCurrency(
+                    forecast.reduce((sum, month) => sum + (month.employeeCosts ?? 0), 0)
+                  )}
             </div>
           </div>
 
@@ -337,7 +358,8 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
               {economicFactors.seasonalityFactors && (
                 <div>
                   <span className="font-medium">Seasonality Range:</span>{' '}
-                  {Math.min(...economicFactors.seasonalityFactors).toFixed(2)} – {Math.max(...economicFactors.seasonalityFactors).toFixed(2)}
+                  {Math.min(...economicFactors.seasonalityFactors).toFixed(2)} –{' '}
+                  {Math.max(...economicFactors.seasonalityFactors).toFixed(2)}
                 </div>
               )}
             </div>
@@ -366,13 +388,17 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                 </div>
               </div>
               <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/10">
-                <div className="text-sm text-purple-700 dark:text-purple-300">Avg Billable Hours</div>
+                <div className="text-sm text-purple-700 dark:text-purple-300">
+                  Avg Billable Hours
+                </div>
                 <div className="text-2xl font-semibold text-purple-900 dark:text-purple-100">
                   {keyMetrics.averageBillableHours.toFixed(1)} hrs
                 </div>
               </div>
               <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10">
-                <div className="text-sm text-amber-700 dark:text-amber-300">Revenue / Billable Hr</div>
+                <div className="text-sm text-amber-700 dark:text-amber-300">
+                  Revenue / Billable Hr
+                </div>
                 <div className="text-2xl font-semibold text-amber-900 dark:text-amber-100">
                   {formatCurrency(keyMetrics.revenuePerBillableHour)}
                 </div>
@@ -405,7 +431,9 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                 <tbody>
                   {forecast.map((month, index) => {
                     const totalExpenses = computeTotalExpenses(month);
-                    const margin = month.ebitdaMargin ?? (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0);
+                    const margin =
+                      month.ebitdaMargin ??
+                      (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0);
                     const isBreakEvenMonth = index === breakEvenIndex;
                     return (
                       <tr

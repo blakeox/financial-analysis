@@ -1,5 +1,5 @@
-import { Input } from './Input';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { Input } from './Input';
 
 export interface ScenarioConfigData {
   scenarioName: string;
@@ -20,10 +20,7 @@ export interface ScenarioConfigProps {
   readonly?: boolean;
 }
 
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
@@ -69,7 +66,10 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             placeholder="e.g. Growth Plan FY25"
           />
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="scenario-description">
+            <label
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="scenario-description"
+            >
               Scenario Description
             </label>
             <textarea
@@ -96,7 +96,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             disabled={readonly}
             helperText="Number of months to forecast (1-60)"
           />
-          
+
           <Input
             label="Revenue Growth Rate (%)"
             type="number"
@@ -128,7 +128,9 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Operating Expense Growth (%)"
             type="number"
             value={(data.operatingExpenseGrowthRate * 100).toFixed(2)}
-            onChange={(e) => updateField('operatingExpenseGrowthRate', Number(e.target.value) / 100)}
+            onChange={(e) =>
+              updateField('operatingExpenseGrowthRate', Number(e.target.value) / 100)
+            }
             step="0.1"
             min="-50"
             max="100"
@@ -178,8 +180,8 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
           <h4 className="font-medium mb-2">Scenario Summary</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="font-medium">Forecast Period:</span>{' '}
-              {data.projectionMonths} months ({Math.round(data.projectionMonths / 12 * 10) / 10} years)
+              <span className="font-medium">Forecast Period:</span> {data.projectionMonths} months (
+              {Math.round((data.projectionMonths / 12) * 10) / 10} years)
             </div>
             <div>
               <span className="font-medium">Annual Growth Rate:</span>{' '}
@@ -187,8 +189,11 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             </div>
             <div>
               <span className="font-medium">Market Conditions:</span>{' '}
-              {data.marketGrowthFactor > 1.1 ? 'Favorable' : 
-               data.marketGrowthFactor < 0.9 ? 'Challenging' : 'Normal'}
+              {data.marketGrowthFactor > 1.1
+                ? 'Favorable'
+                : data.marketGrowthFactor < 0.9
+                  ? 'Challenging'
+                  : 'Normal'}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
@@ -256,9 +261,10 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
           {hasSeasonalityFactors && (
             <div className="space-y-3">
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Adjust monthly multipliers to account for seasonal variations (1.0 = normal, 1.2 = 20% above normal, 0.8 = 20% below normal)
+                Adjust monthly multipliers to account for seasonal variations (1.0 = normal, 1.2 =
+                20% above normal, 0.8 = 20% below normal)
               </p>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {months.map((month, index) => (
                   <Input
@@ -278,8 +284,13 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
               <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-md">
                 <div className="text-sm text-blue-800 dark:text-blue-200">
                   <strong>Average Factor:</strong>{' '}
-                  {((data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12).toFixed(2)}
-                  {Math.abs(((data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12) - 1) > 0.05 && (
+                  {(
+                    (data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12
+                  ).toFixed(2)}
+                  {Math.abs(
+                    (data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12 -
+                      1
+                  ) > 0.05 && (
                     <span className="ml-2 text-orange-600 dark:text-orange-400">
                       ⚠️ Consider balancing factors around 1.0 for realistic projections
                     </span>

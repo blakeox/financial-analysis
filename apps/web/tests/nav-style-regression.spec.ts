@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Guards that Tailwind v4 global styles apply expected gradients and blur to the navbar.
 
@@ -29,8 +29,8 @@ test.describe('Navbar styling regression', () => {
         navStyles?.webkitBackdropFilter?.includes('blur(14px)')
     );
     expect(blurApplied).toBeTruthy();
-  const expectedBorders = ['rgba(0, 0, 0, 0.06)', 'rgba(255, 255, 255, 0.06)'];
-  expect(expectedBorders).toContain(navStyles?.borderBottomColor ?? '');
+    const expectedBorders = ['rgba(0, 0, 0, 0.06)', 'rgba(255, 255, 255, 0.06)'];
+    expect(expectedBorders).toContain(navStyles?.borderBottomColor ?? '');
 
     const brandStyles = await page.evaluate(() => {
       const mark = document.querySelector('#site-nav .brand-mark');

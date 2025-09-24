@@ -1,7 +1,4 @@
-import {
-  EbitdaForecaster,
-  type EbitdaForecastResult,
-} from '@financial-analysis/analysis';
+import { EbitdaForecaster, type EbitdaForecastResult } from '@financial-analysis/analysis';
 import { z } from 'zod';
 
 // Tool-specific input schemas with JSON Schema format for MCP
@@ -20,23 +17,31 @@ const ForecastingToolInputSchema = z.object({
     november: z.number().optional(),
     december: z.number().optional(),
   }),
-  employees: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    currentSalary: z.number().positive(),
-    billableHoursPerMonth: z.number().min(0).max(744), // max hours in a month
-    hourlyRate: z.number().positive(),
-    department: z.string(),
-    isActive: z.boolean().default(true),
-  })).default([]),
-  expenseTypes: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    currentMonthlyAmount: z.number(),
-    category: z.enum(['fixed', 'variable', 'mixed']),
-    growthRate: z.number().default(0),
-    isActive: z.boolean().default(true),
-  })).default([]),
+  employees: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        currentSalary: z.number().positive(),
+        billableHoursPerMonth: z.number().min(0).max(744), // max hours in a month
+        hourlyRate: z.number().positive(),
+        department: z.string(),
+        isActive: z.boolean().default(true),
+      })
+    )
+    .default([]),
+  expenseTypes: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        currentMonthlyAmount: z.number(),
+        category: z.enum(['fixed', 'variable', 'mixed']),
+        growthRate: z.number().default(0),
+        isActive: z.boolean().default(true),
+      })
+    )
+    .default([]),
   projectionMonths: z.number().positive().int().max(60).default(12),
   revenueGrowthRate: z.number().default(0),
   marketGrowthFactor: z.number().default(1),
@@ -45,14 +50,17 @@ const ForecastingToolInputSchema = z.object({
 
 const ScenarioComparisonInputSchema = z.object({
   baseScenario: ForecastingToolInputSchema,
-  alternativeScenarios: z.array(ForecastingToolInputSchema.extend({
-    name: z.string(),
-  })),
+  alternativeScenarios: z.array(
+    ForecastingToolInputSchema.extend({
+      name: z.string(),
+    })
+  ),
 });
 
 export class EbitdaForecastingTool {
   static readonly toolName = 'ebitda_forecasting';
-  static readonly description = 'Generate EBITDA forecasts based on current financials, employee projections, and expense modeling for service industry scenario planning';
+  static readonly description =
+    'Generate EBITDA forecasts based on current financials, employee projections, and expense modeling for service industry scenario planning';
 
   static readonly inputSchema = {
     type: 'object' as const,
@@ -84,12 +92,22 @@ export class EbitdaForecastingTool {
             id: { type: 'string', description: 'Unique employee identifier' },
             name: { type: 'string', description: 'Employee name' },
             currentSalary: { type: 'number', description: 'Current monthly salary' },
-            billableHoursPerMonth: { type: 'number', description: 'Expected billable hours per month (0-744)' },
+            billableHoursPerMonth: {
+              type: 'number',
+              description: 'Expected billable hours per month (0-744)',
+            },
             hourlyRate: { type: 'number', description: 'Billable hourly rate' },
             department: { type: 'string', description: 'Department or division' },
             isActive: { type: 'boolean', description: 'Whether employee is active' },
           },
-          required: ['id', 'name', 'currentSalary', 'billableHoursPerMonth', 'hourlyRate', 'department'],
+          required: [
+            'id',
+            'name',
+            'currentSalary',
+            'billableHoursPerMonth',
+            'hourlyRate',
+            'department',
+          ],
         },
         default: [],
       },
@@ -102,7 +120,11 @@ export class EbitdaForecastingTool {
             id: { type: 'string', description: 'Unique expense type identifier' },
             name: { type: 'string', description: 'Expense type name' },
             currentMonthlyAmount: { type: 'number', description: 'Current monthly amount' },
-            category: { type: 'string', enum: ['fixed', 'variable', 'mixed'], description: 'Expense category' },
+            category: {
+              type: 'string',
+              enum: ['fixed', 'variable', 'mixed'],
+              description: 'Expense category',
+            },
             growthRate: { type: 'number', description: 'Monthly growth rate (0.05 = 5%)' },
             isActive: { type: 'boolean', description: 'Whether expense type is active' },
           },
@@ -110,8 +132,16 @@ export class EbitdaForecastingTool {
         },
         default: [],
       },
-      projectionMonths: { type: 'number', description: 'Number of months to project (1-60)', default: 12 },
-      revenueGrowthRate: { type: 'number', description: 'Expected monthly revenue growth rate', default: 0 },
+      projectionMonths: {
+        type: 'number',
+        description: 'Number of months to project (1-60)',
+        default: 12,
+      },
+      revenueGrowthRate: {
+        type: 'number',
+        description: 'Expected monthly revenue growth rate',
+        default: 0,
+      },
       marketGrowthFactor: { type: 'number', description: 'Market growth multiplier', default: 1 },
       seasonalityFactors: {
         type: 'array',
@@ -126,13 +156,25 @@ export class EbitdaForecastingTool {
 
   static async execute(input: unknown): Promise<EbitdaForecastResult> {
     const validated = ForecastingToolInputSchema.parse(input);
-    
+
     // Transform the simplified input to match the ScenarioInputSchema
     // Convert monthly revenue data to currentMonthlyFinancials format
     const currentMonthlyFinancials = [];
-    const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
-                       'july', 'august', 'september', 'october', 'november', 'december'];
-    
+    const monthNames = [
+      'january',
+      'february',
+      'march',
+      'april',
+      'may',
+      'june',
+      'july',
+      'august',
+      'september',
+      'october',
+      'november',
+      'december',
+    ];
+
     for (let i = 0; i < monthNames.length; i++) {
       const monthName = monthNames[i] as keyof typeof validated.currentYear;
       const revenue = validated.currentYear[monthName];
@@ -152,7 +194,7 @@ export class EbitdaForecastingTool {
     }
 
     // Transform employees to match expected schema
-    const currentEmployees = validated.employees.map(emp => ({
+    const currentEmployees = validated.employees.map((emp) => ({
       id: emp.id,
       name: emp.name,
       role: emp.department, // Use department as role
@@ -166,10 +208,13 @@ export class EbitdaForecastingTool {
     }));
 
     // Transform expense types to additional expenses
-    const additionalExpenses = validated.expenseTypes.map(expense => ({
+    const additionalExpenses = validated.expenseTypes.map((expense) => ({
       id: expense.id,
       name: expense.name,
-      category: expense.category === 'mixed' ? 'semi-variable' as const : expense.category as 'fixed' | 'variable',
+      category:
+        expense.category === 'mixed'
+          ? ('semi-variable' as const)
+          : (expense.category as 'fixed' | 'variable'),
       amount: expense.currentMonthlyAmount,
       frequency: 'monthly' as const,
       isRecurring: true,
@@ -191,7 +236,7 @@ export class EbitdaForecastingTool {
       operatingExpenseGrowthRate: 0, // Default
       inflationRate: 0.03, // Default 3%
       economicFactors: {
-        marketGrowth: (validated.marketGrowthFactor - 1), // Convert multiplier to growth rate
+        marketGrowth: validated.marketGrowthFactor - 1, // Convert multiplier to growth rate
         competitionFactor: 1, // Default
         seasonalityFactors: validated.seasonalityFactors,
       },
@@ -203,7 +248,8 @@ export class EbitdaForecastingTool {
 
 export class EbitdaScenarioComparisonTool {
   static readonly toolName = 'ebitda_scenario_comparison';
-  static readonly description = 'Compare multiple EBITDA forecasting scenarios to analyze different business assumptions and their impact on profitability';
+  static readonly description =
+    'Compare multiple EBITDA forecasting scenarios to analyze different business assumptions and their impact on profitability';
 
   static readonly inputSchema = {
     type: 'object' as const,
@@ -227,16 +273,30 @@ export class EbitdaScenarioComparisonTool {
     required: ['baseScenario', 'alternativeScenarios'],
   };
 
-  static async execute(input: unknown): Promise<ReturnType<typeof EbitdaForecaster.compareScenarios>> {
+  static async execute(
+    input: unknown
+  ): Promise<ReturnType<typeof EbitdaForecaster.compareScenarios>> {
     const validated = ScenarioComparisonInputSchema.parse(input);
-    
+
     // Helper function to transform scenario input
     const transformScenario = (scenario: typeof validated.baseScenario, name: string) => {
       // Convert monthly revenue data to currentMonthlyFinancials format
       const currentMonthlyFinancials = [];
-      const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
-                         'july', 'august', 'september', 'october', 'november', 'december'];
-      
+      const monthNames = [
+        'january',
+        'february',
+        'march',
+        'april',
+        'may',
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december',
+      ];
+
       for (let i = 0; i < monthNames.length; i++) {
         const monthName = monthNames[i] as keyof typeof scenario.currentYear;
         const revenue = scenario.currentYear[monthName];
@@ -256,7 +316,7 @@ export class EbitdaScenarioComparisonTool {
       }
 
       // Transform employees
-      const currentEmployees = scenario.employees.map(emp => ({
+      const currentEmployees = scenario.employees.map((emp) => ({
         id: emp.id,
         name: emp.name,
         role: emp.department,
@@ -270,10 +330,13 @@ export class EbitdaScenarioComparisonTool {
       }));
 
       // Transform expenses
-      const additionalExpenses = scenario.expenseTypes.map(expense => ({
+      const additionalExpenses = scenario.expenseTypes.map((expense) => ({
         id: expense.id,
         name: expense.name,
-        category: expense.category === 'mixed' ? 'semi-variable' as const : expense.category as 'fixed' | 'variable',
+        category:
+          expense.category === 'mixed'
+            ? ('semi-variable' as const)
+            : (expense.category as 'fixed' | 'variable'),
         amount: expense.currentMonthlyAmount,
         frequency: 'monthly' as const,
         isRecurring: true,
@@ -295,26 +358,26 @@ export class EbitdaScenarioComparisonTool {
         operatingExpenseGrowthRate: 0,
         inflationRate: 0.03,
         economicFactors: {
-          marketGrowth: (scenario.marketGrowthFactor - 1),
+          marketGrowth: scenario.marketGrowthFactor - 1,
           competitionFactor: 1,
           seasonalityFactors: scenario.seasonalityFactors,
         },
       };
     };
-    
+
     // Generate forecast for base scenario
     const baseScenarioInput = transformScenario(validated.baseScenario, 'Base Scenario');
     const baseResult = EbitdaForecaster.forecast(baseScenarioInput);
 
     // Generate forecasts for alternative scenarios
-    const alternativeResults = validated.alternativeScenarios.map(scenario => {
+    const alternativeResults = validated.alternativeScenarios.map((scenario) => {
       const scenarioInput = transformScenario(scenario, scenario.name);
       return EbitdaForecaster.forecast(scenarioInput);
     });
 
     // Combine all results
     const allResults = [baseResult, ...alternativeResults];
-    
+
     // Use the static comparison method
     return EbitdaForecaster.compareScenarios(allResults);
   }
