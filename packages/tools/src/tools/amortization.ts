@@ -1,14 +1,14 @@
 import {
   AmortizationAnalyzer,
+  AmortizationInputSchema,
+  computeAmortizationInsights,
   type AmortizationAnalysisResult,
+  type AmortizationInsights,
 } from '@financial-analysis/analysis';
-import { z } from 'zod';
 
-const AmortizationToolInputSchema = z.object({
-  principal: z.number().positive(),
-  annualRate: z.number().min(0).max(1),
-  termMonths: z.number().positive().int(),
-});
+export type AmortizationToolResponse = AmortizationAnalysisResult & {
+  insights: AmortizationInsights;
+};
 
 export class AmortizationTool {
   static readonly toolName = 'analyze_amortization';
@@ -20,12 +20,80 @@ export class AmortizationTool {
       principal: { type: 'number', description: 'Principal amount' },
       annualRate: { type: 'number', description: 'Annual interest rate (0-1)' },
       termMonths: { type: 'number', description: 'Term in months' },
+      startDate: {
+        type: 'string',
+        description: 'Optional ISO start date for the schedule',
+      },
+      extraMonthlyPayment: {
+        type: 'number',
+        description: 'Additional principal paid each month',
+        default: 0,
+      },
+      oneTimePayments: {
+        type: 'array',
+        description: 'Extra payments applied in specific months',
+        items: {
+          type: 'object',
+          properties: {
+            month: { type: 'number', description: 'Month index (1-based)' },
+            amount: { type: 'number', description: 'Extra payment amount' },
+          },
+          required: ['month', 'amount'],
+        },
+        default: [],
+      },
+      paymentFrequency: {
+        type: 'string',
+        enum: ['monthly', 'biweekly', 'weekly'],
+        description: 'Payment cadence',
+        default: 'monthly',
+      },
+      interestOnlyMonths: {
+        type: 'number',
+        description: 'Number of initial months with interest-only payments',
+        default: 0,
+      },
+      balloonPayment: {
+        type: 'number',
+        description: 'Balloon payment applied at the end of the term',
+        default: 0,
+      },
+      origination_fee: {
+        type: 'number',
+        description: 'Up-front origination fee added to principal',
+        default: 0,
+      },
+      points: {
+        type: 'number',
+        description: 'Discount points as a percent of principal',
+        default: 0,
+      },
+      pmi: {
+        type: 'object',
+        description: 'Private mortgage insurance configuration',
+        properties: {
+          enabled: { type: 'boolean', default: false },
+          rate: { type: 'number', description: 'Annual PMI rate', default: 0 },
+          dropOffLTV: {
+            type: 'number',
+            description: 'Loan-to-value threshold to drop PMI',
+            default: 0.8,
+          },
+          homeValue: {
+            type: 'number',
+            description: 'Current home value used for LTV calculations',
+          },
+        },
+        default: { enabled: false, rate: 0, dropOffLTV: 0.8 },
+      },
     },
     required: ['principal', 'annualRate', 'termMonths'],
   };
 
-  static execute(input: unknown): Promise<AmortizationAnalysisResult> {
-    const validated = AmortizationToolInputSchema.parse(input);
-    return Promise.resolve(AmortizationAnalyzer.analyze(validated));
+  static execute(input: unknown): Promise<AmortizationToolResponse> {
+    const validated = AmortizationInputSchema.parse(input);
+    const result = AmortizationAnalyzer.analyze(validated);
+    const insights = computeAmortizationInsights(result);
+    return Promise.resolve({ ...result, insights });
   }
 }

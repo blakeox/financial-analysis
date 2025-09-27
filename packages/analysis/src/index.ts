@@ -1,11 +1,16 @@
 // Financial Analysis Engines
 export { LeaseAnalyzer } from './engines/lease';
-export { AmortizationAnalyzer } from './engines/amortization';
+export { AmortizationAnalyzer, computeAmortizationInsights } from './engines/amortization';
 export { EbitdaForecaster } from './engines/ebitda-forecasting';
 
 // Types
 export type { LeaseAnalysisResult } from './engines/lease';
-export type { AmortizationAnalysisResult } from './engines/amortization';
+export type {
+  AmortizationAnalysisResult,
+  AmortizationInsights,
+  AmortizationMilestone,
+  AmortizationMilestoneId,
+} from './engines/amortization';
 export type { 
   EbitdaForecastResult, 
   MonthlyForecast,

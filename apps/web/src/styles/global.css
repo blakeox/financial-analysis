@@ -1,15 +1,7 @@
 @import 'tailwindcss';
 
-/* Configure Tailwind v4 dark mode */
-@variant dark (&.dark);
-
-/* Tell Tailwind where to scan for class usage (v4) */
-@source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
-/* From apps/web/src/styles -> to repo root packages/ui/src: ../../../../packages/ui/src */
-@source "../../../../packages/ui/src/**/*.{js,jsx,ts,tsx}";
-
 /* Theme tokens for Tailwind v4 */
-@theme {
+:root {
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -80,21 +72,6 @@
     background: var(--color-gray-900);
   }
 
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .overflow-hidden {
-    overflow: hidden !important;
-  }
 }
 
 /* Custom component styles */
@@ -285,43 +262,6 @@
 
   .dark #site-nav ::selection {
     background: rgba(96, 165, 250, 0.45);
-  }
-}
-
-/* Custom utility styles */
-@layer utilities {
-  .z-60 {
-    z-index: 60;
-  }
-  .z-70 {
-    z-index: 70;
-  }
-  .z-80 {
-    z-index: 80;
-  }
-  .z-90 {
-    z-index: 90;
-  }
-  .z-100 {
-    z-index: 100;
-  }
-  .will-change-transform {
-    will-change: transform;
-  }
-  .will-change-transform-opacity {
-    will-change: transform, opacity;
-  }
-  .gpu {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-
-  /* Safe area helpers for notched devices */
-  .safe-bottom {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
-  }
-  .safe-right {
-    right: calc(env(safe-area-inset-right, 0px) + 1rem);
   }
 
   @media (max-width: 767.98px) {

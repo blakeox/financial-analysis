@@ -5,6 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "development"
+# Dev-only: where the API worker listens when using scripts/dev-all.mjs
+API_DEV_ORIGIN = "http://127.0.0.1:8787"
 
 [assets]
 directory = "../../apps/web/dist"
@@ -24,8 +26,14 @@ host = "localhost"
 [env.preview]
 [env.preview.vars]
 ENVIRONMENT = "preview"
+API_ORIGIN = "https://financial-analysis-api-preview.blakeoxford.workers.dev"
 
 # Production environment
 [env.production]
 [env.production.vars]
 ENVIRONMENT = "production"
+API_ORIGIN = "https://financial-analysis-api-production.blakeoxford.workers.dev"
+
+[[env.production.routes]]
+pattern = "fanalyx.com/*"
+zone_id = "8b74875a9a9edb1d7572c9d41e9e2016"

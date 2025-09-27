@@ -2,12 +2,16 @@ export interface Env {
   ASSETS: Fetcher;
   ENVIRONMENT: string;
   COMMIT_SHA?: string;
+  // Dev-only: base origin for the local API worker (e.g., http://localhost:8787)
+  API_DEV_ORIGIN?: string;
+  // Optional: explicit API origin for non-development environments
+  API_ORIGIN?: string;
 }
 
 const corsHeaders = {
   // Static assets are generally safe to allow broadly; tighten if needed
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, HEAD, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
@@ -53,6 +57,55 @@ export default {
 
     // Serve static assets built by Astro from apps/web/dist
     const url = new URL(request.url);
+
+    // Dev-only proxy: forward API routes to the local API worker to avoid 404/405 from ASSETS.
+    // This keeps the web worker origin as the single frontend origin while ensuring API is reachable in dev.
+    const isDev = env.ENVIRONMENT === 'development';
+    const pathname = url.pathname;
+    const isApiPath =
+      pathname === '/openapi.json' ||
+      pathname === '/docs' ||
+      pathname === '/mcp' ||
+      pathname.startsWith('/v1/');
+    const apiOrigin = (() => {
+      if (isApiPath) {
+        if (isDev && env.API_DEV_ORIGIN) {
+          return env.API_DEV_ORIGIN;
+        }
+        if (!isDev && env.API_ORIGIN) {
+          return env.API_ORIGIN;
+        }
+      }
+      return undefined;
+    })();
+
+    if (isApiPath && apiOrigin) {
+      const base = apiOrigin.replace(/\/$/, '');
+      const forwardUrl = `${base}${pathname}${url.search}`;
+      const apiReq = new Request(forwardUrl, request);
+      const apiRes = await fetch(apiReq);
+      const headers = new Headers(apiRes.headers);
+      headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      headers.set('Access-Control-Allow-Origin', '*');
+      headers.set('X-Web-Proxy', isDev ? 'dev' : 'edge');
+      for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
+        headers.set(key, value);
+      }
+      return new Response(apiRes.body, { status: apiRes.status, headers });
+    }
+
+    if (isApiPath && !apiOrigin) {
+      return new Response(
+        JSON.stringify({ error: 'API origin not configured for this environment' }),
+        {
+          status: 502,
+          headers: {
+            ...defaults,
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        }
+      );
+    }
 
     // Special route: version info for web worker
     if (url.pathname === '/version') {
