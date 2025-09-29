@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ChatPanel from '../components/ChatPanel.astro';
 ---
 
 <Layout title="Lease Analysis" description="Analyze lease agreements with precision financial calculations" canonical={Astro.url.href}>
@@ -279,4 +280,7 @@ import Layout from '../layouts/Layout.astro';
       });
     });
   </script>
+  
+  <!-- VS Code-style contextual chat panel -->
+  <ChatPanel />
 </Layout>

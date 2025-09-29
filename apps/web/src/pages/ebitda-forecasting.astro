@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { EbitdaDashboard } from '../components/EbitdaDashboard';
+import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
+import ChatPanel from '../components/ChatPanel.astro';
 ---
 
 <Layout title="EBITDA Forecasting" description="Generate EBITDA forecasts for service industry scenario planning with employee and expense modeling" canonical={Astro.url.href}>
@@ -45,4 +46,7 @@ import { EbitdaDashboard } from '../components/EbitdaDashboard';
       </div>
     </div>
   </div>
+  
+  <!-- VS Code-style contextual chat panel -->
+  <ChatPanel />
 </Layout>

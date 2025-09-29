@@ -667,3 +667,6 @@ export function EbitdaDashboard() {
     </div>
   );
 }
+
+// Default export for Astro compatibility
+export default EbitdaDashboard;
