@@ -46,12 +46,29 @@ type ChatRequest = {
   tools?: Array<{ name: string; description?: string; input_schema?: unknown }>;
   // Optional server-side MCP tool invocation (bypasses model)
   tool_call?: { name: string; arguments: unknown };
+  stream?: boolean;
 };
+
+type ThinkingStep = {
+  step: number;
+  thought: string;
+  action?: string;
+  parameters?: Record<string, unknown>;
+};
+
+type ModelChange = {
+  type: 'lease' | 'amortization' | 'ebitda';
+  parameters: Record<string, unknown>;
+  result: Record<string, unknown>;
+  timestamp: number;
+};
+
 type ChatResponse = {
   role: 'assistant';
   content: string;
   model?: string;
-  usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  thinking?: ThinkingStep[];
+  model_changes?: ModelChange[];
 };
 
 // Rate limiting now lives in ./lib/rate-limit
@@ -268,6 +285,347 @@ router.options('/docs', (_req: Request, env: Env) => {
   headers.set('Allow', 'GET, OPTIONS');
   return new Response(null, { headers });
 });
+
+// ---- Enhanced AI Chat endpoint with thinking process ----
+router.post(
+  '/v1/chat/enhanced',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: { message: 'Content-Type must be application/json', code: 'INVALID_CONTENT_TYPE' },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const body = (await request.json().catch(() => null)) as ChatRequest | null;
+    if (!body || !Array.isArray(body.messages) || body.messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: { message: 'messages[] required', code: 'BAD_REQUEST' } }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const userMessage = body.messages[body.messages.length - 1];
+    if (!userMessage || userMessage.role !== 'user') {
+      return new Response(
+        JSON.stringify({ error: { message: 'Last message must be from user', code: 'BAD_REQUEST' } }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const thinking: ThinkingStep[] = [];
+    const modelChanges: ModelChange[] = [];
+    let responseContent = '';
+
+    // Step 1: Analyze the user request
+    thinking.push({
+      step: 1,
+      thought: `Analyzing user request: "${userMessage.content}"`,
+      action: 'Parsing financial modeling request'
+    });
+
+    const content = userMessage.content.toLowerCase();
+    let detectedAnalysis: 'lease' | 'amortization' | 'ebitda' | null = null;
+
+    // Step 2: Detect analysis type
+    if (content.includes('lease')) {
+      detectedAnalysis = 'lease';
+      thinking.push({
+        step: 2,
+        thought: 'Detected lease analysis request - user wants equipment/asset lease calculations',
+        action: 'Preparing lease analysis parameters'
+      });
+    } else if (content.includes('mortgage') || content.includes('loan') || content.includes('amortization')) {
+      detectedAnalysis = 'amortization';
+      thinking.push({
+        step: 2,
+        thought: 'Detected loan/mortgage request - user wants amortization schedule',
+        action: 'Preparing amortization parameters'
+      });
+    } else if (content.includes('ebitda') || content.includes('forecast') || content.includes('business')) {
+      detectedAnalysis = 'ebitda';
+      thinking.push({
+        step: 2,
+        thought: 'Detected business forecasting request - user wants EBITDA analysis',
+        action: 'Preparing EBITDA forecast parameters'
+      });
+    } else {
+      thinking.push({
+        step: 2,
+        thought: 'Could not detect specific financial analysis type',
+        action: 'Providing general guidance'
+      });
+      responseContent = `🤖 I can help you with financial modeling! I specialize in:
+
+🏗️ **Lease Analysis** - Equipment and asset lease calculations
+🏦 **Loan/Mortgage Analysis** - Amortization schedules and payment calculations  
+📈 **EBITDA Forecasting** - Business performance and cash flow modeling
+
+Try asking something like:
+• "Analyze a $100,000 equipment lease"
+• "Calculate mortgage payments for $300,000"
+• "Forecast EBITDA with 10% growth"
+
+What would you like to analyze?`;
+    }
+
+    if (detectedAnalysis) {
+      // Step 3: Extract parameters and perform analysis
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let parameters: any;
+      
+      if (detectedAnalysis === 'lease') {
+        // Extract amount from message
+        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)[k]?/i);
+        const principal = amountMatch ? 
+          parseInt(amountMatch[1].replace(/,/g, '')) * (amountMatch[0].toLowerCase().includes('k') ? 1000 : 1) : 
+          100000;
+        
+        parameters = {
+          principal,
+          annualRate: 0.05, // 5% default
+          termMonths: 36 // 3 years default
+        };
+
+        thinking.push({
+          step: 3,
+          thought: `Extracted lease parameters - Principal: $${principal.toLocaleString()}, Rate: 5%, Term: 36 months`,
+          action: 'Executing lease analysis calculation',
+          parameters
+        });
+
+        try {
+          const parseResult = FinancialInputSchema.safeParse(parameters);
+          if (parseResult.success) {
+            const result = LeaseAnalyzer.analyze(parseResult.data);
+            
+            modelChanges.push({
+              type: 'lease',
+              parameters,
+              result,
+              timestamp: Date.now()
+            });
+
+            thinking.push({
+              step: 4,
+              thought: 'Successfully calculated lease analysis with monthly payments and total costs',
+              action: 'Formatting results for user'
+            });
+
+            responseContent = `✅ **Lease Analysis Complete!**
+
+🏗️ **Equipment Lease Results:**
+💰 **Monthly Payment:** $${result.monthlyPayment.toLocaleString()}
+📊 **Total Cost:** $${result.totalCost.toLocaleString()}
+💸 **Total Interest:** $${result.totalInterest.toLocaleString()}
+
+📋 **Analysis Summary:**
+• Principal Amount: $${parameters.principal.toLocaleString()}
+• Annual Interest Rate: ${(parameters.annualRate * 100).toFixed(1)}%
+• Lease Term: ${parameters.termMonths} months (${Math.round(parameters.termMonths / 12)} years)
+
+The model has been updated in the live dashboard! 🚀`;
+          } else {
+            throw new Error('Invalid lease parameters');
+          }
+        } catch (error) {
+          thinking.push({
+            step: 4,
+            thought: `Error in lease calculation: ${error}`,
+            action: 'Handling error gracefully'
+          });
+          responseContent = `❌ Error calculating lease analysis: ${error}`;
+        }
+
+      } else if (detectedAnalysis === 'amortization') {
+        // Extract amount from message
+        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)[k]?/i);
+        const principal = amountMatch ? 
+          parseInt(amountMatch[1].replace(/,/g, '')) * (amountMatch[0].toLowerCase().includes('k') ? 1000 : 1) : 
+          300000;
+        
+        // Detect if it's a mortgage (longer term) or regular loan
+        const isMortgage = content.includes('mortgage') || content.includes('home') || content.includes('house');
+        
+        parameters = {
+          principal,
+          annualRate: isMortgage ? 0.065 : 0.08, // 6.5% for mortgage, 8% for loan
+          termMonths: isMortgage ? 360 : 60 // 30 years vs 5 years
+        };
+
+        thinking.push({
+          step: 3,
+          thought: `Extracted ${isMortgage ? 'mortgage' : 'loan'} parameters - Principal: $${principal.toLocaleString()}, Rate: ${(parameters.annualRate * 100).toFixed(1)}%, Term: ${parameters.termMonths} months`,
+          action: 'Executing amortization calculation',
+          parameters
+        });
+
+        try {
+          const parseResult = AmortizationInputSchema.safeParse(parameters);
+          if (parseResult.success) {
+            const result = AmortizationAnalyzer.analyze(parseResult.data);
+            
+            modelChanges.push({
+              type: 'amortization',
+              parameters,
+              result,
+              timestamp: Date.now()
+            });
+
+            thinking.push({
+              step: 4,
+              thought: 'Successfully calculated amortization schedule with payment breakdown',
+              action: 'Formatting results for user'
+            });
+
+            responseContent = `✅ **${isMortgage ? 'Mortgage' : 'Loan'} Analysis Complete!**
+
+🏦 **Amortization Results:**
+💰 **Monthly Payment:** $${result.monthlyPayment.toLocaleString()}
+💸 **Total Interest:** $${result.totalInterest.toLocaleString()}
+📊 **Total Amount Paid:** $${(result.monthlyPayment * parameters.termMonths).toLocaleString()}
+
+📋 **Analysis Summary:**
+• Principal Amount: $${parameters.principal.toLocaleString()}
+• Annual Interest Rate: ${(parameters.annualRate * 100).toFixed(1)}%
+• Loan Term: ${parameters.termMonths} months (${Math.round(parameters.termMonths / 12)} years)
+• Interest-to-Principal Ratio: ${((result.totalInterest / parameters.principal) * 100).toFixed(1)}%
+
+The amortization schedule has been loaded in the dashboard! 📈`;
+          } else {
+            throw new Error('Invalid amortization parameters');
+          }
+        } catch (error) {
+          thinking.push({
+            step: 4,
+            thought: `Error in amortization calculation: ${error}`,
+            action: 'Handling error gracefully'
+          });
+          responseContent = `❌ Error calculating amortization: ${error}`;
+        }
+
+      } else if (detectedAnalysis === 'ebitda') {
+        // Extract growth rate if mentioned
+        const growthMatch = userMessage.content.match(/(\d+(?:\.\d+)?)%?\s*growth/i);
+        const revenueGrowthRate = growthMatch && growthMatch[1] ? parseFloat(growthMatch[1]) / 100 : 0.02; // Default 2%
+
+        parameters = {
+          name: 'AI Generated Business Forecast',
+          description: `Generated from user request: "${userMessage.content}"`,
+          forecastPeriodMonths: 12,
+          currentMonthlyFinancials: [{
+            month: 12,
+            year: 2024,
+            revenue: 100000,
+            costOfGoodsSold: 30000,
+            operatingExpenses: 40000,
+            depreciation: 2000,
+            amortization: 500,
+            interestExpense: 1000,
+            taxes: 5000
+          }],
+          currentEmployees: [{
+            id: 'manager',
+            name: 'Business Manager',
+            role: 'Manager',
+            department: 'Operations',
+            billableHoursPerMonth: 160,
+            hourlyRate: 50,
+            salary: 80000,
+            benefits: 16000,
+            startDate: '2024-01-01T00:00:00.000Z',
+            isActive: true
+          }],
+          newEmployees: [],
+          revenueGrowthRate,
+          billableHoursGrowthRate: 0.01,
+          additionalExpenses: [],
+          operatingExpenseGrowthRate: 0.01,
+          inflationRate: 0.003,
+          economicFactors: {
+            marketGrowth: 0.02,
+            competitionFactor: 0.95,
+            seasonalityFactors: [1.0, 1.05, 1.1, 1.15, 1.2, 1.1, 1.0, 0.95, 1.0, 1.05, 1.1, 1.0]
+          }
+        };
+
+        thinking.push({
+          step: 3,
+          thought: `Setting up EBITDA forecast with ${(revenueGrowthRate * 100).toFixed(1)}% monthly revenue growth`,
+          action: 'Executing business performance forecast',
+          parameters: { revenueGrowthRate, forecastMonths: 12, startingRevenue: 100000 }
+        });
+
+        try {
+          const parseResult = ScenarioInputSchema.safeParse(parameters);
+          if (parseResult.success) {
+            const result = EbitdaForecaster.forecast(parseResult.data);
+            
+            modelChanges.push({
+              type: 'ebitda',
+              parameters: { revenueGrowthRate, forecastMonths: 12 },
+              result,
+              timestamp: Date.now()
+            });
+
+            thinking.push({
+              step: 4,
+              thought: 'Successfully generated 12-month EBITDA forecast with growth projections',
+              action: 'Formatting business insights for user'
+            });
+
+            const avgMonthlyEbitda = result.summary.totalEbitda / result.forecast.length;
+            const revenueGrowth = ((result.summary.revenueGrowth || 0) * 100).toFixed(1);
+
+            responseContent = `✅ **EBITDA Forecast Complete!**
+
+📈 **Business Performance Results:**
+💰 **Total EBITDA (12 months):** $${result.summary.totalEbitda.toLocaleString()}
+📊 **Average Monthly EBITDA:** $${avgMonthlyEbitda.toLocaleString()}
+🚀 **Revenue Growth:** ${revenueGrowth}%
+
+📋 **Forecast Summary:**
+• Starting Monthly Revenue: $100,000
+• Monthly Growth Rate: ${(revenueGrowthRate * 100).toFixed(1)}%
+• Forecast Period: 12 months
+• Employee Count: 1 manager
+• Market Competition Factor: 95% (competitive market)
+
+💡 **Business Insights:**
+${avgMonthlyEbitda > 0 ? '✅ Positive cash flow projected' : '⚠️ Negative cash flow - consider cost optimization'}
+${parseFloat(revenueGrowth) > 10 ? '🚀 Strong growth trajectory' : '📈 Steady growth expected'}
+
+The forecast model is now live in your dashboard! 📊`;
+          } else {
+            throw new Error('Invalid EBITDA parameters');
+          }
+        } catch (error) {
+          thinking.push({
+            step: 4,
+            thought: `Error in EBITDA calculation: ${error}`,
+            action: 'Handling error gracefully'
+          });
+          responseContent = `❌ Error calculating EBITDA forecast: ${error}`;
+        }
+      }
+    }
+
+    const reply: ChatResponse = {
+      role: 'assistant',
+      content: responseContent,
+      thinking,
+      model_changes: modelChanges
+    };
+
+    return new Response(JSON.stringify(reply), {
+      status: 200,
+      headers: buildDefaultHeaders(env),
+    });
+  })
+);
 
 // ---- Workers AI Chat endpoint ----
 router.post(
@@ -1354,6 +1712,137 @@ router.get(
     });
   })
 );
+
+// Simple contextual chat endpoint for VS Code-style chat panel
+router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, env: Env) => {
+  const requestId = crypto.randomUUID();
+  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
+  
+  try {
+    const body = await request.json() as { message: string; context?: string; currentModel?: any };
+    const { message, context = 'general', currentModel = {} } = body;
+    
+    if (!message?.trim()) {
+      return new Response(JSON.stringify({ error: 'Message is required' }), {
+        status: 400,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
+    // Context-aware response based on current model page
+    let contextualResponse = '';
+    let modelChanges = {};
+    let explanation = '';
+    
+    // Detect intent and extract parameters from user message
+    const lowerMessage = message.toLowerCase();
+    
+    if (context === 'lease') {
+      // Handle lease analysis modifications
+      if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
+        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        if (rateMatch) {
+          const newRate = parseFloat(rateMatch[1]);
+          modelChanges = { ...currentModel, interestRate: newRate };
+          contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
+          explanation = `**Analysis**: Changing the interest rate from ${currentModel.interestRate || 'current'}% to ${newRate}% will:\n• ${newRate > (currentModel.interestRate || 0) ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > (currentModel.interestRate || 0) ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
+        }
+      } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
+        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        if (amountMatch) {
+          const newAmount = parseFloat(amountMatch[1].replace(/,/g, ''));
+          modelChanges = { ...currentModel, leasePrincipal: newAmount };
+          contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
+          explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
+        }
+      } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
+        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        if (termMatch) {
+          const termValue = parseInt(termMatch[1]);
+          const termUnit = termMatch[2];
+          const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
+          modelChanges = { ...currentModel, leaseTerm: termInMonths };
+          contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
+          explanation = `**Analysis**: ${termInMonths > (currentModel.leaseTerm || 0) ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > (currentModel.leaseTerm || 0) ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
+        }
+      }
+    } else if (context === 'ebitda') {
+      // Handle EBITDA forecasting modifications
+      if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
+        const revenueMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        if (revenueMatch) {
+          const newRevenue = parseFloat(revenueMatch[1].replace(/,/g, ''));
+          modelChanges = { ...currentModel, initialRevenue: newRevenue };
+          contextualResponse = `I've updated the initial revenue to $${newRevenue.toLocaleString()}. This will impact your EBITDA projections across all forecast periods.`;
+          explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
+        }
+      } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
+        const growthMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        if (growthMatch) {
+          const newGrowth = parseFloat(growthMatch[1]);
+          modelChanges = { ...currentModel, revenueGrowthRate: newGrowth };
+          contextualResponse = `I've updated the revenue growth rate to ${newGrowth}% annually. This will compound over your forecast period.`;
+          explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > (currentModel.revenueGrowthRate || 0) ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
+        }
+      }
+    } else if (context === 'amortization') {
+      // Handle amortization modifications
+      if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
+        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        if (rateMatch) {
+          const newRate = parseFloat(rateMatch[1]);
+          modelChanges = { ...currentModel, interestRate: newRate };
+          contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
+          explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > (currentModel.interestRate || 0) ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
+        }
+      } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
+        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        if (amountMatch) {
+          const newAmount = parseFloat(amountMatch[1].replace(/,/g, ''));
+          modelChanges = { ...currentModel, loanAmount: newAmount };
+          contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
+          explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
+        }
+      }
+    }
+    
+    // If no specific changes detected, provide general assistance
+    if (Object.keys(modelChanges).length === 0) {
+      contextualResponse = `I understand you want to modify the ${context} model. Could you be more specific about what parameter you'd like to change? For example:\n\n• "Change interest rate to 5.5%"\n• "Increase loan amount to $250,000"\n• "Set term to 15 years"`;
+      explanation = `**Available Parameters**: I can help you modify interest rates, loan amounts, terms, growth rates, and other key financial variables. Just specify the value you'd like to use.`;
+    }
+    
+    const response = {
+      response: `${contextualResponse}\n\n${explanation}`,
+      modelChanges,
+      context,
+      thinking: [
+        `Analyzing ${context} model context...`,
+        `Extracting parameters from: "${message}"`,
+        `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
+        `Preparing response with actionable modifications...`
+      ]
+    };
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        ...buildDefaultHeaders(env),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Contextual chat error:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error',
+      response: 'I apologize, but I encountered an error processing your request. Please try again.'
+    }), {
+      status: 500,
+      headers: buildDefaultHeaders(env)
+    });
+  }
+}));
 
 // 404 handler
 router.all(
