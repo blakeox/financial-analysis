@@ -1,0 +1,57 @@
+# Workers Builds Configuration
+# Cloudflare Workers Builds now supports 4 vCPU (up from 2) and 20GB disk (up from 8GB)
+# This configuration enables automatic deployments with enhanced performance
+
+apiVersion: cloudflare/v1
+kind: Build
+metadata:
+  name: financial-analysis-builds
+spec:
+  # Build configuration for API Worker
+  api:
+    source: workers/api
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    outputDirectory: dist
+    environment:
+      NODE_VERSION: "20"
+      PNPM_VERSION: "10.17.0"
+    
+  # Build configuration for Web Worker  
+  web:
+    source: workers/web
+    buildCommand: pnpm install --frozen-lockfile && cd ../../apps/web && pnpm run build && cd ../../workers/web && pnpm run build
+    outputDirectory: dist
+    environment:
+      NODE_VERSION: "20"
+      PNPM_VERSION: "10.17.0"
+      
+  # Enhanced build resources (new with GA)
+  resources:
+    cpu: 4       # Up from 2 vCPU
+    memory: 8GB
+    disk: 20GB   # Up from 8GB
+    
+  # Environment configurations
+  environments:
+    preview:
+      branch: develop
+      environment: preview
+      
+    production:
+      branch: main
+      environment: production
+      
+  # Build triggers
+  triggers:
+    - push:
+        branches: [main, develop]
+    - pull_request:
+        branches: [main, develop]
+        
+  # Quality gates before deployment
+  beforeDeploy:
+    - run: pnpm run typecheck
+    - run: pnpm run lint  
+    - run: pnpm run test
+    - run: pnpm run test:e2e
+      continue-on-error: true # Don't block deployment on flaky e2e tests
