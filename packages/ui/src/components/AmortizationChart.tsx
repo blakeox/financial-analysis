@@ -221,16 +221,16 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
     if (viewMode !== 'yearly') return schedule;
     if (!schedule.length) return schedule;
     const lastMonth = schedule[schedule.length - 1]!.month;
-    return schedule.filter((item) => item.month === 1 || item.month === lastMonth || item.month % 12 === 0);
+    return schedule.filter((item: ScheduleItem) => item.month === 1 || item.month === lastMonth || item.month % 12 === 0);
   }, [schedule, viewMode]);
 
   // Map a real month number to the closest index in the view schedule
   const monthToViewIndex = useMemo(() => {
-    const months = viewSchedule.map((s) => s.month);
+    const months = viewSchedule.map((s: ScheduleItem) => s.month);
     return (month: number) => {
       if (!months.length) return 0;
       // Find the nearest index not exceeding the target month
-      let idx = months.findIndex((m) => m >= month);
+      let idx = months.findIndex((m: number) => m >= month);
       if (idx === -1) idx = months.length - 1;
       return clampIndex(idx, months.length - 1);
     };
@@ -363,7 +363,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
   const activeMonth = activeItem?.month ?? null;
 
   const handleMilestoneFocus = (month: number) => {
-    const index = viewSchedule.findIndex((item) => item.month === month);
+    const index = viewSchedule.findIndex((item: ScheduleItem) => item.month === month);
     if (index !== -1) {
       setHighlightIndex(index);
       setHoveredIndex(null);

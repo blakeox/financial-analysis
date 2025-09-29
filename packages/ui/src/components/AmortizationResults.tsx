@@ -57,7 +57,7 @@ export function AmortizationResults({
   }, [schedule]);
 
   const hasAdvancedFeatures = totalPMI > 0 || totalExtraPayments > 0 || result.totalPMI !== undefined || result.interestSaved !== undefined;
-  const hasPaymentDates = schedule.some(item => item.date);
+  const hasPaymentDates = schedule.some((item: ScheduleItem) => item.date);
 
   return (
     <div className={cn('space-y-8', className)} {...props}>
