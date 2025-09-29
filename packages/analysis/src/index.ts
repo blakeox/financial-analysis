@@ -1,48 +1,17 @@
-// Financial Analysis Engines
-export { LeaseAnalyzer } from './engines/lease';
-export { AmortizationAnalyzer, computeAmortizationInsights } from './engines/amortization';
-export { EbitdaForecaster } from './engines/ebitda-forecasting';
+export { LeaseAnalyzer } from "./engines/lease.js";
+export { AmortizationAnalyzer } from "./engines/amortization.js"; 
+export { EbitdaForecaster } from "./engines/ebitda-forecasting.js";
 
-// Types
-export type { LeaseAnalysisResult } from './engines/lease';
-export type {
-  AmortizationAnalysisResult,
-  AmortizationInsights,
-  AmortizationMilestone,
-  AmortizationMilestoneId,
-} from './engines/amortization';
-export type { 
-  EbitdaForecastResult, 
-  MonthlyForecast,
-  MonthlyFinancials,
-  Employee,
-  ExpenseType,
-  ScenarioInput
-} from './engines/ebitda-forecasting';
-export { AmortizationInputSchema } from './engines/amortization';
-export { 
-  MonthlyFinancialsSchema,
-  EmployeeSchema,
-  ExpenseTypeSchema,
-  ScenarioInputSchema
-} from './engines/ebitda-forecasting';
+// Export amortization functions and types
+export { computeAmortizationInsights } from "./engines/amortization.js";
+export type { AmortizationInsights } from "./engines/amortization.js";
 
-// Utilities (placeholder - to be implemented)
-import { z } from 'zod';
-// Re-export the Zod instance so downstream packages (API/UI) can share the same instance
-// This ensures extensions like zod-to-openapi apply consistently across schemas.
-export { z } from 'zod';
+// Export zod from our dependency for API usage
+export { z } from "zod";
 
-export const FinancialInputSchema = z.object({
-  principal: z.number().positive(),
-  annualRate: z.number().min(0).max(1),
-  termMonths: z.number().positive().int(),
-  residualValue: z.number().min(0).default(0),
-});
-
-export type FinancialInput = z.infer<typeof FinancialInputSchema>;
-
-export function validateFinancialInput(input: unknown): input is FinancialInput {
-  const result = FinancialInputSchema.safeParse(input);
-  return result.success;
-}
+// Export schemas and types for API usage
+export { FinancialInputSchema, AmortizationInputSchema, ScenarioInputSchema } from "./schemas.js";
+export type { FinancialInput, AmortizationInput, ScenarioInput } from "./schemas.js";
+export type { LeaseAnalysisResult } from "./engines/lease.js";
+export type { AmortizationAnalysisResult } from "./engines/amortization.js";
+export type { EbitdaForecastResult } from "./engines/ebitda-forecasting.js";
