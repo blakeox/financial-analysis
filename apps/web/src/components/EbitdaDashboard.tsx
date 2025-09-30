@@ -15,7 +15,7 @@ import {
   type MonthlyFinancialsData,
   type ScenarioConfigData,
 } from '@financial-analysis/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type DashboardScenarioConfig = ScenarioConfigData & {
   scenarioName: string;
@@ -89,28 +89,13 @@ const initialState: DashboardState = {
   isLoading: false,
   results: null,
   error: null,
-  isHydrated: false,
+  isHydrated: true, // Set to true since we use client:only="react" directive
 };
 
 export function EbitdaDashboard() {
   const [state, setState] = useState<DashboardState>(initialState);
 
-  // Handle client-side hydration
-  useEffect(() => {
-    setState((prev) => ({ ...prev, isHydrated: true }));
-  }, []);
-
-  // Show loading state during hydration
-  if (!state.isHydrated) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading EBITDA Dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // No hydration check needed with client:only="react" directive
 
   const updateFinancials = useCallback((financials: MonthlyFinancialsData) => {
     setState((prev) => ({ ...prev, financials, results: null, error: null }));
