@@ -116,11 +116,11 @@ export function ChatPanel({
         aria-label="Open chat assistant"
         data-hydrated={hydrated ? 'true' : 'false'}
         data-z-fallback="80"
-        className="fixed z-100 safe-bottom safe-right inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
+        className="fixed bottom-6 right-6 z-100 inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-6 w-6"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -128,7 +128,6 @@ export function ChatPanel({
         >
           <path d="M21 15a4 4 0 01-4 4H7l-4 4V7a4 4 0 014-4h10a4 4 0 014 4v8z" />
         </svg>
-        <span className="hidden sm:block">Chat</span>
       </button>
 
       {/* Scrim + Panel */}
