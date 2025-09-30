@@ -15,18 +15,31 @@ test.describe('Site basic routes', () => {
     await expect(page).toHaveTitle(/Financial Models/i);
     await expect(page.locator('h1')).toContainText(/Financial Models/i);
     // Check for at least two model cards
-  const cards = page.locator('main .grid > *');
-  await expect(await cards.count()).toBeGreaterThan(1);
+    const cards = page.locator('main .grid > *');
+    await expect(await cards.count()).toBeGreaterThan(1);
 
-  // CTAs exist (choose a single element to satisfy strict mode)
-  await expect(page.locator('a[href^="/analysis"]').first()).toBeVisible();
-  await expect(page.locator('a[href^="/amortization"]').first()).toBeVisible();
+    // CTAs exist (choose a single element to satisfy strict mode)
+    await expect(page.locator('a[href^="/analysis"]').first()).toBeVisible();
+    await expect(page.locator('a[href^="/amortization"]').first()).toBeVisible();
+
+    // Verify EBITDA Forecasting model card is present and accessible
+    await expect(page.locator('a[href="/ebitda-forecasting"]')).toBeVisible();
+    await expect(page.locator('div[data-model="EBITDA Forecasting"]')).toContainText(
+      /EBITDA Forecasting/i
+    );
   });
 
   test('analysis page form present', async ({ page }) => {
     await page.goto('/analysis');
     await expect(page.locator('#analysis-form')).toBeVisible();
     await expect(page.locator('#analyze-btn')).toBeVisible();
+  });
+
+  test('ebitda-forecasting page loads with dashboard', async ({ page }) => {
+    await page.goto('/ebitda-forecasting');
+    await expect(page).toHaveTitle(/EBITDA Forecasting/i);
+    await expect(page.locator('h1')).toContainText(/EBITDA Forecasting/i);
+    await expect(page.locator('main')).toBeVisible();
   });
 
   test('status page returns content', async ({ page }) => {
