@@ -12,7 +12,13 @@ export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
 export { ChatPanel } from './components/ChatPanel';
+export { VSCodeChatPanel } from './components/VSCodeChatPanel';
+export type { ChatMessage } from './components/VSCodeChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
+
+// Amortization Components
+export { AmortizationResults } from './components/AmortizationResults';
+export type { AmortizationResultsProps } from './components/AmortizationResults';
 
 // EBITDA Forecasting Components
 export { FinancialsInputForm } from './components/FinancialsInputForm';
@@ -25,6 +31,9 @@ export { ForecastResults } from './components/ForecastResults';
 export type { MonthlyForecast, ForecastSummary, EbitdaForecastResult, ForecastResultsProps } from './components/ForecastResults';
 export { ScenarioConfig } from './components/ScenarioConfig';
 export type { ScenarioConfigData, ScenarioConfigProps } from './components/ScenarioConfig';
+
+// Chart Components
+export * from './components/charts';
 
 // Utilities
 export { cn } from './lib/utils';
