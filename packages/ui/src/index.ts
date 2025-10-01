@@ -31,6 +31,9 @@ export { ForecastResults } from './components/ForecastResults';
 export type { MonthlyForecast, ForecastSummary, EbitdaForecastResult, ForecastResultsProps } from './components/ForecastResults';
 export { ScenarioConfig } from './components/ScenarioConfig';
 export type { ScenarioConfigData, ScenarioConfigProps } from './components/ScenarioConfig';
+export { ModuleSelector, AVAILABLE_MODULES } from './components/ModuleSelector';
+export type { ModuleType, ModuleDefinition } from './components/ModuleSelector';
+export { ModuleCard } from './components/ModuleCard';
 
 // Chart Components
 export * from './components/charts';
