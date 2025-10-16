@@ -26,4 +26,11 @@ describe('OpenAPI document', () => {
     expect(doc.paths).toBeDefined();
     expect(Object.keys(doc.paths ?? {})).toContain('/v1/api/analysis/amortization');
   });
+
+  it('includes EBITDA forecast analysis path', () => {
+    const baseUrl = 'https://example.workers.dev';
+    const doc = getOpenApiDocument(baseUrl);
+    expect(doc.paths).toBeDefined();
+    expect(Object.keys(doc.paths ?? {})).toContain('/v1/api/analysis/ebitda-forecast');
+  });
 });

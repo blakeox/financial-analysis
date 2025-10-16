@@ -6,7 +6,7 @@ test.describe('Site basic routes', () => {
   test('home page loads with title and header', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Financial Analysis/i);
-    await expect(page.locator('#site-nav')).toContainText(/Financial Analysis/i);
+    await expect(page.locator('#site-nav')).toContainText(/Financial Studio/i);
     await expect(page.locator('main')).toBeVisible();
   });
 

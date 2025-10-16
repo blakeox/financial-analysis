@@ -2,19 +2,27 @@
 // VS Code-style chat panel component for contextual model assistance
 ---
 
-<div id="chat-panel" class="chat-panel hidden">
+<div
+  id="chat-panel"
+  class="chat-panel hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="chat-panel-title"
+  aria-hidden="true"
+>
   <div class="chat-header">
-    <div class="chat-title">
+    <div class="chat-title" id="chat-panel-title">
       <svg width="16" height="16" viewBox="0 0 16 16" class="chat-icon">
         <path fill="currentColor" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7 6v5h2V6H7zm0-3v1h2V3H7z"/>
       </svg>
       <span>AI Assistant</span>
       <span class="context-indicator" id="context-indicator"></span>
     </div>
-    <button id="chat-close" class="chat-close">
+    <button id="chat-close" class="chat-close" type="button" aria-label="Close chat panel">
       <svg width="16" height="16" viewBox="0 0 16 16">
         <path fill="currentColor" d="m8.746 8 3.1-3.1a.527.527 0 1 0-.746-.746L8 7.254l-3.1-3.1a.527.527 0 1 0-.746.746l3.1 3.1-3.1 3.1a.527.527 0 1 0 .746.746l3.1-3.1 3.1 3.1a.527.527 0 1 0 .746-.746L8.746 8Z"/>
       </svg>
+      <span class="sr-only">Close chat</span>
     </button>
   </div>
   
@@ -44,23 +52,54 @@
           placeholder="Ask about the current model..."
           rows="1"
         ></textarea>
-        <button id="chat-send" class="chat-send" disabled>
+        <button
+          id="chat-send"
+          class="chat-send"
+          type="button"
+          disabled
+          aria-label="Send chat message"
+        >
           <svg width="16" height="16" viewBox="0 0 16 16">
             <path fill="currentColor" d="M2.5 2v4.5L9 8 2.5 9.5V14l11-6-11-6z"/>
           </svg>
+          <span class="sr-only">Send</span>
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<button id="chat-toggle" class="chat-toggle" title="Open AI Assistant">
-  <svg width="20" height="20" viewBox="0 0 16 16">
-    <path fill="currentColor" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7 6v5h2V6H7zm0-3v1h2V3H7z"/>
+<button
+  id="chat-toggle"
+  class="chat-toggle"
+  type="button"
+  title="Open AI Assistant"
+  aria-label="Open AI assistant"
+  aria-controls="chat-panel"
+  aria-expanded="false"
+>
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path
+      fill="currentColor"
+      d="M5 4c-1.657 0-3 1.343-3 3v6c0 1.657 1.343 3 3 3h2.382a1 1 0 01.707.293l2.828 2.828A1 1 0 0012 18.828V17h7c1.657 0 3-1.343 3-3V7c0-1.657-1.343-3-3-3H5zm0 2h14a1 1 0 011 1v7a1 1 0 01-1 1H11a1 1 0 00-1 1v1.586l-1.414-1.414A1 1 0 008.172 14H5a1 1 0 01-1-1V7a1 1 0 011-1zm2 3a1 1 0 000 2h8a1 1 0 000-2H7zm0 3a1 1 0 000 2h5a1 1 0 000-2H7z"
+    />
   </svg>
+  <span class="sr-only">Toggle AI assistant</span>
 </button>
 
 <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .chat-panel {
     position: fixed;
     top: 0;
@@ -298,8 +337,10 @@
   
   .chat-toggle {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: auto;
+    left: auto;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: calc(20px + env(safe-area-inset-right, 0px));
     background: var(--vscode-button-background, #007acc);
     color: var(--vscode-button-foreground, #ffffff);
     border: none;
@@ -321,7 +362,7 @@
   }
   
   .chat-toggle.panel-open {
-    right: 420px;
+    right: calc(20px + env(safe-area-inset-right, 0px));
   }
   
   /* Responsive adjustments */
@@ -331,8 +372,8 @@
     }
     
     .chat-toggle.panel-open {
-      right: 20px;
-      top: 80px;
+      right: calc(20px + env(safe-area-inset-right, 0px));
+      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     }
   }
   
@@ -355,211 +396,6 @@
   }
 </style>
 
-<script>
-  class ChatPanel {
-    constructor() {
-      this.panel = document.getElementById('chat-panel');
-      this.toggle = document.getElementById('chat-toggle');
-      this.closeBtn = document.getElementById('chat-close');
-      this.input = document.getElementById('chat-input');
-      this.sendBtn = document.getElementById('chat-send');
-      this.messages = document.getElementById('chat-messages');
-      this.thinkingIndicator = document.getElementById('thinking-indicator');
-      this.contextIndicator = document.getElementById('context-indicator');
-      
-      this.isOpen = false;
-      this.currentContext = this.detectContext();
-      
-      this.bindEvents();
-      this.updateContextIndicator();
-    }
-    
-    detectContext() {
-      const path = window.location.pathname;
-      if (path.includes('/analysis')) return 'lease';
-      if (path.includes('/ebitda')) return 'ebitda';
-      if (path.includes('/amortization')) return 'amortization';
-      return 'general';
-    }
-    
-    updateContextIndicator() {
-      const contexts = {
-        lease: 'Lease Analysis',
-        ebitda: 'EBITDA Forecasting',
-        amortization: 'Amortization',
-        general: 'General'
-      };
-      this.contextIndicator.textContent = contexts[this.currentContext] || 'General';
-    }
-    
-    bindEvents() {
-      this.toggle.addEventListener('click', () => this.togglePanel());
-      this.closeBtn.addEventListener('click', () => this.closePanel());
-      this.sendBtn.addEventListener('click', () => this.sendMessage());
-      
-      this.input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          this.sendMessage();
-        }
-      });
-      
-      this.input.addEventListener('input', () => {
-        this.sendBtn.disabled = !this.input.value.trim();
-        this.autoResizeInput();
-      });
-      
-      // Close panel when clicking outside
-      document.addEventListener('click', (e) => {
-        if (this.isOpen && !this.panel.contains(e.target) && !this.toggle.contains(e.target)) {
-          this.closePanel();
-        }
-      });
-    }
-    
-    autoResizeInput() {
-      this.input.style.height = 'auto';
-      this.input.style.height = Math.min(this.input.scrollHeight, 100) + 'px';
-    }
-    
-    togglePanel() {
-      if (this.isOpen) {
-        this.closePanel();
-      } else {
-        this.openPanel();
-      }
-    }
-    
-    openPanel() {
-      this.panel.classList.remove('hidden');
-      this.panel.classList.add('visible');
-      this.toggle.classList.add('panel-open');
-      this.isOpen = true;
-      
-      // Focus input after animation
-      setTimeout(() => this.input.focus(), 300);
-    }
-    
-    closePanel() {
-      this.panel.classList.remove('visible');
-      this.toggle.classList.remove('panel-open');
-      this.isOpen = false;
-    }
-    
-    addMessage(content, type = 'user') {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${type}`;
-      
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'message-content';
-      contentDiv.innerHTML = content;
-      
-      messageDiv.appendChild(contentDiv);
-      this.messages.appendChild(messageDiv);
-      
-      // Scroll to bottom
-      this.messages.scrollTop = this.messages.scrollHeight;
-    }
-    
-    showThinking() {
-      this.thinkingIndicator.classList.remove('hidden');
-    }
-    
-    hideThinking() {
-      this.thinkingIndicator.classList.add('hidden');
-    }
-    
-    async sendMessage() {
-      const message = this.input.value.trim();
-      if (!message) return;
-      
-      // Add user message
-      this.addMessage(message, 'user');
-      this.input.value = '';
-      this.sendBtn.disabled = true;
-      this.autoResizeInput();
-      
-      // Show thinking indicator
-      this.showThinking();
-      
-      try {
-        // Get current model state for context
-        const currentModel = this.getCurrentModelState();
-        
-        // Send to enhanced chat endpoint
-        const response = await fetch('/api/v1/chat/enhanced', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message,
-            context: this.currentContext,
-            currentModel
-          }),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Hide thinking indicator
-        this.hideThinking();
-        
-        // Add AI response
-        this.addMessage(data.response, 'assistant');
-        
-        // Apply model changes if any
-        if (data.modelChanges) {
-          this.applyModelChanges(data.modelChanges);
-        }
-        
-      } catch (error) {
-        this.hideThinking();
-        this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
-        console.error('Chat error:', error);
-      }
-    }
-    
-    getCurrentModelState() {
-      // Extract current model parameters from the page
-      const formData = {};
-      
-      // Get all form inputs on the page
-      document.querySelectorAll('input, select, textarea').forEach(input => {
-        if (input.name && input.value) {
-          formData[input.name] = input.value;
-        }
-      });
-      
-      return formData;
-    }
-    
-    applyModelChanges(changes) {
-      // Apply changes to form inputs and trigger updates
-      Object.entries(changes).forEach(([field, value]) => {
-        const input = document.querySelector(`[name="${field}"]`);
-        if (input) {
-          input.value = value;
-          
-          // Trigger change event to update calculations
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      });
-      
-      // Trigger form submission if there's an analyze button
-      const analyzeBtn = document.querySelector('button[type="submit"], .analyze-btn, #analyze');
-      if (analyzeBtn) {
-        analyzeBtn.click();
-      }
-    }
-  }
-  
-  // Initialize chat panel when DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
-    new ChatPanel();
-  });
+<script type="module" is:inline>
+  import '../scripts/chat-panel.ts';
 </script>

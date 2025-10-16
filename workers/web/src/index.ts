@@ -67,42 +67,29 @@ export default {
       pathname === '/docs' ||
       pathname === '/mcp' ||
       pathname.startsWith('/v1/');
-    const apiOrigin = (() => {
-      if (isApiPath) {
-        if (isDev && env.API_DEV_ORIGIN) {
-          return env.API_DEV_ORIGIN;
-        }
-        if (!isDev && env.API_ORIGIN) {
-          return env.API_ORIGIN;
-        }
-      }
-      return undefined;
-    })();
-
-    if (isApiPath && apiOrigin) {
-      const base = apiOrigin.replace(/\/$/, '');
+    // Development proxy path: forward only in dev when API_DEV_ORIGIN is configured
+    if (isDev && isApiPath && env.API_DEV_ORIGIN) {
+      const base = env.API_DEV_ORIGIN.replace(/\/$/, '');
       const forwardUrl = `${base}${pathname}${url.search}`;
       const apiReq = new Request(forwardUrl, request);
       const apiRes = await fetch(apiReq);
       const headers = new Headers(apiRes.headers);
       headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       headers.set('Access-Control-Allow-Origin', '*');
-      headers.set('X-Web-Proxy', isDev ? 'dev' : 'edge');
+      headers.set('x-dev-proxy', 'web->api');
       for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
         headers.set(key, value);
       }
       return new Response(apiRes.body, { status: apiRes.status, headers });
     }
 
-    if (isApiPath && !apiOrigin) {
+    // In dev, if API path requested but no API_DEV_ORIGIN is configured, return helpful JSON
+    if (isDev && isApiPath && !env.API_DEV_ORIGIN) {
       return new Response(
-        JSON.stringify({ error: 'API origin not configured for this environment' }),
+        JSON.stringify({ error: 'API_DEV_ORIGIN not configured for development' }),
         {
           status: 502,
-          headers: {
-            ...defaults,
-            'Content-Type': 'application/json; charset=utf-8',
-          },
+          headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
         }
       );
     }
@@ -123,7 +110,7 @@ export default {
     }
 
     const rewritten = new Request(url.toString(), request);
-    const resp = await env.ASSETS.fetch(rewritten);
+  const resp = await env.ASSETS.fetch(rewritten);
 
     // Merge headers
     const headers = new Headers(resp.headers);

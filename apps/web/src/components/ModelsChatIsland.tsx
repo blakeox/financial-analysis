@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { VSCodeChatPanel, type ChatMessage } from '@financial-analysis/ui';
 
 interface ModelsChatIslandProps {

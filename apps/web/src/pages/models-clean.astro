@@ -34,7 +34,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'lease-analysis')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'lease-analysis')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'lease-analysis')}"
                aria-label="Select Lease Analysis model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -86,7 +86,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'loan-amortization')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'loan-amortization')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'loan-amortization')}"
                aria-label="Select Loan Amortization model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -138,7 +138,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'ebitda-forecasting')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'ebitda-forecasting')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'ebitda-forecasting')}"
                aria-label="Select EBITDA Forecasting model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -190,7 +190,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'bond-pricing')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'bond-pricing')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'bond-pricing')}"
                aria-label="Select Bond Pricing model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -239,7 +239,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'options-pricing')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'options-pricing')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'options-pricing')}"
                aria-label="Select Options Pricing model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -288,7 +288,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                onclick="selectModel(this, 'cashflow-analysis')"
                role="button"
                tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'cashflow-analysis')}"
+               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'cashflow-analysis')}"
                aria-label="Select Cash Flow Analysis model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
@@ -400,7 +400,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
     let chatPanelOpen = false;
 
     // Model selection functionality
-    function selectModel(element: HTMLElement, modelId: string): void {
+  function selectModel(element: HTMLElement, _modelId: string): void {
       // Remove previous selection
       document.querySelectorAll('.model-card').forEach(card => {
         card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');

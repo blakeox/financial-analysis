@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ModelsChatIsland from '../components/ModelsChatIsland';
 ---
 
 <Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
@@ -28,25 +27,21 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
         <!-- Models Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
           
-          <!-- Lease Analysis -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
-               data-model="Lease Analysis" 
-               onclick="selectModel(this, 'lease-analysis')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'lease-analysis')}"
-               aria-label="Select Lease Analysis model">
+          <!-- Basic Lease Analysis -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+      data-model="Lease Analysis" 
+      onclick="selectModel(this, 'lease-analysis')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                  Lease Analysis
+                  Basic Lease Analysis
                 </h3>
                 <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
                   Available
                 </div>
               </div>
               <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Comprehensive lease agreement analysis with amortization schedules and IRR calculations
+                Simple lease agreement analysis with basic payment calculations and IRR
               </p>
               <div class="space-y-3 mb-6">
                 <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
@@ -59,7 +54,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
-                  Amortization schedules
+                  Basic schedules
                 </div>
                 <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -68,9 +63,71 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                   IRR calculations
                 </div>
               </div>
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center w-full px-4 py-2 border border-blue-200 text-sm font-medium text-blue-700 rounded-md transition-colors duration-200 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 dark:border-blue-500/40 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  onclick="const leaseCard = this.closest('.model-card'); if (leaseCard) { selectModel(leaseCard, 'lease-analysis'); }"
+                >
+                  Select for AI context
+                </button>
               <a
                 href="/analysis"
-                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+              >
+                Open Model
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Enhanced Lease Analysis -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-violet-500 group cursor-pointer model-card"
+      data-model="Enhanced Lease Analysis" 
+      onclick="selectModel(this, 'enhanced-lease-analysis')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300">
+                  Enhanced Lease Analysis
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Comprehensive building lease analysis supporting office, warehouse, retail, medical, and mixed-use properties
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Office, warehouse & medical buildings
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7-293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Comprehensive building costs
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  NPV analysis & risk assessment
+                </div>
+              </div>
+              <button
+                type="button"
+                class="inline-flex items-center justify-center w-full px-4 py-2 border border-violet-200 text-sm font-medium text-violet-700 rounded-md transition-colors duration-200 hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500 dark:border-violet-500/40 dark:text-violet-300 dark:hover:bg-violet-900/20"
+                onclick="const enhancedCard = this.closest('.model-card'); if (enhancedCard) { selectModel(enhancedCard, 'enhanced-lease-analysis'); }"
+              >
+                Select for AI context
+              </button>
+              <a
+                href="/enhanced-lease"
+                class="inline-flex items-center px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500"
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,13 +138,9 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
           </div>
 
           <!-- Loan Amortization -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
-               data-model="Loan Amortization"
-               onclick="selectModel(this, 'loan-amortization')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'loan-amortization')}"
-               aria-label="Select Loan Amortization model">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+      data-model="Loan Amortization"
+      onclick="selectModel(this, 'loan-amortization')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
@@ -120,9 +173,16 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                   Payment schedules
                 </div>
               </div>
+              <button
+                type="button"
+                class="inline-flex items-center justify-center w-full px-4 py-2 border border-green-200 text-sm font-medium text-green-700 rounded-md transition-colors duration-200 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 dark:border-green-500/40 dark:text-green-300 dark:hover:bg-green-900/20"
+                onclick="const amortCard = this.closest('.model-card'); if (amortCard) { selectModel(amortCard, 'loan-amortization'); }"
+              >
+                Select for AI context
+              </button>
               <a
                 href="/amortization"
-                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                class="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,13 +193,9 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
           </div>
 
           <!-- EBITDA Forecasting -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
-               data-model="EBITDA Forecasting"
-               onclick="selectModel(this, 'ebitda-forecasting')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'ebitda-forecasting')}"
-               aria-label="Select EBITDA Forecasting model">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+      data-model="EBITDA Forecasting"
+      onclick="selectModel(this, 'ebitda-forecasting')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
@@ -172,9 +228,16 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
                   Scenario analysis
                 </div>
               </div>
+              <button
+                type="button"
+                class="inline-flex items-center justify-center w-full px-4 py-2 border border-emerald-200 text-sm font-medium text-emerald-700 rounded-md transition-colors duration-200 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
+                onclick="const ebitdaCard = this.closest('.model-card'); if (ebitdaCard) { selectModel(ebitdaCard, 'ebitda-forecasting'); }"
+              >
+                Select for AI context
+              </button>
               <a
                 href="/ebitda-forecasting"
-                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,13 +248,9 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
           </div>
 
           <!-- Bond Pricing -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
-               data-model="Bond Pricing"
-               onclick="selectModel(this, 'bond-pricing')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'bond-pricing')}"
-               aria-label="Select Bond Pricing model (coming soon)">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+      data-model="Bond Pricing"
+      onclick="selectModel(this, 'bond-pricing')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
@@ -234,13 +293,9 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
           </div>
 
           <!-- Options Pricing -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
-               data-model="Options Pricing"
-               onclick="selectModel(this, 'options-pricing')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'options-pricing')}"
-               aria-label="Select Options Pricing model (coming soon)">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
+      data-model="Options Pricing"
+      onclick="selectModel(this, 'options-pricing')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300">
@@ -283,13 +338,9 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
           </div>
 
           <!-- Cash Flow Analysis -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
-               data-model="Cash Flow Analysis"
-               onclick="selectModel(this, 'cashflow-analysis')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(event.key==='Enter'||event.key===' '){selectModel(this,'cashflow-analysis')}"
-               aria-label="Select Cash Flow Analysis model (coming soon)">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+      data-model="Cash Flow Analysis"
+      onclick="selectModel(this, 'cashflow-analysis')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
@@ -392,7 +443,7 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
     <!-- Floating Chat Button -->
     <button 
       id="chat-toggle-btn"
-      onclick="toggleChat()"
+      onclick="if(window.toggleChatPanel){window.toggleChatPanel();}"
       class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center group"
       aria-label="Open AI Chat Assistant"
       title="Chat with AI Assistant"
@@ -402,18 +453,30 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
       </svg>
     </button>
 
-    <!-- VS Code Style Chat Panel -->
-    <ModelsChatIsland client:load />
+    <!-- Removed VS Code Style Chat Panel -->
   </div>
 
   <!-- Enhanced JavaScript for Model Selection and Chat Integration -->
   <script>
+    declare global {
+      interface Window {
+        toggleChatPanel?: () => void;
+        updateChatContext?: (
+          modelName: string | null,
+          modelData: Record<string, unknown> | null
+        ) => void;
+        adjustLayoutForChat?: (isOpen: boolean) => void;
+        selectedModel?: () => string | null;
+        selectedModelData?: () => Record<string, unknown> | null;
+      }
+    }
+
     let selectedModel: string | null = null;
     let selectedModelData: Record<string, unknown> | null = null;
     let chatPanelOpen = false;
 
     // Model selection functionality
-    function selectModel(element: HTMLElement, modelId: string): void {
+  function selectModel(element: HTMLElement, _modelId: string): void {
       // Remove previous selection
       document.querySelectorAll('.model-card').forEach(card => {
         card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
@@ -469,12 +532,6 @@ import ModelsChatIsland from '../components/ModelsChatIsland';
     }
 
     function openChatPanel(): void {
-      if (window.toggleChatPanel) {
-        window.toggleChatPanel();
-      }
-    }
-
-    function toggleChat(): void {
       if (window.toggleChatPanel) {
         window.toggleChatPanel();
       }

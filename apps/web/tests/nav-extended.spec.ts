@@ -14,7 +14,7 @@ test.describe('ModernNavBar extended', () => {
     await gotoPath(page, HOME);
     const nav = page.locator('#site-nav');
     await expect(nav).toBeVisible();
-    const brand = nav.locator('text=Financial Analysis');
+  const brand = nav.locator('text=Financial Studio');
     await expect(brand).toBeVisible();
 
     // Collect link texts (desktop + maybe mobile hidden) at start

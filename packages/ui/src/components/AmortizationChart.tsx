@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useMemo, useState } from 'react';
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
 import { cn } from '../lib/utils';
+import { parsers } from '../lib/formUtils';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
 
@@ -605,7 +606,8 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
             aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End PageUp PageDown"
             aria-valuetext={getSliderAriaValueText(selectedIndex ?? 0)}
             onChange={(event) => {
-              const next = Number(event.currentTarget.value);
+              const parsedIndex = parsers.int(event.currentTarget.value);
+              const next = Number.isNaN(parsedIndex) ? 0 : parsedIndex;
               // Reflect immediate change for tests and assistive tech reading value
               (event.currentTarget as HTMLInputElement).value = String(next);
               if (!isControlled) {

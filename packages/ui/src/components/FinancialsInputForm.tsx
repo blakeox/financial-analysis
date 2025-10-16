@@ -1,5 +1,6 @@
-import { Input } from './Input';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { ValidatedNumberInput } from './ValidatedField';
 
 export interface MonthlyFinancialsData {
   january?: number;
@@ -38,24 +39,39 @@ const months = [
   { key: 'december' as const, label: 'December' },
 ];
 
-export function FinancialsInputForm({ 
-  data, 
-  onChange, 
+export function FinancialsInputForm({
+  data,
+  onChange,
   title = 'Monthly Revenue Data',
-  readonly = false 
+  readonly = false,
 }: FinancialsInputFormProps) {
-  const handleMonthChange = (month: keyof MonthlyFinancialsData, value: string) => {
-    const numericValue = value === '' ? undefined : Number(value);
-    onChange({
-      ...data,
-      [month]: numericValue,
-    });
-  };
+  const handleMonthChange = React.useCallback(
+    (month: keyof MonthlyFinancialsData, value: number | undefined) => {
+      onChange({
+        ...data,
+        [month]: value,
+      });
+    },
+    [data, onChange]
+  );
 
-  const formatCurrency = (value: number | undefined) => {
-    if (value === undefined) return '';
-    return value.toString();
-  };
+  const values = React.useMemo(() => Object.values(data), [data]);
+  const totalRevenue = React.useMemo(
+    () => values.reduce((sum, current) => sum + (current ?? 0), 0),
+    [values]
+  );
+  const enteredMonths = React.useMemo(
+    () => values.filter((value): value is number => value !== undefined).length,
+    [values]
+  );
+  const averageRevenue = enteredMonths > 0 ? totalRevenue / enteredMonths : 0;
+
+  const validateNonNegative = React.useCallback((value: number | undefined) => {
+    if (value === undefined) {
+      return null;
+    }
+    return value >= 0 ? null : 'Amount must be zero or greater';
+  }, []);
 
   return (
     <Card>
@@ -65,12 +81,13 @@ export function FinancialsInputForm({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {months.map((month) => (
-            <Input
+            <ValidatedNumberInput
               key={month.key}
               label={month.label}
               type="number"
-              value={formatCurrency(data[month.key])}
-              onChange={(e) => handleMonthChange(month.key, e.target.value)}
+              value={data[month.key]}
+              onValueChange={(value) => handleMonthChange(month.key, value)}
+              validator={validateNonNegative}
               placeholder="0"
               min="0"
               step="0.01"
@@ -82,12 +99,11 @@ export function FinancialsInputForm({
         <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
           <div className="text-sm text-gray-600 dark:text-gray-300">
             <strong>Total Revenue:</strong>{' '}
-            ${Object.values(data).reduce((sum, val) => sum + (val || 0), 0).toLocaleString()}
+            ${totalRevenue.toLocaleString()}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-300">
             <strong>Average Monthly:</strong>{' '}
-            ${(Object.values(data).reduce((sum, val) => sum + (val || 0), 0) / 
-              Object.values(data).filter(val => val !== undefined).length || 0).toLocaleString()}
+            ${averageRevenue.toLocaleString()}
           </div>
         </div>
       </CardContent>
