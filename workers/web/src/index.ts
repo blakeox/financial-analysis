@@ -67,7 +67,8 @@ export default {
       pathname === '/openapi.json' ||
       pathname === '/docs' ||
       pathname === '/mcp' ||
-      pathname.startsWith('/v1/');
+      pathname.startsWith('/v1/') ||
+      pathname.startsWith('/api/');
     if (isApiPath && apiBase) {
       const forwardUrl = `${apiBase}${pathname}${url.search}`;
       const apiReq = new Request(forwardUrl, request);

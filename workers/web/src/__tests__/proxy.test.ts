@@ -118,4 +118,32 @@ describe('web worker dev proxy', () => {
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: 'API_ORIGIN not configured' });
   });
+
+  it('forwards /api/ requests to API in development', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'development',
+      apiDevOrigin: 'http://127.0.0.1:8787',
+    });
+
+    const req = new Request('https://example.com/api/v1/chat/enhanced', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: 'test' }),
+    });
+
+    const apiResponse = new Response(JSON.stringify({ response: 'Hello!' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    const globalFetch = vi.spyOn(globalThis, 'fetch' as never).mockResolvedValue(apiResponse);
+
+    const res = await web.fetch(req, env as never, ctx);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-dev-proxy')).toBe('web->api');
+    expect(await res.json()).toEqual({ response: 'Hello!' });
+
+    globalFetch.mockRestore();
+  });
 });
