@@ -208,6 +208,31 @@
     margin-bottom: 4px;
   }
   
+  .context-change-notification {
+    background: var(--vscode-notifications-background, #252526);
+    color: var(--vscode-notifications-foreground, #cccccc);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    border-left: 3px solid var(--vscode-notificationsInfoIcon-foreground, #3794ff);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  
+  .context-change-notification svg {
+    flex-shrink: 0;
+    color: var(--vscode-notificationsInfoIcon-foreground, #3794ff);
+  }
+  
+  .context-change-notification strong {
+    font-weight: 600;
+    color: var(--vscode-button-background, #007acc);
+  }
+  
   .message {
     margin-bottom: 16px;
   }

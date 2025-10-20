@@ -31,6 +31,7 @@ class ChatPanel {
   private customContextData: Record<string, unknown> | null;
   private externalContextListener: ((event: Event) => void) | null;
   private headerObserver: ResizeObserver | null;
+  private lastContext: ContextKey;
 
   private updateLayoutOffsets = (): void => {
     const header = document.getElementById('site-header');
@@ -74,6 +75,7 @@ class ChatPanel {
 
     this.isOpen = false;
     this.currentContext = this.detectContext();
+    this.lastContext = this.currentContext;
     this.customContextKey = null;
     this.customContextLabel = null;
     this.customContextData = null;
@@ -85,6 +87,7 @@ class ChatPanel {
     this.updateContextIndicator();
     this.syncAriaState();
     this.emitStateChange();
+    this.setupNavigationListener();
 
     const win = window as WindowWithChatPanel;
     win.__chatPanelInstance = this;
@@ -95,10 +98,12 @@ class ChatPanel {
 
   private detectContext(): ContextKey {
     const path = window.location.pathname;
-    if (path.includes('/models')) return 'models';
-    if (path.includes('/analysis')) return 'lease';
-    if (path.includes('/ebitda')) return 'ebitda';
+    // Check specific page contexts
     if (path.includes('/amortization')) return 'amortization';
+    if (path.includes('/ebitda')) return 'ebitda';
+    if (path.includes('/lease-analysis') || path.includes('/enhanced-lease')) return 'lease';
+    if (path === '/analysis' || path === '/analysis/') return 'lease';
+    if (path.includes('/models')) return 'models';
     return 'general';
   }
 
@@ -118,6 +123,93 @@ class ChatPanel {
     } else {
       this.contextIndicator.removeAttribute('title');
     }
+    
+    // Update welcome message based on context
+    this.updateWelcomeMessage(activeContext);
+  }
+
+  private showContextChangeNotification(newContext: ContextKey): void {
+    const contexts: Record<ContextKey, string> = {
+      lease: 'Lease Analysis',
+      ebitda: 'EBITDA Forecasting',
+      amortization: 'Amortization',
+      models: 'Models',
+      general: 'General',
+    };
+
+    const notification = document.createElement('div');
+    notification.className = 'context-change-notification';
+    notification.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 11a.75.75 0 110-1.5.75.75 0 010 1.5zm.75-3.25a.75.75 0 01-1.5 0V5a.75.75 0 011.5 0v2.75z" fill="currentColor"/>
+      </svg>
+      <span>Context switched to <strong>${contexts[newContext]}</strong></span>
+    `;
+
+    this.messages.appendChild(notification);
+    this.messages.scrollTop = this.messages.scrollHeight;
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
+  }
+
+  private updateWelcomeMessage(context: ContextKey): void {
+    const systemMessage = this.messages.querySelector('.system-message');
+    if (!systemMessage) return;
+
+    const contextMessages: Record<ContextKey, { intro: string; examples: string[] }> = {
+      lease: {
+        intro: "Hi! I'm your AI assistant for Lease Analysis. I can help you modify lease parameters and explore scenarios. Try asking:",
+        examples: [
+          '"What if the interest rate was 5.5%?"',
+          '"Change the lease amount to $150,000"',
+          '"Show me a 36-month lease term"',
+        ],
+      },
+      ebitda: {
+        intro: "Hi! I'm your AI assistant for EBITDA Forecasting. I can help you adjust revenue projections and growth rates. Try asking:",
+        examples: [
+          '"Set initial revenue to $500,000"',
+          '"Change the growth rate to 15%"',
+          '"What if expenses increased by 10%?"',
+        ],
+      },
+      amortization: {
+        intro: "Hi! I'm your AI assistant for Amortization Analysis. I can help you modify loan parameters and view different schedules. Try asking:",
+        examples: [
+          '"Change the interest rate to 4.5%"',
+          '"Increase the loan amount to $300,000"',
+          '"Show me a 20-year term"',
+        ],
+      },
+      models: {
+        intro: "Hi! I'm your AI assistant. Select a model to get context-specific help, or ask general questions about the available financial tools.",
+        examples: [
+          '"Tell me about lease analysis"',
+          '"What models are available?"',
+          '"How do I analyze EBITDA?"',
+        ],
+      },
+      general: {
+        intro: "Hi! I'm your AI assistant. I can help you navigate financial analysis tools and answer questions. Try asking:",
+        examples: [
+          '"What tools are available?"',
+          '"Help me analyze a lease"',
+          '"Show me amortization options"',
+        ],
+      },
+    };
+
+    const messageConfig = contextMessages[context];
+    systemMessage.innerHTML = `
+      <p>${messageConfig.intro}</p>
+      <ul>
+        ${messageConfig.examples.map((ex) => `<li>${ex}</li>`).join('')}
+      </ul>
+    `;
   }
 
   private getActiveContextKey(): ContextKey {
@@ -181,6 +273,39 @@ class ChatPanel {
     window.addEventListener('resize', this.updateLayoutOffsets, { passive: true });
     window.addEventListener('orientationchange', this.updateLayoutOffsets);
     window.addEventListener('scroll', this.updateLayoutOffsets, { passive: true });
+  }
+
+  private setupNavigationListener(): void {
+    const handleContextChange = () => {
+      const newContext = this.detectContext();
+      if (newContext !== this.lastContext) {
+        this.lastContext = this.currentContext;
+        this.currentContext = newContext;
+        this.updateContextIndicator();
+        
+        // Show notification if chat is open
+        if (this.isOpen) {
+          this.showContextChangeNotification(newContext);
+        }
+      }
+    };
+
+    // Listen for popstate (back/forward navigation)
+    window.addEventListener('popstate', handleContextChange);
+
+    // Patch history.pushState and history.replaceState
+    const originalPushState = history.pushState.bind(history);
+    const originalReplaceState = history.replaceState.bind(history);
+
+    history.pushState = (...args) => {
+      originalPushState(...args);
+      handleContextChange();
+    };
+
+    history.replaceState = (...args) => {
+      originalReplaceState(...args);
+      handleContextChange();
+    };
   }
 
   private updateActiveWidth(): void {
@@ -348,6 +473,14 @@ class ChatPanel {
         context: contextKey,
         currentModel,
       };
+      
+      if (import.meta.env.DEV) {
+        console.log('[ChatPanel] Sending message with context:', {
+          context: contextKey,
+          pathname: window.location.pathname,
+          hasModelData: Object.keys(currentModel).length > 0,
+        });
+      }
       if (this.customContextLabel) {
         payload.contextLabel = this.customContextLabel;
       }
