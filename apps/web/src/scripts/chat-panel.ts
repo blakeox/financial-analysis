@@ -32,6 +32,7 @@ class ChatPanel {
   private externalContextListener: ((event: Event) => void) | null;
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
+  private mcpTools: Array<{ name: string; description: string }> | null;
 
   private updateLayoutOffsets = (): void => {
     const header = document.getElementById('site-header');
@@ -80,6 +81,18 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.externalContextListener = null;
+    this.mcpTools = null;
+
+    // Fetch available MCP tools
+    this.fetchMCPTools().catch((err) => {
+      console.warn('Failed to fetch MCP tools:', err);
+    });
+    this.mcpTools = null;
+
+    // Fetch available MCP tools
+    this.fetchMCPTools().catch((err) => {
+      console.warn('Failed to fetch MCP tools:', err);
+    });
     this.headerObserver = null;
 
     this.bindEvents();
@@ -204,11 +217,27 @@ class ChatPanel {
     };
 
     const messageConfig = contextMessages[context];
+    let toolsSection = '';
+    
+    // Add available MCP tools if loaded
+    if (this.mcpTools && this.mcpTools.length > 0) {
+      const toolsList = this.mcpTools
+        .map((tool) => `<li><strong>${tool.name}</strong>: ${tool.description}</li>`)
+        .join('');
+      toolsSection = `
+        <div class="tools-section">
+          <p><strong>Available Tools:</strong></p>
+          <ul class="tools-list">${toolsList}</ul>
+        </div>
+      `;
+    }
+    
     systemMessage.innerHTML = `
       <p>${messageConfig.intro}</p>
       <ul>
         ${messageConfig.examples.map((ex) => `<li>${ex}</li>`).join('')}
       </ul>
+      ${toolsSection}
     `;
   }
 
@@ -273,6 +302,23 @@ class ChatPanel {
     window.addEventListener('resize', this.updateLayoutOffsets, { passive: true });
     window.addEventListener('orientationchange', this.updateLayoutOffsets);
     window.addEventListener('scroll', this.updateLayoutOffsets, { passive: true });
+  }
+
+  private async fetchMCPTools(): Promise<void> {
+    try {
+      const response = await fetch('/api/v1/mcp/tools');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch MCP tools: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.mcpTools = data.tools || [];
+      if (import.meta.env.DEV) {
+        console.log('[ChatPanel] Available MCP tools:', this.mcpTools);
+      }
+    } catch (error) {
+      console.error('Error fetching MCP tools:', error);
+      this.mcpTools = [];
+    }
   }
 
   private setupNavigationListener(): void {
@@ -472,6 +518,7 @@ class ChatPanel {
         message,
         context: contextKey,
         currentModel,
+        availableTools: this.mcpTools || [],
       };
       
       if (import.meta.env.DEV) {

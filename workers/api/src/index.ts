@@ -1055,6 +1055,22 @@ router.post(
   })
 );
 
+// MCP tools listing endpoint for chat interface
+router.get(
+  '/api/v1/mcp/tools',
+  withErrorHandler(async (_request: Request, env: Env) => {
+    // Use the MCP handler to list tools
+    const result = await handleMCPRequest('tools/list', undefined, env);
+    
+    return new Response(JSON.stringify(result), {
+      headers: {
+        ...buildDefaultHeaders(env),
+        'Content-Type': 'application/json',
+      },
+    });
+  })
+);
+
 // API routes for financial analysis (v1)
 router.get(
   '/v1/api/analysis',
@@ -2001,14 +2017,30 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
   console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
   
   try {
-  const body = await request.json() as { message: string; context?: string; currentModel?: Record<string, unknown> };
-    const { message, context = 'general', currentModel = {} } = body;
+  const body = await request.json() as { 
+    message: string; 
+    context?: string; 
+    currentModel?: Record<string, unknown>;
+    availableTools?: Array<{ name: string; description: string }>;
+  };
+    const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
     
     if (!message?.trim()) {
       return new Response(JSON.stringify({ error: 'Message is required' }), {
         status: 400,
         headers: buildDefaultHeaders(env)
       });
+    }
+
+    // Log available tools for debugging (dev mode check removed for Workers runtime)
+    if (availableTools.length > 0) {
+      console.log(JSON.stringify({ 
+        timestamp: new Date().toISOString(), 
+        level: 'info', 
+        message: 'Chat has access to MCP tools', 
+        requestId,
+        tools: availableTools.map(t => t.name)
+      }));
     }
 
     // Context-aware response based on current model page
