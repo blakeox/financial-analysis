@@ -1,5 +1,5 @@
 ---
-import chatPanelScript from '../scripts/chat-panel.ts?module';
+// Chat panel script will be loaded inline to ensure proper initialization
 ---
 
 <!-- VS Code-style chat panel component for contextual model assistance -->
@@ -397,4 +397,6 @@ import chatPanelScript from '../scripts/chat-panel.ts?module';
   }
 </style>
 
-<script type="module" src={chatPanelScript}></script>
+<script>
+  import '../scripts/chat-panel.ts';
+</script>
