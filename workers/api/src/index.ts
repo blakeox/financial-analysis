@@ -2045,8 +2045,28 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
 
     // Context-aware response based on current model page
     let contextualResponse = '';
-    let modelChanges = {};
+    let modelChanges: Record<string, string | number> = {};
     let explanation = '';
+    
+    // Field name mappings for different contexts
+    const fieldMappings: Record<string, Record<string, string>> = {
+      lease: {
+        interestRate: 'annualRate',
+        leasePrincipal: 'principal',
+        leaseTerm: 'termMonths',
+        residual: 'residualValue',
+      },
+      amortization: {
+        interestRate: 'annualRate',
+        loanAmount: 'principal',
+        term: 'termMonths',
+      },
+      ebitda: {
+        initialRevenue: 'revenue',
+        revenueGrowthRate: 'growthRate',
+        expenses: 'expenses',
+      },
+    };
     
     // Detect intent and extract parameters from user message
     const lowerMessage = message.toLowerCase();
@@ -2058,9 +2078,10 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
         const rateStr = rateMatch?.[1];
         if (rateStr) {
           const newRate = parseFloat(rateStr);
-          modelChanges = { ...currentModel, interestRate: newRate };
+          const fieldName = fieldMappings.lease?.interestRate || 'annualRate';
+          modelChanges[fieldName] = newRate;
           contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
-          const prevRate = Number((currentModel as Record<string, unknown>).interestRate ?? 0);
+          const prevRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
           explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
@@ -2068,7 +2089,8 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
         const amtStr = amountMatch?.[1];
         if (amtStr) {
           const newAmount = parseFloat(amtStr.replace(/,/g, ''));
-          modelChanges = { ...currentModel, leasePrincipal: newAmount };
+          const fieldName = fieldMappings.lease?.leasePrincipal || 'principal';
+          modelChanges[fieldName] = newAmount;
           contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
           explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
         }
@@ -2079,9 +2101,10 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
         if (termValueStr && termUnit) {
           const termValue = parseInt(termValueStr);
           const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-          modelChanges = { ...currentModel, leaseTerm: termInMonths };
+          const fieldName = fieldMappings.lease?.leaseTerm || 'termMonths';
+          modelChanges[fieldName] = termInMonths;
           contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
-          const prevLeaseTerm = Number((currentModel as Record<string, unknown>).leaseTerm ?? 0);
+          const prevLeaseTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
           explanation = `**Analysis**: ${termInMonths > prevLeaseTerm ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > prevLeaseTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
         }
       }
@@ -2114,9 +2137,10 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
         const rateStr2 = rateMatch?.[1];
         if (rateStr2) {
           const newRate = parseFloat(rateStr2);
-          modelChanges = { ...currentModel, interestRate: newRate };
+          const fieldName = fieldMappings.amortization?.interestRate || 'annualRate';
+          modelChanges[fieldName] = newRate;
           contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
-          const prevLoanRate = Number((currentModel as Record<string, unknown>).interestRate ?? 0);
+          const prevLoanRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
           explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
@@ -2124,9 +2148,23 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
         const amt2 = amountMatch?.[1];
         if (amt2) {
           const newAmount = parseFloat(amt2.replace(/,/g, ''));
-          modelChanges = { ...currentModel, loanAmount: newAmount };
+          const fieldName = fieldMappings.amortization?.loanAmount || 'principal';
+          modelChanges[fieldName] = newAmount;
           contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
           explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
+        }
+      } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
+        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termValueStr = termMatch?.[1];
+        const termUnit = termMatch?.[2];
+        if (termValueStr && termUnit) {
+          const termValue = parseInt(termValueStr);
+          const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
+          const fieldName = fieldMappings.amortization?.term || 'termMonths';
+          modelChanges[fieldName] = termInMonths;
+          contextualResponse = `I've updated the term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This recalculates your amortization schedule.`;
+          const prevTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
+          explanation = `**Analysis**: ${termInMonths > prevTerm ? 'Extending' : 'Shortening'} the term will ${termInMonths > prevTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
         }
       }
     }
