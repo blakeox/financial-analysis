@@ -61,32 +61,33 @@ export default {
     // Dev-only proxy: forward API routes to the local API worker to avoid 404/405 from ASSETS.
     // This keeps the web worker origin as the single frontend origin while ensuring API is reachable in dev.
     const isDev = env.ENVIRONMENT === 'development';
+    const apiBase = (isDev ? env.API_DEV_ORIGIN : env.API_ORIGIN)?.replace(/\/$/, '');
     const pathname = url.pathname;
     const isApiPath =
       pathname === '/openapi.json' ||
       pathname === '/docs' ||
       pathname === '/mcp' ||
       pathname.startsWith('/v1/');
-    // Development proxy path: forward only in dev when API_DEV_ORIGIN is configured
-    if (isDev && isApiPath && env.API_DEV_ORIGIN) {
-      const base = env.API_DEV_ORIGIN.replace(/\/$/, '');
-      const forwardUrl = `${base}${pathname}${url.search}`;
+    if (isApiPath && apiBase) {
+      const forwardUrl = `${apiBase}${pathname}${url.search}`;
       const apiReq = new Request(forwardUrl, request);
       const apiRes = await fetch(apiReq);
       const headers = new Headers(apiRes.headers);
       headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       headers.set('Access-Control-Allow-Origin', '*');
-      headers.set('x-dev-proxy', 'web->api');
+      if (isDev) {
+        headers.set('x-dev-proxy', 'web->api');
+      }
       for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
         headers.set(key, value);
       }
       return new Response(apiRes.body, { status: apiRes.status, headers });
     }
 
-    // In dev, if API path requested but no API_DEV_ORIGIN is configured, return helpful JSON
-    if (isDev && isApiPath && !env.API_DEV_ORIGIN) {
+    if (isApiPath && !apiBase) {
+      const missingKey = isDev ? 'API_DEV_ORIGIN' : 'API_ORIGIN';
       return new Response(
-        JSON.stringify({ error: 'API_DEV_ORIGIN not configured for development' }),
+        JSON.stringify({ error: `${missingKey} not configured` }),
         {
           status: 502,
           headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
@@ -110,7 +111,7 @@ export default {
     }
 
     const rewritten = new Request(url.toString(), request);
-  const resp = await env.ASSETS.fetch(rewritten);
+    const resp = await env.ASSETS.fetch(rewritten);
 
     // Merge headers
     const headers = new Headers(resp.headers);

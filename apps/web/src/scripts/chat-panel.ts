@@ -5,15 +5,15 @@ type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models';
 type ModelState = Record<string, string>;
 type ModelChanges = Record<string, string | number>;
 
-declare global {
-  interface Window {
-    toggleChatPanel?: () => void;
-    openChatPanel?: () => void;
-    closeChatPanel?: () => void;
-    updateChatContext?: (label: string | null, data: Record<string, unknown> | null) => void;
-    adjustLayoutForChat?: (isOpen: boolean) => void;
-  }
-}
+type WindowWithChatPanel = Window & {
+  toggleChatPanel?: () => void;
+  openChatPanel?: () => void;
+  closeChatPanel?: () => void;
+  updateChatContext?: (label: string | null, data: Record<string, unknown> | null) => void;
+  adjustLayoutForChat?: (isOpen: boolean) => void;
+  __chatPanelInstance?: ChatPanel;
+  chatPanelBootstrapError?: string;
+};
 
 class ChatPanel {
   private panel: HTMLDivElement;
@@ -30,6 +30,19 @@ class ChatPanel {
   private customContextLabel: string | null;
   private customContextData: Record<string, unknown> | null;
   private externalContextListener: ((event: Event) => void) | null;
+  private headerObserver: ResizeObserver | null;
+
+  private updateLayoutOffsets = (): void => {
+    const header = document.getElementById('site-header');
+    const nav = document.getElementById('site-nav');
+    const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
+    const navHeight = nav ? Math.round(nav.getBoundingClientRect().height) : 0;
+    const offset = Math.max(headerHeight, navHeight, 64);
+    document.documentElement.style.setProperty('--chat-panel-top-offset', `${offset}px`);
+    if (this.isOpen) {
+      this.updateActiveWidth();
+    }
+  };
 
   constructor() {
     const panel = document.getElementById('chat-panel');
@@ -65,11 +78,19 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.externalContextListener = null;
+    this.headerObserver = null;
 
     this.bindEvents();
+    this.setupLayoutSync();
     this.updateContextIndicator();
     this.syncAriaState();
     this.emitStateChange();
+
+    const win = window as WindowWithChatPanel;
+    win.__chatPanelInstance = this;
+    if (document.body) {
+      document.body.dataset.chatPanelStatus = 'ready';
+    }
   }
 
   private detectContext(): ContextKey {
@@ -134,15 +155,61 @@ class ChatPanel {
   }
 
   private emitStateChange(): void {
-    if (typeof window.adjustLayoutForChat === 'function') {
-      window.adjustLayoutForChat(this.isOpen);
+    const win = window as WindowWithChatPanel;
+    if (typeof win.adjustLayoutForChat === 'function') {
+      win.adjustLayoutForChat(this.isOpen);
     }
     const event = new CustomEvent('chat-panel-state', { detail: { isOpen: this.isOpen } });
     window.dispatchEvent(event);
   }
 
+  private setupLayoutSync(): void {
+    this.updateLayoutOffsets();
+    if (typeof ResizeObserver !== 'undefined') {
+      this.headerObserver = new ResizeObserver(() => {
+        this.updateLayoutOffsets();
+      });
+      const header = document.getElementById('site-header');
+      const nav = document.getElementById('site-nav');
+      if (header) {
+        this.headerObserver.observe(header);
+      }
+      if (nav) {
+        this.headerObserver.observe(nav);
+      }
+    }
+    window.addEventListener('resize', this.updateLayoutOffsets, { passive: true });
+    window.addEventListener('orientationchange', this.updateLayoutOffsets);
+    window.addEventListener('scroll', this.updateLayoutOffsets, { passive: true });
+  }
+
+  private updateActiveWidth(): void {
+    const panelWidth = Math.round(this.panel.getBoundingClientRect().width);
+    if (!Number.isFinite(panelWidth) || panelWidth <= 0) {
+      return;
+    }
+    const shouldOffset = this.shouldOffsetContent(panelWidth);
+    const widthValue = shouldOffset ? `${panelWidth}px` : '0px';
+    document.documentElement.style.setProperty('--chat-panel-active-width', widthValue);
+    if (shouldOffset) {
+      document.body.classList.add('chat-panel-open');
+    } else {
+      document.body.classList.remove('chat-panel-open');
+    }
+  }
+
+  private clearActiveWidth(): void {
+    document.documentElement.style.setProperty('--chat-panel-active-width', '0px');
+    document.body.classList.remove('chat-panel-open');
+  }
+
+  private shouldOffsetContent(panelWidth: number): boolean {
+    const minContentWidth = 640;
+    return window.innerWidth - panelWidth >= minContentWidth;
+  }
+
   private bindEvents(): void {
-    const win = window;
+    const win = window as WindowWithChatPanel;
     win.toggleChatPanel = () => this.togglePanel();
     win.openChatPanel = () => this.openPanel();
     win.closeChatPanel = () => this.closePanel();
@@ -218,10 +285,10 @@ class ChatPanel {
   }
 
   private openPanel(): void {
-    this.panel.classList.remove('hidden');
     this.panel.classList.add('visible');
     this.toggle.classList.add('panel-open');
     this.isOpen = true;
+    this.updateLayoutOffsets();
     this.syncAriaState();
     this.emitStateChange();
     setTimeout(() => this.input.focus(), 300);
@@ -231,6 +298,7 @@ class ChatPanel {
     this.panel.classList.remove('visible');
     this.toggle.classList.remove('panel-open');
     this.isOpen = false;
+    this.clearActiveWidth();
     this.syncAriaState();
     this.emitStateChange();
   }
@@ -361,12 +429,40 @@ class ChatPanel {
 }
 
 function initializeChatPanel(): void {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
+  const win = window as WindowWithChatPanel;
+  if (win.__chatPanelInstance) {
+    if (document.body) {
+      document.body.dataset.chatPanelStatus = 'ready';
+    }
+    return;
+  }
+  const bootstrap = (): void => {
+    if (win.__chatPanelInstance) {
+      return;
+    }
+    try {
+      win.__chatPanelInstance = new ChatPanel();
+      if (document.body) {
+        document.body.dataset.chatPanelStatus = 'ready';
+      }
+      if (import.meta.env.DEV) {
+        console.info('[chat-panel] initialized');
+      }
+    } catch (error) {
+      console.error('Chat panel bootstrap failed', error);
+      win.chatPanelBootstrapError = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+      if (document.body) {
+        document.body.dataset.chatPanelStatus = 'error';
+      }
+    }
+  };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      new ChatPanel();
-    });
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
   } else {
-    new ChatPanel();
+    bootstrap();
   }
 }
 

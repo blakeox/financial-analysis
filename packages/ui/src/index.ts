@@ -13,8 +13,6 @@ export { Footer } from './components/Footer';
 export { Input } from './components/Input';
 export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
 export { ChatPanel } from './components/ChatPanel';
-export { VSCodeChatPanel } from './components/VSCodeChatPanel';
-export type { ChatMessage } from './components/VSCodeChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
 export { Select } from './components/Select';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
