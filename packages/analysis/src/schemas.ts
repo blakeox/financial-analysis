@@ -38,6 +38,13 @@ export const AmortizationInputSchema = z.object({
     })
     .optional()
     .default({ enabled: false, rate: 0, dropOffLTV: 0.8 }),
+  // PITI fields (Tax & Insurance)
+  propertyTaxAnnual: z.number().min(0).optional().default(0),
+  homeInsuranceAnnual: z.number().min(0).optional().default(0),
+  hoaMonthly: z.number().min(0).optional().default(0),
+  // APR calculation inputs
+  downPayment: z.number().min(0).optional().default(0),
+  closingCosts: z.number().min(0).optional().default(0),
 });
 
 // Scenario Input Schema (minimal placeholder)

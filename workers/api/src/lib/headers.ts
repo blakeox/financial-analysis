@@ -31,3 +31,40 @@ export function buildDefaultHeaders(env: Env): Record<string, string> {
     ...getSecurityHeaders(env),
   };
 }
+
+/**
+ * Enhanced security headers for chat endpoints
+ * Adds stricter CSP to prevent XSS in AI-generated content
+ */
+export function getChatSecurityHeaders(env: Env): Record<string, string> {
+  const baseHeaders = getSecurityHeaders(env);
+  return {
+    ...baseHeaders,
+    'Content-Security-Policy':
+      "default-src 'none'; script-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';",
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+  };
+}
+
+/**
+ * Build headers for chat responses with enhanced security
+ */
+export function buildChatHeaders(
+  env: Env,
+  requestId: string,
+  correlationId?: string
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...getCorsHeaders(env),
+    ...getChatSecurityHeaders(env),
+    'X-Request-ID': requestId,
+  };
+
+  if (correlationId) {
+    headers['X-Correlation-ID'] = correlationId;
+  }
+
+  return headers;
+}

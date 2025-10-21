@@ -116,7 +116,105 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
 
-          <div class="flex gap-4">
+          <!-- PITI Section (Tax, Insurance, HOA) -->
+          <div class="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <h3 class="text-md font-semibold mb-4 text-purple-900 dark:text-purple-100">Housing Costs (PITI)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Property Tax -->
+              <div>
+                <label for="propertyTaxAnnual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Annual Property Tax ($) <span class="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="propertyTaxAnnual"
+                  name="propertyTaxAnnual"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                />
+              </div>
+
+              <!-- Home Insurance -->
+              <div>
+                <label for="homeInsuranceAnnual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Annual Home Insurance ($) <span class="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="homeInsuranceAnnual"
+                  name="homeInsuranceAnnual"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                />
+              </div>
+
+              <!-- HOA Fees -->
+              <div>
+                <label for="hoaMonthly" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Monthly HOA Fees ($) <span class="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="hoaMonthly"
+                  name="hoaMonthly"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- APR Calculation Inputs -->
+          <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <h3 class="text-md font-semibold mb-4 text-yellow-900 dark:text-yellow-100">APR & Cost Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Down Payment -->
+              <div>
+                <label for="downPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Down Payment ($) <span class="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="downPayment"
+                  name="downPayment"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                />
+              </div>
+
+              <!-- Closing Costs -->
+              <div>
+                <label for="closingCosts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Total Closing Costs ($) <span class="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="closingCosts"
+                  name="closingCosts"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="0"
+                />
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Includes fees, points, appraisal, title, etc.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-6">
             <button
               type="submit"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -213,6 +311,15 @@ import Layout from '../layouts/Layout.astro';
     const annualRatePercent = parseFloat(formData.get('annualRate') as string);
     const termMonths = parseInt(formData.get('termMonths') as string);
     const extraMonthlyPayment = parseFloat(formData.get('extraMonthlyPayment') as string) || 0;
+    
+    // PITI fields
+    const propertyTaxAnnual = parseFloat(formData.get('propertyTaxAnnual') as string) || 0;
+    const homeInsuranceAnnual = parseFloat(formData.get('homeInsuranceAnnual') as string) || 0;
+    const hoaMonthly = parseFloat(formData.get('hoaMonthly') as string) || 0;
+    
+    // APR calculation inputs
+    const downPayment = parseFloat(formData.get('downPayment') as string) || 0;
+    const closingCosts = parseFloat(formData.get('closingCosts') as string) || 0;
 
     // Validation
     if (!principal || principal <= 0) {
@@ -233,6 +340,11 @@ import Layout from '../layouts/Layout.astro';
       annualRate: annualRatePercent / 100, // Convert percentage to decimal
       termMonths,
       extraMonthlyPayment,
+      propertyTaxAnnual,
+      homeInsuranceAnnual,
+      hoaMonthly,
+      downPayment,
+      closingCosts,
     };
 
     try {

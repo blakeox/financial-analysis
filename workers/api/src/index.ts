@@ -17,8 +17,12 @@ import type { Env } from './types';
 import {
   adjustApproxBytes,
   attachRateLimitHeaders,
+  buildChatHeaders,
   buildDefaultHeaders,
+  buildRequestContext,
   checkRateLimit,
+  detectThreats,
+  getAllCircuitStates,
   getAnalysisCacheTtl,
   getApproxBytes,
   getCorsHeaders,
@@ -27,13 +31,19 @@ import {
   getSecurityHeaders,
   getThresholds,
   isQuotaLocked,
+  logError,
+  logInfo,
+  logWarn,
   reconcileBucketUsage,
   setQuotaLocked,
   sha256Hex,
   stableStringify,
+  validateChatMessage,
+  validateRequestSize,
   type RateLimitInfo,
 } from './lib';
 import { registerHealthRoute } from './routes/health';
+import { registerAnalyticsRoutes } from './routes/analytics';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -194,6 +204,23 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
 // ---- Routes ----
 // Health check endpoint (registered from routes module)
 registerHealthRoute(router as unknown as import('itty-router').RouterType);
+
+// Analytics endpoints for client-side event tracking
+registerAnalyticsRoutes(router);
+
+// PHASE 3: Circuit breaker monitoring endpoint
+router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {
+  const states = getAllCircuitStates();
+  const headers = new Headers({
+    ...getCorsHeaders(env),
+    ...getSecurityHeaders(env),
+    'Content-Type': 'application/json',
+  });
+  return new Response(JSON.stringify({
+    circuitBreakers: states,
+    timestamp: new Date().toISOString(),
+  }, null, 2), { headers });
+});
 
 // Lightweight ping endpoint for uptime checks
 router.get('/ping', (_req: Request, env: Env) => {
@@ -779,10 +806,20 @@ router.post(
       .join('\n');
     const prompt = `${system ? system.content + '\n\n' : ''}${userParts}`.slice(0, 10000);
 
-    // Call Workers AI text generation endpoint
+    // Call Workers AI with optional AI Gateway support for caching and logging
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = env.AI as any;
-    const aiRes = await ai.run(model, { prompt });
+    
+    // Configure AI Gateway if available
+    const aiOptions = env.AI_GATEWAY_ID ? {
+      gateway: {
+        id: env.AI_GATEWAY_ID,
+        skipCache: false,
+        cacheTtl: 3600, // 1 hour cache for identical prompts
+      }
+    } : {};
+    
+    const aiRes = await ai.run(model, { prompt }, aiOptions);
     const text: string = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
     const reply: ChatResponse = {
       role: 'assistant',
@@ -2015,10 +2052,30 @@ router.get(
 
 // Simple contextual chat endpoint for VS Code-style chat panel
 router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, env: Env) => {
-  const requestId = crypto.randomUUID();
-  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
+  // PHASE 3: Enhanced request tracking and context
+  const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
+  logInfo(requestContext, 'Contextual chat request received');
   
   try {
+    // SECURITY: Validate request size before parsing body
+    const contentLength = request.headers.get('Content-Length');
+    const sizeValidation = validateRequestSize(contentLength);
+    if (!sizeValidation.valid) {
+      logWarn(requestContext, 'Request size validation failed', {
+        error: sizeValidation.error,
+        code: sizeValidation.code,
+        contentLength,
+      });
+      return new Response(JSON.stringify({ 
+        error: sizeValidation.error,
+        code: sizeValidation.code,
+        requestId: requestContext.requestId,
+      }), {
+        status: 413,
+        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
+      });
+    }
+
     const body = await request.json() as { 
       message: string; 
       context?: string; 
@@ -2027,22 +2084,42 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     };
     const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
     
-    if (!message?.trim()) {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
+    // SECURITY: Comprehensive message validation and sanitization
+    const validation = validateChatMessage(message);
+    if (!validation.valid) {
+      logWarn(requestContext, 'Message validation failed', {
+        error: validation.error,
+        code: validation.code,
+        messageLength: message?.length || 0,
+      });
+      return new Response(JSON.stringify({ 
+        error: validation.error,
+        code: validation.code,
+        requestId: requestContext.requestId,
+      }), {
         status: 400,
-        headers: buildDefaultHeaders(env)
+        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
       });
     }
 
-    // Log available tools for debugging (dev mode check removed for Workers runtime)
+    // Use sanitized message for processing
+    const sanitizedMessage = validation.sanitizedValue || '';
+
+    // SECURITY: Detect and log potential threats
+    const threats = detectThreats(sanitizedMessage);
+    if (threats.length > 0) {
+      logWarn(requestContext, 'Potential security threats detected in message', {
+        threats,
+        sanitizedMessage: sanitizedMessage.substring(0, 100),
+      });
+      // Continue processing but log the threat for monitoring
+    }
+
+    // Log available tools for debugging
     if (availableTools.length > 0) {
-      console.log(JSON.stringify({ 
-        timestamp: new Date().toISOString(), 
-        level: 'info', 
-        message: 'Chat has access to MCP tools', 
-        requestId,
+      logInfo(requestContext, 'Chat has access to MCP tools', {
         tools: availableTools.map(t => t.name)
-      }));
+      });
     }
 
     // Context-aware response based on current model page
@@ -2070,13 +2147,13 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       },
     };
     
-    // Detect intent and extract parameters from user message
-    const lowerMessage = message.toLowerCase();
+    // Detect intent and extract parameters from user message (using sanitized message)
+    const lowerMessage = sanitizedMessage.toLowerCase();
     
     if (context === 'lease') {
       // Handle lease analysis modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const rateStr = rateMatch?.[1];
         if (rateStr) {
           const newRate = parseFloat(rateStr);
@@ -2087,7 +2164,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
-        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const amtStr = amountMatch?.[1];
         if (amtStr) {
           const newAmount = parseFloat(amtStr.replace(/,/g, ''));
@@ -2097,7 +2174,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
         }
       } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
         const termValueStr = termMatch?.[1];
         const termUnit = termMatch?.[2];
         if (termValueStr && termUnit) {
@@ -2113,7 +2190,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     } else if (context === 'ebitda') {
       // Handle EBITDA forecasting modifications
       if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
-        const revenueMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const revenueMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const revStr = revenueMatch?.[1];
         if (revStr) {
           const newRevenue = parseFloat(revStr.replace(/,/g, ''));
@@ -2122,7 +2199,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
         }
       } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
-        const growthMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const growthMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const growthStr = growthMatch?.[1];
         if (growthStr) {
           const newGrowth = parseFloat(growthStr);
@@ -2135,7 +2212,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     } else if (context === 'amortization') {
       // Handle amortization modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const rateStr2 = rateMatch?.[1];
         if (rateStr2) {
           const newRate = parseFloat(rateStr2);
@@ -2146,7 +2223,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
-        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const amt2 = amountMatch?.[1];
         if (amt2) {
           const newAmount = parseFloat(amt2.replace(/,/g, ''));
@@ -2156,7 +2233,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
         }
       } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
         const termValueStr = termMatch?.[1];
         const termUnit = termMatch?.[2];
         if (termValueStr && termUnit) {
@@ -2183,28 +2260,32 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       context,
       thinking: [
         `Analyzing ${context} model context...`,
-        `Extracting parameters from: "${message}"`,
+        `Extracting parameters from: "${sanitizedMessage}"`,
         `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
         `Preparing response with actionable modifications...`
       ]
     };
 
+    logInfo(requestContext, 'Chat response generated successfully', {
+      context,
+      changesDetected: Object.keys(modelChanges).length,
+    });
+
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: {
-        ...buildDefaultHeaders(env),
-        'Content-Type': 'application/json'
-      }
+      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
     });
     
   } catch (error) {
-    console.error('Contextual chat error:', error);
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    logError(requestContext, errorObj);
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      response: 'I apologize, but I encountered an error processing your request. Please try again.'
+      response: 'I apologize, but I encountered an error processing your request. Please try again.',
+      requestId: requestContext.requestId,
     }), {
       status: 500,
-      headers: buildDefaultHeaders(env)
+      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
     });
   }
 }));
@@ -2429,12 +2510,23 @@ export default {
   },
   // Scheduled reconciliation of approximate bucket usage to keep KV counters honest.
   // Runs based on wrangler.toml [triggers.crons] schedule.
-  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    // In production, run reconciliation asynchronously; in tests, await so assertions see updates.
-    const promise = reconcileBucketUsage(env);
-    ctx.waitUntil(promise);
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    // Daily log analysis at midnight
+    if (event.cron === '0 0 * * *') {
+      const logAnalysisPromise = import('./cron/analyze-logs').then(m => m.handleDailyLogAnalysis(env));
+      ctx.waitUntil(logAnalysisPromise);
+    }
+
+    // Hourly reconciliation of approximate bucket usage
+    const reconcilePromise = reconcileBucketUsage(env);
+    ctx.waitUntil(reconcilePromise);
+    
+    // In production, run asynchronously; in tests, await so assertions see updates.
     if (env.ENVIRONMENT === 'test') {
-      await promise;
+      await reconcilePromise;
     }
   },
 };
+
+// Export Durable Objects
+export { SessionDO } from './durable-objects/SessionDO';
