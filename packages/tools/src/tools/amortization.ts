@@ -4,6 +4,7 @@ import {
   computeAmortizationInsights,
   type AmortizationAnalysisResult,
   type AmortizationInsights,
+  type AmortizationInput,
 } from '@financial-analysis/analysis';
 
 export type AmortizationToolResponse = AmortizationAnalysisResult & {
@@ -86,12 +87,37 @@ export class AmortizationTool {
         },
         default: { enabled: false, rate: 0, dropOffLTV: 0.8 },
       },
+      propertyTaxAnnual: {
+        type: 'number',
+        description: 'Annual property tax amount',
+        default: 0,
+      },
+      homeInsuranceAnnual: {
+        type: 'number',
+        description: 'Annual homeowners insurance premium',
+        default: 0,
+      },
+      hoaMonthly: {
+        type: 'number',
+        description: 'Monthly HOA fees',
+        default: 0,
+      },
+      downPayment: {
+        type: 'number',
+        description: 'Down payment amount (for total cost calculation)',
+        default: 0,
+      },
+      closingCosts: {
+        type: 'number',
+        description: 'Total closing costs (for APR calculation)',
+        default: 0,
+      },
     },
     required: ['principal', 'annualRate', 'termMonths'],
   };
 
   static execute(input: unknown): Promise<AmortizationToolResponse> {
-    const validated = AmortizationInputSchema.parse(input);
+    const validated = AmortizationInputSchema.parse(input) as AmortizationInput;
     const result = AmortizationAnalyzer.analyze(validated);
     const insights = computeAmortizationInsights(result);
     return Promise.resolve({ ...result, insights });

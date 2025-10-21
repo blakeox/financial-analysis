@@ -24,6 +24,26 @@ export interface AmortizationAnalysisResult {
   payoffDate?: string | undefined;
   pmiDropoffMonth?: number | undefined;
   schedule: AmortizationResultItem[];
+  // PITI fields
+  monthlyPropertyTax?: number | undefined;
+  monthlyInsurance?: number | undefined;
+  monthlyHOA?: number | undefined;
+  totalMonthlyPayment?: number | undefined; // P+I+T+I+HOA
+  // APR and Total Cost Summary
+  apr?: number | undefined;
+  totalCostSummary?: {
+    downPayment: number;
+    loanAmount: number;
+    totalPrincipal: number;
+    totalInterest: number;
+    totalPMI: number;
+    totalTaxes: number;
+    totalInsurance: number;
+    totalHOA: number;
+    closingCosts: number;
+    totalCost: number;
+    totalPaid: number;
+  } | undefined;
 }
 
 export type AmortizationMilestoneId =
@@ -84,7 +104,61 @@ export const AmortizationInputSchema = z.object({
     })
     .optional()
     .default({ enabled: false, rate: 0, dropOffLTV: 0.8 }),
+  // PITI fields (Tax & Insurance)
+  propertyTaxAnnual: z.number().min(0).optional().default(0),
+  homeInsuranceAnnual: z.number().min(0).optional().default(0),
+  hoaMonthly: z.number().min(0).optional().default(0),
+  // APR calculation inputs
+  downPayment: z.number().min(0).optional().default(0),
+  closingCosts: z.number().min(0).optional().default(0),
 });
+
+/**
+ * Calculate APR using Newton-Raphson method (XIRR approximation)
+ * APR accounts for all upfront costs and compares to the actual loan amount received
+ */
+function calculateAPR(
+  loanAmount: number,
+  monthlyPayment: number,
+  termMonths: number,
+  upfrontCosts: number
+): number {
+  // Net amount received by borrower (loan - upfront costs)
+  const netProceeds = loanAmount - upfrontCosts;
+  
+  if (netProceeds <= 0 || monthlyPayment <= 0 || termMonths <= 0) {
+    return 0;
+  }
+
+  // Use Newton-Raphson to solve for monthly rate where NPV = 0
+  let rate = 0.005; // Initial guess (6% annual = 0.5% monthly)
+  const maxIterations = 100;
+  const tolerance = 0.0001;
+
+  for (let i = 0; i < maxIterations; i++) {
+    // NPV = -netProceeds + sum of discounted payments
+    let npv = -netProceeds;
+    let derivative = 0;
+
+    for (let month = 1; month <= termMonths; month++) {
+      const discount = Math.pow(1 + rate, -month);
+      npv += monthlyPayment * discount;
+      derivative -= month * monthlyPayment * discount / (1 + rate);
+    }
+
+    const newRate = rate - npv / derivative;
+    
+    if (Math.abs(newRate - rate) < tolerance) {
+      rate = newRate;
+      break;
+    }
+    
+    rate = newRate;
+  }
+
+  // Convert monthly rate to annual APR
+  return rate * 12;
+}
 
 export class AmortizationAnalyzer {
   static analyze(input: z.infer<typeof AmortizationInputSchema>): AmortizationAnalysisResult {
@@ -244,16 +318,60 @@ export class AmortizationAnalyzer {
       }
     }
 
+    // Calculate PITI components
+    const monthlyPropertyTax = parsed.propertyTaxAnnual / 12;
+    const monthlyInsurance = parsed.homeInsuranceAnnual / 12;
+    const monthlyHOA = parsed.hoaMonthly;
+    const totalMonthlyPayment = basePayment + monthlyPropertyTax + monthlyInsurance + monthlyHOA;
+
+    // Calculate APR (includes all upfront costs)
+    const upfrontCosts = origination_fee + (principal * points) / 100 + parsed.closingCosts;
+    const apr = calculateAPR(principal, basePayment, schedule.length, upfrontCosts);
+
+    // Calculate Total Cost Summary
+    const totalTaxes = monthlyPropertyTax * schedule.length;
+    const totalInsurance = monthlyInsurance * schedule.length;
+    const totalHOA = monthlyHOA * schedule.length;
+    const totalPMINum = Number(totalPMI.toDecimalPlaces(2));
+    
+    const totalCostSummary = {
+      downPayment: parsed.downPayment,
+      loanAmount: principal,
+      totalPrincipal: Number(cumulativePrincipal.toDecimalPlaces(2)),
+      totalInterest: totalInterestPaid,
+      totalPMI: totalPMINum,
+      totalTaxes: Number(new Decimal(totalTaxes).toDecimalPlaces(2)),
+      totalInsurance: Number(new Decimal(totalInsurance).toDecimalPlaces(2)),
+      totalHOA: Number(new Decimal(totalHOA).toDecimalPlaces(2)),
+      closingCosts: upfrontCosts,
+      totalCost: Number(new Decimal(
+        parsed.downPayment + upfrontCosts + actualPayments + totalTaxes + totalInsurance + totalHOA
+      ).toDecimalPlaces(2)),
+      totalPaid: Number(new Decimal(actualPayments + totalTaxes + totalInsurance + totalHOA).toDecimalPlaces(2)),
+    };
+
     return {
       monthlyPayment: Number(new Decimal(basePayment).toDecimalPlaces(2)),
       totalPayments: Number(new Decimal(actualPayments).toDecimalPlaces(2)),
       totalInterest: totalInterestPaid,
-      totalPMI: pmi.enabled ? Number(totalPMI.toDecimalPlaces(2)) : undefined,
+      totalPMI: pmi.enabled ? totalPMINum : undefined,
       interestSaved: interestSaved > 0 ? interestSaved : undefined,
       timeReduced: timeReduced > 0 ? timeReduced : undefined,
       payoffDate,
       pmiDropoffMonth: pmiDropoffMonth || undefined,
       schedule,
+      // PITI fields
+      monthlyPropertyTax: monthlyPropertyTax > 0 ? Number(new Decimal(monthlyPropertyTax).toDecimalPlaces(2)) : undefined,
+      monthlyInsurance: monthlyInsurance > 0 ? Number(new Decimal(monthlyInsurance).toDecimalPlaces(2)) : undefined,
+      monthlyHOA: monthlyHOA > 0 ? Number(new Decimal(monthlyHOA).toDecimalPlaces(2)) : undefined,
+      totalMonthlyPayment: (monthlyPropertyTax > 0 || monthlyInsurance > 0 || monthlyHOA > 0) 
+        ? Number(new Decimal(totalMonthlyPayment).toDecimalPlaces(2)) 
+        : undefined,
+      // APR and Total Cost Summary
+      apr: upfrontCosts > 0 ? Number(new Decimal(apr).toDecimalPlaces(6)) : undefined,
+      totalCostSummary: (parsed.downPayment > 0 || upfrontCosts > 0 || totalTaxes > 0 || totalInsurance > 0 || totalHOA > 0)
+        ? totalCostSummary
+        : undefined,
     };
   }
 
