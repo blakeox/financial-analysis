@@ -1,5 +1,12 @@
 export {};
 
+// Security and validation constants
+const MAX_MESSAGE_LENGTH = 2000;
+const RATE_LIMIT_DELAY_MS = 1000; // 1 second between messages
+const API_TIMEOUT_MS = 30000; // 30 second timeout
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_BACKOFF_MS = 1000; // Initial backoff time
+
 type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models';
 
 type ModelState = Record<string, string>;
@@ -15,6 +22,24 @@ type WindowWithChatPanel = Window & {
   chatPanelBootstrapError?: string;
 };
 
+/**
+ * Validate message meets security requirements
+ */
+function validateMessage(message: string): { valid: boolean; error?: string } {
+  if (!message || message.trim().length === 0) {
+    return { valid: false, error: 'Message cannot be empty' };
+  }
+  
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return {
+      valid: false,
+      error: `Message too long (${message.length} characters). Maximum is ${MAX_MESSAGE_LENGTH}.`,
+    };
+  }
+  
+  return { valid: true };
+}
+
 class ChatPanel {
   private panel: HTMLDivElement;
   private toggle: HTMLButtonElement;
@@ -25,6 +50,7 @@ class ChatPanel {
   private messages: HTMLDivElement;
   private thinkingIndicator: HTMLDivElement;
   private contextIndicator: HTMLSpanElement;
+  private charCounter: HTMLSpanElement | null;
   private isOpen: boolean;
   private currentContext: ContextKey;
   private customContextKey: ContextKey | null;
@@ -34,6 +60,9 @@ class ChatPanel {
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
   private mcpTools: Array<{ name: string; description: string }> | null;
+  
+  // Rate limiting
+  private lastMessageTime: number;
 
   private updateLayoutOffsets = (): void => {
     const header = document.getElementById('site-header');
@@ -91,6 +120,9 @@ class ChatPanel {
     this.messages = messages;
     this.thinkingIndicator = thinkingIndicator;
     this.contextIndicator = contextIndicator;
+    
+    // Character counter (optional, may not exist in DOM yet)
+    this.charCounter = document.getElementById('chat-char-counter') as HTMLSpanElement | null;
 
     this.isOpen = false;
     this.currentContext = this.detectContext();
@@ -100,6 +132,9 @@ class ChatPanel {
     this.customContextData = null;
     this.externalContextListener = null;
     this.mcpTools = null;
+    
+    // Initialize rate limiting
+    this.lastMessageTime = 0;
 
     // Fetch available MCP tools
     this.fetchMCPTools().catch((err) => {
@@ -491,8 +526,14 @@ class ChatPanel {
     });
 
     this.input.addEventListener('input', () => {
-      this.sendBtn.disabled = !this.input.value.trim();
+      const messageLength = this.input.value.length;
+      const isValid = messageLength > 0 && messageLength <= MAX_MESSAGE_LENGTH;
+      
+      this.sendBtn.disabled = !isValid;
       this.autoResizeInput();
+      
+      // Update character count indicator
+      this.updateCharacterCount(messageLength);
     });
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -507,6 +548,21 @@ class ChatPanel {
   private autoResizeInput(): void {
     this.input.style.height = 'auto';
     this.input.style.height = `${Math.min(this.input.scrollHeight, 100)}px`;
+  }
+
+  private updateCharacterCount(length: number): void {
+    if (!this.charCounter) return;
+    
+    this.charCounter.textContent = `${length}/${MAX_MESSAGE_LENGTH}`;
+    
+    // Visual warning when approaching limit
+    if (length > MAX_MESSAGE_LENGTH * 0.9) {
+      this.charCounter.style.color = '#f48771'; // Warning orange
+    } else if (length > MAX_MESSAGE_LENGTH) {
+      this.charCounter.style.color = '#f14c4c'; // Error red
+    } else {
+      this.charCounter.style.color = '#858585'; // Default gray
+    }
   }
 
   private togglePanel(): void {
@@ -548,7 +604,13 @@ class ChatPanel {
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.innerHTML = content;
+    
+    // Sanitize user messages to prevent XSS
+    if (type === 'user') {
+      contentDiv.textContent = content; // Use textContent for user messages (auto-escapes)
+    } else {
+      contentDiv.innerHTML = content; // Assistant messages can have formatted HTML
+    }
 
     messageDiv.appendChild(contentDiv);
     this.messages.appendChild(messageDiv);
@@ -565,8 +627,30 @@ class ChatPanel {
 
   private async sendMessage(): Promise<void> {
     const message = this.input.value.trim();
-    if (!message) return;
+    
+    // Validate message
+    const validation = validateMessage(message);
+    if (!validation.valid) {
+      if (validation.error) {
+        this.addMessage(validation.error, 'assistant');
+      }
+      return;
+    }
 
+    // Check rate limiting
+    const now = Date.now();
+    const timeSinceLastMessage = now - this.lastMessageTime;
+    
+    if (timeSinceLastMessage < RATE_LIMIT_DELAY_MS) {
+      const waitTime = Math.ceil((RATE_LIMIT_DELAY_MS - timeSinceLastMessage) / 1000);
+      this.addMessage(
+        `Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before sending another message.`,
+        'assistant'
+      );
+      return;
+    }
+
+    this.lastMessageTime = now;
     this.addMessage(message, 'user');
     this.input.value = '';
     this.sendBtn.disabled = true;
@@ -597,22 +681,14 @@ class ChatPanel {
         payload.contextData = this.customContextData;
       }
 
-      const response = await fetch('/api/v1/chat/enhanced', {
+      // Fetch with timeout and retry logic
+      const data = await this.fetchWithRetry('/api/v1/chat/enhanced', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = (await response.json()) as {
-        response: string;
-        modelChanges?: ModelChanges;
-      };
 
       this.hideThinking();
       this.addMessage(data.response, 'assistant');
@@ -623,9 +699,83 @@ class ChatPanel {
       }
     } catch (error) {
       this.hideThinking();
-      this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      if (errorMessage.includes('timeout')) {
+        this.addMessage(
+          'Request timed out. The server may be busy. Please try again in a moment.',
+          'assistant'
+        );
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        this.addMessage(
+          'Network error. Please check your connection and try again.',
+          'assistant'
+        );
+      } else if (errorMessage.includes('429')) {
+        this.addMessage(
+          'Too many requests. Please wait a moment before trying again.',
+          'assistant'
+        );
+      } else {
+        this.addMessage(
+          'Sorry, I encountered an error. Please try again.',
+          'assistant'
+        );
+      }
+      
       this.sendBtn.disabled = false;
       console.error('Chat error:', error);
+    }
+  }
+
+  /**
+   * Fetch with timeout and retry logic
+   */
+  private async fetchWithRetry(
+    url: string,
+    options: RequestInit,
+    attempt = 1
+  ): Promise<{ response: string; modelChanges?: ModelChanges }> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
+          // Rate limited, retry with backoff
+          const backoffTime = RETRY_BACKOFF_MS * Math.pow(2, attempt - 1);
+          await new Promise(resolve => setTimeout(resolve, backoffTime));
+          return this.fetchWithRetry(url, options, attempt + 1);
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as {
+        response: string;
+        modelChanges?: ModelChanges;
+      };
+
+      return data;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - please try again');
+      }
+      
+      // Retry on network errors
+      if (attempt < MAX_RETRY_ATTEMPTS && error instanceof TypeError) {
+        const backoffTime = RETRY_BACKOFF_MS * Math.pow(2, attempt - 1);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        return this.fetchWithRetry(url, options, attempt + 1);
+      }
+      
+      throw error;
     }
   }
 
