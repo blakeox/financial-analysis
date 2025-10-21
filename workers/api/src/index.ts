@@ -802,10 +802,20 @@ router.post(
       .join('\n');
     const prompt = `${system ? system.content + '\n\n' : ''}${userParts}`.slice(0, 10000);
 
-    // Call Workers AI text generation endpoint
+    // Call Workers AI with optional AI Gateway support for caching and logging
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = env.AI as any;
-    const aiRes = await ai.run(model, { prompt });
+    
+    // Configure AI Gateway if available
+    const aiOptions = env.AI_GATEWAY_ID ? {
+      gateway: {
+        id: env.AI_GATEWAY_ID,
+        skipCache: false,
+        cacheTtl: 3600, // 1 hour cache for identical prompts
+      }
+    } : {};
+    
+    const aiRes = await ai.run(model, { prompt }, aiOptions);
     const text: string = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
     const reply: ChatResponse = {
       role: 'assistant',
@@ -2496,12 +2506,23 @@ export default {
   },
   // Scheduled reconciliation of approximate bucket usage to keep KV counters honest.
   // Runs based on wrangler.toml [triggers.crons] schedule.
-  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    // In production, run reconciliation asynchronously; in tests, await so assertions see updates.
-    const promise = reconcileBucketUsage(env);
-    ctx.waitUntil(promise);
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    // Daily log analysis at midnight
+    if (event.cron === '0 0 * * *') {
+      const logAnalysisPromise = import('./cron/analyze-logs').then(m => m.handleDailyLogAnalysis(env));
+      ctx.waitUntil(logAnalysisPromise);
+    }
+
+    // Hourly reconciliation of approximate bucket usage
+    const reconcilePromise = reconcileBucketUsage(env);
+    ctx.waitUntil(reconcilePromise);
+    
+    // In production, run asynchronously; in tests, await so assertions see updates.
     if (env.ENVIRONMENT === 'test') {
-      await promise;
+      await reconcilePromise;
     }
   },
 };
+
+// Export Durable Objects
+export { SessionDO } from './durable-objects/SessionDO';
