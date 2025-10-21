@@ -23,6 +23,145 @@ const FinancialInputOpenAPISchema = z.object({
 });
 
 registry.register('FinancialInput', FinancialInputOpenAPISchema);
+
+// ---- EBITDA Forecasting (OpenAPI-only schemas) ----
+const MonthlyFinancialsOpenAPISchema = z
+  .object({
+    month: z.number().int().min(1).max(12).openapi({ example: 12 }),
+    year: z.number().int().min(2020).openapi({ example: 2024 }),
+    revenue: z.number().min(0).openapi({ example: 200000 }),
+    costOfGoodsSold: z.number().min(0).default(0).openapi({ example: 0 }),
+    operatingExpenses: z.number().min(0).openapi({ example: 50000 }),
+    depreciation: z.number().min(0).default(0).openapi({ example: 1500 }),
+    amortization: z.number().min(0).default(0).openapi({ example: 750 }),
+    interestExpense: z.number().min(0).default(0).openapi({ example: 300 }),
+    taxes: z.number().min(0).default(0).openapi({ example: 12000 }),
+  })
+  .openapi({ description: 'Monthly baseline financials' });
+
+const EmployeeOpenAPISchema = z
+  .object({
+    id: z.string().openapi({ example: 'emp-1' }),
+    name: z.string().openapi({ example: 'Senior Consultant' }),
+    role: z.string().openapi({ example: 'Senior Consultant' }),
+    department: z.string().openapi({ example: 'Consulting' }),
+    billableHoursPerMonth: z.number().min(0).default(160).openapi({ example: 150 }),
+    hourlyRate: z.number().min(0).openapi({ example: 175 }),
+    salary: z.number().min(0).openapi({ example: 100000 }),
+    benefits: z.number().min(0).default(0).openapi({ example: 15000 }),
+    startDate: z.string().openapi({ example: '2024-01-01T00:00:00Z', format: 'date-time' }),
+    isActive: z.boolean().default(true).openapi({ example: true }),
+  })
+  .openapi({ description: 'Employee details' });
+
+const ExpenseTypeOpenAPISchema = z
+  .object({
+    id: z.string().openapi({ example: 'exp-1' }),
+    name: z.string().openapi({ example: 'New Office Space' }),
+    category: z.enum(['fixed', 'variable', 'semi-variable']).openapi({ example: 'fixed' }),
+    amount: z.number().min(0).openapi({ example: 20000 }),
+    frequency: z.enum(['monthly', 'quarterly', 'annually']).openapi({ example: 'monthly' }),
+    isRecurring: z.boolean().default(true).openapi({ example: true }),
+    description: z.string().optional().openapi({ example: 'Additional office rent' }),
+    growthRate: z.number().min(-1).max(1).default(0).openapi({ example: 0 }),
+    startMonth: z.number().int().min(1).max(60).default(1).openapi({ example: 6 }),
+  })
+  .openapi({ description: 'Additional expense' });
+
+const ScenarioInputOpenAPISchema = z
+  .object({
+    name: z.string().openapi({ example: 'Seasonal Consulting Business' }),
+    description: z.string().optional().openapi({ example: 'EBITDA forecast with seasonality' }),
+    forecastPeriodMonths: z.number().int().min(1).max(60).default(12).openapi({ example: 12 }),
+    currentMonthlyFinancials: z.array(MonthlyFinancialsOpenAPISchema).openapi({
+      example: [
+        {
+          month: 12,
+          year: 2024,
+          revenue: 200000,
+          costOfGoodsSold: 0,
+          operatingExpenses: 50000,
+          depreciation: 1500,
+          amortization: 750,
+          interestExpense: 300,
+          taxes: 12000,
+        },
+      ],
+    }),
+    currentEmployees: z.array(EmployeeOpenAPISchema).openapi({ example: [] }),
+    newEmployees: z
+      .array(EmployeeOpenAPISchema.extend({ startMonth: z.number().int().min(1).max(60) }))
+      .default([])
+      .openapi({ example: [] }),
+    revenueGrowthRate: z.number().min(-1).max(10).default(0).openapi({ example: 0.03 }),
+    billableHoursGrowthRate: z.number().min(-1).max(10).default(0).openapi({ example: 0.01 }),
+    additionalExpenses: z.array(ExpenseTypeOpenAPISchema).default([]).openapi({ example: [] }),
+    operatingExpenseGrowthRate: z.number().min(-1).max(1).default(0).openapi({ example: 0.015 }),
+    inflationRate: z.number().min(0).max(1).default(0.03).openapi({ example: 0.03 }),
+    economicFactors: z
+      .object({
+        marketGrowth: z.number().min(-1).max(1).default(0).openapi({ example: 0.0 }),
+        competitionFactor: z.number().min(0).max(2).default(1).openapi({ example: 1.0 }),
+        seasonalityFactors: z.array(z.number().min(0).max(5)).length(12).optional().openapi({
+          example: [0.8, 0.85, 1.1, 1.15, 1.05, 0.95, 0.75, 0.8, 1.2, 1.25, 1.1, 0.9],
+        }),
+      })
+      .optional(),
+  })
+  .openapi({ description: 'EBITDA forecast scenario input' });
+
+const MonthlyForecastOpenAPISchema = z
+  .object({
+    month: z.number().openapi({ example: 1 }),
+    year: z.number().openapi({ example: 2025 }),
+    revenue: z.number().openapi({ example: 210000 }),
+    costOfGoodsSold: z.number().openapi({ example: 0 }),
+    grossProfit: z.number().openapi({ example: 210000 }),
+    operatingExpenses: z.number().openapi({ example: 60000 }),
+    ebitda: z.number().openapi({ example: 150000 }),
+    depreciation: z.number().openapi({ example: 1500 }),
+    amortization: z.number().openapi({ example: 750 }),
+    ebit: z.number().openapi({ example: 147750 }),
+    interestExpense: z.number().openapi({ example: 300 }),
+    ebt: z.number().openapi({ example: 147450 }),
+    taxes: z.number().openapi({ example: 36862.5 }),
+    netIncome: z.number().openapi({ example: 110587.5 }),
+    billableHours: z.number().openapi({ example: 300 }),
+    employeeCosts: z.number().openapi({ example: 20000 }),
+    employeeCount: z.number().openapi({ example: 2 }),
+    marginPercent: z.number().openapi({ example: 50 }),
+    ebitdaMargin: z.number().openapi({ example: 71.4 }),
+  })
+  .openapi({ description: 'Per-month forecast output' });
+
+const EbitdaForecastResponseOpenAPISchema = z
+  .object({
+    scenario: z.object({
+      name: z.string(),
+      description: z.string().optional(),
+      forecastPeriodMonths: z.number(),
+      economicFactors: z
+        .object({
+          seasonalityFactors: z.array(z.number()).length(12).optional(),
+        })
+        .optional(),
+    }),
+    forecast: z.array(MonthlyForecastOpenAPISchema),
+    summary: z.object({
+      totalRevenue: z.number(),
+      totalEbitda: z.number(),
+      averageEbitdaMargin: z.number(),
+      totalEmployeeCosts: z.number(),
+      totalOperatingExpenses: z.number(),
+      finalEmployeeCount: z.number(),
+      revenueGrowth: z.number(),
+      ebitdaGrowth: z.number(),
+    }),
+  })
+  .openapi({ description: 'EBITDA forecast result' });
+
+registry.register('EbitdaScenarioInput', ScenarioInputOpenAPISchema);
+registry.register('EbitdaForecastResponse', EbitdaForecastResponseOpenAPISchema);
 registry.register('Health', HealthSchema);
 
 const VersionSchema = z.object({
@@ -284,6 +423,112 @@ registry.registerPath({
     415: {
       description: 'Unsupported Media Type',
     },
+  },
+});
+
+// EBITDA forecast analysis endpoint
+registry.registerPath({
+  method: 'post',
+  path: '/v1/api/analysis/ebitda-forecast',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: ScenarioInputOpenAPISchema,
+          example: {
+            name: 'Baseline SaaS Plan',
+            description: '12‑month forecast with moderate growth and seasonality',
+            forecastPeriodMonths: 12,
+            currentMonthlyFinancials: [
+              { month: 1, year: 2025, revenue: 120000, costOfGoodsSold: 0, operatingExpenses: 45000, depreciation: 2000, amortization: 0, interestExpense: 0, taxes: 0 },
+              { month: 2, year: 2025, revenue: 125000, costOfGoodsSold: 0, operatingExpenses: 46000, depreciation: 2000, amortization: 0, interestExpense: 0, taxes: 0 }
+            ],
+            currentEmployees: [
+              {
+                id: 'emp-1',
+                name: 'Lead Engineer',
+                role: 'Engineer',
+                department: 'Engineering',
+                billableHoursPerMonth: 0,
+                hourlyRate: 0,
+                salary: 160000,
+                benefits: 25000,
+                startDate: '2025-01-01T00:00:00Z',
+                isActive: true
+              }
+            ],
+            newEmployees: [],
+            revenueGrowthRate: 0.04,
+            billableHoursGrowthRate: 0,
+            additionalExpenses: [
+              { id: 'exp-1', name: 'Headquarters Lease', category: 'fixed', amount: 18000, frequency: 'monthly', isRecurring: true, description: 'Office lease', growthRate: 0, startMonth: 1 },
+              { id: 'exp-2', name: 'Cloud Infrastructure', category: 'semi-variable', amount: 9000, frequency: 'monthly', isRecurring: true, description: 'Core hosting costs', growthRate: 0.01, startMonth: 1 }
+            ],
+            operatingExpenseGrowthRate: 0.01,
+            inflationRate: 0.03,
+            economicFactors: {
+              marketGrowth: 0.0,
+              competitionFactor: 1.0,
+              seasonalityFactors: [1,1,1.05,1.07,1.1,1.05,0.95,0.9,1.05,1.1,1.08,1.02]
+            }
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'EBITDA forecast result',
+      content: {
+        'application/json': {
+          schema: EbitdaForecastResponseOpenAPISchema,
+          example: {
+            scenario: {
+              name: 'Baseline SaaS Plan',
+              forecastPeriodMonths: 12,
+              economicFactors: {
+                seasonalityFactors: [1,1,1.05,1.07,1.1,1.05,0.95,0.9,1.05,1.1,1.08,1.02]
+              }
+            },
+            forecast: [
+              {
+                month: 1,
+                year: 2025,
+                revenue: 120000,
+                costOfGoodsSold: 0,
+                grossProfit: 120000,
+                operatingExpenses: 45000,
+                ebitda: 75000,
+                depreciation: 2000,
+                amortization: 0,
+                ebit: 73000,
+                interestExpense: 0,
+                ebt: 73000,
+                taxes: 0,
+                netIncome: 73000,
+                billableHours: 0,
+                employeeCosts: 15333.33,
+                employeeCount: 1,
+                marginPercent: 62.5,
+                ebitdaMargin: 62.5
+              }
+            ],
+            summary: {
+              totalRevenue: 120000,
+              totalEbitda: 75000,
+              averageEbitdaMargin: 62.5,
+              totalEmployeeCosts: 15333.33,
+              totalOperatingExpenses: 45000,
+              finalEmployeeCount: 1,
+              revenueGrowth: 0,
+              ebitdaGrowth: 0
+            }
+          },
+        },
+      },
+    },
+    400: { description: 'Invalid request body' },
+    415: { description: 'Unsupported Media Type' },
   },
 });
 

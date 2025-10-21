@@ -10,7 +10,9 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:8787';
     <div class="grid gap-6 md:grid-cols-2">
       <div>
         <h2 class="text-lg font-semibold mb-3">R2 Storage</h2>
-        <StorageUsageCard client:idle apiBase={apiBase} />
+        <div data-testid="storage-card">
+          <StorageUsageCard client:load apiBase={apiBase} />
+        </div>
       </div>
       <div>
         <h2 class="text-lg font-semibold mb-3">Notes</h2>

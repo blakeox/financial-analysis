@@ -9,28 +9,28 @@ import {
   FinancialsInputForm,
   ForecastResults,
   ScenarioConfig,
+  ModuleSelector,
+  FixedAssetsManager,
+  LeasesManager,
+  type ModuleType,
   type EbitdaForecastResult,
   type EmployeeData,
   type ExpenseTypeData,
+  type FixedAssetData,
+  type LeaseData,
   type MonthlyFinancialsData,
   type ScenarioConfigData,
+  buildScenarioPayload,
+  type DashboardScenarioConfig,
 } from '@financial-analysis/ui';
 import { useCallback, useState } from 'react';
-
-type DashboardScenarioConfig = ScenarioConfigData & {
-  scenarioName: string;
-  scenarioDescription?: string;
-  operatingExpenseGrowthRate: number;
-  billableHoursGrowthRate: number;
-  inflationRate: number;
-  competitionFactor: number;
-  seasonalityFactors?: number[];
-};
 
 interface DashboardState {
   financials: MonthlyFinancialsData;
   employees: EmployeeData[];
   expenseTypes: ExpenseTypeData[];
+  fixedAssets: FixedAssetData[];
+  leases: LeaseData[];
   scenarioConfig: DashboardScenarioConfig;
   isLoading: boolean;
   results: EbitdaForecastResult | null;
@@ -38,42 +38,12 @@ interface DashboardState {
   isHydrated: boolean;
 }
 
-const monthOrder: Array<keyof MonthlyFinancialsData> = [
-  'january',
-  'february',
-  'march',
-  'april',
-  'may',
-  'june',
-  'july',
-  'august',
-  'september',
-  'october',
-  'november',
-  'december',
-];
-
-const monthIndexMap: Record<keyof MonthlyFinancialsData, number> = {
-  january: 1,
-  february: 2,
-  march: 3,
-  april: 4,
-  may: 5,
-  june: 6,
-  july: 7,
-  august: 8,
-  september: 9,
-  october: 10,
-  november: 11,
-  december: 12,
-};
-
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-
 const initialState: DashboardState = {
   financials: {},
   employees: [],
   expenseTypes: [],
+  fixedAssets: [],
+  leases: [],
   scenarioConfig: {
     scenarioName: 'Baseline Plan',
     scenarioDescription: '',
@@ -94,6 +64,7 @@ const initialState: DashboardState = {
 
 export function EbitdaDashboard() {
   const [state, setState] = useState<DashboardState>(initialState);
+  const [activeModules, setActiveModules] = useState<ModuleType[]>([]);
 
   // No hydration check needed with client:only="react" directive
 
@@ -107,6 +78,14 @@ export function EbitdaDashboard() {
 
   const updateExpenseTypes = useCallback((expenseTypes: ExpenseTypeData[]) => {
     setState((prev) => ({ ...prev, expenseTypes, results: null, error: null }));
+  }, []);
+
+  const updateFixedAssets = useCallback((fixedAssets: FixedAssetData[]) => {
+    setState((prev) => ({ ...prev, fixedAssets, results: null, error: null }));
+  }, []);
+
+  const updateLeases = useCallback((leases: LeaseData[]) => {
+    setState((prev) => ({ ...prev, leases, results: null, error: null }));
   }, []);
 
   const updateScenarioConfig = useCallback((scenarioConfig: ScenarioConfigData) => {
@@ -125,92 +104,15 @@ export function EbitdaDashboard() {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const currentYear = new Date().getFullYear();
-      const monthlyFinancials = monthOrder
-        .map((monthKey) => {
-          const revenue = state.financials[monthKey];
-          if (revenue === undefined || revenue === null || revenue <= 0) {
-            return null;
-          }
-          return {
-            month: monthIndexMap[monthKey],
-            year: currentYear,
-            revenue,
-            costOfGoodsSold: 0,
-            operatingExpenses: 0,
-            depreciation: 0,
-            amortization: 0,
-            interestExpense: 0,
-            taxes: 0,
-          };
-        })
-        .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-
-      if (monthlyFinancials.length === 0) {
-        throw new Error(
-          'Please provide revenue for at least one month before generating a forecast.'
-        );
-      }
-
-      const currentEmployees = state.employees.map((employee) => ({
-        id: employee.id,
-        name: employee.name,
-        role: employee.department || 'Employee',
-        department: employee.department || 'General',
-        billableHoursPerMonth: employee.billableHoursPerMonth ?? 0,
-        hourlyRate: employee.hourlyRate ?? 0,
-        salary: employee.currentSalary ?? 0,
-        benefits: 0,
-        startDate: new Date(currentYear, 0, 1).toISOString(),
-        isActive: employee.isActive,
-      }));
-
-      const additionalExpenses = state.expenseTypes
-        .filter((expense) => expense.isActive)
-        .map((expense) => ({
-          id: expense.id,
-          name: expense.name,
-          category: expense.category === 'mixed' ? 'semi-variable' : expense.category,
-          amount: expense.currentMonthlyAmount,
-          frequency: 'monthly' as const,
-          isRecurring: true,
-          description: `${expense.name} expense`,
-          startMonth: 1,
-          growthRate: expense.growthRate ?? 0,
-        }));
-
-      const scenarioConfig = state.scenarioConfig;
-      const hasSeasonality =
-        Array.isArray(scenarioConfig.seasonalityFactors) &&
-        scenarioConfig.seasonalityFactors.length === 12;
-      const marketGrowthRate = clamp(scenarioConfig.marketGrowthFactor - 1, -1, 1);
-      const scenarioName = scenarioConfig.scenarioName.trim() || 'EBITDA Forecast Scenario';
-      const scenarioDescription = scenarioConfig.scenarioDescription?.trim();
-
-      const scenarioPayload = {
-        name: scenarioName,
-        ...(scenarioDescription ? { description: scenarioDescription } : {}),
-        forecastPeriodMonths: scenarioConfig.projectionMonths,
-        currentMonthlyFinancials: monthlyFinancials,
-        currentEmployees,
-        newEmployees: [],
-        revenueGrowthRate: scenarioConfig.revenueGrowthRate,
-        billableHoursGrowthRate: scenarioConfig.billableHoursGrowthRate,
-        additionalExpenses,
-        operatingExpenseGrowthRate: scenarioConfig.operatingExpenseGrowthRate,
-        inflationRate: scenarioConfig.inflationRate,
-        ...(marketGrowthRate !== 0 || scenarioConfig.competitionFactor !== 1 || hasSeasonality
-          ? {
-              economicFactors: {
-                marketGrowth: marketGrowthRate,
-                competitionFactor: scenarioConfig.competitionFactor,
-                ...(hasSeasonality
-                  ? { seasonalityFactors: scenarioConfig.seasonalityFactors }
-                  : {}),
-              },
-            }
-          : {}),
-      };
+      const scenarioPayload = buildScenarioPayload({
+        financials: state.financials,
+        employees: state.employees,
+        expenseTypes: state.expenseTypes,
+        fixedAssets: state.fixedAssets,
+        leases: state.leases,
+        scenarioConfig: state.scenarioConfig,
+        clock: new Date(),
+      });
 
       const response = await fetch('/v1/api/analysis/ebitda-forecast', {
         method: 'POST',
@@ -233,7 +135,14 @@ export function EbitdaDashboard() {
       const message = error instanceof Error ? error.message : 'An unexpected error occurred';
       setState((prev) => ({ ...prev, error: message, isLoading: false }));
     }
-  }, [state.financials, state.employees, state.expenseTypes, state.scenarioConfig]);
+  }, [
+    state.financials,
+    state.employees,
+    state.expenseTypes,
+    state.fixedAssets,
+    state.leases,
+    state.scenarioConfig,
+  ]);
 
   const clearResults = useCallback(() => {
     setState((prev) => ({ ...prev, results: null, error: null }));
@@ -243,6 +152,10 @@ export function EbitdaDashboard() {
     const hasFinancials = Object.values(state.financials).some((value) => (value || 0) > 0);
     return hasFinancials;
   };
+
+  const handleAddModule = useCallback((moduleType: ModuleType) => {
+    setActiveModules((prev) => (prev.includes(moduleType) ? prev : [...prev, moduleType]));
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -278,6 +191,38 @@ export function EbitdaDashboard() {
                 ✅ Forecast generated for {state.results.forecast.length} months
               </div>
             )}
+            {/* Summary Chips */}
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+              {(() => {
+                const activeEmployees = state.employees.filter(e => e.isActive);
+                const employeeCount = activeEmployees.length;
+                const monthlyDepreciation = state.fixedAssets.filter(a => a.isActive).reduce((s,a)=> s + (a.monthlyDepreciation||0),0);
+                const monthlyLeasePayments = state.leases.filter(l=>l.isActive).reduce((s,l)=> s + (l.monthlyPayment||0),0);
+                const monthlyOpExBaseline = state.expenseTypes.filter(e=>e.isActive).reduce((s,e)=> s + (e.currentMonthlyAmount||0),0) + monthlyLeasePayments;
+                const format = (v:number) => v.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0});
+                const chipBase = 'rounded-lg p-3 bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col';
+                return (
+                  <>
+                    <div className={chipBase}>
+                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Active Employees</span>
+                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{employeeCount}</span>
+                    </div>
+                    <div className={chipBase}>
+                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Monthly Depreciation</span>
+                      <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">{format(monthlyDepreciation)}</span>
+                    </div>
+                    <div className={chipBase}>
+                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Lease Payments / Mo</span>
+                      <span className="text-lg font-semibold text-indigo-700 dark:text-indigo-300">{format(monthlyLeasePayments)}</span>
+                    </div>
+                    <div className={chipBase}>
+                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Baseline OpEx / Mo</span>
+                      <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">{format(monthlyOpExBaseline)}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             {state.results && (
@@ -366,6 +311,11 @@ export function EbitdaDashboard() {
       {/* Input Forms with Improved Layout */}
       {!state.results && (
         <>
+          {/* Module selector to add sections on demand */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <ModuleSelector activeModules={activeModules} onAddModule={handleAddModule} />
+          </div>
+
           {/* Progress Indicator */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
@@ -431,6 +381,7 @@ export function EbitdaDashboard() {
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <div className="space-y-8">
+              {activeModules.includes('financials') && (
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
@@ -460,7 +411,9 @@ export function EbitdaDashboard() {
                   />
                 </CardContent>
               </Card>
+              )}
 
+              {activeModules.includes('scenario') && (
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
@@ -492,9 +445,11 @@ export function EbitdaDashboard() {
                   <ScenarioConfig data={state.scenarioConfig} onChange={updateScenarioConfig} />
                 </CardContent>
               </Card>
+              )}
             </div>
 
             <div className="space-y-8">
+              {activeModules.includes('employees') && (
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
@@ -520,7 +475,9 @@ export function EbitdaDashboard() {
                   <EmployeeManager employees={state.employees} onChange={updateEmployees} />
                 </CardContent>
               </Card>
+              )}
 
+              {activeModules.includes('expenses') && (
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
@@ -549,6 +506,63 @@ export function EbitdaDashboard() {
                   />
                 </CardContent>
               </Card>
+              )}
+
+              {activeModules.includes('fixed-assets') && (
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                      <svg
+                        className="w-5 h-5 text-amber-600 dark:text-amber-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M8 7V5a4 4 0 118 0v2"
+                        />
+                      </svg>
+                    </div>
+                    Fixed Assets
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <FixedAssetsManager assets={state.fixedAssets} onChange={updateFixedAssets} />
+                </CardContent>
+              </Card>
+              )}
+
+              {activeModules.includes('leases') && (
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+                      <svg
+                        className="w-5 h-5 text-cyan-600 dark:text-cyan-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M8 7V5a4 4 0 118 0v2"
+                        />
+                      </svg>
+                    </div>
+                    Leases
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <LeasesManager leases={state.leases} onChange={updateLeases} />
+                </CardContent>
+              </Card>
+              )}
             </div>
           </div>
         </>

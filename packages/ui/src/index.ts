@@ -11,10 +11,12 @@ export {
 export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
+export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
 export { ChatPanel } from './components/ChatPanel';
-export { VSCodeChatPanel } from './components/VSCodeChatPanel';
-export type { ChatMessage } from './components/VSCodeChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
+export { Select } from './components/Select';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
+export { LeaseAnalysisDashboard } from './components/LeaseAnalysisDashboard';
 
 // Amortization Components
 export { AmortizationResults } from './components/AmortizationResults';
@@ -34,9 +36,65 @@ export type { ScenarioConfigData, ScenarioConfigProps } from './components/Scena
 export { ModuleSelector, AVAILABLE_MODULES } from './components/ModuleSelector';
 export type { ModuleType, ModuleDefinition } from './components/ModuleSelector';
 export { ModuleCard } from './components/ModuleCard';
+export { FixedAssetsManager } from './components/FixedAssetsManager';
+export type { FixedAssetData, FixedAssetsManagerProps } from './components/FixedAssetsManager';
+export { LeasesManager } from './components/LeasesManager';
+export type { LeaseData, LeasesManagerProps } from './components/LeasesManager';
 
 // Chart Components
 export * from './components/charts';
 
 // Utilities
 export { cn } from './lib/utils';
+export { buildScenarioPayload } from './lib/ebitdaPayload';
+export {
+  formatCurrency,
+  formatCurrencyOptional,
+  formatPercentage,
+  formatPercentageOptional,
+  formatNumber,
+  formatDate,
+  truncate,
+  formatFileSize,
+} from './lib/formatters';
+export {
+  validateFile,
+  validateNumberRange,
+  validateRequired,
+  validateEmail,
+  clamp,
+} from './lib/validation';
+export {
+  cn as classNames,
+  buttonVariants,
+  inputClasses,
+  cardClasses,
+  badgeVariants,
+  gridLayouts,
+  textColors,
+} from './lib/classNames';
+
+// Custom Hooks
+export {
+  useHydrated,
+  useApiData,
+  useLocalStorage,
+  useEscapeKey,
+  useAutoScroll,
+  useDebounce,
+  usePrevious,
+  useAsync,
+} from './lib/hooks';
+
+// Form Utilities
+export {
+  createChangeHandler,
+  createFieldHandler,
+  createDebouncedHandler,
+  createResetHandler,
+  validateForm,
+  hasErrors,
+  getFieldError,
+  parsers,
+} from './lib/formUtils';
+export type { DashboardScenarioConfig } from './lib/ebitdaPayload';

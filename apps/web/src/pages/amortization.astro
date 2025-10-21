@@ -1,6 +1,301 @@
 ---
-import Analysis from './analysis.astro';
+import Layout from '../layouts/Layout.astro';
 ---
 
-<!-- Alias route for discoverability: renders the Analysis page under /amortization -->
-<Analysis />
+<Layout title="Amortization Calculator" description="Calculate loan amortization schedules with detailed payment breakdowns" canonical={Astro.url.href}>
+  <div class="container mx-auto px-4 py-8">
+    <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
+    <script type="application/ld+json" is:inline>
+      {JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.url).toString() },
+          { '@type': 'ListItem', position: 2, name: 'Amortization', item: Astro.url.href },
+        ],
+      })}
+    </script>
+    <script type="application/ld+json" is:inline>
+      {JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'Amortization Calculator',
+        applicationCategory: 'FinanceApplication',
+        operatingSystem: 'Web',
+        url: Astro.url.href,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+        },
+      })}
+    </script>
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2">Amortization Calculator</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Calculate loan payments and view detailed amortization schedules
+      </p>
+
+      <!-- Input Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6">Loan Parameters</h2>
+
+        <form id="amortization-form" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Loan Amount -->
+            <div>
+              <label for="principal" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Loan Amount ($)
+              </label>
+              <input
+                type="number"
+                id="principal"
+                name="principal"
+                step="0.01"
+                min="0"
+                value="300000"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="300000"
+                required
+              />
+            </div>
+
+            <!-- Annual Interest Rate -->
+            <div>
+              <label for="annualRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Annual Interest Rate (%)
+              </label>
+              <input
+                type="number"
+                id="annualRate"
+                name="annualRate"
+                step="0.01"
+                min="0"
+                max="100"
+                value="6.5"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="6.5"
+                required
+              />
+            </div>
+
+            <!-- Loan Term -->
+            <div>
+              <label for="termMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Loan Term (Months)
+              </label>
+              <input
+                type="number"
+                id="termMonths"
+                name="termMonths"
+                min="1"
+                value="360"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="360"
+                required
+              />
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Common: 360 (30yr), 180 (15yr), 60 (5yr)</p>
+            </div>
+
+            <!-- Extra Monthly Payment (Optional) -->
+            <div>
+              <label for="extraMonthlyPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Extra Monthly Payment ($) <span class="text-gray-500">(Optional)</span>
+              </label>
+              <input
+                type="number"
+                id="extraMonthlyPayment"
+                name="extraMonthlyPayment"
+                step="0.01"
+                min="0"
+                value="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <button
+              type="submit"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Calculate Amortization
+            </button>
+            <button
+              type="button"
+              id="reset-btn"
+              class="px-6 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-white rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Container -->
+      <div id="results-container" class="hidden">
+        <!-- Summary Cards -->
+        <div id="summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"></div>
+
+        <!-- Amortization Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4">Payment Schedule</h2>
+          <div class="overflow-x-auto">
+            <table id="amortization-table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Month</th>
+                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment</th>
+                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Principal</th>
+                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Interest</th>
+                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Balance</th>
+                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cumulative Interest</th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- Rows will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Container -->
+      <div id="error-container" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
+        <p class="text-red-800 dark:text-red-200" id="error-message"></p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('amortization-form') as HTMLFormElement;
+  const resultsContainer = document.getElementById('results-container');
+  const errorContainer = document.getElementById('error-container');
+  const errorMessage = document.getElementById('error-message');
+  const summaryCards = document.getElementById('summary-cards');
+  const tableBody = document.getElementById('table-body');
+  const resetBtn = document.getElementById('reset-btn');
+
+  const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  function showError(message: string) {
+    if (errorMessage && errorContainer) {
+      errorMessage.textContent = message;
+      errorContainer.classList.remove('hidden');
+      resultsContainer?.classList.add('hidden');
+    }
+  }
+
+  function hideError() {
+    errorContainer?.classList.add('hidden');
+  }
+
+  resetBtn?.addEventListener('click', () => {
+    form.reset();
+    resultsContainer?.classList.add('hidden');
+    hideError();
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const formData = new FormData(form);
+    const principal = parseFloat(formData.get('principal') as string);
+    const annualRatePercent = parseFloat(formData.get('annualRate') as string);
+    const termMonths = parseInt(formData.get('termMonths') as string);
+    const extraMonthlyPayment = parseFloat(formData.get('extraMonthlyPayment') as string) || 0;
+
+    // Validation
+    if (!principal || principal <= 0) {
+      showError('Please enter a valid loan amount');
+      return;
+    }
+    if (annualRatePercent < 0 || annualRatePercent > 100) {
+      showError('Interest rate must be between 0 and 100');
+      return;
+    }
+    if (!termMonths || termMonths < 1) {
+      showError('Please enter a valid loan term');
+      return;
+    }
+
+    const payload = {
+      principal,
+      annualRate: annualRatePercent / 100, // Convert percentage to decimal
+      termMonths,
+      extraMonthlyPayment,
+    };
+
+    try {
+      const response = await fetch('/v1/api/analysis/amortization', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Display summary cards
+      if (summaryCards) {
+        summaryCards.innerHTML = `
+          <div class="bg-blue-600 text-white rounded-lg p-6">
+            <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly Payment</p>
+            <p class="text-3xl font-bold">${currencyFormatter.format(result.monthlyPayment)}</p>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Interest</p>
+            <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${currencyFormatter.format(result.totalInterest)}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${((result.totalInterest / result.totalPayments) * 100).toFixed(1)}% of total payments</p>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Paid</p>
+            <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">${currencyFormatter.format(result.totalPayments)}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Over ${termMonths} months</p>
+          </div>
+        `;
+      }
+
+      // Display amortization table
+      if (tableBody) {
+        tableBody.innerHTML = result.schedule.map((row: any) => `
+          <tr class="${row.month % 12 === 0 ? 'bg-blue-50 dark:bg-blue-900/10' : ''}">
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${row.month}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">${currencyFormatter.format(row.payment)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-green-600 dark:text-green-400">${currencyFormatter.format(row.principal)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${currencyFormatter.format(row.interest)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-gray-900 dark:text-gray-100">${currencyFormatter.format(row.balance)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-600 dark:text-gray-400">${currencyFormatter.format(row.cumulativeInterest)}</td>
+          </tr>
+        `).join('');
+      }
+
+      resultsContainer?.classList.remove('hidden');
+    } catch (error) {
+      console.error('Analysis error:', error);
+      showError(error instanceof Error ? error.message : 'Failed to calculate amortization');
+    }
+  });
+</script>
+
+<style>
+  /* Year highlighting */
+  #amortization-table tbody tr:nth-child(12n) {
+    font-weight: 600;
+  }
+</style>

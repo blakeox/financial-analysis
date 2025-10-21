@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
+import { parsers } from '../lib/formUtils';
 
 export interface ScenarioConfigData {
   scenarioName: string;
@@ -90,7 +91,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Projection Period (Months)"
             type="number"
             value={data.projectionMonths}
-            onChange={(e) => updateField('projectionMonths', Number(e.target.value))}
+            onChange={(e) => updateField('projectionMonths', parsers.number(e.target.value))}
             min="1"
             max="60"
             disabled={readonly}
@@ -101,7 +102,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Revenue Growth Rate (%)"
             type="number"
             value={(data.revenueGrowthRate * 100).toFixed(2)}
-            onChange={(e) => updateField('revenueGrowthRate', Number(e.target.value) / 100)}
+            onChange={(e) => updateField('revenueGrowthRate', parsers.percentage(e.target.value))}
             step="0.1"
             min="-50"
             max="100"
@@ -113,7 +114,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Market Growth Factor"
             type="number"
             value={data.marketGrowthFactor.toFixed(2)}
-            onChange={(e) => updateField('marketGrowthFactor', Number(e.target.value))}
+            onChange={(e) => updateField('marketGrowthFactor', parsers.number(e.target.value))}
             step="0.1"
             min="0.1"
             max="2"
@@ -129,7 +130,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             type="number"
             value={(data.operatingExpenseGrowthRate * 100).toFixed(2)}
             onChange={(e) =>
-              updateField('operatingExpenseGrowthRate', Number(e.target.value) / 100)
+              updateField('operatingExpenseGrowthRate', parsers.percentage(e.target.value))
             }
             step="0.1"
             min="-50"
@@ -141,7 +142,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Billable Hours Growth (%)"
             type="number"
             value={(data.billableHoursGrowthRate * 100).toFixed(2)}
-            onChange={(e) => updateField('billableHoursGrowthRate', Number(e.target.value) / 100)}
+            onChange={(e) => updateField('billableHoursGrowthRate', parsers.percentage(e.target.value))}
             step="0.1"
             min="-50"
             max="100"
@@ -152,7 +153,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Inflation Rate (%)"
             type="number"
             value={(data.inflationRate * 100).toFixed(2)}
-            onChange={(e) => updateField('inflationRate', Number(e.target.value) / 100)}
+            onChange={(e) => updateField('inflationRate', parsers.percentage(e.target.value))}
             step="0.1"
             min="0"
             max="100"
@@ -166,7 +167,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Competition Factor"
             type="number"
             value={data.competitionFactor.toFixed(2)}
-            onChange={(e) => updateField('competitionFactor', Number(e.target.value))}
+            onChange={(e) => updateField('competitionFactor', parsers.number(e.target.value))}
             step="0.05"
             min="0.1"
             max="2"
@@ -272,7 +273,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
                     label={month}
                     type="number"
                     value={(data.seasonalityFactors?.[index] || 1).toFixed(2)}
-                    onChange={(e) => updateSeasonalityFactor(index, Number(e.target.value))}
+                    onChange={(e) => updateSeasonalityFactor(index, parsers.number(e.target.value))}
                     step="0.1"
                     min="0.1"
                     max="5"

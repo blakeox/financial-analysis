@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type ModuleType = 'financials' | 'employees' | 'expenses' | 'scenario';
+export type ModuleType = 'financials' | 'employees' | 'expenses' | 'scenario' | 'fixed-assets' | 'leases';
 
 export interface ModuleDefinition {
   id: ModuleType;
@@ -31,6 +31,20 @@ const AVAILABLE_MODULES: ModuleDefinition[] = [
     icon: '📊',
     description: 'Add expense categories',
     color: 'bg-orange-100 hover:bg-orange-200 border-orange-300',
+  },
+  {
+    id: 'fixed-assets',
+    label: 'Fixed Assets',
+    icon: '🏗️',
+    description: 'Add assets with depreciation',
+    color: 'bg-amber-100 hover:bg-amber-200 border-amber-300',
+  },
+  {
+    id: 'leases',
+    label: 'Leases',
+    icon: '🧾',
+    description: 'Add recurring lease payments',
+    color: 'bg-cyan-100 hover:bg-cyan-200 border-cyan-300',
   },
   {
     id: 'scenario',
