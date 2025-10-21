@@ -390,24 +390,30 @@
   }
   
   .chat-toggle {
-    position: fixed;
-    top: auto;
-    left: auto;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    right: calc(20px + env(safe-area-inset-right, 0px));
-    background: var(--vscode-button-background, #007acc);
-    color: var(--vscode-button-foreground, #ffffff);
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1200;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s;
+    position: fixed !important;
+    top: auto !important;
+    left: auto !important;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    right: calc(20px + env(safe-area-inset-right, 0px)) !important;
+    background: var(--vscode-button-background, #ff0000) !important;
+    color: var(--vscode-button-foreground, #ffffff) !important;
+    border: 3px solid #00ff00 !important;
+    border-radius: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 999999 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.2s !important;
+    pointer-events: auto !important;
+  }
+  
+  .chat-toggle svg,
+  .chat-toggle svg * {
+    pointer-events: none !important;
   }
   
   .chat-toggle:hover {
@@ -452,4 +458,105 @@
 
 <script>
   import '../scripts/chat-panel.ts';
+</script>
+
+<script is:inline>
+  // Diagnostic script to detect what might be blocking the chat button
+  (function() {
+    console.log('[ChatPanel Diagnostic] Starting element inspection...');
+    
+        // Global click listener to see what's receiving clicks
+    document.addEventListener('click', (e) => {
+      const target = e.target;
+      console.log('[Global Click] User clicked on:', target);
+      console.log('[Global Click] Element details:', {
+        tagName: target.tagName,
+        id: target.id,
+        className: target.className,
+        classList: Array.from(target.classList || []),
+        pointerEvents: window.getComputedStyle(target).pointerEvents,
+        zIndex: window.getComputedStyle(target).zIndex,
+        position: window.getComputedStyle(target).position,
+        parent: target.parentElement?.tagName,
+        parentId: target.parentElement?.id
+      });
+      
+      // Check if button has event listeners
+      if (target.id === 'chat-toggle') {
+        console.log('[Global Click] Button clicked!');
+        console.log('[Global Click] Button onclick:', target.onclick);
+      }
+    }, true);
+    
+    // Monitor if button gets replaced
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.removedNodes.forEach((node) => {
+          if (node.nodeType === 1 && node.id === 'chat-toggle') {
+            console.error('[ChatPanel Diagnostic] ⚠️ BUTTON WAS REMOVED FROM DOM!', node);
+          }
+        });
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1 && node.id === 'chat-toggle') {
+            console.error('[ChatPanel Diagnostic] ⚠️ NEW BUTTON ADDED TO DOM!', node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    function inspectButton() {
+      const button = document.getElementById('chat-toggle');
+      if (!button) {
+        console.error('[ChatPanel Diagnostic] Button not found!');
+        return;
+      }
+      
+      console.log('[ChatPanel Diagnostic] Button found:', button);
+      
+      const rect = button.getBoundingClientRect();
+      console.log('[ChatPanel Diagnostic] Button position:', {
+        top: rect.top,
+        left: rect.left,
+        bottom: rect.bottom,
+        right: rect.right,
+        width: rect.width,
+        height: rect.height
+      });
+      
+      const computedStyle = window.getComputedStyle(button);
+      console.log('[ChatPanel Diagnostic] Button computed style:', {
+        position: computedStyle.position,
+        zIndex: computedStyle.zIndex,
+        pointerEvents: computedStyle.pointerEvents,
+        display: computedStyle.display,
+        visibility: computedStyle.visibility,
+        opacity: computedStyle.opacity,
+        userSelect: computedStyle.userSelect,
+        cursor: computedStyle.cursor
+      });
+      
+      // Check what element is at the button's center
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const elementAtPoint = document.elementFromPoint(centerX, centerY);
+      
+      console.log('[ChatPanel Diagnostic] Element at button center:', elementAtPoint);
+      console.log('[ChatPanel Diagnostic] Button ID match?', elementAtPoint?.id === 'chat-toggle');
+      
+      if (elementAtPoint?.id === 'chat-toggle') {
+        console.log('[ChatPanel Diagnostic] ✅ Button is at center');
+        console.log('[ChatPanel Diagnostic] 👆 NOW CLICK THE RED BUTTON WITH YOUR MOUSE!');
+      }
+    }
+    
+    // Run on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(inspectButton, 500);
+      });
+    } else {
+      setTimeout(inspectButton, 500);
+    }
+  })();
 </script>

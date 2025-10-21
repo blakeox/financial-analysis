@@ -47,6 +47,7 @@ class ChatPanel {
   };
 
   constructor() {
+    console.log('[ChatPanel] Constructor starting...');
     const panel = document.getElementById('chat-panel');
     const toggle = document.getElementById('chat-toggle');
     const closeBtn = document.getElementById('chat-close');
@@ -56,6 +57,17 @@ class ChatPanel {
     const thinkingIndicator = document.getElementById('thinking-indicator');
     const contextIndicator = document.getElementById('context-indicator');
 
+    console.log('[ChatPanel] Elements found:', {
+      panel: !!panel,
+      toggle: !!toggle,
+      closeBtn: !!closeBtn,
+      input: !!input,
+      sendBtn: !!sendBtn,
+      messages: !!messages,
+      thinkingIndicator: !!thinkingIndicator,
+      contextIndicator: !!contextIndicator
+    });
+
     if (!(panel instanceof HTMLDivElement)) throw new Error('Chat panel container not found');
     if (!(toggle instanceof HTMLButtonElement)) throw new Error('Chat toggle button not found');
     if (!(closeBtn instanceof HTMLButtonElement)) throw new Error('Chat close button not found');
@@ -64,7 +76,8 @@ class ChatPanel {
     if (!(messages instanceof HTMLDivElement)) throw new Error('Chat messages container not found');
     if (!(thinkingIndicator instanceof HTMLDivElement)) throw new Error('Chat thinking indicator not found');
     if (!(contextIndicator instanceof HTMLSpanElement)) throw new Error('Chat context indicator not found');
-
+    
+    console.log('[ChatPanel] All elements validated, assigning to instance...');
     this.panel = panel;
     this.toggle = toggle;
     this.closeBtn = closeBtn;
@@ -95,9 +108,12 @@ class ChatPanel {
     });
     this.headerObserver = null;
 
+    console.log('[ChatPanel] About to bind events...');
     this.bindEvents();
+    console.log('[ChatPanel] Events bound successfully');
     this.setupLayoutSync();
     this.updateContextIndicator();
+    console.log('[ChatPanel] Constructor complete');
     this.syncAriaState();
     this.emitStateChange();
     this.setupNavigationListener();
@@ -379,7 +395,14 @@ class ChatPanel {
     return window.innerWidth - panelWidth >= minContentWidth;
   }
 
+  public rebindToggleButton(newToggleBtn: HTMLButtonElement): void {
+    this.toggle = newToggleBtn;
+    this.bindEvents();
+  }
+
   private bindEvents(): void {
+    console.log('[ChatPanel] bindEvents() starting, toggle element:', this.toggle);
+    
     const win = window as WindowWithChatPanel;
     win.toggleChatPanel = () => this.togglePanel();
     win.openChatPanel = () => this.openPanel();
@@ -410,7 +433,36 @@ class ChatPanel {
       win.addEventListener('chat-panel-context', this.externalContextListener as EventListener);
     }
 
-    this.toggle.addEventListener('click', () => this.togglePanel());
+    // Use capture phase to ensure we get the event first
+    console.log('[ChatPanel] Adding click listener to toggle button...');
+    const clickHandler = (event: MouseEvent) => {
+      console.log('[ChatPanel] 🎯 CLICK HANDLER CALLED!', {
+        target: event.target,
+        currentTarget: event.currentTarget,
+        eventPhase: event.eventPhase,
+        bubbles: event.bubbles
+      });
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      this.togglePanel();
+    };
+    this.toggle.addEventListener('click', clickHandler, { capture: true });
+    
+    // Verify the listener was added
+    console.log('[ChatPanel] Click listener function created:', clickHandler);
+    
+    // DIAGNOSTIC: Add mousedown listener to test if ANY events reach the button
+    this.toggle.addEventListener('mousedown', (event: MouseEvent) => {
+      console.log('[ChatPanel] 🔵 MOUSEDOWN detected!', {
+        target: event.target,
+        currentTarget: event.currentTarget,
+        button: event.button,
+      });
+    }, { capture: true });
+    
+    console.log('[ChatPanel] Click listener added successfully');
+    
     this.closeBtn.addEventListener('click', () => this.closePanel());
     this.sendBtn.addEventListener('click', () => this.sendMessage());
 
@@ -426,9 +478,11 @@ class ChatPanel {
       this.autoResizeInput();
     });
 
+    // Close panel when clicking outside (but not on the toggle button)
     document.addEventListener('click', (event: MouseEvent) => {
       const target = event.target as Node | null;
-      if (this.isOpen && target && !this.panel.contains(target) && !this.toggle.contains(target)) {
+      // Don't close if clicking the toggle button itself - let its handler manage state
+      if (this.isOpen && target && !this.panel.contains(target) && target !== this.toggle && !this.toggle.contains(target)) {
         this.closePanel();
       }
     });
@@ -631,6 +685,32 @@ function initializeChatPanel(): void {
       if (import.meta.env.DEV) {
         console.info('[chat-panel] initialized');
       }
+      
+      // Watch for button being replaced in DOM and re-attach listeners
+      let buttonSeenOnce = false;
+      const buttonObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              const element = node as Element;
+              if (element.id === 'chat-toggle') {
+                if (!buttonSeenOnce) {
+                  buttonSeenOnce = true;
+                  console.log('[chat-panel] Initial button load detected');
+                } else {
+                  console.warn('[chat-panel] Button re-added to DOM, re-attaching listeners');
+                  if (win.__chatPanelInstance) {
+                    // Re-bind just the toggle button events
+                    const toggleBtn = element as HTMLButtonElement;
+                    win.__chatPanelInstance.rebindToggleButton(toggleBtn);
+                  }
+                }
+              }
+            }
+          });
+        });
+      });
+      buttonObserver.observe(document.body, { childList: true, subtree: true });
     } catch (error) {
       console.error('Chat panel bootstrap failed', error);
       win.chatPanelBootstrapError = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
@@ -642,7 +722,8 @@ function initializeChatPanel(): void {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
   } else {
-    bootstrap();
+    // Add small delay to ensure any DOM manipulation from other scripts is complete
+    setTimeout(bootstrap, 50);
   }
 }
 

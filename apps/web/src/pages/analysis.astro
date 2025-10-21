@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ChatPanel from '../components/ChatPanel.astro';
+// ChatPanel is now in Layout.astro
 ---
 
 <Layout title="Lease Analysis" description="Analyze lease agreements with precision financial calculations" canonical={Astro.url.href}>
@@ -281,6 +281,5 @@ import ChatPanel from '../components/ChatPanel.astro';
     });
   </script>
   
-  <!-- VS Code-style contextual chat panel -->
-  <ChatPanel />
+  <!-- ChatPanel is now in Layout.astro - no need to include it here -->
 </Layout>
