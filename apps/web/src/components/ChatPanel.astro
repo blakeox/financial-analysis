@@ -13,9 +13,6 @@
 >
   <div class="chat-header">
     <div class="chat-title" id="chat-panel-title">
-      <svg width="16" height="16" viewBox="0 0 16 16">
-        <path fill="currentColor" d="m8.746 8 3.1-3.1a.527.527 0 1 0-.746-.746L8 7.254l-3.1-3.1a.527.527 0 1 0-.746.746l3.1 3.1-3.1 3.1a.527.527 0 1 0 .746.746l3.1-3.1 3.1 3.1a.527.527 0 1 0 .746-.746L8.746 8Z"/>
-      </svg>
       <span>AI Assistant</span>
       <span class="context-indicator" id="context-indicator"></span>
     </div>
@@ -46,7 +43,7 @@
         </div>
         <span class="thinking-text">AI is thinking...</span>
       </div>
-      <div class="chat-input-wrapper">
+      <form id="chat-form" class="chat-input-wrapper">
         <textarea 
           id="chat-input" 
           class="chat-input" 
@@ -56,7 +53,7 @@
         <button
           id="chat-send"
           class="chat-send"
-          type="button"
+          type="submit"
           disabled
           aria-label="Send chat message"
         >
@@ -65,7 +62,7 @@
           </svg>
           <span class="sr-only">Send</span>
         </button>
-      </div>
+      </form>
     </div>
   </div>
 </div>
@@ -99,6 +96,10 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  .hidden {
+    display: none !important;
   }
 
   .chat-panel {
@@ -175,12 +176,16 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
   }
   
   .chat-messages {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px;
+    min-height: 0;
   }
   
   .system-message {
@@ -261,35 +266,43 @@
     color: var(--vscode-button-background, #007acc);
   }
   
-  .message {
+  :global(.message) {
     margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
   }
   
-  .message.user {
-    text-align: right;
+  :global(.message.user) {
+    align-items: flex-end;
   }
   
-  .message.assistant {
-    text-align: left;
+  :global(.message.assistant) {
+    align-items: flex-start;
   }
   
-  .message-content {
+  :global(.message-content) {
     display: inline-block;
     max-width: 80%;
-    padding: 8px 12px;
-    border-radius: 12px;
-    color: var(--vscode-editor-foreground, #d4d4d4);
+    padding: 10px 14px;
+    border-radius: 16px;
     word-wrap: break-word;
+    line-height: 1.5;
+    position: relative;
   }
   
-  .message.user .message-content {
+  :global(.message.user .message-content) {
     background: var(--vscode-button-background, #007acc);
     color: var(--vscode-button-foreground, #ffffff);
+    border-top-right-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
   
-  .message.assistant .message-content {
+  :global(.message.assistant .message-content) {
     background: var(--vscode-editorWidget-background, #252526);
+    color: var(--vscode-editor-foreground, #d4d4d4);
     border: 1px solid var(--vscode-editorWidget-border, #454545);
+    border-top-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   }
   
   .thinking-indicator {
@@ -395,9 +408,9 @@
     left: auto !important;
     bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
     right: calc(20px + env(safe-area-inset-right, 0px)) !important;
-    background: var(--vscode-button-background, #ff0000) !important;
+    background: var(--vscode-button-background, #007acc) !important;
     color: var(--vscode-button-foreground, #ffffff) !important;
-    border: 3px solid #00ff00 !important;
+    border: none !important;
     border-radius: 50% !important;
     width: 60px !important;
     height: 60px !important;
@@ -407,7 +420,7 @@
     justify-content: center !important;
     z-index: 999999 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    transition: all 0.2s !important;
+    transition: all 0.3s ease !important;
     pointer-events: auto !important;
   }
   
@@ -422,7 +435,7 @@
   }
   
   .chat-toggle.panel-open {
-    right: calc(20px + env(safe-area-inset-right, 0px));
+    right: calc(420px + env(safe-area-inset-right, 0px)) !important;
   }
   
   /* Responsive adjustments */

@@ -1819,13 +1819,14 @@ router.post(
       const result = {
         monthlyPayment: analysisResult.monthlyPayment,
         totalInterest: analysisResult.totalInterest,
-        totalAmount: analysisResult.totalPayments,
+        totalPayments: analysisResult.totalPayments,
         schedule: analysisResult.schedule.map((payment) => ({
           month: payment.month,
           payment: payment.payment,
           principal: payment.principal,
           interest: payment.interest,
           balance: payment.balance,
+          cumulativeInterest: payment.cumulativeInterest,
         })),
       };
 
@@ -1847,13 +1848,14 @@ router.post(
     const result = {
       monthlyPayment: analysisResult.monthlyPayment,
       totalInterest: analysisResult.totalInterest,
-      totalAmount: analysisResult.totalPayments,
+      totalPayments: analysisResult.totalPayments,
       schedule: analysisResult.schedule.map((payment) => ({
         month: payment.month,
         payment: payment.payment,
         principal: payment.principal,
         interest: payment.interest,
         balance: payment.balance,
+        cumulativeInterest: payment.cumulativeInterest,
       })),
     };
 
@@ -2017,12 +2019,12 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
   console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
   
   try {
-  const body = await request.json() as { 
-    message: string; 
-    context?: string; 
-    currentModel?: Record<string, unknown>;
-    availableTools?: Array<{ name: string; description: string }>;
-  };
+    const body = await request.json() as { 
+      message: string; 
+      context?: string; 
+      currentModel?: Record<string, unknown>;
+      availableTools?: Array<{ name: string; description: string }>;
+    };
     const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
     
     if (!message?.trim()) {

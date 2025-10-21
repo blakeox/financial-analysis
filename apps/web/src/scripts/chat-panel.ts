@@ -19,6 +19,7 @@ class ChatPanel {
   private panel: HTMLDivElement;
   private toggle: HTMLButtonElement;
   private closeBtn: HTMLButtonElement;
+  private form: HTMLFormElement;
   private input: HTMLTextAreaElement;
   private sendBtn: HTMLButtonElement;
   private messages: HTMLDivElement;
@@ -51,6 +52,7 @@ class ChatPanel {
     const panel = document.getElementById('chat-panel');
     const toggle = document.getElementById('chat-toggle');
     const closeBtn = document.getElementById('chat-close');
+    const form = document.getElementById('chat-form');
     const input = document.getElementById('chat-input');
     const sendBtn = document.getElementById('chat-send');
     const messages = document.getElementById('chat-messages');
@@ -61,6 +63,7 @@ class ChatPanel {
       panel: !!panel,
       toggle: !!toggle,
       closeBtn: !!closeBtn,
+      form: !!form,
       input: !!input,
       sendBtn: !!sendBtn,
       messages: !!messages,
@@ -71,6 +74,7 @@ class ChatPanel {
     if (!(panel instanceof HTMLDivElement)) throw new Error('Chat panel container not found');
     if (!(toggle instanceof HTMLButtonElement)) throw new Error('Chat toggle button not found');
     if (!(closeBtn instanceof HTMLButtonElement)) throw new Error('Chat close button not found');
+    if (!(form instanceof HTMLFormElement)) throw new Error('Chat form not found');
     if (!(input instanceof HTMLTextAreaElement)) throw new Error('Chat input not found');
     if (!(sendBtn instanceof HTMLButtonElement)) throw new Error('Chat send button not found');
     if (!(messages instanceof HTMLDivElement)) throw new Error('Chat messages container not found');
@@ -81,6 +85,7 @@ class ChatPanel {
     this.panel = panel;
     this.toggle = toggle;
     this.closeBtn = closeBtn;
+    this.form = form;
     this.input = input;
     this.sendBtn = sendBtn;
     this.messages = messages;
@@ -464,27 +469,30 @@ class ChatPanel {
     console.log('[ChatPanel] Click listener added successfully');
     
     this.closeBtn.addEventListener('click', () => this.closePanel());
-    this.sendBtn.addEventListener('click', () => this.sendMessage());
+    
+    // Handle form submission (from Enter key or button click)
+    this.form.addEventListener('submit', (event: Event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      void this.sendMessage();
+      return false;
+    });
 
     this.input.addEventListener('keydown', (event: KeyboardEvent) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
-        void this.sendMessage();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        // Form submit will handle the message sending
+        this.form.requestSubmit();
+        return false;
       }
     });
 
     this.input.addEventListener('input', () => {
       this.sendBtn.disabled = !this.input.value.trim();
       this.autoResizeInput();
-    });
-
-    // Close panel when clicking outside (but not on the toggle button)
-    document.addEventListener('click', (event: MouseEvent) => {
-      const target = event.target as Node | null;
-      // Don't close if clicking the toggle button itself - let its handler manage state
-      if (this.isOpen && target && !this.panel.contains(target) && target !== this.toggle && !this.toggle.contains(target)) {
-        this.closePanel();
-      }
     });
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -608,6 +616,7 @@ class ChatPanel {
 
       this.hideThinking();
       this.addMessage(data.response, 'assistant');
+      this.sendBtn.disabled = false;
 
       if (data.modelChanges) {
         this.applyModelChanges(data.modelChanges);
@@ -615,6 +624,7 @@ class ChatPanel {
     } catch (error) {
       this.hideThinking();
       this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+      this.sendBtn.disabled = false;
       console.error('Chat error:', error);
     }
   }
@@ -655,9 +665,12 @@ class ChatPanel {
       'button[type="submit"], .analyze-btn, #analyze',
     );
     if (analyzeBtn instanceof HTMLButtonElement) {
-      analyzeBtn.click();
+      // Use dispatchEvent with cancelable:false to prevent event propagation to document listeners
+      const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
+      analyzeBtn.dispatchEvent(clickEvent);
     } else if (analyzeBtn) {
-      analyzeBtn.click();
+      const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
+      analyzeBtn.dispatchEvent(clickEvent);
     }
   }
 }
