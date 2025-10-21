@@ -7,3 +7,5 @@ export * from './config';
 export * from './rate-limit';
 export * from './quota';
 export * from './validation';
+export * from './circuit-breaker';
+export * from './request-context';

@@ -17,9 +17,12 @@ import type { Env } from './types';
 import {
   adjustApproxBytes,
   attachRateLimitHeaders,
+  buildChatHeaders,
   buildDefaultHeaders,
+  buildRequestContext,
   checkRateLimit,
   detectThreats,
+  getAllCircuitStates,
   getAnalysisCacheTtl,
   getApproxBytes,
   getCorsHeaders,
@@ -28,6 +31,9 @@ import {
   getSecurityHeaders,
   getThresholds,
   isQuotaLocked,
+  logError,
+  logInfo,
+  logWarn,
   reconcileBucketUsage,
   setQuotaLocked,
   sha256Hex,
@@ -197,6 +203,20 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
 // ---- Routes ----
 // Health check endpoint (registered from routes module)
 registerHealthRoute(router as unknown as import('itty-router').RouterType);
+
+// PHASE 3: Circuit breaker monitoring endpoint
+router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {
+  const states = getAllCircuitStates();
+  const headers = new Headers({
+    ...getCorsHeaders(env),
+    ...getSecurityHeaders(env),
+    'Content-Type': 'application/json',
+  });
+  return new Response(JSON.stringify({
+    circuitBreakers: states,
+    timestamp: new Date().toISOString(),
+  }, null, 2), { headers });
+});
 
 // Lightweight ping endpoint for uptime checks
 router.get('/ping', (_req: Request, env: Env) => {
@@ -2018,30 +2038,27 @@ router.get(
 
 // Simple contextual chat endpoint for VS Code-style chat panel
 router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, env: Env) => {
-  const requestId = crypto.randomUUID();
-  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
+  // PHASE 3: Enhanced request tracking and context
+  const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
+  logInfo(requestContext, 'Contextual chat request received');
   
   try {
     // SECURITY: Validate request size before parsing body
     const contentLength = request.headers.get('Content-Length');
     const sizeValidation = validateRequestSize(contentLength);
     if (!sizeValidation.valid) {
-      console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'warn',
-        message: 'Request size validation failed',
-        requestId,
+      logWarn(requestContext, 'Request size validation failed', {
         error: sizeValidation.error,
         code: sizeValidation.code,
         contentLength,
-      }));
+      });
       return new Response(JSON.stringify({ 
         error: sizeValidation.error,
         code: sizeValidation.code,
-        requestId,
+        requestId: requestContext.requestId,
       }), {
         status: 413,
-        headers: buildDefaultHeaders(env)
+        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
       });
     }
 
@@ -2056,22 +2073,18 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     // SECURITY: Comprehensive message validation and sanitization
     const validation = validateChatMessage(message);
     if (!validation.valid) {
-      console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'warn',
-        message: 'Message validation failed',
-        requestId,
+      logWarn(requestContext, 'Message validation failed', {
         error: validation.error,
         code: validation.code,
         messageLength: message?.length || 0,
-      }));
+      });
       return new Response(JSON.stringify({ 
         error: validation.error,
         code: validation.code,
-        requestId,
+        requestId: requestContext.requestId,
       }), {
         status: 400,
-        headers: buildDefaultHeaders(env)
+        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
       });
     }
 
@@ -2081,26 +2094,18 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     // SECURITY: Detect and log potential threats
     const threats = detectThreats(sanitizedMessage);
     if (threats.length > 0) {
-      console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'warn',
-        message: 'Potential security threats detected in message',
-        requestId,
+      logWarn(requestContext, 'Potential security threats detected in message', {
         threats,
-        sanitizedMessage: sanitizedMessage.substring(0, 100), // Log first 100 chars
-      }));
+        sanitizedMessage: sanitizedMessage.substring(0, 100),
+      });
       // Continue processing but log the threat for monitoring
     }
 
-    // Log available tools for debugging (dev mode check removed for Workers runtime)
+    // Log available tools for debugging
     if (availableTools.length > 0) {
-      console.log(JSON.stringify({ 
-        timestamp: new Date().toISOString(), 
-        level: 'info', 
-        message: 'Chat has access to MCP tools', 
-        requestId,
+      logInfo(requestContext, 'Chat has access to MCP tools', {
         tools: availableTools.map(t => t.name)
-      }));
+      });
     }
 
     // Context-aware response based on current model page
@@ -2247,23 +2252,26 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       ]
     };
 
+    logInfo(requestContext, 'Chat response generated successfully', {
+      context,
+      changesDetected: Object.keys(modelChanges).length,
+    });
+
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: {
-        ...buildDefaultHeaders(env),
-        'Content-Type': 'application/json',
-        'X-Request-ID': requestId,
-      }
+      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
     });
     
   } catch (error) {
-    console.error('Contextual chat error:', error);
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    logError(requestContext, errorObj);
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      response: 'I apologize, but I encountered an error processing your request. Please try again.'
+      response: 'I apologize, but I encountered an error processing your request. Please try again.',
+      requestId: requestContext.requestId,
     }), {
       status: 500,
-      headers: buildDefaultHeaders(env)
+      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
     });
   }
 }));
