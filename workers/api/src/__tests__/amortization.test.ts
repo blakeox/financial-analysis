@@ -50,7 +50,7 @@ describe('POST /v1/api/analysis/amortization', () => {
     };
     
     expect(json).toHaveProperty('monthlyPayment');
-    expect(json).toHaveProperty('totalAmount');  // API uses totalAmount, not totalPayments
+    expect(json).toHaveProperty('totalPayments');  // API uses totalPayments
     expect(json).toHaveProperty('totalInterest');
     expect(Array.isArray(json.schedule)).toBe(true);
     expect(json.schedule.length).toBe(12);

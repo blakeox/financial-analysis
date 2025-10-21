@@ -19,6 +19,7 @@ import {
   attachRateLimitHeaders,
   buildDefaultHeaders,
   checkRateLimit,
+  detectThreats,
   getAnalysisCacheTtl,
   getApproxBytes,
   getCorsHeaders,
@@ -31,6 +32,8 @@ import {
   setQuotaLocked,
   sha256Hex,
   stableStringify,
+  validateChatMessage,
+  validateRequestSize,
   type RateLimitInfo,
 } from './lib';
 import { registerHealthRoute } from './routes/health';
@@ -2019,6 +2022,29 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
   console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
   
   try {
+    // SECURITY: Validate request size before parsing body
+    const contentLength = request.headers.get('Content-Length');
+    const sizeValidation = validateRequestSize(contentLength);
+    if (!sizeValidation.valid) {
+      console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'warn',
+        message: 'Request size validation failed',
+        requestId,
+        error: sizeValidation.error,
+        code: sizeValidation.code,
+        contentLength,
+      }));
+      return new Response(JSON.stringify({ 
+        error: sizeValidation.error,
+        code: sizeValidation.code,
+        requestId,
+      }), {
+        status: 413,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
     const body = await request.json() as { 
       message: string; 
       context?: string; 
@@ -2027,11 +2053,43 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     };
     const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
     
-    if (!message?.trim()) {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
+    // SECURITY: Comprehensive message validation and sanitization
+    const validation = validateChatMessage(message);
+    if (!validation.valid) {
+      console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'warn',
+        message: 'Message validation failed',
+        requestId,
+        error: validation.error,
+        code: validation.code,
+        messageLength: message?.length || 0,
+      }));
+      return new Response(JSON.stringify({ 
+        error: validation.error,
+        code: validation.code,
+        requestId,
+      }), {
         status: 400,
         headers: buildDefaultHeaders(env)
       });
+    }
+
+    // Use sanitized message for processing
+    const sanitizedMessage = validation.sanitizedValue || '';
+
+    // SECURITY: Detect and log potential threats
+    const threats = detectThreats(sanitizedMessage);
+    if (threats.length > 0) {
+      console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'warn',
+        message: 'Potential security threats detected in message',
+        requestId,
+        threats,
+        sanitizedMessage: sanitizedMessage.substring(0, 100), // Log first 100 chars
+      }));
+      // Continue processing but log the threat for monitoring
     }
 
     // Log available tools for debugging (dev mode check removed for Workers runtime)
@@ -2070,13 +2128,13 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       },
     };
     
-    // Detect intent and extract parameters from user message
-    const lowerMessage = message.toLowerCase();
+    // Detect intent and extract parameters from user message (using sanitized message)
+    const lowerMessage = sanitizedMessage.toLowerCase();
     
     if (context === 'lease') {
       // Handle lease analysis modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const rateStr = rateMatch?.[1];
         if (rateStr) {
           const newRate = parseFloat(rateStr);
@@ -2087,7 +2145,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
-        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const amtStr = amountMatch?.[1];
         if (amtStr) {
           const newAmount = parseFloat(amtStr.replace(/,/g, ''));
@@ -2097,7 +2155,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
         }
       } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
         const termValueStr = termMatch?.[1];
         const termUnit = termMatch?.[2];
         if (termValueStr && termUnit) {
@@ -2113,7 +2171,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     } else if (context === 'ebitda') {
       // Handle EBITDA forecasting modifications
       if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
-        const revenueMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const revenueMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const revStr = revenueMatch?.[1];
         if (revStr) {
           const newRevenue = parseFloat(revStr.replace(/,/g, ''));
@@ -2122,7 +2180,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
         }
       } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
-        const growthMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const growthMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const growthStr = growthMatch?.[1];
         if (growthStr) {
           const newGrowth = parseFloat(growthStr);
@@ -2135,7 +2193,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     } else if (context === 'amortization') {
       // Handle amortization modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
+        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
         const rateStr2 = rateMatch?.[1];
         if (rateStr2) {
           const newRate = parseFloat(rateStr2);
@@ -2146,7 +2204,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
-        const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
         const amt2 = amountMatch?.[1];
         if (amt2) {
           const newAmount = parseFloat(amt2.replace(/,/g, ''));
@@ -2156,7 +2214,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
           explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
         }
       } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
         const termValueStr = termMatch?.[1];
         const termUnit = termMatch?.[2];
         if (termValueStr && termUnit) {
@@ -2183,7 +2241,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       context,
       thinking: [
         `Analyzing ${context} model context...`,
-        `Extracting parameters from: "${message}"`,
+        `Extracting parameters from: "${sanitizedMessage}"`,
         `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
         `Preparing response with actionable modifications...`
       ]
@@ -2193,7 +2251,8 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       status: 200,
       headers: {
         ...buildDefaultHeaders(env),
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Request-ID': requestId,
       }
     });
     
