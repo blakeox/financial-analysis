@@ -160,6 +160,129 @@ export function AmortizationResults({
         </div>
       )}
 
+      {/* PITI Summary Card */}
+      {result.totalMonthlyPayment && (
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+          <CardContent className="space-y-3">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Monthly Payment (PITI)</p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+              {currencyFormatter.format(result.totalMonthlyPayment)}
+            </p>
+            <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+              <div className="flex justify-between">
+                <span>Principal + Interest:</span>
+                <span className="font-medium">{currencyFormatter.format(result.monthlyPayment)}</span>
+              </div>
+              {result.monthlyPropertyTax && result.monthlyPropertyTax > 0 && (
+                <div className="flex justify-between">
+                  <span>Property Tax:</span>
+                  <span className="font-medium">{currencyFormatter.format(result.monthlyPropertyTax)}</span>
+                </div>
+              )}
+              {result.monthlyInsurance && result.monthlyInsurance > 0 && (
+                <div className="flex justify-between">
+                  <span>Home Insurance:</span>
+                  <span className="font-medium">{currencyFormatter.format(result.monthlyInsurance)}</span>
+                </div>
+              )}
+              {result.monthlyHOA && result.monthlyHOA > 0 && (
+                <div className="flex justify-between">
+                  <span>HOA Fees:</span>
+                  <span className="font-medium">{currencyFormatter.format(result.monthlyHOA)}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* APR Card */}
+      {result.apr && (
+        <Card className="border-yellow-200 dark:border-yellow-800">
+          <CardContent className="space-y-2">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">APR (Annual Percentage Rate)</p>
+            <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
+              {(result.apr * 100).toFixed(3)}%
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Includes all closing costs
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Total Cost Summary */}
+      {result.totalCostSummary && (
+        <Card className="col-span-full">
+          <CardContent className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Total Cost of Ownership</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {result.totalCostSummary.downPayment > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Down Payment</p>
+                  <p className="text-lg font-semibold">{currencyFormatter.format(result.totalCostSummary.downPayment)}</p>
+                </div>
+              )}
+              {result.totalCostSummary.closingCosts > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Closing Costs</p>
+                  <p className="text-lg font-semibold">{currencyFormatter.format(result.totalCostSummary.closingCosts)}</p>
+                </div>
+              )}
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Principal</p>
+                <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                  {currencyFormatter.format(result.totalCostSummary.totalPrincipal)}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Total Interest</p>
+                <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">
+                  {currencyFormatter.format(result.totalCostSummary.totalInterest)}
+                </p>
+              </div>
+              {result.totalCostSummary.totalPMI > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total PMI</p>
+                  <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                    {currencyFormatter.format(result.totalCostSummary.totalPMI)}
+                  </p>
+                </div>
+              )}
+              {result.totalCostSummary.totalTaxes > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Property Tax</p>
+                  <p className="text-lg font-semibold">{currencyFormatter.format(result.totalCostSummary.totalTaxes)}</p>
+                </div>
+              )}
+              {result.totalCostSummary.totalInsurance > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Insurance</p>
+                  <p className="text-lg font-semibold">{currencyFormatter.format(result.totalCostSummary.totalInsurance)}</p>
+                </div>
+              )}
+              {result.totalCostSummary.totalHOA > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total HOA Fees</p>
+                  <p className="text-lg font-semibold">{currencyFormatter.format(result.totalCostSummary.totalHOA)}</p>
+                </div>
+              )}
+            </div>
+            <div className="border-t pt-4 mt-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">Total Cost</p>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {currencyFormatter.format(result.totalCostSummary.totalCost)}
+                </p>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Complete ownership cost over {result.schedule.length} months
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Payoff Date */}
       {result.payoffDate && (
         <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20">

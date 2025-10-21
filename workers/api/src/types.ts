@@ -3,11 +3,14 @@ export interface Env {
   DB?: D1Database;
   SESSIONS?: KVNamespace;
   DOCUMENTS?: R2Bucket;
+  SESSION_DO?: DurableObjectNamespace;
+  ANALYTICS?: AnalyticsEngineDataset;
   ENVIRONMENT: string;
   ALLOWED_ORIGIN?: string;
   COMMIT_SHA?: string;
   ADMIN_API_TOKEN?: string;
   AI?: Ai;
+  AI_GATEWAY_ID?: string;
   WORKERS_AI_MODEL?: string;
   R2_SOFT_LIMIT_BYTES?: string;
   R2_HARD_LIMIT_BYTES?: string;

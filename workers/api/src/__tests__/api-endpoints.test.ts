@@ -133,7 +133,7 @@ interface EbitdaForecastResponse {
 interface AmortizationResponse {
   monthlyPayment: number;
   totalInterest: number;
-  totalAmount: number;
+  totalPayments: number;
   schedule: Array<{
     month: number;
     payment: number;
@@ -463,7 +463,7 @@ describe('API Endpoint Integration Tests', () => {
       const result = (await response.json()) as AmortizationResponse;
       expect(result.monthlyPayment).toBeCloseTo(1266.71, 2);
       expect(result.totalInterest).toBeGreaterThan(200000);
-      expect(result.totalAmount).toBeCloseTo(456015.6, 1); // Use actual calculated value
+      expect(result.totalPayments).toBeCloseTo(456015.6, 1); // totalPayments not totalAmount
       expect(result.schedule).toBeDefined();
       expect(result.schedule.length).toBe(360); // 30 years * 12 months
     });

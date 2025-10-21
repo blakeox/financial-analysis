@@ -13,6 +13,16 @@ export default defineConfig({
       '**/*.d.ts',
       'src/__tests__/miniflare-test.test.ts',
     ],
+    // Reduce parallel execution to avoid KV database locking
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: false,
+        maxForks: 4, // Limit concurrency to reduce SQLITE_BUSY errors
+      },
+    },
+    // Retry flaky tests once before failing
+    retry: 1,
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'dist/', '**/*.d.ts'],

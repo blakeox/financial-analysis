@@ -1,0 +1,184 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AnalyticsDashboard } from '@financial-analysis/ui';
+---
+
+<Layout 
+  title="Analytics Dashboard" 
+  description="Real-time page interaction and API performance analytics"
+  canonical={Astro.url.href}
+>
+  <div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+        Analytics Dashboard
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        Real-time monitoring of page interactions and API performance
+      </p>
+    </div>
+
+    <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <h2 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+        📊 What's Being Tracked
+      </h2>
+      <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-1 ml-4 list-disc">
+        <li><strong>Page Views:</strong> Every page load with referrer, viewport, user agent</li>
+        <li><strong>API Calls:</strong> Endpoint, method, duration, status, cache hits</li>
+        <li><strong>Form Submissions:</strong> Completion rate, validation errors, time to complete</li>
+        <li><strong>User Actions:</strong> Button clicks, scroll depth, time on page</li>
+        <li><strong>Errors:</strong> Client-side errors with stack traces and context</li>
+      </ul>
+    </div>
+
+    <!-- Analytics Dashboard Component -->
+    <div id="analytics-dashboard">
+      <AnalyticsDashboard client:load autoRefresh={true} refreshInterval={5000} />
+    </div>
+
+    <!-- Usage Instructions -->
+    <div class="mt-8 p-6 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        💡 How to Use Analytics in Your App
+      </h2>
+      
+      <div class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">1. Initialize Analytics</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import { initAnalytics } from '@financial-analysis/ui';
+
+// In your app initialization
+initAnalytics('http://127.0.0.1:8787'); // API base URL`}</code></pre>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">2. Track Page Views (Automatic)</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`// Page views are tracked automatically on initialization
+// Includes: path, referrer, title, viewport, user agent`}</code></pre>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">3. Track API Calls</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import { monitoredFetch } from '@financial-analysis/ui';
+
+// Use monitored fetch instead of regular fetch
+const { data, metrics } = await monitoredFetch('/v1/api/analysis/lease', {
+  method: 'POST',
+  body: JSON.stringify({ /* ... */ })
+});
+
+// Metrics automatically tracked:
+// - Duration, status code, success/failure
+// - Request/response size, cache hits
+// - Errors with messages`}</code></pre>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">4. Track Form Submissions</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import { trackFormSubmit } from '@financial-analysis/ui';
+
+trackFormSubmit({
+  formId: 'lease-analysis-form',
+  fieldsCompleted: 8,
+  totalFields: 10,
+  validationErrors: ['Invalid rate'],
+  timeToComplete: 45000, // ms
+});`}</code></pre>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">5. Track User Actions</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import { trackUserAction } from '@financial-analysis/ui';
+
+trackUserAction({
+  action: 'button_click',
+  element: 'analyze-button',
+  value: 'analyze-lease',
+  context: { formValid: true }
+});`}</code></pre>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">6. View Analytics Dashboard</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import { AnalyticsDashboard, getApiMonitor } from '@financial-analysis/ui';
+
+// React component
+<AnalyticsDashboard autoRefresh={true} refreshInterval={5000} />
+
+// Or access programmatically
+const monitor = getApiMonitor();
+const analysis = monitor.getAnalysis();
+console.log(analysis.successRate, analysis.averageDuration);`}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Actions -->
+    <div class="mt-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        🧪 Test Analytics Tracking
+      </h2>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+        Click these buttons to generate test events and see them appear in the dashboard above:
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <button
+          id="test-api-call"
+          class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+        >
+          Test API Call
+        </button>
+        <button
+          id="test-error"
+          class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+        >
+          Test Error Tracking
+        </button>
+        <button
+          id="test-action"
+          class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+        >
+          Test User Action
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { monitoredFetch, trackUserAction, trackError } from '@financial-analysis/ui';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Test API call button
+      document.getElementById('test-api-call')?.addEventListener('click', async () => {
+        try {
+          await monitoredFetch('/health');
+          alert('✅ API call tracked! Check dashboard above.');
+        } catch (error) {
+          console.error('API call failed:', error);
+        }
+      });
+
+      // Test error button
+      document.getElementById('test-error')?.addEventListener('click', () => {
+        const error = new Error('This is a test error for analytics tracking');
+        trackError(error, { 
+          source: 'test-button',
+          userAction: 'intentional-test',
+          timestamp: Date.now()
+        });
+        alert('❌ Error tracked! Check dashboard above.');
+      });
+
+      // Test user action button
+      document.getElementById('test-action')?.addEventListener('click', () => {
+        trackUserAction({
+          action: 'test_button_click',
+          element: 'test-action-button',
+          value: 'user-action-test',
+          context: { test: true, timestamp: Date.now() }
+        });
+        alert('👆 User action tracked! Check dashboard above.');
+      });
+    });
+  </script>
+</Layout>
