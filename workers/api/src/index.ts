@@ -43,6 +43,7 @@ import {
   type RateLimitInfo,
 } from './lib';
 import { registerHealthRoute } from './routes/health';
+import { registerAnalyticsRoutes } from './routes/analytics';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -203,6 +204,9 @@ function logRequest(request: Request, env: Env, startTime?: number, requestId?: 
 // ---- Routes ----
 // Health check endpoint (registered from routes module)
 registerHealthRoute(router as unknown as import('itty-router').RouterType);
+
+// Analytics endpoints for client-side event tracking
+registerAnalyticsRoutes(router);
 
 // PHASE 3: Circuit breaker monitoring endpoint
 router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {

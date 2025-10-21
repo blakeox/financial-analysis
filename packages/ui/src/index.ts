@@ -14,6 +14,8 @@ export { Input } from './components/Input';
 export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
 export { ChatPanel } from './components/ChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
+export { AnalyticsDashboard } from './components/AnalyticsDashboard';
+export type { AnalyticsDashboardProps } from './components/AnalyticsDashboard';
 export { Select } from './components/Select';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
 export { LeaseAnalysisDashboard } from './components/LeaseAnalysisDashboard';
@@ -98,3 +100,32 @@ export {
   parsers,
 } from './lib/formUtils';
 export type { DashboardScenarioConfig } from './lib/ebitdaPayload';
+
+// Analytics and Monitoring
+export {
+  initAnalytics,
+  getAnalytics,
+  trackPageView,
+  trackFormSubmit,
+  trackApiCall,
+  trackUserAction,
+  trackError,
+} from './lib/analytics';
+export type {
+  PageInteractionEvent,
+  ApiCallEvent,
+  UserActionEvent,
+  FormAnalytics,
+  PageAnalytics,
+} from './lib/analytics';
+
+export {
+  getApiMonitor,
+  monitoredFetch,
+  monitoredFetchWithRetry,
+} from './lib/api-monitor';
+export type {
+  ApiCallMetrics,
+  ApiAnalysis,
+  EndpointStats,
+} from './lib/api-monitor';
