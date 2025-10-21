@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
-import ChatPanel from '../components/ChatPanel.astro';
+// ChatPanel is now in Layout.astro
 ---
 
 <Layout title="EBITDA Forecasting" description="Generate EBITDA forecasts for service industry scenario planning with employee and expense modeling" canonical={Astro.url.href}>
@@ -41,12 +41,11 @@ import ChatPanel from '../components/ChatPanel.astro';
       </p>
 
       <!-- React Dashboard Component -->
-      <div id="ebitda-dashboard-container">
+      <div id="ebitda-dashboard-container" data-testid="ebitda-dashboard">
         <EbitdaDashboard client:only="react" />
       </div>
     </div>
   </div>
   
-  <!-- VS Code-style contextual chat panel -->
-  <ChatPanel />
+  <!-- ChatPanel is now in Layout.astro - no need to include it here -->
 </Layout>

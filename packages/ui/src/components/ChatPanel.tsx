@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useHydrated, useAutoScroll, useEscapeKey } from '../lib/hooks';
+import { cn } from '../lib/classNames';
 
 type Role = 'system' | 'user' | 'assistant';
 type Message = { role: Role; content: string };
@@ -15,19 +17,13 @@ export function ChatPanel({
   initialOpen = false,
 }: ChatPanelProps) {
   const [open, setOpen] = useState(initialOpen);
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHydrated();
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'Hi! Ask me about lease or amortization calculations.' },
   ]);
   const [input, setInput] = useState('');
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
-
-  // Handle client-side hydration safety
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  const listRef = useAutoScroll<HTMLDivElement>([messages, open]);
 
   // Don't render until hydrated to prevent SSR/client mismatch
   if (!hydrated) {
@@ -41,13 +37,6 @@ export function ChatPanel({
     // If base already looks like a path or absolute URL, append if needed.
     return base.endsWith('/v1/chat') ? base : base.replace(/\/$/, '') + '/v1/chat';
   }, [apiUrl]);
-
-  useEffect(() => {
-    // Auto-scroll to bottom on new messages
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [messages, open]);
 
   const onSend = useCallback(async () => {
     const content = input.trim();
@@ -93,18 +82,11 @@ export function ChatPanel({
     }
   };
 
-  // Close on Esc when focused in panel
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!open) return;
-      if (e.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
-
   const openPanel = useCallback(() => setOpen(true), []);
   const closePanel = useCallback(() => setOpen(false), []);
+
+  // Close on Esc when panel is open
+  useEscapeKey(closePanel, open);
 
   return (
     <>
@@ -116,11 +98,11 @@ export function ChatPanel({
         aria-label="Open chat assistant"
         data-hydrated={hydrated ? 'true' : 'false'}
         data-z-fallback="80"
-        className="fixed z-100 safe-bottom safe-right inline-flex items-center gap-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 px-4 h-12"
+        className="fixed bottom-6 right-6 z-100 inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-6 w-6"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -128,7 +110,6 @@ export function ChatPanel({
         >
           <path d="M21 15a4 4 0 01-4 4H7l-4 4V7a4 4 0 014-4h10a4 4 0 014 4v8z" />
         </svg>
-        <span className="hidden sm:block">Chat</span>
       </button>
 
       {/* Scrim + Panel */}
@@ -142,7 +123,6 @@ export function ChatPanel({
           />
 
           <div
-            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-label="Chat assistant"
@@ -187,10 +167,20 @@ export function ChatPanel({
               {messages.map((m, idx) => (
                 <div
                   key={idx}
-                  className={`text-sm ${m.role === 'user' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-800 dark:text-gray-200'}`}
+                  className={cn(
+                    'text-sm',
+                    m.role === 'user'
+                      ? 'text-gray-900 dark:text-gray-100'
+                      : 'text-gray-800 dark:text-gray-200'
+                  )}
                 >
                   <div
-                    className={`inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 ${m.role === 'user' ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40' : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'}`}
+                    className={cn(
+                      'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2',
+                      m.role === 'user'
+                        ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40'
+                        : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'
+                    )}
                   >
                     {m.content}
                   </div>

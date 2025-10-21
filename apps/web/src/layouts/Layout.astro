@@ -1,6 +1,7 @@
 ---
-import { Footer, ChatPanel } from '@financial-analysis/ui';
+import { Footer } from '@financial-analysis/ui';
 import SEO from '../components/SEO.astro';
+import ChatPanel from '../components/ChatPanel.astro';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
 
@@ -16,7 +17,6 @@ const { title, description = "Financial Analysis Tooling", canonical, image, sho
 
 const navLinks = [
   { label: 'Home', href: '/' },
-  { label: 'AI Modeler', href: '/ai-modeler' },
   { label: 'Models', href: '/models' },
   { label: 'Analysis', href: '/analysis' },
   { label: 'Status', href: '/status' },
@@ -69,7 +69,7 @@ const navLinks = [
     <!-- Header / Navigation -->
     {showNav && (
       <div id="site-header">
-        <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Analysis" />
+  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Studio" />
       </div>
     )}
 
@@ -84,7 +84,7 @@ const navLinks = [
     <!-- Footer -->
     <Footer client:only="react" />
 
-    <!-- Floating Chat Assistant (right-side drawer) -->
-    <ChatPanel client:only="react" title="Financial Analysis" />
+    <!-- Chat Panel -->
+    <ChatPanel />
   </body>
 </html>

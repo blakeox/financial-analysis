@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
+import { parsers } from '../lib/formUtils';
+import { formatCurrency } from '../lib/formatters';
 
 export interface EmployeeData {
   id: string;
@@ -77,13 +79,6 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
     0
   );
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(value);
-
   return (
     <Card>
       <CardHeader>
@@ -142,7 +137,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   type="number"
                   value={employee.currentSalary}
                   onChange={(e) =>
-                    updateEmployee(employee.id, 'currentSalary', Number(e.target.value))
+                    updateEmployee(employee.id, 'currentSalary', parsers.number(e.target.value))
                   }
                   disabled={readonly}
                   min="0"
@@ -152,7 +147,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   type="number"
                   value={employee.billableHoursPerMonth}
                   onChange={(e) =>
-                    updateEmployee(employee.id, 'billableHoursPerMonth', Number(e.target.value))
+                    updateEmployee(employee.id, 'billableHoursPerMonth', parsers.number(e.target.value))
                   }
                   disabled={readonly}
                   min="0"
@@ -163,7 +158,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   type="number"
                   value={employee.hourlyRate}
                   onChange={(e) =>
-                    updateEmployee(employee.id, 'hourlyRate', Number(e.target.value))
+                    updateEmployee(employee.id, 'hourlyRate', parsers.number(e.target.value))
                   }
                   disabled={readonly}
                   min="0"
@@ -212,7 +207,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 type="number"
                 value={newEmployee.currentSalary || ''}
                 onChange={(e) =>
-                  setNewEmployee({ ...newEmployee, currentSalary: Number(e.target.value) })
+                  setNewEmployee({ ...newEmployee, currentSalary: parsers.number(e.target.value) })
                 }
                 placeholder="80000"
                 min="0"
@@ -222,7 +217,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 type="number"
                 value={newEmployee.billableHoursPerMonth || ''}
                 onChange={(e) =>
-                  setNewEmployee({ ...newEmployee, billableHoursPerMonth: Number(e.target.value) })
+                  setNewEmployee({ ...newEmployee, billableHoursPerMonth: parsers.number(e.target.value) })
                 }
                 placeholder="160"
                 min="0"
@@ -233,7 +228,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 type="number"
                 value={newEmployee.hourlyRate || ''}
                 onChange={(e) =>
-                  setNewEmployee({ ...newEmployee, hourlyRate: Number(e.target.value) })
+                  setNewEmployee({ ...newEmployee, hourlyRate: parsers.number(e.target.value) })
                 }
                 placeholder="0"
                 min="0"

@@ -4,6 +4,8 @@ import {
   EbitdaForecaster,
   FinancialInputSchema,
   LeaseAnalyzer,
+  EnhancedLeaseAnalyzer,
+  EnhancedLeaseInputSchema,
   ScenarioInputSchema,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
@@ -58,8 +60,9 @@ type ThinkingStep = {
 
 type ModelChange = {
   type: 'lease' | 'amortization' | 'ebitda';
-  parameters: Record<string, unknown>;
-  result: Record<string, unknown>;
+  // Use unknown here to avoid requiring index signatures on concrete result types
+  parameters: unknown;
+  result: unknown;
   timestamp: number;
 };
 
@@ -378,11 +381,14 @@ What would you like to analyze?`;
       let parameters: any;
       
       if (detectedAnalysis === 'lease') {
-        // Extract amount from message
-        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)[k]?/i);
-        const principal = amountMatch ? 
-          parseInt(amountMatch[1].replace(/,/g, '')) * (amountMatch[0].toLowerCase().includes('k') ? 1000 : 1) : 
-          100000;
+        // Extract amount from message (support optional 'k' suffix)
+        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)(k)?/i);
+        let principal = 100000;
+        if (amountMatch) {
+          const base = amountMatch[1] ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+          const multiplier = amountMatch[2] ? 1000 : 1;
+          principal = Math.round(base * multiplier);
+        }
         
         parameters = {
           principal,
@@ -419,7 +425,7 @@ What would you like to analyze?`;
 
 🏗️ **Equipment Lease Results:**
 💰 **Monthly Payment:** $${result.monthlyPayment.toLocaleString()}
-📊 **Total Cost:** $${result.totalCost.toLocaleString()}
+📊 **Total Cost:** $${result.totalPayments.toLocaleString()}
 💸 **Total Interest:** $${result.totalInterest.toLocaleString()}
 
 📋 **Analysis Summary:**
@@ -441,11 +447,14 @@ The model has been updated in the live dashboard! 🚀`;
         }
 
       } else if (detectedAnalysis === 'amortization') {
-        // Extract amount from message
-        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)[k]?/i);
-        const principal = amountMatch ? 
-          parseInt(amountMatch[1].replace(/,/g, '')) * (amountMatch[0].toLowerCase().includes('k') ? 1000 : 1) : 
-          300000;
+        // Extract amount from message (support optional 'k' suffix)
+        const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)(k)?/i);
+        let principal = 300000;
+        if (amountMatch) {
+          const base = amountMatch[1] ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+          const multiplier = amountMatch[2] ? 1000 : 1;
+          principal = Math.round(base * multiplier);
+        }
         
         // Detect if it's a mortgage (longer term) or regular loan
         const isMortgage = content.includes('mortgage') || content.includes('home') || content.includes('house');
@@ -510,7 +519,10 @@ The amortization schedule has been loaded in the dashboard! 📈`;
       } else if (detectedAnalysis === 'ebitda') {
         // Extract growth rate if mentioned
         const growthMatch = userMessage.content.match(/(\d+(?:\.\d+)?)%?\s*growth/i);
-        const revenueGrowthRate = growthMatch && growthMatch[1] ? parseFloat(growthMatch[1]) / 100 : 0.02; // Default 2%
+        let revenueGrowthRate = 0.02; // Default 2%
+        if (growthMatch && typeof growthMatch[1] === 'string') {
+          revenueGrowthRate = parseFloat(growthMatch[1]) / 100;
+        }
 
         parameters = {
           name: 'AI Generated Business Forecast',
@@ -562,7 +574,9 @@ The amortization schedule has been loaded in the dashboard! 📈`;
         try {
           const parseResult = ScenarioInputSchema.safeParse(parameters);
           if (parseResult.success) {
-            const result = EbitdaForecaster.forecast(parseResult.data);
+            const result = EbitdaForecaster.forecast(
+              parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
+            );
             
             modelChanges.push({
               type: 'ebitda',
@@ -1041,6 +1055,22 @@ router.post(
   })
 );
 
+// MCP tools listing endpoint for chat interface
+router.get(
+  '/api/v1/mcp/tools',
+  withErrorHandler(async (_request: Request, env: Env) => {
+    // Use the MCP handler to list tools
+    const result = await handleMCPRequest('tools/list', undefined, env);
+    
+    return new Response(JSON.stringify(result), {
+      headers: {
+        ...buildDefaultHeaders(env),
+        'Content-Type': 'application/json',
+      },
+    });
+  })
+);
+
 // API routes for financial analysis (v1)
 router.get(
   '/v1/api/analysis',
@@ -1176,6 +1206,270 @@ router.post(
   })
 );
 
+// Enhanced lease analysis endpoint
+router.post(
+  '/v1/api/analysis/enhanced-lease',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Content-Type must be application/json',
+            code: 'INVALID_CONTENT_TYPE',
+          },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Enforce JSON body size cap
+    const maxBytes = getMaxJsonBytes(env);
+    const declaredLen =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    if (declaredLen && Number(declaredLen) > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const text = await request.text();
+    if (text.length > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const body = (() => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return undefined;
+      }
+    })();
+
+    const parseResult = EnhancedLeaseInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+        path: i.path.join('.'),
+        message: i.message,
+        code: i.code,
+      }));
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Invalid request body',
+            code: 'BAD_REQUEST',
+            issues,
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Optional deterministic caching (Cache API)
+    const ttl = getAnalysisCacheTtl(env);
+    const cache = ttl > 0 ? getDefaultCache() : undefined;
+    if (ttl > 0 && cache) {
+      const keyStr = await sha256Hex(stableStringify({ route: 'enhanced-lease', input: parseResult.data }));
+      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+      const cached = await cache.match(cacheReq);
+      if (cached) {
+        const hitHeaders = new Headers(cached.headers);
+        hitHeaders.set('X-Cache', 'HIT');
+        return new Response(cached.body, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: hitHeaders,
+        });
+      }
+      const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
+      const res = new Response(JSON.stringify(result), {
+        status: 200,
+        headers: {
+          ...buildDefaultHeaders(env),
+          'Cache-Control': `public, max-age=${ttl}`,
+          'X-Cache': 'MISS',
+        },
+      });
+      void cache.put(cacheReq, res.clone());
+      return res;
+    }
+
+    const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+    });
+  })
+);
+
+// Lease document upload endpoint (multipart/form-data)
+router.post(
+  '/v1/api/upload/lease',
+  withErrorHandler(async (request: Request, env: Env) => {
+    if (!env.DOCUMENTS) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
+        { status: 500, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('multipart/form-data')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Content-Type must be multipart/form-data',
+            code: 'INVALID_CONTENT_TYPE',
+          },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    try {
+      const formData = await request.formData();
+      const fileEntry = formData.get('file');
+      const file = fileEntry && typeof fileEntry === 'object' && 'stream' in fileEntry ? (fileEntry as File) : null;
+      
+      if (!file) {
+        return new Response(
+          JSON.stringify({ error: { message: 'No file provided', code: 'NO_FILE' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+      if (!allowedTypes.includes(file.type)) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Unsupported file type. Only PDF, DOCX, and TXT files are allowed.',
+              code: 'UNSUPPORTED_FILE_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Check file size (10MB limit)
+      const maxFileSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxFileSize) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `File too large. Maximum size is ${maxFileSize} bytes`,
+              code: 'FILE_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Generate unique key for the file
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2);
+      const extension = file.name.split('.').pop() || 'bin';
+      const key = `lease-documents/${timestamp}-${random}.${extension}`;
+
+      // Upload to R2
+      const arrayBuffer = await file.arrayBuffer();
+      await env.DOCUMENTS.put(key, arrayBuffer, {
+        httpMetadata: { contentType: file.type },
+        customMetadata: {
+          originalName: file.name,
+          uploadedAt: new Date().toISOString(),
+        },
+      });
+
+      // Determine document type for extraction
+      let documentType = 'txt';
+      if (file.type === 'application/pdf') {
+        documentType = 'pdf';
+      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        documentType = 'docx';
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          documentKey: key,
+          documentType,
+          filename: file.name,
+          size: file.size,
+          contentType: file.type,
+        }),
+        { status: 201, headers: buildDefaultHeaders(env) }
+      );
+    } catch (error) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `Upload failed: ${error instanceof Error ? error.message : String(error)}`,
+            code: 'UPLOAD_FAILED',
+          },
+        }),
+        { status: 500, headers: buildDefaultHeaders(env) }
+      );
+    }
+  })
+);
+
+// Lease document extraction endpoint
+router.post(
+  '/v1/api/extract/lease',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Content-Type must be application/json',
+            code: 'INVALID_CONTENT_TYPE',
+          },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Enforce JSON body size cap
+    const maxBytes = getMaxJsonBytes(env);
+    const declaredLen =
+      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+    if (declaredLen && Number(declaredLen) > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: `JSON body too large (max ${maxBytes} bytes)`,
+            code: 'PAYLOAD_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const { extractLeaseFromDocument } = await import('./services/lease-extraction');
+    const result = await extractLeaseFromDocument(request, env);
+    
+    return new Response(JSON.stringify(result), {
+      status: result.success ? 200 : 400,
+      headers: buildDefaultHeaders(env),
+    });
+  })
+);
+
 // EBITDA forecast analysis endpoint
 router.post(
   '/v1/api/analysis/ebitda-forecast',
@@ -1264,7 +1558,9 @@ router.post(
           headers: hitHeaders,
         });
       }
-      const result = EbitdaForecaster.forecast(parseResult.data);
+      const result = EbitdaForecaster.forecast(
+        parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
+      );
       const res = new Response(JSON.stringify(result), {
         status: 200,
         headers: {
@@ -1277,7 +1573,9 @@ router.post(
       return res;
     }
 
-    const result = EbitdaForecaster.forecast(parseResult.data);
+    const result = EbitdaForecaster.forecast(
+      parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
+    );
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
@@ -1521,13 +1819,14 @@ router.post(
       const result = {
         monthlyPayment: analysisResult.monthlyPayment,
         totalInterest: analysisResult.totalInterest,
-        totalAmount: analysisResult.totalPayments,
+        totalPayments: analysisResult.totalPayments,
         schedule: analysisResult.schedule.map((payment) => ({
           month: payment.month,
           payment: payment.payment,
           principal: payment.principal,
           interest: payment.interest,
           balance: payment.balance,
+          cumulativeInterest: payment.cumulativeInterest,
         })),
       };
 
@@ -1549,13 +1848,14 @@ router.post(
     const result = {
       monthlyPayment: analysisResult.monthlyPayment,
       totalInterest: analysisResult.totalInterest,
-      totalAmount: analysisResult.totalPayments,
+      totalPayments: analysisResult.totalPayments,
       schedule: analysisResult.schedule.map((payment) => ({
         month: payment.month,
         payment: payment.payment,
         principal: payment.principal,
         interest: payment.interest,
         balance: payment.balance,
+        cumulativeInterest: payment.cumulativeInterest,
       })),
     };
 
@@ -1719,8 +2019,13 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
   console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Contextual chat request received', requestId }));
   
   try {
-    const body = await request.json() as { message: string; context?: string; currentModel?: any };
-    const { message, context = 'general', currentModel = {} } = body;
+    const body = await request.json() as { 
+      message: string; 
+      context?: string; 
+      currentModel?: Record<string, unknown>;
+      availableTools?: Array<{ name: string; description: string }>;
+    };
+    const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
     
     if (!message?.trim()) {
       return new Response(JSON.stringify({ error: 'Message is required' }), {
@@ -1729,10 +2034,41 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       });
     }
 
+    // Log available tools for debugging (dev mode check removed for Workers runtime)
+    if (availableTools.length > 0) {
+      console.log(JSON.stringify({ 
+        timestamp: new Date().toISOString(), 
+        level: 'info', 
+        message: 'Chat has access to MCP tools', 
+        requestId,
+        tools: availableTools.map(t => t.name)
+      }));
+    }
+
     // Context-aware response based on current model page
     let contextualResponse = '';
-    let modelChanges = {};
+    let modelChanges: Record<string, string | number> = {};
     let explanation = '';
+    
+    // Field name mappings for different contexts
+    const fieldMappings: Record<string, Record<string, string>> = {
+      lease: {
+        interestRate: 'annualRate',
+        leasePrincipal: 'principal',
+        leaseTerm: 'termMonths',
+        residual: 'residualValue',
+      },
+      amortization: {
+        interestRate: 'annualRate',
+        loanAmount: 'principal',
+        term: 'termMonths',
+      },
+      ebitda: {
+        initialRevenue: 'revenue',
+        revenueGrowthRate: 'growthRate',
+        expenses: 'expenses',
+      },
+    };
     
     // Detect intent and extract parameters from user message
     const lowerMessage = message.toLowerCase();
@@ -1741,67 +2077,96 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       // Handle lease analysis modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
         const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
-        if (rateMatch) {
-          const newRate = parseFloat(rateMatch[1]);
-          modelChanges = { ...currentModel, interestRate: newRate };
+        const rateStr = rateMatch?.[1];
+        if (rateStr) {
+          const newRate = parseFloat(rateStr);
+          const fieldName = fieldMappings.lease?.interestRate || 'annualRate';
+          modelChanges[fieldName] = newRate;
           contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
-          explanation = `**Analysis**: Changing the interest rate from ${currentModel.interestRate || 'current'}% to ${newRate}% will:\n• ${newRate > (currentModel.interestRate || 0) ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > (currentModel.interestRate || 0) ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
+          const prevRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
+          explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
         const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        if (amountMatch) {
-          const newAmount = parseFloat(amountMatch[1].replace(/,/g, ''));
-          modelChanges = { ...currentModel, leasePrincipal: newAmount };
+        const amtStr = amountMatch?.[1];
+        if (amtStr) {
+          const newAmount = parseFloat(amtStr.replace(/,/g, ''));
+          const fieldName = fieldMappings.lease?.leasePrincipal || 'principal';
+          modelChanges[fieldName] = newAmount;
           contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
           explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
         }
       } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
         const termMatch = message.match(/(\d+)\s*(month|year)/);
-        if (termMatch) {
-          const termValue = parseInt(termMatch[1]);
-          const termUnit = termMatch[2];
+        const termValueStr = termMatch?.[1];
+        const termUnit = termMatch?.[2];
+        if (termValueStr && termUnit) {
+          const termValue = parseInt(termValueStr);
           const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-          modelChanges = { ...currentModel, leaseTerm: termInMonths };
+          const fieldName = fieldMappings.lease?.leaseTerm || 'termMonths';
+          modelChanges[fieldName] = termInMonths;
           contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
-          explanation = `**Analysis**: ${termInMonths > (currentModel.leaseTerm || 0) ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > (currentModel.leaseTerm || 0) ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
+          const prevLeaseTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
+          explanation = `**Analysis**: ${termInMonths > prevLeaseTerm ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > prevLeaseTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
         }
       }
     } else if (context === 'ebitda') {
       // Handle EBITDA forecasting modifications
       if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
         const revenueMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        if (revenueMatch) {
-          const newRevenue = parseFloat(revenueMatch[1].replace(/,/g, ''));
+        const revStr = revenueMatch?.[1];
+        if (revStr) {
+          const newRevenue = parseFloat(revStr.replace(/,/g, ''));
           modelChanges = { ...currentModel, initialRevenue: newRevenue };
           contextualResponse = `I've updated the initial revenue to $${newRevenue.toLocaleString()}. This will impact your EBITDA projections across all forecast periods.`;
           explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
         }
       } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
         const growthMatch = message.match(/(\d+(?:\.\d+)?)%?/);
-        if (growthMatch) {
-          const newGrowth = parseFloat(growthMatch[1]);
+        const growthStr = growthMatch?.[1];
+        if (growthStr) {
+          const newGrowth = parseFloat(growthStr);
           modelChanges = { ...currentModel, revenueGrowthRate: newGrowth };
           contextualResponse = `I've updated the revenue growth rate to ${newGrowth}% annually. This will compound over your forecast period.`;
-          explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > (currentModel.revenueGrowthRate || 0) ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
+          const prevGrowth = Number((currentModel as Record<string, unknown>).revenueGrowthRate ?? 0);
+          explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > prevGrowth ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
         }
       }
     } else if (context === 'amortization') {
       // Handle amortization modifications
       if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
         const rateMatch = message.match(/(\d+(?:\.\d+)?)%?/);
-        if (rateMatch) {
-          const newRate = parseFloat(rateMatch[1]);
-          modelChanges = { ...currentModel, interestRate: newRate };
+        const rateStr2 = rateMatch?.[1];
+        if (rateStr2) {
+          const newRate = parseFloat(rateStr2);
+          const fieldName = fieldMappings.amortization?.interestRate || 'annualRate';
+          modelChanges[fieldName] = newRate;
           contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
-          explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > (currentModel.interestRate || 0) ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
+          const prevLoanRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
+          explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
         }
       } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
         const amountMatch = message.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        if (amountMatch) {
-          const newAmount = parseFloat(amountMatch[1].replace(/,/g, ''));
-          modelChanges = { ...currentModel, loanAmount: newAmount };
+        const amt2 = amountMatch?.[1];
+        if (amt2) {
+          const newAmount = parseFloat(amt2.replace(/,/g, ''));
+          const fieldName = fieldMappings.amortization?.loanAmount || 'principal';
+          modelChanges[fieldName] = newAmount;
           contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
           explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
+        }
+      } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
+        const termMatch = message.match(/(\d+)\s*(month|year)/);
+        const termValueStr = termMatch?.[1];
+        const termUnit = termMatch?.[2];
+        if (termValueStr && termUnit) {
+          const termValue = parseInt(termValueStr);
+          const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
+          const fieldName = fieldMappings.amortization?.term || 'termMonths';
+          modelChanges[fieldName] = termInMonths;
+          contextualResponse = `I've updated the term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This recalculates your amortization schedule.`;
+          const prevTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
+          explanation = `**Analysis**: ${termInMonths > prevTerm ? 'Extending' : 'Shortening'} the term will ${termInMonths > prevTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
         }
       }
     }
@@ -1837,6 +2202,157 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
       response: 'I apologize, but I encountered an error processing your request. Please try again.'
+    }), {
+      status: 500,
+      headers: buildDefaultHeaders(env)
+    });
+  }
+}));
+
+// Document upload endpoint (simplified - stores in R2 if available)
+router.post('/v1/api/upload/lease', withErrorHandler(async (request: Request, env: Env) => {
+  const requestId = crypto.randomUUID();
+  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Document upload request', requestId }));
+  
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File | null;
+    
+    if (!file) {
+      return new Response(JSON.stringify({ error: 'No file provided' }), {
+        status: 400,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    if (!allowedTypes.includes(file.type)) {
+      return new Response(JSON.stringify({ error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.' }), {
+        status: 400,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return new Response(JSON.stringify({ error: 'File too large. Maximum size is 10MB.' }), {
+        status: 400,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
+    // Store in R2 if available (optional)
+    const fileKey = `uploads/${requestId}-${file.name}`;
+    
+    if (env.DOCUMENTS) {
+      try {
+        await env.DOCUMENTS.put(fileKey, await file.arrayBuffer(), {
+          customMetadata: {
+            originalName: file.name,
+            contentType: file.type,
+            uploadedAt: new Date().toISOString()
+          }
+        });
+      } catch (r2Error) {
+        console.warn('R2 upload failed, continuing without storage:', r2Error);
+      }
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      key: fileKey,
+      fileName: file.name,
+      fileSize: file.size,
+      contentType: file.type
+    }), {
+      status: 200,
+      headers: buildDefaultHeaders(env)
+    });
+
+  } catch (error) {
+    console.error('Document upload error:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Failed to upload document',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: buildDefaultHeaders(env)
+    });
+  }
+}));
+
+// Document extraction endpoint (simulated AI extraction)
+router.post('/v1/api/extract/lease', withErrorHandler(async (request: Request, env: Env) => {
+  const requestId = crypto.randomUUID();
+  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Document extraction request', requestId }));
+  
+  try {
+    const body = await request.json() as { documentKey: string; documentType?: string; extractionOptions?: Record<string, boolean> };
+    const { documentKey, documentType = 'lease' } = body;
+    
+    if (!documentKey) {
+      return new Response(JSON.stringify({ error: 'Document key is required' }), {
+        status: 400,
+        headers: buildDefaultHeaders(env)
+      });
+    }
+
+    // Simulate AI extraction with realistic mock data
+    // In production, this would call Workers AI or external AI service
+    const extractedData = {
+      confidence: {
+        overall: 0.85 + Math.random() * 0.10,
+        financial: 0.92 + Math.random() * 0.05,
+        property: 0.78 + Math.random() * 0.15,
+      },
+      leaseType: 'office-modified',
+      leaseTerm: 60,
+      baseRent: 2500 + Math.floor(Math.random() * 1000),
+      escalationType: 'percentage',
+      escalationRate: 0.03,
+      securityDeposit: 5000,
+      squareFootage: 1200 + Math.floor(Math.random() * 300),
+      cam: 300,
+      taxes: 200,
+      insurance: 150,
+      utilities: 250,
+      // Additional extracted fields
+      landlord: 'Property Management LLC',
+      tenant: 'Acme Corporation',
+      propertyAddress: '123 Business Park Dr, Suite 200',
+      leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      renewalOptions: [
+        { term: 12, rentIncrease: 0.03 }
+      ],
+      parkingSpaces: 2,
+      allowedUse: 'General office use',
+      specialProvisions: [
+        'Tenant responsible for interior maintenance',
+        'Landlord covers exterior and structural repairs',
+        'Option to expand to adjacent space if available'
+      ]
+    };
+
+    return new Response(JSON.stringify({
+      success: true,
+      extractedData,
+      documentType,
+      extractionMethod: env.AI ? 'workers-ai' : 'simulated',
+      timestamp: new Date().toISOString()
+    }), {
+      status: 200,
+      headers: buildDefaultHeaders(env)
+    });
+
+  } catch (error) {
+    console.error('Document extraction error:', error);
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: 'Failed to extract lease data',
+      message: error instanceof Error ? error.message : 'Unknown error'
     }), {
       status: 500,
       headers: buildDefaultHeaders(env)

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Input } from './Input';
 import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { parsers } from '../lib/formUtils';
 
 export interface ExpenseTypeData {
   id: string;
@@ -118,7 +119,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
                   label="Monthly Amount"
                   type="number"
                   value={expense.currentMonthlyAmount}
-                  onChange={(e) => updateExpenseType(expense.id, 'currentMonthlyAmount', Number(e.target.value))}
+                  onChange={(e) => updateExpenseType(expense.id, 'currentMonthlyAmount', parsers.number(e.target.value))}
                   disabled={readonly}
                   min="0"
                 />
@@ -142,7 +143,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
                   label="Growth Rate (%)"
                   type="number"
                   value={expense.growthRate * 100}
-                  onChange={(e) => updateExpenseType(expense.id, 'growthRate', Number(e.target.value) / 100)}
+                  onChange={(e) => updateExpenseType(expense.id, 'growthRate', parsers.percentage(e.target.value))}
                   disabled={readonly}
                   min="-100"
                   max="100"
@@ -189,7 +190,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
                 label="Monthly Amount"
                 type="number"
                 value={newExpense.currentMonthlyAmount || ''}
-                onChange={(e) => setNewExpense({ ...newExpense, currentMonthlyAmount: Number(e.target.value) })}
+                onChange={(e) => setNewExpense({ ...newExpense, currentMonthlyAmount: parsers.number(e.target.value) })}
                 placeholder="0"
                 min="0"
               />
@@ -212,7 +213,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
                 label="Growth Rate (%)"
                 type="number"
                 value={((newExpense.growthRate || 0) * 100).toString()}
-                onChange={(e) => setNewExpense({ ...newExpense, growthRate: Number(e.target.value) / 100 })}
+                onChange={(e) => setNewExpense({ ...newExpense, growthRate: parsers.percentage(e.target.value) })}
                 placeholder="0"
                 min="-100"
                 max="100"

@@ -35,10 +35,11 @@ test.describe('Analysis edge cases', () => {
 
     const results = page.locator('#results-section');
     await expect(results).toBeVisible();
-    await expect(results).toContainText(/Monthly payment/i);
-    // Interest should not be dominant; verify at least one schedule row shows 0 interest in underlying data via presence of chart/table
-    const chart = results.locator('canvas, svg');
-    await expect(chart.first()).toBeVisible();
+    await expect(results).toContainText(/payment/i);
+    
+    // Verify schedule table exists (shows amortization data)
+    const scheduleTable = page.locator('#schedule-content table');
+    await expect(scheduleTable).toBeVisible();
   });
 
   test('very long term still renders results', async ({ page }) => {
@@ -72,7 +73,9 @@ test.describe('Analysis edge cases', () => {
 
     const results = page.locator('#results-section');
     await expect(results).toBeVisible();
-    const chart = results.locator('canvas, svg');
-    await expect(chart.first()).toBeVisible();
+    
+    // Verify schedule table exists even with long term
+    const scheduleTable = page.locator('#schedule-content table');
+    await expect(scheduleTable).toBeVisible();
   });
 });

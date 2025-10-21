@@ -47,7 +47,12 @@ module.exports = [
       'apps/web/playwright.config.ts',
       'apps/web/tests/**/*.*',
     ],
-    languageOptions: { parserOptions: { projectService: false } },
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+        ecmaFeatures: { jsx: true },
+      },
+    },
     rules: {
       '@typescript-eslint/await-thenable': 'off',
       '@typescript-eslint/no-floating-promises': 'off',

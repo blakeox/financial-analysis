@@ -1,4 +1,12 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import {
+  DualAxisChart,
+  WaterfallChart,
+  StackedBarChart,
+  EnhancedMetricCard,
+  type WaterfallDataPoint,
+} from './charts';
 
 export interface MonthlyForecast {
   month: number;
@@ -110,111 +118,24 @@ const getMonthName = (month: number) => {
   return months[month - 1] || 'Unknown';
 };
 
-const computeTotalExpenses = (month: MonthlyForecast) => {
-  if (typeof month.totalExpenses === 'number') {
-    return month.totalExpenses;
-  }
-  const operating = month.operatingExpenses ?? 0;
-  const cogs = month.costOfGoodsSold ?? 0;
-  const depreciation = month.depreciation ?? 0;
-  const amortization = month.amortization ?? 0;
-  const interest = month.interestExpense ?? 0;
-  const taxes = month.taxes ?? 0;
-  return operating + cogs + depreciation + amortization + interest + taxes;
-};
+type TabId = 'overview' | 'charts' | 'details' | 'export';
 
-const createSparklinePaths = (values: number[], width: number, height: number) => {
-  if (values.length === 0) return { line: '', area: '' };
-  if (values.length === 1) {
-    const x = width / 2;
-    const y = height / 2;
-    const point = `M${x},${y}`;
-    const area = `${point} L${width},${height} L0,${height} Z`;
-    return { line: point, area };
-  }
-
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const step = width / Math.max(values.length - 1, 1);
-
-  const points = values.map((value, index) => {
-    const x = Number((index * step).toFixed(2));
-    const y = Number((height - ((value - min) / range) * height).toFixed(2));
-    return { x, y: Number.isFinite(y) ? y : height / 2 };
-  });
-
-  const line = points
-    .map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`)
-    .join(' ');
-
-  const lastPoint = points[points.length - 1] ?? { x: width, y: height };
-  const firstPoint = points[0] ?? { x: 0, y: height };
-  const area = `${line} L${lastPoint.x},${height} L${firstPoint.x},${height} Z`;
-
-  return { line, area };
-};
-
-interface SparklineChartProps {
-  title: string;
-  values: number[];
-  color: string;
-  formatter: (value: number) => string;
+interface Tab {
+  id: TabId;
+  label: string;
+  icon: string;
 }
 
-function SparklineChart({ title, values, color, formatter }: SparklineChartProps) {
-  const width = 600;
-  const height = 120;
-  const { line, area } = createSparklinePaths(values, width, height);
-
-  if (!values.length) {
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <svg width="32" height="8" viewBox="0 0 32 8" aria-hidden="true" role="presentation">
-            <rect width="32" height="8" rx="4" fill={color} />
-          </svg>
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</span>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">No data available</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <svg width="32" height="8" viewBox="0 0 32 8" aria-hidden="true" role="presentation">
-          <rect width="32" height="8" rx="4" fill={color} />
-        </svg>
-        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</span>
-      </div>
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-32"
-        role="img"
-        aria-label={`${title} trend over time`}
-      >
-        <path d={area} fill={`${color}22`} role="presentation" />
-        <path
-          d={line}
-          fill="none"
-          stroke={color}
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-        <span>{formatter(values[0] ?? 0)}</span>
-        <span>{formatter(values[values.length - 1] ?? values[0] ?? 0)}</span>
-      </div>
-    </div>
-  );
-}
+const tabs: Tab[] = [
+  { id: 'overview', label: 'Overview', icon: '📊' },
+  { id: 'charts', label: 'Charts', icon: '📈' },
+  { id: 'details', label: 'Details', icon: '📋' },
+  { id: 'export', label: 'Export', icon: '💾' },
+];
 
 export function ForecastResults({ results, showDetails = true }: ForecastResultsProps) {
-  const { forecast, summary, scenario, keyMetrics } = results;
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const { forecast, summary, keyMetrics } = results;
 
   const breakEvenIndex = summary.breakEvenMonth
     ? summary.breakEvenMonth - 1
@@ -225,194 +146,240 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
       ? `${getMonthName(forecast[breakEvenIndex].month)} ${forecast[breakEvenIndex].year}`
       : 'Not reached';
 
-  const revenueSeries = forecast.map((month) => month.revenue);
-  const ebitdaSeries = forecast.map((month) => month.ebitda);
-  const marginSeries = forecast.map(
-    (month) =>
-      month.ebitdaMargin ?? (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0)
-  );
+  // Calculate trends (comparing last vs first month)
+  const firstMonth = forecast[0];
+  const lastMonth = forecast[forecast.length - 1];
+  
+  const revenueTrend = firstMonth && lastMonth
+    ? ((lastMonth.revenue - firstMonth.revenue) / firstMonth.revenue) * 100
+    : 0;
+  
+  const ebitdaTrend = firstMonth && lastMonth && firstMonth.ebitda !== 0
+    ? ((lastMonth.ebitda - firstMonth.ebitda) / Math.abs(firstMonth.ebitda)) * 100
+    : 0;
 
-  const hasNotes = forecast.some((month) => month.notes && month.notes.length > 0);
+  const marginTrend = firstMonth && lastMonth
+    ? ((lastMonth.ebitdaMargin ?? 0) - (firstMonth.ebitdaMargin ?? 0))
+    : 0;
 
-  const economicFactors = scenario.economicFactors;
+  // Prepare chart data
+  const revenueMarginData = forecast.map((month) => ({
+    name: `${getMonthName(month.month)}'${month.year.toString().slice(-2)}`,
+    value1: month.revenue,
+    value2: month.ebitdaMargin ?? (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0),
+  }));
+
+  // Prepare waterfall data (EBITDA bridge using first month)
+  const waterfallData: WaterfallDataPoint[] = firstMonth
+    ? [
+        { name: 'Revenue', value: firstMonth.revenue, isTotal: false },
+        { name: 'COGS', value: -(firstMonth.costOfGoodsSold ?? 0), isTotal: false },
+        { name: 'Op Expenses', value: -(firstMonth.operatingExpenses ?? 0), isTotal: false },
+        { name: 'Employee Costs', value: -(firstMonth.employeeCosts ?? 0), isTotal: false },
+        { name: 'EBITDA', value: firstMonth.ebitda, isTotal: true },
+      ]
+    : [];
+
+  // Prepare expense breakdown data (first 6 months)
+  const expenseData = forecast.slice(0, 6).map((month) => ({
+    name: `${getMonthName(month.month)}`,
+    cogs: month.costOfGoodsSold ?? 0,
+    opex: month.operatingExpenses ?? 0,
+    employees: month.employeeCosts ?? 0,
+  }));
+
+  const expenseStacks = [
+    { dataKey: 'cogs', name: 'COGS', color: '#ef4444' },
+    { dataKey: 'opex', name: 'Operating', color: '#f59e0b' },
+    { dataKey: 'employees', name: 'Employees', color: '#3b82f6' },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {formatCurrency(summary.totalRevenue)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Revenue</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {formatCurrency(summary.totalEbitda)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total EBITDA</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {formatPercentage(summary.averageEbitdaMargin)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Avg EBITDA Margin</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {formatPercentage(summary.revenueGrowth)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Revenue Growth</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {formatCurrency(
-                  summary.totalOperatingExpenses ??
-                    forecast.reduce((sum, month) => sum + computeTotalExpenses(month), 0)
-                )}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                Total Operating Expenses
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
-                {formatPercentage(summary.ebitdaGrowth ?? 0)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">EBITDA Growth</div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }
+              `}
+            >
+              <span className="text-lg">{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* Scenario Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{scenario.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {scenario.description && (
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-              {scenario.description}
-            </p>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Forecast Period:</span>{' '}
-              {scenario.forecastPeriodMonths ?? forecast.length} months
-            </div>
-            <div>
-              <span className="font-medium">Final Employee Count:</span>{' '}
-              {summary.finalEmployeeCount}
-            </div>
-            <div>
-              <span className="font-medium">Break-even:</span> {breakEvenLabel}
-            </div>
-            <div>
-              <span className="font-medium">Total Employee Costs:</span>{' '}
-              {summary.totalEmployeeCosts !== undefined
-                ? formatCurrency(summary.totalEmployeeCosts)
-                : formatCurrency(
-                    forecast.reduce((sum, month) => sum + (month.employeeCosts ?? 0), 0)
-                  )}
-            </div>
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          {/* Enhanced KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <EnhancedMetricCard
+              title="Total Revenue"
+              value={summary.totalRevenue}
+              formatter={formatCompactCurrency}
+              trend={revenueTrend}
+              trendLabel="vs first month"
+              icon="💰"
+              colorClass="text-green-600 dark:text-green-400"
+            />
+            <EnhancedMetricCard
+              title="Total EBITDA"
+              value={summary.totalEbitda}
+              formatter={formatCompactCurrency}
+              trend={ebitdaTrend}
+              trendLabel="vs first month"
+              icon="📈"
+              colorClass={
+                summary.totalEbitda >= 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }
+            />
+            <EnhancedMetricCard
+              title="Avg EBITDA Margin"
+              value={formatPercentage(summary.averageEbitdaMargin)}
+              trend={marginTrend}
+              trendLabel="vs first month"
+              icon="📊"
+              colorClass="text-blue-600 dark:text-blue-400"
+            />
+            <EnhancedMetricCard
+              title="Break Even"
+              value={breakEvenLabel}
+              icon="🎯"
+              colorClass="text-purple-600 dark:text-purple-400"
+            />
           </div>
 
-          {economicFactors && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Market Growth:</span>{' '}
-                {formatPercentage(economicFactors.marketGrowth ?? 0)}
-              </div>
-              <div>
-                <span className="font-medium">Competition Factor:</span>{' '}
-                {(economicFactors.competitionFactor ?? 1).toFixed(2)}
-              </div>
-              {economicFactors.seasonalityFactors && (
-                <div>
-                  <span className="font-medium">Seasonality Range:</span>{' '}
-                  {Math.min(...economicFactors.seasonalityFactors).toFixed(2)} –{' '}
-                  {Math.max(...economicFactors.seasonalityFactors).toFixed(2)}
-                </div>
-              )}
+          {/* Primary Charts */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue & Margin Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DualAxisChart
+                data={revenueMarginData}
+                value1Label="Revenue"
+                value2Label="EBITDA Margin %"
+                value1Formatter={formatCompactCurrency}
+                value2Formatter={(val) => `${val.toFixed(1)}%`}
+              />
+            </CardContent>
+          </Card>
+
+          {keyMetrics && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {formatCurrency(keyMetrics.revenuePerEmployee)}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Revenue / Employee
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {formatCurrency(keyMetrics.ebitdaPerEmployee)}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      EBITDA / Employee
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {keyMetrics.averageBillableHours.toFixed(0)}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Avg Billable Hours
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                      {formatCurrency(keyMetrics.revenuePerBillableHour)}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Revenue / Billable Hour
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Key Metrics */}
-      {keyMetrics && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Key Operational Metrics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10">
-                <div className="text-sm text-blue-700 dark:text-blue-300">Revenue / Employee</div>
-                <div className="text-2xl font-semibold text-blue-900 dark:text-blue-100">
-                  {formatCurrency(keyMetrics.revenuePerEmployee)}
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/10">
-                <div className="text-sm text-green-700 dark:text-green-300">EBITDA / Employee</div>
-                <div className="text-2xl font-semibold text-green-900 dark:text-green-100">
-                  {formatCurrency(keyMetrics.ebitdaPerEmployee)}
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/10">
-                <div className="text-sm text-purple-700 dark:text-purple-300">
-                  Avg Billable Hours
-                </div>
-                <div className="text-2xl font-semibold text-purple-900 dark:text-purple-100">
-                  {keyMetrics.averageBillableHours.toFixed(1)} hrs
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10">
-                <div className="text-sm text-amber-700 dark:text-amber-300">
-                  Revenue / Billable Hr
-                </div>
-                <div className="text-2xl font-semibold text-amber-900 dark:text-amber-100">
-                  {formatCurrency(keyMetrics.revenuePerBillableHour)}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
-      {/* Detailed Forecast Table */}
-      {showDetails && (
+      {activeTab === 'charts' && (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue & EBITDA Margin Trend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DualAxisChart
+                data={revenueMarginData}
+                value1Label="Revenue"
+                value2Label="EBITDA Margin %"
+                value1Formatter={formatCompactCurrency}
+                value2Formatter={(val) => `${val.toFixed(1)}%`}
+                height={450}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>EBITDA Bridge (First Month)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WaterfallChart data={waterfallData} formatter={formatCompactCurrency} height={400} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Expense Breakdown (First 6 Months)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StackedBarChart
+                data={expenseData}
+                stacks={expenseStacks}
+                formatter={formatCompactCurrency}
+                height={400}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'details' && showDetails && (
         <Card>
           <CardHeader>
-            <CardTitle>Monthly Forecast Details</CardTitle>
+            <CardTitle>Monthly Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -421,55 +388,40 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                   <tr className="border-b border-gray-200 dark:border-gray-700">
                     <th className="text-left p-2">Month</th>
                     <th className="text-right p-2">Revenue</th>
-                    <th className="text-right p-2">Expenses</th>
                     <th className="text-right p-2">EBITDA</th>
-                    <th className="text-right p-2">Margin</th>
+                    <th className="text-right p-2">Margin %</th>
                     <th className="text-right p-2">Employees</th>
-                    {hasNotes && <th className="text-left p-2">Notes</th>}
+                    <th className="text-right p-2">Total Expenses</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {forecast.map((month, index) => {
-                    const totalExpenses = computeTotalExpenses(month);
-                    const margin =
-                      month.ebitdaMargin ??
-                      (month.revenue !== 0 ? (month.ebitda / month.revenue) * 100 : 0);
-                    const isBreakEvenMonth = index === breakEvenIndex;
-                    return (
-                      <tr
-                        key={`${month.year}-${month.month}`}
-                        className={`border-b border-gray-100 dark:border-gray-800 ${
-                          month.ebitda < 0
-                            ? 'bg-red-50 dark:bg-red-900/10'
-                            : isBreakEvenMonth
-                              ? 'bg-emerald-50/60 dark:bg-emerald-900/10'
-                              : ''
+                  {forecast.map((month, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    >
+                      <td className="p-2">
+                        {getMonthName(month.month)} {month.year}
+                      </td>
+                      <td className="text-right p-2 text-green-600 dark:text-green-400 font-medium">
+                        {formatCurrency(month.revenue)}
+                      </td>
+                      <td
+                        className={`text-right p-2 font-medium ${
+                          month.ebitda >= 0
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
                         }`}
                       >
-                        <td className="p-2 font-medium">
-                          {getMonthName(month.month)} {month.year}
-                        </td>
-                        <td className="p-2 text-right">{formatCurrency(month.revenue)}</td>
-                        <td className="p-2 text-right">{formatCurrency(totalExpenses)}</td>
-                        <td
-                          className={`p-2 text-right font-medium ${
-                            month.ebitda >= 0
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-red-600 dark:text-red-400'
-                          }`}
-                        >
-                          {formatCurrency(month.ebitda)}
-                        </td>
-                        <td className="p-2 text-right">{formatPercentage(margin)}</td>
-                        <td className="p-2 text-right">{month.employeeCount}</td>
-                        {hasNotes && (
-                          <td className="p-2 text-left text-gray-600 dark:text-gray-300">
-                            {month.notes?.join(', ') ?? '—'}
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
+                        {formatCurrency(month.ebitda)}
+                      </td>
+                      <td className="text-right p-2">{formatPercentage(month.ebitdaMargin ?? 0)}</td>
+                      <td className="text-right p-2">{month.employeeCount}</td>
+                      <td className="text-right p-2 text-red-600 dark:text-red-400">
+                        {formatCurrency(month.totalExpenses ?? 0)}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -477,34 +429,111 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
         </Card>
       )}
 
-      {/* Visualization */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Forecast Visualization</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <SparklineChart
-              title="Revenue"
-              values={revenueSeries}
-              color="#2563eb"
-              formatter={formatCompactCurrency}
-            />
-            <SparklineChart
-              title="EBITDA"
-              values={ebitdaSeries}
-              color="#16a34a"
-              formatter={formatCompactCurrency}
-            />
-            <SparklineChart
-              title="EBITDA Margin"
-              values={marginSeries}
-              color="#7c3aed"
-              formatter={(value) => formatPercentage(value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {activeTab === 'export' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Export Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Export your forecast data and charts in various formats:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => exportToCSV(forecast)}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <span>📄</span>
+                  <span>Export to CSV</span>
+                </button>
+                <button
+                  onClick={() => copyToClipboard(forecast)}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <span>📋</span>
+                  <span>Copy to Clipboard</span>
+                </button>
+                <button
+                  onClick={() => alert('Chart export feature coming soon!')}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <span>📊</span>
+                  <span>Export Charts</span>
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
+  );
+}
+
+// Export utilities
+function exportToCSV(forecast: MonthlyForecast[]) {
+  const headers = [
+    'Month',
+    'Year',
+    'Revenue',
+    'EBITDA',
+    'EBITDA Margin %',
+    'Employees',
+    'Total Expenses',
+    'Employee Costs',
+    'Operating Expenses',
+    'COGS',
+  ];
+
+  const rows = forecast.map((month) => [
+    getMonthName(month.month),
+    month.year,
+    month.revenue,
+    month.ebitda,
+    month.ebitdaMargin ?? 0,
+    month.employeeCount,
+    month.totalExpenses ?? 0,
+    month.employeeCosts ?? 0,
+    month.operatingExpenses ?? 0,
+    month.costOfGoodsSold ?? 0,
+  ]);
+
+  const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ebitda-forecast-${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyToClipboard(forecast: MonthlyForecast[]) {
+  const headers = [
+    'Month',
+    'Year',
+    'Revenue',
+    'EBITDA',
+    'EBITDA Margin %',
+    'Employees',
+  ];
+
+  const rows = forecast.map((month) => [
+    getMonthName(month.month),
+    month.year,
+    formatCurrency(month.revenue),
+    formatCurrency(month.ebitda),
+    formatPercentage(month.ebitdaMargin ?? 0),
+    month.employeeCount,
+  ]);
+
+  const text = [headers.join('\t'), ...rows.map((row) => row.join('\t'))].join('\n');
+
+  navigator.clipboard.writeText(text).then(
+    () => alert('Data copied to clipboard!'),
+    () => alert('Failed to copy data')
   );
 }

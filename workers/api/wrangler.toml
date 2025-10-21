@@ -22,15 +22,17 @@ crons = ["0 * * * *"]
 binding = "DB"
 database_name = "financial-analysis-db"
 database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+preview_database_id = "d7308084-125e-4675-88ae-bbb096af5167"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
 id = "2b02898694364a2693681466265c912d"
+preview_id = "2b02898694364a2693681466265c912d"
 
 [[r2_buckets]]
 binding = "DOCUMENTS"
-# Replace with your actual bucket name (existing)
 bucket_name = "financial-analysis-documents"
+preview_bucket_name = "financial-analysis-documents"
 
 # Development configuration
 [dev]
