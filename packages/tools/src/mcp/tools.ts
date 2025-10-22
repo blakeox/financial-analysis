@@ -9,6 +9,7 @@ import { BondPricingTool } from '../tools/bond-pricing.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
+import { DebtPayoffTool } from '../tools/debt-payoff.js';
 
 export interface MCPTool {
   name: string;
@@ -75,6 +76,12 @@ export function createMCPTools(): MCPTool[] {
       description: AutoLoanTool.description,
       inputSchema: AutoLoanTool.inputSchema,
       execute: AutoLoanTool.execute.bind(AutoLoanTool),
+    },
+    {
+      name: DebtPayoffTool.toolName,
+      description: DebtPayoffTool.description,
+      inputSchema: DebtPayoffTool.inputSchema,
+      execute: DebtPayoffTool.execute.bind(DebtPayoffTool),
     },
   ];
 }

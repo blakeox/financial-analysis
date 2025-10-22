@@ -66,3 +66,9 @@ export { AutoLoanInputSchema } from "./schemas/auto-loan.js";
 export type { AutoLoanInput } from "./schemas/auto-loan.js";
 export type { AutoLoanResult } from "./types/auto-loan-result.js";
 export * as AutoLoanEngine from "./engines/auto-loan.js";
+
+// Debt payoff schemas and types
+export { DebtPayoffInputSchema, DebtItemSchema } from "./schemas/debt-payoff.js";
+export type { DebtPayoffInput, DebtItem } from "./schemas/debt-payoff.js";
+export type { DebtPayoffResult } from "./types/debt-payoff-result.js";
+export * as DebtPayoffEngine from "./engines/debt-payoff.js";
