@@ -1,0 +1,590 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Auto Loan Calculator" 
+  description="Calculate auto loan payments with trade-in value, sales tax, fees, and early payoff scenarios"
+  canonical={Astro.url.href}
+>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div id="main-container" class="transition-all duration-300 ease-in-out">
+      <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex items-center mb-4">
+            <a href="/models/personal" class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Auto Loan Calculator
+            </h1>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">
+            Calculate vehicle loan payments with trade-in value, sales tax, fees, and early payoff scenarios
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Input Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Loan Details</h2>
+            
+            <form id="auto-loan-form" class="space-y-6">
+              <!-- Vehicle Price -->
+              <div>
+                <label for="vehiclePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Vehicle Price
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    id="vehiclePrice"
+                    name="vehiclePrice"
+                    value="35000"
+                    min="1000"
+                    max="500000"
+                    step="100"
+                    required
+                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <!-- Down Payment -->
+              <div>
+                <label for="downPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Down Payment
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    id="downPayment"
+                    name="downPayment"
+                    value="5000"
+                    min="0"
+                    step="100"
+                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <!-- Trade-In Section -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Trade-In (Optional)</h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label for="tradeInValue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Trade-In Value
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        id="tradeInValue"
+                        name="tradeInValue"
+                        value="0"
+                        min="0"
+                        step="100"
+                        class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="tradeInOwed" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Amount Owed on Trade-In
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        id="tradeInOwed"
+                        name="tradeInOwed"
+                        value="0"
+                        min="0"
+                        step="100"
+                        class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Enter any remaining loan balance on your trade-in vehicle
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fees & Taxes -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Fees & Taxes</h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label for="salesTaxRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Sales Tax Rate (%)
+                    </label>
+                    <input
+                      type="number"
+                      id="salesTaxRate"
+                      name="salesTaxRate"
+                      value="8.25"
+                      min="0"
+                      max="25"
+                      step="0.01"
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="registrationFees" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Registration Fees
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        id="registrationFees"
+                        name="registrationFees"
+                        value="300"
+                        min="0"
+                        step="10"
+                        class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="dealerFees" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Dealer Fees
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        id="dealerFees"
+                        name="dealerFees"
+                        value="500"
+                        min="0"
+                        step="10"
+                        class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="manufacturerRebate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Manufacturer Rebate
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        id="manufacturerRebate"
+                        name="manufacturerRebate"
+                        value="0"
+                        min="0"
+                        step="100"
+                        class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loan Terms -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Loan Terms</h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label for="interestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Interest Rate (APR %)
+                    </label>
+                    <input
+                      type="number"
+                      id="interestRate"
+                      name="interestRate"
+                      value="5.99"
+                      min="0"
+                      max="50"
+                      step="0.01"
+                      required
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="loanTermMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Loan Term (months)
+                    </label>
+                    <select
+                      id="loanTermMonths"
+                      name="loanTermMonths"
+                      required
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="12">12 months (1 year)</option>
+                      <option value="24">24 months (2 years)</option>
+                      <option value="36">36 months (3 years)</option>
+                      <option value="48">48 months (4 years)</option>
+                      <option value="60" selected>60 months (5 years)</option>
+                      <option value="72">72 months (6 years)</option>
+                      <option value="84">84 months (7 years)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Optional Products -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Optional Products</h3>
+                
+                <div class="space-y-4">
+                  <div class="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="includeGapInsurance"
+                      name="includeGapInsurance"
+                      class="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <div class="ml-3 flex-1">
+                      <label for="includeGapInsurance" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        GAP Insurance
+                      </label>
+                      <div class="mt-2">
+                        <div class="relative">
+                          <span class="absolute left-3 top-2 text-gray-500">$</span>
+                          <input
+                            type="number"
+                            id="gapInsuranceCost"
+                            name="gapInsuranceCost"
+                            value="795"
+                            min="0"
+                            step="5"
+                            disabled
+                            class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="includeExtendedWarranty"
+                      name="includeExtendedWarranty"
+                      class="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <div class="ml-3 flex-1">
+                      <label for="includeExtendedWarranty" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Extended Warranty
+                      </label>
+                      <div class="mt-2">
+                        <div class="relative">
+                          <span class="absolute left-3 top-2 text-gray-500">$</span>
+                          <input
+                            type="number"
+                            id="extendedWarrantyCost"
+                            name="extendedWarrantyCost"
+                            value="1995"
+                            min="0"
+                            step="5"
+                            disabled
+                            class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Calculate Button -->
+              <button
+                type="submit"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                Calculate Loan
+              </button>
+            </form>
+          </div>
+
+          <!-- Results -->
+          <div class="space-y-6">
+            <!-- Loading State -->
+            <div id="loading" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <span class="ml-3 text-gray-600 dark:text-gray-300">Calculating...</span>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="error" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div class="flex">
+                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-red-800 dark:text-red-200" id="error-message"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Results -->
+            <div id="results" class="hidden space-y-6">
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Monthly Payment</h2>
+                <div class="text-4xl font-bold text-purple-600 dark:text-purple-400" id="monthly-payment">
+                  $0.00
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">per month for <span id="term-display">60</span> months</p>
+              </div>
+
+              <!-- Cost Breakdown -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cost Breakdown</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Vehicle Price:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="breakdown-vehicle-price">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Down Payment:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="breakdown-down-payment">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm" id="trade-in-row" style="display: none;">
+                    <span class="text-gray-600 dark:text-gray-400">Net Trade-In:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="breakdown-trade-in">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Sales Tax:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="breakdown-sales-tax">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Fees:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="breakdown-fees">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <span class="font-semibold text-gray-900 dark:text-white">Amount Financed:</span>
+                    <span class="font-bold text-purple-600 dark:text-purple-400" id="breakdown-financed">$0</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loan Summary -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Loan Summary</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Total Payments:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-total-payments">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-total-interest">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Total Cost:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-total-cost">$0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Effective APR:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-apr">0.00%</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Loan-to-Value:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-ltv">0.00%</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Cost Per Mile:</span>
+                    <span class="font-medium text-gray-900 dark:text-white" id="summary-cost-per-mile">$0.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Early Payoff Scenarios -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Early Payoff Scenarios</h3>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead>
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Balance</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Interest Saved</th>
+                      </tr>
+                    </thead>
+                    <tbody id="early-payoff-table" class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <!-- Populated by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // @ts-ignore - Astro env vars
+    const API_ORIGIN = import.meta.env.PUBLIC_API_ORIGIN || 'http://127.0.0.1:8787';
+
+    // Enable/disable optional product inputs
+    document.getElementById('includeGapInsurance')?.addEventListener('change', (e) => {
+      const input = document.getElementById('gapInsuranceCost') as HTMLInputElement;
+      if (input) input.disabled = !(e.target as HTMLInputElement).checked;
+    });
+
+    document.getElementById('includeExtendedWarranty')?.addEventListener('change', (e) => {
+      const input = document.getElementById('extendedWarrantyCost') as HTMLInputElement;
+      if (input) input.disabled = !(e.target as HTMLInputElement).checked;
+    });
+
+    // Form submission
+    document.getElementById('auto-loan-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      
+      // Show loading
+      document.getElementById('loading')?.classList.remove('hidden');
+      document.getElementById('results')?.classList.add('hidden');
+      document.getElementById('error')?.classList.add('hidden');
+
+      try {
+        // Prepare request body
+        const requestBody = {
+          vehiclePrice: parseFloat(formData.get('vehiclePrice') as string),
+          downPayment: parseFloat(formData.get('downPayment') as string) || 0,
+          tradeInValue: parseFloat(formData.get('tradeInValue') as string) || 0,
+          tradeInOwed: parseFloat(formData.get('tradeInOwed') as string) || 0,
+          salesTaxRate: parseFloat(formData.get('salesTaxRate') as string) / 100,
+          registrationFees: parseFloat(formData.get('registrationFees') as string) || 0,
+          dealerFees: parseFloat(formData.get('dealerFees') as string) || 0,
+          interestRate: parseFloat(formData.get('interestRate') as string) / 100,
+          loanTermMonths: parseInt(formData.get('loanTermMonths') as string),
+          manufacturerRebate: parseFloat(formData.get('manufacturerRebate') as string) || 0,
+          includeGapInsurance: formData.has('includeGapInsurance'),
+          gapInsuranceCost: formData.has('includeGapInsurance') 
+            ? parseFloat(formData.get('gapInsuranceCost') as string) || 0
+            : 0,
+          includeExtendedWarranty: formData.has('includeExtendedWarranty'),
+          extendedWarrantyCost: formData.has('includeExtendedWarranty')
+            ? parseFloat(formData.get('extendedWarrantyCost') as string) || 0
+            : 0,
+        };
+
+        const response = await fetch(`${API_ORIGIN}/v1/mcp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'tools/call',
+            params: {
+              name: 'analyze_auto_loan',
+              arguments: requestBody,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error.message || 'Calculation failed');
+        }
+
+        const result = data.result;
+        displayResults(result, requestBody.loanTermMonths);
+
+      } catch (error) {
+        console.error('Error:', error);
+        const errorEl = document.getElementById('error');
+        const errorMsg = document.getElementById('error-message');
+        if (errorEl && errorMsg) {
+          errorMsg.textContent = error instanceof Error ? error.message : 'An error occurred';
+          errorEl.classList.remove('hidden');
+        }
+      } finally {
+        document.getElementById('loading')?.classList.add('hidden');
+      }
+    });
+
+    function displayResults(result: any, termMonths: number) {
+      // Monthly Payment
+      const monthlyPaymentEl = document.getElementById('monthly-payment');
+      if (monthlyPaymentEl) {
+        monthlyPaymentEl.textContent = `$${parseFloat(result.summary.monthlyPayment).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      const termDisplayEl = document.getElementById('term-display');
+      if (termDisplayEl) {
+        termDisplayEl.textContent = termMonths.toString();
+      }
+
+      // Cost Breakdown
+      document.getElementById('breakdown-vehicle-price')!.textContent = `$${parseFloat(result.costBreakdown.vehiclePrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      document.getElementById('breakdown-down-payment')!.textContent = `$${parseFloat(result.costBreakdown.downPayment).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      
+      // Show/hide trade-in row
+      const netTradeIn = parseFloat(result.costBreakdown.netTradeIn);
+      const tradeInRow = document.getElementById('trade-in-row');
+      if (tradeInRow) {
+        if (netTradeIn !== 0) {
+          tradeInRow.style.display = 'flex';
+          document.getElementById('breakdown-trade-in')!.textContent = `$${Math.abs(netTradeIn).toLocaleString('en-US', { maximumFractionDigits: 0 })}${netTradeIn < 0 ? ' (negative equity)' : ''}`;
+        } else {
+          tradeInRow.style.display = 'none';
+        }
+      }
+      
+      document.getElementById('breakdown-sales-tax')!.textContent = `$${parseFloat(result.costBreakdown.salesTax).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      
+      const totalFees = parseFloat(result.costBreakdown.registrationFees) + 
+                       parseFloat(result.costBreakdown.dealerFees) +
+                       parseFloat(result.costBreakdown.gapInsurance) +
+                       parseFloat(result.costBreakdown.extendedWarranty);
+      document.getElementById('breakdown-fees')!.textContent = `$${totalFees.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      document.getElementById('breakdown-financed')!.textContent = `$${parseFloat(result.costBreakdown.amountFinanced).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+
+      // Loan Summary
+      document.getElementById('summary-total-payments')!.textContent = `$${parseFloat(result.summary.totalPayments).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      document.getElementById('summary-total-interest')!.textContent = `$${parseFloat(result.summary.totalInterest).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      document.getElementById('summary-total-cost')!.textContent = `$${parseFloat(result.summary.totalCost).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      document.getElementById('summary-apr')!.textContent = `${(parseFloat(result.summary.aprEffective) * 100).toFixed(2)}%`;
+      document.getElementById('summary-ltv')!.textContent = `${parseFloat(result.summary.loanToValue).toFixed(2)}%`;
+      document.getElementById('summary-cost-per-mile')!.textContent = `$${parseFloat(result.summary.costPerMile).toFixed(2)}`;
+
+      // Early Payoff Scenarios
+      const tableBody = document.getElementById('early-payoff-table');
+      if (tableBody && result.earlyPayoffScenarios) {
+        tableBody.innerHTML = result.earlyPayoffScenarios.map((scenario: any) => `
+          <tr>
+            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${scenario.monthsPaid / 12} year${scenario.monthsPaid / 12 !== 1 ? 's' : ''}</td>
+            <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-white">$${parseFloat(scenario.remainingBalance).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
+            <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">$${parseFloat(scenario.interestSaved).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Show results
+      document.getElementById('results')?.classList.remove('hidden');
+    }
+  </script>
+</Layout>
