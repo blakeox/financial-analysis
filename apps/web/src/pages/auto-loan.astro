@@ -435,6 +435,8 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
+    import { storeAnalysisResult } from '../scripts/analysis-results';
+    
     // @ts-ignore - Astro env vars
     const API_ORIGIN = import.meta.env.PUBLIC_API_ORIGIN || 'http://127.0.0.1:8787';
 
@@ -511,6 +513,10 @@ import Layout from '../layouts/Layout.astro';
         }
 
         const result = data.result;
+        
+        // Store result for chat panel
+        storeAnalysisResult('analyze_auto_loan', result);
+        
         displayResults(result, requestBody.loanTermMonths);
 
       } catch (error) {

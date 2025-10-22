@@ -72,3 +72,28 @@ export { DebtPayoffInputSchema, DebtItemSchema } from "./schemas/debt-payoff.js"
 export type { DebtPayoffInput, DebtItem } from "./schemas/debt-payoff.js";
 export type { DebtPayoffResult } from "./types/debt-payoff-result.js";
 export * as DebtPayoffEngine from "./engines/debt-payoff.js";
+
+// Savings goal schemas and types
+export { SavingsGoalInputSchema } from "./schemas/savings-goal.js";
+export type { SavingsGoalInput } from "./schemas/savings-goal.js";
+export type { SavingsGoalResult } from "./types/savings-goal-result.js";
+export * as SavingsGoalEngine from "./engines/savings-goal.js";
+
+// Student loan schemas and types
+export { StudentLoanInputSchema, StudentLoanSchema, IncomeDrivenPlanSchema, RefinancingOptionSchema } from "./schemas/student-loan.js";
+export type { StudentLoanInput, StudentLoan, IncomeDrivenPlan, RefinancingOption } from "./schemas/student-loan.js";
+export type { StudentLoanResult } from "./types/student-loan-result.js";
+export * as StudentLoanEngine from "./engines/student-loan.js";
+
+// Retirement schemas and types
+export { RetirementInputSchema, RetirementAccountSchema } from "./schemas/retirement.js";
+export type { RetirementInput, RetirementAccount } from "./schemas/retirement.js";
+export type { RetirementResult } from "./types/retirement-result.js";
+export * as RetirementEngine from "./engines/retirement.js";
+
+// Budget optimizer schemas and types
+export { BudgetInputSchema, IncomeSourceSchema, ExpenseCategorySchema, DebtObligationSchema } from "./schemas/budget.js";
+export type { BudgetInput, IncomeSource, ExpenseCategory, DebtObligation } from "./schemas/budget.js";
+export type { BudgetResult } from "./types/budget-result.js";
+export * as BudgetEngine from "./engines/budget.js";
+

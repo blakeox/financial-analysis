@@ -10,6 +10,10 @@ import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
 import { DebtPayoffTool } from '../tools/debt-payoff.js';
+import { SavingsGoalTool } from '../tools/savings-goal.js';
+import { StudentLoanTool } from '../tools/student-loan.js';
+import { RetirementTool } from '../tools/retirement.js';
+import { BudgetTool } from '../tools/budget.js';
 
 export interface MCPTool {
   name: string;
@@ -82,6 +86,30 @@ export function createMCPTools(): MCPTool[] {
       description: DebtPayoffTool.description,
       inputSchema: DebtPayoffTool.inputSchema,
       execute: DebtPayoffTool.execute.bind(DebtPayoffTool),
+    },
+    {
+      name: SavingsGoalTool.toolName,
+      description: SavingsGoalTool.description,
+      inputSchema: SavingsGoalTool.inputSchema,
+      execute: SavingsGoalTool.execute.bind(SavingsGoalTool),
+    },
+    {
+      name: StudentLoanTool.toolName,
+      description: StudentLoanTool.description,
+      inputSchema: StudentLoanTool.inputSchema,
+      execute: StudentLoanTool.execute.bind(StudentLoanTool),
+    },
+    {
+      name: RetirementTool.toolName,
+      description: RetirementTool.description,
+      inputSchema: RetirementTool.inputSchema,
+      execute: RetirementTool.execute.bind(RetirementTool),
+    },
+    {
+      name: BudgetTool.toolName,
+      description: BudgetTool.description,
+      inputSchema: BudgetTool.inputSchema,
+      execute: BudgetTool.execute.bind(BudgetTool),
     },
   ];
 }

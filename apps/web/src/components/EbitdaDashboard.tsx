@@ -25,6 +25,12 @@ import {
 } from '@financial-analysis/ui';
 import { useCallback, useState } from 'react';
 
+declare global {
+  interface Window {
+    analysisResults?: Record<string, unknown>;
+  }
+}
+
 interface DashboardState {
   financials: MonthlyFinancialsData;
   employees: EmployeeData[];
@@ -130,6 +136,15 @@ export function EbitdaDashboard() {
       }
 
       const results = (await response.json()) as EbitdaForecastResult;
+      
+      // Store result for chat panel
+      if (typeof window !== 'undefined' && window.analysisResults) {
+        window.analysisResults['analyze_ebitda_forecast'] = results;
+        window.dispatchEvent(new CustomEvent('analysis-result-updated', {
+          detail: { toolName: 'analyze_ebitda_forecast', result: results }
+        }));
+      }
+      
       setState((prev) => ({ ...prev, results, isLoading: false }));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An unexpected error occurred';
