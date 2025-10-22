@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
+import AdSense from '../components/AdSense.astro';
 // ChatPanel is now in Layout.astro
 ---
 
@@ -44,6 +45,9 @@ import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
       <div id="ebitda-dashboard-container" data-testid="ebitda-dashboard">
         <EbitdaDashboard client:only="react" />
       </div>
+
+      <!-- AdSense: After dashboard ad -->
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
     </div>
   </div>
   
