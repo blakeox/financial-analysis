@@ -95,10 +95,45 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                   </li>
                   <li>
                     <a
-                      href="/health"
+                      href="/status"
                       className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                     >
                       System Status
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
+                  Legal
+                </h3>
+                <ul className="mt-4 space-y-4">
+                  <li>
+                    <a
+                      href="/privacy"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/terms"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
+                      Terms of Service
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.google.com/settings/ads"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
+                      Ad Settings
                     </a>
                   </li>
                 </ul>
@@ -108,7 +143,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
         </div>
         <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
           <p className="text-base text-gray-600 dark:text-gray-400 xl:text-center">
-            &copy; {currentYear} Financial Analysis. All rights reserved.
+            &copy; {currentYear} Financial Analysis. All rights reserved. | We use cookies and advertising to improve your experience.
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@financial-analysis/ui';
+import AdSense from '../components/AdSense.astro';
 ---
 
 <Layout title="Financial Analysis" description="Advanced financial analysis tools powered by AI and deterministic calculations">
@@ -266,5 +267,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@fina
         </div>
       </div>
     </section>
+
+    <!-- AdSense: Bottom of page ad -->
+    <AdSense slot="1234567890" format="horizontal" className="max-w-6xl mx-auto px-4" />
   </div>
 </Layout>

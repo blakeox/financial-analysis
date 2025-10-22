@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdSense from '../components/AdSense.astro';
 ---
 
 <Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
@@ -73,6 +74,9 @@ import Layout from '../layouts/Layout.astro';
           </a>
 
         </div>
+
+        <!-- AdSense: Between categories and features -->
+        <AdSense slot="3456789012" format="horizontal" className="max-w-4xl mx-auto mb-16" />
 
         <!-- Active Model Section -->
         <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">

@@ -1,0 +1,69 @@
+---
+/**
+ * AdSense component for displaying Google ads
+ * Usage: <AdSense slot="XXXXXXXXXX" format="auto" className="my-4" />
+ */
+export interface Props {
+  slot: string;
+  format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
+  responsive?: boolean;
+  className?: string;
+  style?: string;
+}
+
+const { 
+  slot, 
+  format = 'auto', 
+  responsive = true, 
+  className = '', 
+  style = 'display:block' 
+} = Astro.props;
+---
+
+<div class={`ad-container ${className}`}>
+  <ins
+    class="adsbygoogle"
+    style={style}
+    data-ad-client="ca-pub-1672390365903308"
+    data-ad-slot={slot}
+    data-ad-format={format}
+    data-full-width-responsive={responsive.toString()}
+  ></ins>
+</div>
+
+<script is:inline>
+  // Push ad to AdSense queue
+  if (typeof window !== 'undefined') {
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  }
+</script>
+
+<style>
+  .ad-container {
+    margin: 2rem auto;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Subtle border to distinguish ad space */
+  .ad-container::before {
+    content: 'Advertisement';
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .ad-container {
+      margin: 1rem auto;
+    }
+  }
+  
+  /* Prevent layout shift */
+  .adsbygoogle {
+    min-height: 50px;
+  }
+</style>
