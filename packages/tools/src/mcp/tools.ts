@@ -1,6 +1,10 @@
-import { AmortizationTool } from '../tools/amortization';
-import { LeaseTool } from '../tools/lease';
-import { EbitdaForecastingTool, EbitdaScenarioComparisonTool } from '../tools/ebitda-forecasting';
+import { AmortizationTool } from '../tools/amortization.js';
+import { LeaseTool } from '../tools/lease.js';
+import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
+import {
+  EbitdaForecastingTool,
+  EbitdaScenarioComparisonTool,
+} from '../tools/ebitda-forecasting.js';
 
 export interface MCPTool {
   name: string;
@@ -18,25 +22,31 @@ export function createMCPTools(): MCPTool[] {
       name: LeaseTool.toolName,
       description: LeaseTool.description,
       inputSchema: LeaseTool.inputSchema,
-      execute: (input) => LeaseTool.execute(input),
+      execute: LeaseTool.execute.bind(LeaseTool),
+    },
+    {
+      name: EnhancedLeaseTool.toolName,
+      description: EnhancedLeaseTool.description,
+      inputSchema: EnhancedLeaseTool.inputSchema,
+      execute: EnhancedLeaseTool.execute.bind(EnhancedLeaseTool),
     },
     {
       name: AmortizationTool.toolName,
       description: AmortizationTool.description,
       inputSchema: AmortizationTool.inputSchema,
-      execute: (input) => AmortizationTool.execute(input),
+      execute: AmortizationTool.execute.bind(AmortizationTool),
     },
     {
       name: EbitdaForecastingTool.toolName,
       description: EbitdaForecastingTool.description,
       inputSchema: EbitdaForecastingTool.inputSchema,
-      execute: (input) => EbitdaForecastingTool.execute(input),
+      execute: EbitdaForecastingTool.execute.bind(EbitdaForecastingTool),
     },
     {
       name: EbitdaScenarioComparisonTool.toolName,
       description: EbitdaScenarioComparisonTool.description,
       inputSchema: EbitdaScenarioComparisonTool.inputSchema,
-      execute: (input) => EbitdaScenarioComparisonTool.execute(input),
+      execute: EbitdaScenarioComparisonTool.execute.bind(EbitdaScenarioComparisonTool),
     },
   ];
 }
