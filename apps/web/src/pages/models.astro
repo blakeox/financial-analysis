@@ -13,8 +13,7 @@ import Layout from '../layouts/Layout.astro';
             Financial Models
           </h1>
           <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Comprehensive suite of financial analysis tools, each designed for precision and powered by deterministic calculations. 
-            Use the AI assistant to get insights and analysis of your results.
+            Choose between personal finance tools or business analysis models. Each is designed for precision and powered by deterministic calculations.
           </p>
           <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -24,335 +23,54 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
 
-        <!-- Models Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
+        <!-- Category Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16" role="main">
           
-          <!-- Basic Lease Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
-      data-model="Lease Analysis" 
-      onclick="selectModel(this, 'lease-analysis')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                  Basic Lease Analysis
-                </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
-                  Available
+          <!-- Personal Finance Category -->
+          <a href="/models/personal" class="block group">
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
+              <div class="flex items-center mb-6">
+                <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
                 </div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Personal Finance</h2>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Simple lease agreement analysis with basic payment calculations and IRR
+              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
+                Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families.
               </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Payment calculations
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Basic schedules
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  IRR calculations
-                </div>
-              </div>
-              <a
-                href="/analysis"
-                class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-              >
-                Open Model
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                <span>Explore Personal Tools</span>
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </a>
+              </div>
             </div>
-          </div>
+          </a>
 
-          <!-- Enhanced Lease Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-violet-500 group cursor-pointer model-card"
-      data-model="Enhanced Lease Analysis" 
-      onclick="selectModel(this, 'enhanced-lease-analysis')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300">
-                  Enhanced Lease Analysis
-                </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
-                  Available
+          <!-- Business Finance Category -->
+          <a href="/models/business" class="block group">
+            <div class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
+              <div class="flex items-center mb-6">
+                <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
+                  </svg>
                 </div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Business Finance</h2>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Comprehensive building lease analysis supporting office, warehouse, retail, medical, and mixed-use properties
+              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
+                Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools.
               </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Office, warehouse & medical buildings
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7-293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Comprehensive building costs
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  NPV analysis & risk assessment
-                </div>
-              </div>
-              <a
-                href="/enhanced-lease"
-                class="inline-flex items-center px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500"
-              >
-                Open Model
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                <span>Explore Business Tools</span>
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </a>
+              </div>
             </div>
-          </div>
-
-          <!-- Loan Amortization -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
-      data-model="Loan Amortization"
-      onclick="selectModel(this, 'loan-amortization')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
-                  Loan Amortization
-                </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
-                  Available
-                </div>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Detailed loan repayment schedules with principal and interest breakdown
-              </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Principal tracking
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7-293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Interest calculations
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Payment schedules
-                </div>
-              </div>
-              <a
-                href="/amortization"
-                class="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
-              >
-                Open Model
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- EBITDA Forecasting -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
-      data-model="EBITDA Forecasting"
-      onclick="selectModel(this, 'ebitda-forecasting')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
-                  EBITDA Forecasting
-                </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
-                  Available
-                </div>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Service industry financial projections with employee planning and expense analysis
-              </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Revenue forecasting
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Employee planning
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Scenario analysis
-                </div>
-              </div>
-              <a
-                href="/ebitda-forecasting"
-                class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
-              >
-                Open Model
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- Bond Pricing -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
-      data-model="Bond Pricing"
-      onclick="selectModel(this, 'bond-pricing')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
-                  Bond Pricing
-                </h3>
-                <div class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">
-                  Coming Soon
-                </div>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Fixed income securities pricing and yield calculations with duration analysis
-              </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Yield calculations
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Duration analysis
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Price sensitivity
-                </div>
-              </div>
-              <button
-                disabled
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
-              >
-                Coming Soon
-              </button>
-            </div>
-          </div>
-
-          <!-- Options Pricing -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
-      data-model="Options Pricing"
-      onclick="selectModel(this, 'options-pricing')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300">
-                  Options Pricing
-                </h3>
-                <div class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">
-                  Coming Soon
-                </div>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                Black-Scholes options pricing with Greeks calculations and volatility analysis
-              </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Black-Scholes pricing
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Greeks calculations
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Volatility analysis
-                </div>
-              </div>
-              <button
-                disabled
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
-              >
-                Coming Soon
-              </button>
-            </div>
-          </div>
-
-          <!-- Cash Flow Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
-      data-model="Cash Flow Analysis"
-      onclick="selectModel(this, 'cashflow-analysis')">
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
-                  Cash Flow Analysis
-                </h3>
-                <div class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">
-                  Coming Soon
-                </div>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
-                NPV, IRR, and cash flow projection analysis with sensitivity testing
-              </p>
-              <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  NPV calculations
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  IRR analysis
-                </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                  </svg>
-                  Sensitivity testing
-                </div>
-              </div>
-              <button
-                disabled
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
-              >
-                Coming Soon
-              </button>
-            </div>
-          </div>
+          </a>
 
         </div>
 
@@ -410,7 +128,6 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Removed VS Code Style Chat Panel -->
   </div>

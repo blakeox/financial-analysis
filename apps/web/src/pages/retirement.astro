@@ -1,0 +1,316 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Retirement Calculator" 
+  description="Plan your retirement with projections for 401k, IRA, and other retirement accounts"
+  canonical={Astro.url.href}
+>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div id="main-container" class="transition-all duration-300 ease-in-out">
+      <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex items-center mb-4">
+            <a href="/models/personal" class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Retirement Calculator
+            </h1>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">
+            Project your retirement savings with employer match, tax advantages, and investment returns
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Input Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Your Information</h2>
+            
+            <form id="retirement-form" class="space-y-6">
+              <!-- Ages and Income -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="currentAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Current Age
+                  </label>
+                  <input type="number" id="currentAge" name="currentAge" value="30" min="18" max="100" required
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+                <div>
+                  <label for="retirementAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Retirement Age
+                  </label>
+                  <input type="number" id="retirementAge" name="retirementAge" value="65" min="50" max="100" required
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+              </div>
+
+              <div>
+                <label for="currentIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Current Annual Income
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-gray-500">$</span>
+                  <input type="number" id="currentIncome" name="currentIncome" value="75000" min="0" step="1000" required
+                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+              </div>
+
+              <!-- Rates -->
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label for="expectedAnnualReturn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Return Rate %
+                  </label>
+                  <input type="number" id="expectedAnnualReturn" name="expectedAnnualReturn" value="7" min="0" max="100" step="0.1"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+                <div>
+                  <label for="inflationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Inflation %
+                  </label>
+                  <input type="number" id="inflationRate" name="inflationRate" value="3" min="0" max="100" step="0.1"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+                <div>
+                  <label for="incomeIncreaseRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Raise %
+                  </label>
+                  <input type="number" id="incomeIncreaseRate" name="incomeIncreaseRate" value="3" min="0" max="100" step="0.1"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white" />
+                </div>
+              </div>
+
+              <!-- Accounts -->
+              <div>
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-sm font-medium text-gray-900 dark:text-white">Retirement Accounts</h3>
+                  <button type="button" id="add-account-btn" class="text-sm text-green-600 hover:text-green-700">
+                    + Add Account
+                  </button>
+                </div>
+
+                <div id="accounts-container" class="space-y-4">
+                  <!-- Account 1 -->
+                  <div class="account-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div class="grid grid-cols-2 gap-3">
+                      <div class="col-span-2">
+                        <select name="account-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+                          <option value="401k">401(k)</option>
+                          <option value="roth_401k">Roth 401(k)</option>
+                          <option value="traditional_ira">Traditional IRA</option>
+                          <option value="roth_ira">Roth IRA</option>
+                          <option value="sep_ira">SEP IRA</option>
+                        </select>
+                      </div>
+                      <div><input type="number" name="account-balance-0" placeholder="Current balance" value="50000" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+                      <div><input type="number" name="account-contribution-0" placeholder="Annual contribution" value="10000" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+                      <div><input type="number" name="account-match-0" placeholder="Employer match %" value="4" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+                      <div><input type="number" name="account-match-limit-0" placeholder="Match limit %" value="6" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-4">
+                <button type="submit" id="calculate-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition">
+                  Calculate Retirement
+                </button>
+                <button type="button" id="reset-btn" class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  Reset
+                </button>
+              </div>
+            </form>
+
+            <!-- Loading/Error States -->
+            <div id="loading" class="hidden mt-6 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              <p class="text-gray-600 dark:text-gray-400 mt-2">Calculating...</p>
+            </div>
+            <div id="error" class="hidden mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p class="text-red-800 dark:text-red-200" id="error-message"></p>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div>
+            <div id="results" class="hidden space-y-6">
+              <!-- Projection Summary -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Retirement Projection</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Years to Retirement:</span>
+                    <span id="years-to-retirement" class="font-semibold"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Savings at Retirement:</span>
+                    <span id="total-savings" class="font-semibold text-green-600"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Contributions:</span>
+                    <span id="total-contributions" class="font-semibold"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Investment Growth:</span>
+                    <span id="investment-growth" class="font-semibold"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Employer Match:</span>
+                    <span id="employer-match" class="font-semibold text-blue-600"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Income Replacement -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Income Replacement</h3>
+                <div id="income-replacement" class="space-y-2 text-sm"></div>
+              </div>
+
+              <!-- Chat Button -->
+              <button
+                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Retirement Calculator', { tool: 'analyze_retirement' }); } }"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                Ask AI about retirement strategy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { storeAnalysisResult } from '../scripts/analysis-results';
+  import { RetirementEngine } from '@financial-analysis/analysis';
+
+  const form = document.getElementById('retirement-form') as HTMLFormElement;
+  const addAccountBtn = document.getElementById('add-account-btn');
+  const accountsContainer = document.getElementById('accounts-container');
+  let accountCount = 1;
+
+  const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  addAccountBtn?.addEventListener('click', () => {
+    const accountHtml = `
+      <div class="account-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2"><select name="account-type-${accountCount}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="401k">401(k)</option><option value="roth_401k">Roth 401(k)</option><option value="traditional_ira">Traditional IRA</option><option value="roth_ira">Roth IRA</option><option value="sep_ira">SEP IRA</option></select></div>
+          <div><input type="number" name="account-balance-${accountCount}" placeholder="Current balance" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+          <div><input type="number" name="account-contribution-${accountCount}" placeholder="Annual contribution" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+          <div><input type="number" name="account-match-${accountCount}" placeholder="Employer match %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+          <div><input type="number" name="account-match-limit-${accountCount}" placeholder="Match limit %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+        </div>
+      </div>
+    `;
+    accountsContainer?.insertAdjacentHTML('beforeend', accountHtml);
+    accountCount++;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    document.getElementById('results')?.classList.add('hidden');
+    document.getElementById('error')?.classList.add('hidden');
+    document.getElementById('loading')?.classList.remove('hidden');
+
+    try {
+      const formData = new FormData(form);
+      const currentAge = parseInt(formData.get('currentAge') as string);
+      const retirementAge = parseInt(formData.get('retirementAge') as string);
+      const currentIncome = parseFloat(formData.get('currentIncome') as string);
+      const expectedAnnualReturn = parseFloat(formData.get('expectedAnnualReturn') as string) / 100;
+      const inflationRate = parseFloat(formData.get('inflationRate') as string) / 100;
+      const incomeIncreaseRate = parseFloat(formData.get('incomeIncreaseRate') as string) / 100;
+
+      const accounts = [];
+      for (let i = 0; i < accountCount; i++) {
+        const accountType = formData.get(`account-type-${i}`) as '401k' | 'roth_401k' | 'traditional_ira' | 'roth_ira' | 'sep_ira';
+        const balance = parseFloat(formData.get(`account-balance-${i}`) as string);
+        const contribution = parseFloat(formData.get(`account-contribution-${i}`) as string);
+        const match = parseFloat(formData.get(`account-match-${i}`) as string) || 0;
+        const matchLimit = parseFloat(formData.get(`account-match-limit-${i}`) as string) || 6;
+
+        if (accountType && !isNaN(balance) && !isNaN(contribution)) {
+          accounts.push({
+            accountType,
+            currentBalance: balance,
+            annualContribution: contribution,
+            employerMatch: match / 100,
+            employerMatchLimit: matchLimit / 100,
+          });
+        }
+      }
+
+      if (accounts.length === 0) {
+        throw new Error('Please add at least one retirement account');
+      }
+
+      const input = {
+        currentAge,
+        retirementAge,
+        currentIncome,
+        accounts,
+        expectedAnnualReturn,
+        inflationRate,
+        incomeIncreaseRate,
+        withdrawalStrategy: '4_percent_rule' as const,
+      };
+      
+      const result = RetirementEngine.analyze(input);
+      storeAnalysisResult('analyze_retirement', result);
+      displayResults(result, retirementAge - currentAge);
+
+    } catch (err) {
+      const errorEl = document.getElementById('error-message');
+      if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'An error occurred';
+      document.getElementById('error')?.classList.remove('hidden');
+    } finally {
+      document.getElementById('loading')?.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('reset-btn')?.addEventListener('click', () => {
+    form.reset();
+    document.getElementById('results')?.classList.add('hidden');
+    document.getElementById('error')?.classList.add('hidden');
+  });
+
+  function displayResults(result: any, years: number) {
+    document.getElementById('years-to-retirement')!.textContent = `${years} years`;
+    document.getElementById('total-savings')!.textContent = result.projectedBalance || result.totalSavings || 'N/A';
+    document.getElementById('total-contributions')!.textContent = result.totalContributions || 'N/A';
+    document.getElementById('investment-growth')!.textContent = result.investmentGrowth || result.totalGrowth || 'N/A';
+    document.getElementById('employer-match')!.textContent = result.totalEmployerMatch || 'N/A';
+
+    const replacementEl = document.getElementById('income-replacement');
+    if (replacementEl && result.incomeReplacement) {
+      replacementEl.innerHTML = `
+        <p class="text-gray-600 dark:text-gray-400">Annual Retirement Income (4% rule):</p>
+        <p class="text-xl font-semibold text-green-600">${result.incomeReplacement.annualIncome || 'N/A'}</p>
+        <p class="text-sm text-gray-500 mt-2">${result.incomeReplacement.replacementPercentage || 'N/A'} of final salary</p>
+      `;
+    }
+
+    document.getElementById('results')?.classList.remove('hidden');
+  }
+</script>
+</Layout>

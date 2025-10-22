@@ -1,6 +1,19 @@
-import { AmortizationTool } from '../tools/amortization';
-import { LeaseTool } from '../tools/lease';
-import { EbitdaForecastingTool, EbitdaScenarioComparisonTool } from '../tools/ebitda-forecasting';
+import { AmortizationTool } from '../tools/amortization.js';
+import { LeaseTool } from '../tools/lease.js';
+import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
+import {
+  EbitdaForecastingTool,
+  EbitdaScenarioComparisonTool,
+} from '../tools/ebitda-forecasting.js';
+import { BondPricingTool } from '../tools/bond-pricing.js';
+import { OptionsPricingTool } from '../tools/options-pricing.js';
+import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
+import { AutoLoanTool } from '../tools/auto-loan.js';
+import { DebtPayoffTool } from '../tools/debt-payoff.js';
+import { SavingsGoalTool } from '../tools/savings-goal.js';
+import { StudentLoanTool } from '../tools/student-loan.js';
+import { RetirementTool } from '../tools/retirement.js';
+import { BudgetTool } from '../tools/budget.js';
 
 export interface MCPTool {
   name: string;
@@ -18,25 +31,85 @@ export function createMCPTools(): MCPTool[] {
       name: LeaseTool.toolName,
       description: LeaseTool.description,
       inputSchema: LeaseTool.inputSchema,
-      execute: (input) => LeaseTool.execute(input),
+      execute: LeaseTool.execute.bind(LeaseTool),
+    },
+    {
+      name: EnhancedLeaseTool.toolName,
+      description: EnhancedLeaseTool.description,
+      inputSchema: EnhancedLeaseTool.inputSchema,
+      execute: EnhancedLeaseTool.execute.bind(EnhancedLeaseTool),
     },
     {
       name: AmortizationTool.toolName,
       description: AmortizationTool.description,
       inputSchema: AmortizationTool.inputSchema,
-      execute: (input) => AmortizationTool.execute(input),
+      execute: AmortizationTool.execute.bind(AmortizationTool),
     },
     {
       name: EbitdaForecastingTool.toolName,
       description: EbitdaForecastingTool.description,
       inputSchema: EbitdaForecastingTool.inputSchema,
-      execute: (input) => EbitdaForecastingTool.execute(input),
+      execute: EbitdaForecastingTool.execute.bind(EbitdaForecastingTool),
     },
     {
       name: EbitdaScenarioComparisonTool.toolName,
       description: EbitdaScenarioComparisonTool.description,
       inputSchema: EbitdaScenarioComparisonTool.inputSchema,
-      execute: (input) => EbitdaScenarioComparisonTool.execute(input),
+      execute: EbitdaScenarioComparisonTool.execute.bind(EbitdaScenarioComparisonTool),
+    },
+    {
+      name: BondPricingTool.toolName,
+      description: BondPricingTool.description,
+      inputSchema: BondPricingTool.inputSchema,
+      execute: BondPricingTool.execute.bind(BondPricingTool),
+    },
+    {
+      name: OptionsPricingTool.toolName,
+      description: OptionsPricingTool.description,
+      inputSchema: OptionsPricingTool.inputSchema,
+      execute: OptionsPricingTool.execute.bind(OptionsPricingTool),
+    },
+    {
+      name: CashFlowAnalysisTool.toolName,
+      description: CashFlowAnalysisTool.description,
+      inputSchema: CashFlowAnalysisTool.inputSchema,
+      execute: CashFlowAnalysisTool.execute.bind(CashFlowAnalysisTool),
+    },
+    {
+      name: AutoLoanTool.toolName,
+      description: AutoLoanTool.description,
+      inputSchema: AutoLoanTool.inputSchema,
+      execute: AutoLoanTool.execute.bind(AutoLoanTool),
+    },
+    {
+      name: DebtPayoffTool.toolName,
+      description: DebtPayoffTool.description,
+      inputSchema: DebtPayoffTool.inputSchema,
+      execute: DebtPayoffTool.execute.bind(DebtPayoffTool),
+    },
+    {
+      name: SavingsGoalTool.toolName,
+      description: SavingsGoalTool.description,
+      inputSchema: SavingsGoalTool.inputSchema,
+      execute: SavingsGoalTool.execute.bind(SavingsGoalTool),
+    },
+    {
+      name: StudentLoanTool.toolName,
+      description: StudentLoanTool.description,
+      inputSchema: StudentLoanTool.inputSchema,
+      execute: StudentLoanTool.execute.bind(StudentLoanTool),
+    },
+    {
+      name: RetirementTool.toolName,
+      description: RetirementTool.description,
+      inputSchema: RetirementTool.inputSchema,
+      execute: RetirementTool.execute.bind(RetirementTool),
+    },
+    {
+      name: BudgetTool.toolName,
+      description: BudgetTool.description,
+      inputSchema: BudgetTool.inputSchema,
+      execute: BudgetTool.execute.bind(BudgetTool),
     },
   ];
 }
