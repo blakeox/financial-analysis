@@ -1,19 +1,26 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
+<Layout title="Personal Finance Models" description="Personal finance tools including mortgages, retirement planning, and investment calculators" canonical={Astro.url.href}>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Main Content Container with Chat Panel Integration -->
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-16">
         <!-- Header Section -->
         <div class="text-center mb-16">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Financial Models
-          </h1>
+          <div class="flex items-center justify-center mb-4">
+            <a href="/models" class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">
+              Personal Finance Models
+            </h1>
+          </div>
           <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Choose between personal finance tools or business analysis models. Each is designed for precision and powered by deterministic calculations.
+            Financial planning tools for individuals and families. Calculate mortgages, plan for retirement, and analyze personal investments.
           </p>
           <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -23,54 +30,56 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
 
-        <!-- Category Selection -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16" role="main">
+        <!-- Personal Finance Models Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
           
-          <!-- Personal Finance Category -->
-          <a href="/models/personal" class="block group">
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
+          <!-- Residential Mortgage -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+            data-model="Residential Mortgage"
+            onclick="selectModel(this, 'residential-mortgage')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                  Residential Mortgage
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
                 </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Personal Finance</h2>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families.
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Home loan amortization with PITI (Principal, Interest, Taxes, Insurance), APR analysis, and total cost of ownership calculations
               </p>
-              <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Personal Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  PITI calculations (Principal, Interest, Taxes, Insurance)
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  APR & closing cost analysis
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Total cost of ownership over loan term
+                </div>
+              </div>
+              <a
+                href="/amortization"
+                class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+              >
+                Open Model
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </div>
+              </a>
             </div>
-          </a>
-
-          <!-- Business Finance Category -->
-          <a href="/models/business" class="block group">
-            <div class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Business Finance</h2>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools.
-              </p>
-              <div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Business Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
-          </a>
+          </div>
 
         </div>
 
@@ -128,8 +137,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
       </div>
-
-    <!-- Removed VS Code Style Chat Panel -->
+    </div>
   </div>
 
   <!-- Enhanced JavaScript for Model Selection and Chat Integration -->
