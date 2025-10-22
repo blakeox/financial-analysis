@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdSense from '../components/AdSense.astro';
 ---
 
 <Layout 
@@ -320,4 +321,7 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('results')?.classList.remove('hidden');
   }
 </script>
+
+<!-- AdSense: Bottom of page ad -->
+<AdSense slot="8901234567" format="horizontal" className="container mx-auto px-4 mb-8" />
 </Layout>
