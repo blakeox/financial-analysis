@@ -1,0 +1,576 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Personal Finance Models" description="Personal finance tools including mortgages, retirement planning, and investment calculators" canonical={Astro.url.href}>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Main Content Container with Chat Panel Integration -->
+    <div id="main-container" class="transition-all duration-300 ease-in-out">
+      <div class="container mx-auto px-4 py-16">
+        <!-- Header Section -->
+        <div class="text-center mb-16">
+          <div class="flex items-center justify-center mb-4">
+            <a href="/models" class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">
+              Personal Finance Models
+            </h1>
+          </div>
+          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
+            Financial planning tools for individuals and families. Calculate mortgages, plan for retirement, and analyze personal investments.
+          </p>
+          <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <span>Click the chat icon to get AI-powered analysis of your model results</span>
+          </div>
+        </div>
+
+        <!-- Personal Finance Models Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
+          
+          <!-- Residential Mortgage -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+            data-model="Residential Mortgage"
+            onclick="selectModel(this, 'residential-mortgage')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                  Residential Mortgage
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Home loan amortization with PITI (Principal, Interest, Taxes, Insurance), APR analysis, and total cost of ownership calculations
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  PITI calculations (Principal, Interest, Taxes, Insurance)
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  APR & closing cost analysis
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Total cost of ownership over loan term
+                </div>
+              </div>
+              <a
+                href="/amortization"
+                class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+              >
+                Open Model
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Auto Loan Calculator -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+            data-model="Auto Loan Calculator"
+            onclick="selectModel(this, 'auto-loan')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                  Auto Loan Calculator
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Vehicle loan analysis with trade-in value, sales tax, registration fees, and early payoff scenarios. Includes GAP insurance and extended warranty options.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Trade-in value & negative equity
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Sales tax, fees, rebates
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Early payoff scenarios
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <a
+                  href="/auto-loan"
+                  onclick="event.stopPropagation();"
+                  class="inline-flex items-center flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors duration-200 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
+                >
+                  Open Calculator
+                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </a>
+                <button
+                  onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Auto Loan Calculator', { tool: 'analyze_auto_loan' }); } }"
+                  class="inline-flex items-center flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-md transition-colors duration-200 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                >
+                  Use via Chat
+                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Debt Payoff Optimizer -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-teal-500 group cursor-pointer model-card"
+            data-model="Debt Payoff Optimizer"
+            onclick="selectModel(this, 'debt-payoff')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-teal-600 dark:text-teal-400 group-hover:text-teal-700 dark:group-hover:text-teal-300">
+                  Debt Payoff Optimizer
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Compare avalanche vs snowball debt payoff strategies with month-by-month schedules. Includes balance transfer analysis with intro rate calculations to maximize interest savings.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Avalanche vs snowball strategy comparison
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Balance transfer offer evaluation
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Month-by-month payment schedule
+                </div>
+              </div>
+              <button
+                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Debt Payoff Optimizer', { tool: 'analyze_debt_payoff' }); } }"
+                class="inline-flex items-center px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-500"
+              >
+                Use via Chat
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Savings Goal Planner -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-cyan-500 group cursor-pointer model-card"
+            data-model="Savings Goal Planner"
+            onclick="selectModel(this, 'savings-goal')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-cyan-600 dark:text-cyan-400 group-hover:text-cyan-700 dark:group-hover:text-cyan-300">
+                  Savings Goal Planner
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Plan and track progress toward financial goals with compound interest calculations, inflation adjustments, and alternative scenarios.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Compound interest with monthly compounding
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Inflation-adjusted projections
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Alternative scenarios with different contributions
+                </div>
+              </div>
+              <button
+                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Savings Goal Planner', { tool: 'analyze_savings_goal' }); } }"
+                class="inline-flex items-center px-4 py-2 bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500"
+              >
+                Use via Chat
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Student Loan Analyzer -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+            data-model="Student Loan Analyzer"
+            onclick="selectModel(this, 'student-loan')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
+                  Student Loan Analyzer
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Optimize student loan repayment with avalanche/snowball strategies, income-driven repayment plans (IBR, PAYE, REPAYE), and refinancing analysis.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Multiple payoff strategies (avalanche, snowball, standard)
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Income-driven repayment plans with forgiveness
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Refinancing analysis with closing costs
+                </div>
+              </div>
+              <button
+                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Student Loan Analyzer', { tool: 'analyze_student_loans' }); } }"
+                class="inline-flex items-center px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+              >
+                Use via Chat
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Retirement Calculator -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-pink-500 group cursor-pointer model-card"
+            data-model="Retirement Calculator"
+            onclick="selectModel(this, 'retirement')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300">
+                  Retirement Calculator
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Project retirement savings across multiple accounts (401k, IRA, Roth) with employer match optimization, tax advantages, and withdrawal strategies.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Multi-account retirement projections
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Employer match optimization analysis
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Tax diversification and withdrawal strategies
+                </div>
+              </div>
+              <button
+                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Retirement Calculator', { tool: 'analyze_retirement_savings' }); } }"
+                class="inline-flex items-center px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-pink-500"
+              >
+                Use via Chat
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Budget Optimizer -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+            data-model="Budget Optimizer"
+            onclick="selectModel(this, 'budget')">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                  Budget Optimizer
+                </h3>
+                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  Available
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Analyze spending patterns with 50/30/20 rule, calculate financial health score, optimize budget allocations, and track debt-to-income ratio.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  50/30/20 budget rule analysis
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Financial health score (0-100)
+                </div>
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Optimized budget with adjustment recommendations
+                </div>
+              </div>
+              <button
+                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Budget Optimizer', { tool: 'optimize_budget' }); } }"
+                class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
+              >
+                Use via Chat
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Active Model Section -->
+        <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+            <button 
+              onclick="clearSelection()"
+              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              title="Clear selection"
+              aria-label="Clear model selection"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-500 dark:text-gray-400">Use the AI assistant to analyze this model's results and get insights</span>
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              AI-Powered Financial Analysis
+            </h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+              Select any model above to get started, then use our AI assistant to interpret results, run scenarios, and gain deeper insights into your financial data.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onclick="openChatPanel()"
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                aria-label="Open AI assistant chat panel"
+              >
+                Try AI Assistant
+                <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+              <a
+                href="/status"
+                class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+              >
+                API Status
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced JavaScript for Model Selection and Chat Integration -->
+  <script>
+    declare global {
+      interface Window {
+        toggleChatPanel?: () => void;
+        updateChatContext?: (
+          modelName: string | null,
+          modelData: Record<string, unknown> | null
+        ) => void;
+        adjustLayoutForChat?: (isOpen: boolean) => void;
+        selectedModel?: () => string | null;
+        selectedModelData?: () => Record<string, unknown> | null;
+        selectModel?: (element: HTMLElement, modelId: string) => void;
+        clearSelection?: () => void;
+        openChatPanel?: () => void;
+      }
+    }
+
+    let selectedModel: string | null = null;
+    let selectedModelData: Record<string, unknown> | null = null;
+    let chatPanelOpen = false;
+
+    type ModelsPageWindow = Window & {
+      toggleChatPanel?: () => void;
+      updateChatContext?: (
+        modelName: string | null,
+        modelData: Record<string, unknown> | null
+      ) => void;
+      adjustLayoutForChat?: (isOpen: boolean) => void;
+      selectedModel?: () => string | null;
+      selectedModelData?: () => Record<string, unknown> | null;
+      selectModel?: (element: HTMLElement, modelId: string) => void;
+      clearSelection?: () => void;
+      openChatPanel?: () => void;
+    };
+
+    const chatWindow = window as ModelsPageWindow;
+
+    // Model selection functionality
+    function selectModel(element: HTMLElement, _modelId: string): void {
+      // Remove previous selection
+      document.querySelectorAll('.model-card').forEach(card => {
+        card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+      });
+
+      // Add selection styling
+      element.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+
+      // Update selected model info
+      const modelName = element.dataset.model;
+      if (modelName) {
+        selectedModel = modelName;
+        
+        // Show selected model info
+        const infoSection = document.getElementById('selected-model-info');
+        const titleElement = document.getElementById('selected-model-title');
+        const descriptionElement = document.getElementById('selected-model-description');
+        
+        if (titleElement) titleElement.textContent = `Selected: ${modelName}`;
+        if (descriptionElement) {
+          descriptionElement.textContent = `You've selected the ${modelName} model. Open it to run calculations, then use the AI assistant for analysis and insights.`;
+        }
+        
+        if (infoSection) {
+          infoSection.classList.remove('hidden');
+          // Scroll to show selection
+          infoSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // If chat is open, update context
+        if (chatPanelOpen && chatWindow.updateChatContext) {
+          chatWindow.updateChatContext(selectedModel, selectedModelData);
+        }
+      }
+    }
+
+    function clearSelection(): void {
+      document.querySelectorAll('.model-card').forEach(card => {
+        card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+      });
+      
+      const infoSection = document.getElementById('selected-model-info');
+      if (infoSection) {
+        infoSection.classList.add('hidden');
+      }
+      
+      selectedModel = null;
+      selectedModelData = null;
+
+      if (chatPanelOpen && chatWindow.updateChatContext) {
+        chatWindow.updateChatContext(null, null);
+      }
+    }
+
+    function openChatPanel(): void {
+      if (chatWindow.toggleChatPanel) {
+        chatWindow.toggleChatPanel();
+      }
+    }
+
+    // Adjust main content when chat panel opens/closes
+    function adjustLayoutForChat(isOpen: boolean): void {
+      const mainContainer = document.getElementById('main-container');
+      if (mainContainer) {
+        if (isOpen) {
+          mainContainer.style.marginRight = '384px'; // 96 * 4 = 384px (w-96)
+        } else {
+          mainContainer.style.marginRight = '0';
+        }
+      }
+      chatPanelOpen = isOpen;
+    }
+
+    // Listen for model data updates from individual model pages
+    window.addEventListener('message', (event: MessageEvent) => {
+      if (event.data?.type === 'modelData') {
+        selectedModelData = event.data.data;
+        if (chatPanelOpen && chatWindow.updateChatContext) {
+          chatWindow.updateChatContext(selectedModel, selectedModelData);
+        }
+      }
+    });
+
+    // Expose functions globally for React components
+    chatWindow.adjustLayoutForChat = adjustLayoutForChat;
+    chatWindow.selectedModel = () => selectedModel;
+    chatWindow.selectedModelData = () => selectedModelData;
+
+    // Make functions available globally for onclick handlers
+    chatWindow.selectModel = selectModel;
+    chatWindow.clearSelection = clearSelection;
+    chatWindow.openChatPanel = openChatPanel;
+  </script>
+</Layout>

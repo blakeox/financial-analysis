@@ -18,6 +18,13 @@ import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
 import { parsers } from '../lib/formUtils';
 
+// Extend Window interface for analysis results storage
+declare global {
+  interface Window {
+    analysisResults?: Record<string, unknown>;
+  }
+}
+
 interface LeaseAnalysisDashboardProps {
   onAnalyze?: (result: EnhancedLeaseAnalysisResult) => void;
 }
@@ -856,6 +863,15 @@ export function LeaseAnalysisDashboard({ onAnalyze }: LeaseAnalysisDashboardProp
 
       const analysisResult: EnhancedLeaseAnalysisResult = await response.json();
       setResult(analysisResult);
+      
+      // Store result for chat panel integration
+      if (typeof window !== 'undefined' && window.analysisResults) {
+        window.analysisResults['analyze_lease'] = analysisResult;
+        window.dispatchEvent(new CustomEvent('analysis-result-updated', {
+          detail: { toolName: 'analyze_lease', result: analysisResult }
+        }));
+      }
+      
       onAnalyze?.(analysisResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

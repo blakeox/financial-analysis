@@ -269,6 +269,8 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
+  import { storeAnalysisResult } from '../scripts/analysis-results';
+  
   const form = document.getElementById('amortization-form') as HTMLFormElement;
   const resultsContainer = document.getElementById('results-container');
   const errorContainer = document.getElementById('error-container');
@@ -362,6 +364,9 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const result = await response.json();
+      
+      // Store result for chat panel
+      storeAnalysisResult('analyze_amortization', result);
 
       // Display summary cards
       if (summaryCards) {

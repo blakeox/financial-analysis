@@ -97,6 +97,188 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
+// Helper to format MCP tool results with intelligent analysis
+function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Record<string, unknown>): string {
+  try {
+    const data = result as Record<string, unknown>;
+    
+    switch (toolName) {
+      case 'analyze_savings_goal': {
+        const summary = data.summary as Record<string, unknown>;
+        const recommendations = data.recommendations as Record<string, unknown>[];
+        const monthsToGoal = summary?.monthsToGoal as number;
+        const totalSaved = summary?.totalSaved as string;
+        const totalContributions = summary?.totalContributions as string;
+        const totalInterest = summary?.totalInterest as string;
+        
+        let analysis = `## 💰 Savings Goal Analysis\n\n`;
+        analysis += `### Timeline\n`;
+        analysis += `You'll reach your **$${inputData.goalAmount}** goal in **${monthsToGoal} months** (${(monthsToGoal / 12).toFixed(1)} years).\n\n`;
+        analysis += `### Breakdown\n`;
+        analysis += `- **Total Saved**: ${totalSaved}\n`;
+        analysis += `- **Your Contributions**: ${totalContributions}\n`;
+        analysis += `- **Interest Earned**: ${totalInterest}\n\n`;
+        
+        if (recommendations && recommendations.length > 0) {
+          analysis += `### 💡 Recommendations\n`;
+          recommendations.forEach(rec => {
+            analysis += `- ${rec.recommendation}\n`;
+          });
+        }
+        
+        return analysis;
+      }
+      
+      case 'analyze_student_loans': {
+        const standardStrategy = data.standardPayoff as Record<string, unknown>;
+        const avalancheStrategy = data.avalanchePayoff as Record<string, unknown>;
+        const snowballStrategy = data.snowballPayoff as Record<string, unknown>;
+        
+        let analysis = `## 🎓 Student Loan Analysis\n\n`;
+        
+        if (standardStrategy) {
+          const months = standardStrategy.totalMonths as number;
+          const interest = standardStrategy.totalInterest as string;
+          analysis += `### Standard Repayment\n`;
+          analysis += `- **Payoff Time**: ${months} months (${(months / 12).toFixed(1)} years)\n`;
+          analysis += `- **Total Interest**: ${interest}\n\n`;
+        }
+        
+        if (avalancheStrategy && snowballStrategy) {
+          const avMonths = avalancheStrategy.totalMonths as number;
+          const avInterest = avalancheStrategy.totalInterest as string;
+          const sbMonths = snowballStrategy.totalMonths as number;
+          const sbInterest = snowballStrategy.totalInterest as string;
+          
+          analysis += `### Strategy Comparison\n`;
+          analysis += `**Avalanche (Highest Interest First)**\n`;
+          analysis += `- Payoff: ${avMonths} months | Interest: ${avInterest}\n\n`;
+          analysis += `**Snowball (Lowest Balance First)**\n`;
+          analysis += `- Payoff: ${sbMonths} months | Interest: ${sbInterest}\n\n`;
+          
+          if (avMonths < sbMonths) {
+            const savings = parseFloat(sbInterest.replace(/[$,]/g, '')) - parseFloat(avInterest.replace(/[$,]/g, ''));
+            analysis += `💡 **Recommendation**: Avalanche saves you **$${savings.toFixed(2)}** in interest!\n`;
+          } else {
+            analysis += `💡 **Recommendation**: Snowball provides faster psychological wins with ${sbMonths - avMonths} months saved.\n`;
+          }
+        }
+        
+        return analysis;
+      }
+      
+      case 'analyze_retirement_savings': {
+        const summary = data.summary as Record<string, unknown>;
+        const finalBalance = summary?.finalBalance as string;
+        const totalContributions = summary?.totalContributions as string;
+        const totalGrowth = summary?.totalGrowth as string;
+        const employerMatch = data.employerMatchAnalysis as Record<string, unknown>;
+        
+        let analysis = `## 🏦 Retirement Savings Projection\n\n`;
+        analysis += `### Projected Balance at Retirement\n`;
+        analysis += `**${finalBalance}**\n\n`;
+        analysis += `### Breakdown\n`;
+        analysis += `- **Your Contributions**: ${totalContributions}\n`;
+        analysis += `- **Investment Growth**: ${totalGrowth}\n\n`;
+        
+        if (employerMatch) {
+          const matchAmount = employerMatch.totalMatchReceived as string;
+          const potentialMatch = employerMatch.potentialMatchAvailable as string;
+          analysis += `### Employer Match\n`;
+          analysis += `- **Match Received**: ${matchAmount}\n`;
+          if (potentialMatch && potentialMatch !== '$0.00') {
+            analysis += `- **💡 Additional Match Available**: ${potentialMatch}\n`;
+            analysis += `\n**Recommendation**: Increase contributions to maximize employer match (free money!).\n`;
+          }
+        }
+        
+        return analysis;
+      }
+      
+      case 'optimize_budget': {
+        const metrics = data.metrics as Record<string, unknown>;
+        const rule503020 = data.rule503020 as Record<string, unknown>;
+        const healthScore = metrics?.financialHealthScore as number;
+        const optimized = data.optimizedBudget as Record<string, unknown>;
+        
+        let analysis = `## 💳 Budget Analysis\n\n`;
+        analysis += `### Financial Health Score: ${healthScore}/100\n\n`;
+        
+        if (rule503020) {
+          analysis += `### 50/30/20 Rule Breakdown\n`;
+          analysis += `- **Needs (50%)**: ${rule503020.needsPercentage}% of income\n`;
+          analysis += `- **Wants (30%)**: ${rule503020.wantsPercentage}% of income\n`;
+          analysis += `- **Savings (20%)**: ${rule503020.savingsPercentage}% of income\n\n`;
+        }
+        
+        if (optimized) {
+          const adjustments = optimized.adjustments as Record<string, unknown>[];
+          if (adjustments && adjustments.length > 0) {
+            analysis += `### 💡 Optimization Recommendations\n`;
+            adjustments.forEach(adj => {
+              analysis += `- ${adj.recommendation}\n`;
+            });
+          }
+        }
+        
+        return analysis;
+      }
+      
+      case 'analyze_debt_payoff': {
+        const avalanche = data.avalanche as Record<string, unknown>;
+        const snowball = data.snowball as Record<string, unknown>;
+        
+        let analysis = `## 💳 Debt Payoff Strategy Analysis\n\n`;
+        
+        if (avalanche && snowball) {
+          const avMonths = avalanche.payoffMonths as number;
+          const avInterest = avalanche.totalInterest as string;
+          const sbMonths = snowball.payoffMonths as number;
+          const sbInterest = snowball.totalInterest as string;
+          
+          analysis += `### Strategy Comparison\n`;
+          analysis += `**Avalanche (Highest Interest First)**\n`;
+          analysis += `- Payoff: ${avMonths} months (${(avMonths / 12).toFixed(1)} years)\n`;
+          analysis += `- Total Interest: ${avInterest}\n\n`;
+          analysis += `**Snowball (Lowest Balance First)**\n`;
+          analysis += `- Payoff: ${sbMonths} months (${(sbMonths / 12).toFixed(1)} years)\n`;
+          analysis += `- Total Interest: ${sbInterest}\n\n`;
+          
+          const interestSavings = parseFloat(sbInterest.replace(/[$,]/g, '')) - parseFloat(avInterest.replace(/[$,]/g, ''));
+          if (interestSavings > 0) {
+            analysis += `💡 **Recommendation**: Avalanche method saves you **$${interestSavings.toFixed(2)}** in interest!\n`;
+          }
+        }
+        
+        return analysis;
+      }
+      
+      case 'analyze_auto_loan': {
+        const summary = data.summary as Record<string, unknown>;
+        const monthlyPayment = summary?.monthlyPayment as string;
+        const totalInterest = summary?.totalInterest as string;
+        const totalCost = summary?.totalCost as string;
+        
+        let analysis = `## 🚗 Auto Loan Analysis\n\n`;
+        analysis += `### Payment Details\n`;
+        analysis += `- **Monthly Payment**: ${monthlyPayment}\n`;
+        analysis += `- **Total Interest**: ${totalInterest}\n`;
+        analysis += `- **Total Cost**: ${totalCost}\n\n`;
+        analysis += `💡 **Tip**: Consider making extra principal payments to reduce interest and pay off faster.\n`;
+        
+        return analysis;
+      }
+      
+      default:
+        // Generic formatting for other tools
+        return `## Analysis Complete\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
+    }
+  } catch {
+    // Fallback to JSON if parsing fails
+    return `## Analysis Results\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
+  }
+}
+
 // Quota helpers moved to ./lib/quota
 
 // ---- Error handling wrapper ----
@@ -2081,8 +2263,9 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       context?: string; 
       currentModel?: Record<string, unknown>;
       availableTools?: Array<{ name: string; description: string }>;
+      toolOutputs?: Record<string, unknown>;
     };
-    const { message, context = 'general', currentModel = {}, availableTools = [] } = body;
+    const { message, context = 'general', currentModel = {}, availableTools = [], toolOutputs = {} } = body;
     
     // SECURITY: Comprehensive message validation and sanitization
     const validation = validateChatMessage(message);
@@ -2122,6 +2305,90 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
       });
     }
 
+    // Check if user is requesting analysis that matches an MCP tool
+    const lowerMessage = sanitizedMessage.toLowerCase();
+    const toolKeywords: Record<string, string[]> = {
+      'analyze_savings_goal': ['savings', 'goal', 'save', 'emergency fund', 'down payment'],
+      'analyze_student_loans': ['student loan', 'loan payoff', 'idr', 'refinanc', 'avalanche', 'snowball'],
+      'analyze_retirement_savings': ['retirement', '401k', 'ira', 'roth', 'employer match'],
+      'optimize_budget': ['budget', '50/30/20', 'spending', 'expense', 'financial health'],
+      'analyze_debt_payoff': ['debt', 'payoff', 'credit card', 'balance transfer'],
+      'analyze_auto_loan': ['auto loan', 'car loan', 'vehicle'],
+      'analyze_lease': ['lease', 'leasing'],
+      'analyze_amortization': ['amortization', 'mortgage', 'loan schedule'],
+    };
+
+    // Try to match user intent to an MCP tool
+    let matchedTool: string | null = null;
+    for (const [toolName, keywords] of Object.entries(toolKeywords)) {
+      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+        // Verify this tool is actually available
+        if (availableTools.some(t => t.name === toolName)) {
+          matchedTool = toolName;
+          break;
+        }
+      }
+    }
+
+    // If tool match found, use existing output or call the MCP tool
+    if (matchedTool) {
+      // Check if we already have output from a previous analysis
+      const existingOutput = toolOutputs[matchedTool];
+      
+      if (existingOutput) {
+        // Use existing output for analysis
+        logInfo(requestContext, 'Using existing tool output for analysis', {
+          tool: matchedTool,
+          context
+        });
+
+        const analysisResponse = formatMCPToolAnalysis(matchedTool, existingOutput, currentModel);
+
+        return new Response(JSON.stringify({
+          response: analysisResponse,
+          context,
+          toolUsed: matchedTool,
+          fromCache: true,
+          requestId: requestContext.requestId,
+        }), {
+          status: 200,
+          headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
+        });
+      } else if (Object.keys(currentModel).length > 0) {
+        // Call the tool with current model data
+        try {
+          logInfo(requestContext, 'Calling MCP tool based on user intent', {
+            tool: matchedTool,
+            context
+          });
+
+          const mcpResult = await handleMCPRequest('tools/call', {
+            name: matchedTool,
+            arguments: currentModel
+          }, env);
+
+          // Parse and analyze the MCP tool result
+          const analysisResponse = formatMCPToolAnalysis(matchedTool, mcpResult, currentModel);
+
+          return new Response(JSON.stringify({
+            response: analysisResponse,
+            context,
+            toolUsed: matchedTool,
+            requestId: requestContext.requestId,
+          }), {
+            status: 200,
+            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
+          });
+        } catch (toolError) {
+          logWarn(requestContext, 'MCP tool call failed, falling back to pattern matching', {
+            tool: matchedTool,
+            error: toolError instanceof Error ? toolError.message : String(toolError)
+          });
+          // Fall through to pattern matching logic
+        }
+      }
+    }
+
     // Context-aware response based on current model page
     let contextualResponse = '';
     let modelChanges: Record<string, string | number> = {};
@@ -2148,7 +2415,7 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     };
     
     // Detect intent and extract parameters from user message (using sanitized message)
-    const lowerMessage = sanitizedMessage.toLowerCase();
+    // (lowerMessage already declared above for tool matching)
     
     if (context === 'lease') {
       // Handle lease analysis modifications

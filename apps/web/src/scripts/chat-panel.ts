@@ -60,6 +60,7 @@ class ChatPanel {
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
   private mcpTools: Array<{ name: string; description: string }> | null;
+  private mcpToolOutputs: Record<string, unknown> | null;
   
   // Rate limiting
   private lastMessageTime: number;
@@ -132,6 +133,7 @@ class ChatPanel {
     this.customContextData = null;
     this.externalContextListener = null;
     this.mcpTools = null;
+    this.mcpToolOutputs = null;
     
     // Initialize rate limiting
     this.lastMessageTime = 0;
@@ -157,6 +159,7 @@ class ChatPanel {
     this.syncAriaState();
     this.emitStateChange();
     this.setupNavigationListener();
+    this.setupAnalysisResultsListener();
 
     const win = window as WindowWithChatPanel;
     win.__chatPanelInstance = this;
@@ -359,6 +362,16 @@ class ChatPanel {
     window.addEventListener('orientationchange', this.updateLayoutOffsets);
     window.addEventListener('scroll', this.updateLayoutOffsets, { passive: true });
   }
+  
+  private setupAnalysisResultsListener(): void {
+    // Listen for analysis result updates from model pages
+    window.addEventListener('analysis-result-updated', () => {
+      // Refetch tools and outputs when analysis completes
+      this.fetchMCPTools().catch((err) => {
+        console.warn('Failed to refetch MCP tools after analysis update:', err);
+      });
+    });
+  }
 
   private async fetchMCPTools(): Promise<void> {
     try {
@@ -368,13 +381,47 @@ class ChatPanel {
       }
       const data = await response.json();
       this.mcpTools = data.tools || [];
+      
+      // Capture any analysis outputs from the current page
+      this.capturePageOutputs();
+      
       if (import.meta.env.DEV) {
         console.log('[ChatPanel] Available MCP tools:', this.mcpTools);
+        console.log('[ChatPanel] Tool outputs:', this.mcpToolOutputs);
       }
     } catch (error) {
       console.error('Error fetching MCP tools:', error);
       this.mcpTools = [];
+      this.mcpToolOutputs = null;
     }
+  }
+  
+  private capturePageOutputs(): void {
+    // Look for analysis result containers that might have outputs stored
+    const outputs: Record<string, unknown> = {};
+    
+    // Try to find results in various places on the page
+    // Check for data attributes on result containers
+    const resultContainers = document.querySelectorAll('[data-analysis-result]');
+    resultContainers.forEach((container) => {
+      try {
+        const toolName = container.getAttribute('data-tool-name');
+        const resultData = container.getAttribute('data-analysis-result');
+        if (toolName && resultData) {
+          outputs[toolName] = JSON.parse(resultData);
+        }
+      } catch {
+        // Ignore parsing errors
+      }
+    });
+    
+    // Check window object for stored results (some pages might store there)
+    const win = window as Window & { analysisResults?: Record<string, unknown> };
+    if (win.analysisResults && typeof win.analysisResults === 'object') {
+      Object.assign(outputs, win.analysisResults);
+    }
+    
+    this.mcpToolOutputs = Object.keys(outputs).length > 0 ? outputs : null;
   }
 
   private setupNavigationListener(): void {
@@ -665,6 +712,7 @@ class ChatPanel {
         context: contextKey,
         currentModel,
         availableTools: this.mcpTools || [],
+        toolOutputs: this.mcpToolOutputs || {},
       };
       
       if (import.meta.env.DEV) {
@@ -822,6 +870,13 @@ class ChatPanel {
       const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
       analyzeBtn.dispatchEvent(clickEvent);
     }
+    
+    // Refetch MCP tools to capture any new outputs from the analysis
+    setTimeout(() => {
+      this.fetchMCPTools().catch((err) => {
+        console.warn('Failed to refetch MCP tools after model change:', err);
+      });
+    }, 500); // Wait for analysis to complete
   }
 }
 
