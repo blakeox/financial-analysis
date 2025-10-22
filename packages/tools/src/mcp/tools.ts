@@ -5,6 +5,9 @@ import {
   EbitdaForecastingTool,
   EbitdaScenarioComparisonTool,
 } from '../tools/ebitda-forecasting.js';
+import { BondPricingTool } from '../tools/bond-pricing.js';
+import { OptionsPricingTool } from '../tools/options-pricing.js';
+import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 
 export interface MCPTool {
   name: string;
@@ -47,6 +50,24 @@ export function createMCPTools(): MCPTool[] {
       description: EbitdaScenarioComparisonTool.description,
       inputSchema: EbitdaScenarioComparisonTool.inputSchema,
       execute: EbitdaScenarioComparisonTool.execute.bind(EbitdaScenarioComparisonTool),
+    },
+    {
+      name: BondPricingTool.toolName,
+      description: BondPricingTool.description,
+      inputSchema: BondPricingTool.inputSchema,
+      execute: BondPricingTool.execute.bind(BondPricingTool),
+    },
+    {
+      name: OptionsPricingTool.toolName,
+      description: OptionsPricingTool.description,
+      inputSchema: OptionsPricingTool.inputSchema,
+      execute: OptionsPricingTool.execute.bind(OptionsPricingTool),
+    },
+    {
+      name: CashFlowAnalysisTool.toolName,
+      description: CashFlowAnalysisTool.description,
+      inputSchema: CashFlowAnalysisTool.inputSchema,
+      execute: CashFlowAnalysisTool.execute.bind(CashFlowAnalysisTool),
     },
   ];
 }

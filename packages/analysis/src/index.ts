@@ -2,6 +2,9 @@ export { LeaseAnalyzer } from "./engines/lease.js";
 export { EnhancedLeaseAnalyzer } from "./engines/enhanced-lease.js";
 export { AmortizationAnalyzer } from "./engines/amortization.js"; 
 export { EbitdaForecaster } from "./engines/ebitda-forecasting.js";
+export { BondPricingAnalyzer } from "./engines/bond-pricing.js";
+export { OptionsPricingAnalyzer } from "./engines/options-pricing.js";
+export { CashFlowAnalyzer } from "./engines/cash-flow.js";
 
 // Export amortization functions and types
 export { computeAmortizationInsights } from "./engines/amortization.js";
@@ -42,3 +45,18 @@ export { ScenarioInputSchema } from "./engines/ebitda-forecasting.js";
 export type { ScenarioInput } from "./engines/ebitda-forecasting.js";
 export type { LeaseAnalysisResult } from "./engines/lease.js";
 export type { EbitdaForecastResult } from "./engines/ebitda-forecasting.js";
+
+// Bond pricing schemas and types
+export { BondPricingInputSchema } from "./schemas/bond-pricing.js";
+export type { BondPricingInput, BondType, CouponFrequency } from "./schemas/bond-pricing.js";
+export type { BondPricingResult } from "./types/bond-pricing-result.js";
+
+// Options pricing schemas and types
+export { OptionsPricingInputSchema } from "./schemas/options-pricing.js";
+export type { OptionsPricingInput, OptionType, OptionStyle, PricingModel } from "./schemas/options-pricing.js";
+export type { OptionsPricingResult } from "./types/options-pricing-result.js";
+
+// Cash flow analysis schemas and types
+export { CashFlowAnalysisInputSchema } from "./schemas/cash-flow.js";
+export type { CashFlowAnalysisInput, CashFlowType } from "./schemas/cash-flow.js";
+export type { CashFlowAnalysisResult } from "./types/cash-flow-result.js";
