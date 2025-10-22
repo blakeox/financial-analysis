@@ -60,3 +60,9 @@ export type { OptionsPricingResult } from "./types/options-pricing-result.js";
 export { CashFlowAnalysisInputSchema } from "./schemas/cash-flow.js";
 export type { CashFlowAnalysisInput, CashFlowType } from "./schemas/cash-flow.js";
 export type { CashFlowAnalysisResult } from "./types/cash-flow-result.js";
+
+// Auto loan schemas and types
+export { AutoLoanInputSchema } from "./schemas/auto-loan.js";
+export type { AutoLoanInput } from "./schemas/auto-loan.js";
+export type { AutoLoanResult } from "./types/auto-loan-result.js";
+export * as AutoLoanEngine from "./engines/auto-loan.js";
