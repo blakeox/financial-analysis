@@ -21,7 +21,7 @@
     "test:e2e:hmr": "PLAYWRIGHT_DEV=1 playwright test -c playwright.dev.config.ts -g 'Navbar dev HMR stability'"
   },
   "dependencies": {
-    "@astrojs/react": "^4.3.1",
+    "@astrojs/react": "^4.4.0",
     "@astrojs/sitemap": "^3.6.0",
     "@financial-analysis/analysis": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
