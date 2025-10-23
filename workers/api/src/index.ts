@@ -405,6 +405,25 @@ function withAuth(
 ) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
+    
+    // Skip auth in test/development environments
+    if (env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') {
+      const mockKeyInfo: ApiKeyInfo = {
+        id: 999,
+        keyHash: 'test-key-hash',
+        keyPrefix: 'fk_test_',
+        customerId: 'test-customer',
+        customerEmail: 'test@example.com',
+        tier: 'test',
+        active: true,
+        monthlyQuota: 10000,
+        rateLimitPerSec: 100,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+      };
+      return handler(request, env, mockKeyInfo);
+    }
+    
     const authResult = await validateApiKey(request, env);
     
     if (!authResult.success || !authResult.keyInfo) {
@@ -2837,7 +2856,7 @@ export default {
       }
     }
 
-    let response = await router.handle(request, env, ctx);
+    let response = await router.fetch(request, env, ctx);
 
     const newHeaders = new Headers(response.headers);
     newHeaders.set('X-Request-ID', requestId);

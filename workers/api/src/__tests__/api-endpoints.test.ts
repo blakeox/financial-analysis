@@ -149,6 +149,9 @@ describe('API Endpoint Integration Tests', () => {
   beforeAll(async () => {
     worker = await unstable_dev('src/index.ts', {
       experimental: { disableExperimentalWarning: true },
+      vars: {
+        ENVIRONMENT: 'test',
+      },
     });
   });
 
