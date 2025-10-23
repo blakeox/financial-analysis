@@ -15,15 +15,15 @@
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
-  "zod": "^4.0.0"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "eslint": "^9.13.0",
-    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
-    "prettier": "^3.0.0",
-    "vitest": "3.2.4",
-    "esbuild": "0.25.10"
+    "esbuild": "0.25.11",
+    "eslint": "^9.38.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "vitest": "4.0.2"
   }
 }

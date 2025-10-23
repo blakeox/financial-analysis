@@ -113,7 +113,9 @@ ${options.preferredLeaseType ? `Preferred lease type hint: ${options.preferredLe
 Extract lease data as JSON:`;
 
   try {
-    const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ai = env.AI as any;
+    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
       messages: [
         { role: 'system', content: 'You are a financial analyst AI that extracts lease data and returns only valid JSON.' },
         { role: 'user', content: prompt }

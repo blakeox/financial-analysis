@@ -195,41 +195,39 @@ const result: AmortizationResult = await response.json();</code></pre>
 			</div>
 		</section>
 
-		<script is:inline>
-		// Code tab switching
-		document.addEventListener('DOMContentLoaded', () => &lbrace;
-			const tabs = document.querySelectorAll('.code-tab');
-			const blocks = document.querySelectorAll('.code-block');
-			
-			tabs.forEach(tab => &lbrace;
-				tab.addEventListener('click', () => &lbrace;
-					const lang = tab.dataset.lang;
-					
-					// Update tab styles
-					tabs.forEach(t => &lbrace;
-						if (t.dataset.lang === lang) &lbrace;
-							t.classList.remove('bg-gray-700', 'text-gray-300');
-							t.classList.add('bg-blue-600', 'text-white');
-						&rbrace; else &lbrace;
-							t.classList.remove('bg-blue-600', 'text-white');
-							t.classList.add('bg-gray-700', 'text-gray-300');
-						&rbrace;
-					&rbrace;);
-					
-					// Show corresponding code block
-					blocks.forEach(block => &lbrace;
-						if (block.dataset.lang === lang) &lbrace;
-							block.classList.remove('hidden');
-						&rbrace; else &lbrace;
-							block.classList.add('hidden');
-						&rbrace;
-					&rbrace;);
-				&rbrace;);
-			&rbrace;);
-		&rbrace;);
-		</script>
-
-		<!-- API Tiers -->
+	<script is:inline>
+	// Code tab switching
+	document.addEventListener('DOMContentLoaded', () => {
+		const tabs = document.querySelectorAll('.code-tab');
+		const blocks = document.querySelectorAll('.code-block');
+		
+		tabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const lang = tab.dataset.lang;
+				
+				// Update tab styles
+				tabs.forEach(t => {
+					if (t.dataset.lang === lang) {
+						t.classList.remove('bg-gray-700', 'text-gray-300');
+						t.classList.add('bg-blue-600', 'text-white');
+					} else {
+						t.classList.remove('bg-blue-600', 'text-white');
+						t.classList.add('bg-gray-700', 'text-gray-300');
+					}
+				});
+				
+				// Show corresponding code block
+				blocks.forEach(block => {
+					if (block.dataset.lang === lang) {
+						block.classList.remove('hidden');
+					} else {
+						block.classList.add('hidden');
+					}
+				});
+			});
+		});
+	});
+	</script>		<!-- API Tiers -->
 		<section class="mb-12">
 			<h2 class="text-3xl font-bold mb-6">API Tiers</h2>
 			<div class="grid md:grid-cols-3 gap-6">
