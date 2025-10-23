@@ -37,7 +37,7 @@
     "miniflare": "^3.0.0",
     "eslint": "^9.13.0",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
-    "@typescript-eslint/parser": "^8.12.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "prettier": "^3.0.0"
   }
 }
