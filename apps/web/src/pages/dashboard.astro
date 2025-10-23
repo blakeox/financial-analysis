@@ -1,0 +1,355 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = 'Dashboard - Financial Analysis API';
+const description = 'Manage your API subscription, view usage, and access billing portal.';
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p class="mt-2 text-gray-600">Manage your API subscription and monitor usage</p>
+      </div>
+
+      <!-- Account Info -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <p class="mt-1 text-gray-900" id="user-email">Loading...</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Customer ID</label>
+            <p class="mt-1 text-gray-600 font-mono text-sm" id="customer-id">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Plan -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="current-plan">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
+          <button 
+            onclick="manageBilling()"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+          >
+            Manage Billing
+          </button>
+        </div>
+        
+        <div class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p class="mt-2 text-gray-600">Loading plan details...</p>
+        </div>
+      </div>
+
+      <!-- Usage Stats -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="usage-stats">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage This Month</h2>
+        
+        <div class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p class="mt-2 text-gray-600">Loading usage data...</p>
+        </div>
+      </div>
+
+      <!-- API Keys -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">API Keys</h2>
+          <a 
+            href="/developers" 
+            class="text-indigo-600 hover:text-indigo-700 font-semibold"
+          >
+            View Documentation →
+          </a>
+        </div>
+        
+        <div id="api-keys-list">
+          <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p class="mt-2 text-gray-600">Loading API keys...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <a 
+          href="/pricing" 
+          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+        >
+          <h3 class="font-semibold text-gray-900 mb-2">Upgrade Plan</h3>
+          <p class="text-gray-600 text-sm">Get more requests and higher rate limits</p>
+        </a>
+        
+        <a 
+          href="/developers" 
+          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+        >
+          <h3 class="font-semibold text-gray-900 mb-2">API Documentation</h3>
+          <p class="text-gray-600 text-sm">Learn how to integrate the API</p>
+        </a>
+        
+        <a 
+          href="mailto:support@fanalyx.com" 
+          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+        >
+          <h3 class="font-semibold text-gray-900 mb-2">Get Support</h3>
+          <p class="text-gray-600 text-sm">Contact us for help or questions</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const API_BASE = 'https://fanalyx-api-production.blakeoxford.workers.dev';
+
+  // Get customer info from localStorage
+  const customerId = localStorage.getItem('customerId');
+  const customerEmail = localStorage.getItem('customerEmail');
+
+  // Display customer info
+  const emailEl = document.getElementById('user-email');
+  const customerIdEl = document.getElementById('customer-id');
+  
+  if (emailEl && customerEmail) {
+    emailEl.textContent = customerEmail;
+  }
+  if (customerIdEl && customerId) {
+    customerIdEl.textContent = customerId;
+  }
+
+  // Load API keys and usage
+  async function loadDashboardData() {
+    if (!customerId) {
+      // No customer ID - redirect to get started
+      window.location.href = '/developers';
+      return;
+    }
+
+    try {
+      // Load API keys
+      const keysResponse = await fetch(`${API_BASE}/v1/keys?customerId=${customerId}`);
+      const keysData = await keysResponse.json();
+
+      if (keysData.success && keysData.keys.length > 0) {
+        renderApiKeys(keysData.keys);
+        renderCurrentPlan(keysData.keys[0]);
+
+        // Load usage for first key
+        const usageResponse = await fetch(`${API_BASE}/v1/keys/${keysData.keys[0].id}/usage`);
+        const usageData = await usageResponse.json();
+        
+        if (usageData.success) {
+          renderUsageStats(usageData.usage, keysData.keys[0]);
+        }
+      } else {
+        renderNoKeys();
+      }
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      renderError();
+    }
+  }
+
+  function renderCurrentPlan(key: any) {
+    const container = document.getElementById('current-plan');
+    if (!container) return;
+
+    const tierNames: Record<string, string> = {
+      free: 'Free Tier',
+      pro: 'Pro Tier',
+      enterprise: 'Enterprise Tier',
+      test: 'Test Tier'
+    };
+
+    container.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
+        <button 
+          onclick="manageBilling()"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          Manage Billing
+        </button>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Plan</label>
+          <p class="mt-1 text-2xl font-bold text-gray-900 capitalize">${tierNames[key.tier] || key.tier}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Monthly Quota</label>
+          <p class="mt-1 text-2xl font-bold text-gray-900">${key.monthlyQuota.toLocaleString()}</p>
+          <p class="text-sm text-gray-500">requests/month</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Rate Limit</label>
+          <p class="mt-1 text-2xl font-bold text-gray-900">${key.rateLimitPerSec}</p>
+          <p class="text-sm text-gray-500">requests/second</p>
+        </div>
+      </div>
+
+      ${key.tier === 'free' ? `
+        <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <p class="text-indigo-900 font-semibold">Ready to scale?</p>
+          <p class="text-indigo-700 text-sm mt-1">Upgrade to Pro for 50,000 requests/month and 10x faster rate limits.</p>
+          <a href="/pricing" class="inline-block mt-3 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors">
+            View Pricing
+          </a>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderUsageStats(usage: any, key: any) {
+    const container = document.getElementById('usage-stats');
+    if (!container) return;
+
+    const current = usage.currentMonth || { totalRequests: 0 };
+    const percentage = (current.totalRequests / key.monthlyQuota) * 100;
+    const remaining = Math.max(0, key.monthlyQuota - current.totalRequests);
+
+    container.innerHTML = `
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">Usage This Month</h2>
+      
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-medium text-gray-700">Requests Used</span>
+          <span class="text-sm font-medium text-gray-900">${current.totalRequests.toLocaleString()} / ${key.monthlyQuota.toLocaleString()}</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div 
+            class="h-3 rounded-full ${percentage > 80 ? 'bg-red-500' : percentage > 50 ? 'bg-yellow-500' : 'bg-green-500'}" 
+            style="width: ${Math.min(percentage, 100)}%"
+          ></div>
+        </div>
+        <p class="mt-1 text-sm text-gray-600">${remaining.toLocaleString()} requests remaining</p>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600">Total Requests</p>
+          <p class="text-2xl font-bold text-gray-900">${(current.totalRequests || 0).toLocaleString()}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600">Successful</p>
+          <p class="text-2xl font-bold text-green-600">${(current.successfulRequests || 0).toLocaleString()}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600">Failed</p>
+          <p class="text-2xl font-bold text-red-600">${(current.failedRequests || 0).toLocaleString()}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-600">Avg Response</p>
+          <p class="text-2xl font-bold text-gray-900">${current.totalRequests > 0 ? Math.round(current.totalResponseTimeMs / current.totalRequests) : 0}ms</p>
+        </div>
+      </div>
+
+      ${percentage > 80 ? `
+        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p class="text-yellow-900 font-semibold">⚠️ Approaching quota limit</p>
+          <p class="text-yellow-700 text-sm mt-1">You've used ${percentage.toFixed(1)}% of your monthly quota. Consider upgrading to avoid service interruption.</p>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderApiKeys(keys: any[]) {
+    const container = document.getElementById('api-keys-list');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="space-y-4">
+        ${keys.map(key => `
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-sm text-gray-900">${key.keyPrefix}••••••••••••</span>
+                  ${key.active ? 
+                    '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>' : 
+                    '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Inactive</span>'
+                  }
+                  <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full capitalize">${key.tier}</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">${key.metadata?.description || 'API Key'}</p>
+                <p class="text-xs text-gray-500 mt-1">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
+                ${key.lastUsedAt ? `<p class="text-xs text-gray-500">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderNoKeys() {
+    const planContainer = document.getElementById('current-plan');
+    const usageContainer = document.getElementById('usage-stats');
+    const keysContainer = document.getElementById('api-keys-list');
+
+    if (planContainer) {
+      planContainer.innerHTML = `
+        <div class="text-center py-8">
+          <p class="text-gray-600">No API keys found.</p>
+          <a href="/developers" class="inline-block mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+            Create Your First API Key
+          </a>
+        </div>
+      `;
+    }
+    
+    if (usageContainer) usageContainer.style.display = 'none';
+    if (keysContainer) keysContainer.style.display = 'none';
+  }
+
+  function renderError() {
+    const container = document.getElementById('current-plan');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="text-center py-8">
+        <p class="text-red-600">Failed to load dashboard data. Please try again later.</p>
+      </div>
+    `;
+  }
+
+  // Manage billing via Stripe Customer Portal
+  (window as any).manageBilling = async function() {
+    if (!customerId) {
+      alert('No customer ID found. Please create an API key first.');
+      window.location.href = '/developers';
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/v1/stripe/create-portal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Unable to access billing portal. You may not have an active subscription yet.');
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
+  // Load data on page load
+  loadDashboardData();
+</script>

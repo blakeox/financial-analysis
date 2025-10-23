@@ -79,6 +79,14 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                 <ul className="mt-4 space-y-4">
                   <li>
                     <a
+                      href="/developers"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
+                      Developer API
+                    </a>
+                  </li>
+                  <li>
+                    <a
                       href="/docs"
                       className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                     >
