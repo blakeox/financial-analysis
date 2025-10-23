@@ -1,6 +1,46 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the debt avalanche method?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The debt avalanche method pays off debts with the highest interest rates first while making minimum payments on others. This mathematically optimal strategy saves the most money on interest but may take longer to see individual debts eliminated."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the debt snowball method?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The debt snowball method pays off debts from smallest to largest balance regardless of interest rate. This provides quick psychological wins as debts are eliminated faster, which helps maintain motivation, though it may cost more in interest than the avalanche method."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which debt payoff method is better?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The avalanche method saves more money on interest, while the snowball method provides faster psychological wins. Use our calculator to compare both strategies with your actual debts. If you need motivation, choose snowball. If you want maximum savings, choose avalanche."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I use a balance transfer to pay off debt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Balance transfers with 0% intro APR can save significant interest if you can pay off the balance before the promotional period ends. Our calculator includes balance transfer scenarios to show potential savings after accounting for transfer fees."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
@@ -8,6 +48,7 @@ import AdSense from '../components/AdSense.astro';
   description="Compare debt payoff strategies including avalanche, snowball, and custom approaches"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">

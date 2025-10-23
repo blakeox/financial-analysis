@@ -1,9 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is an amortization schedule?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An amortization schedule is a table showing each loan payment over time, breaking down how much goes toward principal versus interest. Early payments consist mostly of interest, while later payments pay down more principal. This schedule helps you see exactly when you'll be debt-free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do extra payments affect my mortgage?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Extra payments directly reduce your principal balance, which lowers future interest charges and can shorten your loan term significantly. For example, adding $200/month to a $300,000 mortgage at 6% can save over $80,000 in interest and cut years off the loan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I make biweekly mortgage payments?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Biweekly payments (half your monthly payment every two weeks) result in 26 half-payments per year - equivalent to 13 monthly payments instead of 12. This extra payment per year can reduce a 30-year mortgage by 4-6 years and save tens of thousands in interest."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is mortgage interest calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mortgage interest is calculated monthly on your remaining principal balance. The formula is: (annual rate ÷ 12) × current balance. As you pay down principal, the interest portion decreases while the principal portion increases, even though your total payment stays the same."
+      }
+    }
+  ]
+};
 ---
 
 <Layout title="Amortization Calculator" description="Calculate loan amortization schedules with detailed payment breakdowns" canonical={Astro.url.href}>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
     <script type="application/ld+json" is:inline>

@@ -1,13 +1,54 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I refinance my student loans?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Refinancing can lower your interest rate and monthly payment, but you'll lose federal protections like income-driven repayment and loan forgiveness eligibility. Only refinance federal loans if you have stable income, good credit, and don't need federal benefits. Use our calculator to compare scenarios."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are income-driven repayment plans?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Income-driven repayment (IDR) plans cap your monthly payment at 10-20% of discretionary income. Options include SAVE, PAYE, IBR, and ICR. After 20-25 years of payments, remaining balances may be forgiven. Our calculator shows payment amounts under different IDR plans."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Public Service Loan Forgiveness work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Public Service Loan Forgiveness (PSLF) forgives remaining federal student loan balances after 120 qualifying monthly payments while working full-time for a qualifying employer (government or non-profit). You must be on an income-driven repayment plan to maximize forgiveness benefits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I make extra student loan payments?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Extra payments can save thousands in interest and help you become debt-free faster. However, if pursuing loan forgiveness or if you have higher-interest debt, you may want to make minimum payments instead. Use our calculator to see interest savings from extra payments."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
   title="Student Loan Analyzer" 
-  description="Optimize student loan repayment with avalanche, snowball, income-driven, and refinancing strategies"
+  description="Calculate student loan payments with refinancing scenarios, income-driven repayment plans, and forgiveness options"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">

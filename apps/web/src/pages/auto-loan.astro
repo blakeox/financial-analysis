@@ -1,6 +1,46 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I calculate my auto loan payment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Enter your vehicle price, down payment, trade-in value, interest rate, and loan term. The calculator automatically includes sales tax, registration fees, and any rebates to show your monthly payment and total interest paid."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I include my trade-in value?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, your trade-in value reduces the amount you need to finance. If you owe more than the trade-in value (negative equity), the calculator adds that amount to your new loan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a good interest rate for an auto loan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Auto loan rates typically range from 3% to 12% depending on your credit score, loan term, and whether the vehicle is new or used. Excellent credit (720+) can secure rates below 5%, while fair credit (650-699) may see rates of 7-10%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does loan term affect my monthly payment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Longer loan terms (60-72 months) lower your monthly payment but increase total interest paid. Shorter terms (36-48 months) have higher monthly payments but save money on interest and build equity faster."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
@@ -8,6 +48,7 @@ import AdSense from '../components/AdSense.astro';
   description="Calculate auto loan payments with trade-in value, sales tax, fees, and early payoff scenarios"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">

@@ -1,13 +1,54 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much should I save for retirement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Financial experts recommend saving 10-15% of your gross income for retirement. If starting late, you may need to save 20-25%. Use our calculator to determine if your current savings rate will meet your retirement goals based on your age, current savings, and expected retirement date."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a good retirement savings goal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A common rule is to have 25x your annual expenses saved by retirement (the 4% withdrawal rule). For example, if you need $60,000 per year, aim for $1.5 million. Our calculator helps you determine your specific target based on your retirement age and desired lifestyle."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I max out my 401(k) employer match?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, always contribute enough to get the full employer match - it's free money with an immediate 50-100% return on investment. Our calculator shows how employer matching significantly accelerates your retirement savings growth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What investment return should I assume for retirement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Conservative estimates use 6-7% annual returns, while aggressive estimates use 8-10%. Historically, the S&P 500 averages about 10% before inflation. Our calculator allows you to adjust assumptions and see how different return rates affect your retirement timeline."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
   title="Retirement Calculator" 
-  description="Plan your retirement with projections for 401k, IRA, and other retirement accounts"
+  description="Plan your retirement with projections for savings growth, employer matching, and inflation-adjusted goals"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">

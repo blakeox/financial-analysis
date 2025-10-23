@@ -1,9 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
 // ChatPanel is now in Layout.astro
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I lease or buy equipment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Leasing preserves cash flow and avoids obsolescence risk, making it ideal for technology or vehicles. Buying builds equity and costs less long-term if you'll use the equipment for its full useful life. Compare the present value of lease payments versus purchase price plus maintenance to determine the better option."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the implicit rate in a lease?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The implicit rate is the effective interest rate built into a lease agreement. It's the discount rate that makes the present value of lease payments equal to the fair market value of the asset. Knowing this rate helps you compare leasing to loan financing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a capital lease versus operating lease?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A capital lease transfers substantially all risks and rewards of ownership (appears on balance sheet as asset and liability). An operating lease is rental-like (off balance sheet). Under ASC 842/IFRS 16, most leases now appear on balance sheets, but tax treatment and cash flow implications differ significantly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate the present value of a lease?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use your incremental borrowing rate or the implicit lease rate to discount all future lease payments to today's dollars. Include residual value if you'll purchase the asset at lease end. Our calculator performs NPV analysis to compare lease scenarios and determine the most cost-effective option."
+      }
+    }
+  ]
+};
 ---
 
 <Layout title="Lease Analysis" description="Analyze lease agreements with precision financial calculations" canonical={Astro.url.href}>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
     <script type="application/ld+json" is:inline>

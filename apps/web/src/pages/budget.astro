@@ -1,6 +1,46 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the 50/30/20 budget rule?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The 50/30/20 rule allocates your after-tax income: 50% for needs (housing, food, utilities), 30% for wants (dining out, entertainment, hobbies), and 20% for savings and debt repayment. This simple framework helps balance living expenses with financial goals."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much should I budget for housing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Housing costs (rent/mortgage, property taxes, insurance, utilities) should not exceed 28-30% of your gross monthly income. Lenders use this ratio when qualifying borrowers. Keeping housing costs under 30% leaves room for other expenses and savings."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between needs and wants?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Needs are essential expenses required to live and work: housing, groceries, utilities, transportation, insurance, minimum debt payments. Wants are discretionary: dining out, subscriptions, entertainment, travel, hobbies. Distinguishing between them is key to effective budgeting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much should I save each month?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aim to save at least 20% of your after-tax income, split between emergency fund (3-6 months expenses), retirement contributions (10-15%), and other goals. If you can't save 20%, start with 10% and increase gradually as income grows or expenses decrease."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
@@ -8,6 +48,7 @@ import AdSense from '../components/AdSense.astro';
   description="Optimize your budget with the 50/30/20 rule and personalized recommendations"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">

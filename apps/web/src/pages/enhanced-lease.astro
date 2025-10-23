@@ -1,9 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a triple net (NNN) lease?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A triple net lease requires the tenant to pay property taxes, insurance, and maintenance costs in addition to rent. This shifts operating expenses from landlord to tenant, making NNN leases common in commercial real estate. The base rent is typically lower than gross leases to account for these additional costs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do tenant improvements affect lease value?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tenant improvements (TI) are build-out costs to customize space for your business. Landlords may offer a TI allowance (e.g., $50/sq ft) to incentivize signing. Higher TI allowances can offset higher base rent. Our calculator helps evaluate whether generous TI terms justify higher rent over the lease term."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are common area maintenance (CAM) charges?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CAM charges cover shared property expenses like landscaping, parking lot maintenance, security, and common area utilities. In shopping centers or office buildings, these costs are typically prorated based on your leased square footage. CAM can add $3-$10 per square foot annually to your total occupancy cost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I negotiate lease escalations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Most commercial leases include annual rent increases (2-4% or tied to CPI). Negotiate the escalation rate, cap it at a maximum percentage, or tie it to specific indices. Lower escalations significantly reduce total lease costs over 5-10 year terms."
+      }
+    }
+  ]
+};
 ---
 
 <Layout title="Enhanced Lease Analysis - Financial Analysis Tools">
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <main class="container mx-auto px-4 py-8">
     <div id="enhanced-lease-container"></div>
     

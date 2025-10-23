@@ -11,9 +11,10 @@ export interface Props {
   canonical?: string;
   image?: string;
   showNav?: boolean;
+  keywords?: string;
 }
 
-const { title, description = "Financial Analysis Tooling", canonical, image, showNav = true } = Astro.props as Props;
+const { title, description = "Fanalyx - Professional Financial Analysis Tools", canonical, image, showNav = true, keywords } = Astro.props as Props;
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -32,7 +33,7 @@ const navLinks = [
   <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} />
+    <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} keywords={keywords} />
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
@@ -74,7 +75,7 @@ const navLinks = [
     <!-- Header / Navigation -->
     {showNav && (
       <div id="site-header">
-  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Studio" />
+  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Fanalyx" />
       </div>
     )}
 

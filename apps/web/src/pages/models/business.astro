@@ -1,9 +1,179 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const keywords = "business finance, commercial real estate, lease analysis, EBITDA forecasting, equipment lease calculator, NPV analysis, cash flow analysis, business loan calculator, financial modeling tools";
+const enhancedDescription = "Comprehensive business finance modeling tools for commercial real estate, lease analysis, EBITDA forecasting, and cash flow projections. Professional-grade calculators for equipment leasing, commercial property loans, and financial planning.";
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}${Astro.url.pathname}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Business Finance Models",
+  "description": enhancedDescription,
+  "url": currentUrl,
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": baseUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Models",
+        "item": `${baseUrl}/models`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Business Finance",
+        "item": currentUrl
+      }
+    ]
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Commercial Property Loan Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Business building loan amortization with commercial terms and cash flow analysis"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Equipment Lease Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Equipment lease analysis with residual value and lease vs buy comparison"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "EBITDA Forecasting Tool",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Service industry financial projections with employee planning and expense analysis"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Enhanced Lease Analysis",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Comprehensive building lease analysis for office, warehouse, retail, and medical properties"
+      }
+    ]
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "Business Finance",
+    "description": "Professional financial modeling tools for businesses"
+  }
+};
+
+// FAQ Schema for featured snippets
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Are these business finance calculators free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, all our business finance modeling tools are free to use. Access commercial property loan calculators, equipment lease analysis, EBITDA forecasting, enhanced lease analysis for office and warehouse properties, and cash flow projections at no cost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What types of commercial real estate can I analyze?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our commercial real estate calculators support office buildings, warehouse spaces, retail properties, medical facilities, and mixed-use developments. Calculate loan amortization, debt service coverage ratios (DSCR), cash-on-cash returns, and net present value (NPV) for any commercial property."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate lease vs buy for equipment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our equipment lease calculator compares total cost of leasing versus purchasing. It includes residual value calculations, tax implications, opportunity cost analysis, and payment schedules to help you make informed equipment financing decisions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is EBITDA forecasting used for?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) forecasting helps service businesses project profitability. Our tool includes revenue forecasting, employee planning, expense modeling, and scenario analysis for 1-5 year projections."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use these for SBA loan applications?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, our commercial loan calculators can help prepare financial projections for SBA 7(a) and 504 loan applications. Generate amortization schedules, calculate debt service coverage ratios, and project cash flows that lenders require."
+      }
+    }
+  ]
+};
 ---
 
-<Layout title="Business Finance Models" description="Business finance tools including commercial real estate, lease analysis, and EBITDA forecasting" canonical={Astro.url.href}>
+<Layout title="Business Finance Models | Fanalyx" description={enhancedDescription} canonical={Astro.url.href} keywords={keywords}>
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <!-- FAQ Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
+      <div class="container mx-auto px-4 py-3">
+        <ol class="flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
+              <span itemprop="name">Home</span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </li>
+          <li class="text-gray-400 dark:text-gray-600">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/models" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
+              <span itemprop="name">Models</span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </li>
+          <li class="text-gray-400 dark:text-gray-600">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="text-gray-900 dark:text-white font-medium" itemprop="name">Business Finance</span>
+            <meta itemprop="position" content="3" />
+          </li>
+        </ol>
+      </div>
+    </nav>
+
     <!-- Main Content Container with Chat Panel Integration -->
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-16">
