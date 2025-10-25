@@ -390,6 +390,108 @@ registerHealthRoute(router as unknown as import('itty-router').RouterType);
 // Analytics endpoints for client-side event tracking
 registerAnalyticsRoutes(router);
 
+// API Key Management endpoints
+import { createApiKey, listApiKeys, revokeApiKey, getKeyUsage } from './routes/api-keys';
+import { validateApiKey, createAuthErrorResponse, trackApiUsage, type ApiKeyInfo } from './lib/auth';
+
+// Stripe Integration endpoints
+import { stripeRouter } from './routes/stripe';
+
+/**
+ * Middleware to require API key authentication
+ */
+function withAuth(
+  handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>
+) {
+  return async (request: Request, env: Env): Promise<Response> => {
+    const startTime = Date.now();
+    
+    // Skip auth in test/development environments
+    if (env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') {
+      const mockKeyInfo: ApiKeyInfo = {
+        id: 999,
+        keyHash: 'test-key-hash',
+        keyPrefix: 'fk_test_',
+        customerId: 'test-customer',
+        customerEmail: 'test@example.com',
+        tier: 'test',
+        active: true,
+        monthlyQuota: 10000,
+        rateLimitPerSec: 100,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+      };
+      return handler(request, env, mockKeyInfo);
+    }
+    
+    const authResult = await validateApiKey(request, env);
+    
+    if (!authResult.success || !authResult.keyInfo) {
+      return createAuthErrorResponse(authResult);
+    }
+    
+    try {
+      const response = await handler(request, env, authResult.keyInfo);
+      const responseTime = Date.now() - startTime;
+      
+      // Track usage asynchronously (don't wait)
+      trackApiUsage(authResult.keyInfo, request, response.status, responseTime, env).catch(err => {
+        console.error('Failed to track API usage:', err);
+      });
+      
+      // Add rate limit headers
+      const headers = new Headers(response.headers);
+      headers.set('X-RateLimit-Limit', String(authResult.keyInfo.rateLimitPerSec));
+      headers.set('X-RateLimit-Remaining', '0'); // Would need to fetch from KV
+      headers.set('X-API-Key-Tier', authResult.keyInfo.tier);
+      
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    } catch (error) {
+      console.error('Handler error:', error);
+      throw error;
+    }
+  };
+}
+
+router.post('/v1/keys', withErrorHandler(async (request: Request, env: Env) => {
+  return await createApiKey(request, env);
+}));
+
+router.get('/v1/keys', withErrorHandler(async (request: Request, env: Env) => {
+  return await listApiKeys(request, env);
+}));
+
+router.delete('/v1/keys/:keyId', withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+  const keyId = request.params?.keyId;
+  if (!keyId) {
+    return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  return await revokeApiKey(keyId, env);
+}));
+
+router.get('/v1/keys/:keyId/usage', withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+  const keyId = request.params?.keyId;
+  if (!keyId) {
+    return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  return await getKeyUsage(keyId, env);
+}));
+
+// Stripe Integration routes
+router.all('/v1/stripe/*', (request: Request, env: Env) => {
+  return stripeRouter.handle(request, env);
+});
+
 // PHASE 3: Circuit breaker monitoring endpoint
 router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {
   const states = getAllCircuitStates();
@@ -1317,10 +1419,10 @@ router.get(
   })
 );
 
-// Lease analysis endpoint
+// Lease analysis endpoint (with API key authentication)
 router.post(
   '/v1/api/analysis/lease',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return new Response(
@@ -1422,13 +1524,13 @@ router.post(
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
     });
-  })
+  }))
 );
 
-// Enhanced lease analysis endpoint
+// Enhanced lease analysis endpoint (with API key authentication)
 router.post(
   '/v1/api/analysis/enhanced-lease',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return new Response(
@@ -1530,7 +1632,7 @@ router.post(
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
     });
-  })
+  }))
 );
 
 // Lease document upload endpoint (multipart/form-data)
@@ -1692,7 +1794,7 @@ router.post(
 // EBITDA forecast analysis endpoint
 router.post(
   '/v1/api/analysis/ebitda-forecast',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return new Response(
@@ -1799,13 +1901,13 @@ router.post(
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
     });
-  })
+  }))
 );
 
 // Amortization analysis endpoint
 router.post(
   '/v1/api/analysis/amortization',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return new Response(
@@ -2082,7 +2184,7 @@ router.post(
       status: 200,
       headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
     });
-  })
+  }))
 );
 
 // Legacy route (redirect to v1)
@@ -2754,7 +2856,7 @@ export default {
       }
     }
 
-    let response = await router.handle(request, env, ctx);
+    let response = await router.fetch(request, env, ctx);
 
     const newHeaders = new Headers(response.headers);
     newHeaders.set('X-Request-ID', requestId);

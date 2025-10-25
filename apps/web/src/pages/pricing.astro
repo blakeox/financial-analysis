@@ -1,0 +1,190 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+
+const title = 'Pricing - Financial Analysis API';
+const description = 'Simple, transparent pricing for the Financial Analysis API. Start free, upgrade as you grow.';
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-linear-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
+          Simple, Transparent Pricing
+        </h1>
+        <p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+          Start free, upgrade as you grow. No hidden fees, cancel anytime.
+        </p>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16" id="pricing-tiers">
+        <!-- Loading state -->
+        <div class="col-span-3 text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <p class="mt-4 text-gray-600">Loading pricing...</p>
+        </div>
+      </div>
+
+      <!-- Features Comparison -->
+      <div class="max-w-6xl mx-auto mt-20">
+        <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">
+          Compare Features
+        </h2>
+        
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Feature</th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Free</th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Pro</th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Enterprise</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 text-sm text-gray-900">Monthly Requests</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">1,000</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">50,000</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">1,000,000</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">Rate Limit</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">1/sec</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">10/sec</td>
+                <td class="px-6 py-4 text-sm text-center text-gray-600">100/sec</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 text-sm text-gray-900">Lease Analysis</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">Amortization Schedules</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 text-sm text-gray-900">EBITDA Forecasting</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">Email Support</td>
+                <td class="px-6 py-4 text-sm text-center">-</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 text-sm text-gray-900">Priority Support</td>
+                <td class="px-6 py-4 text-sm text-center">-</td>
+                <td class="px-6 py-4 text-sm text-center">-</td>
+                <td class="px-6 py-4 text-sm text-center">✅</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-900">SLA Guarantee</td>
+                <td class="px-6 py-4 text-sm text-center">-</td>
+                <td class="px-6 py-4 text-sm text-center">-</td>
+                <td class="px-6 py-4 text-sm text-center">99.9%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="max-w-3xl mx-auto mt-20">
+        <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">
+          Frequently Asked Questions
+        </h2>
+        
+        <div class="space-y-6">
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+              What happens if I exceed my quota?
+              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-4 text-gray-600">
+              Once you reach your monthly quota, additional requests will be charged at the overage rate for your tier. 
+              Pro tier: $0.001/request, Enterprise: $0.0001/request. You can upgrade anytime to increase your quota.
+            </p>
+          </details>
+
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+              Can I cancel my subscription anytime?
+              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-4 text-gray-600">
+              Yes! You can cancel your subscription anytime from the billing portal. When you cancel, you'll be 
+              downgraded to the Free tier at the end of your billing period. Your API key remains active.
+            </p>
+          </details>
+
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+              How do I upgrade or downgrade?
+              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-4 text-gray-600">
+              You can upgrade or downgrade at any time through the billing portal. Changes take effect immediately, 
+              and billing is prorated. Access the billing portal from your dashboard.
+            </p>
+          </details>
+
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+              Do you offer custom enterprise plans?
+              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-4 text-gray-600">
+              Yes! For custom quotas, dedicated support, or special requirements, contact us at 
+              <a href="mailto:enterprise@fanalyx.com" class="text-indigo-600 hover:text-indigo-700">enterprise@fanalyx.com</a> 
+              to discuss a custom plan.
+            </p>
+          </details>
+
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+              What payment methods do you accept?
+              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-4 text-gray-600">
+              We accept all major credit cards (Visa, Mastercard, Amex, Discover) through our secure payment 
+              processor, Stripe. Enterprise customers can also pay via invoice.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="text-center mt-20">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          Ready to get started?
+        </h2>
+        <p class="text-gray-600 mb-8">
+          Create your free API key and start building today.
+        </p>
+        <a 
+          href="/developers" 
+          class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          Get Your Free API Key
+        </a>
+      </div>
+    </div>
+  </div>
+  <ClientScriptLoader client:load slot="pageScripts" name="pricing" />
+</Layout>
+
+<style>
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

@@ -12,14 +12,16 @@ export interface Props {
   canonical?: string;
   image?: string;
   showNav?: boolean;
+  keywords?: string;
 }
 
-const { title, description = "Financial Analysis Tooling", canonical, image, showNav = true } = Astro.props as Props;
+const { title, description = "Fanalyx - Professional Financial Analysis Tools", canonical, image, showNav = true, keywords } = Astro.props as Props;
 
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Models', href: '/models' },
   { label: 'Analysis', href: '/analysis' },
+  { label: 'Developers', href: '/developers' },
   { label: 'Status', href: '/status' },
 ];
 ---
@@ -33,7 +35,15 @@ const navLinks = [
   <link rel="icon" type="image/png" href={fanalyxLogo} sizes="512x512" />
   <link rel="apple-touch-icon" href={fanalyxLogo} />
     <meta name="generator" content={Astro.generator} />
-    <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} />
+    <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} keywords={keywords} />
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+     crossorigin="anonymous"></script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+     crossorigin="anonymous"></script>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
@@ -79,7 +89,7 @@ const navLinks = [
     <!-- Header / Navigation -->
     {showNav && (
       <div id="site-header">
-  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Financial Studio" />
+  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Fanalyx" />
       </div>
     )}
 

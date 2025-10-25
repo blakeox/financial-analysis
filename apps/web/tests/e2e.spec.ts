@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
 test('homepage loads and displays site title', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/Financial Analysis/i);
-  await expect(page.locator('#site-nav')).toContainText(/Financial Studio/i);
+  await expect(page.locator('#site-nav')).toContainText(/Fanalyx/i);
 });
 
 // Navigation test

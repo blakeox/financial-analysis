@@ -18,4 +18,10 @@ export interface Env {
   ALLOWED_UPLOAD_MIME_PREFIXES?: string;
   ANALYSIS_CACHE_TTL_SECONDS?: string;
   ANALYSIS_MAX_JSON_BYTES?: string;
+  // Stripe integration
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_PRICE_PRO?: string;
+  STRIPE_PRICE_ENTERPRISE?: string;
+  BASE_URL?: string;
 }

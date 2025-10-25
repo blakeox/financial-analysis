@@ -8,6 +8,8 @@ Advanced financial analysis tooling with LLM-powered insights, built with modern
 
 - **Lease Analysis**: Comprehensive lease agreement analysis with amortization schedules
 - **Financial Modeling**: Deterministic financial calculations with precision math
+- **API Monetization**: Full Stripe integration for subscription management and usage-based billing
+- **Authentication**: Secure API key system with tier-based quotas and rate limiting
 - **LLM Integration**: MCP (Model Context Protocol) server for AI-powered insights
 - **Cloudflare Stack**: Workers API, D1 database, R2 storage, KV sessions
 - **Modern UI**: Astro frontend with Tailwind CSS and React components

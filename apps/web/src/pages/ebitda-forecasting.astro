@@ -3,9 +3,50 @@ import Layout from '../layouts/Layout.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
 import AdSense from '../components/AdSense.astro';
 // ChatPanel is now in Layout.astro
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is EBITDA and why is it important?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) measures a company's operating profitability. It's crucial for comparing companies, securing financing, and valuing businesses. Investors typically value service companies at 3-6x EBITDA."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I forecast EBITDA for my service business?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Start with revenue projections based on billable hours and rates. Subtract cost of goods sold and operating expenses (salaries, rent, marketing). Our calculator helps model multiple years with growth assumptions, employee additions, and expense scaling."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a good EBITDA margin for a service business?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Service businesses typically target 15-25% EBITDA margins. Professional services (consulting, legal, accounting) often achieve 20-30%, while labor-intensive services may see 10-20%. Use our forecasting tool to set and track margin targets as you grow."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I improve my EBITDA?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Increase revenue through pricing or volume, reduce direct labor costs through efficiency, negotiate better vendor pricing, automate processes, and maintain disciplined expense management. Our scenario planning tool helps model the impact of different improvement strategies."
+      }
+    }
+  ]
+};
 ---
 
 <Layout title="EBITDA Forecasting" description="Generate EBITDA forecasts for service industry scenario planning with employee and expense modeling" canonical={Astro.url.href}>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
     <script type="application/ld+json" is:inline>

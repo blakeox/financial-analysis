@@ -1,9 +1,174 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const keywords = "personal finance, mortgage calculator, retirement planning, auto loan calculator, debt payoff, savings goal calculator, student loan calculator, budget planner, amortization calculator";
+const enhancedDescription = "Free personal finance calculators and planning tools for mortgages, retirement, auto loans, debt payoff, savings goals, student loans, and budgeting. Professional-grade financial modeling made simple.";
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}${Astro.url.pathname}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Personal Finance Models",
+  "description": enhancedDescription,
+  "url": currentUrl,
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": baseUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Models",
+        "item": `${baseUrl}/models`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Personal Finance",
+        "item": currentUrl
+      }
+    ]
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Mortgage Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Calculate monthly mortgage payments with principal, interest, taxes, and insurance"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Retirement Planning Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Plan your retirement savings with compound growth projections"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Auto Loan Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Vehicle loan analysis with trade-in value and sales tax calculations"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Debt Payoff Calculator",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Compare debt payoff strategies to eliminate debt faster"
+      }
+    ]
+  }
+};
+
+// FAQ Schema for featured snippets
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Are these personal finance calculators free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, all our personal finance calculators are completely free to use. No registration or payment required. Access mortgage calculators, retirement planning tools, auto loan analysis, debt payoff strategies, savings goal planning, student loan calculators, and budget planners at no cost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate are the mortgage and loan calculators?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our calculators use industry-standard financial formulas and are highly accurate for estimation purposes. They include principal, interest, taxes, insurance (PITI), and closing costs. However, final loan terms should always be confirmed with your lender as rates and fees may vary."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between the debt avalanche and snowball methods?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The debt avalanche method pays off debts with the highest interest rates first, saving you the most money. The debt snowball method pays off smallest debts first, providing psychological wins. Our debt payoff calculator compares both strategies to help you choose the best approach for your situation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use these calculators for retirement planning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, our retirement calculator helps you plan for retirement by projecting savings growth with compound interest, employer matching, and inflation adjustments. Enter your current age, retirement age, current savings, and monthly contributions to see if you're on track."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to create an account to save my calculations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No account is required for basic use. Your calculations are saved locally in your browser. For advanced features like saving multiple scenarios and accessing them across devices, you can optionally create a free account."
+      }
+    }
+  ]
+};
 ---
 
-<Layout title="Personal Finance Models" description="Personal finance tools including mortgages, retirement planning, and investment calculators" canonical={Astro.url.href}>
+<Layout title="Personal Finance Models | Fanalyx" description={enhancedDescription} canonical={Astro.url.href} keywords={keywords}>
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <!-- FAQ Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
+      <div class="container mx-auto px-4 py-3">
+        <ol class="flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
+              <span itemprop="name">Home</span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </li>
+          <li class="text-gray-400 dark:text-gray-600">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/models" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
+              <span itemprop="name">Models</span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </li>
+          <li class="text-gray-400 dark:text-gray-600">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="text-gray-900 dark:text-white font-medium" itemprop="name">Personal Finance</span>
+            <meta itemprop="position" content="3" />
+          </li>
+        </ol>
+      </div>
+    </nav>
+
     <!-- Main Content Container with Chat Panel Integration -->
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-16">
@@ -117,27 +282,15 @@ import Layout from '../../layouts/Layout.astro';
                   Early payoff scenarios
                 </div>
               </div>
-              <div class="flex space-x-2">
-                <a
-                  href="/auto-loan"
-                  onclick="event.stopPropagation();"
-                  class="inline-flex items-center flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors duration-200 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
-                >
-                  Open Calculator
-                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </a>
-                <button
-                  onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Auto Loan Calculator', { tool: 'analyze_auto_loan' }); } }"
-                  class="inline-flex items-center flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-md transition-colors duration-200 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
-                >
-                  Use via Chat
-                  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </button>
-              </div>
+              <a
+                href="/auto-loan"
+                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
+              >
+                Open Calculator
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -177,15 +330,15 @@ import Layout from '../../layouts/Layout.astro';
                   Month-by-month payment schedule
                 </div>
               </div>
-              <button
-                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Debt Payoff Optimizer', { tool: 'analyze_debt_payoff' }); } }"
-                class="inline-flex items-center px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-500"
+              <a
+                href="/debt-payoff"
+                class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-500"
               >
-                Use via Chat
+                Open Optimizer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -225,15 +378,15 @@ import Layout from '../../layouts/Layout.astro';
                   Alternative scenarios with different contributions
                 </div>
               </div>
-              <button
-                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Savings Goal Planner', { tool: 'analyze_savings_goal' }); } }"
-                class="inline-flex items-center px-4 py-2 bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500"
+              <a
+                href="/savings-goal"
+                class="inline-flex items-center px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500"
               >
-                Use via Chat
+                Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -273,15 +426,15 @@ import Layout from '../../layouts/Layout.astro';
                   Refinancing analysis with closing costs
                 </div>
               </div>
-              <button
-                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Student Loan Analyzer', { tool: 'analyze_student_loans' }); } }"
-                class="inline-flex items-center px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+              <a
+                href="/student-loans"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
               >
-                Use via Chat
+                Open Analyzer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -321,15 +474,15 @@ import Layout from '../../layouts/Layout.astro';
                   Tax diversification and withdrawal strategies
                 </div>
               </div>
-              <button
-                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Retirement Calculator', { tool: 'analyze_retirement_savings' }); } }"
-                class="inline-flex items-center px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-pink-500"
+              <a
+                href="/retirement"
+                class="inline-flex items-center px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-pink-500"
               >
-                Use via Chat
+                Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -369,15 +522,15 @@ import Layout from '../../layouts/Layout.astro';
                   Optimized budget with adjustment recommendations
                 </div>
               </div>
-              <button
-                onclick="event.stopPropagation(); if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Budget Optimizer', { tool: 'optimize_budget' }); } }"
-                class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
+              <a
+                href="/budget"
+                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
               >
-                Use via Chat
+                Open Optimizer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 

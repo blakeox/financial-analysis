@@ -116,12 +116,20 @@ bucket_name = "financial-analysis-documents"
 [[env.production.durable_objects.bindings]]
 name = "SESSION_DO"
 class_name = "SessionDO"
-script_name = "fanalyx-api"
+script_name = "fanalyx-api-production"
 
 [[env.production.analytics_engine_datasets]]
 binding = "ANALYTICS"
 
+# Stripe configuration (secrets - set via: wrangler secret put STRIPE_SECRET_KEY --env production)
+# STRIPE_SECRET_KEY = "sk_live_..."
+# STRIPE_WEBHOOK_SECRET = "whsec_..."
+# Optional: Override default price IDs if needed
+# STRIPE_PRICE_PRO = "price_..."
+# STRIPE_PRICE_ENTERPRISE = "price_..."
+# BASE_URL = "https://fanalyx.com"
+
 # Durable Object migrations (required)
 [[migrations]]
 tag = "v1"
-new_classes = ["SessionDO"]
+new_sqlite_classes = ["SessionDO"]
