@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -41,6 +42,7 @@ const faqSchema = {
     }
   ]
 };
+
 ---
 
 <Layout 
@@ -82,16 +84,31 @@ const faqSchema = {
                   </button>
                 </div>
                 <div id="income-container" class="space-y-3">
-                  <div class="income-item grid grid-cols-3 gap-2">
-                    <input type="text" name="income-name-0" placeholder="Source" value="Salary" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-                    <input type="number" name="income-amount-0" placeholder="Amount" value="5000" min="0" step="100" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-                    <select name="income-type-0" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+                  <div class="income-item grid grid-cols-3 gap-3">
+                    <div>
+                      <label for="income-name-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Income Source
+                      </label>
+                      <input id="income-name-0" type="text" name="income-name-0" placeholder="Source" value="Salary" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                      <label for="income-amount-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Monthly Amount
+                      </label>
+                      <input id="income-amount-0" type="number" name="income-amount-0" placeholder="Amount" value="5000" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                      <label for="income-type-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Income Type
+                      </label>
+                      <select id="income-type-0" name="income-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
                       <option value="salary">Salary</option>
                       <option value="business">Business</option>
                       <option value="investment">Investment</option>
                       <option value="rental">Rental</option>
                       <option value="other">Other</option>
-                    </select>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -105,10 +122,24 @@ const faqSchema = {
                   </button>
                 </div>
                 <div id="expenses-container" class="space-y-3">
-                  <div class="expense-item grid grid-cols-4 gap-2">
-                    <input type="text" name="expense-name-0" placeholder="Category" value="Rent" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-                    <input type="number" name="expense-amount-0" placeholder="Amount" value="1500" min="0" step="50" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-                    <select name="expense-type-0" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+                  <div class="expense-item grid grid-cols-4 gap-3">
+                    <div>
+                      <label for="expense-name-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Expense Category
+                      </label>
+                      <input id="expense-name-0" type="text" name="expense-name-0" placeholder="Category" value="Rent" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                      <label for="expense-amount-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Monthly Amount
+                      </label>
+                      <input id="expense-amount-0" type="number" name="expense-amount-0" placeholder="Amount" value="1500" min="0" step="50" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                      <label for="expense-type-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Expense Type
+                      </label>
+                      <select id="expense-type-0" name="expense-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
                       <option value="housing">Housing</option>
                       <option value="food">Food</option>
                       <option value="transportation">Transportation</option>
@@ -116,10 +147,16 @@ const faqSchema = {
                       <option value="insurance">Insurance</option>
                       <option value="entertainment">Entertainment</option>
                       <option value="other">Other</option>
-                    </select>
-                    <div class="flex items-center gap-1 text-xs">
-                      <input type="checkbox" name="expense-essential-0" checked class="rounded" />
-                      <span class="text-gray-600 dark:text-gray-400">Essential</span>
+                      </select>
+                    </div>
+                    <div class="flex flex-col justify-end">
+                      <label for="expense-essential-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                        Essential Expense
+                      </label>
+                      <div class="flex items-center gap-2 text-sm">
+                        <input id="expense-essential-0" type="checkbox" name="expense-essential-0" checked class="rounded" />
+                        <span class="text-gray-600 dark:text-gray-400">Yes</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -212,7 +249,8 @@ const faqSchema = {
 
               <!-- Chat Button -->
               <button
-                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Budget Optimizer', { tool: 'analyze_budget' }); } }"
+                id="budget-chat-button"
+                type="button"
                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,141 +264,8 @@ const faqSchema = {
       </div>
     </div>
   </div>
-</Layout>
 
-<script>
-  import { storeAnalysisResult } from '../scripts/analysis-results';
-  import { BudgetEngine } from '@financial-analysis/analysis';
+  <AdSense slot="7890123456" format="horizontal" className="container mx-auto px-4 mb-8" />
 
-  const form = document.getElementById('budget-form') as HTMLFormElement;
-  const addIncomeBtn = document.getElementById('add-income-btn');
-  const addExpenseBtn = document.getElementById('add-expense-btn');
-  const incomeContainer = document.getElementById('income-container');
-  const expensesContainer = document.getElementById('expenses-container');
-  let incomeCount = 1;
-  let expenseCount = 1;
-
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
-  addIncomeBtn?.addEventListener('click', () => {
-    const html = `
-      <div class="income-item grid grid-cols-3 gap-2">
-        <input type="text" name="income-name-${incomeCount}" placeholder="Source" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        <input type="number" name="income-amount-${incomeCount}" placeholder="Amount" min="0" step="100" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        <select name="income-type-${incomeCount}" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="salary">Salary</option><option value="business">Business</option><option value="investment">Investment</option><option value="rental">Rental</option><option value="other">Other</option></select>
-      </div>
-    `;
-    incomeContainer?.insertAdjacentHTML('beforeend', html);
-    incomeCount++;
-  });
-
-  addExpenseBtn?.addEventListener('click', () => {
-    const html = `
-      <div class="expense-item grid grid-cols-4 gap-2">
-        <input type="text" name="expense-name-${expenseCount}" placeholder="Category" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        <input type="number" name="expense-amount-${expenseCount}" placeholder="Amount" min="0" step="50" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        <select name="expense-type-${expenseCount}" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="housing">Housing</option><option value="food">Food</option><option value="transportation">Transportation</option><option value="utilities">Utilities</option><option value="insurance">Insurance</option><option value="entertainment">Entertainment</option><option value="other">Other</option></select>
-        <div class="flex items-center gap-1 text-xs"><input type="checkbox" name="expense-essential-${expenseCount}" checked class="rounded" /><span class="text-gray-600 dark:text-gray-400">Essential</span></div>
-      </div>
-    `;
-    expensesContainer?.insertAdjacentHTML('beforeend', html);
-    expenseCount++;
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
-
-    try {
-      const formData = new FormData(form);
-      const savingsGoalMonthly = parseFloat(formData.get('savingsGoalMonthly') as string) || 0;
-      const optimizationGoal = formData.get('optimizationGoal') as 'maximize_savings' | 'reduce_debt' | 'balance' | 'reduce_discretionary';
-
-      const income = [];
-      for (let i = 0; i < incomeCount; i++) {
-        const name = formData.get(`income-name-${i}`) as string;
-        const amount = parseFloat(formData.get(`income-amount-${i}`) as string);
-        const type = formData.get(`income-type-${i}`) as 'salary' | 'business' | 'investment' | 'rental' | 'other';
-        
-        if (name && !isNaN(amount)) {
-          income.push({ name, monthlyAmount: amount, type: type || 'salary', recurring: true });
-        }
-      }
-
-      const expenses = [];
-      for (let i = 0; i < expenseCount; i++) {
-        const name = formData.get(`expense-name-${i}`) as string;
-        const amount = parseFloat(formData.get(`expense-amount-${i}`) as string);
-        const type = formData.get(`expense-type-${i}`) as string;
-        const isEssential = formData.get(`expense-essential-${i}`) === 'on';
-        
-        if (name && !isNaN(amount)) {
-          expenses.push({ 
-            name, 
-            monthlyAmount: amount, 
-            type: (type || 'other') as any,
-            isFixed: false,
-            isEssential 
-          });
-        }
-      }
-
-      if (income.length === 0) throw new Error('Please add at least one income source');
-      if (expenses.length === 0) throw new Error('Please add at least one expense');
-
-      const input = { income, expenses, debts: [], savingsGoalMonthly, optimizationGoal };
-      const result = BudgetEngine.analyze(input);
-      
-      storeAnalysisResult('analyze_budget', result);
-      displayResults(result);
-
-    } catch (err) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
-    } finally {
-      document.getElementById('loading')?.classList.add('hidden');
-    }
-  });
-
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
-
-  function displayResults(result: any) {
-    document.getElementById('total-income')!.textContent = result.summary?.totalIncome || 'N/A';
-    document.getElementById('total-expenses')!.textContent = result.summary?.totalExpenses || 'N/A';
-    document.getElementById('net-income')!.textContent = result.summary?.netIncome || 'N/A';
-    document.getElementById('savings-rate')!.textContent = result.summary?.savingsRate || 'N/A';
-
-    const ruleEl = document.getElementById('rule-analysis');
-    if (ruleEl && result.rule503020) {
-      ruleEl.innerHTML = `
-        <p><strong>Needs (50%):</strong> ${result.rule503020.actualNeeds || 'N/A'} ${result.rule503020.needsStatus || ''}</p>
-        <p><strong>Wants (30%):</strong> ${result.rule503020.actualWants || 'N/A'} ${result.rule503020.wantsStatus || ''}</p>
-        <p><strong>Savings (20%):</strong> ${result.rule503020.actualSavings || 'N/A'} ${result.rule503020.savingsStatus || ''}</p>
-      `;
-    }
-
-    const recEl = document.getElementById('recommendations');
-    if (recEl && result.recommendations) {
-      recEl.innerHTML = result.recommendations.map((rec: string) => `<li class="text-gray-700 dark:text-gray-300">${rec}</li>`).join('');
-    }
-
-    document.getElementById('results')?.classList.remove('hidden');
-  }
-</script>
-
-<!-- AdSense: Bottom of page ad -->
-<AdSense slot="7890123456" format="horizontal" className="container mx-auto px-4 mb-8" />
+  <ClientScriptLoader client:load slot="pageScripts" name="budget" />
 </Layout>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -124,19 +125,34 @@ const faqSchema = {
                   <div class="loan-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div class="grid grid-cols-2 gap-3">
                       <div class="col-span-2">
-                        <input type="text" name="loan-name-0" placeholder="Loan name" value="Federal Unsubsidized" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                        <label for="loan-name-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Loan Name
+                        </label>
+                        <input id="loan-name-0" type="text" name="loan-name-0" placeholder="Loan name" value="Federal Unsubsidized" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
                       </div>
                       <div>
-                        <input type="number" name="loan-balance-0" placeholder="Balance" value="25000" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                        <label for="loan-balance-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Balance ($)
+                        </label>
+                        <input id="loan-balance-0" type="number" name="loan-balance-0" placeholder="Balance" value="25000" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
                       </div>
                       <div>
-                        <input type="number" name="loan-rate-0" placeholder="APR %" value="5.5" min="0" max="100" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                        <label for="loan-rate-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Interest Rate (% APR)
+                        </label>
+                        <input id="loan-rate-0" type="number" name="loan-rate-0" placeholder="APR %" value="5.5" min="0" max="100" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
                       </div>
                       <div>
-                        <input type="number" name="loan-minimum-0" placeholder="Min payment" value="275" min="0" step="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                        <label for="loan-minimum-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Minimum Payment ($)
+                        </label>
+                        <input id="loan-minimum-0" type="number" name="loan-minimum-0" placeholder="Min payment" value="275" min="0" step="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
                       </div>
                       <div>
-                        <select name="loan-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+                        <label for="loan-type-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Loan Type
+                        </label>
+                        <select id="loan-type-0" name="loan-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
                           <option value="federal_unsubsidized">Federal Unsubsidized</option>
                           <option value="federal_subsidized">Federal Subsidized</option>
                           <option value="private">Private</option>
@@ -202,7 +218,8 @@ const faqSchema = {
 
               <!-- Chat Button -->
               <button
-                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Student Loan Analyzer', { tool: 'analyze_student_loans' }); } }"
+                id="student-loans-chat-button"
+                type="button"
                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,120 +233,8 @@ const faqSchema = {
       </div>
     </div>
   </div>
-</Layout>
 
-<script>
-  import { storeAnalysisResult } from '../scripts/analysis-results';
-  import { StudentLoanEngine } from '@financial-analysis/analysis';
+  <AdSense slot="9012345678" format="horizontal" className="container mx-auto px-4 mb-8" />
 
-  const form = document.getElementById('loan-form') as HTMLFormElement;
-  const addLoanBtn = document.getElementById('add-loan-btn');
-  const loansContainer = document.getElementById('loans-container');
-  let loanCount = 1;
-
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  });
-
-  addLoanBtn?.addEventListener('click', () => {
-    const loanHtml = `
-      <div class="loan-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-2"><input type="text" name="loan-name-${loanCount}" placeholder="Loan name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="loan-balance-${loanCount}" placeholder="Balance" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="loan-rate-${loanCount}" placeholder="APR %" min="0" max="100" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="loan-minimum-${loanCount}" placeholder="Min payment" min="0" step="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><select name="loan-type-${loanCount}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="federal_unsubsidized">Federal Unsubsidized</option><option value="federal_subsidized">Federal Subsidized</option><option value="private">Private</option></select></div>
-        </div>
-      </div>
-    `;
-    loansContainer?.insertAdjacentHTML('beforeend', loanHtml);
-    loanCount++;
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
-
-    try {
-      const formData = new FormData(form);
-      const extraMonthlyPayment = parseFloat(formData.get('extraMonthlyPayment') as string) || 0;
-      const paymentStrategy = formData.get('paymentStrategy') as 'avalanche' | 'snowball' | 'standard';
-
-      const loans = [];
-      for (let i = 0; i < loanCount; i++) {
-        const name = formData.get(`loan-name-${i}`) as string;
-        const balance = parseFloat(formData.get(`loan-balance-${i}`) as string);
-        const rate = parseFloat(formData.get(`loan-rate-${i}`) as string);
-        const minimum = parseFloat(formData.get(`loan-minimum-${i}`) as string);
-        const loanType = formData.get(`loan-type-${i}`) as 'federal_subsidized' | 'federal_unsubsidized' | 'private';
-
-        if (name && !isNaN(balance) && !isNaN(rate) && !isNaN(minimum)) {
-          loans.push({
-            name,
-            balance,
-            interestRate: rate / 100,
-            minimumPayment: minimum,
-            loanType: loanType || 'federal_unsubsidized',
-          });
-        }
-      }
-
-      if (loans.length === 0) {
-        throw new Error('Please add at least one loan');
-      }
-
-      const input = { 
-        loans, 
-        extraMonthlyPayment, 
-        paymentStrategy,
-        forgivenessEligible: false
-      };
-      const result = StudentLoanEngine.analyze(input);
-      
-      storeAnalysisResult('analyze_student_loans', result);
-      displayResults(result);
-
-    } catch (err) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
-    } finally {
-      document.getElementById('loading')?.classList.add('hidden');
-    }
-  });
-
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
-
-  function displayResults(result: any) {
-    document.getElementById('total-balance')!.textContent = result.summary.totalBalance;
-    document.getElementById('payoff-time')!.textContent = `${result.summary.payoffMonths} months (${(result.summary.payoffMonths/12).toFixed(1)} years)`;
-    document.getElementById('total-interest')!.textContent = result.summary.totalInterest;
-    document.getElementById('monthly-payment')!.textContent = result.summary.totalMonthlyPayment;
-
-    const orderEl = document.getElementById('payoff-order');
-    if (orderEl && result.payoffSchedule) {
-      orderEl.innerHTML = result.payoffSchedule.map((loan: any, idx: number) => `
-        <div class="flex justify-between items-center text-sm">
-          <span class="font-medium">${idx + 1}. ${loan.loanName || loan.name}</span>
-          <span class="text-gray-600 dark:text-gray-400">${loan.balance || loan.remainingBalance}</span>
-        </div>
-      `).join('');
-    }
-
-    document.getElementById('results')?.classList.remove('hidden');
-  }
-</script>
-
-<!-- AdSense: Bottom of page ad -->
-<AdSense slot="9012345678" format="horizontal" className="container mx-auto px-4 mb-8" />
+  <ClientScriptLoader client:load slot="pageScripts" name="studentLoans" />
 </Layout>

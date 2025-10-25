@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -299,6 +300,9 @@ const faqSchema = {
                         GAP Insurance
                       </label>
                       <div class="mt-2">
+                        <label for="gapInsuranceCost" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          GAP Insurance Cost
+                        </label>
                         <div class="relative">
                           <span class="absolute left-3 top-2 text-gray-500">$</span>
                           <input
@@ -328,6 +332,9 @@ const faqSchema = {
                         Extended Warranty
                       </label>
                       <div class="mt-2">
+                        <label for="extendedWarrantyCost" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Extended Warranty Cost
+                        </label>
                         <div class="relative">
                           <span class="absolute left-3 top-2 text-gray-500">$</span>
                           <input
@@ -476,166 +483,7 @@ const faqSchema = {
     </div>
   </div>
 
-  <script>
-    import { storeAnalysisResult } from '../scripts/analysis-results';
-    
-    // @ts-ignore - Astro env vars
-    const API_ORIGIN = import.meta.env.PUBLIC_API_ORIGIN || 'http://127.0.0.1:8787';
-
-    // Enable/disable optional product inputs
-    document.getElementById('includeGapInsurance')?.addEventListener('change', (e) => {
-      const input = document.getElementById('gapInsuranceCost') as HTMLInputElement;
-      if (input) input.disabled = !(e.target as HTMLInputElement).checked;
-    });
-
-    document.getElementById('includeExtendedWarranty')?.addEventListener('change', (e) => {
-      const input = document.getElementById('extendedWarrantyCost') as HTMLInputElement;
-      if (input) input.disabled = !(e.target as HTMLInputElement).checked;
-    });
-
-    // Form submission
-    document.getElementById('auto-loan-form')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const form = e.target as HTMLFormElement;
-      const formData = new FormData(form);
-      
-      // Show loading
-      document.getElementById('loading')?.classList.remove('hidden');
-      document.getElementById('results')?.classList.add('hidden');
-      document.getElementById('error')?.classList.add('hidden');
-
-      try {
-        // Prepare request body
-        const requestBody = {
-          vehiclePrice: parseFloat(formData.get('vehiclePrice') as string),
-          downPayment: parseFloat(formData.get('downPayment') as string) || 0,
-          tradeInValue: parseFloat(formData.get('tradeInValue') as string) || 0,
-          tradeInOwed: parseFloat(formData.get('tradeInOwed') as string) || 0,
-          salesTaxRate: parseFloat(formData.get('salesTaxRate') as string) / 100,
-          registrationFees: parseFloat(formData.get('registrationFees') as string) || 0,
-          dealerFees: parseFloat(formData.get('dealerFees') as string) || 0,
-          interestRate: parseFloat(formData.get('interestRate') as string) / 100,
-          loanTermMonths: parseInt(formData.get('loanTermMonths') as string),
-          manufacturerRebate: parseFloat(formData.get('manufacturerRebate') as string) || 0,
-          includeGapInsurance: formData.has('includeGapInsurance'),
-          gapInsuranceCost: formData.has('includeGapInsurance') 
-            ? parseFloat(formData.get('gapInsuranceCost') as string) || 0
-            : 0,
-          includeExtendedWarranty: formData.has('includeExtendedWarranty'),
-          extendedWarrantyCost: formData.has('includeExtendedWarranty')
-            ? parseFloat(formData.get('extendedWarrantyCost') as string) || 0
-            : 0,
-        };
-
-        const response = await fetch(`${API_ORIGIN}/v1/mcp`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'tools/call',
-            params: {
-              name: 'analyze_auto_loan',
-              arguments: requestBody,
-            },
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`API error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(data.error.message || 'Calculation failed');
-        }
-
-        const result = data.result;
-        
-        // Store result for chat panel
-        storeAnalysisResult('analyze_auto_loan', result);
-        
-        displayResults(result, requestBody.loanTermMonths);
-
-      } catch (error) {
-        console.error('Error:', error);
-        const errorEl = document.getElementById('error');
-        const errorMsg = document.getElementById('error-message');
-        if (errorEl && errorMsg) {
-          errorMsg.textContent = error instanceof Error ? error.message : 'An error occurred';
-          errorEl.classList.remove('hidden');
-        }
-      } finally {
-        document.getElementById('loading')?.classList.add('hidden');
-      }
-    });
-
-    function displayResults(result: any, termMonths: number) {
-      // Monthly Payment
-      const monthlyPaymentEl = document.getElementById('monthly-payment');
-      if (monthlyPaymentEl) {
-        monthlyPaymentEl.textContent = `$${parseFloat(result.summary.monthlyPayment).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      }
-
-      const termDisplayEl = document.getElementById('term-display');
-      if (termDisplayEl) {
-        termDisplayEl.textContent = termMonths.toString();
-      }
-
-      // Cost Breakdown
-      document.getElementById('breakdown-vehicle-price')!.textContent = `$${parseFloat(result.costBreakdown.vehiclePrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      document.getElementById('breakdown-down-payment')!.textContent = `$${parseFloat(result.costBreakdown.downPayment).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      
-      // Show/hide trade-in row
-      const netTradeIn = parseFloat(result.costBreakdown.netTradeIn);
-      const tradeInRow = document.getElementById('trade-in-row');
-      if (tradeInRow) {
-        if (netTradeIn !== 0) {
-          tradeInRow.style.display = 'flex';
-          document.getElementById('breakdown-trade-in')!.textContent = `$${Math.abs(netTradeIn).toLocaleString('en-US', { maximumFractionDigits: 0 })}${netTradeIn < 0 ? ' (negative equity)' : ''}`;
-        } else {
-          tradeInRow.style.display = 'none';
-        }
-      }
-      
-      document.getElementById('breakdown-sales-tax')!.textContent = `$${parseFloat(result.costBreakdown.salesTax).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      
-      const totalFees = parseFloat(result.costBreakdown.registrationFees) + 
-                       parseFloat(result.costBreakdown.dealerFees) +
-                       parseFloat(result.costBreakdown.gapInsurance) +
-                       parseFloat(result.costBreakdown.extendedWarranty);
-      document.getElementById('breakdown-fees')!.textContent = `$${totalFees.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      document.getElementById('breakdown-financed')!.textContent = `$${parseFloat(result.costBreakdown.amountFinanced).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-
-      // Loan Summary
-      document.getElementById('summary-total-payments')!.textContent = `$${parseFloat(result.summary.totalPayments).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      document.getElementById('summary-total-interest')!.textContent = `$${parseFloat(result.summary.totalInterest).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      document.getElementById('summary-total-cost')!.textContent = `$${parseFloat(result.summary.totalCost).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-      document.getElementById('summary-apr')!.textContent = `${(parseFloat(result.summary.aprEffective) * 100).toFixed(2)}%`;
-      document.getElementById('summary-ltv')!.textContent = `${parseFloat(result.summary.loanToValue).toFixed(2)}%`;
-      document.getElementById('summary-cost-per-mile')!.textContent = `$${parseFloat(result.summary.costPerMile).toFixed(2)}`;
-
-      // Early Payoff Scenarios
-      const tableBody = document.getElementById('early-payoff-table');
-      if (tableBody && result.earlyPayoffScenarios) {
-        tableBody.innerHTML = result.earlyPayoffScenarios.map((scenario: any) => `
-          <tr>
-            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${scenario.monthsPaid / 12} year${scenario.monthsPaid / 12 !== 1 ? 's' : ''}</td>
-            <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-white">$${parseFloat(scenario.remainingBalance).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
-            <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">$${parseFloat(scenario.interestSaved).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
-          </tr>
-        `).join('');
-      }
-
-      // Show results
-      document.getElementById('results')?.classList.remove('hidden');
-    }
-  </script>
-
-  <!-- AdSense: Bottom of page ad -->
   <AdSense slot="5678901234" format="horizontal" className="container mx-auto px-4 mb-8" />
+
+  <ClientScriptLoader client:load slot="pageScripts" name="autoLoan" />
 </Layout>

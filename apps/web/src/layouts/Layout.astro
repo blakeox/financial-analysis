@@ -4,6 +4,7 @@ import SEO from '../components/SEO.astro';
 import ChatPanel from '../components/ChatPanel.astro';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
+import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 
 export interface Props {
   title: string;
@@ -31,9 +32,14 @@ const navLinks = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href={fanalyxLogo} sizes="512x512" />
+  <link rel="apple-touch-icon" href={fanalyxLogo} />
     <meta name="generator" content={Astro.generator} />
     <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} keywords={keywords} />
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+     crossorigin="anonymous"></script>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
@@ -92,5 +98,7 @@ const navLinks = [
 
     <!-- Chat Panel -->
     <ChatPanel />
+
+    <slot name="pageScripts" />
   </body>
 </html>

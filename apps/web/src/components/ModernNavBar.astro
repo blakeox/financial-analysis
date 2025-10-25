@@ -6,6 +6,7 @@
 // - Mobile hamburger with slide-down panel
 // - Active link highlighting via underline
 // - Accessible semantics & aria attributes
+import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 export interface NavLink { href: string; label: string }
 export interface Props {
   links: NavLink[];
@@ -19,12 +20,14 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
   <div class="max-w-6xl mx-auto h-16 px-3 sm:px-5 lg:px-6 flex items-center justify-between nav-inner relative">
     <!-- Brand -->
   <a href="/" class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 rounded-md relative z-10" aria-label="Home">
-      <!-- Coffee Logo -->
-      <span class="brand-mark inline-flex items-center justify-center w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow ring-2 ring-amber-400/40 dark:ring-amber-500/40">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" class="w-5 h-5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h13v6a4 4 0 01-4 4H7a4 4 0 01-4-4v-6zm13 0h2a3 3 0 010 6h-2M8 6h.01M12 6h.01M16 6h.01" />
-        </svg>
-      </span>
+      <img
+        src={fanalyxLogo}
+        alt="Fanalyx logo"
+        width="36"
+        height="36"
+        class="brand-mark inline-flex h-9 w-9 rounded-md object-cover shadow ring-2 ring-cyan-400/50 dark:ring-cyan-500/50"
+        decoding="async"
+      />
       <span class="font-semibold tracking-tight text-gray-900 dark:text-white text-sm sm:text-base select-none">{brand}</span>
     </a>
 
@@ -121,7 +124,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
 </nav>
 
 <!-- Search Overlay -->
-<div id="search-overlay" data-testid="nav-search-overlay" class="fixed inset-0 z-[70] hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60" aria-modal="true" role="dialog" aria-label="Site search" data-search-overlay>
+<div id="search-overlay" data-testid="nav-search-overlay" class="fixed inset-0 z-70 hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60" aria-modal="true" role="dialog" aria-label="Site search" data-search-overlay>
   <div class="w-full max-w-xl mx-auto px-4">
     <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
       <div class="flex items-center px-4 h-14 gap-3">

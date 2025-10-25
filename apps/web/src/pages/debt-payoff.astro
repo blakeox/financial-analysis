@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -110,7 +111,11 @@ const faqSchema = {
                   <div class="debt-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div class="grid grid-cols-2 gap-3">
                       <div class="col-span-2">
+                        <label for="debt-name-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Debt Name
+                        </label>
                         <input
+                          id="debt-name-0"
                           type="text"
                           name="debt-name-0"
                           placeholder="Debt name (e.g., Credit Card)"
@@ -119,7 +124,11 @@ const faqSchema = {
                         />
                       </div>
                       <div>
+                        <label for="debt-balance-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Balance ($)
+                        </label>
                         <input
+                          id="debt-balance-0"
                           type="number"
                           name="debt-balance-0"
                           placeholder="Balance"
@@ -130,7 +139,11 @@ const faqSchema = {
                         />
                       </div>
                       <div>
+                        <label for="debt-rate-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Interest Rate (% APR)
+                        </label>
                         <input
+                          id="debt-rate-0"
                           type="number"
                           name="debt-rate-0"
                           placeholder="APR %"
@@ -142,7 +155,11 @@ const faqSchema = {
                         />
                       </div>
                       <div class="col-span-2">
+                        <label for="debt-minimum-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Minimum Payment ($)
+                        </label>
                         <input
+                          id="debt-minimum-0"
                           type="number"
                           name="debt-minimum-0"
                           placeholder="Minimum payment"
@@ -225,7 +242,8 @@ const faqSchema = {
 
               <!-- Chat Button -->
               <button
-                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Debt Payoff Optimizer', { tool: 'analyze_debt_payoff' }); } }"
+                id="debt-chat-button"
+                type="button"
                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,130 +257,8 @@ const faqSchema = {
       </div>
     </div>
   </div>
-</Layout>
 
-<script>
-  import { storeAnalysisResult } from '../scripts/analysis-results';
-  import { DebtPayoffEngine } from '@financial-analysis/analysis';
+  <AdSense slot="8901234567" format="horizontal" className="container mx-auto px-4 mb-8" />
 
-  const form = document.getElementById('debt-form') as HTMLFormElement;
-  const addDebtBtn = document.getElementById('add-debt-btn');
-  const debtsContainer = document.getElementById('debts-container');
-  let debtCount = 1;
-
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  });
-
-  addDebtBtn?.addEventListener('click', () => {
-    const debtHtml = `
-      <div class="debt-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-2">
-            <input type="text" name="debt-name-${debtCount}" placeholder="Debt name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-          </div>
-          <div><input type="number" name="debt-balance-${debtCount}" placeholder="Balance" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="debt-rate-${debtCount}" placeholder="APR %" min="0" max="100" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div class="col-span-2"><input type="number" name="debt-minimum-${debtCount}" placeholder="Minimum payment" min="0" step="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-        </div>
-      </div>
-    `;
-    debtsContainer?.insertAdjacentHTML('beforeend', debtHtml);
-    debtCount++;
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
-
-    try {
-      const formData = new FormData(form);
-      const monthlyExtraPayment = parseFloat(formData.get('monthlyExtraPayment') as string);
-
-      const debts = [];
-      for (let i = 0; i < debtCount; i++) {
-        const name = formData.get(`debt-name-${i}`) as string;
-        const balance = parseFloat(formData.get(`debt-balance-${i}`) as string);
-        const rate = parseFloat(formData.get(`debt-rate-${i}`) as string);
-        const minimum = parseFloat(formData.get(`debt-minimum-${i}`) as string);
-
-        if (name && !isNaN(balance) && !isNaN(rate) && !isNaN(minimum)) {
-          debts.push({
-            name: name,
-            balance: balance,
-            interestRate: rate / 100,
-            minimumPayment: minimum,
-          });
-        }
-      }
-
-      if (debts.length === 0) {
-        throw new Error('Please add at least one debt');
-      }
-
-      const input = { 
-        debts, 
-        extraMonthlyPayment: monthlyExtraPayment,
-        strategy: 'avalanche' as const
-      };
-      const result = DebtPayoffEngine.analyze(input);
-      
-      storeAnalysisResult('analyze_debt_payoff', result);
-      displayResults(result);
-
-    } catch (err) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
-    } finally {
-      document.getElementById('loading')?.classList.add('hidden');
-    }
-  });
-
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
-
-  function displayResults(result: any) {
-    const avMonths = result.avalanchePayoff.totalMonths;
-    const avInterest = result.avalanchePayoff.totalInterest;
-    const sbMonths = result.snowballPayoff.totalMonths;
-    const sbInterest = result.snowballPayoff.totalInterest;
-
-    document.getElementById('avalanche-months')!.textContent = `${avMonths} months (${(avMonths/12).toFixed(1)} years)`;
-    document.getElementById('avalanche-interest')!.textContent = avInterest;
-    document.getElementById('snowball-months')!.textContent = `${sbMonths} months (${(sbMonths/12).toFixed(1)} years)`;
-    document.getElementById('snowball-interest')!.textContent = sbInterest;
-
-    const savingsEl = document.getElementById('savings-alert')?.querySelector('p');
-    if (savingsEl && avMonths <= sbMonths) {
-      const savings = parseFloat(sbInterest.replace(/[$,]/g, '')) - parseFloat(avInterest.replace(/[$,]/g, ''));
-      savingsEl.textContent = `💡 Avalanche saves you ${currencyFormatter.format(savings)} in interest!`;
-    } else if (savingsEl) {
-      savingsEl.textContent = `💡 Snowball provides faster psychological wins with ${sbMonths - avMonths} fewer months!`;
-    }
-
-    const timeline = document.getElementById('payoff-timeline');
-    if (timeline && result.avalanchePayoff.payoffOrder) {
-      timeline.innerHTML = result.avalanchePayoff.payoffOrder.map((debt: any, idx: number) => `
-        <div class="flex justify-between items-center text-sm">
-          <span class="font-medium">${idx + 1}. ${debt.name}</span>
-          <span class="text-gray-600 dark:text-gray-400">Month ${debt.payoffMonth}</span>
-        </div>
-      `).join('');
-    }
-
-    document.getElementById('results')?.classList.remove('hidden');
-  }
-</script>
-
-<!-- AdSense: Bottom of page ad -->
-<AdSense slot="8901234567" format="horizontal" className="container mx-auto px-4 mb-8" />
+  <ClientScriptLoader client:load slot="pageScripts" name="debtPayoff" />
 </Layout>

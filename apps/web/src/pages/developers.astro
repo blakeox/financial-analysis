@@ -954,7 +954,7 @@ Cache-Control: public, max-age=31536000</code></pre>
 		</section>
 
 		<!-- CTA -->
-		<section class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white text-center">
+		<section class="bg-linear-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white text-center">
 			<h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
 			<p class="text-xl mb-6 opacity-90">
 				Sign up for a free API key and start building today
@@ -968,35 +968,7 @@ Cache-Control: public, max-age=31536000</code></pre>
 		</section>
 	</div>
 
-	<script>
-		// Pricing calculator
-		const slider = document.getElementById('pricing-slider');
-		const requestCount = document.getElementById('request-count');
-		const estimatedPrice = document.getElementById('estimated-price');
-		const recommendedTier = document.getElementById('recommended-tier');
-
-		if (slider && requestCount && estimatedPrice && recommendedTier) {
-			slider.addEventListener('input', (e) => {
-				const requests = parseInt((e.target as HTMLInputElement).value);
-				requestCount.textContent = requests.toLocaleString();
-
-				let price = 0;
-				let tier = 'Free Tier';
-
-				if (requests <= 1000) {
-					price = 0;
-					tier = 'Free Tier';
-				} else if (requests <= 50000) {
-					price = 49;
-					tier = 'Pro Tier';
-				} else {
-					price = 49 + Math.ceil((requests - 50000) / 10000) * 10;
-					tier = 'Enterprise Tier (Custom)';
-				}
-
-				estimatedPrice.textContent = `$${price}`;
-				recommendedTier.textContent = `Recommended: ${tier}`;
-			});
-		}
+	<script type="module">
+		import '../scripts/developers.client.ts';
 	</script>
 </Layout>

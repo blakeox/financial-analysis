@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -41,6 +42,7 @@ const faqSchema = {
     }
   ]
 };
+
 ---
 
 <Layout title="Enhanced Lease Analysis - Financial Analysis Tools">
@@ -51,22 +53,5 @@ const faqSchema = {
     <!-- AdSense: After dashboard ad -->
     <AdSense slot="1234509876" format="horizontal" className="mt-8" />
   </main>
+  <ClientScriptLoader client:load slot="pageScripts" name="enhancedLease" />
 </Layout>
-
-<script>
-  import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
-  import { createElement } from 'react';
-  import { createRoot } from 'react-dom/client';
-
-  const container = document.getElementById('enhanced-lease-container');
-  if (container) {
-    const root = createRoot(container);
-    root.render(
-      createElement(LeaseAnalysisDashboard, {
-        onAnalyze: (result) => {
-          console.log('Enhanced lease analysis result:', result);
-        }
-      })
-    );
-  }
-</script>

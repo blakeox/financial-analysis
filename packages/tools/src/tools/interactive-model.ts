@@ -1,4 +1,13 @@
-import { LeaseAnalyzer, AmortizationAnalyzer, EbitdaForecaster } from '@financial-analysis/analysis';
+import {
+  LeaseAnalyzer,
+  AmortizationAnalyzer,
+  EbitdaForecaster,
+} from '@financial-analysis/analysis';
+import type {
+  LeaseAnalysisResult,
+  AmortizationAnalysisResult,
+  EbitdaForecastResult,
+} from '@financial-analysis/analysis';
 import { z } from 'zod';
 
 const InteractiveModelInputSchema = z.object({
@@ -16,13 +25,17 @@ export interface ThinkingStep {
   parameters?: Record<string, unknown>;
 }
 
+type LeaseParameters = Parameters<typeof LeaseAnalyzer.analyze>[0];
+type AmortizationParameters = Parameters<typeof AmortizationAnalyzer.analyze>[0];
+type EbitdaParameters = Parameters<typeof EbitdaForecaster.forecast>[0];
+
+type ModelResult = LeaseAnalysisResult | AmortizationAnalysisResult | EbitdaForecastResult;
+
 export interface ModelModificationResult {
   success: boolean;
-  model_type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  original_result?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  modified_result?: any;
+  model_type: 'lease' | 'amortization' | 'ebitda';
+  original_result?: ModelResult;
+  modified_result?: ModelResult;
   thinking_steps: ThinkingStep[];
   insights: string[];
   recommendations: string[];
@@ -80,10 +93,12 @@ export class InteractiveModelTool {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let originalResult: any = null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let modifiedResult: any = null;
+      const hasModifications = Boolean(
+        validated.modifications && Object.keys(validated.modifications).length > 0,
+      );
+
+      let originalResult: ModelResult | null = null;
+      let modifiedResult: ModelResult | null = null;
 
       // Step 2: Calculate original model
       if (validated.thinking) {
@@ -95,57 +110,128 @@ export class InteractiveModelTool {
       }
 
       if (validated.modelType === 'lease') {
-        originalResult = LeaseAnalyzer.analyze(validated.parameters as any);
+        const leaseParameters = validated.parameters as LeaseParameters;
+        const leaseResult = LeaseAnalyzer.analyze(leaseParameters);
+        originalResult = leaseResult;
         
         if (validated.thinking) {
           thinkingSteps.push({
             step: 3,
-            thought: `Baseline lease analysis complete. Monthly payment: $${originalResult.monthlyPayment.toLocaleString()}`,
+            thought: `Baseline lease analysis complete. Monthly payment: $${leaseResult.monthlyPayment.toLocaleString()}`,
             action: 'Analyzing lease structure'
           });
         }
 
-        insights.push(`Monthly lease payment: $${originalResult.monthlyPayment.toLocaleString()}`);
-        insights.push(`Total lease cost: $${originalResult.totalCost.toLocaleString()}`);
-        insights.push(`Interest portion: $${originalResult.totalInterest.toLocaleString()}`);
+        insights.push(`Monthly lease payment: $${leaseResult.monthlyPayment.toLocaleString()}`);
+        insights.push(`Total lease cost: $${leaseResult.totalPayments.toLocaleString()}`);
+        insights.push(`Interest portion: $${leaseResult.totalInterest.toLocaleString()}`);
 
         // Provide recommendations
-        if (originalResult.totalInterest > originalResult.principal * 0.1) {
+        if (leaseResult.totalInterest > leaseParameters.principal * 0.1) {
           recommendations.push('Consider negotiating a lower interest rate to reduce total cost');
         }
-        if (originalResult.termMonths > 36) {
+        if (leaseParameters.termMonths > 36) {
           recommendations.push('Longer lease terms increase total interest paid');
         }
 
+        if (hasModifications) {
+          if (validated.thinking) {
+            thinkingSteps.push({
+              step: thinkingSteps.length + 1,
+              thought: 'Applying modifications to create scenario comparison',
+              action: 'Recalculating with modified parameters',
+              ...(validated.modifications ? { parameters: validated.modifications } : {}),
+            });
+          }
+
+          const modifiedLeaseParams = {
+            ...leaseParameters,
+            ...validated.modifications,
+          } as LeaseParameters;
+          const modifiedLeaseResult = LeaseAnalyzer.analyze(modifiedLeaseParams);
+          modifiedResult = modifiedLeaseResult;
+
+          const savingsMonthly = leaseResult.monthlyPayment - modifiedLeaseResult.monthlyPayment;
+          const savingsTotal = leaseResult.totalPayments - modifiedLeaseResult.totalPayments;
+
+          if (savingsMonthly !== 0) {
+            insights.push(
+              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`,
+            );
+            insights.push(
+              `Total cost difference: ${savingsTotal > 0 ? '-' : '+'}$${Math.abs(savingsTotal).toLocaleString()}`,
+            );
+          }
+        }
+
       } else if (validated.modelType === 'amortization') {
-        originalResult = AmortizationAnalyzer.analyze(validated.parameters as any);
+        const amortizationParameters = validated.parameters as AmortizationParameters;
+        const amortizationResult = AmortizationAnalyzer.analyze(amortizationParameters);
+        originalResult = amortizationResult;
         
         if (validated.thinking) {
           thinkingSteps.push({
             step: 3,
-            thought: `Baseline amortization complete. Monthly payment: $${originalResult.monthlyPayment.toLocaleString()}`,
+            thought: `Baseline amortization complete. Monthly payment: $${amortizationResult.monthlyPayment.toLocaleString()}`,
             action: 'Analyzing loan structure'
           });
         }
 
-        insights.push(`Monthly payment: $${originalResult.monthlyPayment.toLocaleString()}`);
-        insights.push(`Total interest: $${originalResult.totalInterest.toLocaleString()}`);
-        insights.push(`Interest-to-principal ratio: ${((originalResult.totalInterest / (validated.parameters as any).principal) * 100).toFixed(1)}%`);
+        insights.push(`Monthly payment: $${amortizationResult.monthlyPayment.toLocaleString()}`);
+        insights.push(`Total interest: $${amortizationResult.totalInterest.toLocaleString()}`);
+        const interestRatioPercent =
+          (amortizationResult.totalInterest / amortizationParameters.principal) * 100;
+        insights.push(`Interest-to-principal ratio: ${interestRatioPercent.toFixed(1)}%`);
 
         // Provide recommendations
-        const interestRatio = originalResult.totalInterest / (validated.parameters as any).principal;
+        const interestRatio = amortizationResult.totalInterest / amortizationParameters.principal;
         if (interestRatio > 0.5) {
           recommendations.push('High interest-to-principal ratio - consider shorter term or lower rate');
         }
-        if (originalResult.monthlyPayment > (validated.parameters as any).principal * 0.01) {
+        if (amortizationResult.monthlyPayment > amortizationParameters.principal * 0.01) {
           recommendations.push('Monthly payment is high relative to principal - consider extending term');
         }
 
+        if (hasModifications) {
+          if (validated.thinking) {
+            thinkingSteps.push({
+              step: thinkingSteps.length + 1,
+              thought: 'Applying modifications to create scenario comparison',
+              action: 'Recalculating with modified parameters',
+              ...(validated.modifications ? { parameters: validated.modifications } : {}),
+            });
+          }
+
+          const modifiedAmortizationParams = {
+            ...amortizationParameters,
+            ...validated.modifications,
+          } as AmortizationParameters;
+          const modifiedAmortizationResult =
+            AmortizationAnalyzer.analyze(modifiedAmortizationParams);
+          modifiedResult = modifiedAmortizationResult;
+
+          const savingsMonthly =
+            amortizationResult.monthlyPayment - modifiedAmortizationResult.monthlyPayment;
+          const savingsInterest =
+            amortizationResult.totalInterest - modifiedAmortizationResult.totalInterest;
+
+          if (savingsMonthly !== 0) {
+            insights.push(
+              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`,
+            );
+            insights.push(
+              `Interest savings: ${savingsInterest > 0 ? '-' : '+'}$${Math.abs(savingsInterest).toLocaleString()}`,
+            );
+          }
+        }
+
       } else if (validated.modelType === 'ebitda') {
-        originalResult = EbitdaForecaster.forecast(validated.parameters as any);
+        const ebitdaParameters = validated.parameters as EbitdaParameters;
+        const ebitdaResult = EbitdaForecaster.forecast(ebitdaParameters);
+        originalResult = ebitdaResult;
         
         if (validated.thinking) {
-          const avgEbitda = originalResult.summary.totalEbitda / originalResult.forecast.length;
+          const avgEbitda = ebitdaResult.summary.totalEbitda / ebitdaResult.forecast.length;
           thinkingSteps.push({
             step: 3,
             thought: `Baseline EBITDA forecast complete. Average monthly EBITDA: $${avgEbitda.toLocaleString()}`,
@@ -153,87 +239,67 @@ export class InteractiveModelTool {
           });
         }
 
-        const avgEbitda = originalResult.summary.totalEbitda / originalResult.forecast.length;
-        insights.push(`Total EBITDA: $${originalResult.summary.totalEbitda.toLocaleString()}`);
+        const avgEbitda = ebitdaResult.summary.totalEbitda / ebitdaResult.forecast.length;
+        insights.push(`Total EBITDA: $${ebitdaResult.summary.totalEbitda.toLocaleString()}`);
         insights.push(`Average monthly EBITDA: $${avgEbitda.toLocaleString()}`);
-        insights.push(`Revenue growth: ${((originalResult.summary.revenueGrowth || 0) * 100).toFixed(1)}%`);
+        insights.push(`Revenue growth: ${((ebitdaResult.summary.revenueGrowth || 0) * 100).toFixed(1)}%`);
 
         // Provide recommendations
         if (avgEbitda < 0) {
           recommendations.push('Negative EBITDA indicates need for cost reduction or revenue increase');
         }
-        if (originalResult.summary.revenueGrowth && originalResult.summary.revenueGrowth > 0.1) {
+        if (ebitdaResult.summary.revenueGrowth && ebitdaResult.summary.revenueGrowth > 0.1) {
           recommendations.push('Strong revenue growth trajectory - consider scaling operations');
+        }
+
+        if (hasModifications) {
+          if (validated.thinking) {
+            thinkingSteps.push({
+              step: thinkingSteps.length + 1,
+              thought: 'Applying modifications to create scenario comparison',
+              action: 'Recalculating with modified parameters',
+              ...(validated.modifications ? { parameters: validated.modifications } : {}),
+            });
+          }
+
+          const modifiedEbitdaParams = {
+            ...ebitdaParameters,
+            ...validated.modifications,
+          } as EbitdaParameters;
+          const modifiedEbitdaResult = EbitdaForecaster.forecast(modifiedEbitdaParams);
+          modifiedResult = modifiedEbitdaResult;
+
+          const ebitdaDiff =
+            modifiedEbitdaResult.summary.totalEbitda - ebitdaResult.summary.totalEbitda;
+          const avgDiff = ebitdaDiff / modifiedEbitdaResult.forecast.length;
+
+          if (ebitdaDiff !== 0) {
+            insights.push(
+              `EBITDA difference: ${ebitdaDiff > 0 ? '+' : ''}$${ebitdaDiff.toLocaleString()}`,
+            );
+            insights.push(
+              `Average monthly difference: ${avgDiff > 0 ? '+' : ''}$${avgDiff.toLocaleString()}`,
+            );
+          }
         }
       }
 
-      // Step 4: Apply modifications if provided
-      if (validated.modifications && Object.keys(validated.modifications).length > 0) {
-        if (validated.thinking) {
-          thinkingSteps.push({
-            step: 4,
-            thought: 'Applying modifications to create scenario comparison',
-            action: 'Recalculating with modified parameters',
-            parameters: validated.modifications
-          });
-        }
-
-        const modifiedParams = { ...validated.parameters, ...validated.modifications };
-
-        if (validated.modelType === 'lease') {
-          modifiedResult = LeaseAnalyzer.analyze(modifiedParams as any);
-          
-          // Compare results
-          const savingsMonthly = originalResult.monthlyPayment - modifiedResult.monthlyPayment;
-          const savingsTotal = originalResult.totalCost - modifiedResult.totalCost;
-          
-          if (savingsMonthly !== 0) {
-            insights.push(`Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`);
-            insights.push(`Total cost difference: ${savingsTotal > 0 ? '-' : '+'}$${Math.abs(savingsTotal).toLocaleString()}`);
-          }
-
-        } else if (validated.modelType === 'amortization') {
-          modifiedResult = AmortizationAnalyzer.analyze(modifiedParams as any);
-          
-          // Compare results
-          const savingsMonthly = originalResult.monthlyPayment - modifiedResult.monthlyPayment;
-          const savingsInterest = originalResult.totalInterest - modifiedResult.totalInterest;
-          
-          if (savingsMonthly !== 0) {
-            insights.push(`Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`);
-            insights.push(`Interest savings: ${savingsInterest > 0 ? '-' : '+'}$${Math.abs(savingsInterest).toLocaleString()}`);
-          }
-
-        } else if (validated.modelType === 'ebitda') {
-          modifiedResult = EbitdaForecaster.forecast(modifiedParams as any);
-          
-          // Compare results
-          const ebitdaDiff = modifiedResult.summary.totalEbitda - originalResult.summary.totalEbitda;
-          const avgDiff = ebitdaDiff / modifiedResult.forecast.length;
-          
-          if (ebitdaDiff !== 0) {
-            insights.push(`EBITDA difference: ${ebitdaDiff > 0 ? '+' : ''}$${ebitdaDiff.toLocaleString()}`);
-            insights.push(`Average monthly difference: ${avgDiff > 0 ? '+' : ''}$${avgDiff.toLocaleString()}`);
-          }
-        }
-
-        if (validated.thinking) {
-          thinkingSteps.push({
-            step: 5,
-            thought: 'Scenario comparison complete, analyzing differences and impact',
-            action: 'Generating insights and recommendations'
-          });
-        }
+      if (hasModifications && validated.thinking) {
+        thinkingSteps.push({
+          step: thinkingSteps.length + 1,
+          thought: 'Scenario comparison complete, analyzing differences and impact',
+          action: 'Generating insights and recommendations',
+        });
       }
 
       return {
         success: true,
         model_type: validated.modelType,
-        original_result: originalResult,
-        modified_result: modifiedResult,
         thinking_steps: thinkingSteps,
         insights,
-        recommendations
+        recommendations,
+        ...(originalResult ? { original_result: originalResult } : {}),
+        ...(modifiedResult ? { modified_result: modifiedResult } : {}),
       };
 
     } catch (error) {

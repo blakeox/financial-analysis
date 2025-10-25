@@ -26,7 +26,7 @@ export function validateFile(
   if (allowedTypes) {
     const typesSet = allowedTypes instanceof Set ? allowedTypes : new Set(allowedTypes);
     if (!typesSet.has(file.type)) {
-      return 'File type not supported';
+      return 'Invalid file type. Please upload a PDF, Word document, or text file.';
     }
   }
 
