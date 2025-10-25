@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ClientScriptLoader from '../../components/ClientScriptLoader.tsx';
 
 const keywords = "business finance, commercial real estate, lease analysis, EBITDA forecasting, equipment lease calculator, NPV analysis, cash flow analysis, business loan calculator, financial modeling tools";
 const enhancedDescription = "Comprehensive business finance modeling tools for commercial real estate, lease analysis, EBITDA forecasting, and cash flow projections. Professional-grade calculators for equipment leasing, commercial property loans, and financial planning.";
@@ -589,7 +590,5 @@ const faqSchema = {
     </div>
   </div>
 
-  <script type="module">
-    import '../../scripts/models.client.ts';
-  </script>
+  <ClientScriptLoader client:load slot="pageScripts" name="models" />
 </Layout>

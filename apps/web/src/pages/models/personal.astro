@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ClientScriptLoader from '../../components/ClientScriptLoader.tsx';
 
 const keywords = "personal finance, mortgage calculator, retirement planning, auto loan calculator, debt payoff, savings goal calculator, student loan calculator, budget planner, amortization calculator";
 const enhancedDescription = "Free personal finance calculators and planning tools for mortgages, retirement, auto loans, debt payoff, savings goals, student loans, and budgeting. Professional-grade financial modeling made simple.";
@@ -592,8 +593,5 @@ const faqSchema = {
       </div>
     </div>
   </div>
-
-  <script type="module">
-    import '../../scripts/models.client.ts';
-  </script>
+  <ClientScriptLoader client:load slot="pageScripts" name="models" />
 </Layout>
