@@ -1,13 +1,55 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I calculate how much to save each month?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Enter your savings goal amount, target date, current savings, and expected interest rate. Our calculator shows exactly how much you need to save monthly to reach your goal, accounting for compound interest growth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a realistic savings interest rate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "High-yield savings accounts currently offer 4-5% APY. Money market accounts and short-term CDs offer similar rates. For longer-term goals (5+ years), consider investment accounts which historically return 7-10% annually but with more risk."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I adjust my savings goal for inflation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, especially for long-term goals. With average inflation around 3% per year, a $50,000 goal in 10 years really needs about $67,000 in today's purchasing power. Our calculator includes inflation adjustment to show the real amount you need to save."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does compound interest help my savings grow?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Compound interest earns interest on your interest, accelerating growth over time. For example, saving $500/month at 5% grows to about $78,000 in 10 years - $18,000 more than simple deposits alone. The longer you save, the more powerful compounding becomes."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
   title="Savings Goal Planner" 
-  description="Calculate how long it takes to reach your savings goal with compound interest and inflation adjustments"
+  description="Plan and track progress toward financial goals with compound interest calculations and inflation adjustments"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">
@@ -223,7 +265,8 @@ import AdSense from '../components/AdSense.astro';
 
               <!-- Chat Button -->
               <button
-                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Savings Goal Planner', { tool: 'analyze_savings_goal' }); } }"
+                id="savings-goal-chat-button"
+                type="button"
                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,105 +283,8 @@ import AdSense from '../components/AdSense.astro';
       </div>
     </div>
   </div>
-</Layout>
 
-<script>
-  import { storeAnalysisResult } from '../scripts/analysis-results';
-  import { SavingsGoalEngine } from '@financial-analysis/analysis';
+    <AdSense slot="9012345678" format="horizontal" className="container mx-auto px-4 mb-8" />
 
-  const form = document.getElementById('savings-goal-form') as HTMLFormElement;
-  const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement;
-  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
-  const loading = document.getElementById('loading');
-  const error = document.getElementById('error');
-  const errorMessage = document.getElementById('error-message');
-  const results = document.getElementById('results');
-
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Hide previous results/errors
-    results?.classList.add('hidden');
-    error?.classList.add('hidden');
-    loading?.classList.remove('hidden');
-    calculateBtn.disabled = true;
-
-    try {
-      const formData = new FormData(form);
-      
-      const input = {
-        goalAmount: parseFloat(formData.get('goalAmount') as string),
-        currentSavings: parseFloat(formData.get('currentSavings') as string),
-        monthlyContribution: parseFloat(formData.get('monthlyContribution') as string),
-        annualReturnRate: parseFloat(formData.get('annualInterestRate') as string) / 100,
-        inflationRate: parseFloat(formData.get('annualInflationRate') as string) / 100,
-        goalType: 'general' as const,
-      };
-
-      // Client-side calculation
-      const result = SavingsGoalEngine.analyze(input);
-      
-      // Store result for chat panel
-      storeAnalysisResult('analyze_savings_goal', result);
-
-      // Display results
-      displayResults(result);
-
-    } catch (err) {
-      if (errorMessage) {
-        errorMessage.textContent = err instanceof Error ? err.message : 'An error occurred';
-      }
-      error?.classList.remove('hidden');
-      console.error('Calculation error:', err);
-    } finally {
-      loading?.classList.add('hidden');
-      calculateBtn.disabled = false;
-    }
-  });
-
-  resetBtn?.addEventListener('click', () => {
-    form.reset();
-    results?.classList.add('hidden');
-    error?.classList.add('hidden');
-  });
-
-  function displayResults(result: any) {
-    const monthsEl = document.getElementById('months-to-goal');
-    const yearsEl = document.getElementById('years-to-goal');
-    const targetDateEl = document.getElementById('target-date');
-    const totalSavedEl = document.getElementById('total-saved');
-    const contributionsEl = document.getElementById('total-contributions');
-    const interestEl = document.getElementById('total-interest');
-    const effectiveRateEl = document.getElementById('effective-rate');
-    const recommendationsList = document.getElementById('recommendations-list');
-
-    if (monthsEl) monthsEl.textContent = result.summary.monthsToGoal.toString();
-    if (yearsEl) yearsEl.textContent = `${(result.summary.monthsToGoal / 12).toFixed(1)} years`;
-    
-    const targetDate = new Date();
-    targetDate.setMonth(targetDate.getMonth() + result.summary.monthsToGoal);
-    if (targetDateEl) targetDateEl.textContent = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-
-    if (totalSavedEl) totalSavedEl.textContent = result.summary.totalSaved;
-    if (contributionsEl) contributionsEl.textContent = result.summary.totalContributions;
-    if (interestEl) interestEl.textContent = result.summary.totalInterest;
-    if (effectiveRateEl) effectiveRateEl.textContent = `${(result.summary.effectiveAnnualRate * 100).toFixed(2)}%`;
-
-    // Display recommendations
-    if (recommendationsList && result.recommendations) {
-      recommendationsList.innerHTML = result.recommendations
-        .map((rec: any) => `<li class="flex gap-2"><span class="text-blue-600 dark:text-blue-400">•</span><span class="text-gray-700 dark:text-gray-300">${rec.recommendation}</span></li>`)
-        .join('');
-    }
-
-    results?.classList.remove('hidden');
-  }
-</script>
-</Layout>
+    <ClientScriptLoader client:load slot="pageScripts" name="savingsGoal" />
+  </Layout>

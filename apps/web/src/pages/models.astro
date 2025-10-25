@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+
 ---
 
 <Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
@@ -29,7 +31,7 @@ import AdSense from '../components/AdSense.astro';
           
           <!-- Personal Finance Category -->
           <a href="/models/personal" class="block group">
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
+            <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
               <div class="flex items-center mb-6">
                 <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
                   <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -52,7 +54,7 @@ import AdSense from '../components/AdSense.astro';
 
           <!-- Business Finance Category -->
           <a href="/models/business" class="block group">
-            <div class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
+            <div class="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
               <div class="flex items-center mb-6">
                 <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
                   <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -77,6 +79,80 @@ import AdSense from '../components/AdSense.astro';
 
         <!-- AdSense: Between categories and features -->
         <AdSense slot="3456789012" format="horizontal" className="max-w-4xl mx-auto mb-16" />
+
+        <!-- Featured Models -->
+        <section class="max-w-5xl mx-auto mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-8">
+            Featured Financial Models
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a
+              href="/amortization"
+              class="model-card block rounded-2xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 shadow hover:shadow-lg transition-all duration-200 p-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              data-model="Amortization Calculator"
+            >
+              <div data-model="Amortization Calculator">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white text-lg font-bold">A</span>
+                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Amortization Calculator</h3>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                  Generate detailed payment schedules, compare principal versus interest, and model extra payment strategies.
+                </p>
+                <span class="inline-flex items-center text-blue-700 dark:text-blue-300 font-medium">
+                  Explore calculator
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </span>
+              </div>
+            </a>
+
+            <a
+              href="/lease-analysis"
+              class="model-card block rounded-2xl border border-violet-200 dark:border-violet-700 bg-white dark:bg-gray-800 shadow hover:shadow-lg transition-all duration-200 p-6 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              data-model="Enhanced Lease Analysis"
+            >
+              <div data-model="Enhanced Lease Analysis">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-violet-600 text-white text-lg font-bold">L</span>
+                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Enhanced Lease Analysis</h3>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                  Evaluate lease scenarios, run sensitivity analyses, and compare lease-versus-buy outcomes with AI-assisted workflows.
+                </p>
+                <span class="inline-flex items-center text-violet-700 dark:text-violet-300 font-medium">
+                  Open analysis
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </span>
+              </div>
+            </a>
+
+            <a
+              href="/ebitda-forecasting"
+              class="model-card block rounded-2xl border border-emerald-200 dark:border-emerald-700 bg-white dark:bg-gray-800 shadow hover:shadow-lg transition-all duration-200 p-6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              data-model="EBITDA Forecasting"
+            >
+              <div data-model="EBITDA Forecasting">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-600 text-white text-lg font-bold">E</span>
+                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">EBITDA Forecasting</h3>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                  Service industry financial projections with deterministic controls for revenue, staffing, and expense scenarios to forecast EBITDA with confidence.
+                </p>
+                <span class="inline-flex items-center text-emerald-700 dark:text-emerald-300 font-medium">
+                  Forecast EBITDA
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </span>
+              </div>
+            </a>
+          </div>
+        </section>
 
         <!-- Active Model Section -->
         <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
@@ -132,141 +208,8 @@ import AdSense from '../components/AdSense.astro';
           </div>
         </div>
       </div>
-
-    <!-- Removed VS Code Style Chat Panel -->
+    </div>
   </div>
 
-  <!-- Enhanced JavaScript for Model Selection and Chat Integration -->
-  <script>
-    declare global {
-      interface Window {
-        toggleChatPanel?: () => void;
-        updateChatContext?: (
-          modelName: string | null,
-          modelData: Record<string, unknown> | null
-        ) => void;
-        adjustLayoutForChat?: (isOpen: boolean) => void;
-        selectedModel?: () => string | null;
-        selectedModelData?: () => Record<string, unknown> | null;
-        selectModel?: (element: HTMLElement, modelId: string) => void;
-        clearSelection?: () => void;
-        openChatPanel?: () => void;
-      }
-    }
-
-    let selectedModel: string | null = null;
-    let selectedModelData: Record<string, unknown> | null = null;
-    let chatPanelOpen = false;
-
-    type ModelsPageWindow = Window & {
-      toggleChatPanel?: () => void;
-      updateChatContext?: (
-        modelName: string | null,
-        modelData: Record<string, unknown> | null
-      ) => void;
-      adjustLayoutForChat?: (isOpen: boolean) => void;
-      selectedModel?: () => string | null;
-      selectedModelData?: () => Record<string, unknown> | null;
-      selectModel?: (element: HTMLElement, modelId: string) => void;
-      clearSelection?: () => void;
-      openChatPanel?: () => void;
-    };
-
-    const chatWindow = window as ModelsPageWindow;
-
-    // Model selection functionality
-    function selectModel(element: HTMLElement, _modelId: string): void {
-      // Remove previous selection
-      document.querySelectorAll('.model-card').forEach(card => {
-        card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-      });
-
-      // Add selection styling
-      element.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-
-      // Update selected model info
-      const modelName = element.dataset.model;
-      if (modelName) {
-        selectedModel = modelName;
-        
-        // Show selected model info
-        const infoSection = document.getElementById('selected-model-info');
-        const titleElement = document.getElementById('selected-model-title');
-        const descriptionElement = document.getElementById('selected-model-description');
-        
-        if (titleElement) titleElement.textContent = `Selected: ${modelName}`;
-        if (descriptionElement) {
-          descriptionElement.textContent = `You've selected the ${modelName} model. Open it to run calculations, then use the AI assistant for analysis and insights.`;
-        }
-        
-        if (infoSection) {
-          infoSection.classList.remove('hidden');
-          // Scroll to show selection
-          infoSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        // If chat is open, update context
-        if (chatPanelOpen && chatWindow.updateChatContext) {
-          chatWindow.updateChatContext(selectedModel, selectedModelData);
-        }
-      }
-    }
-
-    function clearSelection(): void {
-      document.querySelectorAll('.model-card').forEach(card => {
-        card.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-      });
-      
-      const infoSection = document.getElementById('selected-model-info');
-      if (infoSection) {
-        infoSection.classList.add('hidden');
-      }
-      
-      selectedModel = null;
-      selectedModelData = null;
-
-      if (chatPanelOpen && chatWindow.updateChatContext) {
-        chatWindow.updateChatContext(null, null);
-      }
-    }
-
-    function openChatPanel(): void {
-      if (chatWindow.toggleChatPanel) {
-        chatWindow.toggleChatPanel();
-      }
-    }
-
-    // Adjust main content when chat panel opens/closes
-    function adjustLayoutForChat(isOpen: boolean): void {
-      const mainContainer = document.getElementById('main-container');
-      if (mainContainer) {
-        if (isOpen) {
-          mainContainer.style.marginRight = '384px'; // 96 * 4 = 384px (w-96)
-        } else {
-          mainContainer.style.marginRight = '0';
-        }
-      }
-      chatPanelOpen = isOpen;
-    }
-
-    // Listen for model data updates from individual model pages
-    window.addEventListener('message', (event: MessageEvent) => {
-      if (event.data?.type === 'modelData') {
-        selectedModelData = event.data.data;
-        if (chatPanelOpen && chatWindow.updateChatContext) {
-          chatWindow.updateChatContext(selectedModel, selectedModelData);
-        }
-      }
-    });
-
-    // Expose functions globally for React components
-    chatWindow.adjustLayoutForChat = adjustLayoutForChat;
-    chatWindow.selectedModel = () => selectedModel;
-    chatWindow.selectedModelData = () => selectedModelData;
-
-    // Make functions available globally for onclick handlers
-    chatWindow.selectModel = selectModel;
-    chatWindow.clearSelection = clearSelection;
-    chatWindow.openChatPanel = openChatPanel;
-  </script>
+  <ClientScriptLoader client:load slot="pageScripts" name="models" />
 </Layout>

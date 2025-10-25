@@ -61,6 +61,7 @@ class ChatPanel {
   private lastContext: ContextKey;
   private mcpTools: Array<{ name: string; description: string }> | null;
   private mcpToolOutputs: Record<string, unknown> | null;
+  private outsideClickHandler: ((event: MouseEvent | TouchEvent) => void) | null;
   
   // Rate limiting
   private lastMessageTime: number;
@@ -134,6 +135,7 @@ class ChatPanel {
     this.externalContextListener = null;
     this.mcpTools = null;
     this.mcpToolOutputs = null;
+  this.outsideClickHandler = null;
     
     // Initialize rate limiting
     this.lastMessageTime = 0;
@@ -583,6 +585,24 @@ class ChatPanel {
       this.updateCharacterCount(messageLength);
     });
 
+    if (!this.outsideClickHandler) {
+      this.outsideClickHandler = (event: MouseEvent | TouchEvent) => {
+        if (!this.isOpen) {
+          return;
+        }
+        const target = event.target;
+        if (!(target instanceof Node)) {
+          return;
+        }
+        if (this.panel.contains(target) || this.toggle.contains(target)) {
+          return;
+        }
+        this.closePanel();
+      };
+      document.addEventListener('mousedown', this.outsideClickHandler, { capture: true });
+      document.addEventListener('touchstart', this.outsideClickHandler, { capture: true });
+    }
+
     document.addEventListener('keydown', (event: KeyboardEvent) => {
       if (this.isOpen && event.key === 'Escape') {
         event.preventDefault();
@@ -859,14 +879,22 @@ class ChatPanel {
       }
     });
 
-    const analyzeBtn = document.querySelector<HTMLButtonElement | HTMLElement>(
-      'button[type="submit"], .analyze-btn, #analyze',
+    const analyzeCandidates = Array.from(
+      document.querySelectorAll<HTMLButtonElement | HTMLElement>(
+        'button[type="submit"], .analyze-btn, #analyze',
+      ),
     );
+    const analyzeBtn = analyzeCandidates.find((element) => {
+      if (!(element instanceof HTMLElement)) {
+        return false;
+      }
+      return !this.panel.contains(element);
+    });
+
     if (analyzeBtn instanceof HTMLButtonElement) {
-      // Use dispatchEvent with cancelable:false to prevent event propagation to document listeners
       const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
       analyzeBtn.dispatchEvent(clickEvent);
-    } else if (analyzeBtn) {
+    } else if (analyzeBtn instanceof HTMLElement) {
       const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
       analyzeBtn.dispatchEvent(clickEvent);
     }

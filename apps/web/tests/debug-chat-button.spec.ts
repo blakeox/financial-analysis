@@ -8,7 +8,7 @@ test.describe('Debug Chat Button Click Issue', () => {
     });
 
     // Navigate to amortization page
-    await page.goto('http://localhost:8788/amortization');
+  await page.goto('/amortization');
     
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');
@@ -128,7 +128,7 @@ test.describe('Debug Chat Button Click Issue', () => {
   });
   
   test('test mousedown and click events', async ({ page }) => {
-    await page.goto('http://localhost:8788/amortization');
+  await page.goto('/amortization');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
     

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { AnalyticsDashboard } from '@financial-analysis/ui';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 ---
 
 <Layout 
@@ -114,7 +115,7 @@ console.log(analysis.successRate, analysis.averageDuration);`}</code></pre>
     </div>
 
     <!-- Test Actions -->
-    <div class="mt-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+  <div class="mt-8 p-6 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
         🧪 Test Analytics Tracking
       </h2>
@@ -144,41 +145,5 @@ console.log(analysis.successRate, analysis.averageDuration);`}</code></pre>
     </div>
   </div>
 
-  <script>
-    import { monitoredFetch, trackUserAction, trackError } from '@financial-analysis/ui';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // Test API call button
-      document.getElementById('test-api-call')?.addEventListener('click', async () => {
-        try {
-          await monitoredFetch('/health');
-          alert('✅ API call tracked! Check dashboard above.');
-        } catch (error) {
-          console.error('API call failed:', error);
-        }
-      });
-
-      // Test error button
-      document.getElementById('test-error')?.addEventListener('click', () => {
-        const error = new Error('This is a test error for analytics tracking');
-        trackError(error, { 
-          source: 'test-button',
-          userAction: 'intentional-test',
-          timestamp: Date.now()
-        });
-        alert('❌ Error tracked! Check dashboard above.');
-      });
-
-      // Test user action button
-      document.getElementById('test-action')?.addEventListener('click', () => {
-        trackUserAction({
-          action: 'test_button_click',
-          element: 'test-action-button',
-          value: 'user-action-test',
-          context: { test: true, timestamp: Date.now() }
-        });
-        alert('👆 User action tracked! Check dashboard above.');
-      });
-    });
-  </script>
+  <ClientScriptLoader client:load slot="pageScripts" name="analytics" />
 </Layout>

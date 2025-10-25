@@ -1,13 +1,55 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+
+// FAQ Schema for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much should I save for retirement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Financial experts recommend saving 10-15% of your gross income for retirement. If starting late, you may need to save 20-25%. Use our calculator to determine if your current savings rate will meet your retirement goals based on your age, current savings, and expected retirement date."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a good retirement savings goal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A common rule is to have 25x your annual expenses saved by retirement (the 4% withdrawal rule). For example, if you need $60,000 per year, aim for $1.5 million. Our calculator helps you determine your specific target based on your retirement age and desired lifestyle."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I max out my 401(k) employer match?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, always contribute enough to get the full employer match - it's free money with an immediate 50-100% return on investment. Our calculator shows how employer matching significantly accelerates your retirement savings growth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What investment return should I assume for retirement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Conservative estimates use 6-7% annual returns, while aggressive estimates use 8-10%. Historically, the S&P 500 averages about 10% before inflation. Our calculator allows you to adjust assumptions and see how different return rates affect your retirement timeline."
+      }
+    }
+  ]
+};
 ---
 
 <Layout 
   title="Retirement Calculator" 
-  description="Plan your retirement with projections for 401k, IRA, and other retirement accounts"
+  description="Plan your retirement with projections for savings growth, employer matching, and inflation-adjusted goals"
   canonical={Astro.url.href}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
       <div class="container mx-auto px-4 py-8">
@@ -102,7 +144,10 @@ import AdSense from '../components/AdSense.astro';
                   <div class="account-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div class="grid grid-cols-2 gap-3">
                       <div class="col-span-2">
-                        <select name="account-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+                        <label for="account-type-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Account Type
+                        </label>
+                        <select id="account-type-0" name="account-type-0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
                           <option value="401k">401(k)</option>
                           <option value="roth_401k">Roth 401(k)</option>
                           <option value="traditional_ira">Traditional IRA</option>
@@ -110,10 +155,30 @@ import AdSense from '../components/AdSense.astro';
                           <option value="sep_ira">SEP IRA</option>
                         </select>
                       </div>
-                      <div><input type="number" name="account-balance-0" placeholder="Current balance" value="50000" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-                      <div><input type="number" name="account-contribution-0" placeholder="Annual contribution" value="10000" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-                      <div><input type="number" name="account-match-0" placeholder="Employer match %" value="4" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-                      <div><input type="number" name="account-match-limit-0" placeholder="Match limit %" value="6" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
+                      <div>
+                        <label for="account-balance-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Current Balance ($)
+                        </label>
+                        <input id="account-balance-0" type="number" name="account-balance-0" placeholder="Current balance" value="50000" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                      </div>
+                      <div>
+                        <label for="account-contribution-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Annual Contribution ($)
+                        </label>
+                        <input id="account-contribution-0" type="number" name="account-contribution-0" placeholder="Annual contribution" value="10000" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                      </div>
+                      <div>
+                        <label for="account-match-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Employer Match (%)
+                        </label>
+                        <input id="account-match-0" type="number" name="account-match-0" placeholder="Employer match %" value="4" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                      </div>
+                      <div>
+                        <label for="account-match-limit-0" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                          Match Limit (%)
+                        </label>
+                        <input id="account-match-limit-0" type="number" name="account-match-limit-0" placeholder="Match limit %" value="6" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -178,7 +243,8 @@ import AdSense from '../components/AdSense.astro';
 
               <!-- Chat Button -->
               <button
-                onclick="if (window.toggleChatPanel) { window.toggleChatPanel(); if (window.updateChatContext) { window.updateChatContext('Retirement Calculator', { tool: 'analyze_retirement' }); } }"
+                id="retirement-chat-button"
+                type="button"
                 class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md transition flex items-center justify-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,129 +258,8 @@ import AdSense from '../components/AdSense.astro';
       </div>
     </div>
   </div>
-</Layout>
 
-<script>
-  import { storeAnalysisResult } from '../scripts/analysis-results';
-  import { RetirementEngine } from '@financial-analysis/analysis';
+  <AdSense slot="6789012345" format="horizontal" className="container mx-auto px-4 mb-8" />
 
-  const form = document.getElementById('retirement-form') as HTMLFormElement;
-  const addAccountBtn = document.getElementById('add-account-btn');
-  const accountsContainer = document.getElementById('accounts-container');
-  let accountCount = 1;
-
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
-  addAccountBtn?.addEventListener('click', () => {
-    const accountHtml = `
-      <div class="account-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-2"><select name="account-type-${accountCount}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="401k">401(k)</option><option value="roth_401k">Roth 401(k)</option><option value="traditional_ira">Traditional IRA</option><option value="roth_ira">Roth IRA</option><option value="sep_ira">SEP IRA</option></select></div>
-          <div><input type="number" name="account-balance-${accountCount}" placeholder="Current balance" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="account-contribution-${accountCount}" placeholder="Annual contribution" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="account-match-${accountCount}" placeholder="Employer match %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-          <div><input type="number" name="account-match-limit-${accountCount}" placeholder="Match limit %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" /></div>
-        </div>
-      </div>
-    `;
-    accountsContainer?.insertAdjacentHTML('beforeend', accountHtml);
-    accountCount++;
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
-
-    try {
-      const formData = new FormData(form);
-      const currentAge = parseInt(formData.get('currentAge') as string);
-      const retirementAge = parseInt(formData.get('retirementAge') as string);
-      const currentIncome = parseFloat(formData.get('currentIncome') as string);
-      const expectedAnnualReturn = parseFloat(formData.get('expectedAnnualReturn') as string) / 100;
-      const inflationRate = parseFloat(formData.get('inflationRate') as string) / 100;
-      const incomeIncreaseRate = parseFloat(formData.get('incomeIncreaseRate') as string) / 100;
-
-      const accounts = [];
-      for (let i = 0; i < accountCount; i++) {
-        const accountType = formData.get(`account-type-${i}`) as '401k' | 'roth_401k' | 'traditional_ira' | 'roth_ira' | 'sep_ira';
-        const balance = parseFloat(formData.get(`account-balance-${i}`) as string);
-        const contribution = parseFloat(formData.get(`account-contribution-${i}`) as string);
-        const match = parseFloat(formData.get(`account-match-${i}`) as string) || 0;
-        const matchLimit = parseFloat(formData.get(`account-match-limit-${i}`) as string) || 6;
-
-        if (accountType && !isNaN(balance) && !isNaN(contribution)) {
-          accounts.push({
-            accountType,
-            currentBalance: balance,
-            annualContribution: contribution,
-            employerMatch: match / 100,
-            employerMatchLimit: matchLimit / 100,
-          });
-        }
-      }
-
-      if (accounts.length === 0) {
-        throw new Error('Please add at least one retirement account');
-      }
-
-      const input = {
-        currentAge,
-        retirementAge,
-        currentIncome,
-        accounts,
-        expectedAnnualReturn,
-        inflationRate,
-        incomeIncreaseRate,
-        withdrawalStrategy: '4_percent_rule' as const,
-      };
-      
-      const result = RetirementEngine.analyze(input);
-      storeAnalysisResult('analyze_retirement', result);
-      displayResults(result, retirementAge - currentAge);
-
-    } catch (err) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
-    } finally {
-      document.getElementById('loading')?.classList.add('hidden');
-    }
-  });
-
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
-
-  function displayResults(result: any, years: number) {
-    document.getElementById('years-to-retirement')!.textContent = `${years} years`;
-    document.getElementById('total-savings')!.textContent = result.projectedBalance || result.totalSavings || 'N/A';
-    document.getElementById('total-contributions')!.textContent = result.totalContributions || 'N/A';
-    document.getElementById('investment-growth')!.textContent = result.investmentGrowth || result.totalGrowth || 'N/A';
-    document.getElementById('employer-match')!.textContent = result.totalEmployerMatch || 'N/A';
-
-    const replacementEl = document.getElementById('income-replacement');
-    if (replacementEl && result.incomeReplacement) {
-      replacementEl.innerHTML = `
-        <p class="text-gray-600 dark:text-gray-400">Annual Retirement Income (4% rule):</p>
-        <p class="text-xl font-semibold text-green-600">${result.incomeReplacement.annualIncome || 'N/A'}</p>
-        <p class="text-sm text-gray-500 mt-2">${result.incomeReplacement.replacementPercentage || 'N/A'} of final salary</p>
-      `;
-    }
-
-    document.getElementById('results')?.classList.remove('hidden');
-  }
-</script>
-
-<!-- AdSense: Bottom of page ad -->
-<AdSense slot="6789012345" format="horizontal" className="container mx-auto px-4 mb-8" />
+  <ClientScriptLoader client:load slot="pageScripts" name="retirement" />
 </Layout>

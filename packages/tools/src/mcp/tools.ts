@@ -19,10 +19,8 @@ export interface MCPTool {
   name: string;
   description: string;
   // JSON Schema-like object
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  inputSchema: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  execute: (input: unknown) => Promise<any>;
+  inputSchema: Record<string, unknown>;
+  execute: (input: unknown) => Promise<unknown>;
 }
 
 export function createMCPTools(): MCPTool[] {
@@ -118,16 +116,13 @@ export type MCPRequestMethod = 'initialize' | 'tools/list' | 'tools/call';
 
 export interface MCPCallParams {
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  arguments: any;
+  arguments: unknown;
 }
 
 export async function handleMCPRequest(
   method: MCPRequestMethod,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _env?: any
+  params: unknown,
+  _env?: unknown
 ): Promise<unknown> {
   const tools = createMCPTools();
 

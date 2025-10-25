@@ -45,6 +45,6 @@ test('navigation links work', async ({ page }) => {
 // Analysis flow test (basic presence)
 test('analysis page loads and form is present', async ({ page }) => {
   await page.goto('/analysis');
-  await expect(page.locator('form')).toBeVisible();
-  await expect(page.locator('button[type="submit"]')).toBeVisible();
+  await expect(page.locator('#analysis-form')).toBeVisible();
+  await expect(page.locator('#analysis-form button[type="submit"]')).toBeVisible();
 });
