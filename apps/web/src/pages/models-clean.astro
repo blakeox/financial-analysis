@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 ---
 
 <Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
@@ -390,8 +391,5 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- VS Code Style Chat Panel -->
   </div>
-
-  <script type="module">
-    import '../scripts/models.client.ts';
-  </script>
+  <ClientScriptLoader client:load slot="pageScripts" name="models" />
 </Layout>
