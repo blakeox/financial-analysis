@@ -29,13 +29,16 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
           
           <!-- Lease Analysis -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
-               data-model="Lease Analysis" 
-               onclick="selectModel(this, 'lease-analysis')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'lease-analysis')}"
-               aria-label="Select Lease Analysis model">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+      data-model="Lease Analysis"
+      data-model-id="lease-analysis"
+      data-model-description="Comprehensive lease agreement analysis with amortization schedules and IRR calculations"
+      data-model-status="available"
+      data-model-cta-href="/analysis"
+      data-model-cta-label="Open Model"
+      role="button"
+      tabindex="0"
+      aria-label="Select Lease Analysis model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
@@ -49,19 +52,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 Comprehensive lease agreement analysis with amortization schedules and IRR calculations
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Payment calculations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Amortization schedules
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -71,6 +74,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <a
                 href="/analysis"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                data-model-cta
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,13 +85,16 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           </div>
 
           <!-- Loan Amortization -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
-               data-model="Loan Amortization"
-               onclick="selectModel(this, 'loan-amortization')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'loan-amortization')}"
-               aria-label="Select Loan Amortization model">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+      data-model="Loan Amortization"
+      data-model-id="loan-amortization"
+      data-model-description="Detailed loan repayment schedules with principal and interest breakdown"
+      data-model-status="available"
+      data-model-cta-href="/amortization"
+      data-model-cta-label="Open Model"
+      role="button"
+      tabindex="0"
+      aria-label="Select Loan Amortization model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
@@ -101,19 +108,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 Detailed loan repayment schedules with principal and interest breakdown
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Principal tracking
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7-293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Interest calculations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -123,6 +130,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <a
                 href="/amortization"
                 class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                data-model-cta
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,13 +141,16 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           </div>
 
           <!-- EBITDA Forecasting -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
-               data-model="EBITDA Forecasting"
-               onclick="selectModel(this, 'ebitda-forecasting')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'ebitda-forecasting')}"
-               aria-label="Select EBITDA Forecasting model">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+      data-model="EBITDA Forecasting"
+      data-model-id="ebitda-forecasting"
+      data-model-description="Service industry financial projections with employee planning and expense analysis"
+      data-model-status="available"
+      data-model-cta-href="/ebitda-forecasting"
+      data-model-cta-label="Open Model"
+      role="button"
+      tabindex="0"
+      aria-label="Select EBITDA Forecasting model">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
@@ -153,19 +164,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 Service industry financial projections with employee planning and expense analysis
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Revenue forecasting
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Employee planning
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -175,6 +186,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <a
                 href="/ebitda-forecasting"
                 class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center"
+                data-model-cta
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,13 +197,14 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           </div>
 
           <!-- Bond Pricing -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
-               data-model="Bond Pricing"
-               onclick="selectModel(this, 'bond-pricing')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'bond-pricing')}"
-               aria-label="Select Bond Pricing model (coming soon)">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+      data-model="Bond Pricing"
+      data-model-id="bond-pricing"
+      data-model-description="Fixed income securities pricing and yield calculations with duration analysis"
+      data-model-status="coming-soon"
+      role="button"
+      tabindex="0"
+      aria-label="Select Bond Pricing model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
@@ -205,19 +218,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 Fixed income securities pricing and yield calculations with duration analysis
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   Yield calculations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   Duration analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
@@ -227,6 +240,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <button
                 disabled
                 class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
+                data-model-cta
               >
                 Coming Soon
               </button>
@@ -234,13 +248,14 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           </div>
 
           <!-- Options Pricing -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
-               data-model="Options Pricing"
-               onclick="selectModel(this, 'options-pricing')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'options-pricing')}"
-               aria-label="Select Options Pricing model (coming soon)">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
+      data-model="Options Pricing"
+      data-model-id="options-pricing"
+      data-model-description="Black-Scholes options pricing with Greeks calculations and volatility analysis"
+      data-model-status="coming-soon"
+      role="button"
+      tabindex="0"
+      aria-label="Select Options Pricing model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300">
@@ -254,19 +269,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 Black-Scholes options pricing with Greeks calculations and volatility analysis
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   Black-Scholes pricing
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   Greeks calculations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
@@ -276,6 +291,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <button
                 disabled
                 class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
+                data-model-cta
               >
                 Coming Soon
               </button>
@@ -283,13 +299,14 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           </div>
 
           <!-- Cash Flow Analysis -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
-               data-model="Cash Flow Analysis"
-               onclick="selectModel(this, 'cashflow-analysis')"
-               role="button"
-               tabindex="0"
-               onkeydown="if(arguments[0].key==='Enter'||arguments[0].key===' '){selectModel(this,'cashflow-analysis')}"
-               aria-label="Select Cash Flow Analysis model (coming soon)">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+      data-model="Cash Flow Analysis"
+      data-model-id="cashflow-analysis"
+      data-model-description="NPV, IRR, and cash flow projection analysis with sensitivity testing"
+      data-model-status="coming-soon"
+      role="button"
+      tabindex="0"
+      aria-label="Select Cash Flow Analysis model (coming soon)">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
@@ -303,19 +320,19 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 NPV, IRR, and cash flow projection analysis with sensitivity testing
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   NPV calculations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
                   IRR analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400" data-model-feature>
                   <svg class="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                   </svg>
@@ -325,6 +342,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               <button
                 disabled
                 class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed w-full justify-center"
+                data-model-cta
               >
                 Coming Soon
               </button>
@@ -336,8 +354,15 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
         <!-- Active Model Section -->
         <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
           <div class="flex items-center justify-between mb-4">
-            <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
-            <button 
+            <div class="flex items-center gap-3">
+              <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+              <span
+                id="selected-model-status"
+                class="hidden px-2 py-1 text-xs font-medium rounded-full"
+              ></span>
+            </div>
+            <button
+              type="button"
               onclick="clearSelection()"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title="Clear selection"
@@ -348,12 +373,26 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               </svg>
             </button>
           </div>
-          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500 dark:text-gray-400">Use the AI assistant to analyze this model's results and get insights</span>
-            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-6"></p>
+          <ul
+            id="selected-model-features"
+            class="hidden mb-6 space-y-2 pl-4 text-sm text-gray-600 dark:text-gray-400 list-disc"
+          ></ul>
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+              <span>Use the AI assistant to analyze this model's results and get insights</span>
+              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <a
+              id="selected-model-cta"
+              class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+              aria-disabled="true"
+              hidden
+            >
+              Coming Soon
+            </a>
           </div>
         </div>
 
