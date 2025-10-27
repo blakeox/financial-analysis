@@ -1,4 +1,6 @@
-export {};
+import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
+
+installChatContextBridge();
 
 // Security and validation constants
 const MAX_MESSAGE_LENGTH = 2000;
@@ -6,6 +8,18 @@ const RATE_LIMIT_DELAY_MS = 1000; // 1 second between messages
 const API_TIMEOUT_MS = 30000; // 30 second timeout
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1000; // Initial backoff time
+
+const debugLog = (...args: unknown[]): void => {
+  if (import.meta.env.DEV) {
+    console.log(...args);
+  }
+};
+
+const debugWarn = (...args: unknown[]): void => {
+  if (import.meta.env.DEV) {
+    console.warn(...args);
+  }
+};
 
 type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models';
 
@@ -56,7 +70,7 @@ class ChatPanel {
   private customContextKey: ContextKey | null;
   private customContextLabel: string | null;
   private customContextData: Record<string, unknown> | null;
-  private externalContextListener: ((event: Event) => void) | null;
+  private unsubscribeChatContext: (() => void) | null;
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
   private mcpTools: Array<{ name: string; description: string }> | null;
@@ -79,7 +93,7 @@ class ChatPanel {
   };
 
   constructor() {
-    console.log('[ChatPanel] Constructor starting...');
+    debugLog('[ChatPanel] Constructor starting...');
     const panel = document.getElementById('chat-panel');
     const toggle = document.getElementById('chat-toggle');
     const closeBtn = document.getElementById('chat-close');
@@ -90,7 +104,7 @@ class ChatPanel {
     const thinkingIndicator = document.getElementById('thinking-indicator');
     const contextIndicator = document.getElementById('context-indicator');
 
-    console.log('[ChatPanel] Elements found:', {
+    debugLog('[ChatPanel] Elements found:', {
       panel: !!panel,
       toggle: !!toggle,
       closeBtn: !!closeBtn,
@@ -112,7 +126,7 @@ class ChatPanel {
     if (!(thinkingIndicator instanceof HTMLDivElement)) throw new Error('Chat thinking indicator not found');
     if (!(contextIndicator instanceof HTMLSpanElement)) throw new Error('Chat context indicator not found');
     
-    console.log('[ChatPanel] All elements validated, assigning to instance...');
+    debugLog('[ChatPanel] All elements validated, assigning to instance...');
     this.panel = panel;
     this.toggle = toggle;
     this.closeBtn = closeBtn;
@@ -132,7 +146,7 @@ class ChatPanel {
     this.customContextKey = null;
     this.customContextLabel = null;
     this.customContextData = null;
-    this.externalContextListener = null;
+    this.unsubscribeChatContext = null;
     this.mcpTools = null;
     this.mcpToolOutputs = null;
   this.outsideClickHandler = null;
@@ -142,22 +156,22 @@ class ChatPanel {
 
     // Fetch available MCP tools
     this.fetchMCPTools().catch((err) => {
-      console.warn('Failed to fetch MCP tools:', err);
+      debugWarn('Failed to fetch MCP tools:', err);
     });
     this.mcpTools = null;
 
     // Fetch available MCP tools
     this.fetchMCPTools().catch((err) => {
-      console.warn('Failed to fetch MCP tools:', err);
+      debugWarn('Failed to fetch MCP tools:', err);
     });
     this.headerObserver = null;
 
-    console.log('[ChatPanel] About to bind events...');
+    debugLog('[ChatPanel] About to bind events...');
     this.bindEvents();
-    console.log('[ChatPanel] Events bound successfully');
+    debugLog('[ChatPanel] Events bound successfully');
     this.setupLayoutSync();
     this.updateContextIndicator();
-    console.log('[ChatPanel] Constructor complete');
+    debugLog('[ChatPanel] Constructor complete');
     this.syncAriaState();
     this.emitStateChange();
     this.setupNavigationListener();
@@ -370,7 +384,7 @@ class ChatPanel {
     window.addEventListener('analysis-result-updated', () => {
       // Refetch tools and outputs when analysis completes
       this.fetchMCPTools().catch((err) => {
-        console.warn('Failed to refetch MCP tools after analysis update:', err);
+        debugWarn('Failed to refetch MCP tools after analysis update:', err);
       });
     });
   }
@@ -388,8 +402,8 @@ class ChatPanel {
       this.capturePageOutputs();
       
       if (import.meta.env.DEV) {
-        console.log('[ChatPanel] Available MCP tools:', this.mcpTools);
-        console.log('[ChatPanel] Tool outputs:', this.mcpToolOutputs);
+        debugLog('[ChatPanel] Available MCP tools:', this.mcpTools);
+        debugLog('[ChatPanel] Tool outputs:', this.mcpToolOutputs);
       }
     } catch (error) {
       console.error('Error fetching MCP tools:', error);
@@ -490,42 +504,30 @@ class ChatPanel {
   }
 
   private bindEvents(): void {
-    console.log('[ChatPanel] bindEvents() starting, toggle element:', this.toggle);
+    debugLog('[ChatPanel] bindEvents() starting, toggle element:', this.toggle);
     
     const win = window as WindowWithChatPanel;
     win.toggleChatPanel = () => this.togglePanel();
     win.openChatPanel = () => this.openPanel();
     win.closeChatPanel = () => this.closePanel();
-    win.updateChatContext = (label: string | null, data: Record<string, unknown> | null) => {
-      if (!label) {
-        this.clearExternalContext();
-        return;
-      }
-      this.setExternalContext('models', label, data);
-    };
-
-    if (!this.externalContextListener) {
-      this.externalContextListener = (event: Event) => {
-        const customEvent = event as CustomEvent<{
-          contextKey?: ContextKey | null;
-          label?: string | null;
-          data?: Record<string, unknown> | null;
-        }>;
-        const detail = customEvent.detail || {};
-        const { contextKey, label, data } = detail;
+    if (!this.unsubscribeChatContext) {
+      this.unsubscribeChatContext = subscribeChatContext(({ contextKey, label, data }) => {
         if (!contextKey && !label) {
           this.clearExternalContext();
-        } else {
-          this.setExternalContext(contextKey ?? 'models', label ?? null, data ?? null);
+          return;
         }
-      };
-      win.addEventListener('chat-panel-context', this.externalContextListener as EventListener);
+
+        const contextData =
+          data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
+
+        this.setExternalContext((contextKey as ContextKey) ?? 'models', label ?? null, contextData);
+      });
     }
 
     // Use capture phase to ensure we get the event first
-    console.log('[ChatPanel] Adding click listener to toggle button...');
+    debugLog('[ChatPanel] Adding click listener to toggle button...');
     const clickHandler = (event: MouseEvent) => {
-      console.log('[ChatPanel] 🎯 CLICK HANDLER CALLED!', {
+      debugLog('[ChatPanel] 🎯 CLICK HANDLER CALLED!', {
         target: event.target,
         currentTarget: event.currentTarget,
         eventPhase: event.eventPhase,
@@ -539,18 +541,22 @@ class ChatPanel {
     this.toggle.addEventListener('click', clickHandler, { capture: true });
     
     // Verify the listener was added
-    console.log('[ChatPanel] Click listener function created:', clickHandler);
+    debugLog('[ChatPanel] Click listener function created:', clickHandler);
     
     // DIAGNOSTIC: Add mousedown listener to test if ANY events reach the button
-    this.toggle.addEventListener('mousedown', (event: MouseEvent) => {
-      console.log('[ChatPanel] 🔵 MOUSEDOWN detected!', {
-        target: event.target,
-        currentTarget: event.currentTarget,
-        button: event.button,
-      });
-    }, { capture: true });
+    this.toggle.addEventListener(
+      'mousedown',
+      (event: MouseEvent) => {
+        debugLog('[ChatPanel] 🔵 MOUSEDOWN detected!', {
+          target: event.target,
+          currentTarget: event.currentTarget,
+          button: event.button,
+        });
+      },
+      { capture: true }
+    );
     
-    console.log('[ChatPanel] Click listener added successfully');
+    debugLog('[ChatPanel] Click listener added successfully');
     
     this.closeBtn.addEventListener('click', () => this.closePanel());
     
@@ -736,7 +742,7 @@ class ChatPanel {
       };
       
       if (import.meta.env.DEV) {
-        console.log('[ChatPanel] Sending message with context:', {
+        debugLog('[ChatPanel] Sending message with context:', {
           context: contextKey,
           pathname: window.location.pathname,
           hasModelData: Object.keys(currentModel).length > 0,
@@ -902,7 +908,7 @@ class ChatPanel {
     // Refetch MCP tools to capture any new outputs from the analysis
     setTimeout(() => {
       this.fetchMCPTools().catch((err) => {
-        console.warn('Failed to refetch MCP tools after model change:', err);
+        debugWarn('Failed to refetch MCP tools after model change:', err);
       });
     }, 500); // Wait for analysis to complete
   }
@@ -942,9 +948,9 @@ function initializeChatPanel(): void {
               if (element.id === 'chat-toggle') {
                 if (!buttonSeenOnce) {
                   buttonSeenOnce = true;
-                  console.log('[chat-panel] Initial button load detected');
+                  debugLog('[chat-panel] Initial button load detected');
                 } else {
-                  console.warn('[chat-panel] Button re-added to DOM, re-attaching listeners');
+                  debugWarn('[chat-panel] Button re-added to DOM, re-attaching listeners');
                   if (win.__chatPanelInstance) {
                     // Re-bind just the toggle button events
                     const toggleBtn = element as HTMLButtonElement;

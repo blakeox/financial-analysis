@@ -3,6 +3,7 @@ import type {
   AmortizationInput,
   AmortizationResultItem,
 } from '@financial-analysis/analysis';
+import { postAnalysisRequest, AnalysisRequestError } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -224,30 +225,21 @@ if (form instanceof HTMLFormElement) {
 
     try {
       const payload = parseAmortizationInput(new FormData(form));
-      const response = await fetch('/v1/api/analysis/amortization', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const data = await postAnalysisRequest<AmortizationAnalysisResult>(
+        '/v1/api/analysis/amortization',
+        payload
+      );
 
-      const data = (await response.json().catch(() => null)) as
-        | (AmortizationAnalysisResult & { message?: string })
-        | { message?: string }
-        | null;
-
-      if (!response.ok || !data || typeof data !== 'object' || Array.isArray(data)) {
-        const message =
-          data && 'message' in data && typeof data.message === 'string'
-            ? data.message
-            : `Amortization request failed (${response.status})`;
-        throw new Error(message);
-      }
-
-      handleSuccess(data as AmortizationAnalysisResult, payload.termMonths);
+      handleSuccess(data, payload.termMonths);
       hideError();
     } catch (error) {
       console.error('Amortization calculation error:', error);
-      const message = error instanceof Error ? error.message : 'Failed to calculate amortization';
+      const message =
+        error instanceof AnalysisRequestError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : 'Failed to calculate amortization';
       showError(message);
     } finally {
       hideLoading();

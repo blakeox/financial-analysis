@@ -1,6 +1,7 @@
+import { publishChatContext } from './chat/chat-context';
+
 type ChatWindow = Window & {
   toggleChatPanel?: () => void;
-  updateChatContext?: (label: string | null, data: Record<string, unknown> | null) => void;
 };
 
 type ChatData = Record<string, unknown> | undefined;
@@ -23,9 +24,7 @@ export const openChatWithContext = (label: string, data?: Record<string, unknown
     chatWindow.toggleChatPanel();
   }
 
-  if (chatWindow.updateChatContext) {
-    chatWindow.updateChatContext(label, data ?? null);
-  }
+  publishChatContext(null, label, data ?? null);
 };
 
 export const registerChatButton = (
