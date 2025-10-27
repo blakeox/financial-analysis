@@ -1,24 +1,27 @@
-import { storeAnalysisResult } from './analysis-results';
-import { SavingsGoalEngine } from '@financial-analysis/analysis';
 import type { SavingsGoalResult } from '@financial-analysis/analysis';
+import { SavingsGoalEngine } from '@financial-analysis/analysis';
 import type { FormControllerState } from '@financial-analysis/tools';
 import { z } from 'zod';
+import { storeAnalysisResult } from './analysis-results';
 
 const numericField = (message: string) =>
-  z.preprocess((value) => {
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed === '') {
-        return Number.NaN;
+  z.preprocess(
+    (value) => {
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') {
+          return Number.NaN;
+        }
+        const numeric = Number(trimmed);
+        return Number.isFinite(numeric) ? numeric : Number.NaN;
       }
-      const numeric = Number(trimmed);
-      return Number.isFinite(numeric) ? numeric : Number.NaN;
-    }
-    if (typeof value === 'number') {
-      return value;
-    }
-    return Number.NaN;
-  }, z.number().refine((numeric) => Number.isFinite(numeric), { message }));
+      if (typeof value === 'number') {
+        return value;
+      }
+      return Number.NaN;
+    },
+    z.number().refine((numeric) => Number.isFinite(numeric), { message })
+  );
 
 export const SavingsGoalFormSchema = z.object({
   goalAmount: numericField('Please provide valid numeric inputs')
@@ -104,7 +107,10 @@ const clearFieldErrors = (form: HTMLFormElement) => {
   });
 };
 
-export const applyFieldErrors = (form: HTMLFormElement, state: FormControllerState<SavingsGoalFormValues>) => {
+export const applyFieldErrors = (
+  form: HTMLFormElement,
+  state: FormControllerState<SavingsGoalFormValues>
+) => {
   clearFieldErrors(form);
 
   if (state.errors.length === 0) {
@@ -122,7 +128,6 @@ export const applyFieldErrors = (form: HTMLFormElement, state: FormControllerSta
     field.classList.add('border-red-500', 'focus:ring-red-500');
   });
 };
-
 
 export const toRecommendationText = (entry: unknown): string | null => {
   if (typeof entry === 'string' && entry.trim()) return entry.trim();
@@ -182,7 +187,7 @@ export const displayResults = (result: SavingsGoalResult): void => {
             <span class="text-blue-600 dark:text-blue-400">•</span>
             <span class="text-gray-700 dark:text-gray-300">${entry}</span>
           </li>
-        `,
+        `
       )
       .join('');
 
@@ -192,7 +197,9 @@ export const displayResults = (result: SavingsGoalResult): void => {
   document.getElementById('results')?.classList.remove('hidden');
 };
 
-export const describeValidationErrors = (state: FormControllerState<SavingsGoalFormValues>): string => {
+export const describeValidationErrors = (
+  state: FormControllerState<SavingsGoalFormValues>
+): string => {
   if (state.errors.length === 0) {
     return '';
   }
@@ -236,5 +243,3 @@ export const calculate = async (
     setLoadingState(refs, button, false);
   }
 };
-
-
