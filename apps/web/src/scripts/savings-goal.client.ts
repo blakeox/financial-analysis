@@ -1,8 +1,7 @@
-import { registerChatButton } from './chat-actions';
 import { storeAnalysisResult } from './analysis-results';
 import { SavingsGoalEngine } from '@financial-analysis/analysis';
 import type { SavingsGoalResult } from '@financial-analysis/analysis';
-import { createModelFormController, type FormControllerState } from '@financial-analysis/tools';
+import type { FormControllerState } from '@financial-analysis/tools';
 import { z } from 'zod';
 
 const numericField = (message: string) =>
@@ -21,7 +20,7 @@ const numericField = (message: string) =>
     return Number.NaN;
   }, z.number().refine((numeric) => Number.isFinite(numeric), { message }));
 
-const SavingsGoalFormSchema = z.object({
+export const SavingsGoalFormSchema = z.object({
   goalAmount: numericField('Please provide valid numeric inputs')
     .refine((value) => value > 0, { message: 'Goal amount must be positive' })
     .refine((value) => value <= 100_000_000, {
@@ -52,7 +51,7 @@ const SavingsGoalFormSchema = z.object({
 
 type SavingsGoalFormValues = z.infer<typeof SavingsGoalFormSchema>;
 
-const DEFAULT_VALUES: SavingsGoalFormValues = {
+export const DEFAULT_VALUES: SavingsGoalFormValues = {
   goalAmount: 50_000,
   currentSavings: 5_000,
   monthlyContribution: 1_000,
@@ -80,7 +79,7 @@ export const parseNumber = (value: FormDataEntryValue | null): number => {
   return Number.isFinite(numericValue) ? numericValue : Number.NaN;
 };
 
-const serializeForm = (form: HTMLFormElement): Record<string, string> => {
+export const serializeForm = (form: HTMLFormElement): Record<string, string> => {
   const formData = new FormData(form);
   const entries: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
@@ -105,7 +104,7 @@ const clearFieldErrors = (form: HTMLFormElement) => {
   });
 };
 
-const applyFieldErrors = (form: HTMLFormElement, state: FormControllerState<SavingsGoalFormValues>) => {
+export const applyFieldErrors = (form: HTMLFormElement, state: FormControllerState<SavingsGoalFormValues>) => {
   clearFieldErrors(form);
 
   if (state.errors.length === 0) {
@@ -123,6 +122,7 @@ const applyFieldErrors = (form: HTMLFormElement, state: FormControllerState<Savi
     field.classList.add('border-red-500', 'focus:ring-red-500');
   });
 };
+
 
 export const toRecommendationText = (entry: unknown): string | null => {
   if (typeof entry === 'string' && entry.trim()) return entry.trim();
@@ -192,7 +192,7 @@ export const displayResults = (result: SavingsGoalResult): void => {
   document.getElementById('results')?.classList.remove('hidden');
 };
 
-const describeValidationErrors = (state: FormControllerState<SavingsGoalFormValues>): string => {
+export const describeValidationErrors = (state: FormControllerState<SavingsGoalFormValues>): string => {
   if (state.errors.length === 0) {
     return '';
   }
@@ -203,7 +203,7 @@ const describeValidationErrors = (state: FormControllerState<SavingsGoalFormValu
   return `Please correct the following issues:\n• ${uniqueMessages.join('\n• ')}`;
 };
 
-const calculate = async (
+export const calculate = async (
   button: HTMLButtonElement | null,
   refs: ScreenRefs,
   state: FormControllerState<SavingsGoalFormValues>
@@ -237,138 +237,4 @@ const calculate = async (
   }
 };
 
-const initSavingsGoalPage = (): void => {
-  registerChatButton('#savings-goal-chat-button', 'Savings Goal Planner', {
-    tool: 'analyze_savings_goal',
-  });
 
-  const form = document.getElementById('savings-goal-form');
-  if (!(form instanceof HTMLFormElement)) {
-    console.error('Savings goal form not found');
-    return;
-  }
-
-  const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-  const resetButton = form.querySelector<HTMLButtonElement>('button[type="button"]');
-
-  const refs: ScreenRefs = {
-    loading: document.getElementById('loading'),
-    error: document.getElementById('error'),
-    errorMessage: document.getElementById('error-message'),
-    results: document.getElementById('results'),
-  };
-
-  const controller = createModelFormController({
-    formId: 'savings-goal',
-    schema: SavingsGoalFormSchema,
-    contextLabel: 'Savings Goal Planner',
-    modelId: 'savings-goal',
-    initialValues: DEFAULT_VALUES,
-  });
-
-  form.addEventListener('input', () => {
-    controller.update(serializeForm(form));
-    refs.error?.classList.add('hidden');
-  });
-
-  form.addEventListener('change', () => {
-    controller.update(serializeForm(form));
-    refs.error?.classList.add('hidden');
-  });
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const serialized = serializeForm(form);
-    controller.update(serialized);
-    const state = controller.submit();
-    applyFieldErrors(form, state);
-
-    if (!state.isValid) {
-      const errorMessage = describeValidationErrors(state);
-      if (refs.errorMessage) {
-        refs.errorMessage.textContent = errorMessage;
-      }
-      refs.error?.classList.remove('hidden');
-      return;
-    }
-
-    await calculate(submitButton ?? null, refs, state);
-  });
-
-  resetButton?.addEventListener('click', () => {
-    form.reset();
-    controller.reset(DEFAULT_VALUES);
-    controller.update(serializeForm(form));
-    clearFieldErrors(form);
-    refs.results?.classList.add('hidden');
-    refs.error?.classList.add('hidden');
-  });
-
-  // Initialize controller state with current form values
-  controller.update(serializeForm(form));
-};
-
-export const handleSubmit = async (
-  form: HTMLFormElement,
-  button: HTMLButtonElement | null,
-  refs: ScreenRefs
-): Promise<void> => {
-  const formData = new FormData(form);
-
-  const goalAmount = parseNumber(formData.get('goalAmount'));
-  const currentSavings = parseNumber(formData.get('currentSavings'));
-  const monthlyContribution = parseNumber(formData.get('monthlyContribution'));
-  const annualReturnRate = parseNumber(formData.get('annualInterestRate'));
-  const inflationRate = parseNumber(formData.get('annualInflationRate'));
-
-  refs.results?.classList.add('hidden');
-  refs.error?.classList.add('hidden');
-
-  if (
-    Number.isNaN(goalAmount) ||
-    Number.isNaN(currentSavings) ||
-    Number.isNaN(monthlyContribution) ||
-    Number.isNaN(annualReturnRate) ||
-    Number.isNaN(inflationRate)
-  ) {
-    if (refs.errorMessage) {
-      refs.errorMessage.textContent = 'Please provide valid numeric inputs';
-    }
-    refs.error?.classList.remove('hidden');
-    return;
-  }
-
-  const payload = {
-    goalAmount,
-    currentSavings,
-    monthlyContribution,
-    annualReturnRate: annualReturnRate / 100,
-    inflationRate: inflationRate / 100,
-    goalType: 'general' as const,
-  };
-
-  setLoadingState(refs, button, true);
-
-  try {
-    const result = SavingsGoalEngine.analyze(payload);
-    storeAnalysisResult('analyze_savings_goal', result);
-    displayResults(result);
-  } catch (error) {
-    if (refs.errorMessage) {
-      refs.errorMessage.textContent =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
-    }
-    refs.error?.classList.remove('hidden');
-    console.error('Savings goal calculation error:', error);
-  } finally {
-    setLoadingState(refs, button, false);
-  }
-};
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSavingsGoalPage, { once: true });
-} else {
-  initSavingsGoalPage();
-}
-
-export {};

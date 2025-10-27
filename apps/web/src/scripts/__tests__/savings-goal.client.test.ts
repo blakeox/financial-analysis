@@ -1,9 +1,15 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { SavingsGoalEngine } from '@financial-analysis/analysis';
+import { createModelFormController } from '@financial-analysis/tools';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  applyFieldErrors,
+  calculate,
+  DEFAULT_VALUES,
+  describeValidationErrors,
   displayResults,
-  handleSubmit,
   parseNumber,
+  SavingsGoalFormSchema,
+  serializeForm,
   toRecommendationText,
 } from '../savings-goal.client';
 
@@ -14,7 +20,9 @@ describe('savings-goal.client', () => {
 
   it('toRecommendationText extracts readable recommendations', () => {
     expect(toRecommendationText('Increase contributions')).toBe('Increase contributions');
-    expect(toRecommendationText({ recommendation: 'Automate transfers ' })).toBe('Automate transfers');
+    expect(toRecommendationText({ recommendation: 'Automate transfers ' })).toBe(
+      'Automate transfers'
+    );
     expect(toRecommendationText({})).toBeNull();
   });
 
@@ -54,13 +62,13 @@ describe('savings-goal.client', () => {
 
     expect(document.getElementById('results')?.classList.contains('hidden')).toBe(false);
     expect(document.getElementById('months-to-goal')?.textContent).toBe(
-      String(result.summary.monthsToGoal),
+      String(result.summary.monthsToGoal)
     );
     expect(document.getElementById('years-to-goal')?.textContent).toBe(
-      `${result.summary.yearsToGoal} years`,
+      `${result.summary.yearsToGoal} years`
     );
     expect(document.getElementById('total-saved')?.textContent).toBe(
-      currencyFormatter.format(Number.parseFloat(result.summary.finalBalance)),
+      currencyFormatter.format(Number.parseFloat(result.summary.finalBalance))
     );
     expect(document.getElementById('target-date')?.textContent).not.toBe('');
   });
@@ -71,8 +79,8 @@ describe('savings-goal.client', () => {
         <input name="goalAmount" value="15000" />
         <input name="currentSavings" value="2000" />
         <input name="monthlyContribution" value="400" />
-        <input name="annualInterestRate" value="4" />
-        <input name="annualInflationRate" value="2" />
+        <input name="annualReturnRate" value="4" />
+        <input name="inflationRate" value="2" />
       </form>
       <div id="loading" class="hidden"></div>
       <div id="error" class="hidden"></div>
@@ -98,14 +106,29 @@ describe('savings-goal.client', () => {
       results: document.getElementById('results'),
     };
 
-    await handleSubmit(form, button, refs);
+    const controller = createModelFormController({
+      formId: 'savings-goal-form',
+      schema: SavingsGoalFormSchema,
+      contextLabel: 'Savings Goal Planner',
+      modelId: 'savings-goal',
+      initialValues: DEFAULT_VALUES,
+    });
+
+    const serialized = serializeForm(form);
+    controller.update(serialized);
+    const state = controller.submit();
+    applyFieldErrors(form, state);
+
+    if (state.isValid) {
+      await calculate(button, refs, state);
+    }
 
     expect(button.disabled).toBe(false);
     expect(refs.loading?.classList.contains('hidden')).toBe(true);
     expect(refs.error?.classList.contains('hidden')).toBe(true);
     expect(refs.results?.classList.contains('hidden')).toBe(false);
-  expect(document.getElementById('effective-rate')?.textContent).toMatch(/%/);
-  expect(document.getElementById('total-contributions')?.textContent).toMatch(/\$/);
+    expect(document.getElementById('effective-rate')?.textContent).toMatch(/%/);
+    expect(document.getElementById('total-contributions')?.textContent).toMatch(/\$/);
   });
 
   it('handleSubmit surfaces validation errors', async () => {
@@ -114,8 +137,8 @@ describe('savings-goal.client', () => {
         <input name="goalAmount" value="" />
         <input name="currentSavings" value="" />
         <input name="monthlyContribution" value="" />
-        <input name="annualInterestRate" value="4" />
-        <input name="annualInflationRate" value="2" />
+        <input name="annualReturnRate" value="4" />
+        <input name="inflationRate" value="2" />
       </form>
       <div id="loading" class="hidden"></div>
       <div id="error" class="hidden"></div>
@@ -131,9 +154,28 @@ describe('savings-goal.client', () => {
       results: document.getElementById('results'),
     };
 
-    await handleSubmit(form, null, refs);
+    const controller = createModelFormController({
+      formId: 'savings-goal-form',
+      schema: SavingsGoalFormSchema,
+      contextLabel: 'Savings Goal Planner',
+      modelId: 'savings-goal',
+      initialValues: DEFAULT_VALUES,
+    });
+
+    const serialized = serializeForm(form);
+    controller.update(serialized);
+    const state = controller.submit();
+    applyFieldErrors(form, state);
+
+    if (!state.isValid) {
+      const errorMessage = describeValidationErrors(state);
+      if (refs.errorMessage) {
+        refs.errorMessage.textContent = errorMessage;
+      }
+      refs.error?.classList.remove('hidden');
+    }
 
     expect(refs.error?.classList.contains('hidden')).toBe(false);
-    expect(refs.errorMessage?.textContent).toMatch(/valid numeric inputs/);
+    expect(refs.errorMessage?.textContent).toMatch(/Invalid input: expected number, received NaN/);
   });
 });
