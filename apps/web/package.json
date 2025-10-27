@@ -32,7 +32,7 @@
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/ui": "workspace:*",
     "astro": "^5.15.1",
-    "lucide-react": "^0.546.0",
+    "lucide-react": "^0.548.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.16",
