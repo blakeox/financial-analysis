@@ -191,9 +191,10 @@ Chat button in header:
 <button 
   onclick="if (window.toggleChatPanel) { 
     window.toggleChatPanel(); 
-    if (window.updateChatContext) { 
-      window.updateChatContext('Tool Name', { tool: 'tool_name' }); 
-    } 
+    import { publishChatContext } from '../scripts/chat/chat-context';
+
+    // Optional: publish context update for the chat panel
+    publishChatContext('models', 'Tool Name', { tool: 'tool_name' });
   }"
   class="chat-button"
 >

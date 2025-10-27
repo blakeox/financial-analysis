@@ -14,7 +14,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm dev -- --port 4323 --host 127.0.0.1',
+    command: 'pnpm run dev:prebuilt -- --port 4323 --host 127.0.0.1 --strictPort',
     cwd: __dirname,
     url: 'http://127.0.0.1:4323',
     timeout: 240_000,

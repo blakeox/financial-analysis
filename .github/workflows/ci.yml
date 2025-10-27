@@ -46,3 +46,13 @@ jobs:
 
       - name: Run unit tests
         run: pnpm test
+
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright smoke tests
+        working-directory: apps/web
+        run: pnpm test:e2e:hmr

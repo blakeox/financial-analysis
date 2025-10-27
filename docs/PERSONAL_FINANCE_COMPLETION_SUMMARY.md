@@ -153,9 +153,8 @@ Each page includes chat integration button:
 <button
   onclick="if (window.toggleChatPanel) { 
     window.toggleChatPanel(); 
-    if (window.updateChatContext) { 
-      window.updateChatContext('Page Name', { tool: 'tool_name' }); 
-    } 
+    import { publishChatContext } from '../scripts/chat/chat-context';
+    publishChatContext('models', 'Page Name', { tool: 'tool_name' });
   }"
   class="chat-button"
 >
