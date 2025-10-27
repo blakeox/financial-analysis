@@ -1,0 +1,50 @@
+# Financial Form Primitives
+
+The `CurrencyField`, `PercentField`, and `FormActions` components provide a consistent visual and accessibility baseline for our calculator pages. They are fully server-renderable (no hydration required) and designed to pair with the new `createModelFormController` utility in `@financial-analysis/tools`.
+
+```jsx preview filename="app/FinancialFormExample.tsx"
+import { CurrencyField, PercentField, FormActions } from '@financial-analysis/ui';
+
+export function FinancialFormExample() {
+  return (
+    <form className="space-y-6 max-w-lg">
+      <CurrencyField
+        id="goalAmount"
+        name="goalAmount"
+        label="Savings Goal"
+        defaultValue="50000"
+        min="100"
+        step="100"
+        helperText="Total amount you want to save."
+      />
+
+      <CurrencyField
+        id="currentSavings"
+        name="currentSavings"
+        label="Current Savings"
+        defaultValue="5000"
+        min="0"
+      />
+
+      <PercentField
+        id="annualReturnRate"
+        name="annualReturnRate"
+        label="Annual Return Rate"
+        defaultValue="5"
+        min="0"
+        max="100"
+        step="0.1"
+        helperText="Expected annual growth before inflation."
+      />
+
+      <FormActions submitLabel="Calculate" resetLabel="Reset" />
+    </form>
+  );
+}
+```
+
+## Usage Notes
+
+- Each field renders an accessible `<label>` / `<input>` pair with sensible defaults (aria attributes, helper text slots, etc.). Client code can toggle error presentation by adding or removing the `border-red-500` and `focus:ring-red-500` classes on the rendered `<input>`.
+- When used with `createModelFormController`, serialized form data can be validated and emitted across the typed application event bus (`model:context` / `model:submit` events).
+- `FormActions` emits a submit button and a secondary action out of the box. Attach form-level listeners (e.g., `form.addEventListener('submit', ...)`) rather than binding handlers directly to these buttons so that the component remains reusable across SSR contexts.
