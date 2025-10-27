@@ -11,6 +11,16 @@ export {
 export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
+export {
+  CurrencyField,
+  PercentField,
+  FormActions,
+} from './components/financial-forms';
+export type {
+  CurrencyFieldProps,
+  PercentFieldProps,
+  FormActionsProps,
+} from './components/financial-forms';
 export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
 export { ChatPanel } from './components/ChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';

@@ -9,6 +9,18 @@ test.describe('ChatPanel send flow', () => {
     await page.goto('/lease-analysis');
     await page.waitForLoadState('networkidle');
 
+    await page.evaluate(() => {
+      const bus = (window as typeof window & { __appEventBus?: unknown }).__appEventBus as {
+        emit?: (event: string, payload: unknown) => void;
+      } | undefined;
+      bus?.emit?.('chat:context', {
+        contextKey: 'lease',
+        label: 'Lease Analysis',
+        data: { scenario: 'playwright-smoke' },
+        source: 'playwright',
+      });
+    });
+
     // Intercept the enhanced chat endpoint (actual endpoint used)
     await page.route('**/api/v1/chat/enhanced', async (route) => {
       const requestBody = route.request().postDataJSON() as { message?: string; context?: string };

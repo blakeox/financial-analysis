@@ -1,4 +1,23 @@
 import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
+import { toolCatalog } from './chat/tool-catalog';
+import { MessageQueue, type QueueEvent } from './chat/message-queue';
+import { ChatStateStore } from './chat/state-store';
+import { appEventBus, type ChatToolsUpdateEvent, type SerializedContext } from '@financial-analysis/tools';
+import {
+  clearActiveWidth as resetActiveWidth,
+  setTopOffset,
+  syncChatAriaState,
+  updateActiveWidth as applyActiveWidth,
+} from './chat/accessibility';
+import { createChatTransport } from './chat/transport';
+import type { ChatTransport } from './chat/transport';
+import type {
+  ChatRequestPayload,
+  ChatResponsePayload,
+  ContextKey,
+  ModelChanges,
+  ToolSummary,
+} from './chat/types';
 
 installChatContextBridge();
 
@@ -21,11 +40,7 @@ const debugWarn = (...args: unknown[]): void => {
   }
 };
 
-type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models';
-
 type ModelState = Record<string, string>;
-type ModelChanges = Record<string, string | number>;
-
 type WindowWithChatPanel = Window & {
   toggleChatPanel?: () => void;
   openChatPanel?: () => void;
@@ -69,16 +84,21 @@ class ChatPanel {
   private currentContext: ContextKey;
   private customContextKey: ContextKey | null;
   private customContextLabel: string | null;
-  private customContextData: Record<string, unknown> | null;
+  private customContextData: SerializedContext | null;
   private unsubscribeChatContext: (() => void) | null;
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
-  private mcpTools: Array<{ name: string; description: string }> | null;
-  private mcpToolOutputs: Record<string, unknown> | null;
+  private mcpTools: ToolSummary[];
+  private mcpToolOutputs: SerializedContext | null;
   private outsideClickHandler: ((event: MouseEvent | TouchEvent) => void) | null;
-  
-  // Rate limiting
-  private lastMessageTime: number;
+  private stateStore: ChatStateStore;
+  private messageQueue: MessageQueue<ChatRequestPayload, ChatResponsePayload>;
+  private transport: ChatTransport;
+  private queueSubscription: (() => void) | null;
+  private toolCatalogUnsubscribe: (() => void) | null;
+  private beforeUnloadHandler: (() => void) | null;
+  private analysisResultsHandler: ((event: Event) => void) | null;
+  private chatStateSubscription: (() => void) | null;
 
   private updateLayoutOffsets = (): void => {
     const header = document.getElementById('site-header');
@@ -86,7 +106,7 @@ class ChatPanel {
     const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
     const navHeight = nav ? Math.round(nav.getBoundingClientRect().height) : 0;
     const offset = Math.max(headerHeight, navHeight, 64);
-    document.documentElement.style.setProperty('--chat-panel-top-offset', `${offset}px`);
+    setTopOffset(offset);
     if (this.isOpen) {
       this.updateActiveWidth();
     }
@@ -147,24 +167,63 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.unsubscribeChatContext = null;
-    this.mcpTools = null;
+    this.mcpTools = [];
     this.mcpToolOutputs = null;
-  this.outsideClickHandler = null;
-    
-    // Initialize rate limiting
-    this.lastMessageTime = 0;
-
-    // Fetch available MCP tools
-    this.fetchMCPTools().catch((err) => {
-      debugWarn('Failed to fetch MCP tools:', err);
+    this.outsideClickHandler = null;
+    this.stateStore = new ChatStateStore();
+    this.transport = createChatTransport({
+      endpoint: '/api/v1/chat/enhanced',
+      timeoutMs: API_TIMEOUT_MS,
+      maxAttempts: MAX_RETRY_ATTEMPTS,
+      backoffMs: RETRY_BACKOFF_MS,
     });
-    this.mcpTools = null;
-
-    // Fetch available MCP tools
-    this.fetchMCPTools().catch((err) => {
-      debugWarn('Failed to fetch MCP tools:', err);
+    this.messageQueue = new MessageQueue<ChatRequestPayload, ChatResponsePayload>(
+      (payload) => this.transport.send(payload),
+      {
+        maxAttempts: MAX_RETRY_ATTEMPTS,
+        initialBackoffMs: RETRY_BACKOFF_MS,
+        maxBackoffMs: RETRY_BACKOFF_MS * 8,
+        minIntervalMs: RATE_LIMIT_DELAY_MS,
+        jitterRatio: 0.3,
+      }
+    );
+    this.queueSubscription = this.messageQueue.subscribe((event) => {
+      this.handleQueueEvent(event);
+    });
+    this.toolCatalogUnsubscribe = toolCatalog.subscribe((event) => {
+      this.handleToolCatalogUpdate(event);
+    });
+    this.chatStateSubscription = null;
+    this.beforeUnloadHandler = () => this.destroy();
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    this.analysisResultsHandler = null;
+    const existingSnapshot = toolCatalog.getSnapshot();
+    if (existingSnapshot) {
+      this.handleToolCatalogUpdate({
+        tools: existingSnapshot.tools,
+        outputs: existingSnapshot.outputs,
+        source: 'refresh',
+      });
+    }
+    this.chatStateSubscription = appEventBus.on('chat:state', (event) => {
+      if (event.source === 'panel') {
+        return;
+      }
+      if (event.isOpen) {
+        if (!this.isOpen) {
+          this.openPanel();
+        }
+      } else if (this.isOpen) {
+        this.closePanel();
+      }
     });
     this.headerObserver = null;
+
+    toolCatalog
+      .load({ source: 'initial', captureOutputs: () => this.capturePageOutputs() })
+      .catch((err) => {
+        debugWarn('Failed to load MCP tools:', err);
+      });
 
     debugLog('[ChatPanel] About to bind events...');
     this.bindEvents();
@@ -214,6 +273,46 @@ class ChatPanel {
     
     // Update welcome message based on context
     this.updateWelcomeMessage(activeContext);
+  }
+
+  private handleQueueEvent(event: QueueEvent<ChatRequestPayload>): void {
+    this.stateStore.integrateQueueEvent(event);
+
+    switch (event.type) {
+      case 'enqueued':
+      case 'sending':
+      case 'retrying':
+        this.showThinking();
+        this.sendBtn.disabled = true;
+        break;
+      case 'succeeded':
+        if (this.stateStore.getState().pendingCount === 0) {
+          this.hideThinking();
+          this.sendBtn.disabled = false;
+        }
+        break;
+      case 'failed':
+        this.hideThinking();
+        this.sendBtn.disabled = false;
+        break;
+      default:
+        break;
+    }
+  }
+
+  private handleToolCatalogUpdate(event: ChatToolsUpdateEvent): void {
+    this.mcpTools = event.tools;
+    this.mcpToolOutputs = event.outputs;
+
+    if (import.meta.env.DEV) {
+      debugLog('[ChatPanel] Tool catalog updated', {
+        source: event.source,
+        toolCount: this.mcpTools.length,
+        hasOutputs: Boolean(this.mcpToolOutputs),
+      });
+    }
+
+    this.updateWelcomeMessage(this.getActiveContextKey());
   }
 
   private showContextChangeNotification(newContext: ContextKey): void {
@@ -295,7 +394,7 @@ class ChatPanel {
     let toolsSection = '';
     
     // Add available MCP tools if loaded
-    if (this.mcpTools && this.mcpTools.length > 0) {
+    if (this.mcpTools.length > 0) {
       const toolsList = this.mcpTools
         .map((tool) => `<li><strong>${tool.name}</strong>: ${tool.description}</li>`)
         .join('');
@@ -323,7 +422,7 @@ class ChatPanel {
   private setExternalContext(
     contextKey: ContextKey | null,
     label: string | null,
-    data: Record<string, unknown> | null,
+    data: SerializedContext | null,
   ): void {
     if (!contextKey) {
       this.clearExternalContext();
@@ -342,8 +441,8 @@ class ChatPanel {
     this.updateContextIndicator();
   }
 
-  private getContextData(): Record<string, unknown> {
-    const base = this.getCurrentModelState();
+  private getContextData(): SerializedContext {
+    const base: SerializedContext = { ...this.getCurrentModelState() };
     if (this.customContextData && typeof this.customContextData === 'object') {
       return { ...base, ...this.customContextData };
     }
@@ -381,40 +480,28 @@ class ChatPanel {
   
   private setupAnalysisResultsListener(): void {
     // Listen for analysis result updates from model pages
-    window.addEventListener('analysis-result-updated', () => {
-      // Refetch tools and outputs when analysis completes
-      this.fetchMCPTools().catch((err) => {
-        debugWarn('Failed to refetch MCP tools after analysis update:', err);
-      });
-    });
+    if (this.analysisResultsHandler) {
+      window.removeEventListener('analysis-result-updated', this.analysisResultsHandler);
+    }
+
+    this.analysisResultsHandler = () => {
+      toolCatalog
+        .load({
+          forceRefresh: true,
+          source: 'analysis-update',
+          captureOutputs: () => this.capturePageOutputs(),
+        })
+        .catch((err) => {
+          debugWarn('Failed to refresh MCP tools after analysis update:', err);
+        });
+    };
+
+    window.addEventListener('analysis-result-updated', this.analysisResultsHandler);
   }
 
-  private async fetchMCPTools(): Promise<void> {
-    try {
-      const response = await fetch('/api/v1/mcp/tools');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch MCP tools: ${response.statusText}`);
-      }
-      const data = await response.json();
-      this.mcpTools = data.tools || [];
-      
-      // Capture any analysis outputs from the current page
-      this.capturePageOutputs();
-      
-      if (import.meta.env.DEV) {
-        debugLog('[ChatPanel] Available MCP tools:', this.mcpTools);
-        debugLog('[ChatPanel] Tool outputs:', this.mcpToolOutputs);
-      }
-    } catch (error) {
-      console.error('Error fetching MCP tools:', error);
-      this.mcpTools = [];
-      this.mcpToolOutputs = null;
-    }
-  }
-  
-  private capturePageOutputs(): void {
+  private capturePageOutputs(): SerializedContext | null {
     // Look for analysis result containers that might have outputs stored
-    const outputs: Record<string, unknown> = {};
+    const outputs: SerializedContext = {};
     
     // Try to find results in various places on the page
     // Check for data attributes on result containers
@@ -437,7 +524,7 @@ class ChatPanel {
       Object.assign(outputs, win.analysisResults);
     }
     
-    this.mcpToolOutputs = Object.keys(outputs).length > 0 ? outputs : null;
+    return Object.keys(outputs).length > 0 ? outputs : null;
   }
 
   private setupNavigationListener(): void {
@@ -478,24 +565,11 @@ class ChatPanel {
     if (!Number.isFinite(panelWidth) || panelWidth <= 0) {
       return;
     }
-    const shouldOffset = this.shouldOffsetContent(panelWidth);
-    const widthValue = shouldOffset ? `${panelWidth}px` : '0px';
-    document.documentElement.style.setProperty('--chat-panel-active-width', widthValue);
-    if (shouldOffset) {
-      document.body.classList.add('chat-panel-open');
-    } else {
-      document.body.classList.remove('chat-panel-open');
-    }
+    applyActiveWidth(panelWidth, window.innerWidth);
   }
 
   private clearActiveWidth(): void {
-    document.documentElement.style.setProperty('--chat-panel-active-width', '0px');
-    document.body.classList.remove('chat-panel-open');
-  }
-
-  private shouldOffsetContent(panelWidth: number): boolean {
-    const minContentWidth = 640;
-    return window.innerWidth - panelWidth >= minContentWidth;
+    resetActiveWidth();
   }
 
   public rebindToggleButton(newToggleBtn: HTMLButtonElement): void {
@@ -511,16 +585,20 @@ class ChatPanel {
     win.openChatPanel = () => this.openPanel();
     win.closeChatPanel = () => this.closePanel();
     if (!this.unsubscribeChatContext) {
-      this.unsubscribeChatContext = subscribeChatContext(({ contextKey, label, data }) => {
+      this.unsubscribeChatContext = subscribeChatContext(({ contextKey, label, data, source }) => {
         if (!contextKey && !label) {
           this.clearExternalContext();
           return;
         }
 
         const contextData =
-          data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
+          data && typeof data === 'object' ? (data as SerializedContext) : null;
 
         this.setExternalContext((contextKey as ContextKey) ?? 'models', label ?? null, contextData);
+
+        if (source && source !== 'legacy' && source !== 'chat' && !this.isOpen) {
+          this.openPanel();
+        }
       });
     }
 
@@ -650,6 +728,7 @@ class ChatPanel {
     this.panel.classList.add('visible');
     this.toggle.classList.add('panel-open');
     this.isOpen = true;
+    this.stateStore.setOpen(true);
     this.updateLayoutOffsets();
     this.syncAriaState();
     this.emitStateChange();
@@ -660,15 +739,14 @@ class ChatPanel {
     this.panel.classList.remove('visible');
     this.toggle.classList.remove('panel-open');
     this.isOpen = false;
+    this.stateStore.setOpen(false);
     this.clearActiveWidth();
     this.syncAriaState();
     this.emitStateChange();
   }
 
   private syncAriaState(): void {
-    this.toggle.setAttribute('aria-expanded', this.isOpen ? 'true' : 'false');
-    this.toggle.setAttribute('aria-label', this.isOpen ? 'Close AI assistant' : 'Open AI assistant');
-    this.panel.setAttribute('aria-hidden', this.isOpen ? 'false' : 'true');
+    syncChatAriaState(this.toggle, this.panel, this.isOpen);
   }
 
   private addMessage(content: string, type: 'user' | 'assistant' = 'user'): void {
@@ -710,147 +788,92 @@ class ChatPanel {
       return;
     }
 
-    // Check rate limiting
-    const now = Date.now();
-    const timeSinceLastMessage = now - this.lastMessageTime;
-    
-    if (timeSinceLastMessage < RATE_LIMIT_DELAY_MS) {
-      const waitTime = Math.ceil((RATE_LIMIT_DELAY_MS - timeSinceLastMessage) / 1000);
-      this.addMessage(
-        `Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before sending another message.`,
-        'assistant'
-      );
-      return;
-    }
-
-    this.lastMessageTime = now;
     this.addMessage(message, 'user');
     this.input.value = '';
     this.sendBtn.disabled = true;
     this.autoResizeInput();
-    this.showThinking();
+    const payload = this.buildRequestPayload(message);
 
     try {
-      const contextKey = this.getActiveContextKey();
-      const currentModel = this.getContextData();
-      const payload: Record<string, unknown> = {
-        message,
-        context: contextKey,
-        currentModel,
-        availableTools: this.mcpTools || [],
-        toolOutputs: this.mcpToolOutputs || {},
-      };
-      
-      if (import.meta.env.DEV) {
-        debugLog('[ChatPanel] Sending message with context:', {
-          context: contextKey,
-          pathname: window.location.pathname,
-          hasModelData: Object.keys(currentModel).length > 0,
-        });
-      }
-      if (this.customContextLabel) {
-        payload.contextLabel = this.customContextLabel;
-      }
-      if (this.customContextData) {
-        payload.contextData = this.customContextData;
-      }
-
-      // Fetch with timeout and retry logic
-      const data = await this.fetchWithRetry('/api/v1/chat/enhanced', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      this.hideThinking();
-      this.addMessage(data.response, 'assistant');
-      this.sendBtn.disabled = false;
-
-      if (data.modelChanges) {
-        this.applyModelChanges(data.modelChanges);
-      }
+      const data = await this.messageQueue.enqueue(payload);
+      this.handleSuccessfulResponse(data);
     } catch (error) {
-      this.hideThinking();
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      
-      if (errorMessage.includes('timeout')) {
-        this.addMessage(
-          'Request timed out. The server may be busy. Please try again in a moment.',
-          'assistant'
-        );
-      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-        this.addMessage(
-          'Network error. Please check your connection and try again.',
-          'assistant'
-        );
-      } else if (errorMessage.includes('429')) {
-        this.addMessage(
-          'Too many requests. Please wait a moment before trying again.',
-          'assistant'
-        );
-      } else {
-        this.addMessage(
-          'Sorry, I encountered an error. Please try again.',
-          'assistant'
-        );
-      }
-      
-      this.sendBtn.disabled = false;
-      console.error('Chat error:', error);
+      this.handleFailedResponse(error);
     }
   }
 
-  /**
-   * Fetch with timeout and retry logic
-   */
-  private async fetchWithRetry(
-    url: string,
-    options: RequestInit,
-    attempt = 1
-  ): Promise<{ response: string; modelChanges?: ModelChanges }> {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  private buildRequestPayload(message: string): ChatRequestPayload {
+    const contextKey = this.getActiveContextKey();
+    const currentModel = this.getContextData();
+    const payload: ChatRequestPayload = {
+      message,
+      context: contextKey,
+      currentModel,
+      availableTools: this.mcpTools,
+      toolOutputs: this.mcpToolOutputs,
+    };
 
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
+    if (import.meta.env.DEV) {
+      debugLog('[ChatPanel] Prepared payload with context:', {
+        context: contextKey,
+        pathname: window.location.pathname,
+        hasModelData: Object.keys(currentModel).length > 0,
+        toolCount: this.mcpTools.length,
+        hasToolOutputs: Boolean(this.mcpToolOutputs),
       });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
-          // Rate limited, retry with backoff
-          const backoffTime = RETRY_BACKOFF_MS * Math.pow(2, attempt - 1);
-          await new Promise(resolve => setTimeout(resolve, backoffTime));
-          return this.fetchWithRetry(url, options, attempt + 1);
-        }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = (await response.json()) as {
-        response: string;
-        modelChanges?: ModelChanges;
-      };
-
-      return data;
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout - please try again');
-      }
-      
-      // Retry on network errors
-      if (attempt < MAX_RETRY_ATTEMPTS && error instanceof TypeError) {
-        const backoffTime = RETRY_BACKOFF_MS * Math.pow(2, attempt - 1);
-        await new Promise(resolve => setTimeout(resolve, backoffTime));
-        return this.fetchWithRetry(url, options, attempt + 1);
-      }
-      
-      throw error;
     }
+
+    if (this.customContextLabel) {
+      payload.contextLabel = this.customContextLabel;
+    }
+    if (this.customContextData) {
+      payload.contextData = this.customContextData;
+    }
+
+    return payload;
+  }
+
+  private handleSuccessfulResponse(data: ChatResponsePayload): void {
+    this.addMessage(data.response, 'assistant');
+
+    if (this.stateStore.getState().pendingCount === 0) {
+      this.hideThinking();
+      this.sendBtn.disabled = false;
+    }
+
+    if (data.modelChanges) {
+      this.applyModelChanges(data.modelChanges);
+    }
+  }
+
+  private handleFailedResponse(error: unknown): void {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+    if (errorMessage.includes('timeout')) {
+      this.addMessage(
+        'Request timed out. The server may be busy. Please try again in a moment.',
+        'assistant'
+      );
+    } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+      this.addMessage(
+        'Network error. Please check your connection and try again.',
+        'assistant'
+      );
+    } else if (errorMessage.includes('429')) {
+      this.addMessage(
+        'Too many requests. Please wait a moment before trying again.',
+        'assistant'
+      );
+    } else {
+      this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+    }
+
+    if (this.stateStore.getState().pendingCount === 0) {
+      this.hideThinking();
+      this.sendBtn.disabled = false;
+    }
+
+    console.error('Chat error:', error);
   }
 
   private getCurrentModelState(): ModelState {
@@ -870,6 +893,45 @@ class ChatPanel {
     });
 
     return formData;
+  }
+
+  public destroy(): void {
+    this.queueSubscription?.();
+    this.queueSubscription = null;
+    this.toolCatalogUnsubscribe?.();
+    this.toolCatalogUnsubscribe = null;
+    this.messageQueue.dispose();
+
+    if (this.beforeUnloadHandler) {
+      window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+      this.beforeUnloadHandler = null;
+    }
+
+    if (this.analysisResultsHandler) {
+      window.removeEventListener('analysis-result-updated', this.analysisResultsHandler);
+      this.analysisResultsHandler = null;
+    }
+
+    this.chatStateSubscription?.();
+    this.chatStateSubscription = null;
+
+    if (this.unsubscribeChatContext) {
+      this.unsubscribeChatContext();
+      this.unsubscribeChatContext = null;
+    }
+
+    if (this.outsideClickHandler) {
+      document.removeEventListener('mousedown', this.outsideClickHandler, true);
+      document.removeEventListener('touchstart', this.outsideClickHandler, true);
+      this.outsideClickHandler = null;
+    }
+
+    window.removeEventListener('resize', this.updateLayoutOffsets);
+    window.removeEventListener('orientationchange', this.updateLayoutOffsets);
+    window.removeEventListener('scroll', this.updateLayoutOffsets);
+
+    this.headerObserver?.disconnect();
+    this.headerObserver = null;
   }
 
   private applyModelChanges(changes: ModelChanges): void {
@@ -907,9 +969,15 @@ class ChatPanel {
     
     // Refetch MCP tools to capture any new outputs from the analysis
     setTimeout(() => {
-      this.fetchMCPTools().catch((err) => {
-        debugWarn('Failed to refetch MCP tools after model change:', err);
-      });
+      toolCatalog
+        .load({
+          forceRefresh: true,
+          source: 'analysis-update',
+          captureOutputs: () => this.capturePageOutputs(),
+        })
+        .catch((err) => {
+          debugWarn('Failed to refresh MCP tools after model change:', err);
+        });
     }, 500); // Wait for analysis to complete
   }
 }

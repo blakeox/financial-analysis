@@ -1,20 +1,12 @@
 import { publishChatContext } from '../chat/chat-context';
+import type { InteractionType, ModelMetadata } from './types';
+import { modelSelectionStore } from './model-selection-store';
 
-type InteractionType = 'pointer' | 'keyboard' | 'programmatic';
+export type { ModelMetadata } from './types';
 
 type ModelCardElements = {
   root: HTMLElement;
   ctaButton?: HTMLAnchorElement | HTMLButtonElement | null;
-};
-
-export type ModelMetadata = {
-  id: string | null;
-  name: string | null;
-  description: string | null;
-  status: 'available' | 'coming-soon';
-  ctaHref: string | null;
-  ctaLabel: string | null;
-  features: string[];
 };
 
 export type SelectModelFn = (
@@ -660,6 +652,7 @@ export function initializeModelSelection(
     const metadata = getModelMetadata(element, modelId ?? null);
     state.selectedModel = metadata.name;
     state.selectedModelData = metadata;
+    modelSelectionStore.setSelection(metadata);
 
     updateInfoPanel(metadata.name, interactionType);
     syncChatContext();
@@ -686,6 +679,7 @@ export function initializeModelSelection(
     state.selectedModel = null;
     state.selectedModelData = null;
     state.selectedCard = null;
+    modelSelectionStore.clear();
 
     syncChatContext();
   };
@@ -825,6 +819,7 @@ export function initializeModelSelection(
       const payload = message.data;
       if (payload?.type === 'modelData') {
         state.selectedModelData = payload.data ?? null;
+        modelSelectionStore.setSelection(state.selectedModelData);
         syncChatContext();
       }
     },
