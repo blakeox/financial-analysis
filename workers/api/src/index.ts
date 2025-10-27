@@ -2619,8 +2619,9 @@ router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, e
     
     // If no specific changes detected, provide general assistance
     if (Object.keys(modelChanges).length === 0) {
-      contextualResponse = `I understand you want to modify the ${context} model. Could you be more specific about what parameter you'd like to change? For example:\n\n• "Change interest rate to 5.5%"\n• "Increase loan amount to $250,000"\n• "Set term to 15 years"`;
-      explanation = `**Available Parameters**: I can help you modify interest rates, loan amounts, terms, growth rates, and other key financial variables. Just specify the value you'd like to use.`;
+      // Short, help-on-demand response: keeps startup concise but points users to ask for help
+      contextualResponse = `I can help update the ${context} model. Try: "Set interest to 4.5%" or "Show a 20-year term". Say "help" for more examples.`;
+      explanation = `I can change interest rates, amounts, and terms. Ask for a specific value or say "help" to see example requests.`;
     }
     
     const response = {
