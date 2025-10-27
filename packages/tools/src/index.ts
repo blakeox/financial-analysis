@@ -16,3 +16,28 @@ export { BudgetTool } from './tools/budget';
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';
 export type { MCPRequestMethod } from './mcp/tools';
+
+// Event Bus
+export {
+  appEventBus,
+  createEventBus,
+  getOrCreateGlobalBus,
+  GLOBAL_BUS_SYMBOL,
+  type AppEventMap,
+  type TypedEventBus,
+  type EventMap,
+  type ChatContextEvent,
+  type ChatStateEvent,
+  type ChatToolsUpdateEvent,
+  type ModelContextEvent,
+  type ModelSubmitEvent,
+  type ModelErrorEvent,
+  type SerializedContext,
+} from './event-bus';
+
+// Form Controllers
+export { createModelFormController } from './forms/model-form-controller';
+export type {
+  FormControllerState,
+  FormValidationError,
+} from './forms/model-form-controller';

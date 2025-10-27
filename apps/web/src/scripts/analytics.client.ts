@@ -1,4 +1,5 @@
 import { monitoredFetch, trackError, trackUserAction } from '@financial-analysis/ui';
+import { appEventBus } from '@financial-analysis/tools';
 
 type ButtonIds = 'test-api-call' | 'test-error' | 'test-action';
 
@@ -8,6 +9,15 @@ const getButton = (id: ButtonIds) => {
 };
 
 const initAnalyticsTestControls = () => {
+  appEventBus.on('model:context', (event) => {
+    trackUserAction({
+      action: 'model_context_update',
+      element: 'event-bus',
+      value: event.modelId ?? event.contextLabel ?? 'unknown-model',
+      context: event.data,
+    });
+  });
+
   const apiButton = getButton('test-api-call');
   const errorButton = getButton('test-error');
   const actionButton = getButton('test-action');

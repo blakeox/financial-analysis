@@ -2,6 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import {
+  CurrencyField,
+  PercentField,
+  FormActions,
+} from '@financial-analysis/ui';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -76,128 +81,71 @@ const faqSchema = {
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Goal Details</h2>
             
             <form id="savings-goal-form" class="space-y-6">
-              <!-- Goal Amount -->
-              <div>
-                <label for="goalAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Savings Goal
-                </label>
-                <div class="relative">
-                  <span class="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    id="goalAmount"
-                    name="goalAmount"
-                    value="50000"
-                    min="100"
-                    max="10000000"
-                    step="100"
-                    required
-                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-                <p class="text-xs text-gray-500 mt-1">The amount you want to save</p>
-              </div>
+              <CurrencyField
+                id="goalAmount"
+                name="goalAmount"
+                label="Savings Goal"
+                defaultValue="50000"
+                min="100"
+                max="10000000"
+                step="100"
+                required
+                helperText="The amount you want to save"
+                aria-invalid="false"
+              />
 
-              <!-- Current Savings -->
-              <div>
-                <label for="currentSavings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Current Savings
-                </label>
-                <div class="relative">
-                  <span class="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    id="currentSavings"
-                    name="currentSavings"
-                    value="5000"
-                    min="0"
-                    step="100"
-                    required
-                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-              </div>
+              <CurrencyField
+                id="currentSavings"
+                name="currentSavings"
+                label="Current Savings"
+                defaultValue="5000"
+                min="0"
+                step="100"
+                required
+                aria-invalid="false"
+              />
 
-              <!-- Monthly Contribution -->
-              <div>
-                <label for="monthlyContribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Monthly Contribution
-                </label>
-                <div class="relative">
-                  <span class="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    id="monthlyContribution"
-                    name="monthlyContribution"
-                    value="1000"
-                    min="0"
-                    step="10"
-                    required
-                    class="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-              </div>
+              <CurrencyField
+                id="monthlyContribution"
+                name="monthlyContribution"
+                label="Monthly Contribution"
+                defaultValue="1000"
+                min="0"
+                step="10"
+                required
+                aria-invalid="false"
+              />
 
-              <!-- Annual Interest Rate -->
-              <div>
-                <label for="annualInterestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Annual Return Rate
-                </label>
-                <div class="relative">
-                  <input
-                    type="number"
-                    id="annualInterestRate"
-                    name="annualInterestRate"
-                    value="5.0"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    required
-                    class="w-full pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                  <span class="absolute right-3 top-2 text-gray-500">%</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Expected annual rate of return on savings</p>
-              </div>
+              <PercentField
+                id="annualInterestRate"
+                name="annualInterestRate"
+                label="Annual Return Rate"
+                defaultValue="5.0"
+                min="0"
+                max="100"
+                step="0.1"
+                helperText="Expected annual rate of return on savings"
+                required
+                aria-invalid="false"
+              />
 
-              <!-- Annual Inflation Rate -->
-              <div>
-                <label for="annualInflationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Inflation Rate
-                </label>
-                <div class="relative">
-                  <input
-                    type="number"
-                    id="annualInflationRate"
-                    name="annualInflationRate"
-                    value="3.0"
-                    min="0"
-                    max="20"
-                    step="0.1"
-                    class="w-full pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                  <span class="absolute right-3 top-2 text-gray-500">%</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Adjust for inflation (optional)</p>
-              </div>
+              <PercentField
+                id="annualInflationRate"
+                name="annualInflationRate"
+                label="Inflation Rate"
+                defaultValue="3.0"
+                min="0"
+                max="20"
+                step="0.1"
+                helperText="Adjust for inflation (optional)"
+                aria-invalid="false"
+              />
 
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button
-                  type="submit"
-                  id="calculate-btn"
-                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition"
-                >
-                  Calculate
-                </button>
-                <button
-                  type="button"
-                  id="reset-btn"
-                  class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                  Reset
-                </button>
-              </div>
+              <FormActions
+                submitLabel="Calculate"
+                resetLabel="Reset"
+                className="pt-2"
+              />
             </form>
 
             <!-- Loading State -->
