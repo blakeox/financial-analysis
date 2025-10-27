@@ -25,7 +25,7 @@ export type FormControllerState<TValues> = {
 type Listener<TValues> = (state: FormControllerState<TValues>) => void;
 
 const toErrorList = (issue: z.ZodIssue): FormValidationError => ({
-  path: issue.path.map(String).join('.') || issue.path.join('.'),
+  path: issue.path.map(String).join('.'),
   message: issue.message,
 });
 
@@ -99,7 +99,7 @@ export function createModelFormController<TSchema extends ObjectSchema>(
       const merged = {
         ...currentValues,
         ...values,
-      } satisfies Record<string, unknown>;
+      };
       const result = options.schema.safeParse(merged);
       if (result.success) {
         currentValues = result.data;

@@ -45,7 +45,7 @@ const calculateBackoff = (
   max: number,
   jitterRatio: number
 ): number => {
-  const exponential = initial * Math.pow(2, attempt - 1);
+  const exponential = initial * (2 ** (attempt - 1));
   const clamped = Math.min(exponential, max);
   const jitter = clamped * jitterRatio * Math.random();
   return clamped + jitter;

@@ -88,7 +88,7 @@ class ChatPanel {
   private unsubscribeChatContext: (() => void) | null;
   private headerObserver: ResizeObserver | null;
   private lastContext: ContextKey;
-  private mcpTools: ToolSummary[];
+  private mcpTools: ToolSummary[] | null;
   private mcpToolOutputs: SerializedContext | null;
   private outsideClickHandler: ((event: MouseEvent | TouchEvent) => void) | null;
   private stateStore: ChatStateStore;
@@ -167,7 +167,7 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.unsubscribeChatContext = null;
-    this.mcpTools = [];
+  this.mcpTools = null;
     this.mcpToolOutputs = null;
     this.outsideClickHandler = null;
     this.stateStore = new ChatStateStore();
@@ -202,7 +202,7 @@ class ChatPanel {
       this.handleToolCatalogUpdate({
         tools: existingSnapshot.tools,
         outputs: existingSnapshot.outputs,
-        source: 'refresh',
+        source: 'initial',
       });
     }
     this.chatStateSubscription = appEventBus.on('chat:state', (event) => {
@@ -307,7 +307,7 @@ class ChatPanel {
     if (import.meta.env.DEV) {
       debugLog('[ChatPanel] Tool catalog updated', {
         source: event.source,
-        toolCount: this.mcpTools.length,
+        toolCount: this.mcpTools?.length ?? 0,
         hasOutputs: Boolean(this.mcpToolOutputs),
       });
     }
@@ -349,43 +349,38 @@ class ChatPanel {
 
     const contextMessages: Record<ContextKey, { intro: string; examples: string[] }> = {
       lease: {
-        intro: "Hi! I'm your AI assistant for Lease Analysis. I can help you modify lease parameters and explore scenarios. Try asking:",
+        intro: "Hi — I can help with lease analysis.",
         examples: [
           '"What if the interest rate was 5.5%?"',
-          '"Change the lease amount to $150,000"',
-          '"Show me a 36-month lease term"',
+          '"Show a 36-month lease"',
         ],
       },
       ebitda: {
-        intro: "Hi! I'm your AI assistant for EBITDA Forecasting. I can help you adjust revenue projections and growth rates. Try asking:",
+        intro: "Hi — I can help with EBITDA forecasting.",
         examples: [
-          '"Set initial revenue to $500,000"',
-          '"Change the growth rate to 15%"',
-          '"What if expenses increased by 10%?"',
+          '"Set revenue to $500,000"',
+          '"Change growth to 15%"',
         ],
       },
       amortization: {
-        intro: "Hi! I'm your AI assistant for Amortization Analysis. I can help you modify loan parameters and view different schedules. Try asking:",
+        intro: "Hi — I can help with amortization schedules.",
         examples: [
-          '"Change the interest rate to 4.5%"',
-          '"Increase the loan amount to $300,000"',
-          '"Show me a 20-year term"',
+          '"Set interest to 4.5%"',
+          '"Show a 20-year term"',
         ],
       },
       models: {
-        intro: "Hi! I'm your AI assistant. Select a model to get context-specific help, or ask general questions about the available financial tools.",
+        intro: "Hi — select a model or ask about available tools.",
         examples: [
-          '"Tell me about lease analysis"',
           '"What models are available?"',
-          '"How do I analyze EBITDA?"',
+          '"Tell me about lease analysis"',
         ],
       },
       general: {
-        intro: "Hi! I'm your AI assistant. I can help you navigate financial analysis tools and answer questions. Try asking:",
+        intro: "Hi — I can help with finance tools and quick analysis.",
         examples: [
           '"What tools are available?"',
-          '"Help me analyze a lease"',
-          '"Show me amortization options"',
+          '"Show amortization options"',
         ],
       },
     };
@@ -394,8 +389,8 @@ class ChatPanel {
     let toolsSection = '';
     
     // Add available MCP tools if loaded
-    if (this.mcpTools.length > 0) {
-      const toolsList = this.mcpTools
+    if (this.mcpTools && this.mcpTools.length > 0) {
+      const toolsList = (this.mcpTools ?? [])
         .map((tool) => `<li><strong>${tool.name}</strong>: ${tool.description}</li>`)
         .join('');
       toolsSection = `
@@ -809,7 +804,7 @@ class ChatPanel {
       message,
       context: contextKey,
       currentModel,
-      availableTools: this.mcpTools,
+      availableTools: this.mcpTools ?? [],
       toolOutputs: this.mcpToolOutputs,
     };
 
@@ -818,7 +813,7 @@ class ChatPanel {
         context: contextKey,
         pathname: window.location.pathname,
         hasModelData: Object.keys(currentModel).length > 0,
-        toolCount: this.mcpTools.length,
+        toolCount: this.mcpTools?.length ?? 0,
         hasToolOutputs: Boolean(this.mcpToolOutputs),
       });
     }
