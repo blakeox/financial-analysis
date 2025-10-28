@@ -29,6 +29,12 @@ const navLinks = [
 function getCurrentContext(pathname: string): string {
   const path = pathname.split('/')[1] || '';
   
+  // Check for journey pages first
+  if (path === 'journey') {
+    const journeyId = pathname.split('/')[2] || '';
+    return `journey-${journeyId}`;
+  }
+  
   // Direct page mappings
   const contextMap: Record<string, string> = {
     'amortization': 'amortization',

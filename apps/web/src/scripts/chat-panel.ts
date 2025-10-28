@@ -252,6 +252,25 @@ class ChatPanel {
 
   private detectContext(): ContextKey {
     const path = window.location.pathname;
+    
+    // Check journey pages first
+    if (path.includes('/journey/')) {
+      const journeyMatch = path.match(/\/journey\/([^\/]+)/);
+      if (journeyMatch) {
+        const journeyId = journeyMatch[1];
+        // Map journey IDs to appropriate contexts
+        const journeyContextMap: Record<string, ContextKey> = {
+          'young-professional': 'general',
+          'family-planning': 'general', 
+          'home-buying': 'amortization',
+          'debt-elimination': 'general',
+          'investment-portfolio': 'general',
+          'pre-retirement': 'general'
+        };
+        return journeyContextMap[journeyId] || 'general';
+      }
+    }
+    
     // Check specific page contexts
     if (path.includes('/amortization')) return 'amortization';
     if (path.includes('/ebitda')) return 'ebitda';
@@ -262,23 +281,47 @@ class ChatPanel {
   }
 
   private updateContextIndicator(): void {
-    const contexts: Record<ContextKey, string> = {
-      lease: 'Lease Analysis',
-      ebitda: 'EBITDA Forecasting',
-      amortization: 'Amortization',
-      models: 'Models',
-      general: 'General',
-    };
-    const activeContext = this.getActiveContextKey();
-    const label = this.customContextLabel || contexts[activeContext] || 'General';
+    const path = window.location.pathname;
+    let label = 'General';
+    
+    // Check if we're on a journey page
+    if (path.includes('/journey/')) {
+      const journeyMatch = path.match(/\/journey\/([^\/]+)/);
+      if (journeyMatch) {
+        const journeyId = journeyMatch[1];
+        const journeyLabels: Record<string, string> = {
+          'young-professional': 'Young Professional Journey',
+          'family-planning': 'Family Planning Journey',
+          'home-buying': 'Home Buying Journey', 
+          'debt-elimination': 'Debt Elimination Strategy',
+          'investment-portfolio': 'Investment Portfolio Build',
+          'pre-retirement': 'Pre-Retirement Planning'
+        };
+        label = journeyLabels[journeyId] || 'Financial Journey';
+      }
+    } else {
+      // Use existing context mapping for other pages
+      const contexts: Record<ContextKey, string> = {
+        lease: 'Lease Analysis',
+        ebitda: 'EBITDA Forecasting',
+        amortization: 'Amortization',
+        models: 'Models',
+        general: 'General',
+      };
+      const activeContext = this.getActiveContextKey();
+      label = this.customContextLabel || contexts[activeContext] || 'General';
+    }
+    
     this.contextIndicator.textContent = label;
+    
     if (this.customContextLabel) {
-      this.contextIndicator.setAttribute('title', contexts[activeContext] || activeContext);
+      this.contextIndicator.setAttribute('title', 'Custom context');
     } else {
       this.contextIndicator.removeAttribute('title');
     }
 
     // Update welcome message based on context
+    const activeContext = this.getActiveContextKey();
     this.updateWelcomeMessage(activeContext);
   }
 

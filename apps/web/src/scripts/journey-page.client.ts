@@ -20,6 +20,7 @@ class JourneyPageManager {
     this.progress = this.loadProgress();
     this.updateProgressDisplay();
     this.setupEventListeners();
+    this.updateChatbotContext();
   }
 
   private getScenarioId(): string {
@@ -135,6 +136,43 @@ class JourneyPageManager {
         button.classList.add('bg-blue-600', 'hover:bg-blue-700');
       }
     });
+  }
+
+  private updateChatbotContext(): void {
+    // Get journey data from the page
+    const journeyTitle = document.querySelector('h1')?.textContent || '';
+    const journeyDescription = document.querySelector('p.text-xl')?.textContent || '';
+    const models = Array.from(document.querySelectorAll('h4')).map(h4 => h4.textContent || '');
+    const workflowSteps = Array.from(document.querySelectorAll('ol li')).map(li => li.textContent || '');
+
+    // Update global context for chatbot
+    if (typeof window !== 'undefined') {
+      (window as any).currentJourney = {
+        id: this.scenarioId,
+        title: journeyTitle,
+        description: journeyDescription,
+        models: models,
+        workflowSteps: workflowSteps,
+        progress: this.progress,
+        completedModels: this.progress.completed
+      };
+
+      // Notify chatbot of journey context
+      const event = new CustomEvent('journey-context-updated', {
+        detail: { 
+          journeyId: this.scenarioId,
+          journeyTitle,
+          progress: this.progress
+        },
+      });
+      document.dispatchEvent(event);
+
+      console.log('Journey context updated for chatbot:', {
+        journeyId: this.scenarioId,
+        title: journeyTitle,
+        progress: this.progress
+      });
+    }
   }
 }
 
