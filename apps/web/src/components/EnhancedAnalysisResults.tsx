@@ -1,6 +1,37 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@financial-analysis/ui';
 import React, { useEffect, useState } from 'react';
-import { DetailedAnalysis, FinancialAnalysisEngine } from '../scripts/financial-analysis-engine';
+import { FinancialAnalysisEngine } from '../scripts/financial-analysis-engine';
+
+// Define DetailedAnalysis interface locally since it's not exported
+interface DetailedAnalysis {
+  summary: Record<string, unknown>;
+  insights: Array<{
+    category: 'financial' | 'risk' | 'opportunity' | 'optimization';
+    title: string;
+    description: string;
+    impact: 'low' | 'medium' | 'high';
+    actionable: boolean;
+  }>;
+  recommendations: Array<{
+    priority: 'low' | 'medium' | 'high';
+    category: 'immediate' | 'short-term' | 'long-term';
+    title: string;
+    description: string;
+    potentialSavings?: number;
+    effort: 'low' | 'medium' | 'high';
+  }>;
+  riskAssessment: {
+    overallRisk: 'low' | 'medium' | 'high';
+    factors: Array<{ factor: string; risk: 'low' | 'medium' | 'high'; description: string }>;
+  };
+  optimizationOpportunities: Array<{
+    area: string;
+    currentValue: number;
+    optimizedValue: number;
+    potentialImprovement: number;
+    description: string;
+  }>;
+}
 
 interface EnhancedAnalysisResultsProps {
   modelType: string;

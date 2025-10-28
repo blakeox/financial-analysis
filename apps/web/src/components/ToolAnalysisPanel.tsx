@@ -167,6 +167,12 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
     return contextNames[currentContext] || 'General Tools';
   };
 
+  // Filter analyses based on current context
+  const relevantAnalyses = analyses.filter((analysis) => {
+    const relevantTools = getRelevantTools();
+    return relevantTools.length === 0 || relevantTools.includes(analysis.toolName);
+  });
+
   if (relevantAnalyses.length === 0) {
     return null;
   }
