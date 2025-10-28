@@ -441,7 +441,7 @@ export class MultiModelScenarioTool {
   // Helper methods for generating analysis content
   private static generateOverviewSummary(
     scenario: any,
-    userProfile?: any,
+    _userProfile?: any,
     currentProgress?: any
   ): string {
     const completedCount = currentProgress?.completedModels?.length || 0;

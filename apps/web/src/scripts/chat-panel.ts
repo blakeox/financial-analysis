@@ -1,16 +1,21 @@
-import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
-import { toolCatalog } from './chat/tool-catalog';
-import { MessageQueue, type QueueEvent } from './chat/message-queue';
-import { ChatStateStore } from './chat/state-store';
-import { appEventBus, type ChatToolsUpdateEvent, type SerializedContext } from '@financial-analysis/tools';
 import {
+  appEventBus,
+  type ChatToolsUpdateEvent,
+  type SerializedContext,
+} from '@financial-analysis/tools';
+import {
+  updateActiveWidth as applyActiveWidth,
   clearActiveWidth as resetActiveWidth,
   setTopOffset,
   syncChatAriaState,
-  updateActiveWidth as applyActiveWidth,
 } from './chat/accessibility';
-import { createChatTransport } from './chat/transport';
+import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
+import { chatMemory } from './chat/chat-memory';
+import { MessageQueue, type QueueEvent } from './chat/message-queue';
+import { ChatStateStore } from './chat/state-store';
+import { toolCatalog } from './chat/tool-catalog';
 import type { ChatTransport } from './chat/transport';
+import { createChatTransport } from './chat/transport';
 import type {
   ChatRequestPayload,
   ChatResponsePayload,
@@ -58,14 +63,14 @@ function validateMessage(message: string): { valid: boolean; error?: string } {
   if (!message || message.trim().length === 0) {
     return { valid: false, error: 'Message cannot be empty' };
   }
-  
+
   if (message.length > MAX_MESSAGE_LENGTH) {
     return {
       valid: false,
       error: `Message too long (${message.length} characters). Maximum is ${MAX_MESSAGE_LENGTH}.`,
     };
   }
-  
+
   return { valid: true };
 }
 
@@ -133,7 +138,7 @@ class ChatPanel {
       sendBtn: !!sendBtn,
       messages: !!messages,
       thinkingIndicator: !!thinkingIndicator,
-      contextIndicator: !!contextIndicator
+      contextIndicator: !!contextIndicator,
     });
 
     if (!(panel instanceof HTMLDivElement)) throw new Error('Chat panel container not found');
@@ -143,9 +148,11 @@ class ChatPanel {
     if (!(input instanceof HTMLTextAreaElement)) throw new Error('Chat input not found');
     if (!(sendBtn instanceof HTMLButtonElement)) throw new Error('Chat send button not found');
     if (!(messages instanceof HTMLDivElement)) throw new Error('Chat messages container not found');
-    if (!(thinkingIndicator instanceof HTMLDivElement)) throw new Error('Chat thinking indicator not found');
-    if (!(contextIndicator instanceof HTMLSpanElement)) throw new Error('Chat context indicator not found');
-    
+    if (!(thinkingIndicator instanceof HTMLDivElement))
+      throw new Error('Chat thinking indicator not found');
+    if (!(contextIndicator instanceof HTMLSpanElement))
+      throw new Error('Chat context indicator not found');
+
     debugLog('[ChatPanel] All elements validated, assigning to instance...');
     this.panel = panel;
     this.toggle = toggle;
@@ -156,7 +163,7 @@ class ChatPanel {
     this.messages = messages;
     this.thinkingIndicator = thinkingIndicator;
     this.contextIndicator = contextIndicator;
-    
+
     // Character counter (optional, may not exist in DOM yet)
     this.charCounter = document.getElementById('chat-char-counter') as HTMLSpanElement | null;
 
@@ -167,7 +174,7 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.unsubscribeChatContext = null;
-  this.mcpTools = null;
+    this.mcpTools = null;
     this.mcpToolOutputs = null;
     this.outsideClickHandler = null;
     this.stateStore = new ChatStateStore();
@@ -270,7 +277,7 @@ class ChatPanel {
     } else {
       this.contextIndicator.removeAttribute('title');
     }
-    
+
     // Update welcome message based on context
     this.updateWelcomeMessage(activeContext);
   }
@@ -349,58 +356,39 @@ class ChatPanel {
 
     const contextMessages: Record<ContextKey, { intro: string; examples: string[] }> = {
       lease: {
-        intro: "Hi — I can help with lease analysis.",
-        examples: [
-          '"What if the interest rate was 5.5%?"',
-          '"Show a 36-month lease"',
-        ],
+        intro: 'Hi — I can help with lease analysis.',
+        examples: ['"What if the interest rate was 5.5%?"', '"Show a 36-month lease"'],
       },
       ebitda: {
-        intro: "Hi — I can help with EBITDA forecasting.",
-        examples: [
-          '"Set revenue to $500,000"',
-          '"Change growth to 15%"',
-        ],
+        intro: 'Hi — I can help with EBITDA forecasting.',
+        examples: ['"Set revenue to $500,000"', '"Change growth to 15%"'],
       },
       amortization: {
-        intro: "Hi — I can help with amortization schedules.",
-        examples: [
-          '"Set interest to 4.5%"',
-          '"Show a 20-year term"',
-        ],
+        intro: 'Hi — I can help with amortization schedules.',
+        examples: ['"Set interest to 4.5%"', '"Show a 20-year term"'],
       },
       models: {
-        intro: "Hi — select a model or ask about available tools.",
-        examples: [
-          '"What models are available?"',
-          '"Tell me about lease analysis"',
-        ],
+        intro: 'Hi — select a model or ask about available tools.',
+        examples: ['"What models are available?"', '"Tell me about lease analysis"'],
       },
       general: {
-        intro: "Hi — I can help with finance tools and quick analysis.",
-        examples: [
-          '"What tools are available?"',
-          '"Show amortization options"',
-        ],
+        intro: 'Hi — I can help with finance tools and quick analysis.',
+        examples: ['"What tools are available?"', '"Show amortization options"'],
       },
     };
 
     const messageConfig = contextMessages[context];
     let toolsSection = '';
-    
-    // Add available MCP tools if loaded
+
+    // Add available MCP tools if loaded (simplified)
     if (this.mcpTools && this.mcpTools.length > 0) {
-      const toolsList = (this.mcpTools ?? [])
-        .map((tool) => `<li><strong>${tool.name}</strong>: ${tool.description}</li>`)
-        .join('');
       toolsSection = `
         <div class="tools-section">
-          <p><strong>Available Tools:</strong></p>
-          <ul class="tools-list">${toolsList}</ul>
+          <p><em>I have access to ${this.mcpTools.length} financial analysis tools. Ask me to analyze specific scenarios or say "help" for examples.</em></p>
         </div>
       `;
     }
-    
+
     systemMessage.innerHTML = `
       <p>${messageConfig.intro}</p>
       <ul>
@@ -414,10 +402,70 @@ class ChatPanel {
     return this.customContextKey || this.currentContext;
   }
 
+  private getModelTypeFromContext(context: ContextKey): string | null {
+    switch (context) {
+      case 'amortization':
+        return 'amortization';
+      case 'lease':
+        return 'lease';
+      case 'ebitda':
+        return 'ebitda';
+      default:
+        return null;
+    }
+  }
+
+  private getLastUserMessage(): string | null {
+    // Find the last user message from the messages container
+    const messages = this.messages?.querySelectorAll('.message.user');
+    if (messages && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      const contentDiv = lastMessage.querySelector('.message-content');
+      return contentDiv?.textContent?.trim() || null;
+    }
+    return null;
+  }
+
+  private dispatchToolAnalysisEvent(
+    toolName: string,
+    response: string,
+    modelChanges?: Record<string, unknown>
+  ): void {
+    // Extract insights from the response
+    const insights: string[] = [];
+
+    // Look for insight patterns in the response
+    const insightMatches = response.match(/💡 \*\*Insight\*\*: ([^\n]+)/g);
+    if (insightMatches) {
+      insights.push(...insightMatches.map((match) => match.replace(/💡 \*\*Insight\*\*: /, '')));
+    }
+
+    // Look for recommendation patterns
+    const recommendationMatches = response.match(/💡 \*\*Recommendation\*\*: ([^\n]+)/g);
+    if (recommendationMatches) {
+      insights.push(
+        ...recommendationMatches.map((match) => match.replace(/💡 \*\*Recommendation\*\*: /, ''))
+      );
+    }
+
+    // Create tool analysis event
+    const toolAnalysisEvent = new CustomEvent('tool-analysis-completed', {
+      detail: {
+        toolName,
+        input: this.getContextData(),
+        output: modelChanges || {},
+        analysis: response,
+        insights,
+      },
+    });
+
+    document.dispatchEvent(toolAnalysisEvent);
+  }
+
   private setExternalContext(
     contextKey: ContextKey | null,
     label: string | null,
-    data: SerializedContext | null,
+    data: SerializedContext | null
   ): void {
     if (!contextKey) {
       this.clearExternalContext();
@@ -472,7 +520,7 @@ class ChatPanel {
     window.addEventListener('orientationchange', this.updateLayoutOffsets);
     window.addEventListener('scroll', this.updateLayoutOffsets, { passive: true });
   }
-  
+
   private setupAnalysisResultsListener(): void {
     // Listen for analysis result updates from model pages
     if (this.analysisResultsHandler) {
@@ -497,7 +545,7 @@ class ChatPanel {
   private capturePageOutputs(): SerializedContext | null {
     // Look for analysis result containers that might have outputs stored
     const outputs: SerializedContext = {};
-    
+
     // Try to find results in various places on the page
     // Check for data attributes on result containers
     const resultContainers = document.querySelectorAll('[data-analysis-result]');
@@ -512,13 +560,13 @@ class ChatPanel {
         // Ignore parsing errors
       }
     });
-    
+
     // Check window object for stored results (some pages might store there)
     const win = window as Window & { analysisResults?: Record<string, unknown> };
     if (win.analysisResults && typeof win.analysisResults === 'object') {
       Object.assign(outputs, win.analysisResults);
     }
-    
+
     return Object.keys(outputs).length > 0 ? outputs : null;
   }
 
@@ -529,7 +577,7 @@ class ChatPanel {
         this.lastContext = this.currentContext;
         this.currentContext = newContext;
         this.updateContextIndicator();
-        
+
         // Show notification if chat is open
         if (this.isOpen) {
           this.showContextChangeNotification(newContext);
@@ -574,7 +622,7 @@ class ChatPanel {
 
   private bindEvents(): void {
     debugLog('[ChatPanel] bindEvents() starting, toggle element:', this.toggle);
-    
+
     const win = window as WindowWithChatPanel;
     win.toggleChatPanel = () => this.togglePanel();
     win.openChatPanel = () => this.openPanel();
@@ -586,8 +634,7 @@ class ChatPanel {
           return;
         }
 
-        const contextData =
-          data && typeof data === 'object' ? (data as SerializedContext) : null;
+        const contextData = data && typeof data === 'object' ? (data as SerializedContext) : null;
 
         this.setExternalContext((contextKey as ContextKey) ?? 'models', label ?? null, contextData);
 
@@ -604,7 +651,7 @@ class ChatPanel {
         target: event.target,
         currentTarget: event.currentTarget,
         eventPhase: event.eventPhase,
-        bubbles: event.bubbles
+        bubbles: event.bubbles,
       });
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -612,10 +659,10 @@ class ChatPanel {
       this.togglePanel();
     };
     this.toggle.addEventListener('click', clickHandler, { capture: true });
-    
+
     // Verify the listener was added
     debugLog('[ChatPanel] Click listener function created:', clickHandler);
-    
+
     // DIAGNOSTIC: Add mousedown listener to test if ANY events reach the button
     this.toggle.addEventListener(
       'mousedown',
@@ -628,11 +675,11 @@ class ChatPanel {
       },
       { capture: true }
     );
-    
+
     debugLog('[ChatPanel] Click listener added successfully');
-    
+
     this.closeBtn.addEventListener('click', () => this.closePanel());
-    
+
     // Handle form submission (from Enter key or button click)
     this.form.addEventListener('submit', (event: Event) => {
       event.preventDefault();
@@ -656,10 +703,10 @@ class ChatPanel {
     this.input.addEventListener('input', () => {
       const messageLength = this.input.value.length;
       const isValid = messageLength > 0 && messageLength <= MAX_MESSAGE_LENGTH;
-      
+
       this.sendBtn.disabled = !isValid;
       this.autoResizeInput();
-      
+
       // Update character count indicator
       this.updateCharacterCount(messageLength);
     });
@@ -698,9 +745,9 @@ class ChatPanel {
 
   private updateCharacterCount(length: number): void {
     if (!this.charCounter) return;
-    
+
     this.charCounter.textContent = `${length}/${MAX_MESSAGE_LENGTH}`;
-    
+
     // Visual warning when approaching limit
     if (length > MAX_MESSAGE_LENGTH * 0.9) {
       this.charCounter.style.color = '#f48771'; // Warning orange
@@ -750,7 +797,7 @@ class ChatPanel {
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    
+
     // Sanitize user messages to prevent XSS
     if (type === 'user') {
       contentDiv.textContent = content; // Use textContent for user messages (auto-escapes)
@@ -773,7 +820,7 @@ class ChatPanel {
 
   private async sendMessage(): Promise<void> {
     const message = this.input.value.trim();
-    
+
     // Validate message
     const validation = validateMessage(message);
     if (!validation.valid) {
@@ -800,12 +847,27 @@ class ChatPanel {
   private buildRequestPayload(message: string): ChatRequestPayload {
     const contextKey = this.getActiveContextKey();
     const currentModel = this.getContextData();
+
+    // Initialize memory session
+    chatMemory.initializeSession();
+    chatMemory.updateContext(contextKey);
+
+    // Store current model state for comparison
+    const modelType = this.getModelTypeFromContext(contextKey);
+    if (modelType && Object.keys(currentModel).length > 0) {
+      chatMemory.updateModelState(modelType, currentModel);
+    }
+
     const payload: ChatRequestPayload = {
       message,
       context: contextKey,
       currentModel,
       availableTools: this.mcpTools ?? [],
       toolOutputs: this.mcpToolOutputs,
+      memoryContext: {
+        conversationHistory: chatMemory.getConversationContext(),
+        modelStates: chatMemory.getModelStateSummary(),
+      },
     };
 
     if (import.meta.env.DEV) {
@@ -815,6 +877,7 @@ class ChatPanel {
         hasModelData: Object.keys(currentModel).length > 0,
         toolCount: this.mcpTools?.length ?? 0,
         hasToolOutputs: Boolean(this.mcpToolOutputs),
+        hasMemoryContext: Boolean(payload.memoryContext),
       });
     }
 
@@ -831,13 +894,47 @@ class ChatPanel {
   private handleSuccessfulResponse(data: ChatResponsePayload): void {
     this.addMessage(data.response, 'assistant');
 
+    // Store conversation in memory
+    const userMessage = this.getLastUserMessage();
+    if (userMessage) {
+      chatMemory.addConversationEntry(
+        userMessage,
+        data.response,
+        this.getActiveContextKey(),
+        data.modelChanges
+      );
+    }
+
+    // Dispatch tool analysis event if this was a tool-based response
+    if (data.toolUsed) {
+      this.dispatchToolAnalysisEvent(data.toolUsed, data.response, data.modelChanges);
+    }
+
     if (this.stateStore.getState().pendingCount === 0) {
       this.hideThinking();
       this.sendBtn.disabled = false;
     }
 
     if (data.modelChanges) {
-      this.applyModelChanges(data.modelChanges);
+      try {
+        this.applyModelChanges(data.modelChanges);
+      } catch (error) {
+        console.warn('Error applying model changes:', error);
+        // Continue processing even if model changes fail
+      }
+
+      // Update memory with new model state
+      const modelType = this.getModelTypeFromContext(this.getActiveContextKey());
+      if (modelType) {
+        const currentModel = this.getContextData();
+        const updatedModel = { ...currentModel, ...data.modelChanges };
+        chatMemory.updateModelState(modelType, updatedModel);
+      }
+    }
+
+    if (data.context && data.context !== this.getActiveContextKey()) {
+      this.updateContext(data.context as ContextKey);
+      chatMemory.updateContext(data.context);
     }
   }
 
@@ -850,15 +947,9 @@ class ChatPanel {
         'assistant'
       );
     } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-      this.addMessage(
-        'Network error. Please check your connection and try again.',
-        'assistant'
-      );
+      this.addMessage('Network error. Please check your connection and try again.', 'assistant');
     } else if (errorMessage.includes('429')) {
-      this.addMessage(
-        'Too many requests. Please wait a moment before trying again.',
-        'assistant'
-      );
+      this.addMessage('Too many requests. Please wait a moment before trying again.', 'assistant');
     } else {
       this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
     }
@@ -875,9 +966,9 @@ class ChatPanel {
     const formData: ModelState = {};
     const chatPanel = document.getElementById('chat-panel');
 
-    const inputs = document.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
-      'input, select, textarea',
-    );
+    const inputs = document.querySelectorAll<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >('input, select, textarea');
     inputs.forEach((element) => {
       if (chatPanel && chatPanel.contains(element)) {
         return;
@@ -930,22 +1021,48 @@ class ChatPanel {
   }
 
   private applyModelChanges(changes: ModelChanges): void {
+    const validationResults: Array<{
+      field: string;
+      value: unknown;
+      isValid: boolean;
+      error?: string;
+    }> = [];
+
+    // Validate each change before applying
     Object.entries(changes).forEach(([field, value]) => {
-      const input = document.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
-        `[name="${field}"]`,
-      );
-      if (input) {
-        const stringValue = typeof value === 'number' ? String(value) : value;
-        input.value = stringValue;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        input.dispatchEvent(new Event('input', { bubbles: true }));
+      const validation = this.validateFieldValue(field, value);
+      validationResults.push({
+        field,
+        value,
+        isValid: validation.isValid,
+        error: validation.error,
+      });
+
+      if (validation.isValid) {
+        const input = document.querySelector<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >(`[name="${field}"]`);
+        if (input) {
+          const stringValue = typeof value === 'number' ? String(value) : value;
+          input.value = stringValue;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
       }
     });
 
+    // Check if any validations failed
+    const failedValidations = validationResults.filter((result) => !result.isValid);
+    if (failedValidations.length > 0) {
+      this.showValidationFeedback(failedValidations);
+      return; // Don't trigger analysis if there are validation errors
+    }
+
+    // Only trigger analysis if all validations passed
     const analyzeCandidates = Array.from(
       document.querySelectorAll<HTMLButtonElement | HTMLElement>(
-        'button[type="submit"], .analyze-btn, #analyze',
-      ),
+        'button[type="submit"], .analyze-btn, #analyze'
+      )
     );
     const analyzeBtn = analyzeCandidates.find((element) => {
       if (!(element instanceof HTMLElement)) {
@@ -961,7 +1078,7 @@ class ChatPanel {
       const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
       analyzeBtn.dispatchEvent(clickEvent);
     }
-    
+
     // Refetch MCP tools to capture any new outputs from the analysis
     setTimeout(() => {
       toolCatalog
@@ -974,6 +1091,121 @@ class ChatPanel {
           debugWarn('Failed to refresh MCP tools after model change:', err);
         });
     }, 500); // Wait for analysis to complete
+  }
+
+  private validateFieldValue(field: string, value: unknown): { isValid: boolean; error?: string } {
+    // Get the input element to check its constraints
+    const input = document.querySelector<HTMLInputElement>(`[name="${field}"]`);
+    if (!input) {
+      return { isValid: false, error: `Field "${field}" not found on page` };
+    }
+
+    // Check if value is a valid number for numeric fields
+    if (typeof value === 'number') {
+      if (isNaN(value) || !isFinite(value)) {
+        return { isValid: false, error: `Invalid number: ${value}` };
+      }
+
+      // Check min/max constraints
+      const min = parseFloat(input.min);
+      const max = parseFloat(input.max);
+
+      if (!isNaN(min) && value < min) {
+        return { isValid: false, error: `Value ${value} is below minimum ${min}` };
+      }
+
+      if (!isNaN(max) && value > max) {
+        return { isValid: false, error: `Value ${value} is above maximum ${max}` };
+      }
+
+      // Check step constraints for decimal values
+      const step = parseFloat(input.step);
+      if (!isNaN(step) && step > 0) {
+        const remainder = value % step;
+        if (Math.abs(remainder) > 0.0001 && Math.abs(remainder - step) > 0.0001) {
+          return { isValid: false, error: `Value ${value} doesn't match step size ${step}` };
+        }
+      }
+    }
+
+    // Check required fields
+    if (input.required && (value === null || value === undefined || value === '')) {
+      return { isValid: false, error: `Field "${field}" is required` };
+    }
+
+    // Check pattern constraints
+    if (input.pattern && typeof value === 'string') {
+      const regex = new RegExp(input.pattern);
+      if (!regex.test(value)) {
+        return { isValid: false, error: `Value "${value}" doesn't match required pattern` };
+      }
+    }
+
+    // Field-specific validations
+    switch (field) {
+      case 'annualRate':
+        if (typeof value === 'number' && (value < 0 || value > 1)) {
+          return { isValid: false, error: `Interest rate must be between 0 and 1 (0% to 100%)` };
+        }
+        break;
+
+      case 'principal':
+      case 'loanAmount':
+        if (typeof value === 'number' && value <= 0) {
+          return { isValid: false, error: `Loan amount must be greater than 0` };
+        }
+        break;
+
+      case 'termMonths':
+        if (typeof value === 'number' && (value <= 0 || value > 600)) {
+          return { isValid: false, error: `Loan term must be between 1 and 600 months` };
+        }
+        break;
+
+      case 'monthlyPayment':
+        if (typeof value === 'number' && value <= 0) {
+          return { isValid: false, error: `Monthly payment must be greater than 0` };
+        }
+        break;
+    }
+
+    return { isValid: true };
+  }
+
+  private showValidationFeedback(
+    failedValidations: Array<{ field: string; value: unknown; error?: string }>
+  ): void {
+    const errorMessages = failedValidations
+      .map((validation) => {
+        const fieldName = this.getFieldDisplayName(validation.field);
+        return `• **${fieldName}**: ${validation.error}`;
+      })
+      .join('\n');
+
+    const feedbackMessage = `❌ **Validation Error**\n\nI couldn't apply some of your requested changes:\n\n${errorMessages}\n\nPlease provide valid values and try again.`;
+
+    this.addMessage(feedbackMessage, 'assistant');
+  }
+
+  private getFieldDisplayName(field: string): string {
+    const fieldNames: Record<string, string> = {
+      annualRate: 'Interest Rate',
+      principal: 'Loan Amount',
+      loanAmount: 'Loan Amount',
+      termMonths: 'Loan Term',
+      monthlyPayment: 'Monthly Payment',
+      extraPayment: 'Extra Payment',
+      propertyTax: 'Property Tax',
+      homeInsurance: 'Home Insurance',
+      hoaFees: 'HOA Fees',
+      residualValue: 'Residual Value',
+      leaseTerm: 'Lease Term',
+      revenue: 'Revenue',
+      growthRate: 'Growth Rate',
+      expenses: 'Expenses',
+    };
+
+    return fieldNames[field] || field;
   }
 }
 
@@ -1000,7 +1232,7 @@ function initializeChatPanel(): void {
       if (import.meta.env.DEV) {
         console.info('[chat-panel] initialized');
       }
-      
+
       // Watch for button being replaced in DOM and re-attach listeners
       let buttonSeenOnce = false;
       const buttonObserver = new MutationObserver((mutations) => {
@@ -1028,7 +1260,8 @@ function initializeChatPanel(): void {
       buttonObserver.observe(document.body, { childList: true, subtree: true });
     } catch (error) {
       console.error('Chat panel bootstrap failed', error);
-      win.chatPanelBootstrapError = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+      win.chatPanelBootstrapError =
+        error instanceof Error ? `${error.name}: ${error.message}` : String(error);
       if (document.body) {
         document.body.dataset.chatPanelStatus = 'error';
       }

@@ -367,7 +367,12 @@ export class MultiModelScenarioManager {
         const scenarioId = scenarioCard.getAttribute('data-scenario');
         console.log('Scenario card clicked:', scenarioId);
         if (scenarioId) {
-          this.selectScenario(scenarioId);
+          // Call the global function to ensure console logging
+          if (window.selectScenario) {
+            window.selectScenario(scenarioId);
+          } else {
+            this.selectScenario(scenarioId);
+          }
         }
       }
     });
@@ -394,15 +399,10 @@ export class MultiModelScenarioManager {
       return;
     }
 
-    this.selectedScenario = scenario;
-    this.displayScenarioInfo(scenario);
-    this.updateChatbotContext(scenario);
-
-    // Scroll to scenario info section
-    const scenarioInfo = document.getElementById('selected-scenario-info');
-    if (scenarioInfo) {
-      scenarioInfo.scrollIntoView({ behavior: 'smooth' });
-    }
+    console.log(`Navigating to journey page for scenario: ${scenarioId}`);
+    
+    // Navigate to the dedicated journey page
+    window.location.href = `/journey/${scenarioId}`;
   }
 
   /**
@@ -624,7 +624,7 @@ declare global {
 }
 
 // Initialize scenario manager when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+function initializeScenarioManager() {
   console.log('Multi-model scenarios script loaded');
   window.scenarioManager = new MultiModelScenarioManager();
   console.log('Scenario manager initialized:', window.scenarioManager);
@@ -641,6 +641,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   console.log('Global functions registered');
-});
+}
+
+// Check if DOM is already loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeScenarioManager);
+} else {
+  // DOM is already loaded, initialize immediately
+  initializeScenarioManager();
+}
 
 export default MultiModelScenarioManager;

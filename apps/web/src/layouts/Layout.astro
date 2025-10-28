@@ -2,6 +2,7 @@
 import { Footer } from '@financial-analysis/ui';
 import SEO from '../components/SEO.astro';
 import ChatPanel from '../components/ChatPanel.astro';
+import ToolAnalysisPanel from '../components/ToolAnalysisPanel.tsx';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
 
@@ -23,6 +24,35 @@ const navLinks = [
   { label: 'Developers', href: '/developers' },
   { label: 'Status', href: '/status' },
 ];
+
+// Determine current context for tool analysis panel
+function getCurrentContext(pathname: string): string {
+  const path = pathname.split('/')[1] || '';
+  
+  // Direct page mappings
+  const contextMap: Record<string, string> = {
+    'amortization': 'amortization',
+    'lease-analysis': 'lease',
+    'enhanced-lease': 'lease',
+    'ebitda-forecasting': 'ebitda',
+    'auto-loan': 'auto-loan',
+    'debt-payoff': 'debt-payoff',
+    'savings-goal': 'savings-goal',
+    'student-loans': 'student-loans',
+    'retirement': 'retirement',
+    'budget': 'budget',
+    'bond-pricing': 'bond-pricing',
+    'options-pricing': 'options-pricing',
+    'cash-flow': 'cash-flow',
+    'models': 'models',
+    'analysis': 'general',
+    '': 'general',
+  };
+  
+  return contextMap[path] || 'general';
+}
+
+const currentContext = getCurrentContext(Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -97,6 +127,9 @@ const navLinks = [
 
     <!-- Chat Panel -->
     <ChatPanel />
+
+    <!-- Tool Analysis Panel -->
+    <ToolAnalysisPanel client:only="react" currentContext={currentContext} />
 
     <slot name="pageScripts" />
   </body>

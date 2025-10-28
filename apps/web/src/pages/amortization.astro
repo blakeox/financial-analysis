@@ -1,7 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import EnhancedAnalysisResults from '../components/EnhancedAnalysisResults.tsx';
+import Layout from '../layouts/Layout.astro';
 
 // FAQ Schema for SEO
 const faqSchema = {
@@ -278,8 +279,13 @@ const faqSchema = {
       </div>
 
       <!-- Results Container -->
-      <div id="results-section" class="hidden">
+      <div id="results-section" class="">
         <div id="results-container">
+          <!-- Enhanced Analysis Results -->
+          <div id="enhanced-analysis" class="mb-8">
+            <EnhancedAnalysisResults client:load modelType="amortization" modelData={{}} />
+          </div>
+
           <!-- Summary Cards -->
           <div id="summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"></div>
 

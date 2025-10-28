@@ -3,7 +3,7 @@ import type {
   AmortizationInput,
   AmortizationResultItem,
 } from '@financial-analysis/analysis';
-import { postAnalysisRequest, AnalysisRequestError } from './analysis-api';
+import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -23,7 +23,8 @@ const parseNumber = (value: FormDataEntryValue | null, fallback = Number.NaN): n
   return fallback;
 };
 
-const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
 
 const coerceNumber = (value: unknown, fallback = Number.NaN): number => {
   if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
@@ -42,7 +43,7 @@ const toCurrency = (value: unknown): string => {
 export const renderSummaryCards = (
   result: AmortizationAnalysisResult,
   termMonths: number,
-  target: HTMLElement | null = document.getElementById('summary-cards'),
+  target: HTMLElement | null = document.getElementById('summary-cards')
 ): void => {
   if (!target) return;
 
@@ -52,9 +53,10 @@ export const renderSummaryCards = (
     'totalPayments' in result && result.totalPayments !== undefined
       ? result.totalPayments
       : (result as { totalAmount?: number }).totalAmount,
-    0,
+    0
   );
-  const interestShare = totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
+  const interestShare =
+    totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
 
   target.innerHTML = `
     <div class="bg-blue-600 text-white rounded-lg p-6">
@@ -76,7 +78,7 @@ export const renderSummaryCards = (
 
 export const renderSchedule = (
   schedule: AmortizationResultItem[] | undefined,
-  target: HTMLElement | null = document.getElementById('table-body'),
+  target: HTMLElement | null = document.getElementById('table-body')
 ): void => {
   if (!target) return;
   if (!Array.isArray(schedule) || schedule.length === 0) {
@@ -159,7 +161,7 @@ export const handleSuccess = (
     resultsContainer?: HTMLElement | null;
     summaryCards?: HTMLElement | null;
     tableBody?: HTMLElement | null;
-  } = {},
+  } = {}
 ): void => {
   const targetResults = options.resultsContainer ?? document.getElementById('results-container');
   const resultsSection = document.getElementById('results-section');
@@ -169,10 +171,36 @@ export const handleSuccess = (
   storeAnalysisResult('analyze_amortization', result);
   renderSummaryCards(result, termMonths, targetSummary);
   renderSchedule(result.schedule, targetTableBody);
+
+  // Update enhanced analysis component
+  updateEnhancedAnalysis(result, termMonths);
+
   targetResults?.classList.remove('hidden');
   resultsSection?.classList.remove('hidden');
   resultsSection?.removeAttribute('hidden');
   resultsSection?.setAttribute('data-rendered', 'true');
+};
+
+const updateEnhancedAnalysis = (result: AmortizationAnalysisResult, termMonths: number): void => {
+  // Dispatch custom event to update the enhanced analysis component
+  const analysisData = {
+    principal: result.summary.principal,
+    annualRate: result.summary.annualRate,
+    termMonths: termMonths,
+    extraPayment: result.summary.extraMonthlyPayment || 0,
+    monthlyPayment: result.summary.monthlyPayment,
+    totalInterest: result.summary.totalInterest,
+    totalPayments: result.summary.totalPayments,
+  };
+
+  const event = new CustomEvent('analysis-result-updated', {
+    detail: {
+      modelType: 'amortization',
+      result: analysisData,
+    },
+  });
+
+  document.dispatchEvent(event);
 };
 
 const showLoading = (): void => {

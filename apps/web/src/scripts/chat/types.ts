@@ -14,9 +14,15 @@ export type ChatRequestPayload = {
   toolOutputs: SerializedContext | null;
   contextLabel?: string | null;
   contextData?: SerializedContext | null;
+  memoryContext?: {
+    conversationHistory?: string;
+    modelStates?: string;
+  };
 };
 
 export type ChatResponsePayload = {
   response: string;
   modelChanges?: ModelChanges;
+  toolUsed?: string;
+  context?: string;
 };

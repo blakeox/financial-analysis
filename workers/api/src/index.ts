@@ -2,10 +2,10 @@ import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
   EbitdaForecaster,
-  FinancialInputSchema,
-  LeaseAnalyzer,
   EnhancedLeaseAnalyzer,
   EnhancedLeaseInputSchema,
+  FinancialInputSchema,
+  LeaseAnalyzer,
   ScenarioInputSchema,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
@@ -42,8 +42,8 @@ import {
   validateRequestSize,
   type RateLimitInfo,
 } from './lib';
-import { registerHealthRoute } from './routes/health';
 import { registerAnalyticsRoutes } from './routes/analytics';
+import { registerHealthRoute } from './routes/health';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -97,12 +97,170 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
-// Helper to format MCP tool results with intelligent analysis
-function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Record<string, unknown>): string {
+// Helper to analyze parameter changes and their impact
+function analyzeParameterChanges(
+  modelType: string,
+  newParams: Record<string, unknown>,
+  oldParams: Record<string, unknown>
+): Array<{ field: string; description: string }> {
+  const changes: Array<{ field: string; description: string }> = [];
+
+  Object.entries(newParams).forEach(([field, newValue]) => {
+    const oldValue = oldParams[field];
+    if (oldValue !== newValue) {
+      const description = generateChangeDescription(modelType, field, oldValue, newValue);
+      changes.push({ field, description });
+    }
+  });
+
+  return changes;
+}
+
+// Generate intelligent descriptions of parameter changes
+function generateChangeDescription(
+  modelType: string,
+  field: string,
+  oldValue: unknown,
+  newValue: unknown
+): string {
+  const oldNum = typeof oldValue === 'number' ? oldValue : 0;
+  const newNum = typeof newValue === 'number' ? newValue : 0;
+  const change = newNum - oldNum;
+  const changePercent = oldNum !== 0 ? (change / oldNum) * 100 : 0;
+
+  switch (modelType) {
+    case 'amortization':
+      switch (field) {
+        case 'annualRate':
+          return `Interest rate ${changePercent > 0 ? 'increased' : 'decreased'} from ${(oldNum * 100).toFixed(2)}% to ${(newNum * 100).toFixed(2)}%. This will ${changePercent > 0 ? 'increase' : 'decrease'} monthly payments and total interest paid.`;
+        case 'principal':
+          return `Loan amount ${changePercent > 0 ? 'increased' : 'decreased'} from $${oldNum.toLocaleString()} to $${newNum.toLocaleString()}. Monthly payments will ${changePercent > 0 ? 'increase' : 'decrease'} proportionally.`;
+        case 'termMonths':
+          return `Loan term ${changePercent > 0 ? 'extended' : 'shortened'} from ${oldNum} to ${newNum} months. This will ${changePercent > 0 ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
+        default:
+          return `${field} changed from ${oldValue} to ${newValue}.`;
+      }
+
+    case 'lease':
+      switch (field) {
+        case 'annualRate':
+          return `Lease rate ${changePercent > 0 ? 'increased' : 'decreased'} from ${(oldNum * 100).toFixed(2)}% to ${(newNum * 100).toFixed(2)}%. This affects monthly payments and total lease cost.`;
+        case 'principal':
+          return `Lease amount ${changePercent > 0 ? 'increased' : 'decreased'} from $${oldNum.toLocaleString()} to $${newNum.toLocaleString()}. Monthly payments will adjust accordingly.`;
+        case 'termMonths':
+          return `Lease term ${changePercent > 0 ? 'extended' : 'shortened'} from ${oldNum} to ${newNum} months. This changes the payment structure and total cost.`;
+        default:
+          return `${field} changed from ${oldValue} to ${newValue}.`;
+      }
+
+    case 'ebitda':
+      switch (field) {
+        case 'revenueGrowthRate':
+          return `Revenue growth rate ${changePercent > 0 ? 'increased' : 'decreased'} from ${(oldNum * 100).toFixed(1)}% to ${(newNum * 100).toFixed(1)}%. This will ${changePercent > 0 ? 'accelerate' : 'slow'} revenue growth over time.`;
+        case 'initialRevenue':
+          return `Starting revenue ${changePercent > 0 ? 'increased' : 'decreased'} from $${oldNum.toLocaleString()} to $${newNum.toLocaleString()}. This affects all future projections.`;
+        default:
+          return `${field} changed from ${oldValue} to ${newValue}.`;
+      }
+
+    default:
+      return `${field} changed from ${oldValue} to ${newValue}.`;
+  }
+}
+
+// Helper to extract previous model state from memory context
+function getPreviousModelState(
+  toolName: string,
+  memoryContext: { conversationHistory?: string; modelStates?: string }
+): Record<string, unknown> | undefined {
+  // For now, we'll parse the model states from the memory context
+  // In a more sophisticated implementation, this could parse the conversation history
+  // to extract previous parameter values
+
+  if (!memoryContext.modelStates) {
+    return undefined;
+  }
+
+  // Simple parsing of model states - in production this would be more robust
+  const modelStatesText = memoryContext.modelStates;
+
+  // Look for the specific model type in the states
+  const modelType = toolName.replace('analyze_', '');
+  const modelMatch = modelStatesText.match(new RegExp(`${modelType}[^\\n]*`));
+
+  if (!modelMatch) {
+    return undefined;
+  }
+
+  // Extract parameters from the match (this is a simplified parser)
+  const params: Record<string, unknown> = {};
+  const paramMatches = modelMatch[0].match(/(\w+):\s*([^,]+)/g);
+
+  if (paramMatches) {
+    paramMatches.forEach((match) => {
+      const [, key, value] = match.match(/(\w+):\s*([^,]+)/) || [];
+      if (key && value) {
+        // Try to parse as number, otherwise keep as string
+        const numValue = parseFloat(value);
+        params[key] = isNaN(numValue) ? value.trim() : numValue;
+      }
+    });
+  }
+
+  return Object.keys(params).length > 0 ? params : undefined;
+}
+
+// Helper to format MCP tool results with intelligent analysis and memory context
+function formatMCPToolAnalysis(
+  toolName: string,
+  result: unknown,
+  inputData: Record<string, unknown>,
+  previousState?: Record<string, unknown>
+): string {
   try {
     const data = result as Record<string, unknown>;
-    
+
     switch (toolName) {
+      case 'analyze_amortization': {
+        const summary = data.summary as Record<string, unknown>;
+        const monthlyPayment = summary?.monthlyPayment as string;
+        const totalInterest = summary?.totalInterest as string;
+        const totalPayments = summary?.totalPayments as string;
+        const principal = inputData.principal as number;
+        const annualRate = inputData.annualRate as number;
+        const termMonths = inputData.termMonths as number;
+
+        let analysis = `## 📊 Amortization Analysis\n\n`;
+        analysis += `### Loan Details\n`;
+        analysis += `- **Principal**: $${principal?.toLocaleString()}\n`;
+        analysis += `- **Interest Rate**: ${(annualRate * 100)?.toFixed(2)}%\n`;
+        analysis += `- **Term**: ${termMonths} months (${(termMonths / 12)?.toFixed(1)} years)\n\n`;
+        analysis += `### Payment Summary\n`;
+        analysis += `- **Monthly Payment**: ${monthlyPayment}\n`;
+        analysis += `- **Total Interest**: ${totalInterest}\n`;
+        analysis += `- **Total Payments**: ${totalPayments}\n\n`;
+
+        // Add intelligent change analysis if previous state exists
+        if (previousState) {
+          const changes = analyzeParameterChanges('amortization', inputData, previousState);
+          if (changes.length > 0) {
+            analysis += `### 🔄 Impact Analysis\n`;
+            changes.forEach((change) => {
+              analysis += `- **${change.field}**: ${change.description}\n`;
+            });
+            analysis += `\n`;
+          }
+        }
+
+        // Add insights
+        const interestRatio = parseFloat(totalInterest?.replace(/[$,]/g, '') || '0') / principal;
+        if (interestRatio > 0.5) {
+          analysis += `💡 **Insight**: Interest represents ${(interestRatio * 100).toFixed(1)}% of your loan amount. Consider making extra payments to reduce interest costs.\n`;
+        }
+
+        return analysis;
+      }
+
       case 'analyze_savings_goal': {
         const summary = data.summary as Record<string, unknown>;
         const recommendations = data.recommendations as Record<string, unknown>[];
@@ -110,7 +268,7 @@ function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Rec
         const totalSaved = summary?.totalSaved as string;
         const totalContributions = summary?.totalContributions as string;
         const totalInterest = summary?.totalInterest as string;
-        
+
         let analysis = `## 💰 Savings Goal Analysis\n\n`;
         analysis += `### Timeline\n`;
         analysis += `You'll reach your **$${inputData.goalAmount}** goal in **${monthsToGoal} months** (${(monthsToGoal / 12).toFixed(1)} years).\n\n`;
@@ -118,24 +276,24 @@ function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Rec
         analysis += `- **Total Saved**: ${totalSaved}\n`;
         analysis += `- **Your Contributions**: ${totalContributions}\n`;
         analysis += `- **Interest Earned**: ${totalInterest}\n\n`;
-        
+
         if (recommendations && recommendations.length > 0) {
           analysis += `### 💡 Recommendations\n`;
-          recommendations.forEach(rec => {
+          recommendations.forEach((rec) => {
             analysis += `- ${rec.recommendation}\n`;
           });
         }
-        
+
         return analysis;
       }
-      
+
       case 'analyze_student_loans': {
         const standardStrategy = data.standardPayoff as Record<string, unknown>;
         const avalancheStrategy = data.avalanchePayoff as Record<string, unknown>;
         const snowballStrategy = data.snowballPayoff as Record<string, unknown>;
-        
+
         let analysis = `## 🎓 Student Loan Analysis\n\n`;
-        
+
         if (standardStrategy) {
           const months = standardStrategy.totalMonths as number;
           const interest = standardStrategy.totalInterest as string;
@@ -143,44 +301,46 @@ function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Rec
           analysis += `- **Payoff Time**: ${months} months (${(months / 12).toFixed(1)} years)\n`;
           analysis += `- **Total Interest**: ${interest}\n\n`;
         }
-        
+
         if (avalancheStrategy && snowballStrategy) {
           const avMonths = avalancheStrategy.totalMonths as number;
           const avInterest = avalancheStrategy.totalInterest as string;
           const sbMonths = snowballStrategy.totalMonths as number;
           const sbInterest = snowballStrategy.totalInterest as string;
-          
+
           analysis += `### Strategy Comparison\n`;
           analysis += `**Avalanche (Highest Interest First)**\n`;
           analysis += `- Payoff: ${avMonths} months | Interest: ${avInterest}\n\n`;
           analysis += `**Snowball (Lowest Balance First)**\n`;
           analysis += `- Payoff: ${sbMonths} months | Interest: ${sbInterest}\n\n`;
-          
+
           if (avMonths < sbMonths) {
-            const savings = parseFloat(sbInterest.replace(/[$,]/g, '')) - parseFloat(avInterest.replace(/[$,]/g, ''));
+            const savings =
+              parseFloat(sbInterest.replace(/[$,]/g, '')) -
+              parseFloat(avInterest.replace(/[$,]/g, ''));
             analysis += `💡 **Recommendation**: Avalanche saves you **$${savings.toFixed(2)}** in interest!\n`;
           } else {
             analysis += `💡 **Recommendation**: Snowball provides faster psychological wins with ${sbMonths - avMonths} months saved.\n`;
           }
         }
-        
+
         return analysis;
       }
-      
+
       case 'analyze_retirement_savings': {
         const summary = data.summary as Record<string, unknown>;
         const finalBalance = summary?.finalBalance as string;
         const totalContributions = summary?.totalContributions as string;
         const totalGrowth = summary?.totalGrowth as string;
         const employerMatch = data.employerMatchAnalysis as Record<string, unknown>;
-        
+
         let analysis = `## 🏦 Retirement Savings Projection\n\n`;
         analysis += `### Projected Balance at Retirement\n`;
         analysis += `**${finalBalance}**\n\n`;
         analysis += `### Breakdown\n`;
         analysis += `- **Your Contributions**: ${totalContributions}\n`;
         analysis += `- **Investment Growth**: ${totalGrowth}\n\n`;
-        
+
         if (employerMatch) {
           const matchAmount = employerMatch.totalMatchReceived as string;
           const potentialMatch = employerMatch.potentialMatchAvailable as string;
@@ -191,51 +351,51 @@ function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Rec
             analysis += `\n**Recommendation**: Increase contributions to maximize employer match (free money!).\n`;
           }
         }
-        
+
         return analysis;
       }
-      
+
       case 'optimize_budget': {
         const metrics = data.metrics as Record<string, unknown>;
         const rule503020 = data.rule503020 as Record<string, unknown>;
         const healthScore = metrics?.financialHealthScore as number;
         const optimized = data.optimizedBudget as Record<string, unknown>;
-        
+
         let analysis = `## 💳 Budget Analysis\n\n`;
         analysis += `### Financial Health Score: ${healthScore}/100\n\n`;
-        
+
         if (rule503020) {
           analysis += `### 50/30/20 Rule Breakdown\n`;
           analysis += `- **Needs (50%)**: ${rule503020.needsPercentage}% of income\n`;
           analysis += `- **Wants (30%)**: ${rule503020.wantsPercentage}% of income\n`;
           analysis += `- **Savings (20%)**: ${rule503020.savingsPercentage}% of income\n\n`;
         }
-        
+
         if (optimized) {
           const adjustments = optimized.adjustments as Record<string, unknown>[];
           if (adjustments && adjustments.length > 0) {
             analysis += `### 💡 Optimization Recommendations\n`;
-            adjustments.forEach(adj => {
+            adjustments.forEach((adj) => {
               analysis += `- ${adj.recommendation}\n`;
             });
           }
         }
-        
+
         return analysis;
       }
-      
+
       case 'analyze_debt_payoff': {
         const avalanche = data.avalanche as Record<string, unknown>;
         const snowball = data.snowball as Record<string, unknown>;
-        
+
         let analysis = `## 💳 Debt Payoff Strategy Analysis\n\n`;
-        
+
         if (avalanche && snowball) {
           const avMonths = avalanche.payoffMonths as number;
           const avInterest = avalanche.totalInterest as string;
           const sbMonths = snowball.payoffMonths as number;
           const sbInterest = snowball.totalInterest as string;
-          
+
           analysis += `### Strategy Comparison\n`;
           analysis += `**Avalanche (Highest Interest First)**\n`;
           analysis += `- Payoff: ${avMonths} months (${(avMonths / 12).toFixed(1)} years)\n`;
@@ -243,32 +403,34 @@ function formatMCPToolAnalysis(toolName: string, result: unknown, inputData: Rec
           analysis += `**Snowball (Lowest Balance First)**\n`;
           analysis += `- Payoff: ${sbMonths} months (${(sbMonths / 12).toFixed(1)} years)\n`;
           analysis += `- Total Interest: ${sbInterest}\n\n`;
-          
-          const interestSavings = parseFloat(sbInterest.replace(/[$,]/g, '')) - parseFloat(avInterest.replace(/[$,]/g, ''));
+
+          const interestSavings =
+            parseFloat(sbInterest.replace(/[$,]/g, '')) -
+            parseFloat(avInterest.replace(/[$,]/g, ''));
           if (interestSavings > 0) {
             analysis += `💡 **Recommendation**: Avalanche method saves you **$${interestSavings.toFixed(2)}** in interest!\n`;
           }
         }
-        
+
         return analysis;
       }
-      
+
       case 'analyze_auto_loan': {
         const summary = data.summary as Record<string, unknown>;
         const monthlyPayment = summary?.monthlyPayment as string;
         const totalInterest = summary?.totalInterest as string;
         const totalCost = summary?.totalCost as string;
-        
+
         let analysis = `## 🚗 Auto Loan Analysis\n\n`;
         analysis += `### Payment Details\n`;
         analysis += `- **Monthly Payment**: ${monthlyPayment}\n`;
         analysis += `- **Total Interest**: ${totalInterest}\n`;
         analysis += `- **Total Cost**: ${totalCost}\n\n`;
         analysis += `💡 **Tip**: Consider making extra principal payments to reduce interest and pay off faster.\n`;
-        
+
         return analysis;
       }
-      
+
       default:
         // Generic formatting for other tools
         return `## Analysis Complete\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
@@ -391,8 +553,13 @@ registerHealthRoute(router as unknown as import('itty-router').RouterType);
 registerAnalyticsRoutes(router);
 
 // API Key Management endpoints
-import { createApiKey, listApiKeys, revokeApiKey, getKeyUsage } from './routes/api-keys';
-import { validateApiKey, createAuthErrorResponse, trackApiUsage, type ApiKeyInfo } from './lib/auth';
+import {
+  createAuthErrorResponse,
+  trackApiUsage,
+  validateApiKey,
+  type ApiKeyInfo,
+} from './lib/auth';
+import { createApiKey, getKeyUsage, listApiKeys, revokeApiKey } from './routes/api-keys';
 
 // Stripe Integration endpoints
 import { stripeRouter } from './routes/stripe';
@@ -400,12 +567,10 @@ import { stripeRouter } from './routes/stripe';
 /**
  * Middleware to require API key authentication
  */
-function withAuth(
-  handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>
-) {
+function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
-    
+
     // Skip auth in test/development environments
     if (env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') {
       const mockKeyInfo: ApiKeyInfo = {
@@ -423,28 +588,30 @@ function withAuth(
       };
       return handler(request, env, mockKeyInfo);
     }
-    
+
     const authResult = await validateApiKey(request, env);
-    
+
     if (!authResult.success || !authResult.keyInfo) {
       return createAuthErrorResponse(authResult);
     }
-    
+
     try {
       const response = await handler(request, env, authResult.keyInfo);
       const responseTime = Date.now() - startTime;
-      
+
       // Track usage asynchronously (don't wait)
-      trackApiUsage(authResult.keyInfo, request, response.status, responseTime, env).catch(err => {
-        console.error('Failed to track API usage:', err);
-      });
-      
+      trackApiUsage(authResult.keyInfo, request, response.status, responseTime, env).catch(
+        (err) => {
+          console.error('Failed to track API usage:', err);
+        }
+      );
+
       // Add rate limit headers
       const headers = new Headers(response.headers);
       headers.set('X-RateLimit-Limit', String(authResult.keyInfo.rateLimitPerSec));
       headers.set('X-RateLimit-Remaining', '0'); // Would need to fetch from KV
       headers.set('X-API-Key-Tier', authResult.keyInfo.tier);
-      
+
       return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
@@ -457,35 +624,47 @@ function withAuth(
   };
 }
 
-router.post('/v1/keys', withErrorHandler(async (request: Request, env: Env) => {
-  return await createApiKey(request, env);
-}));
+router.post(
+  '/v1/keys',
+  withErrorHandler(async (request: Request, env: Env) => {
+    return await createApiKey(request, env);
+  })
+);
 
-router.get('/v1/keys', withErrorHandler(async (request: Request, env: Env) => {
-  return await listApiKeys(request, env);
-}));
+router.get(
+  '/v1/keys',
+  withErrorHandler(async (request: Request, env: Env) => {
+    return await listApiKeys(request, env);
+  })
+);
 
-router.delete('/v1/keys/:keyId', withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
-  const keyId = request.params?.keyId;
-  if (!keyId) {
-    return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-  return await revokeApiKey(keyId, env);
-}));
+router.delete(
+  '/v1/keys/:keyId',
+  withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+    const keyId = request.params?.keyId;
+    if (!keyId) {
+      return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return await revokeApiKey(keyId, env);
+  })
+);
 
-router.get('/v1/keys/:keyId/usage', withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
-  const keyId = request.params?.keyId;
-  if (!keyId) {
-    return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-  return await getKeyUsage(keyId, env);
-}));
+router.get(
+  '/v1/keys/:keyId/usage',
+  withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+    const keyId = request.params?.keyId;
+    if (!keyId) {
+      return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return await getKeyUsage(keyId, env);
+  })
+);
 
 // Stripe Integration routes
 router.all('/v1/stripe/*', (request: Request, env: Env) => {
@@ -500,10 +679,17 @@ router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {
     ...getSecurityHeaders(env),
     'Content-Type': 'application/json',
   });
-  return new Response(JSON.stringify({
-    circuitBreakers: states,
-    timestamp: new Date().toISOString(),
-  }, null, 2), { headers });
+  return new Response(
+    JSON.stringify(
+      {
+        circuitBreakers: states,
+        timestamp: new Date().toISOString(),
+      },
+      null,
+      2
+    ),
+    { headers }
+  );
 });
 
 // Lightweight ping endpoint for uptime checks
@@ -625,7 +811,9 @@ router.post(
     const userMessage = body.messages[body.messages.length - 1];
     if (!userMessage || userMessage.role !== 'user') {
       return new Response(
-        JSON.stringify({ error: { message: 'Last message must be from user', code: 'BAD_REQUEST' } }),
+        JSON.stringify({
+          error: { message: 'Last message must be from user', code: 'BAD_REQUEST' },
+        }),
         { status: 400, headers: buildDefaultHeaders(env) }
       );
     }
@@ -638,7 +826,7 @@ router.post(
     thinking.push({
       step: 1,
       thought: `Analyzing user request: "${userMessage.content}"`,
-      action: 'Parsing financial modeling request'
+      action: 'Parsing financial modeling request',
     });
 
     const content = userMessage.content.toLowerCase();
@@ -650,27 +838,35 @@ router.post(
       thinking.push({
         step: 2,
         thought: 'Detected lease analysis request - user wants equipment/asset lease calculations',
-        action: 'Preparing lease analysis parameters'
+        action: 'Preparing lease analysis parameters',
       });
-    } else if (content.includes('mortgage') || content.includes('loan') || content.includes('amortization')) {
+    } else if (
+      content.includes('mortgage') ||
+      content.includes('loan') ||
+      content.includes('amortization')
+    ) {
       detectedAnalysis = 'amortization';
       thinking.push({
         step: 2,
         thought: 'Detected loan/mortgage request - user wants amortization schedule',
-        action: 'Preparing amortization parameters'
+        action: 'Preparing amortization parameters',
       });
-    } else if (content.includes('ebitda') || content.includes('forecast') || content.includes('business')) {
+    } else if (
+      content.includes('ebitda') ||
+      content.includes('forecast') ||
+      content.includes('business')
+    ) {
       detectedAnalysis = 'ebitda';
       thinking.push({
         step: 2,
         thought: 'Detected business forecasting request - user wants EBITDA analysis',
-        action: 'Preparing EBITDA forecast parameters'
+        action: 'Preparing EBITDA forecast parameters',
       });
     } else {
       thinking.push({
         step: 2,
         thought: 'Could not detect specific financial analysis type',
-        action: 'Providing general guidance'
+        action: 'Providing general guidance',
       });
       responseContent = `🤖 I can help you with financial modeling! I specialize in:
 
@@ -690,7 +886,7 @@ What would you like to analyze?`;
       // Step 3: Extract parameters and perform analysis
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let parameters: any;
-      
+
       if (detectedAnalysis === 'lease') {
         // Extract amount from message (support optional 'k' suffix)
         const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)(k)?/i);
@@ -700,36 +896,37 @@ What would you like to analyze?`;
           const multiplier = amountMatch[2] ? 1000 : 1;
           principal = Math.round(base * multiplier);
         }
-        
+
         parameters = {
           principal,
           annualRate: 0.05, // 5% default
-          termMonths: 36 // 3 years default
+          termMonths: 36, // 3 years default
         };
 
         thinking.push({
           step: 3,
           thought: `Extracted lease parameters - Principal: $${principal.toLocaleString()}, Rate: 5%, Term: 36 months`,
           action: 'Executing lease analysis calculation',
-          parameters
+          parameters,
         });
 
         try {
           const parseResult = FinancialInputSchema.safeParse(parameters);
           if (parseResult.success) {
             const result = LeaseAnalyzer.analyze(parseResult.data);
-            
+
             modelChanges.push({
               type: 'lease',
               parameters,
               result,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             });
 
             thinking.push({
               step: 4,
-              thought: 'Successfully calculated lease analysis with monthly payments and total costs',
-              action: 'Formatting results for user'
+              thought:
+                'Successfully calculated lease analysis with monthly payments and total costs',
+              action: 'Formatting results for user',
             });
 
             responseContent = `✅ **Lease Analysis Complete!**
@@ -752,11 +949,10 @@ The model has been updated in the live dashboard! 🚀`;
           thinking.push({
             step: 4,
             thought: `Error in lease calculation: ${error}`,
-            action: 'Handling error gracefully'
+            action: 'Handling error gracefully',
           });
           responseContent = `❌ Error calculating lease analysis: ${error}`;
         }
-
       } else if (detectedAnalysis === 'amortization') {
         // Extract amount from message (support optional 'k' suffix)
         const amountMatch = userMessage.content.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)(k)?/i);
@@ -766,39 +962,40 @@ The model has been updated in the live dashboard! 🚀`;
           const multiplier = amountMatch[2] ? 1000 : 1;
           principal = Math.round(base * multiplier);
         }
-        
+
         // Detect if it's a mortgage (longer term) or regular loan
-        const isMortgage = content.includes('mortgage') || content.includes('home') || content.includes('house');
-        
+        const isMortgage =
+          content.includes('mortgage') || content.includes('home') || content.includes('house');
+
         parameters = {
           principal,
           annualRate: isMortgage ? 0.065 : 0.08, // 6.5% for mortgage, 8% for loan
-          termMonths: isMortgage ? 360 : 60 // 30 years vs 5 years
+          termMonths: isMortgage ? 360 : 60, // 30 years vs 5 years
         };
 
         thinking.push({
           step: 3,
           thought: `Extracted ${isMortgage ? 'mortgage' : 'loan'} parameters - Principal: $${principal.toLocaleString()}, Rate: ${(parameters.annualRate * 100).toFixed(1)}%, Term: ${parameters.termMonths} months`,
           action: 'Executing amortization calculation',
-          parameters
+          parameters,
         });
 
         try {
           const parseResult = AmortizationInputSchema.safeParse(parameters);
           if (parseResult.success) {
             const result = AmortizationAnalyzer.analyze(parseResult.data);
-            
+
             modelChanges.push({
               type: 'amortization',
               parameters,
               result,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             });
 
             thinking.push({
               step: 4,
               thought: 'Successfully calculated amortization schedule with payment breakdown',
-              action: 'Formatting results for user'
+              action: 'Formatting results for user',
             });
 
             responseContent = `✅ **${isMortgage ? 'Mortgage' : 'Loan'} Analysis Complete!**
@@ -822,11 +1019,10 @@ The amortization schedule has been loaded in the dashboard! 📈`;
           thinking.push({
             step: 4,
             thought: `Error in amortization calculation: ${error}`,
-            action: 'Handling error gracefully'
+            action: 'Handling error gracefully',
           });
           responseContent = `❌ Error calculating amortization: ${error}`;
         }
-
       } else if (detectedAnalysis === 'ebitda') {
         // Extract growth rate if mentioned
         const growthMatch = userMessage.content.match(/(\d+(?:\.\d+)?)%?\s*growth/i);
@@ -839,29 +1035,33 @@ The amortization schedule has been loaded in the dashboard! 📈`;
           name: 'AI Generated Business Forecast',
           description: `Generated from user request: "${userMessage.content}"`,
           forecastPeriodMonths: 12,
-          currentMonthlyFinancials: [{
-            month: 12,
-            year: 2024,
-            revenue: 100000,
-            costOfGoodsSold: 30000,
-            operatingExpenses: 40000,
-            depreciation: 2000,
-            amortization: 500,
-            interestExpense: 1000,
-            taxes: 5000
-          }],
-          currentEmployees: [{
-            id: 'manager',
-            name: 'Business Manager',
-            role: 'Manager',
-            department: 'Operations',
-            billableHoursPerMonth: 160,
-            hourlyRate: 50,
-            salary: 80000,
-            benefits: 16000,
-            startDate: '2024-01-01T00:00:00.000Z',
-            isActive: true
-          }],
+          currentMonthlyFinancials: [
+            {
+              month: 12,
+              year: 2024,
+              revenue: 100000,
+              costOfGoodsSold: 30000,
+              operatingExpenses: 40000,
+              depreciation: 2000,
+              amortization: 500,
+              interestExpense: 1000,
+              taxes: 5000,
+            },
+          ],
+          currentEmployees: [
+            {
+              id: 'manager',
+              name: 'Business Manager',
+              role: 'Manager',
+              department: 'Operations',
+              billableHoursPerMonth: 160,
+              hourlyRate: 50,
+              salary: 80000,
+              benefits: 16000,
+              startDate: '2024-01-01T00:00:00.000Z',
+              isActive: true,
+            },
+          ],
           newEmployees: [],
           revenueGrowthRate,
           billableHoursGrowthRate: 0.01,
@@ -871,15 +1071,15 @@ The amortization schedule has been loaded in the dashboard! 📈`;
           economicFactors: {
             marketGrowth: 0.02,
             competitionFactor: 0.95,
-            seasonalityFactors: [1.0, 1.05, 1.1, 1.15, 1.2, 1.1, 1.0, 0.95, 1.0, 1.05, 1.1, 1.0]
-          }
+            seasonalityFactors: [1.0, 1.05, 1.1, 1.15, 1.2, 1.1, 1.0, 0.95, 1.0, 1.05, 1.1, 1.0],
+          },
         };
 
         thinking.push({
           step: 3,
           thought: `Setting up EBITDA forecast with ${(revenueGrowthRate * 100).toFixed(1)}% monthly revenue growth`,
           action: 'Executing business performance forecast',
-          parameters: { revenueGrowthRate, forecastMonths: 12, startingRevenue: 100000 }
+          parameters: { revenueGrowthRate, forecastMonths: 12, startingRevenue: 100000 },
         });
 
         try {
@@ -888,18 +1088,18 @@ The amortization schedule has been loaded in the dashboard! 📈`;
             const result = EbitdaForecaster.forecast(
               parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
             );
-            
+
             modelChanges.push({
               type: 'ebitda',
               parameters: { revenueGrowthRate, forecastMonths: 12 },
               result,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             });
 
             thinking.push({
               step: 4,
               thought: 'Successfully generated 12-month EBITDA forecast with growth projections',
-              action: 'Formatting business insights for user'
+              action: 'Formatting business insights for user',
             });
 
             const avgMonthlyEbitda = result.summary.totalEbitda / result.forecast.length;
@@ -931,7 +1131,7 @@ The forecast model is now live in your dashboard! 📊`;
           thinking.push({
             step: 4,
             thought: `Error in EBITDA calculation: ${error}`,
-            action: 'Handling error gracefully'
+            action: 'Handling error gracefully',
           });
           responseContent = `❌ Error calculating EBITDA forecast: ${error}`;
         }
@@ -942,7 +1142,7 @@ The forecast model is now live in your dashboard! 📊`;
       role: 'assistant',
       content: responseContent,
       thinking,
-      model_changes: modelChanges
+      model_changes: modelChanges,
     };
 
     return new Response(JSON.stringify(reply), {
@@ -1093,16 +1293,18 @@ router.post(
     // Call Workers AI with optional AI Gateway support for caching and logging
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = env.AI as any;
-    
+
     // Configure AI Gateway if available
-    const aiOptions = env.AI_GATEWAY_ID ? {
-      gateway: {
-        id: env.AI_GATEWAY_ID,
-        skipCache: false,
-        cacheTtl: 3600, // 1 hour cache for identical prompts
-      }
-    } : {};
-    
+    const aiOptions = env.AI_GATEWAY_ID
+      ? {
+          gateway: {
+            id: env.AI_GATEWAY_ID,
+            skipCache: false,
+            cacheTtl: 3600, // 1 hour cache for identical prompts
+          },
+        }
+      : {};
+
     const aiRes = await ai.run(model, { prompt }, aiOptions);
     const text: string = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
     const reply: ChatResponse = {
@@ -1382,7 +1584,7 @@ router.get(
   withErrorHandler(async (_request: Request, env: Env) => {
     // Use the MCP handler to list tools
     const result = await handleMCPRequest('tools/list', undefined, env);
-    
+
     return new Response(JSON.stringify(result), {
       headers: {
         ...buildDefaultHeaders(env),
@@ -1422,217 +1624,225 @@ router.get(
 // Lease analysis endpoint (with API key authentication)
 router.post(
   '/v1/api/analysis/lease',
-  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be application/json',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Enforce JSON body size cap
-    const maxBytes = getMaxJsonBytes(env);
-    const declaredLen =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (declaredLen && Number(declaredLen) > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const text = await request.text();
-    if (text.length > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const body = (() => {
-      try {
-        return JSON.parse(text);
-      } catch {
-        return undefined;
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
       }
-    })();
 
-    const parseResult = FinancialInputSchema.safeParse(body);
-    if (!parseResult.success) {
-      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-      }));
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Invalid request body',
-            code: 'BAD_REQUEST',
-            issues,
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      const parseResult = FinancialInputSchema.safeParse(body);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(
+          stableStringify({ route: 'lease', input: parseResult.data })
+        );
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+        const result = LeaseAnalyzer.analyze(parseResult.data);
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
           },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Optional deterministic caching (Cache API)
-    const ttl = getAnalysisCacheTtl(env);
-    const cache = ttl > 0 ? getDefaultCache() : undefined;
-    if (ttl > 0 && cache) {
-      const keyStr = await sha256Hex(stableStringify({ route: 'lease', input: parseResult.data }));
-      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
-      const cached = await cache.match(cacheReq);
-      if (cached) {
-        const hitHeaders = new Headers(cached.headers);
-        hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, {
-          status: cached.status,
-          statusText: cached.statusText,
-          headers: hitHeaders,
         });
+        void cache.put(cacheReq, res.clone());
+        return res;
       }
-      const result = LeaseAnalyzer.analyze(parseResult.data);
-      const res = new Response(JSON.stringify(result), {
-        status: 200,
-        headers: {
-          ...buildDefaultHeaders(env),
-          'Cache-Control': `public, max-age=${ttl}`,
-          'X-Cache': 'MISS',
-        },
-      });
-      void cache.put(cacheReq, res.clone());
-      return res;
-    }
 
-    const result = LeaseAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
-    });
-  }))
+      const result = LeaseAnalyzer.analyze(parseResult.data);
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+      });
+    })
+  )
 );
 
 // Enhanced lease analysis endpoint (with API key authentication)
 router.post(
   '/v1/api/analysis/enhanced-lease',
-  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be application/json',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Enforce JSON body size cap
-    const maxBytes = getMaxJsonBytes(env);
-    const declaredLen =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (declaredLen && Number(declaredLen) > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const text = await request.text();
-    if (text.length > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const body = (() => {
-      try {
-        return JSON.parse(text);
-      } catch {
-        return undefined;
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
       }
-    })();
 
-    const parseResult = EnhancedLeaseInputSchema.safeParse(body);
-    if (!parseResult.success) {
-      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-      }));
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Invalid request body',
-            code: 'BAD_REQUEST',
-            issues,
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      const parseResult = EnhancedLeaseInputSchema.safeParse(body);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(
+          stableStringify({ route: 'enhanced-lease', input: parseResult.data })
+        );
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+        const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
           },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Optional deterministic caching (Cache API)
-    const ttl = getAnalysisCacheTtl(env);
-    const cache = ttl > 0 ? getDefaultCache() : undefined;
-    if (ttl > 0 && cache) {
-      const keyStr = await sha256Hex(stableStringify({ route: 'enhanced-lease', input: parseResult.data }));
-      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
-      const cached = await cache.match(cacheReq);
-      if (cached) {
-        const hitHeaders = new Headers(cached.headers);
-        hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, {
-          status: cached.status,
-          statusText: cached.statusText,
-          headers: hitHeaders,
         });
+        void cache.put(cacheReq, res.clone());
+        return res;
       }
-      const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
-      const res = new Response(JSON.stringify(result), {
-        status: 200,
-        headers: {
-          ...buildDefaultHeaders(env),
-          'Cache-Control': `public, max-age=${ttl}`,
-          'X-Cache': 'MISS',
-        },
-      });
-      void cache.put(cacheReq, res.clone());
-      return res;
-    }
 
-    const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
-    });
-  }))
+      const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+      });
+    })
+  )
 );
 
 // Lease document upload endpoint (multipart/form-data)
@@ -1662,8 +1872,11 @@ router.post(
     try {
       const formData = await request.formData();
       const fileEntry = formData.get('file');
-      const file = fileEntry && typeof fileEntry === 'object' && 'stream' in fileEntry ? (fileEntry as File) : null;
-      
+      const file =
+        fileEntry && typeof fileEntry === 'object' && 'stream' in fileEntry
+          ? (fileEntry as File)
+          : null;
+
       if (!file) {
         return new Response(
           JSON.stringify({ error: { message: 'No file provided', code: 'NO_FILE' } }),
@@ -1672,7 +1885,11 @@ router.post(
       }
 
       // Validate file type
-      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+      ];
       if (!allowedTypes.includes(file.type)) {
         return new Response(
           JSON.stringify({
@@ -1719,7 +1936,9 @@ router.post(
       let documentType = 'txt';
       if (file.type === 'application/pdf') {
         documentType = 'pdf';
-      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      } else if (
+        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ) {
         documentType = 'docx';
       }
 
@@ -1783,7 +2002,7 @@ router.post(
 
     const { extractLeaseFromDocument } = await import('./services/lease-extraction');
     const result = await extractLeaseFromDocument(request, env);
-    
+
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,
       headers: buildDefaultHeaders(env),
@@ -1794,227 +2013,179 @@ router.post(
 // EBITDA forecast analysis endpoint
 router.post(
   '/v1/api/analysis/ebitda-forecast',
-  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be application/json',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-    // Enforce JSON body size cap
-    const maxBytes = getMaxJsonBytes(env);
-    const declaredLen =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (declaredLen && Number(declaredLen) > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const text = await request.text();
-    if (text.length > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const body = (() => {
-      try {
-        return JSON.parse(text);
-      } catch {
-        return undefined;
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
       }
-    })();
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
 
-    const parseResult = ScenarioInputSchema.safeParse(body);
-    if (!parseResult.success) {
-      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-      }));
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Invalid request body',
-            code: 'BAD_REQUEST',
-            issues,
+      const parseResult = ScenarioInputSchema.safeParse(body);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(
+          stableStringify({ route: 'ebitda-forecast', input: parseResult.data })
+        );
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+        const result = EbitdaForecaster.forecast(
+          parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
+        );
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
           },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Optional deterministic caching (Cache API)
-    const ttl = getAnalysisCacheTtl(env);
-    const cache = ttl > 0 ? getDefaultCache() : undefined;
-    if (ttl > 0 && cache) {
-      const keyStr = await sha256Hex(
-        stableStringify({ route: 'ebitda-forecast', input: parseResult.data })
-      );
-      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
-      const cached = await cache.match(cacheReq);
-      if (cached) {
-        const hitHeaders = new Headers(cached.headers);
-        hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, {
-          status: cached.status,
-          statusText: cached.statusText,
-          headers: hitHeaders,
         });
+        void cache.put(cacheReq, res.clone());
+        return res;
       }
+
       const result = EbitdaForecaster.forecast(
         parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
       );
-      const res = new Response(JSON.stringify(result), {
+      return new Response(JSON.stringify(result), {
         status: 200,
-        headers: {
-          ...buildDefaultHeaders(env),
-          'Cache-Control': `public, max-age=${ttl}`,
-          'X-Cache': 'MISS',
-        },
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
       });
-      void cache.put(cacheReq, res.clone());
-      return res;
-    }
-
-    const result = EbitdaForecaster.forecast(
-      parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
-    );
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
-    });
-  }))
+    })
+  )
 );
 
 // Amortization analysis endpoint
 router.post(
   '/v1/api/analysis/amortization',
-  withErrorHandler(withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be application/json',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Enforce JSON body size cap
-    const maxBytes = getMaxJsonBytes(env);
-    const declaredLen =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (declaredLen && Number(declaredLen) > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const text = await request.text();
-    if (text.length > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const body = (() => {
-      try {
-        return JSON.parse(text);
-      } catch {
-        return undefined;
-      }
-    })();
-
-    // Transform API request format to analysis format
-    if (!body || typeof body !== 'object') {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Invalid JSON body',
-            code: 'BAD_REQUEST',
-          },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Convert from AmortizationRequest format to AmortizationInputSchema format
-    // Support both old format (interestRate, termInYears) and new format (annualRate, termMonths)
-    const apiInput = body as {
-      principal?: number;
-      interestRate?: number;
-      termInYears?: number;
-      annualRate?: number;
-      termMonths?: number;
-      startDate?: string;
-      paymentFrequency?: string;
-    };
-
-    // Debug: Log raw input
-    console.log('Raw API input:', {
-      body: body,
-      apiInput: apiInput,
-      interestRate: apiInput.interestRate,
-      termInYears: apiInput.termInYears,
-      principal: apiInput.principal,
-    });
-
-    // Validate required fields exist and are numbers
-    if (typeof apiInput.principal !== 'number' || apiInput.principal <= 0) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'principal must be a positive number',
-            code: 'BAD_REQUEST',
-          },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Check if using old format (interestRate, termInYears) or new format (annualRate, termMonths)
-    let analysisInput: { principal: number; annualRate: number; termMonths: number };
-
-    if (apiInput.interestRate !== undefined && apiInput.termInYears !== undefined) {
-      // Old format validation
-      if (typeof apiInput.interestRate !== 'number' || apiInput.interestRate < 0) {
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
         return new Response(
           JSON.stringify({
             error: {
-              message: 'interestRate must be a non-negative number',
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      // Transform API request format to analysis format
+      if (!body || typeof body !== 'object') {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid JSON body',
               code: 'BAD_REQUEST',
             },
           }),
@@ -2022,116 +2193,196 @@ router.post(
         );
       }
 
-      if (typeof apiInput.termInYears !== 'number' || apiInput.termInYears <= 0) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              message: 'termInYears must be a positive number',
-              code: 'BAD_REQUEST',
-            },
-          }),
-          { status: 400, headers: buildDefaultHeaders(env) }
-        );
-      }
-
-      // Convert old format to new format
-      analysisInput = {
-        principal: apiInput.principal,
-        annualRate: apiInput.interestRate / 100, // Convert percentage to decimal
-        termMonths: Math.round(apiInput.termInYears * 12), // Convert years to months and round to integer
+      // Convert from AmortizationRequest format to AmortizationInputSchema format
+      // Support both old format (interestRate, termInYears) and new format (annualRate, termMonths)
+      const apiInput = body as {
+        principal?: number;
+        interestRate?: number;
+        termInYears?: number;
+        annualRate?: number;
+        termMonths?: number;
+        startDate?: string;
+        paymentFrequency?: string;
       };
-    } else if (apiInput.annualRate !== undefined && apiInput.termMonths !== undefined) {
-      // New format validation
-      if (typeof apiInput.annualRate !== 'number' || apiInput.annualRate < 0) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              message: 'annualRate must be a non-negative number',
-              code: 'BAD_REQUEST',
-            },
-          }),
-          { status: 400, headers: buildDefaultHeaders(env) }
-        );
-      }
 
-      if (typeof apiInput.termMonths !== 'number' || apiInput.termMonths <= 0) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              message: 'termMonths must be a positive number',
-              code: 'BAD_REQUEST',
-            },
-          }),
-          { status: 400, headers: buildDefaultHeaders(env) }
-        );
-      }
-
-      // Use new format directly
-      analysisInput = {
+      // Debug: Log raw input
+      console.log('Raw API input:', {
+        body: body,
+        apiInput: apiInput,
+        interestRate: apiInput.interestRate,
+        termInYears: apiInput.termInYears,
         principal: apiInput.principal,
-        annualRate: apiInput.annualRate,
-        termMonths: Math.round(apiInput.termMonths), // Ensure integer
-      };
-    } else {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message:
-              'Must provide either (interestRate and termInYears) or (annualRate and termMonths)',
-            code: 'BAD_REQUEST',
-          },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Debug: Log the conversion
-    console.log('Amortization input conversion:', {
-      original: apiInput,
-      converted: analysisInput,
-    });
-
-    const parseResult = AmortizationInputSchema.safeParse(analysisInput);
-    if (!parseResult.success) {
-      const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-      }));
-      // Debug: Log validation failure details
-      console.error('Amortization validation failed:', {
-        input: analysisInput,
-        issues: issues,
       });
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Invalid request body',
-            code: 'BAD_REQUEST',
-            issues,
-          },
-        }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
 
-    // Optional deterministic caching (Cache API)
-    const ttl = getAnalysisCacheTtl(env);
-    const cache = ttl > 0 ? getDefaultCache() : undefined;
-    if (ttl > 0 && cache) {
-      const keyStr = await sha256Hex(
-        stableStringify({ route: 'amortization', input: parseResult.data })
-      );
-      const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
-      const cached = await cache.match(cacheReq);
-      if (cached) {
-        const hitHeaders = new Headers(cached.headers);
-        hitHeaders.set('X-Cache', 'HIT');
-        return new Response(cached.body, {
-          status: cached.status,
-          statusText: cached.statusText,
-          headers: hitHeaders,
+      // Validate required fields exist and are numbers
+      if (typeof apiInput.principal !== 'number' || apiInput.principal <= 0) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'principal must be a positive number',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Check if using old format (interestRate, termInYears) or new format (annualRate, termMonths)
+      let analysisInput: { principal: number; annualRate: number; termMonths: number };
+
+      if (apiInput.interestRate !== undefined && apiInput.termInYears !== undefined) {
+        // Old format validation
+        if (typeof apiInput.interestRate !== 'number' || apiInput.interestRate < 0) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'interestRate must be a non-negative number',
+                code: 'BAD_REQUEST',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        if (typeof apiInput.termInYears !== 'number' || apiInput.termInYears <= 0) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'termInYears must be a positive number',
+                code: 'BAD_REQUEST',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Convert old format to new format
+        analysisInput = {
+          principal: apiInput.principal,
+          annualRate: apiInput.interestRate / 100, // Convert percentage to decimal
+          termMonths: Math.round(apiInput.termInYears * 12), // Convert years to months and round to integer
+        };
+      } else if (apiInput.annualRate !== undefined && apiInput.termMonths !== undefined) {
+        // New format validation
+        if (typeof apiInput.annualRate !== 'number' || apiInput.annualRate < 0) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'annualRate must be a non-negative number',
+                code: 'BAD_REQUEST',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        if (typeof apiInput.termMonths !== 'number' || apiInput.termMonths <= 0) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'termMonths must be a positive number',
+                code: 'BAD_REQUEST',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Use new format directly
+        analysisInput = {
+          principal: apiInput.principal,
+          annualRate: apiInput.annualRate,
+          termMonths: Math.round(apiInput.termMonths), // Ensure integer
+        };
+      } else {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message:
+                'Must provide either (interestRate and termInYears) or (annualRate and termMonths)',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Debug: Log the conversion
+      console.log('Amortization input conversion:', {
+        original: apiInput,
+        converted: analysisInput,
+      });
+
+      const parseResult = AmortizationInputSchema.safeParse(analysisInput);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        // Debug: Log validation failure details
+        console.error('Amortization validation failed:', {
+          input: analysisInput,
+          issues: issues,
         });
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(
+          stableStringify({ route: 'amortization', input: parseResult.data })
+        );
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+
+        const analysisResult = AmortizationAnalyzer.analyze(parseResult.data);
+
+        // Transform analysis result to API response format
+        const result = {
+          monthlyPayment: analysisResult.monthlyPayment,
+          totalInterest: analysisResult.totalInterest,
+          totalPayments: analysisResult.totalPayments,
+          schedule: analysisResult.schedule.map((payment) => ({
+            month: payment.month,
+            payment: payment.payment,
+            principal: payment.principal,
+            interest: payment.interest,
+            balance: payment.balance,
+            cumulativeInterest: payment.cumulativeInterest,
+          })),
+        };
+
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
+          },
+        });
+        void cache.put(cacheReq, res.clone());
+        return res;
       }
 
       const analysisResult = AmortizationAnalyzer.analyze(parseResult.data);
@@ -2151,40 +2402,12 @@ router.post(
         })),
       };
 
-      const res = new Response(JSON.stringify(result), {
+      return new Response(JSON.stringify(result), {
         status: 200,
-        headers: {
-          ...buildDefaultHeaders(env),
-          'Cache-Control': `public, max-age=${ttl}`,
-          'X-Cache': 'MISS',
-        },
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
       });
-      void cache.put(cacheReq, res.clone());
-      return res;
-    }
-
-    const analysisResult = AmortizationAnalyzer.analyze(parseResult.data);
-
-    // Transform analysis result to API response format
-    const result = {
-      monthlyPayment: analysisResult.monthlyPayment,
-      totalInterest: analysisResult.totalInterest,
-      totalPayments: analysisResult.totalPayments,
-      schedule: analysisResult.schedule.map((payment) => ({
-        month: payment.month,
-        payment: payment.payment,
-        principal: payment.principal,
-        interest: payment.interest,
-        balance: payment.balance,
-        cumulativeInterest: payment.cumulativeInterest,
-      })),
-    };
-
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
-    });
-  }))
+    })
+  )
 );
 
 // Legacy route (redirect to v1)
@@ -2335,481 +2558,616 @@ router.get(
 );
 
 // Simple contextual chat endpoint for VS Code-style chat panel
-router.post('/api/v1/chat/enhanced', withErrorHandler(async (request: Request, env: Env) => {
-  // PHASE 3: Enhanced request tracking and context
-  const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
-  logInfo(requestContext, 'Contextual chat request received');
-  
-  try {
-    // SECURITY: Validate request size before parsing body
-    const contentLength = request.headers.get('Content-Length');
-    const sizeValidation = validateRequestSize(contentLength);
-    if (!sizeValidation.valid) {
-      logWarn(requestContext, 'Request size validation failed', {
-        error: sizeValidation.error,
-        code: sizeValidation.code,
-        contentLength,
-      });
-      return new Response(JSON.stringify({ 
-        error: sizeValidation.error,
-        code: sizeValidation.code,
-        requestId: requestContext.requestId,
-      }), {
-        status: 413,
-        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-      });
-    }
+router.post(
+  '/api/v1/chat/enhanced',
+  withErrorHandler(async (request: Request, env: Env) => {
+    // PHASE 3: Enhanced request tracking and context
+    const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
+    logInfo(requestContext, 'Contextual chat request received');
 
-    const body = await request.json() as { 
-      message: string; 
-      context?: string; 
-      currentModel?: Record<string, unknown>;
-      availableTools?: Array<{ name: string; description: string }>;
-      toolOutputs?: Record<string, unknown>;
-    };
-    const { message, context = 'general', currentModel = {}, availableTools = [], toolOutputs = {} } = body;
-    
-    // SECURITY: Comprehensive message validation and sanitization
-    const validation = validateChatMessage(message);
-    if (!validation.valid) {
-      logWarn(requestContext, 'Message validation failed', {
-        error: validation.error,
-        code: validation.code,
-        messageLength: message?.length || 0,
-      });
-      return new Response(JSON.stringify({ 
-        error: validation.error,
-        code: validation.code,
-        requestId: requestContext.requestId,
-      }), {
-        status: 400,
-        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-      });
-    }
-
-    // Use sanitized message for processing
-    const sanitizedMessage = validation.sanitizedValue || '';
-
-    // SECURITY: Detect and log potential threats
-    const threats = detectThreats(sanitizedMessage);
-    if (threats.length > 0) {
-      logWarn(requestContext, 'Potential security threats detected in message', {
-        threats,
-        sanitizedMessage: sanitizedMessage.substring(0, 100),
-      });
-      // Continue processing but log the threat for monitoring
-    }
-
-    // Log available tools for debugging
-    if (availableTools.length > 0) {
-      logInfo(requestContext, 'Chat has access to MCP tools', {
-        tools: availableTools.map(t => t.name)
-      });
-    }
-
-    // Check if user is requesting analysis that matches an MCP tool
-    const lowerMessage = sanitizedMessage.toLowerCase();
-    const toolKeywords: Record<string, string[]> = {
-      'analyze_savings_goal': ['savings', 'goal', 'save', 'emergency fund', 'down payment'],
-      'analyze_student_loans': ['student loan', 'loan payoff', 'idr', 'refinanc', 'avalanche', 'snowball'],
-      'analyze_retirement_savings': ['retirement', '401k', 'ira', 'roth', 'employer match'],
-      'optimize_budget': ['budget', '50/30/20', 'spending', 'expense', 'financial health'],
-      'analyze_debt_payoff': ['debt', 'payoff', 'credit card', 'balance transfer'],
-      'analyze_auto_loan': ['auto loan', 'car loan', 'vehicle'],
-      'analyze_lease': ['lease', 'leasing'],
-      'analyze_amortization': ['amortization', 'mortgage', 'loan schedule'],
-    };
-
-    // Try to match user intent to an MCP tool
-    let matchedTool: string | null = null;
-    for (const [toolName, keywords] of Object.entries(toolKeywords)) {
-      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
-        // Verify this tool is actually available
-        if (availableTools.some(t => t.name === toolName)) {
-          matchedTool = toolName;
-          break;
-        }
-      }
-    }
-
-    // If tool match found, use existing output or call the MCP tool
-    if (matchedTool) {
-      // Check if we already have output from a previous analysis
-      const existingOutput = toolOutputs[matchedTool];
-      
-      if (existingOutput) {
-        // Use existing output for analysis
-        logInfo(requestContext, 'Using existing tool output for analysis', {
-          tool: matchedTool,
-          context
+    try {
+      // SECURITY: Validate request size before parsing body
+      const contentLength = request.headers.get('Content-Length');
+      const sizeValidation = validateRequestSize(contentLength);
+      if (!sizeValidation.valid) {
+        logWarn(requestContext, 'Request size validation failed', {
+          error: sizeValidation.error,
+          code: sizeValidation.code,
+          contentLength,
         });
-
-        const analysisResponse = formatMCPToolAnalysis(matchedTool, existingOutput, currentModel);
-
-        return new Response(JSON.stringify({
-          response: analysisResponse,
-          context,
-          toolUsed: matchedTool,
-          fromCache: true,
-          requestId: requestContext.requestId,
-        }), {
-          status: 200,
-          headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-        });
-      } else if (Object.keys(currentModel).length > 0) {
-        // Call the tool with current model data
-        try {
-          logInfo(requestContext, 'Calling MCP tool based on user intent', {
-            tool: matchedTool,
-            context
-          });
-
-          const mcpResult = await handleMCPRequest('tools/call', {
-            name: matchedTool,
-            arguments: currentModel
-          }, env);
-
-          // Parse and analyze the MCP tool result
-          const analysisResponse = formatMCPToolAnalysis(matchedTool, mcpResult, currentModel);
-
-          return new Response(JSON.stringify({
-            response: analysisResponse,
-            context,
-            toolUsed: matchedTool,
+        return new Response(
+          JSON.stringify({
+            error: sizeValidation.error,
+            code: sizeValidation.code,
             requestId: requestContext.requestId,
-          }), {
-            status: 200,
-            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-          });
-        } catch (toolError) {
-          logWarn(requestContext, 'MCP tool call failed, falling back to pattern matching', {
+          }),
+          {
+            status: 413,
+            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+          }
+        );
+      }
+
+      const body = (await request.json()) as {
+        message: string;
+        context?: string;
+        currentModel?: Record<string, unknown>;
+        availableTools?: Array<{ name: string; description: string }>;
+        toolOutputs?: Record<string, unknown>;
+        memoryContext?: {
+          conversationHistory?: string;
+          modelStates?: string;
+        };
+      };
+      const {
+        message,
+        context = 'general',
+        currentModel = {},
+        availableTools = [],
+        toolOutputs = {},
+        memoryContext = {},
+      } = body;
+
+      // SECURITY: Comprehensive message validation and sanitization
+      const validation = validateChatMessage(message);
+      if (!validation.valid) {
+        logWarn(requestContext, 'Message validation failed', {
+          error: validation.error,
+          code: validation.code,
+          messageLength: message?.length || 0,
+        });
+        return new Response(
+          JSON.stringify({
+            error: validation.error,
+            code: validation.code,
+            requestId: requestContext.requestId,
+          }),
+          {
+            status: 400,
+            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+          }
+        );
+      }
+
+      // Use sanitized message for processing
+      const sanitizedMessage = validation.sanitizedValue || '';
+
+      // SECURITY: Detect and log potential threats
+      const threats = detectThreats(sanitizedMessage);
+      if (threats.length > 0) {
+        logWarn(requestContext, 'Potential security threats detected in message', {
+          threats,
+          sanitizedMessage: sanitizedMessage.substring(0, 100),
+        });
+        // Continue processing but log the threat for monitoring
+      }
+
+      // Log available tools for debugging
+      if (availableTools.length > 0) {
+        logInfo(requestContext, 'Chat has access to MCP tools', {
+          tools: availableTools.map((t) => t.name),
+        });
+      }
+
+      // Check if user is requesting analysis that matches an MCP tool
+      const lowerMessage = sanitizedMessage.toLowerCase();
+      const toolKeywords: Record<string, string[]> = {
+        analyze_savings_goal: ['savings', 'goal', 'save', 'emergency fund', 'down payment'],
+        analyze_student_loans: [
+          'student loan',
+          'loan payoff',
+          'idr',
+          'refinanc',
+          'avalanche',
+          'snowball',
+        ],
+        analyze_retirement_savings: ['retirement', '401k', 'ira', 'roth', 'employer match'],
+        optimize_budget: ['budget', '50/30/20', 'spending', 'expense', 'financial health'],
+        analyze_debt_payoff: ['debt', 'payoff', 'credit card', 'balance transfer'],
+        analyze_auto_loan: ['auto loan', 'car loan', 'vehicle'],
+        analyze_lease: ['lease', 'leasing'],
+        analyze_amortization: ['amortization', 'mortgage', 'loan schedule'],
+      };
+
+      // Try to match user intent to an MCP tool
+      let matchedTool: string | null = null;
+      for (const [toolName, keywords] of Object.entries(toolKeywords)) {
+        if (keywords.some((keyword) => lowerMessage.includes(keyword))) {
+          // Verify this tool is actually available
+          if (availableTools.some((t) => t.name === toolName)) {
+            matchedTool = toolName;
+            break;
+          }
+        }
+      }
+
+      // If tool match found, use existing output or call the MCP tool
+      if (matchedTool) {
+        // Check if we already have output from a previous analysis
+        const existingOutput = toolOutputs[matchedTool];
+
+        if (existingOutput) {
+          // Use existing output for analysis
+          logInfo(requestContext, 'Using existing tool output for analysis', {
             tool: matchedTool,
-            error: toolError instanceof Error ? toolError.message : String(toolError)
+            context,
           });
-          // Fall through to pattern matching logic
-        }
-      }
-    }
 
-    // Context-aware response based on current model page
-    let contextualResponse = '';
-    let modelChanges: Record<string, string | number> = {};
-    let explanation = '';
-    
-    // Field name mappings for different contexts
-    const fieldMappings: Record<string, Record<string, string>> = {
-      lease: {
-        interestRate: 'annualRate',
-        leasePrincipal: 'principal',
-        leaseTerm: 'termMonths',
-        residual: 'residualValue',
-      },
-      amortization: {
-        interestRate: 'annualRate',
-        loanAmount: 'principal',
-        term: 'termMonths',
-      },
-      ebitda: {
-        initialRevenue: 'revenue',
-        revenueGrowthRate: 'growthRate',
-        expenses: 'expenses',
-      },
-    };
-    
-    // Detect intent and extract parameters from user message (using sanitized message)
-    // (lowerMessage already declared above for tool matching)
-    
-    if (context === 'lease') {
-      // Handle lease analysis modifications
-      if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-        const rateStr = rateMatch?.[1];
-        if (rateStr) {
-          const newRate = parseFloat(rateStr);
-          const fieldName = fieldMappings.lease?.interestRate || 'annualRate';
-          modelChanges[fieldName] = newRate;
-          contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
-          const prevRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
-          explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
-        }
-      } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
-        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        const amtStr = amountMatch?.[1];
-        if (amtStr) {
-          const newAmount = parseFloat(amtStr.replace(/,/g, ''));
-          const fieldName = fieldMappings.lease?.leasePrincipal || 'principal';
-          modelChanges[fieldName] = newAmount;
-          contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
-          explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
-        }
-      } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
-        const termValueStr = termMatch?.[1];
-        const termUnit = termMatch?.[2];
-        if (termValueStr && termUnit) {
-          const termValue = parseInt(termValueStr);
-          const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-          const fieldName = fieldMappings.lease?.leaseTerm || 'termMonths';
-          modelChanges[fieldName] = termInMonths;
-          contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
-          const prevLeaseTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
-          explanation = `**Analysis**: ${termInMonths > prevLeaseTerm ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > prevLeaseTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
-        }
-      }
-    } else if (context === 'ebitda') {
-      // Handle EBITDA forecasting modifications
-      if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
-        const revenueMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        const revStr = revenueMatch?.[1];
-        if (revStr) {
-          const newRevenue = parseFloat(revStr.replace(/,/g, ''));
-          modelChanges = { ...currentModel, initialRevenue: newRevenue };
-          contextualResponse = `I've updated the initial revenue to $${newRevenue.toLocaleString()}. This will impact your EBITDA projections across all forecast periods.`;
-          explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
-        }
-      } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
-        const growthMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-        const growthStr = growthMatch?.[1];
-        if (growthStr) {
-          const newGrowth = parseFloat(growthStr);
-          modelChanges = { ...currentModel, revenueGrowthRate: newGrowth };
-          contextualResponse = `I've updated the revenue growth rate to ${newGrowth}% annually. This will compound over your forecast period.`;
-          const prevGrowth = Number((currentModel as Record<string, unknown>).revenueGrowthRate ?? 0);
-          explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > prevGrowth ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
-        }
-      }
-    } else if (context === 'amortization') {
-      // Handle amortization modifications
-      if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-        const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-        const rateStr2 = rateMatch?.[1];
-        if (rateStr2) {
-          const newRate = parseFloat(rateStr2);
-          const fieldName = fieldMappings.amortization?.interestRate || 'annualRate';
-          modelChanges[fieldName] = newRate;
-          contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
-          const prevLoanRate = Number((currentModel as Record<string, unknown>).annualRate ?? 0);
-          explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
-        }
-      } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal') || lowerMessage.includes('loan')) {
-        const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-        const amt2 = amountMatch?.[1];
-        if (amt2) {
-          const newAmount = parseFloat(amt2.replace(/,/g, ''));
-          const fieldName = fieldMappings.amortization?.loanAmount || 'principal';
-          modelChanges[fieldName] = newAmount;
-          contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
-          explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
-        }
-      } else if (lowerMessage.includes('term') || lowerMessage.includes('month') || lowerMessage.includes('year')) {
-        const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
-        const termValueStr = termMatch?.[1];
-        const termUnit = termMatch?.[2];
-        if (termValueStr && termUnit) {
-          const termValue = parseInt(termValueStr);
-          const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-          const fieldName = fieldMappings.amortization?.term || 'termMonths';
-          modelChanges[fieldName] = termInMonths;
-          contextualResponse = `I've updated the term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This recalculates your amortization schedule.`;
-          const prevTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
-          explanation = `**Analysis**: ${termInMonths > prevTerm ? 'Extending' : 'Shortening'} the term will ${termInMonths > prevTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
-        }
-      }
-    }
-    
-    // If no specific changes detected, provide general assistance
-    if (Object.keys(modelChanges).length === 0) {
-      // Short, help-on-demand response: keeps startup concise but points users to ask for help
-      contextualResponse = `I can help update the ${context} model. Try: "Set interest to 4.5%" or "Show a 20-year term". Say "help" for more examples.`;
-      explanation = `I can change interest rates, amounts, and terms. Ask for a specific value or say "help" to see example requests.`;
-    }
-    
-    const response = {
-      response: `${contextualResponse}\n\n${explanation}`,
-      modelChanges,
-      context,
-      thinking: [
-        `Analyzing ${context} model context...`,
-        `Extracting parameters from: "${sanitizedMessage}"`,
-        `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
-        `Preparing response with actionable modifications...`
-      ]
-    };
+          const analysisResponse = formatMCPToolAnalysis(matchedTool, existingOutput, currentModel);
 
-    logInfo(requestContext, 'Chat response generated successfully', {
-      context,
-      changesDetected: Object.keys(modelChanges).length,
-    });
+          return new Response(
+            JSON.stringify({
+              response: analysisResponse,
+              context,
+              toolUsed: matchedTool,
+              fromCache: true,
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 200,
+              headers: buildChatHeaders(
+                env,
+                requestContext.requestId,
+                requestContext.correlationId
+              ),
+            }
+          );
+        } else if (Object.keys(currentModel).length > 0) {
+          // Call the tool with current model data
+          try {
+            logInfo(requestContext, 'Calling MCP tool based on user intent', {
+              tool: matchedTool,
+              context,
+            });
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-    });
-    
-  } catch (error) {
-    const errorObj = error instanceof Error ? error : new Error(String(error));
-    logError(requestContext, errorObj);
-    return new Response(JSON.stringify({ 
-      error: 'Internal server error',
-      response: 'I apologize, but I encountered an error processing your request. Please try again.',
-      requestId: requestContext.requestId,
-    }), {
-      status: 500,
-      headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
-    });
-  }
-}));
+            const mcpResult = await handleMCPRequest(
+              'tools/call',
+              {
+                name: matchedTool,
+                arguments: currentModel,
+              },
+              env
+            );
+
+            // Get previous model state for comparison
+            const previousState = getPreviousModelState(matchedTool, memoryContext);
+
+            // Parse and analyze the MCP tool result
+            const analysisResponse = formatMCPToolAnalysis(
+              matchedTool,
+              mcpResult,
+              currentModel,
+              previousState
+            );
+
+            return new Response(
+              JSON.stringify({
+                response: analysisResponse,
+                context,
+                toolUsed: matchedTool,
+                requestId: requestContext.requestId,
+              }),
+              {
+                status: 200,
+                headers: buildChatHeaders(
+                  env,
+                  requestContext.requestId,
+                  requestContext.correlationId
+                ),
+              }
+            );
+          } catch (toolError) {
+            logWarn(requestContext, 'MCP tool call failed, falling back to pattern matching', {
+              tool: matchedTool,
+              error: toolError instanceof Error ? toolError.message : String(toolError),
+            });
+            // Fall through to pattern matching logic
+          }
+        }
+      }
+
+      // Context-aware response based on current model page
+      let contextualResponse = '';
+      let modelChanges: Record<string, string | number> = {};
+      let explanation = '';
+
+      // Field name mappings for different contexts
+      const fieldMappings: Record<string, Record<string, string>> = {
+        lease: {
+          interestRate: 'annualRate',
+          leasePrincipal: 'principal',
+          leaseTerm: 'termMonths',
+          residual: 'residualValue',
+        },
+        amortization: {
+          interestRate: 'annualRate',
+          loanAmount: 'principal',
+          term: 'termMonths',
+        },
+        ebitda: {
+          initialRevenue: 'revenue',
+          revenueGrowthRate: 'growthRate',
+          expenses: 'expenses',
+        },
+      };
+
+      // Detect intent and extract parameters from user message (using sanitized message)
+      // (lowerMessage already declared above for tool matching)
+
+      if (context === 'lease') {
+        // Handle lease analysis modifications
+        if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
+          const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
+          const rateStr = rateMatch?.[1];
+          if (rateStr) {
+            const newRate = parseFloat(rateStr);
+            const fieldName = fieldMappings.lease?.interestRate || 'annualRate';
+            // Convert percentage to decimal for annualRate field
+            modelChanges[fieldName] = newRate / 100;
+            contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
+            const prevRate =
+              Number((currentModel as Record<string, unknown>).annualRate ?? 0) * 100;
+            explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
+          }
+        } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
+          const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+          const amtStr = amountMatch?.[1];
+          if (amtStr) {
+            const newAmount = parseFloat(amtStr.replace(/,/g, ''));
+            const fieldName = fieldMappings.lease?.leasePrincipal || 'principal';
+            modelChanges[fieldName] = newAmount;
+            contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
+            explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
+          }
+        } else if (
+          lowerMessage.includes('term') ||
+          lowerMessage.includes('month') ||
+          lowerMessage.includes('year')
+        ) {
+          const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
+          const termValueStr = termMatch?.[1];
+          const termUnit = termMatch?.[2];
+          if (termValueStr && termUnit) {
+            const termValue = parseInt(termValueStr);
+            const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
+            const fieldName = fieldMappings.lease?.leaseTerm || 'termMonths';
+            modelChanges[fieldName] = termInMonths;
+            contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
+            const prevLeaseTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
+            explanation = `**Analysis**: ${termInMonths > prevLeaseTerm ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > prevLeaseTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
+          }
+        }
+      } else if (context === 'ebitda') {
+        // Handle EBITDA forecasting modifications
+        if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
+          const revenueMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+          const revStr = revenueMatch?.[1];
+          if (revStr) {
+            const newRevenue = parseFloat(revStr.replace(/,/g, ''));
+            modelChanges = { ...currentModel, initialRevenue: newRevenue };
+            contextualResponse = `I've updated the initial revenue to $${newRevenue.toLocaleString()}. This will impact your EBITDA projections across all forecast periods.`;
+            explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
+          }
+        } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
+          const growthMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
+          const growthStr = growthMatch?.[1];
+          if (growthStr) {
+            const newGrowth = parseFloat(growthStr);
+            modelChanges = { ...currentModel, revenueGrowthRate: newGrowth };
+            contextualResponse = `I've updated the revenue growth rate to ${newGrowth}% annually. This will compound over your forecast period.`;
+            const prevGrowth = Number(
+              (currentModel as Record<string, unknown>).revenueGrowthRate ?? 0
+            );
+            explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > prevGrowth ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
+          }
+        }
+      } else if (context === 'amortization') {
+        // Handle amortization modifications
+        if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
+          const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
+          const rateStr2 = rateMatch?.[1];
+          if (rateStr2) {
+            const newRate = parseFloat(rateStr2);
+
+            // Validate the interest rate
+            if (newRate < 0 || newRate > 100) {
+              contextualResponse = `❌ **Invalid Interest Rate**\n\nI can't set the interest rate to ${newRate}%. Interest rates must be between 0% and 100%. Please provide a valid rate.`;
+              explanation = `**Validation Error**: Interest rates outside the 0-100% range are not realistic for financial calculations.`;
+            } else {
+              const fieldName = fieldMappings.amortization?.interestRate || 'annualRate';
+              // Convert percentage to decimal for annualRate field
+              modelChanges[fieldName] = newRate / 100;
+              contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
+              const prevLoanRate =
+                Number((currentModel as Record<string, unknown>).annualRate ?? 0) * 100;
+              explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
+            }
+          }
+        } else if (
+          lowerMessage.includes('amount') ||
+          lowerMessage.includes('principal') ||
+          lowerMessage.includes('loan')
+        ) {
+          const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
+          const amt2 = amountMatch?.[1];
+          if (amt2) {
+            const newAmount = parseFloat(amt2.replace(/,/g, ''));
+
+            // Validate the loan amount
+            if (newAmount <= 0) {
+              contextualResponse = `❌ **Invalid Loan Amount**\n\nI can't set the loan amount to $${newAmount.toLocaleString()}. Loan amounts must be greater than $0. Please provide a valid amount.`;
+              explanation = `**Validation Error**: Loan amounts must be positive values for meaningful calculations.`;
+            } else if (newAmount > 10000000) {
+              contextualResponse = `❌ **Loan Amount Too Large**\n\nI can't set the loan amount to $${newAmount.toLocaleString()}. Loan amounts over $10 million are not supported. Please provide a smaller amount.`;
+              explanation = `**Validation Error**: Very large loan amounts may cause calculation issues.`;
+            } else {
+              const fieldName = fieldMappings.amortization?.loanAmount || 'principal';
+              modelChanges[fieldName] = newAmount;
+              contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
+              explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
+            }
+          }
+        } else if (
+          lowerMessage.includes('term') ||
+          lowerMessage.includes('month') ||
+          lowerMessage.includes('year')
+        ) {
+          const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
+          const termValueStr = termMatch?.[1];
+          const termUnit = termMatch?.[2];
+          if (termValueStr && termUnit) {
+            const termValue = parseInt(termValueStr);
+            const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
+            const fieldName = fieldMappings.amortization?.term || 'termMonths';
+            modelChanges[fieldName] = termInMonths;
+            contextualResponse = `I've updated the term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This recalculates your amortization schedule.`;
+            const prevTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
+            explanation = `**Analysis**: ${termInMonths > prevTerm ? 'Extending' : 'Shortening'} the term will ${termInMonths > prevTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
+          }
+        }
+      }
+
+      // If no specific changes detected, provide general assistance
+      if (Object.keys(modelChanges).length === 0) {
+        // Short, help-on-demand response: keeps startup concise but points users to ask for help
+        contextualResponse = `I can help update the ${context} model. Try: "Set interest to 4.5%" or "Show a 20-year term". Say "help" for more examples.`;
+        explanation = `I can change interest rates, amounts, and terms. Ask for a specific value or say "help" to see example requests.`;
+      }
+
+      const response = {
+        response: `${contextualResponse}\n\n${explanation}`,
+        modelChanges,
+        context,
+        thinking: [
+          `Analyzing ${context} model context...`,
+          `Extracting parameters from: "${sanitizedMessage}"`,
+          `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
+          `Preparing response with actionable modifications...`,
+        ],
+      };
+
+      logInfo(requestContext, 'Chat response generated successfully', {
+        context,
+        changesDetected: Object.keys(modelChanges).length,
+      });
+
+      return new Response(JSON.stringify(response), {
+        status: 200,
+        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+      });
+    } catch (error) {
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      logError(requestContext, errorObj);
+      return new Response(
+        JSON.stringify({
+          error: 'Internal server error',
+          response:
+            'I apologize, but I encountered an error processing your request. Please try again.',
+          requestId: requestContext.requestId,
+        }),
+        {
+          status: 500,
+          headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+        }
+      );
+    }
+  })
+);
 
 // Document upload endpoint (simplified - stores in R2 if available)
-router.post('/v1/api/upload/lease', withErrorHandler(async (request: Request, env: Env) => {
-  const requestId = crypto.randomUUID();
-  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Document upload request', requestId }));
-  
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-    
-    if (!file) {
-      return new Response(JSON.stringify({ error: 'No file provided' }), {
-        status: 400,
-        headers: buildDefaultHeaders(env)
-      });
-    }
+router.post(
+  '/v1/api/upload/lease',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const requestId = crypto.randomUUID();
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Document upload request',
+        requestId,
+      })
+    );
 
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-    if (!allowedTypes.includes(file.type)) {
-      return new Response(JSON.stringify({ error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.' }), {
-        status: 400,
-        headers: buildDefaultHeaders(env)
-      });
-    }
+    try {
+      const formData = await request.formData();
+      const file = formData.get('file') as File | null;
 
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return new Response(JSON.stringify({ error: 'File too large. Maximum size is 10MB.' }), {
-        status: 400,
-        headers: buildDefaultHeaders(env)
-      });
-    }
-
-    // Store in R2 if available (optional)
-    const fileKey = `uploads/${requestId}-${file.name}`;
-    
-    if (env.DOCUMENTS) {
-      try {
-        await env.DOCUMENTS.put(fileKey, await file.arrayBuffer(), {
-          customMetadata: {
-            originalName: file.name,
-            contentType: file.type,
-            uploadedAt: new Date().toISOString()
-          }
+      if (!file) {
+        return new Response(JSON.stringify({ error: 'No file provided' }), {
+          status: 400,
+          headers: buildDefaultHeaders(env),
         });
-      } catch (r2Error) {
-        console.warn('R2 upload failed, continuing without storage:', r2Error);
       }
+
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        return new Response(
+          JSON.stringify({
+            error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.',
+          }),
+          {
+            status: 400,
+            headers: buildDefaultHeaders(env),
+          }
+        );
+      }
+
+      // Validate file size (10MB max)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        return new Response(JSON.stringify({ error: 'File too large. Maximum size is 10MB.' }), {
+          status: 400,
+          headers: buildDefaultHeaders(env),
+        });
+      }
+
+      // Store in R2 if available (optional)
+      const fileKey = `uploads/${requestId}-${file.name}`;
+
+      if (env.DOCUMENTS) {
+        try {
+          await env.DOCUMENTS.put(fileKey, await file.arrayBuffer(), {
+            customMetadata: {
+              originalName: file.name,
+              contentType: file.type,
+              uploadedAt: new Date().toISOString(),
+            },
+          });
+        } catch (r2Error) {
+          console.warn('R2 upload failed, continuing without storage:', r2Error);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          key: fileKey,
+          fileName: file.name,
+          fileSize: file.size,
+          contentType: file.type,
+        }),
+        {
+          status: 200,
+          headers: buildDefaultHeaders(env),
+        }
+      );
+    } catch (error) {
+      console.error('Document upload error:', error);
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to upload document',
+          message: error instanceof Error ? error.message : 'Unknown error',
+        }),
+        {
+          status: 500,
+          headers: buildDefaultHeaders(env),
+        }
+      );
     }
-
-    return new Response(JSON.stringify({
-      success: true,
-      key: fileKey,
-      fileName: file.name,
-      fileSize: file.size,
-      contentType: file.type
-    }), {
-      status: 200,
-      headers: buildDefaultHeaders(env)
-    });
-
-  } catch (error) {
-    console.error('Document upload error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Failed to upload document',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: buildDefaultHeaders(env)
-    });
-  }
-}));
+  })
+);
 
 // Document extraction endpoint (simulated AI extraction)
-router.post('/v1/api/extract/lease', withErrorHandler(async (request: Request, env: Env) => {
-  const requestId = crypto.randomUUID();
-  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message: 'Document extraction request', requestId }));
-  
-  try {
-    const body = await request.json() as { documentKey: string; documentType?: string; extractionOptions?: Record<string, boolean> };
-    const { documentKey, documentType = 'lease' } = body;
-    
-    if (!documentKey) {
-      return new Response(JSON.stringify({ error: 'Document key is required' }), {
-        status: 400,
-        headers: buildDefaultHeaders(env)
-      });
+router.post(
+  '/v1/api/extract/lease',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const requestId = crypto.randomUUID();
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Document extraction request',
+        requestId,
+      })
+    );
+
+    try {
+      const body = (await request.json()) as {
+        documentKey: string;
+        documentType?: string;
+        extractionOptions?: Record<string, boolean>;
+      };
+      const { documentKey, documentType = 'lease' } = body;
+
+      if (!documentKey) {
+        return new Response(JSON.stringify({ error: 'Document key is required' }), {
+          status: 400,
+          headers: buildDefaultHeaders(env),
+        });
+      }
+
+      // Simulate AI extraction with realistic mock data
+      // In production, this would call Workers AI or external AI service
+      const extractedData = {
+        confidence: {
+          overall: 0.85 + Math.random() * 0.1,
+          financial: 0.92 + Math.random() * 0.05,
+          property: 0.78 + Math.random() * 0.15,
+        },
+        leaseType: 'office-modified',
+        leaseTerm: 60,
+        baseRent: 2500 + Math.floor(Math.random() * 1000),
+        escalationType: 'percentage',
+        escalationRate: 0.03,
+        securityDeposit: 5000,
+        squareFootage: 1200 + Math.floor(Math.random() * 300),
+        cam: 300,
+        taxes: 200,
+        insurance: 150,
+        utilities: 250,
+        // Additional extracted fields
+        landlord: 'Property Management LLC',
+        tenant: 'Acme Corporation',
+        propertyAddress: '123 Business Park Dr, Suite 200',
+        leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
+        renewalOptions: [{ term: 12, rentIncrease: 0.03 }],
+        parkingSpaces: 2,
+        allowedUse: 'General office use',
+        specialProvisions: [
+          'Tenant responsible for interior maintenance',
+          'Landlord covers exterior and structural repairs',
+          'Option to expand to adjacent space if available',
+        ],
+      };
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          extractedData,
+          documentType,
+          extractionMethod: env.AI ? 'workers-ai' : 'simulated',
+          timestamp: new Date().toISOString(),
+        }),
+        {
+          status: 200,
+          headers: buildDefaultHeaders(env),
+        }
+      );
+    } catch (error) {
+      console.error('Document extraction error:', error);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Failed to extract lease data',
+          message: error instanceof Error ? error.message : 'Unknown error',
+        }),
+        {
+          status: 500,
+          headers: buildDefaultHeaders(env),
+        }
+      );
     }
-
-    // Simulate AI extraction with realistic mock data
-    // In production, this would call Workers AI or external AI service
-    const extractedData = {
-      confidence: {
-        overall: 0.85 + Math.random() * 0.10,
-        financial: 0.92 + Math.random() * 0.05,
-        property: 0.78 + Math.random() * 0.15,
-      },
-      leaseType: 'office-modified',
-      leaseTerm: 60,
-      baseRent: 2500 + Math.floor(Math.random() * 1000),
-      escalationType: 'percentage',
-      escalationRate: 0.03,
-      securityDeposit: 5000,
-      squareFootage: 1200 + Math.floor(Math.random() * 300),
-      cam: 300,
-      taxes: 200,
-      insurance: 150,
-      utilities: 250,
-      // Additional extracted fields
-      landlord: 'Property Management LLC',
-      tenant: 'Acme Corporation',
-      propertyAddress: '123 Business Park Dr, Suite 200',
-      leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      renewalOptions: [
-        { term: 12, rentIncrease: 0.03 }
-      ],
-      parkingSpaces: 2,
-      allowedUse: 'General office use',
-      specialProvisions: [
-        'Tenant responsible for interior maintenance',
-        'Landlord covers exterior and structural repairs',
-        'Option to expand to adjacent space if available'
-      ]
-    };
-
-    return new Response(JSON.stringify({
-      success: true,
-      extractedData,
-      documentType,
-      extractionMethod: env.AI ? 'workers-ai' : 'simulated',
-      timestamp: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: buildDefaultHeaders(env)
-    });
-
-  } catch (error) {
-    console.error('Document extraction error:', error);
-    return new Response(JSON.stringify({ 
-      success: false,
-      error: 'Failed to extract lease data',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: buildDefaultHeaders(env)
-    });
-  }
-}));
+  })
+);
 
 // 404 handler
 router.all(
@@ -2883,14 +3241,16 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     // Daily log analysis at midnight
     if (event.cron === '0 0 * * *') {
-      const logAnalysisPromise = import('./cron/analyze-logs').then(m => m.handleDailyLogAnalysis(env));
+      const logAnalysisPromise = import('./cron/analyze-logs').then((m) =>
+        m.handleDailyLogAnalysis(env)
+      );
       ctx.waitUntil(logAnalysisPromise);
     }
 
     // Hourly reconciliation of approximate bucket usage
     const reconcilePromise = reconcileBucketUsage(env);
     ctx.waitUntil(reconcilePromise);
-    
+
     // In production, run asynchronously; in tests, await so assertions see updates.
     if (env.ENVIRONMENT === 'test') {
       await reconcilePromise;

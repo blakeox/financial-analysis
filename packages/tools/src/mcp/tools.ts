@@ -114,6 +114,28 @@ export function createMCPTools(): MCPTool[] {
 
 export type MCPRequestMethod = 'initialize' | 'tools/list' | 'tools/call';
 
+// Concise descriptions for better chatbot responses
+function getConciseDescription(toolName: string): string {
+  const descriptions: Record<string, string> = {
+    analyze_amortization: 'Calculate loan payments and amortization schedule',
+    analyze_lease: 'Analyze lease agreement financials',
+    analyze_enhanced_lease: 'Comprehensive lease analysis with advanced features',
+    analyze_ebitda_forecasting: 'Generate EBITDA forecasts for business planning',
+    analyze_ebitda_scenario_comparison: 'Compare multiple EBITDA scenarios',
+    analyze_bond_pricing: 'Calculate bond valuation and yield analysis',
+    analyze_options_pricing: 'Price options using Black-Scholes and other models',
+    analyze_cash_flow: 'Analyze cash flow projections and liquidity',
+    analyze_auto_loan: 'Calculate auto loan payments and total cost',
+    analyze_debt_payoff: 'Optimize debt payoff strategies (avalanche vs snowball)',
+    analyze_savings_goal: 'Plan savings goals with compound interest',
+    analyze_student_loans: 'Optimize student loan repayment strategies',
+    analyze_retirement_savings: 'Plan retirement savings and projections',
+    optimize_budget: 'Analyze and optimize personal budget',
+  };
+
+  return descriptions[toolName] || 'Financial analysis tool';
+}
+
 export interface MCPCallParams {
   name: string;
   arguments: unknown;
@@ -145,7 +167,7 @@ export async function handleMCPRequest(
       return {
         tools: tools.map((tool) => ({
           name: tool.name,
-          description: tool.description,
+          description: getConciseDescription(tool.name),
           inputSchema: tool.inputSchema,
         })),
       };
