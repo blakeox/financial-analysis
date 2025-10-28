@@ -1,0 +1,637 @@
+/**
+ * Multi-Model Financial Analysis Scenarios
+ *
+ * This module handles the selection and integration of multiple financial models
+ * for comprehensive scenario-based analysis.
+ */
+
+export interface ScenarioModel {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  order: number;
+  required: boolean;
+}
+
+export interface FinancialScenario {
+  id: string;
+  name: string;
+  description: string;
+  category: 'life-stage' | 'major-purchase' | 'debt-investment' | 'retirement';
+  ageRange?: string;
+  models: ScenarioModel[];
+  workflow: string[];
+  estimatedDuration: string;
+  complexity: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export class MultiModelScenarioManager {
+  private scenarios: Map<string, FinancialScenario> = new Map();
+  private selectedScenario: FinancialScenario | null = null;
+  private completedModels: Set<string> = new Set();
+
+  constructor() {
+    this.initializeScenarios();
+    this.setupEventListeners();
+  }
+
+  /**
+   * Initialize all available financial scenarios
+   */
+  private initializeScenarios(): void {
+    const scenarios: FinancialScenario[] = [
+      {
+        id: 'young-professional',
+        name: 'Young Professional Journey',
+        description:
+          'Complete financial planning for early career professionals focusing on debt management, emergency funds, and retirement planning.',
+        category: 'life-stage',
+        ageRange: 'Ages 25-35',
+        models: [
+          {
+            id: 'student-loan',
+            name: 'Student Loan Analyzer',
+            description: 'Optimize student loan repayment strategies',
+            url: '/student-loans',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'budget',
+            name: 'Budget Optimizer',
+            description: 'Create emergency fund and budget planning',
+            url: '/budget',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'retirement',
+            name: 'Retirement Planning Engine',
+            description: 'Early retirement planning and 401(k) optimization',
+            url: '/retirement-planning',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'insurance-needs',
+            name: 'Insurance Needs Calculator',
+            description: 'Assess life and disability insurance needs',
+            url: '/insurance-needs',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Assess current financial situation and debt load',
+          'Create emergency fund strategy',
+          'Optimize student loan repayment',
+          'Start retirement planning early',
+          'Evaluate insurance needs',
+        ],
+        estimatedDuration: '2-3 hours',
+        complexity: 'beginner',
+      },
+      {
+        id: 'family-planning',
+        name: 'Family Planning Journey',
+        description:
+          'Comprehensive family financial planning including home buying, education funding, and family protection strategies.',
+        category: 'life-stage',
+        ageRange: 'Ages 30-45',
+        models: [
+          {
+            id: 'home-buying-affordability',
+            name: 'Home Buying Affordability Calculator',
+            description: 'Analyze home buying readiness and affordability',
+            url: '/home-buying-affordability',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'college-savings',
+            name: 'College Savings Planner',
+            description: "Plan for children's education funding",
+            url: '/college-savings',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'insurance-needs',
+            name: 'Insurance Needs Calculator',
+            description: 'Comprehensive family insurance analysis',
+            url: '/insurance-needs',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'tax-optimization',
+            name: 'Tax Optimization Planner',
+            description: 'Optimize tax strategy for family finances',
+            url: '/tax-optimization',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Evaluate home buying readiness',
+          "Plan for children's education costs",
+          'Assess family insurance needs',
+          'Optimize tax strategy',
+          'Create comprehensive family budget',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'intermediate',
+      },
+      {
+        id: 'home-buying',
+        name: 'Home Buying Journey',
+        description:
+          'Complete home buying analysis from affordability assessment to mortgage optimization and ongoing cost planning.',
+        category: 'major-purchase',
+        models: [
+          {
+            id: 'home-buying-affordability',
+            name: 'Home Buying Affordability Calculator',
+            description: 'Analyze maximum affordable home price',
+            url: '/home-buying-affordability',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'amortization',
+            name: 'Residential Mortgage Calculator',
+            description: 'Compare mortgage options and terms',
+            url: '/amortization',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'budget',
+            name: 'Budget Optimizer',
+            description: 'Plan for ongoing homeownership costs',
+            url: '/budget',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'savings-goal',
+            name: 'Savings Goal Planner',
+            description: 'Plan for down payment and closing costs',
+            url: '/savings-goal',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Determine home buying affordability',
+          'Compare mortgage options',
+          'Plan for down payment and closing costs',
+          'Budget for ongoing homeownership expenses',
+          'Create home buying timeline',
+        ],
+        estimatedDuration: '2-3 hours',
+        complexity: 'intermediate',
+      },
+      {
+        id: 'debt-elimination',
+        name: 'Debt Elimination Strategy',
+        description:
+          'Comprehensive debt payoff strategy combining multiple debt types with investment optimization for maximum financial growth.',
+        category: 'debt-investment',
+        models: [
+          {
+            id: 'student-loan',
+            name: 'Student Loan Analyzer',
+            description: 'Optimize student loan repayment',
+            url: '/student-loans',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'debt-payoff',
+            name: 'Debt Payoff Optimizer',
+            description: 'Create comprehensive debt elimination plan',
+            url: '/debt-payoff',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'auto-loan',
+            name: 'Auto Loan Calculator',
+            description: 'Analyze vehicle financing options',
+            url: '/auto-loan',
+            order: 3,
+            required: false,
+          },
+          {
+            id: 'investment-portfolio',
+            name: 'Investment Portfolio Analyzer',
+            description: 'Balance debt payoff with investment growth',
+            url: '/investment-portfolio',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Assess all debt types and balances',
+          'Create debt elimination timeline',
+          'Optimize payoff strategies',
+          'Balance debt payoff with investments',
+          'Monitor progress and adjust strategy',
+        ],
+        estimatedDuration: '2-3 hours',
+        complexity: 'intermediate',
+      },
+      {
+        id: 'investment-portfolio',
+        name: 'Investment Portfolio Build',
+        description:
+          'Build and optimize investment portfolios with tax-efficient strategies and risk management for long-term wealth building.',
+        category: 'debt-investment',
+        models: [
+          {
+            id: 'retirement-planning',
+            name: 'Retirement Planning Engine',
+            description: 'Optimize retirement account contributions',
+            url: '/retirement-planning',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'investment-portfolio',
+            name: 'Investment Portfolio Analyzer',
+            description: 'Build diversified investment portfolio',
+            url: '/investment-portfolio',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'tax-optimization',
+            name: 'Tax Optimization Planner',
+            description: 'Implement tax-efficient investment strategies',
+            url: '/tax-optimization',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'budget',
+            name: 'Budget Optimizer',
+            description: 'Allocate budget for investment contributions',
+            url: '/budget',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Assess current investment situation',
+          'Optimize retirement account strategy',
+          'Build diversified portfolio',
+          'Implement tax-efficient strategies',
+          'Create ongoing investment plan',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'advanced',
+      },
+      {
+        id: 'pre-retirement',
+        name: 'Pre-Retirement Planning',
+        description:
+          'Comprehensive pre-retirement planning focusing on catch-up contributions, tax optimization, and retirement readiness assessment.',
+        category: 'retirement',
+        ageRange: 'Ages 50-65',
+        models: [
+          {
+            id: 'retirement-planning',
+            name: 'Retirement Planning Engine',
+            description: 'Catch-up contributions and retirement readiness',
+            url: '/retirement-planning',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'tax-optimization',
+            name: 'Tax Optimization Planner',
+            description: 'Optimize tax strategy for retirement transition',
+            url: '/tax-optimization',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'investment-portfolio',
+            name: 'Investment Portfolio Analyzer',
+            description: 'Adjust portfolio for retirement timeline',
+            url: '/investment-portfolio',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'insurance-needs',
+            name: 'Insurance Needs Calculator',
+            description: 'Evaluate long-term care and health insurance',
+            url: '/insurance-needs',
+            order: 4,
+            required: false,
+          },
+        ],
+        workflow: [
+          'Assess retirement readiness',
+          'Maximize catch-up contributions',
+          'Optimize tax diversification',
+          'Adjust investment strategy',
+          'Plan for healthcare costs',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'advanced',
+      },
+    ];
+
+    // Store scenarios in map for easy access
+    scenarios.forEach((scenario) => {
+      this.scenarios.set(scenario.id, scenario);
+    });
+  }
+
+  /**
+   * Setup event listeners for scenario interactions
+   */
+  private setupEventListeners(): void {
+    // Listen for scenario card clicks
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const scenarioCard = target.closest('.scenario-card');
+
+      if (scenarioCard) {
+        const scenarioId = scenarioCard.getAttribute('data-scenario');
+        if (scenarioId) {
+          this.selectScenario(scenarioId);
+        }
+      }
+    });
+
+    // Listen for model completion events
+    document.addEventListener('model-completed', (event: CustomEvent) => {
+      const modelId = event.detail.modelId;
+      this.markModelCompleted(modelId);
+    });
+
+    // Listen for analysis result updates
+    document.addEventListener('analysis-result-updated', () => {
+      this.updateScenarioProgress();
+    });
+  }
+
+  /**
+   * Select a financial scenario
+   */
+  public selectScenario(scenarioId: string): void {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      console.error(`Scenario ${scenarioId} not found`);
+      return;
+    }
+
+    this.selectedScenario = scenario;
+    this.displayScenarioInfo(scenario);
+    this.updateChatbotContext(scenario);
+
+    // Scroll to scenario info section
+    const scenarioInfo = document.getElementById('selected-scenario-info');
+    if (scenarioInfo) {
+      scenarioInfo.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Display selected scenario information
+   */
+  private displayScenarioInfo(scenario: FinancialScenario): void {
+    const titleElement = document.getElementById('selected-scenario-title');
+    const descriptionElement = document.getElementById('selected-scenario-description');
+    const modelsElement = document.getElementById('scenario-models');
+    const infoElement = document.getElementById('selected-scenario-info');
+
+    if (titleElement) {
+      titleElement.textContent = scenario.name;
+    }
+
+    if (descriptionElement) {
+      descriptionElement.textContent = scenario.description;
+    }
+
+    if (modelsElement) {
+      modelsElement.innerHTML = this.generateModelsHTML(scenario);
+    }
+
+    if (infoElement) {
+      infoElement.classList.remove('hidden');
+    }
+
+    // Update scenario cards visual state
+    this.updateScenarioCardsState(scenario.id);
+  }
+
+  /**
+   * Generate HTML for scenario models
+   */
+  private generateModelsHTML(scenario: FinancialScenario): string {
+    const modelsHTML = scenario.models
+      .map((model) => {
+        const isCompleted = this.completedModels.has(model.id);
+        const statusClass = isCompleted
+          ? 'text-green-600 dark:text-green-400'
+          : 'text-gray-600 dark:text-gray-400';
+        const statusIcon = isCompleted ? '✓' : '○';
+
+        return `
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
+          <div class="flex items-center">
+            <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
+            <div>
+              <h4 class="font-medium text-gray-900 dark:text-white">${model.name}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">${model.description}</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            ${model.required ? '<span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Required</span>' : ''}
+            <a href="${model.url}" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+              ${isCompleted ? 'Review' : 'Start'}
+            </a>
+          </div>
+        </div>
+      `;
+      })
+      .join('');
+
+    return `
+      <div class="mb-4">
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Models in this Scenario</h4>
+        <div class="space-y-2">
+          ${modelsHTML}
+        </div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+        <h5 class="font-medium text-blue-900 dark:text-blue-300 mb-2">Workflow Steps:</h5>
+        <ol class="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-400">
+          ${scenario.workflow.map((step) => `<li>${step}</li>`).join('')}
+        </ol>
+        <div class="mt-3 flex items-center justify-between text-sm text-blue-700 dark:text-blue-300">
+          <span>Estimated Duration: ${scenario.estimatedDuration}</span>
+          <span>Complexity: ${scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Update chatbot context with selected scenario
+   */
+  private updateChatbotContext(scenario: FinancialScenario): void {
+    // Update global context for chatbot
+    if (typeof window !== 'undefined') {
+      (window as any).currentScenario = {
+        id: scenario.id,
+        name: scenario.name,
+        description: scenario.description,
+        models: scenario.models.map((m) => ({
+          id: m.id,
+          name: m.name,
+          url: m.url,
+        })),
+        workflow: scenario.workflow,
+      };
+
+      // Notify chatbot of context change
+      const event = new CustomEvent('scenario-selected', {
+        detail: { scenario },
+      });
+      document.dispatchEvent(event);
+    }
+  }
+
+  /**
+   * Update visual state of scenario cards
+   */
+  private updateScenarioCardsState(selectedId: string): void {
+    const scenarioCards = document.querySelectorAll('.scenario-card');
+    scenarioCards.forEach((card) => {
+      const cardId = card.getAttribute('data-scenario');
+      if (cardId === selectedId) {
+        card.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
+      } else {
+        card.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+      }
+    });
+  }
+
+  /**
+   * Mark a model as completed
+   */
+  public markModelCompleted(modelId: string): void {
+    this.completedModels.add(modelId);
+
+    if (this.selectedScenario) {
+      this.displayScenarioInfo(this.selectedScenario);
+    }
+  }
+
+  /**
+   * Update scenario progress
+   */
+  private updateScenarioProgress(): void {
+    if (this.selectedScenario) {
+      this.displayScenarioInfo(this.selectedScenario);
+    }
+  }
+
+  /**
+   * Clear scenario selection
+   */
+  public clearScenarioSelection(): void {
+    this.selectedScenario = null;
+    this.completedModels.clear();
+
+    const infoElement = document.getElementById('selected-scenario-info');
+    if (infoElement) {
+      infoElement.classList.add('hidden');
+    }
+
+    // Clear visual state
+    const scenarioCards = document.querySelectorAll('.scenario-card');
+    scenarioCards.forEach((card) => {
+      card.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+    });
+
+    // Clear chatbot context
+    if (typeof window !== 'undefined') {
+      (window as any).currentScenario = null;
+    }
+  }
+
+  /**
+   * Get scenario by ID
+   */
+  public getScenario(scenarioId: string): FinancialScenario | undefined {
+    return this.scenarios.get(scenarioId);
+  }
+
+  /**
+   * Get all scenarios
+   */
+  public getAllScenarios(): FinancialScenario[] {
+    return Array.from(this.scenarios.values());
+  }
+
+  /**
+   * Get scenarios by category
+   */
+  public getScenariosByCategory(category: string): FinancialScenario[] {
+    return Array.from(this.scenarios.values()).filter((scenario) => scenario.category === category);
+  }
+
+  /**
+   * Get scenario progress
+   */
+  public getScenarioProgress(scenarioId: string): {
+    completed: number;
+    total: number;
+    percentage: number;
+  } {
+    const scenario = this.scenarios.get(scenarioId);
+    if (!scenario) {
+      return { completed: 0, total: 0, percentage: 0 };
+    }
+
+    const completed = scenario.models.filter((model) => this.completedModels.has(model.id)).length;
+
+    const total = scenario.models.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    return { completed, total, percentage };
+  }
+}
+
+// Global functions for HTML onclick handlers
+declare global {
+  interface Window {
+    selectScenario: (scenarioId: string) => void;
+    clearScenarioSelection: () => void;
+    scenarioManager: MultiModelScenarioManager;
+  }
+}
+
+// Initialize scenario manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.scenarioManager = new MultiModelScenarioManager();
+
+  // Make functions globally available
+  window.selectScenario = (scenarioId: string) => {
+    window.scenarioManager.selectScenario(scenarioId);
+  };
+
+  window.clearScenarioSelection = () => {
+    window.scenarioManager.clearScenarioSelection();
+  };
+});
+
+export default MultiModelScenarioManager;
