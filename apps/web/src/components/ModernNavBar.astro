@@ -6,7 +6,6 @@
 // - Mobile hamburger with slide-down panel
 // - Active link highlighting via underline
 // - Accessible semantics & aria attributes
-import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 export interface NavLink { href: string; label: string }
 export interface Props {
   links: NavLink[];
@@ -21,7 +20,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
     <!-- Brand -->
   <a href="/" class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 rounded-md relative z-10" aria-label="Home">
       <img
-        src={fanalyxLogo}
+        src="/fanalyx_favicon.png"
         alt="Fanalyx logo"
         width="36"
         height="36"
