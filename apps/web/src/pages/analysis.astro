@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import Layout from '../layouts/Layout.astro';
 // ChatPanel is now in Layout.astro
 
 // FAQ Schema for SEO
@@ -10,34 +10,34 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Should I lease or buy equipment?",
+      "name": "What are multi-model financial analysis scenarios?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Leasing preserves cash flow and avoids obsolescence risk, making it ideal for technology or vehicles. Buying builds equity and costs less long-term if you'll use the equipment for its full useful life. Compare the present value of lease payments versus purchase price plus maintenance to determine the better option."
+        "text": "Multi-model scenarios combine multiple financial analysis tools to provide comprehensive financial planning. Each scenario guides you through a sequence of related analyses, such as home buying (affordability + mortgage + budget planning) or retirement planning (401k optimization + portfolio analysis + tax strategy)."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the implicit rate in a lease?",
+      "name": "How do I choose the right financial scenario?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The implicit rate is the effective interest rate built into a lease agreement. It's the discount rate that makes the present value of lease payments equal to the fair market value of the asset. Knowing this rate helps you compare leasing to loan financing."
+        "text": "Choose scenarios based on your life stage and financial goals. Young professionals should start with debt management and emergency funds. Families focus on home buying and education planning. Pre-retirees prioritize catch-up contributions and tax optimization. Each scenario is designed for specific age ranges and complexity levels."
       }
     },
     {
       "@type": "Question",
-      "name": "What is a capital lease versus operating lease?",
+      "name": "Can I customize scenarios or skip certain models?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A capital lease transfers substantially all risks and rewards of ownership (appears on balance sheet as asset and liability). An operating lease is rental-like (off balance sheet). Under ASC 842/IFRS 16, most leases now appear on balance sheets, but tax treatment and cash flow implications differ significantly."
+        "text": "Yes! Each scenario includes both required and optional models. Required models are essential for the scenario's success, while optional models provide additional insights. You can complete models in any order and revisit them as needed. The chatbot will guide you through the optimal sequence."
       }
     },
     {
       "@type": "Question",
-      "name": "How do I calculate the present value of a lease?",
+      "name": "How long does a complete scenario analysis take?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Use your incremental borrowing rate or the implicit lease rate to discount all future lease payments to today's dollars. Include residual value if you'll purchase the asset at lease end. Our calculator performs NPV analysis to compare lease scenarios and determine the most cost-effective option."
+        "text": "Scenario duration varies by complexity: Beginner scenarios (2-3 hours), Intermediate scenarios (2-4 hours), Advanced scenarios (3-4 hours). You can complete scenarios over multiple sessions - your progress is automatically saved and the chatbot remembers where you left off."
       }
     }
   ]
@@ -45,7 +45,7 @@ const faqSchema = {
 
 ---
 
-<Layout title="Lease Analysis" description="Analyze lease agreements with precision financial calculations" canonical={Astro.url.href}>
+<Layout title="Multi-Model Financial Analysis" description="Comprehensive financial planning scenarios combining multiple analysis tools for complete financial insights" canonical={Astro.url.href}>
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
@@ -55,7 +55,7 @@ const faqSchema = {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.url).toString() },
-          { '@type': 'ListItem', position: 2, name: 'Lease Analysis', item: Astro.url.href },
+          { '@type': 'ListItem', position: 2, name: 'Multi-Model Analysis', item: Astro.url.href },
         ],
       })}
     </script>
@@ -63,7 +63,7 @@ const faqSchema = {
       {JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'Lease Analysis',
+        name: 'Multi-Model Financial Analysis',
         applicationCategory: 'FinanceApplication',
         operatingSystem: 'Web',
         url: Astro.url.href,
@@ -75,136 +75,182 @@ const faqSchema = {
         },
       })}
     </script>
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2">Lease Analysis</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Calculate lease payments, amortization schedules, and financial insights
-      </p>
-
-      <!-- Analysis Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6">Lease Parameters</h2>
-
-        <form id="analysis-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Principal Amount -->
-            <div>
-              <label for="principal" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Principal Amount ($)
-              </label>
-              <input
-                type="number"
-                id="principal"
-                name="principal"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="50000"
-                required
-              />
-            </div>
-
-            <!-- Annual Interest Rate -->
-            <div>
-              <label for="annualRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Annual Interest Rate (%)
-              </label>
-              <input
-                type="number"
-                id="annualRate"
-                name="annualRate"
-                step="0.01"
-                min="0"
-                max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="5.0"
-                required
-              />
-            </div>
-
-            <!-- Term in Months -->
-            <div>
-              <label for="termMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Term (Months)
-              </label>
-              <input
-                type="number"
-                id="termMonths"
-                name="termMonths"
-                min="1"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="60"
-                required
-              />
-            </div>
-
-            <!-- Residual Value -->
-            <div>
-              <label for="residualValue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Residual Value ($)
-              </label>
-              <input
-                type="number"
-                id="residualValue"
-                name="residualValue"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="10000"
-              />
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              id="analyze-btn"
-            >
-              Analyze Lease
-            </button>
-          </div>
-        </form>
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold mb-4">Multi-Model Financial Analysis</h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+          Comprehensive financial planning scenarios that combine multiple analysis tools for complete insights
+        </p>
+        <p class="text-gray-500 dark:text-gray-500 max-w-3xl mx-auto">
+          Choose a scenario that matches your life stage and financial goals. Each scenario guides you through a sequence of related analyses, 
+          with our AI chatbot providing personalized recommendations and insights throughout your journey.
+        </p>
       </div>
 
-      <!-- Results Section -->
-      <div id="results-section" class="hidden">
-        <div
-          id="results"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
-        >
-          <h2 class="text-xl font-semibold mb-6">Analysis Results</h2>
-          <div id="results-content">
-            <!-- Results will be populated here -->
+      <!-- Financial Scenarios Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <!-- Young Professional Journey -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="young-professional">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">🎓</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Young Professional Journey</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Ages 25-35</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Complete financial planning for early career professionals focusing on debt management, emergency funds, and retirement planning.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">Beginner</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
           </div>
         </div>
 
-        <!-- Amortization Schedule -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-6">Amortization Schedule</h2>
-          <div id="schedule-content" class="overflow-x-auto">
-            <!-- Schedule table will be populated here -->
+        <!-- Family Planning Journey -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="family-planning">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">👨‍👩‍👧‍👦</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Family Planning Journey</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Ages 30-45</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Comprehensive family financial planning including home buying, education funding, and family protection strategies.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
+          </div>
+        </div>
+
+        <!-- Home Buying Journey -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="home-buying">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">🏠</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Home Buying Journey</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Major Purchase</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Complete home buying analysis from affordability assessment to mortgage optimization and ongoing cost planning.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
+          </div>
+        </div>
+
+        <!-- Debt Elimination Strategy -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="debt-elimination">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">💳</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Debt Elimination Strategy</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Debt & Investment</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Comprehensive debt payoff strategy combining multiple debt types with investment optimization for maximum financial growth.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
+          </div>
+        </div>
+
+        <!-- Investment Portfolio Build -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="investment-portfolio">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">📈</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Investment Portfolio Build</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Debt & Investment</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Build and optimize investment portfolios with tax-efficient strategies and risk management for long-term wealth building.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
+          </div>
+        </div>
+
+        <!-- Pre-Retirement Planning -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="pre-retirement">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mr-4">
+              <span class="text-2xl">🏖️</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pre-Retirement Planning</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Ages 50-65</p>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Comprehensive pre-retirement planning focusing on catch-up contributions, tax optimization, and retirement readiness assessment.
+          </p>
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
           </div>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div id="loading-state" class="hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3 text-gray-600 dark:text-gray-400">Analyzing lease...</span>
-          </div>
+      <!-- Selected Scenario Information -->
+      <div id="selected-scenario-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 id="selected-scenario-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+          <button 
+            onclick="clearScenarioSelection()" 
+            class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          >
+            ✕ Clear Selection
+          </button>
+        </div>
+        <p id="selected-scenario-description" class="text-gray-600 dark:text-gray-400 mb-6"></p>
+        <div id="scenario-models">
+          <!-- Models will be populated here -->
         </div>
       </div>
 
-      <!-- Error State -->
-      <div id="error-state" class="hidden">
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <div class="text-red-600 dark:text-red-400">
-            <h3 class="font-semibold mb-2">Analysis Error</h3>
-            <p id="error-message">An error occurred while analyzing the lease. Please check your inputs and try again.</p>
+      <!-- How It Works Section -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">How Multi-Model Analysis Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">1️⃣</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Choose Your Scenario</h3>
+            <p class="text-gray-600 dark:text-gray-400">Select a scenario that matches your life stage and financial goals. Each scenario is designed for specific age ranges and complexity levels.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">2️⃣</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Complete Analysis Models</h3>
+            <p class="text-gray-600 dark:text-gray-400">Work through each analysis model in the recommended sequence. Our AI chatbot provides personalized guidance and insights throughout.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">3️⃣</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Get Comprehensive Insights</h3>
+            <p class="text-gray-600 dark:text-gray-400">Receive integrated insights that combine all analyses into a cohesive financial plan with actionable recommendations.</p>
           </div>
         </div>
       </div>
@@ -212,5 +258,5 @@ const faqSchema = {
   </div>
 
   <!-- ChatPanel is now in Layout.astro - no need to include it here -->
-  <ClientScriptLoader client:load slot="pageScripts" name="analysis" />
+  <ClientScriptLoader client:load slot="pageScripts" name="multi-model-scenarios" />
 </Layout>

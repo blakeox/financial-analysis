@@ -7,9 +7,9 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => 
-        !page.includes('/debug') && 
-        !page.includes('/models-old') && 
+      filter: (page) =>
+        !page.includes('/debug') &&
+        !page.includes('/models-old') &&
         !page.includes('/models-clean'),
       changefreq: 'weekly',
       priority: 0.7,
