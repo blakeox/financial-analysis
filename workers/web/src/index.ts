@@ -71,7 +71,14 @@ export default {
       pathname.startsWith('/api/');
     if (isApiPath && apiBase) {
       const forwardUrl = `${apiBase}${pathname}${url.search}`;
-      const apiReq = new Request(forwardUrl, request);
+      const apiReq = new Request(forwardUrl, {
+        ...request,
+        headers: {
+          ...Object.fromEntries(request.headers.entries()),
+          'x-internal-request': 'true',
+          'origin': 'https://fanalyx.com',
+        },
+      });
       const apiRes = await fetch(apiReq);
       const headers = new Headers(apiRes.headers);
       headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
