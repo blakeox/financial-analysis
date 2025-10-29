@@ -6,6 +6,27 @@ import type {
 import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 
+// Helper to safely extract total paid amount from API result
+const getTotalPaid = (result: AmortizationAnalysisResult): number => {
+  if (isFiniteNumber((result as any).totalPayments)) return Number((result as any).totalPayments);
+  if (isFiniteNumber((result as any).totalAmount)) return Number((result as any).totalAmount);
+  return 0;
+};
+
+// Helper to safely extract total interest from API result
+const getTotalInterest = (result: AmortizationAnalysisResult): number => {
+  if (isFiniteNumber((result as any).totalInterest)) return Number((result as any).totalInterest);
+  if (isFiniteNumber((result as any).interestPaid)) return Number((result as any).interestPaid);
+  return 0;
+};
+
+// Chart color constants to prevent legend/SVG drift
+const CHART_COLORS = {
+  balance: '#3b82f6', // blue-500
+  principal: '#10b981', // emerald-500
+  interest: '#f59e0b', // amber-500
+} as const;
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -48,13 +69,8 @@ export const renderSummaryCards = (
   if (!target) return;
 
   const monthlyPayment = coerceNumber(result.monthlyPayment, 0);
-  const totalInterest = coerceNumber(result.totalInterest, 0);
-  const totalPayments = coerceNumber(
-    'totalPayments' in result && result.totalPayments !== undefined
-      ? result.totalPayments
-      : (result as { totalAmount?: number }).totalAmount,
-    0
-  );
+  const totalInterest = getTotalInterest(result);
+  const totalPayments = getTotalPaid(result);
   const interestShare =
     totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
 
@@ -116,18 +132,21 @@ export const renderChart = (
   const barWidth = Math.max(3, Math.floor(100 / maxBars)); // Minimum 3px width for visibility
   const gapSize = Math.max(1, barWidth * 0.1); // 10% gap, minimum 1px
 
-  console.log('Chart Debug:', {
-    totalMonths,
-    displayDataLength: displayData.length,
-    sampleRate,
-    maxBars,
-    barWidth,
-    gapSize,
-    maxPayment: initialMaxPayment,
-    maxBalance: initialMaxBalance,
-    firstEntry: displayData[0],
-    lastEntry: displayData[displayData.length - 1],
-  });
+  // Debug logging (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Chart Debug:', {
+      totalMonths,
+      displayDataLength: displayData.length,
+      sampleRate,
+      maxBars,
+      barWidth,
+      gapSize,
+      maxPayment: initialMaxPayment,
+      maxBalance: initialMaxBalance,
+      firstEntry: displayData[0],
+      lastEntry: displayData[displayData.length - 1],
+    });
+  }
 
   // Create responsive dual-axis line chart using SVG
   const chartWidth = Math.max(600, displayData.length * 3); // Responsive width based on data
@@ -137,13 +156,14 @@ export const renderChart = (
   const plotHeight = chartHeight - padding * 2;
 
   // Separate scaling for balance vs payment components
-  const maxBalance = Math.max(...displayData.map((entry) => entry.balance));
-  const maxPayment = Math.max(...displayData.map((entry) => entry.payment));
+  const maxBalance = Math.max(1, Math.max(...displayData.map((entry) => entry.balance)));
+  const maxPayment = Math.max(1, Math.max(...displayData.map((entry) => entry.payment)));
 
   // Generate line paths with dual Y-axis scaling
   const generateLinePath = (data: number[], maxValue: number, _isLeftAxis: boolean = true) => {
     const points = data.map((value, index) => {
-      const x = padding + (index / (data.length - 1)) * plotWidth;
+      const denom = data.length > 1 ? (data.length - 1) : 1;
+      const x = padding + (index / denom) * plotWidth;
       const y = padding + plotHeight - (value / maxValue) * plotHeight;
       return `${x},${y}`;
     });
@@ -169,7 +189,7 @@ export const renderChart = (
     for (let i = 0; i <= steps; i++) {
       const value = stepValue * i;
       const y = padding + plotHeight - (value / maxValue) * plotHeight;
-      const x = isLeftAxis ? padding - 15 : chartWidth - padding + 15;
+      const x = isLeftAxis ? padding - 35 : chartWidth - padding + 35;
       const textAnchor = isLeftAxis ? 'end' : 'start';
 
       labels.push(
@@ -189,7 +209,8 @@ export const renderChart = (
         (totalMonths > 60 && entry.month % 24 === 0)
     )
     .map((entry) => {
-      const x = padding + ((entry.month - 1) / (totalMonths - 1)) * plotWidth;
+      const denom = totalMonths > 1 ? (totalMonths - 1) : 1;
+      const x = padding + ((entry.month - 1) / denom) * plotWidth;
       return `<text x="${x}" y="${chartHeight - 20}" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">${entry.month}</text>`;
     })
     .join('');
@@ -218,15 +239,15 @@ export const renderChart = (
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.balance}"></div>
             <span class="font-medium">Remaining Balance</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.principal}"></div>
             <span class="font-medium">Principal</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.interest}"></div>
             <span class="font-medium">Interest</span>
           </div>
         </div>
@@ -244,9 +265,9 @@ export const renderChart = (
           ${generateGridLines(maxBalance, true)}
           
           <!-- Chart lines -->
-          <path d="${balancePath}" fill="none" stroke="#3b82f6" stroke-width="3" opacity="0.9"/>
-          <path d="${principalPath}" fill="none" stroke="#10b981" stroke-width="3" opacity="0.9"/>
-          <path d="${interestPath}" fill="none" stroke="#f59e0b" stroke-width="3" opacity="0.9"/>
+          <path d="${balancePath}" fill="none" stroke="${CHART_COLORS.balance}" stroke-width="3" opacity="0.9"/>
+          <path d="${principalPath}" fill="none" stroke="${CHART_COLORS.principal}" stroke-width="3" opacity="0.9"/>
+          <path d="${interestPath}" fill="none" stroke="${CHART_COLORS.interest}" stroke-width="3" opacity="0.9"/>
           
           <!-- X-axis labels -->
           ${xAxisLabels}
@@ -261,8 +282,8 @@ export const renderChart = (
           <line x1="${padding}" y1="${chartHeight - padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
           
           <!-- Axis titles -->
-          <text x="${padding - 50}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 50}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
-          <text x="${chartWidth - padding + 50}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 50}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
+          <text x="${padding - 90}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 90}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
+          <text x="${chartWidth - padding + 90}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 90}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
         </svg>
       </div>
       
@@ -417,8 +438,8 @@ const updateEnhancedAnalysis = (
     termMonths: inputs.termMonths,
     extraPayment: inputs.extraMonthlyPayment || 0,
     monthlyPayment: result.monthlyPayment,
-    totalInterest: result.totalInterest,
-    totalPayments: result.totalPayments,
+    totalInterest: getTotalInterest(result),
+    totalPayments: getTotalPaid(result),
   };
 
   const event = new CustomEvent('analysis-result-updated', {
