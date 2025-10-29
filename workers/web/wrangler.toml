@@ -4,14 +4,19 @@ compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ENVIRONMENT = "development"
-# Dev-only: where the API worker listens when using scripts/dev-all.mjs
-API_DEV_ORIGIN = "http://127.0.0.1:8787"
+ENVIRONMENT = "production"
+# Production API origin
+API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
 
 [assets]
 directory = "../../apps/web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
+
+# Custom domain route
+[[routes]]
+pattern = "fanalyx.com/*"
+zone_id = "8b74875a9a9edb1d7572c9d41e9e2016"
 
 
 # Removed [build] custom command to prevent duplicate astro build runs during dev.
@@ -32,7 +37,7 @@ API_ORIGIN = "https://financial-analysis-api-preview.blakeoxford.workers.dev"
 [env.production]
 [env.production.vars]
 ENVIRONMENT = "production"
-API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
+API_ORIGIN = "https://fanalyx-api.blakeoxford.workers.dev"
 
 [[env.production.routes]]
 pattern = "fanalyx.com/*"
