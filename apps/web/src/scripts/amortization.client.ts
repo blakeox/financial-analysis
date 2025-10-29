@@ -88,63 +88,186 @@ export const renderChart = (
   }
 
   // Create a simple chart using CSS and HTML since we don't have React components available in this context
-  const maxPayment = Math.max(...schedule.map((item) => item.payment));
-  const maxBalance = Math.max(...schedule.map((item) => item.balance + item.principal));
+  const initialMaxPayment = Math.max(...schedule.map((item) => item.payment));
+  const initialMaxBalance = Math.max(...schedule.map((item) => item.balance + item.principal));
+
+  // Determine how many bars to show based on the loan term
+  // For longer loans, we'll sample the data to keep the chart readable
+  const totalMonths = schedule.length;
+  let displayData = schedule;
+  let sampleRate = 1;
+
+  if (totalMonths > 120) {
+    // For loans longer than 10 years, sample every 3rd month
+    sampleRate = 3;
+    displayData = schedule.filter(
+      (_, index) => index % sampleRate === 0 || index === schedule.length - 1
+    );
+  } else if (totalMonths > 60) {
+    // For loans longer than 5 years, sample every 2nd month
+    sampleRate = 2;
+    displayData = schedule.filter(
+      (_, index) => index % sampleRate === 0 || index === schedule.length - 1
+    );
+  }
+
+  // Calculate responsive bar width and gap
+  const maxBars = Math.min(displayData.length, 100); // Cap at 100 bars for readability
+  const barWidth = Math.max(3, Math.floor(100 / maxBars)); // Minimum 3px width for visibility
+  const gapSize = Math.max(1, barWidth * 0.1); // 10% gap, minimum 1px
+
+  console.log('Chart Debug:', {
+    totalMonths,
+    displayDataLength: displayData.length,
+    sampleRate,
+    maxBars,
+    barWidth,
+    gapSize,
+    maxPayment: initialMaxPayment,
+    maxBalance: initialMaxBalance,
+    firstEntry: displayData[0],
+    lastEntry: displayData[displayData.length - 1],
+  });
+
+  // Create responsive dual-axis line chart using SVG
+  const chartWidth = Math.max(600, displayData.length * 3); // Responsive width based on data
+  const chartHeight = 300;
+  const padding = 60;
+  const plotWidth = chartWidth - padding * 2;
+  const plotHeight = chartHeight - padding * 2;
+
+  // Separate scaling for balance vs payment components
+  const maxBalance = Math.max(...displayData.map((entry) => entry.balance));
+  const maxPayment = Math.max(...displayData.map((entry) => entry.payment));
+
+  // Generate line paths with dual Y-axis scaling
+  const generateLinePath = (data: number[], maxValue: number, _isLeftAxis: boolean = true) => {
+    const points = data.map((value, index) => {
+      const x = padding + (index / (data.length - 1)) * plotWidth;
+      const y = padding + plotHeight - (value / maxValue) * plotHeight;
+      return `${x},${y}`;
+    });
+    return `M ${points.join(' L ')}`;
+  };
+
+  // Prepare data for lines
+  const balanceData = displayData.map((entry) => entry.balance);
+  const principalData = displayData.map((entry) => entry.principal);
+  const interestData = displayData.map((entry) => entry.interest);
+
+  // Generate SVG paths with proper scaling
+  const balancePath = generateLinePath(balanceData, maxBalance, true);
+  const principalPath = generateLinePath(principalData, maxPayment, false);
+  const interestPath = generateLinePath(interestData, maxPayment, false);
+
+  // Generate Y-axis labels
+  const generateYAxisLabels = (maxValue: number, isLeftAxis: boolean = true) => {
+    const steps = 5;
+    const stepValue = maxValue / steps;
+    const labels = [];
+
+    for (let i = 0; i <= steps; i++) {
+      const value = stepValue * i;
+      const y = padding + plotHeight - (value / maxValue) * plotHeight;
+      const x = isLeftAxis ? padding - 10 : chartWidth - padding + 10;
+      const textAnchor = isLeftAxis ? 'end' : 'start';
+
+      labels.push(
+        `<text x="${x}" y="${y + 4}" text-anchor="${textAnchor}" class="text-xs fill-gray-600 dark:fill-gray-400">${toCurrency(value)}</text>`
+      );
+    }
+    return labels.join('');
+  };
+
+  // Generate x-axis labels
+  const xAxisLabels = displayData
+    .filter(
+      (entry, _index) =>
+        entry.month === 1 ||
+        entry.month % 12 === 0 ||
+        entry.month === totalMonths ||
+        (totalMonths > 60 && entry.month % 24 === 0)
+    )
+    .map((entry) => {
+      const x = padding + ((entry.month - 1) / (totalMonths - 1)) * plotWidth;
+      return `<text x="${x}" y="${chartHeight - 20}" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">${entry.month}</text>`;
+    })
+    .join('');
+
+  // Generate grid lines
+  const generateGridLines = (maxValue: number, _isLeftAxis: boolean = true) => {
+    const steps = 5;
+    const stepValue = maxValue / steps;
+    const lines = [];
+
+    for (let i = 0; i <= steps; i++) {
+      const value = stepValue * i;
+      const y = padding + plotHeight - (value / maxValue) * plotHeight;
+      const x1 = padding;
+      const x2 = chartWidth - padding;
+
+      lines.push(
+        `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#e5e7eb" stroke-width="0.5" opacity="0.3"/>`
+      );
+    }
+    return lines.join('');
+  };
 
   target.innerHTML = `
     <div class="space-y-4">
-      <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-blue-500 rounded"></div>
-            <span>Remaining Balance</span>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+            <span class="font-medium">Remaining Balance</span>
           </div>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-green-500 rounded"></div>
-            <span>Principal</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+            <span class="font-medium">Principal</span>
           </div>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-orange-500 rounded"></div>
-            <span>Interest</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+            <span class="font-medium">Interest</span>
           </div>
         </div>
-        <div class="text-xs">
-          ${schedule.length} months • Max payment: ${toCurrency(maxPayment)}
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          <div>Left axis: Balance | Right axis: Payment components</div>
         </div>
       </div>
       
-      <div class="relative h-64 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <div class="absolute inset-4">
-          <div class="h-full flex items-end gap-1">
-            ${schedule
-              .map((entry, index) => {
-                const paymentHeight = (entry.payment / maxPayment) * 100;
-                const principalHeight = (entry.principal / maxPayment) * 100;
-                const interestHeight = (entry.interest / maxPayment) * 100;
-                const balanceHeight = ((entry.balance + entry.principal) / maxBalance) * 100;
-
-                // Show month labels every 12 months or at significant milestones
-                const showLabel =
-                  entry.month % 12 === 0 || entry.month === 1 || entry.month === schedule.length;
-
-                return `
-                <div class="flex-1 flex flex-col items-center group relative" title="Month ${entry.month}: ${toCurrency(entry.payment)} payment">
-                  <div class="w-full flex flex-col-reverse" style="height: ${paymentHeight}%">
-                    <div class="w-full bg-orange-500 rounded-t" style="height: ${interestHeight}%"></div>
-                    <div class="w-full bg-green-500" style="height: ${principalHeight}%"></div>
-                  </div>
-                  <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-b" style="height: ${balanceHeight}%"></div>
-                  ${showLabel ? `<div class="text-xs text-gray-500 mt-1">${entry.month}</div>` : ''}
-                </div>
-              `;
-              })
-              .join('')}
-          </div>
-        </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
+        <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full">
+          <!-- Background -->
+          <rect width="100%" height="100%" fill="transparent" />
+          
+          <!-- Grid lines -->
+          ${generateGridLines(maxBalance, true)}
+          
+          <!-- Chart lines -->
+          <path d="${balancePath}" fill="none" stroke="#3b82f6" stroke-width="3" opacity="0.9"/>
+          <path d="${principalPath}" fill="none" stroke="#10b981" stroke-width="3" opacity="0.9"/>
+          <path d="${interestPath}" fill="none" stroke="#f59e0b" stroke-width="3" opacity="0.9"/>
+          
+          <!-- X-axis labels -->
+          ${xAxisLabels}
+          
+          <!-- Y-axis labels -->
+          ${generateYAxisLabels(maxBalance, true)}
+          ${generateYAxisLabels(maxPayment, false)}
+          
+          <!-- Axis lines -->
+          <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
+          <line x1="${chartWidth - padding}" y1="${padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
+          <line x1="${padding}" y1="${chartHeight - padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
+          
+          <!-- Axis titles -->
+          <text x="${padding - 30}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 30}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
+          <text x="${chartWidth - padding + 30}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 30}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
+        </svg>
       </div>
       
       <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
-        Complete ${schedule.length}-month amortization schedule. Use the detailed table below for exact values.
+        Complete ${totalMonths}-month amortization schedule. Use the detailed table below for exact values.
       </div>
     </div>
   `;

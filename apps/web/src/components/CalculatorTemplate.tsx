@@ -1160,7 +1160,7 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
   }
 
   return `
-    <div class="form-field" data-field-id="${field.id}">
+    <div class="form-field field-container" data-field-id="${field.id}">
       <label for="${field.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         ${field.label}
         ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
@@ -1299,7 +1299,7 @@ function generateFieldHTML(field: FormFieldConfig): string {
   }
 
   return `
-    <div>
+    <div class="field-container">
       <label for="${field.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         ${field.label}${field.required ? ' <span class="text-red-500">*</span>' : ''}
       </label>

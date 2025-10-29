@@ -1,0 +1,341 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { CALCULATOR_CONFIGS } from '../components/CalculatorTemplate.tsx';
+---
+
+<Layout 
+  title="AI Field Highlighting Demo"
+  description="Demonstration of AI field highlighting functionality"
+>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          AI Field Highlighting Demo
+        </h1>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Test AI Field Highlighting
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Click the buttons below to simulate AI field changes. Watch how the fields highlight with smooth animations and AI indicators.
+          </p>
+          
+          <!-- Demo Form -->
+          <form id="demo-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="field-container">
+                <label for="loanAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Loan Amount ($)
+                </label>
+                <input 
+                  type="number" 
+                  id="loanAmount" 
+                  name="loanAmount" 
+                  value="300000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              
+              <div class="field-container">
+                <label for="interestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Interest Rate (%)
+                </label>
+                <input 
+                  type="number" 
+                  id="interestRate" 
+                  name="interestRate" 
+                  value="4.5"
+                  step="0.1"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              
+              <div class="field-container">
+                <label for="loanTerm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Loan Term (Years)
+                </label>
+                <select 
+                  id="loanTerm" 
+                  name="loanTerm"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="15">15 years</option>
+                  <option value="20">20 years</option>
+                  <option value="30" selected>30 years</option>
+                </select>
+              </div>
+              
+              <div class="field-container">
+                <label for="downPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Down Payment ($)
+                </label>
+                <input 
+                  type="number" 
+                  id="downPayment" 
+                  name="downPayment" 
+                  value="60000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          </form>
+          
+          <!-- Demo Controls -->
+          <div class="mt-8 space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              Demo Controls
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <button 
+                id="highlight-loan-amount" 
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+              >
+                Update Loan Amount
+              </button>
+              
+              <button 
+                id="highlight-interest-rate" 
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
+              >
+                Update Interest Rate
+              </button>
+              
+              <button 
+                id="highlight-loan-term" 
+                class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors duration-200"
+              >
+                Update Loan Term
+              </button>
+              
+              <button 
+                id="highlight-down-payment" 
+                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors duration-200"
+              >
+                Update Down Payment
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button 
+                id="highlight-all-fields" 
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors duration-200"
+              >
+                Update All Fields
+              </button>
+              
+              <button 
+                id="test-validation-error" 
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors duration-200"
+              >
+                Test Validation Error
+              </button>
+              
+              <button 
+                id="reset-fields" 
+                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors duration-200"
+              >
+                Reset All Fields
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Feature Description -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Features
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Visual Highlights
+              </h3>
+              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• Smooth scaling animation (1.0x → 1.05x → 1.0x)</li>
+                <li>• Pulsing blue glow effect</li>
+                <li>• Border color transitions</li>
+                <li>• Dark mode support</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                AI Indicators
+              </h3>
+              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• "AI" badge with gradient background</li>
+                <li>• Positioned at top-right of field</li>
+                <li>• Auto-disappears after animation</li>
+                <li>• Customizable badge text</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Persistent Marking
+              </h3>
+              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• Left border accent on AI-modified fields</li>
+                <li>• Subtle background tint</li>
+                <li>• Enhanced focus styles</li>
+                <li>• Tracks modification state</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Integration
+              </h3>
+              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• Event-driven updates</li>
+                <li>• Mutation observer for external changes</li>
+                <li>• Form validation triggers</li>
+                <li>• Bulk field updates</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Demo functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sample data for demonstrations
+      const sampleData = {
+        loanAmount: [350000, 400000, 275000, 500000],
+        interestRate: [3.8, 4.2, 5.1, 3.5],
+        loanTerm: ['15', '20', '25', '30'],
+        downPayment: [70000, 80000, 50000, 100000]
+      };
+      
+      let dataIndex = 0;
+      
+      // Helper function to get next sample value
+      const getNextValue = (fieldName) => {
+        const values = sampleData[fieldName];
+        const value = values[dataIndex % values.length];
+        dataIndex++;
+        return value;
+      };
+      
+      // Button event listeners
+      document.getElementById('highlight-loan-amount')?.addEventListener('click', () => {
+        const newValue = getNextValue('loanAmount');
+        window.highlightFieldChange('loanAmount', newValue, true, {
+          badgeText: 'AI: Optimized',
+          duration: 2000
+        });
+      });
+      
+      document.getElementById('highlight-interest-rate')?.addEventListener('click', () => {
+        const newValue = getNextValue('interestRate');
+        window.highlightFieldChange('interestRate', newValue, true, {
+          badgeText: 'AI: Market Rate',
+          duration: 2000
+        });
+      });
+      
+      document.getElementById('highlight-loan-term')?.addEventListener('click', () => {
+        const newValue = getNextValue('loanTerm');
+        window.highlightFieldChange('loanTerm', newValue, true, {
+          badgeText: 'AI: Recommended',
+          duration: 2000
+        });
+      });
+      
+      document.getElementById('highlight-down-payment')?.addEventListener('click', () => {
+        const newValue = getNextValue('downPayment');
+        window.highlightFieldChange('downPayment', newValue, true, {
+          badgeText: 'AI: Calculated',
+          duration: 2000
+        });
+      });
+      
+      document.getElementById('highlight-all-fields')?.addEventListener('click', () => {
+        // Update all fields with a slight delay between each
+        const updates = [
+          { fieldName: 'loanAmount', value: getNextValue('loanAmount'), reason: 'Optimized' },
+          { fieldName: 'interestRate', value: getNextValue('interestRate'), reason: 'Market Rate' },
+          { fieldName: 'loanTerm', value: getNextValue('loanTerm'), reason: 'Recommended' },
+          { fieldName: 'downPayment', value: getNextValue('downPayment'), reason: 'Calculated' }
+        ];
+        
+        updates.forEach((update, index) => {
+          setTimeout(() => {
+            window.highlightFieldChange(update.fieldName, update.value, true, {
+              badgeText: `AI: ${update.reason}`,
+              duration: 2000
+            });
+          }, index * 300); // Stagger the updates
+        });
+      });
+      
+      document.getElementById('test-validation-error')?.addEventListener('click', () => {
+        // Test validation error recovery by passing invalid values
+        console.log('Testing validation error recovery...');
+        
+        // Test 1: Decimal interest rate (should convert to percentage)
+        window.highlightFieldChange('interestRate', 0.045, true, {
+          badgeText: 'AI: Decimal Rate',
+          duration: 2000,
+          retryOnError: true
+        });
+        
+        // Test 2: Invalid step value (should round to valid step)
+        setTimeout(() => {
+          window.highlightFieldChange('interestRate', 4.567, true, {
+            badgeText: 'AI: Invalid Step',
+            duration: 2000,
+            retryOnError: true
+          });
+        }, 1000);
+        
+        // Test 3: Value outside min/max range
+        setTimeout(() => {
+          window.highlightFieldChange('loanAmount', -1000, true, {
+            badgeText: 'AI: Negative Value',
+            duration: 2000,
+            retryOnError: true
+          });
+        }, 2000);
+      });
+      
+      document.getElementById('reset-fields')?.addEventListener('click', () => {
+        // Reset to original values
+        const originalValues = {
+          loanAmount: 300000,
+          interestRate: 4.5,
+          loanTerm: '30',
+          downPayment: 60000
+        };
+        
+        Object.entries(originalValues).forEach(([fieldName, value]) => {
+          const field = document.querySelector(`[name="${fieldName}"]`);
+          if (field) {
+            field.value = value;
+            field.classList.remove('ai-modified-field');
+          }
+        });
+        
+        // Show reset confirmation
+        const button = document.getElementById('reset-fields');
+        const originalText = button.textContent;
+        button.textContent = 'Reset Complete!';
+        button.classList.add('bg-green-600', 'hover:bg-green-700');
+        button.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('bg-green-600', 'hover:bg-green-700');
+          button.classList.add('bg-gray-600', 'hover:bg-gray-700');
+        }, 2000);
+      });
+    });
+  </script>
+</Layout>
