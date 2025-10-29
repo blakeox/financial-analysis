@@ -87,13 +87,32 @@ export default {
 
     if (isApiPath && !apiBase) {
       const missingKey = isDev ? 'API_DEV_ORIGIN' : 'API_ORIGIN';
-      return new Response(
-        JSON.stringify({ error: `${missingKey} not configured` }),
-        {
-          status: 502,
-          headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
-        }
-      );
+      return new Response(JSON.stringify({ error: `${missingKey} not configured` }), {
+        status: 502,
+        headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
+      });
+    }
+
+    // Redirect old calculator URLs to new modular calculator URLs
+    const redirectMap: Record<string, string> = {
+      '/amortization': '/calculator/amortization',
+      '/auto-loan': '/calculator/auto-loan',
+      '/retirement': '/calculator/retirement',
+      '/savings-goal': '/calculator/savings-goal',
+      '/debt-payoff': '/calculator/debt-payoff',
+      '/student-loans': '/calculator/student-loans',
+      '/budget': '/calculator/budget',
+    };
+
+    if (redirectMap[pathname]) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          ...defaults,
+          Location: redirectMap[pathname],
+          'Cache-Control': 'no-store',
+        },
+      });
     }
 
     // Special route: version info for web worker

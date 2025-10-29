@@ -1,0 +1,590 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+export async function getStaticPaths() {
+  const journeyData = getJourneyData();
+  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+
+  // Generate paths for each journey step
+  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
+    scenario.models.forEach((model, index) => {
+      const stepId = model.id;
+      paths.push({
+        params: {
+          scenario: scenarioId,
+          stepId: stepId
+        }
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { scenario, stepId } = Astro.params;
+const journeyData = getJourneyData();
+const currentScenario = journeyData[scenario!];
+const currentModel = currentScenario.models.find(m => m.id === stepId);
+const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
+const nextStep = currentScenario.models[stepNumber];
+const previousStep = currentScenario.models[stepNumber - 2];
+
+// Journey navigation data
+const journeyNav = {
+  scenarioId: scenario!,
+  scenarioName: currentScenario.name,
+  currentStep: stepNumber,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/${scenario}/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/${scenario}/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: `/journey/${scenario}`
+};
+
+// SEO-optimized content
+const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
+const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🚀</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {stepNumber} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Retirement Planning Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Start Your Retirement Journey</h2>
+            
+            <form id="retirement-start-form" class="space-y-6">
+              <!-- Current Situation Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Current Situation</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Your Age *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="age" 
+                      name="age"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="28"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="retirement-age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Target Retirement Age *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="retirement-age" 
+                      name="retirementAge"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="65"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="current-salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Current Annual Salary ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="current-salary" 
+                      name="currentSalary"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="65000"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="current-retirement-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Current Retirement Savings ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="current-retirement-balance" 
+                      name="currentRetirementBalance"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Employer Benefits Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏢 Employer Benefits</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="employer-match" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Employer 401(k) Match (%)
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.1"
+                      id="employer-match" 
+                      name="employerMatch"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="3.0"
+                    />
+                    <p class="text-sm text-gray-500 mt-1">Common match is 3-6%</p>
+                  </div>
+                  <div>
+                    <label for="match-limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Match Limit (% of salary)
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.1"
+                      id="match-limit" 
+                      name="matchLimit"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="6.0"
+                    />
+                    <p class="text-sm text-gray-500 mt-1">Maximum % they'll match</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Retirement Goals Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Retirement Goals</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      What percentage of your current income do you want in retirement?
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-start">
+                        <input type="radio" name="retirementIncome" value="70" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">70% of current income</span>
+                          <p class="text-xs text-gray-500">Conservative - assumes lower expenses</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="retirementIncome" value="80" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">80% of current income</span>
+                          <p class="text-xs text-gray-500">Moderate - maintains lifestyle</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="retirementIncome" value="100" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">100% of current income</span>
+                          <p class="text-xs text-gray-500">Comfortable - no lifestyle change</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="monthly-contribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      How much can you contribute monthly? ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="monthly-contribution" 
+                      name="monthlyContribution"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="500"
+                    />
+                    <p class="text-sm text-gray-500 mt-1">Start with what you can afford</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Investment Strategy Section -->
+              <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📈 Investment Strategy</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label for="risk-tolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Risk Tolerance
+                    </label>
+                    <select 
+                      id="risk-tolerance" 
+                      name="riskTolerance"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Select risk level</option>
+                      <option value="conservative">Conservative (Lower risk, steady growth)</option>
+                      <option value="moderate">Moderate (Balanced risk and growth)</option>
+                      <option value="aggressive">Aggressive (Higher risk, higher potential returns)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Investment Preferences
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-center">
+                        <input type="checkbox" name="investmentPrefs" value="target-date-fund" class="mr-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Target-date fund (set it and forget it)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="investmentPrefs" value="index-funds" class="mr-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Low-cost index funds</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="investmentPrefs" value="roth-ira" class="mr-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Roth IRA for tax-free growth</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="investmentPrefs" value="professional-help" class="mr-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Get professional investment advice</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" id="calculate-retirement-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Calculate Retirement Plan
+                </button>
+                <button type="button" id="save-plan-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Save Plan
+                </button>
+                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Retirement Plan</h3>
+              <div id="retirement-results" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Navigation -->
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a 
+                    href={journeyNav.journeyOverviewUrl}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h3 class="text-lg font-semibold mb-4">🚀 Why Start Early?</h3>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p><strong>Compound Interest:</strong> Time is your biggest advantage.</p>
+              </div>
+              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p><strong>Employer Match:</strong> Free money you shouldn't miss.</p>
+              </div>
+              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p><strong>Tax Benefits:</strong> Reduce taxes while saving.</p>
+              </div>
+              <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <p><strong>Habit Building:</strong> Start small, increase over time.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-4">💡 Retirement Tips</h3>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <p><strong>Start Small:</strong> Even $50/month makes a difference.</p>
+              <p><strong>Increase Annually:</strong> Boost contributions with raises.</p>
+              <p><strong>Diversify:</strong> Don't put all eggs in one basket.</p>
+              <p><strong>Review Regularly:</strong> Adjust as life changes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Retirement Planning Calculator
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('retirement-start-form');
+      const calculateBtn = document.getElementById('calculate-retirement-btn');
+      const saveBtn = document.getElementById('save-plan-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const resultsSection = document.getElementById('results-section');
+      const retirementResults = document.getElementById('retirement-results');
+
+      if (calculateBtn) {
+        calculateBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const age = parseInt(formData.get('age') || '0');
+          const retirementAge = parseInt(formData.get('retirementAge') || '0');
+          const currentSalary = parseFloat(formData.get('currentSalary') || '0');
+          const currentBalance = parseFloat(formData.get('currentRetirementBalance') || '0');
+          const employerMatch = parseFloat(formData.get('employerMatch') || '0');
+          const matchLimit = parseFloat(formData.get('matchLimit') || '0');
+          const retirementIncomePercent = parseFloat(formData.get('retirementIncome') || '80');
+          const monthlyContribution = parseFloat(formData.get('monthlyContribution') || '0');
+
+          // Calculate years to retirement
+          const yearsToRetirement = retirementAge - age;
+          
+          // Calculate target retirement income
+          const targetAnnualIncome = currentSalary * (retirementIncomePercent / 100);
+          const targetMonthlyIncome = targetAnnualIncome / 12;
+          
+          // Calculate employer match benefit
+          const annualMatch = currentSalary * (employerMatch / 100);
+          const monthlyMatch = annualMatch / 12;
+          
+          // Calculate total monthly contribution (including match)
+          const totalMonthlyContribution = monthlyContribution + monthlyMatch;
+          
+          // Simple compound interest calculation (7% annual return)
+          const annualReturn = 0.07;
+          const monthlyReturn = annualReturn / 12;
+          const totalMonths = yearsToRetirement * 12;
+          
+          // Future value calculation
+          const futureValue = currentBalance * Math.pow(1 + annualReturn, yearsToRetirement) +
+            totalMonthlyContribution * ((Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn);
+          
+          // Calculate if this meets the 4% rule
+          const annualWithdrawal = futureValue * 0.04;
+          const monthlyWithdrawal = annualWithdrawal / 12;
+          const meetsGoal = monthlyWithdrawal >= targetMonthlyIncome;
+
+          // Display results
+          retirementResults.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Years to Retirement</h4>
+                <p class="text-2xl font-bold text-blue-600">${yearsToRetirement} years</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Target Monthly Income</h4>
+                <p class="text-2xl font-bold text-green-600">$${targetMonthlyIncome.toLocaleString()}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Projected Savings</h4>
+                <p class="text-2xl font-bold text-purple-600">$${futureValue.toLocaleString()}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Monthly Withdrawal</h4>
+                <p class="text-2xl font-bold ${meetsGoal ? 'text-green-600' : 'text-red-600'}">$${monthlyWithdrawal.toLocaleString()}</p>
+              </div>
+            </div>
+            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Goal Status</h4>
+              <p class="text-lg">
+                ${meetsGoal ? 
+                  '<span class="text-green-600 font-semibold">✅ You\'re on track!</span>' : 
+                  '<span class="text-red-600 font-semibold">⚠️ Consider increasing contributions</span>'
+                }
+              </p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                ${meetsGoal ? 
+                  'Your projected savings will provide your target retirement income.' :
+                  'You may need to save more or work longer to meet your retirement goals.'
+                }
+              </p>
+            </div>
+            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Employer Match Benefit</h4>
+              <p class="text-lg">
+                Your employer match adds <strong>$${monthlyMatch.toLocaleString()}</strong> per month 
+                ($${annualMatch.toLocaleString()} annually) - that's free money!
+              </p>
+            </div>
+          `;
+
+          resultsSection.classList.remove('hidden');
+        });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const planData = {
+            currentSituation: {
+              age: formData.get('age'),
+              retirementAge: formData.get('retirementAge'),
+              currentSalary: formData.get('currentSalary'),
+              currentBalance: formData.get('currentRetirementBalance')
+            },
+            employerBenefits: {
+              match: formData.get('employerMatch'),
+              matchLimit: formData.get('matchLimit')
+            },
+            goals: {
+              retirementIncome: formData.get('retirementIncome'),
+              monthlyContribution: formData.get('monthlyContribution')
+            },
+            strategy: {
+              riskTolerance: formData.get('riskTolerance'),
+              preferences: formData.getAll('investmentPrefs')
+            },
+            completedAt: new Date().toISOString()
+          };
+
+          // Store in journey state
+          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+          journeyState.collectedData = journeyState.collectedData || {};
+          journeyState.collectedData['retirement-start'] = planData;
+          localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
+
+          // Show success message
+          saveBtn.textContent = '✓ Saved!';
+          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-green-500');
+          
+          setTimeout(() => {
+            saveBtn.textContent = 'Save Plan';
+            saveBtn.classList.remove('bg-green-500');
+            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          }, 2000);
+
+          // Dispatch completion event
+          window.dispatchEvent(new CustomEvent('calculator-completed', {
+            detail: {
+              calculatorId: 'retirement-start',
+              result: planData,
+              formData: planData
+            }
+          }));
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          form.reset();
+          resultsSection.classList.add('hidden');
+        });
+      }
+    });
+  </script>
+</Layout>

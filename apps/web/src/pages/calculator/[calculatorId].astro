@@ -1,0 +1,25 @@
+---
+import { CALCULATOR_CONFIGS } from '../../components/CalculatorTemplate.tsx';
+import IndividualCalculatorPage from '../../components/IndividualCalculatorPage.astro';
+
+export async function getStaticPaths() {
+  const paths = Object.keys(CALCULATOR_CONFIGS).map((calculatorId) => ({
+    params: { calculatorId },
+  }));
+
+  return paths;
+}
+
+const { calculatorId } = Astro.params;
+const config = CALCULATOR_CONFIGS[calculatorId!];
+
+if (!config) {
+  throw new Error(`Calculator configuration not found for: ${calculatorId}`);
+}
+---
+
+<IndividualCalculatorPage 
+  calculatorId={calculatorId!}
+  title={config.title}
+  description={config.description}
+/>

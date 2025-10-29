@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { AmortizationAnalyzer } from '@financial-analysis/analysis';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   handleSuccess,
   parseAmortizationInput,
@@ -46,7 +46,7 @@ describe('amortization.client', () => {
 
   it('parseAmortizationInput throws on invalid loan amount', () => {
     expect(() => parseAmortizationInput(buildFormData({ principal: '0' }))).toThrow(
-      'Please enter a valid loan amount',
+      'Please enter a valid loan amount'
     );
   });
 
@@ -72,10 +72,10 @@ describe('amortization.client', () => {
 
     renderSchedule(result.schedule, tableBody);
 
-  const rows = tableBody?.querySelectorAll('tr') ?? [];
-  expect(rows.length).toBeGreaterThan(0);
-  const twelfthRow = rows[11];
-  expect(twelfthRow?.className).toContain('bg-blue-50');
+    const rows = tableBody?.querySelectorAll('tr') ?? [];
+    expect(rows.length).toBeGreaterThan(0);
+    const twelfthRow = rows[11];
+    expect(twelfthRow?.className).toContain('bg-blue-50');
   });
 
   it('handleSuccess stores results and reveals container', () => {
@@ -88,7 +88,7 @@ describe('amortization.client', () => {
       <table><tbody id="table-body"></tbody></table>
     `;
 
-    handleSuccess(result, input.termMonths);
+    handleSuccess(result, input);
 
     expect(document.getElementById('results-container')?.classList.contains('hidden')).toBe(false);
     expect(document.getElementById('summary-cards')?.innerHTML).toMatch(/Monthly Payment/);

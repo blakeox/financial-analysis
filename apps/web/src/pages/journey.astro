@@ -13,7 +13,15 @@ const faqSchema = {
       "name": "What are multi-model financial analysis scenarios?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Multi-model scenarios combine multiple financial analysis tools to provide comprehensive financial planning. Each scenario guides you through a sequence of related analyses, such as home buying (affordability + mortgage + budget planning) or retirement planning (401k optimization + portfolio analysis + tax strategy)."
+        "text": "Multi-model scenarios combine multiple financial analysis tools to provide comprehensive financial planning. Personal finance scenarios focus on individual and family financial planning, while business finance scenarios cover advanced corporate financial analysis, M&A, and strategic planning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between personal and business finance scenarios?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Personal finance scenarios focus on individual and family financial planning like home buying, retirement planning, and debt management. Business finance scenarios cover comprehensive corporate analysis including M&A, DCF valuation, LBO analysis, risk management, credit analysis, portfolio optimization, ESG risk assessment, and strategic planning for businesses, investors, and financial professionals."
       }
     },
     {
@@ -21,7 +29,7 @@ const faqSchema = {
       "name": "How do I choose the right financial scenario?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Choose scenarios based on your life stage and financial goals. Young professionals should start with debt management and emergency funds. Families focus on home buying and education planning. Pre-retirees prioritize catch-up contributions and tax optimization. Each scenario is designed for specific age ranges and complexity levels."
+        "text": "Choose personal finance scenarios for individual and family financial planning. Select business finance scenarios for corporate analysis, investment decisions, or M&A activities. Each scenario is designed for specific complexity levels and includes both required and optional analysis models."
       }
     },
     {
@@ -37,7 +45,7 @@ const faqSchema = {
       "name": "How long does a complete scenario analysis take?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Scenario duration varies by complexity: Beginner scenarios (2-3 hours), Intermediate scenarios (2-4 hours), Advanced scenarios (3-4 hours). You can complete scenarios over multiple sessions - your progress is automatically saved and the chatbot remembers where you left off."
+        "text": "Scenario duration varies by complexity: Personal finance scenarios (2-4 hours), Business finance scenarios (2-5 hours). You can complete scenarios over multiple sessions - your progress is automatically saved and the chatbot remembers where you left off."
       }
     }
   ]
@@ -45,7 +53,7 @@ const faqSchema = {
 
 ---
 
-<Layout title="Multi-Model Financial Analysis" description="Comprehensive financial planning scenarios combining multiple analysis tools for complete financial insights" canonical={Astro.url.href}>
+<Layout title="Multi-Model Financial Analysis" description="Comprehensive personal and business financial planning scenarios combining multiple analysis tools for complete financial insights" canonical={Astro.url.href}>
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
@@ -87,8 +95,33 @@ const faqSchema = {
         </p>
       </div>
 
-      <!-- Financial Scenarios Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <!-- Category Tabs -->
+      <div class="flex justify-center mb-8">
+        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button 
+            id="personal-tab" 
+            class="px-6 py-2 rounded-md font-medium transition-colors duration-200 tab-button active"
+            data-category="personal"
+          >
+            Personal Finance
+          </button>
+          <button 
+            id="business-tab" 
+            class="px-6 py-2 rounded-md font-medium transition-colors duration-200 tab-button"
+            data-category="business"
+          >
+            Business Finance
+          </button>
+        </div>
+      </div>
+
+      <!-- Personal Finance Scenarios -->
+      <div id="personal-scenarios" class="scenario-category">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Personal Finance Scenarios</h2>
+          <p class="text-gray-600 dark:text-gray-400">Comprehensive personal financial planning for individuals and families</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         <!-- Young Professional Journey -->
         <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="young-professional">
           <div class="flex items-center mb-4">
@@ -107,7 +140,7 @@ const faqSchema = {
             <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">Beginner</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
           </div>
-        </div>
+            </div>
 
         <!-- Family Planning Journey -->
         <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="family-planning">
@@ -127,7 +160,7 @@ const faqSchema = {
             <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
           </div>
-        </div>
+            </div>
 
         <!-- Home Buying Journey -->
         <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="home-buying">
@@ -147,7 +180,7 @@ const faqSchema = {
             <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
           </div>
-        </div>
+            </div>
 
         <!-- Debt Elimination Strategy -->
         <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="debt-elimination">
@@ -167,7 +200,7 @@ const faqSchema = {
             <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
           </div>
-        </div>
+      </div>
 
         <!-- Investment Portfolio Build -->
         <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="investment-portfolio">
@@ -207,6 +240,136 @@ const faqSchema = {
             <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
           </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Finance Scenarios -->
+      <div id="business-scenarios" class="scenario-category hidden">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Business Finance Scenarios</h2>
+          <p class="text-gray-600 dark:text-gray-400">Comprehensive business financial analysis including M&A, risk management, portfolio optimization, and strategic planning</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <!-- Startup Financial Planning Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="startup-planning">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">🚀</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Startup Financial Planning</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Early Stage</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Complete financial planning journey for startups including cash flow projections, funding analysis, and growth planning.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">Beginner</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
+            </div>
+          </div>
+
+          <!-- M&A Analysis Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="ma-analysis-journey">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">🤝</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">M&A Analysis Journey</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Strategic Planning</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Comprehensive M&A analysis journey including valuation, synergy assessment, risk analysis, and integration planning.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">4-5 hours</span>
+            </div>
+          </div>
+
+          <!-- Investment Analysis Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="investment-analysis-journey">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">📊</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Investment Analysis Journey</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Investment Analysis</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Complete investment analysis journey including DCF valuation, comparable analysis, risk assessment, and portfolio optimization.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
+            </div>
+          </div>
+
+          <!-- Risk Management Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="risk-management-journey">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">⚠️</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Risk Management Journey</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Risk Assessment</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Comprehensive risk management journey including VaR analysis, stress testing, credit risk assessment, and portfolio optimization.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
+            </div>
+          </div>
+
+          <!-- Capital Structure Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="capital-structure-journey">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">⚖️</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Capital Structure Journey</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Financial Strategy</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Complete capital structure optimization journey including debt analysis, cost of capital, and optimal financing mix.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
+            </div>
+          </div>
+
+          <!-- Project Finance Journey -->
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="project-finance-journey">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl">🏗️</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Project Finance Journey</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Infrastructure</p>
+              </div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Comprehensive project finance journey for infrastructure projects including feasibility analysis, risk assessment, and financing optimization.
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Advanced</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">4-5 hours</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -228,7 +391,7 @@ const faqSchema = {
       </div>
 
       <!-- How It Works Section -->
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-8 mb-8">
+      <div class="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-8 mb-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">How Multi-Model Analysis Works</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">
@@ -259,4 +422,26 @@ const faqSchema = {
 
   <!-- ChatPanel is now in Layout.astro - no need to include it here -->
   <ClientScriptLoader client:load slot="pageScripts" name="multi-model-scenarios" />
+  
+  <style>
+    .tab-button {
+      color: #6b7280;
+    }
+    .tab-button.active {
+      background-color: #ffffff;
+      color: #1f2937;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    .dark .tab-button.active {
+      background-color: #374151;
+      color: #f9fafb;
+    }
+    .scenario-category {
+      transition: opacity 0.3s ease-in-out;
+    }
+    .scenario-category.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </Layout>

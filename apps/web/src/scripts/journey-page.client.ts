@@ -1,9 +1,11 @@
 /**
  * Journey Page Client Script
- * 
+ *
  * Handles journey-specific functionality like progress tracking
- * and model completion status.
+ * and model completion status with new journey state management.
  */
+
+import { initializeJourneyFromScenario } from './journey-state.client';
 
 interface JourneyProgress {
   completed: string[];
@@ -18,6 +20,7 @@ class JourneyPageManager {
   constructor() {
     this.scenarioId = this.getScenarioId();
     this.progress = this.loadProgress();
+    this.initializeJourneyState();
     this.updateProgressDisplay();
     this.setupEventListeners();
     this.updateChatbotContext();
@@ -29,6 +32,144 @@ class JourneyPageManager {
     return match ? match[1] : '';
   }
 
+  /**
+   * Initialize journey state from scenario data
+   */
+  private initializeJourneyState(): void {
+    const scenarioData = this.getScenarioData();
+    if (!scenarioData) return;
+
+    // Convert scenario models to journey steps
+    const journeySteps = scenarioData.models.map((model) => ({
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      url: model.url,
+      order: model.order,
+      required: model.required,
+      completed: false,
+    }));
+
+    // Initialize journey state
+    initializeJourneyFromScenario(this.scenarioId, scenarioData.name, journeySteps);
+  }
+
+  /**
+   * Get scenario data from the page
+   */
+  private getScenarioData(): any {
+    // This would typically come from the server-side rendered data
+    // For now, we'll use a simple mapping
+    const scenarioMap: Record<string, any> = {
+      'young-professional': {
+        name: 'Young Professional Journey',
+        models: [
+          {
+            id: 'student-loan',
+            name: 'Student Loan Analyzer',
+            description: 'Optimize student loan repayment strategies',
+            url: '/calculator/student-loans',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'budget',
+            name: 'Budget Optimizer',
+            description: 'Create emergency fund and budget planning',
+            url: '/calculator/budget',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'retirement',
+            name: 'Retirement Planning Engine',
+            description: 'Early retirement planning and 401(k) optimization',
+            url: '/calculator/retirement',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'savings-goal',
+            name: 'Savings Goal Planner',
+            description: 'Plan for emergency fund and financial goals',
+            url: '/calculator/savings-goal',
+            order: 4,
+            required: false,
+          },
+        ],
+      },
+      'family-planning': {
+        name: 'Family Planning Journey',
+        models: [
+          {
+            id: 'amortization',
+            name: 'Mortgage Calculator',
+            description: 'Analyze home buying readiness and affordability',
+            url: '/calculator/amortization',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'savings-goal',
+            name: 'Savings Goal Planner',
+            description: "Plan for children's education funding",
+            url: '/calculator/savings-goal',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'budget',
+            name: 'Budget Optimizer',
+            description: 'Comprehensive family budget analysis',
+            url: '/calculator/budget',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'retirement',
+            name: 'Retirement Planning Engine',
+            description: 'Optimize tax strategy for family finances',
+            url: '/calculator/retirement',
+            order: 4,
+            required: false,
+          },
+        ],
+      },
+      'ma-analysis-journey': {
+        name: 'M&A Analysis Journey',
+        models: [
+          {
+            id: 'ma-analysis',
+            name: 'M&A Analysis Calculator',
+            description: 'Complete M&A analysis with accretion/dilution',
+            url: '/calculator/ma-analysis',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'dcf-valuation',
+            name: 'DCF Valuation Calculator',
+            description: 'Detailed DCF analysis for target valuation',
+            url: '/calculator/dcf-valuation',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Assess integration and operational risks',
+            url: '/calculator/risk-management',
+            order: 3,
+            required: true,
+          },
+        ],
+      },
+      // Add more scenarios as needed
+    };
+
+    return scenarioMap[this.scenarioId];
+  }
+
   private loadProgress(): JourneyProgress {
     const saved = localStorage.getItem(`journey-progress-${this.scenarioId}`);
     if (saved) {
@@ -37,7 +178,7 @@ class JourneyPageManager {
     return {
       completed: [],
       currentStep: 0,
-      totalSteps: this.getTotalSteps()
+      totalSteps: this.getTotalSteps(),
     };
   }
 
@@ -63,12 +204,23 @@ class JourneyPageManager {
       totalElement.textContent = this.progress.totalSteps.toString();
     }
     if (percentageElement) {
-      const percentage = Math.round((this.progress.completed.length / this.progress.totalSteps) * 100);
+      const percentage = Math.round(
+        (this.progress.completed.length / this.progress.totalSteps) * 100
+      );
       percentageElement.textContent = `${percentage}%`;
     }
   }
 
   private setupEventListeners(): void {
+    // Listen for journey start button clicks
+    document.addEventListener('click', (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target.classList.contains('journey-start-btn')) {
+        event.preventDefault();
+        this.handleJourneyStart(target);
+      }
+    });
+
     // Listen for model completion events
     window.addEventListener('model-completed', (event: CustomEvent) => {
       const modelId = event.detail.modelId;
@@ -83,10 +235,57 @@ class JourneyPageManager {
     });
   }
 
+  /**
+   * Handle journey start button clicks
+   */
+  private handleJourneyStart(button: HTMLElement): void {
+    const scenarioId = button.getAttribute('data-scenario');
+    const modelId = button.getAttribute('data-model-id');
+    const modelOrder = button.getAttribute('data-model-order');
+
+    if (!scenarioId || !modelId) {
+      console.error('Missing journey data attributes');
+      return;
+    }
+
+    // Get scenario data
+    const scenarioData = this.getScenarioData();
+    if (!scenarioData) {
+      console.error('Scenario data not found');
+      return;
+    }
+
+    // Convert scenario models to journey steps
+    const journeySteps = scenarioData.models.map((model) => ({
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      url: model.url,
+      order: model.order,
+      required: model.required,
+      completed: false,
+    }));
+
+    // Initialize journey state
+    initializeJourneyFromScenario(scenarioId, scenarioData.name, journeySteps);
+
+    // Navigate to the calculator with journey context
+    const calculatorUrl = button.getAttribute('href');
+    if (calculatorUrl) {
+      // Add journey parameter to URL
+      const url = new URL(calculatorUrl, window.location.origin);
+      url.searchParams.set('journey', scenarioId);
+      window.location.href = url.toString();
+    }
+  }
+
   public markModelCompleted(modelId: string): void {
     if (!this.progress.completed.includes(modelId)) {
       this.progress.completed.push(modelId);
-      this.progress.currentStep = Math.max(this.progress.currentStep, this.progress.completed.length);
+      this.progress.currentStep = Math.max(
+        this.progress.currentStep,
+        this.progress.completed.length
+      );
       this.saveProgress();
       this.updateProgressDisplay();
       this.updateModelStatus(modelId);
@@ -96,7 +295,7 @@ class JourneyPageManager {
   private updateModelStatus(modelId: string): void {
     // Update the visual status of completed models
     const modelElements = document.querySelectorAll(`[data-model-id="${modelId}"]`);
-    modelElements.forEach(element => {
+    modelElements.forEach((element) => {
       element.classList.add('completed');
       const button = element.querySelector('a');
       if (button) {
@@ -120,14 +319,14 @@ class JourneyPageManager {
     this.progress = {
       completed: [],
       currentStep: 0,
-      totalSteps: this.getTotalSteps()
+      totalSteps: this.getTotalSteps(),
     };
     this.saveProgress();
     this.updateProgressDisplay();
-    
+
     // Reset all model statuses
     const modelElements = document.querySelectorAll('[data-model-id]');
-    modelElements.forEach(element => {
+    modelElements.forEach((element) => {
       element.classList.remove('completed');
       const button = element.querySelector('a');
       if (button) {
@@ -142,8 +341,10 @@ class JourneyPageManager {
     // Get journey data from the page
     const journeyTitle = document.querySelector('h1')?.textContent || '';
     const journeyDescription = document.querySelector('p.text-xl')?.textContent || '';
-    const models = Array.from(document.querySelectorAll('h4')).map(h4 => h4.textContent || '');
-    const workflowSteps = Array.from(document.querySelectorAll('ol li')).map(li => li.textContent || '');
+    const models = Array.from(document.querySelectorAll('h4')).map((h4) => h4.textContent || '');
+    const workflowSteps = Array.from(document.querySelectorAll('ol li')).map(
+      (li) => li.textContent || ''
+    );
 
     // Update global context for chatbot
     if (typeof window !== 'undefined') {
@@ -154,15 +355,15 @@ class JourneyPageManager {
         models: models,
         workflowSteps: workflowSteps,
         progress: this.progress,
-        completedModels: this.progress.completed
+        completedModels: this.progress.completed,
       };
 
       // Notify chatbot of journey context
       const event = new CustomEvent('journey-context-updated', {
-        detail: { 
+        detail: {
           journeyId: this.scenarioId,
           journeyTitle,
-          progress: this.progress
+          progress: this.progress,
         },
       });
       document.dispatchEvent(event);
@@ -170,7 +371,7 @@ class JourneyPageManager {
       console.log('Journey context updated for chatbot:', {
         journeyId: this.scenarioId,
         title: journeyTitle,
-        progress: this.progress
+        progress: this.progress,
       });
     }
   }

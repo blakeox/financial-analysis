@@ -1,7 +1,7 @@
-import { registerChatButton } from './chat-actions';
-import { storeAnalysisResult } from './analysis-results';
-import { BudgetEngine } from '@financial-analysis/analysis';
 import type { BudgetResult } from '@financial-analysis/analysis';
+import { BudgetEngine } from '@financial-analysis/analysis';
+import { storeAnalysisResult } from './analysis-results';
+import { registerChatButton } from './chat-actions';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -23,11 +23,7 @@ const formatPercent = (value: string | undefined): string => {
   return `${numeric.toFixed(1)}%`;
 };
 
-type OptimizationGoal =
-  | 'maximize_savings'
-  | 'reduce_debt'
-  | 'balance'
-  | 'reduce_discretionary';
+type OptimizationGoal = 'maximize_savings' | 'reduce_debt' | 'balance' | 'reduce_discretionary';
 
 type IncomeType = 'salary' | 'business' | 'investment' | 'rental' | 'other';
 
@@ -47,38 +43,95 @@ export const parseNumber = (value: FormDataEntryValue | null): number => {
 };
 
 export const displayResults = (result: BudgetResult): void => {
-  const totals = {
-    income: document.getElementById('total-income'),
-    expenses: document.getElementById('total-expenses'),
-    net: document.getElementById('net-income'),
-    savingsRate: document.getElementById('savings-rate'),
-  } as const;
+  // Use the generic results structure from IndividualCalculatorPage.astro
+  const resultsContainer = document.getElementById('results-container');
+  const summaryCards = document.getElementById('summary-cards');
 
-  if (totals.income)
-    totals.income.textContent = formatCurrency(result.incomeSummary.totalMonthlyIncome);
-  if (totals.expenses)
-    totals.expenses.textContent = formatCurrency(result.expenseSummary.totalMonthlyExpenses);
-  if (totals.net) totals.net.textContent = formatCurrency(result.metrics.monthlyNetIncome);
-  if (totals.savingsRate) totals.savingsRate.textContent = formatPercent(result.metrics.savingsRate);
-
-  const ruleEl = document.getElementById('rule-analysis');
-  if (ruleEl) {
-    const { needs, wants, savings } = result.budgetRuleAnalysis;
-    ruleEl.innerHTML = `
-      <p><strong>Needs (50%):</strong> ${formatCurrency(needs.current)} (${formatPercent(needs.currentPercent)} vs target ${formatPercent(needs.recommendedPercent)})</p>
-      <p><strong>Wants (30%):</strong> ${formatCurrency(wants.current)} (${formatPercent(wants.currentPercent)} vs target ${formatPercent(wants.recommendedPercent)})</p>
-      <p><strong>Savings (20%):</strong> ${formatCurrency(savings.current)} (${formatPercent(savings.currentPercent)} vs target ${formatPercent(savings.recommendedPercent)})</p>
-    `;
+  if (!resultsContainer || !summaryCards) {
+    console.error('Required DOM elements not found for budget results');
+    return;
   }
 
-  const recEl = document.getElementById('recommendations');
-  if (recEl) {
-    recEl.innerHTML = result.recommendations
-      .map((rec) => `<li class="text-gray-700 dark:text-gray-300">${rec}</li>`)
-      .join('');
-  }
+  // Render summary cards
+  summaryCards.innerHTML = `
+    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Income</h5>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.incomeSummary.totalMonthlyIncome)}</p>
+    </div>
+    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Monthly Expenses</h5>
+      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.expenseSummary.totalMonthlyExpenses)}</p>
+    </div>
+    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Net Income</h5>
+      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.metrics.monthlyNetIncome)}</p>
+    </div>
+    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Savings Rate</h5>
+      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatPercent(result.metrics.savingsRate)}</p>
+    </div>
+  `;
 
-  document.getElementById('results')?.classList.remove('hidden');
+  // Render detailed breakdown
+  const { needs, wants, savings } = result.budgetRuleAnalysis;
+
+  resultsContainer.innerHTML = `
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">50/30/20 Budget Analysis</h3>
+      
+      <div class="space-y-4">
+        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Needs (50%)</span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Housing, utilities, food, transportation</p>
+          </div>
+          <div class="text-right">
+            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(needs.current)}</span>
+            <p class="text-sm ${needs.currentPercent > needs.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(needs.currentPercent)} vs ${formatPercent(needs.recommendedPercent)} target</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Wants (30%)</span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Entertainment, dining, hobbies</p>
+          </div>
+          <div class="text-right">
+            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(wants.current)}</span>
+            <p class="text-sm ${wants.currentPercent > wants.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(wants.currentPercent)} vs ${formatPercent(wants.recommendedPercent)} target</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Savings (20%)</span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Emergency fund, retirement, investments</p>
+          </div>
+          <div class="text-right">
+            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(savings.current)}</span>
+            <p class="text-sm ${savings.currentPercent < savings.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(savings.currentPercent)} vs ${formatPercent(savings.recommendedPercent)} target</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recommendations</h3>
+      
+      <ul class="space-y-3">
+        ${result.recommendations
+          .map(
+            (rec) => `
+          <li class="flex items-start gap-3">
+            <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
+            <span class="text-gray-700 dark:text-gray-300">${rec}</span>
+          </li>
+        `
+          )
+          .join('')}
+      </ul>
+    </div>
+  `;
 };
 
 export const collectIncome = (formData: FormData, incomeCount: number) => {
@@ -194,68 +247,141 @@ const addExpenseRow = (expenseCount: number): void => {
 const initBudgetPage = () => {
   registerChatButton('#budget-chat-button', 'Budget Optimizer', { tool: 'analyze_budget' });
 
-  const form = document.getElementById('budget-form');
-  const addIncomeBtn = document.getElementById('add-income-btn');
-  const addExpenseBtn = document.getElementById('add-expense-btn');
+  const form = document.getElementById('calculator-form');
 
-  if (!(form instanceof HTMLFormElement)) return;
-
-  let incomeCount = 1;
-  let expenseCount = 1;
-
-  addIncomeBtn?.addEventListener('click', () => {
-    addIncomeRow(incomeCount);
-    incomeCount += 1;
-  });
-
-  addExpenseBtn?.addEventListener('click', () => {
-    addExpenseRow(expenseCount);
-    expenseCount += 1;
-  });
+  if (!(form instanceof HTMLFormElement)) {
+    console.error('Budget form not found');
+    return;
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
+    // Show loading state
+    const calculateBtn = document.getElementById('calculate-btn');
+    if (calculateBtn) {
+      calculateBtn.disabled = true;
+      calculateBtn.textContent = 'Calculating...';
+    }
+
+    // Hide previous results
+    const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.getElementById('results-container');
+    const summaryCards = document.getElementById('summary-cards');
+    resultsSection?.classList.add('hidden');
+    resultsContainer?.classList.add('hidden');
+    summaryCards?.classList.add('hidden');
 
     try {
       const formData = new FormData(form);
-      const savingsGoalMonthly = parseNumber(formData.get('savingsGoalMonthly')) || 0;
-      const optimizationGoalValue = formData.get('optimizationGoal');
-      const optimizationGoal =
-        (typeof optimizationGoalValue === 'string' && optimizationGoalValue
-          ? optimizationGoalValue
-          : 'balance') as OptimizationGoal;
 
-      const income = collectIncome(formData, incomeCount);
-      const expenses = collectExpenses(formData, expenseCount);
+      // Parse the simple form fields from CalculatorTemplate.tsx
+      const monthlyIncome = parseNumber(formData.get('monthlyIncome')) || 0;
+      const housing = parseNumber(formData.get('housing')) || 0;
+      const utilities = parseNumber(formData.get('utilities')) || 0;
+      const food = parseNumber(formData.get('food')) || 0;
+      const transportation = parseNumber(formData.get('transportation')) || 0;
+      const savingsGoal = parseNumber(formData.get('savingsGoal')) || 0;
 
-      if (income.length === 0) throw new Error('Please add at least one income source');
-      if (expenses.length === 0) throw new Error('Please add at least one expense');
+      if (monthlyIncome <= 0) throw new Error('Please enter a valid monthly income');
+      if (housing <= 0) throw new Error('Please enter housing costs');
 
-      const input = { income, expenses, debts: [], savingsGoalMonthly, optimizationGoal };
+      // Create simplified income and expense arrays
+      const income = [
+        {
+          name: 'Primary Income',
+          monthlyAmount: monthlyIncome,
+          type: 'salary' as IncomeType,
+          recurring: true,
+        },
+      ];
+
+      const expenses = [
+        {
+          name: 'Housing',
+          monthlyAmount: housing,
+          type: 'housing' as ExpenseType,
+          isFixed: true,
+          isEssential: true,
+        },
+        {
+          name: 'Utilities',
+          monthlyAmount: utilities,
+          type: 'utilities' as ExpenseType,
+          isFixed: false,
+          isEssential: true,
+        },
+        {
+          name: 'Food & Groceries',
+          monthlyAmount: food,
+          type: 'food' as ExpenseType,
+          isFixed: false,
+          isEssential: true,
+        },
+        {
+          name: 'Transportation',
+          monthlyAmount: transportation,
+          type: 'transportation' as ExpenseType,
+          isFixed: false,
+          isEssential: true,
+        },
+      ].filter((expense) => expense.monthlyAmount > 0);
+
+      const input = {
+        income,
+        expenses,
+        debts: [],
+        savingsGoalMonthly: savingsGoal,
+        optimizationGoal: 'balance' as OptimizationGoal,
+      };
+
       const result = BudgetEngine.analyze(input);
 
       storeAnalysisResult('analyze_budget', result);
       displayResults(result);
+
+      // Show results
+      resultsSection?.classList.remove('hidden');
+      resultsContainer?.classList.remove('hidden');
+      summaryCards?.classList.remove('hidden');
+
+      // Dispatch calculator completion event for journey integration
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: {
+            calculatorId: 'budget',
+            result: result,
+            formData: input,
+          },
+        })
+      );
     } catch (error) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = error instanceof Error ? error.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
+      console.error('Budget calculation error:', error);
+      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
-      document.getElementById('loading')?.classList.add('hidden');
+      // Reset button state
+      if (calculateBtn) {
+        calculateBtn.disabled = false;
+        calculateBtn.textContent = 'Calculate';
+      }
     }
   });
 
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
+  // Add reset handler
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn instanceof HTMLButtonElement) {
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      const resultsSection = document.getElementById('results-section');
+      const resultsContainer = document.getElementById('results-container');
+      const summaryCards = document.getElementById('summary-cards');
+      resultsSection?.classList.add('hidden');
+      resultsContainer?.classList.add('hidden');
+      summaryCards?.classList.add('hidden');
+    });
+  }
 };
 
-  export {};
+export {};
 
 initBudgetPage();

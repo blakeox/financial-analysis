@@ -76,6 +76,80 @@ export const renderSummaryCards = (
   `;
 };
 
+export const renderChart = (
+  schedule: AmortizationResultItem[] | undefined,
+  target: HTMLElement | null = document.getElementById('amortization-chart')
+): void => {
+  if (!target) return;
+  if (!Array.isArray(schedule) || schedule.length === 0) {
+    target.innerHTML =
+      '<p class="text-sm text-gray-500 dark:text-gray-400">No chart data available.</p>';
+    return;
+  }
+
+  // Create a simple chart using CSS and HTML since we don't have React components available in this context
+  const maxPayment = Math.max(...schedule.map((item) => item.payment));
+  const maxBalance = Math.max(...schedule.map((item) => item.balance + item.principal));
+
+  target.innerHTML = `
+    <div class="space-y-4">
+      <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-blue-500 rounded"></div>
+            <span>Remaining Balance</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-green-500 rounded"></div>
+            <span>Principal</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-orange-500 rounded"></div>
+            <span>Interest</span>
+          </div>
+        </div>
+        <div class="text-xs">
+          ${schedule.length} months • Max payment: ${toCurrency(maxPayment)}
+        </div>
+      </div>
+      
+      <div class="relative h-64 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+        <div class="absolute inset-4">
+          <div class="h-full flex items-end gap-1">
+            ${schedule
+              .map((entry, index) => {
+                const paymentHeight = (entry.payment / maxPayment) * 100;
+                const principalHeight = (entry.principal / maxPayment) * 100;
+                const interestHeight = (entry.interest / maxPayment) * 100;
+                const balanceHeight = ((entry.balance + entry.principal) / maxBalance) * 100;
+
+                // Show month labels every 12 months or at significant milestones
+                const showLabel =
+                  entry.month % 12 === 0 || entry.month === 1 || entry.month === schedule.length;
+
+                return `
+                <div class="flex-1 flex flex-col items-center group relative" title="Month ${entry.month}: ${toCurrency(entry.payment)} payment">
+                  <div class="w-full flex flex-col-reverse" style="height: ${paymentHeight}%">
+                    <div class="w-full bg-orange-500 rounded-t" style="height: ${interestHeight}%"></div>
+                    <div class="w-full bg-green-500" style="height: ${principalHeight}%"></div>
+                  </div>
+                  <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-b" style="height: ${balanceHeight}%"></div>
+                  ${showLabel ? `<div class="text-xs text-gray-500 mt-1">${entry.month}</div>` : ''}
+                </div>
+              `;
+              })
+              .join('')}
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+        Complete ${schedule.length}-month amortization schedule. Use the detailed table below for exact values.
+      </div>
+    </div>
+  `;
+};
+
 export const renderSchedule = (
   schedule: AmortizationResultItem[] | undefined,
   target: HTMLElement | null = document.getElementById('table-body')
@@ -156,7 +230,12 @@ export const parseAmortizationInput = (formData: FormData): AmortizationInput =>
 
 export const handleSuccess = (
   result: AmortizationAnalysisResult,
-  termMonths: number,
+  inputs: {
+    principal: number;
+    annualRate: number;
+    termMonths: number;
+    extraMonthlyPayment?: number;
+  },
   options: {
     resultsContainer?: HTMLElement | null;
     summaryCards?: HTMLElement | null;
@@ -169,28 +248,54 @@ export const handleSuccess = (
   const targetTableBody = options.tableBody ?? document.getElementById('table-body');
 
   storeAnalysisResult('analyze_amortization', result);
-  renderSummaryCards(result, termMonths, targetSummary);
+  renderSummaryCards(result, inputs.termMonths, targetSummary);
+  renderChart(result.schedule, document.getElementById('amortization-chart'));
   renderSchedule(result.schedule, targetTableBody);
 
   // Update enhanced analysis component
-  updateEnhancedAnalysis(result, termMonths);
+  updateEnhancedAnalysis(result, inputs);
+
+  // Dispatch calculator completion event for journey integration
+  window.dispatchEvent(
+    new CustomEvent('calculator-completed', {
+      detail: {
+        calculatorId: 'amortization',
+        result: result,
+        formData: inputs,
+      },
+    })
+  );
 
   targetResults?.classList.remove('hidden');
   resultsSection?.classList.remove('hidden');
   resultsSection?.removeAttribute('hidden');
   resultsSection?.setAttribute('data-rendered', 'true');
+
+  // Show the amortization chart and table if they exist
+  const chartContainer = document.getElementById('amortization-chart-container');
+  const tableContainer = document.getElementById('amortization-table-container');
+  chartContainer?.classList.remove('hidden');
+  tableContainer?.classList.remove('hidden');
 };
 
-const updateEnhancedAnalysis = (result: AmortizationAnalysisResult, termMonths: number): void => {
+const updateEnhancedAnalysis = (
+  result: AmortizationAnalysisResult,
+  inputs: {
+    principal: number;
+    annualRate: number;
+    termMonths: number;
+    extraMonthlyPayment?: number;
+  }
+): void => {
   // Dispatch custom event to update the enhanced analysis component
   const analysisData = {
-    principal: result.summary.principal,
-    annualRate: result.summary.annualRate,
-    termMonths: termMonths,
-    extraPayment: result.summary.extraMonthlyPayment || 0,
-    monthlyPayment: result.summary.monthlyPayment,
-    totalInterest: result.summary.totalInterest,
-    totalPayments: result.summary.totalPayments,
+    principal: inputs.principal,
+    annualRate: inputs.annualRate,
+    termMonths: inputs.termMonths,
+    extraPayment: inputs.extraMonthlyPayment || 0,
+    monthlyPayment: result.monthlyPayment,
+    totalInterest: result.totalInterest,
+    totalPayments: result.totalPayments,
   };
 
   const event = new CustomEvent('analysis-result-updated', {
@@ -233,8 +338,8 @@ const hideError = (): void => {
   if (errorMessage) errorMessage.textContent = '';
 };
 
-const form = document.getElementById('amortization-form');
-const analyzeBtn = document.getElementById('analyze-btn');
+const form = document.getElementById('calculator-form');
+const analyzeBtn = document.getElementById('calculate-btn');
 
 const setAnalyzing = (isAnalyzing: boolean): void => {
   if (analyzeBtn instanceof HTMLButtonElement) {
@@ -258,7 +363,7 @@ if (form instanceof HTMLFormElement) {
         payload
       );
 
-      handleSuccess(data, payload.termMonths);
+      handleSuccess(data, payload);
       hideError();
     } catch (error) {
       console.error('Amortization calculation error:', error);
@@ -285,8 +390,12 @@ if (resetBtn instanceof HTMLButtonElement && form instanceof HTMLFormElement) {
     form.reset();
     const resultsContainer = document.getElementById('results-container');
     const resultsSection = document.getElementById('results-section');
+    const chartContainer = document.getElementById('amortization-chart-container');
+    const tableContainer = document.getElementById('amortization-table-container');
     resultsContainer?.classList.add('hidden');
     resultsSection?.classList.add('hidden');
+    chartContainer?.classList.add('hidden');
+    tableContainer?.classList.add('hidden');
     hideError();
     hideLoading();
     setAnalyzing(false);

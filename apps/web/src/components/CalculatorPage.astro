@@ -1,0 +1,251 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdSense from './AdSense.astro';
+import { CALCULATOR_CONFIGS, generateFormHTMLWithValidation } from './CalculatorTemplate.tsx';
+import ClientScriptLoader from './ClientScriptLoader.tsx';
+import EnhancedAnalysisResults from './EnhancedAnalysisResults.tsx';
+
+export interface Props {
+  calculatorId: string;
+  title?: string;
+  description?: string;
+  journeyNav?: {
+    scenarioId: string;
+    scenarioName: string;
+    currentStep: number;
+    totalSteps: number;
+    nextStep: { id: string; name: string; url: string } | null;
+    previousStep: { id: string; name: string; url: string } | null;
+    journeyOverviewUrl: string;
+  };
+}
+
+const { calculatorId, title, description, journeyNav } = Astro.props as Props;
+const config = CALCULATOR_CONFIGS[calculatorId];
+
+if (!config) {
+  throw new Error(`Calculator configuration not found for: ${calculatorId}`);
+}
+
+// Determine back navigation based on context
+let backHref = '/models';
+let backLabel = 'Models';
+
+if (journeyNav) {
+  // If we're in a journey, go back to journey overview
+  backHref = journeyNav.journeyOverviewUrl;
+  backLabel = journeyNav.scenarioName;
+} else if (config.category === 'business') {
+  backHref = '/models/business';
+  backLabel = 'Business Models';
+}
+
+const formHTML = generateFormHTMLWithValidation(config.formFields);
+---
+
+<Layout 
+  title={title || config.title}
+  description={description || config.description}
+  canonical={Astro.url.href}
+  keywords={config.keywords.join(', ')}
+>
+  <!-- FAQ Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify(config.faqSchema)} />
+  
+  <!-- Breadcrumb Schema -->
+  <script type="application/ld+json" is:inline>
+    {JSON.stringify(breadcrumbSchema)}
+  </script>
+  
+  <!-- Software Application Schema -->
+  <script type="application/ld+json" is:inline>
+    {JSON.stringify(softwareSchema)}
+  </script>
+
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div id="main-container" class="transition-all duration-300 ease-in-out">
+      <div class="container mx-auto px-4 py-6">
+        
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="flex items-center mb-3">
+            <a href={backHref} class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title={`Back to ${backLabel}`}>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {config.title}
+            </h1>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 text-sm">
+            {config.description}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Calculator Form -->
+          <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+              <h2 class="text-lg font-semibold mb-4">Calculator Parameters</h2>
+              <div set:html={formHTML} />
+            </div>
+          </div>
+
+          <!-- Quick Access Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+              <h3 class="text-lg font-semibold mb-4">Quick Access</h3>
+              <div class="space-y-4">
+                <!-- Favorites -->
+                <div>
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Favorites</h4>
+                  <div id="favorites-list" class="space-y-2">
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+                
+                <!-- Recent -->
+                <div>
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent</h4>
+                  <div id="recent-list" class="space-y-2">
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button 
+                    id="favorite-btn"
+                    class="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
+                  >
+                    <span id="favorite-text">Add to Favorites</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+              <EnhancedAnalysisResults 
+                client:load
+                modelType={config.analysisType}
+                modelData={{}}
+                className="h-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="mt-6 hidden">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h2 class="text-lg font-semibold mb-4">Analysis Results</h2>
+            <div id="results-content"></div>
+          </div>
+        </div>
+
+        <!-- AdSense -->
+        <AdSense slot="3456789012" format="horizontal" className="max-w-4xl mx-auto mt-6" />
+
+        <!-- Journey Navigation -->
+        {journeyNav && (
+          <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg shadow-lg border border-blue-200 dark:border-blue-700 p-5">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <!-- Journey Progress -->
+              <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                  <span class="font-semibold text-blue-900 dark:text-blue-100">{journeyNav.scenarioName}</span>
+                  <span class="mx-2 text-gray-500">•</span>
+                  <span class="text-gray-600 dark:text-gray-400">Step {journeyNav.currentStep} of {journeyNav.totalSteps}</span>
+                </div>
+                <div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    class="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
+                    style={`width: ${(journeyNav.currentStep / journeyNav.totalSteps) * 100}%`}
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Navigation Buttons -->
+              <div class="flex items-center space-x-3 w-full sm:w-auto">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition-colors duration-200"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    <span class="hidden sm:inline">Previous: </span>{journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <div class="px-4 py-2 text-gray-400 dark:text-gray-500 text-sm">
+                    First Step
+                  </div>
+                )}
+
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <span class="hidden sm:inline">Next: </span>{journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <!-- Floating Next Button (Mobile) -->
+        {journeyNav && journeyNav.nextStep && (
+          <div class="fixed bottom-4 right-4 z-50 sm:hidden">
+            <a 
+              href={journeyNav.nextStep.url}
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
+            >
+              Next
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        )}
+
+        {journeyNav && !journeyNav.nextStep && (
+          <div class="fixed bottom-4 right-4 z-50 sm:hidden">
+            <a 
+              href={`/journey-analysis/${journeyNav.scenarioId}`}
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
+            >
+              Complete
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Scripts -->
+  <ClientScriptLoader client:load slot="pageScripts" name={config.clientScript as any} />
+  <ClientScriptLoader client:load slot="pageScripts" name="calculator-quick-access" />
+  <ClientScriptLoader client:load slot="pageScripts" name="journey-navigation" />
+</Layout>

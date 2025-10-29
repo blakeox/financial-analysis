@@ -17,13 +17,13 @@ export interface Props {
 
 const { title, description = "Fanalyx - Professional Financial Analysis Tools", canonical, image, showNav = true, keywords } = Astro.props as Props;
 
-const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Models', href: '/models' },
-  { label: 'Analysis', href: '/analysis' },
-  { label: 'Developers', href: '/developers' },
-  { label: 'Status', href: '/status' },
-];
+  const navLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Models', href: '/models' },
+    { label: 'Journey', href: '/journey' },
+    { label: 'Developers', href: '/developers' },
+    { label: 'Status', href: '/status' },
+  ];
 
 // Determine current context for tool analysis panel
 function getCurrentContext(pathname: string): string {
@@ -51,7 +51,7 @@ function getCurrentContext(pathname: string): string {
     'options-pricing': 'options-pricing',
     'cash-flow': 'cash-flow',
     'models': 'models',
-    'analysis': 'general',
+    'journey': 'general',
     '': 'general',
   };
   

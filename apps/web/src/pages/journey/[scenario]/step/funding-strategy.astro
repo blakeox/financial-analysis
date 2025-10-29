@@ -1,0 +1,458 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+export async function getStaticPaths() {
+  const journeyData = getJourneyData();
+  const paths = Object.keys(journeyData).map((scenarioId) => ({
+    params: { scenario: scenarioId },
+  }));
+
+  return paths;
+}
+
+const { scenario } = Astro.params;
+const journeyData = getJourneyData();
+const currentScenario = journeyData[scenario!];
+
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+// Journey navigation data
+const currentStep = currentScenario.models.find(m => m.id === 'funding-strategy');
+const nextStep = currentScenario.models.find(m => m.order === 4);
+const previousStep = currentScenario.models.find(m => m.order === 2);
+
+const journeyNav = {
+  scenarioId: scenario!,
+  scenarioName: currentScenario.name,
+  currentStep: 3,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/${scenario}/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/${scenario}/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: `/journey/${scenario}`
+};
+
+// SEO-optimized content
+const seoTitle = `Funding Strategy - Step 3 of ${currentScenario.name}`;
+const seoDescription = `Plan funding milestones and runway. This is step 3 of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<script>
+  // Update chatbot context for this phase
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('chat-panel-context', {
+      detail: {
+        contextKey: 'funding-strategy',
+        label: 'Funding Strategy',
+        data: {
+          phase: 3,
+          phaseName: 'Funding Strategy',
+          description: 'Planning funding milestones and runway',
+          keyFields: ['nextFundingRound', 'fundingTimeline', 'currentBurnRate', 'projectedBurnRate', 'fundingSources', 'milestones'],
+          helpTopics: [
+            'When to raise next funding round',
+            'Burn rate vs runway calculation',
+            'Funding source selection',
+            'Milestone-based fundraising',
+            'Dilution vs growth trade-offs'
+          ]
+        }
+      }
+    }));
+  }
+</script>
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="text-sm mb-6" aria-label="Breadcrumb">
+        <ol class="list-none p-0 inline-flex">
+          <li class="flex items-center">
+            <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Home</a>
+            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
+          </li>
+          <li class="flex items-center">
+            <a href="/journey" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
+          </li>
+          <li class="flex items-center">
+            <a href={`/journey/${scenario}`} class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
+          </li>
+          <li class="text-gray-500 dark:text-gray-500" aria-current="page">Funding Strategy</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center mb-4">
+          <span class="text-4xl mr-3">💰</span>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Funding Strategy</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Step 3 of {currentScenario.models.length} - {currentScenario.name}</p>
+          </div>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 max-w-3xl">
+          Plan your funding milestones and runway to ensure sustainable growth. This step helps you understand when you'll need additional funding and how to prepare for it.
+        </p>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 of {currentScenario.models.length}</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
+        </div>
+      </div>
+
+      <!-- Previous Steps Integration -->
+      <div id="previous-steps-integration" class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 hidden">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Data from Previous Phases</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div id="capital-integration-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 1: Capital Investment</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Initial funding loaded</p>
+          </div>
+          <div id="budget-integration-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 2: Budget Planning</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Revenue projections available</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <form id="funding-strategy-form" class="space-y-6">
+          <!-- Funding Goals -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Funding Goals</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="nextFundingRound" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Next Funding Round Amount <span class="text-red-500">*</span>
+                </label>
+                <input type="number" id="nextFundingRound" name="nextFundingRound" required
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="1000000" min="0" step="10000">
+                <p class="text-sm text-gray-500 mt-1">Amount you plan to raise in next round</p>
+              </div>
+              
+              <div>
+                <label for="fundingTimeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Funding Timeline (Months) <span class="text-red-500">*</span>
+                </label>
+                <input type="number" id="fundingTimeline" name="fundingTimeline" required
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="12" min="1" max="36" step="1">
+                <p class="text-sm text-gray-500 mt-1">When you plan to raise next round</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Runway Analysis -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Runway Analysis</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="currentBurnRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Current Monthly Burn Rate <span class="text-red-500">*</span>
+                </label>
+                <input type="number" id="currentBurnRate" name="currentBurnRate" required
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="50000" min="0" step="1000">
+                <p class="text-sm text-gray-500 mt-1">Current monthly expenses minus revenue</p>
+              </div>
+              
+              <div>
+                <label for="projectedBurnRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Projected Burn Rate (6 months)
+                </label>
+                <input type="number" id="projectedBurnRate" name="projectedBurnRate"
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="75000" min="0" step="1000">
+                <p class="text-sm text-gray-500 mt-1">Expected burn rate in 6 months</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Funding Sources -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Funding Sources</h3>
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="venture-capital" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Venture Capital</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="angel-investors" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Angel Investors</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="bank-loan" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Bank Loan</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="government-grant" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Government Grant</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="crowdfunding" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Crowdfunding</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" name="fundingSources" value="revenue-based" class="mr-2">
+                  <span class="text-gray-700 dark:text-gray-300">Revenue-Based</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milestones -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Key Milestones</h3>
+            <div class="space-y-4">
+              <div>
+                <label for="milestone1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Milestone 1 (3 months)
+                </label>
+                <textarea id="milestone1" name="milestone1" rows="2"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          placeholder="e.g., Launch MVP, acquire first 100 customers"></textarea>
+              </div>
+              
+              <div>
+                <label for="milestone2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Milestone 2 (6 months)
+                </label>
+                <textarea id="milestone2" name="milestone2" rows="2"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          placeholder="e.g., Reach $50k MRR, expand team to 10 people"></textarea>
+              </div>
+              
+              <div>
+                <label for="milestone3" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Milestone 3 (12 months)
+                </label>
+                <textarea id="milestone3" name="milestone3" rows="2"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          placeholder="e.g., Series A ready, $500k ARR"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-4 mt-8">
+            <button type="button" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              Calculate Funding Strategy
+            </button>
+            <button type="button" id="save-funding-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              Save Funding Strategy
+            </button>
+            <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="funding-results" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Funding Strategy Analysis</h3>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Runway</h5>
+            <p id="runway-metric" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
+          </div>
+          <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Fundraising Timeline</h5>
+            <p id="timeline-metric" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
+          </div>
+          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Funding Needed</h5>
+            <p id="funding-metric" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
+          </div>
+          <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Monthly Burn Rate</h5>
+            <p id="burn-rate-metric" class="text-2xl font-bold text-orange-600 dark:text-orange-400">--</p>
+          </div>
+        </div>
+
+        <!-- Funding Timeline -->
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Funding Timeline</h4>
+          <div id="timeline-display" class="space-y-4">
+            <!-- Timeline items will be populated here -->
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recommendations</h4>
+          <div id="recommendations" class="text-sm text-gray-700 dark:text-gray-300">
+            <!-- Recommendations will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex justify-between items-center">
+        {journeyNav.previousStep ? (
+          <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Previous: {journeyNav.previousStep.name}
+          </a>
+        ) : (
+          <a href={`/journey/${scenario}`} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Journey
+          </a>
+        )}
+        
+        {journeyNav.nextStep && (
+          <a href={journeyNav.nextStep.url} class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+            Next: {journeyNav.nextStep.name}
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        )}
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script define:vars={{ journeyNav }}>
+  // Funding Strategy Form Handler
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load and integrate previous phase data
+    loadPreviousPhaseData();
+    
+    const form = document.getElementById('funding-strategy-form');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const saveBtn = document.getElementById('save-funding-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const resultsSection = document.getElementById('funding-results');
+    
+    // Load data from previous phases
+    function loadPreviousPhaseData() {
+      const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+      const capitalData = journeyState.collectedData?.['initial-capital-investment'];
+      const budgetData = journeyState.collectedData?.['startup-budget'];
+      
+      // Show integration section if we have data
+      const integrationSection = document.getElementById('previous-steps-integration');
+      if (capitalData || budgetData) {
+        integrationSection.classList.remove('hidden');
+        
+        // Show capital integration if available
+        if (capitalData) {
+          const capitalDisplay = document.getElementById('capital-integration-display');
+          capitalDisplay.classList.remove('hidden');
+          capitalDisplay.querySelector('p').textContent = `Total Investment: $${parseInt(capitalData.investment?.total || 0).toLocaleString()}`;
+        }
+        
+        // Show budget integration if available
+        if (budgetData) {
+          const budgetDisplay = document.getElementById('budget-integration-display');
+          budgetDisplay.classList.remove('hidden');
+          const monthlyRevenue = budgetData.revenue?.monthly || 0;
+          budgetDisplay.querySelector('p').textContent = `Monthly Revenue: $${parseInt(monthlyRevenue).toLocaleString()}`;
+          
+          // Pre-fill current burn rate based on budget data
+          const burnRateField = document.getElementById('currentBurnRate');
+          if (burnRateField && budgetData.expenses) {
+            const totalExpenses = parseFloat(budgetData.expenses.salaries || 0) + 
+                                 parseFloat(budgetData.expenses.officeRent || 0) + 
+                                 parseFloat(budgetData.expenses.marketing || 0) + 
+                                 parseFloat(budgetData.expenses.other || 0);
+            const monthlyRevenue = parseFloat(budgetData.revenue?.monthly || 0);
+            const burnRate = Math.max(0, totalExpenses - monthlyRevenue);
+            burnRateField.value = burnRate;
+          }
+        }
+      }
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(form);
+        const fundingData = {
+          goals: {
+            nextFundingRound: formData.get('nextFundingRound'),
+            fundingTimeline: formData.get('fundingTimeline')
+          },
+          runway: {
+            currentBurnRate: formData.get('currentBurnRate'),
+            projectedBurnRate: formData.get('projectedBurnRate')
+          },
+          sources: formData.getAll('fundingSources'),
+          milestones: {
+            milestone1: formData.get('milestone1'),
+            milestone2: formData.get('milestone2'),
+            milestone3: formData.get('milestone3')
+          },
+          completedAt: new Date().toISOString()
+        };
+
+        // Store in journey state
+        const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+        journeyState.collectedData = journeyState.collectedData || {};
+        journeyState.collectedData['funding-strategy'] = fundingData;
+        localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
+
+        // Show success message
+        saveBtn.textContent = '✓ Saved!';
+        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.add('bg-green-500');
+        
+        setTimeout(() => {
+          saveBtn.textContent = 'Save Funding Strategy';
+          saveBtn.classList.remove('bg-green-500');
+          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        }, 2000);
+
+        // Dispatch completion event
+        window.dispatchEvent(new CustomEvent('calculator-completed', {
+          detail: {
+            calculatorId: 'funding-strategy',
+            result: fundingData,
+            formData: fundingData
+          }
+        }));
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        form.reset();
+      });
+    }
+  });
+</script>
+

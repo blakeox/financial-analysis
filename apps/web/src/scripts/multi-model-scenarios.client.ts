@@ -18,7 +18,7 @@ export interface FinancialScenario {
   id: string;
   name: string;
   description: string;
-  category: 'life-stage' | 'major-purchase' | 'debt-investment' | 'retirement';
+  category: 'life-stage' | 'major-purchase' | 'debt-investment' | 'retirement' | 'business';
   ageRange?: string;
   models: ScenarioModel[];
   workflow: string[];
@@ -344,6 +344,211 @@ export class MultiModelScenarioManager {
         estimatedDuration: '3-4 hours',
         complexity: 'advanced',
       },
+      // Business Finance Journey Scenarios
+      {
+        id: 'startup-planning',
+        name: 'Startup Financial Planning',
+        description:
+          'Complete financial planning journey for startups including cash flow projections, funding analysis, and growth planning',
+        category: 'business',
+        models: [
+          {
+            id: 'budget',
+            name: 'Budget Calculator',
+            description: 'Create startup budget and cash flow projections',
+            url: '/calculator/budget',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'savings-goal',
+            name: 'Savings Goal Calculator',
+            description: 'Plan funding milestones and runway',
+            url: '/calculator/savings-goal',
+            order: 2,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Create initial budget and cash flow projections',
+          'Plan funding milestones and runway',
+          'Analyze growth scenarios',
+          'Optimize resource allocation',
+          'Monitor financial health',
+        ],
+        estimatedDuration: '2-3 hours',
+        complexity: 'beginner',
+      },
+      {
+        id: 'ma-analysis-journey',
+        name: 'M&A Analysis Journey',
+        description:
+          'Comprehensive M&A analysis journey including valuation, synergy assessment, risk analysis, and integration planning',
+        category: 'business',
+        models: [
+          {
+            id: 'ma-analysis',
+            name: 'M&A Analysis Calculator',
+            description: 'Complete M&A analysis with accretion/dilution',
+            url: '/calculator/ma-analysis',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'dcf-valuation',
+            name: 'DCF Valuation Calculator',
+            description: 'Detailed DCF analysis for target valuation',
+            url: '/calculator/dcf-valuation',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Assess integration and operational risks',
+            url: '/calculator/risk-management',
+            order: 3,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Analyze acquirer and target financials',
+          'Perform DCF valuation of target',
+          'Calculate transaction metrics and synergies',
+          'Assess integration risks',
+          'Create integration timeline',
+        ],
+        estimatedDuration: '4-5 hours',
+        complexity: 'advanced',
+      },
+      {
+        id: 'investment-analysis-journey',
+        name: 'Investment Analysis Journey',
+        description:
+          'Complete investment analysis journey including DCF valuation, comparable analysis, risk assessment, and portfolio optimization',
+        category: 'business',
+        models: [
+          {
+            id: 'dcf-valuation',
+            name: 'DCF Valuation Calculator',
+            description: 'Detailed DCF analysis for investment valuation',
+            url: '/calculator/dcf-valuation',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Assess investment risks and portfolio impact',
+            url: '/calculator/risk-management',
+            order: 2,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Perform DCF valuation analysis',
+          'Assess investment risks',
+          'Analyze portfolio impact',
+          'Optimize investment allocation',
+          'Monitor performance',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'intermediate',
+      },
+      {
+        id: 'risk-management-journey',
+        name: 'Risk Management Journey',
+        description:
+          'Comprehensive risk management journey including VaR analysis, stress testing, credit risk assessment, and portfolio optimization',
+        category: 'business',
+        models: [
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Complete risk analysis with VaR and stress testing',
+            url: '/calculator/risk-management',
+            order: 1,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Calculate Value at Risk (VaR)',
+          'Perform stress testing scenarios',
+          'Analyze portfolio risk metrics',
+          'Run Monte Carlo simulations',
+          'Generate risk reports',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'intermediate',
+      },
+      {
+        id: 'capital-structure-journey',
+        name: 'Capital Structure Journey',
+        description:
+          'Complete capital structure optimization journey including debt analysis, cost of capital, and optimal financing mix',
+        category: 'business',
+        models: [
+          {
+            id: 'budget',
+            name: 'Budget Calculator',
+            description: 'Analyze current capital structure and cash flows',
+            url: '/calculator/budget',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Assess capital structure risks',
+            url: '/calculator/risk-management',
+            order: 2,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Analyze current capital structure',
+          'Calculate cost of capital',
+          'Assess capital structure risks',
+          'Optimize debt-to-equity ratio',
+          'Plan financing strategy',
+        ],
+        estimatedDuration: '3-4 hours',
+        complexity: 'advanced',
+      },
+      {
+        id: 'project-finance-journey',
+        name: 'Project Finance Journey',
+        description:
+          'Comprehensive project finance journey for infrastructure projects including feasibility analysis, risk assessment, and financing optimization',
+        category: 'business',
+        models: [
+          {
+            id: 'dcf-valuation',
+            name: 'DCF Valuation Calculator',
+            description: 'Project cash flow analysis and NPV calculation',
+            url: '/calculator/dcf-valuation',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'risk-management',
+            name: 'Risk Management Calculator',
+            description: 'Project risk assessment and mitigation',
+            url: '/calculator/risk-management',
+            order: 2,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Analyze project cash flows',
+          'Calculate project NPV and IRR',
+          'Assess project risks',
+          'Optimize financing structure',
+          'Monitor project performance',
+        ],
+        estimatedDuration: '4-5 hours',
+        complexity: 'advanced',
+      },
     ];
 
     // Store scenarios in map for easy access
@@ -357,6 +562,19 @@ export class MultiModelScenarioManager {
    */
   private setupEventListeners(): void {
     console.log('Setting up event listeners for scenario cards');
+
+    // Listen for tab button clicks
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const tabButton = target.closest('.tab-button');
+
+      if (tabButton) {
+        const category = tabButton.getAttribute('data-category');
+        if (category) {
+          this.switchCategory(category);
+        }
+      }
+    });
 
     // Listen for scenario card clicks
     document.addEventListener('click', (event) => {
@@ -390,6 +608,36 @@ export class MultiModelScenarioManager {
   }
 
   /**
+   * Switch between personal and business categories
+   */
+  private switchCategory(category: 'personal' | 'business'): void {
+    console.log('Switching to category:', category);
+
+    // Update tab buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach((button) => {
+      button.classList.remove('active');
+    });
+
+    const activeTab = document.querySelector(`[data-category="${category}"]`);
+    if (activeTab) {
+      activeTab.classList.add('active');
+    }
+
+    // Show/hide scenario categories
+    const personalScenarios = document.getElementById('personal-scenarios');
+    const businessScenarios = document.getElementById('business-scenarios');
+
+    if (category === 'personal') {
+      personalScenarios?.classList.remove('hidden');
+      businessScenarios?.classList.add('hidden');
+    } else {
+      personalScenarios?.classList.add('hidden');
+      businessScenarios?.classList.remove('hidden');
+    }
+  }
+
+  /**
    * Select a financial scenario
    */
   public selectScenario(scenarioId: string): void {
@@ -400,8 +648,9 @@ export class MultiModelScenarioManager {
     }
 
     console.log(`Navigating to journey page for scenario: ${scenarioId}`);
-    
-    // Navigate to the dedicated journey page
+
+    // All scenarios on analysis page should go to journey pages (multi-step)
+    // Business calculators are standalone tools accessed from /models/business
     window.location.href = `/journey/${scenarioId}`;
   }
 

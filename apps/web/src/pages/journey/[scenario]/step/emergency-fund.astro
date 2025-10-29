@@ -1,0 +1,568 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+export async function getStaticPaths() {
+  const journeyData = getJourneyData();
+  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+
+  // Generate paths for each journey step
+  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
+    scenario.models.forEach((model, index) => {
+      const stepId = model.id;
+      paths.push({
+        params: {
+          scenario: scenarioId,
+          stepId: stepId
+        }
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { scenario, stepId } = Astro.params;
+const journeyData = getJourneyData();
+const currentScenario = journeyData[scenario!];
+const currentModel = currentScenario.models.find(m => m.id === stepId);
+const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
+const nextStep = currentScenario.models[stepNumber];
+const previousStep = currentScenario.models[stepNumber - 2];
+
+// Journey navigation data
+const journeyNav = {
+  scenarioId: scenario!,
+  scenarioName: currentScenario.name,
+  currentStep: stepNumber,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/${scenario}/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/${scenario}/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: `/journey/${scenario}`
+};
+
+// SEO-optimized content
+const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
+const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🛡️</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {stepNumber} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Emergency Fund Calculator -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Emergency Fund Calculator</h2>
+            
+            <form id="emergency-fund-form" class="space-y-6">
+              <!-- Monthly Expenses Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Monthly Expenses</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="rent-mortgage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Rent/Mortgage ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="rent-mortgage" 
+                      name="rentMortgage"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="1200"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="utilities" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Utilities ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="utilities" 
+                      name="utilities"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="200"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="groceries" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Groceries ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="groceries" 
+                      name="groceries"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="400"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="transportation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Transportation ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="transportation" 
+                      name="transportation"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="insurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Insurance ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="insurance" 
+                      name="insurance"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="150"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="other-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Other Essential Expenses ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="other-expenses" 
+                      name="otherExpenses"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="200"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Current Savings Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏦 Current Savings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="current-emergency-fund" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Current Emergency Fund ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="current-emergency-fund" 
+                      name="currentEmergencyFund"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label for="monthly-savings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Amount You Can Save Monthly ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="monthly-savings" 
+                      name="monthlySavings"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Emergency Fund Strategy Section -->
+              <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Emergency Fund Strategy</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Choose your emergency fund target:
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-start">
+                        <input type="radio" name="fundTarget" value="3-months" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 Months of Expenses</span>
+                          <p class="text-xs text-gray-500">Minimum recommended for young professionals</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
+                          <p class="text-xs text-gray-500">Recommended for most people</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
+                          <p class="text-xs text-gray-500">Set your own target</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div id="custom-amount" class="hidden">
+                    <label for="custom-fund-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Custom Emergency Fund Target ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="custom-fund-amount" 
+                      name="customFundAmount"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="10000"
+                    />
+                  </div>
+                  <div>
+                    <label for="savings-account" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Where will you keep your emergency fund?
+                    </label>
+                    <select 
+                      id="savings-account" 
+                      name="savingsAccount"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Select account type</option>
+                      <option value="high-yield-savings">High-Yield Savings Account</option>
+                      <option value="money-market">Money Market Account</option>
+                      <option value="regular-savings">Regular Savings Account</option>
+                      <option value="checking">Checking Account</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" id="calculate-fund-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Calculate Emergency Fund
+                </button>
+                <button type="button" id="save-strategy-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Save Strategy
+                </button>
+                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Emergency Fund Plan</h3>
+              <div id="fund-results" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Navigation -->
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a 
+                    href={journeyNav.journeyOverviewUrl}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h3 class="text-lg font-semibold mb-4">🛡️ Why Emergency Fund?</h3>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p><strong>Job Loss:</strong> Covers expenses while job hunting.</p>
+              </div>
+              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p><strong>Medical Emergency:</strong> Unexpected health costs.</p>
+              </div>
+              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p><strong>Car Repairs:</strong> Vehicle breakdowns happen.</p>
+              </div>
+              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p><strong>Peace of Mind:</strong> Reduces financial stress.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-4">💡 Savings Tips</h3>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <p><strong>Automate:</strong> Set up automatic transfers.</p>
+              <p><strong>High-Yield:</strong> Use high-yield savings accounts.</p>
+              <p><strong>Separate:</strong> Keep emergency fund separate from other savings.</p>
+              <p><strong>Accessible:</strong> Make sure it's easily accessible.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Emergency Fund Calculator
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('emergency-fund-form');
+      const calculateBtn = document.getElementById('calculate-fund-btn');
+      const saveBtn = document.getElementById('save-strategy-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const resultsSection = document.getElementById('results-section');
+      const fundResults = document.getElementById('fund-results');
+      const customAmountDiv = document.getElementById('custom-amount');
+
+      // Show/hide custom amount field
+      const fundTargetRadios = document.querySelectorAll('input[name="fundTarget"]');
+      fundTargetRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'custom') {
+            customAmountDiv.classList.remove('hidden');
+          } else {
+            customAmountDiv.classList.add('hidden');
+          }
+        });
+      });
+
+      if (calculateBtn) {
+        calculateBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const monthlyExpenses = 
+            parseFloat(formData.get('rentMortgage') || 0) +
+            parseFloat(formData.get('utilities') || 0) +
+            parseFloat(formData.get('groceries') || 0) +
+            parseFloat(formData.get('transportation') || 0) +
+            parseFloat(formData.get('insurance') || 0) +
+            parseFloat(formData.get('otherExpenses') || 0);
+
+          const currentFund = parseFloat(formData.get('currentEmergencyFund') || 0);
+          const monthlySavings = parseFloat(formData.get('monthlySavings') || 0);
+          const fundTarget = formData.get('fundTarget');
+          const customAmount = parseFloat(formData.get('customFundAmount') || 0);
+
+          // Calculate target amount
+          let targetAmount = 0;
+          if (fundTarget === '3-months') {
+            targetAmount = monthlyExpenses * 3;
+          } else if (fundTarget === '6-months') {
+            targetAmount = monthlyExpenses * 6;
+          } else if (fundTarget === 'custom') {
+            targetAmount = customAmount;
+          }
+
+          const neededAmount = Math.max(0, targetAmount - currentFund);
+          const monthsToGoal = monthlySavings > 0 ? Math.ceil(neededAmount / monthlySavings) : 0;
+
+          // Display results
+          fundResults.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Monthly Expenses</h4>
+                <p class="text-2xl font-bold text-blue-600">$${monthlyExpenses.toLocaleString()}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Target Fund</h4>
+                <p class="text-2xl font-bold text-green-600">$${targetAmount.toLocaleString()}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Current Fund</h4>
+                <p class="text-2xl font-bold text-gray-600">$${currentFund.toLocaleString()}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Still Needed</h4>
+                <p class="text-2xl font-bold text-red-600">$${neededAmount.toLocaleString()}</p>
+              </div>
+            </div>
+            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Timeline to Goal</h4>
+              <p class="text-lg">
+                ${monthsToGoal > 0 ? 
+                  `You'll reach your goal in <strong>${monthsToGoal} months</strong> (${Math.round(monthsToGoal/12)} years)` :
+                  'Increase your monthly savings to reach your goal faster'
+                }
+              </p>
+            </div>
+          `;
+
+          resultsSection.classList.remove('hidden');
+        });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const strategyData = {
+            monthlyExpenses: {
+              rentMortgage: formData.get('rentMortgage'),
+              utilities: formData.get('utilities'),
+              groceries: formData.get('groceries'),
+              transportation: formData.get('transportation'),
+              insurance: formData.get('insurance'),
+              otherExpenses: formData.get('otherExpenses')
+            },
+            currentFund: formData.get('currentEmergencyFund'),
+            monthlySavings: formData.get('monthlySavings'),
+            fundTarget: formData.get('fundTarget'),
+            customAmount: formData.get('customFundAmount'),
+            savingsAccount: formData.get('savingsAccount'),
+            completedAt: new Date().toISOString()
+          };
+
+          // Store in journey state
+          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+          journeyState.collectedData = journeyState.collectedData || {};
+          journeyState.collectedData['emergency-fund'] = strategyData;
+          localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
+
+          // Show success message
+          saveBtn.textContent = '✓ Saved!';
+          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-green-500');
+          
+          setTimeout(() => {
+            saveBtn.textContent = 'Save Strategy';
+            saveBtn.classList.remove('bg-green-500');
+            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          }, 2000);
+
+          // Dispatch completion event
+          window.dispatchEvent(new CustomEvent('calculator-completed', {
+            detail: {
+              calculatorId: 'emergency-fund',
+              result: strategyData,
+              formData: strategyData
+            }
+          }));
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          form.reset();
+          resultsSection.classList.add('hidden');
+          customAmountDiv.classList.add('hidden');
+        });
+      }
+    });
+  </script>
+</Layout>

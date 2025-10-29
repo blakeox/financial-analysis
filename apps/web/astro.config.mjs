@@ -24,6 +24,16 @@ export default defineConfig({
   ],
   output: 'static', // Static site for Cloudflare Pages
   // No adapter needed for static output
+  redirects: {
+    // Redirect old calculator URLs to new modular calculator URLs
+    '/amortization': '/calculator/amortization',
+    '/auto-loan': '/calculator/auto-loan',
+    '/retirement': '/calculator/retirement',
+    '/savings-goal': '/calculator/savings-goal',
+    '/debt-payoff': '/calculator/debt-payoff',
+    '/student-loans': '/calculator/student-loans',
+    '/budget': '/calculator/budget',
+  },
   vite: {
     resolve: {
       alias: {

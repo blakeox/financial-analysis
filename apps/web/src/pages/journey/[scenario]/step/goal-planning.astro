@@ -1,0 +1,586 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+export async function getStaticPaths() {
+  const journeyData = getJourneyData();
+  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+
+  // Generate paths for each journey step
+  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
+    scenario.models.forEach((model, index) => {
+      const stepId = model.id;
+      paths.push({
+        params: {
+          scenario: scenarioId,
+          stepId: stepId
+        }
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { scenario, stepId } = Astro.params;
+const journeyData = getJourneyData();
+const currentScenario = journeyData[scenario!];
+const currentModel = currentScenario.models.find(m => m.id === stepId);
+const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
+const nextStep = currentScenario.models[stepNumber];
+const previousStep = currentScenario.models[stepNumber - 2];
+
+// Journey navigation data
+const journeyNav = {
+  scenarioId: scenario!,
+  scenarioName: currentScenario.name,
+  currentStep: stepNumber,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/${scenario}/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/${scenario}/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: `/journey/${scenario}`
+};
+
+// SEO-optimized content
+const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
+const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🎯</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {stepNumber} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Goal Planning Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Plan Your Financial Goals</h2>
+            
+            <form id="goal-planning-form" class="space-y-6">
+              <!-- Short-term Goals (1-2 years) -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏃‍♂️ Short-term Goals (1-2 years)</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label for="short-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Goal 1: What do you want to achieve?
+                    </label>
+                    <input 
+                      type="text" 
+                      id="short-term-goal-1" 
+                      name="shortTermGoal1"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="e.g., Build emergency fund, pay off credit card debt"
+                    />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="short-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Estimated Cost ($)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="short-term-cost-1" 
+                        name="shortTermCost1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="5000"
+                      />
+                    </div>
+                    <div>
+                      <label for="short-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Timeline (months)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="short-term-timeline-1" 
+                        name="shortTermTimeline1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="12"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Medium-term Goals (3-5 years) -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🚗 Medium-term Goals (3-5 years)</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label for="medium-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Goal 1: What's your next big milestone?
+                    </label>
+                    <input 
+                      type="text" 
+                      id="medium-term-goal-1" 
+                      name="mediumTermGoal1"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="e.g., Buy a car, save for home down payment, travel"
+                    />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="medium-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Estimated Cost ($)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="medium-term-cost-1" 
+                        name="mediumTermCost1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="25000"
+                      />
+                    </div>
+                    <div>
+                      <label for="medium-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Timeline (years)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="medium-term-timeline-1" 
+                        name="mediumTermTimeline1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="3"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Long-term Goals (5+ years) -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏠 Long-term Goals (5+ years)</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label for="long-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Goal 1: What's your dream?
+                    </label>
+                    <input 
+                      type="text" 
+                      id="long-term-goal-1" 
+                      name="longTermGoal1"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="e.g., Buy a home, start a business, early retirement"
+                    />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="long-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Estimated Cost ($)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="long-term-cost-1" 
+                        name="longTermCost1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="100000"
+                      />
+                    </div>
+                    <div>
+                      <label for="long-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Timeline (years)
+                      </label>
+                      <input 
+                        type="number" 
+                        id="long-term-timeline-1" 
+                        name="longTermTimeline1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="10"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Priority and Strategy Section -->
+              <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Goal Priority & Strategy</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Which goal is most important to you right now?
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-start">
+                        <input type="radio" name="priorityGoal" value="short-term" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Short-term goal</span>
+                          <p class="text-xs text-gray-500">Focus on immediate needs and quick wins</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="priorityGoal" value="medium-term" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Medium-term goal</span>
+                          <p class="text-xs text-gray-500">Balance current needs with future planning</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="priorityGoal" value="long-term" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Long-term goal</span>
+                          <p class="text-xs text-gray-500">Focus on building wealth for the future</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="monthly-savings-budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      How much can you allocate to goals monthly? ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="monthly-savings-budget" 
+                      name="monthlySavingsBudget"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="800"
+                    />
+                    <p class="text-sm text-gray-500 mt-1">This is separate from emergency fund and retirement savings</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" id="calculate-goals-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Calculate Goal Timeline
+                </button>
+                <button type="button" id="save-goals-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Save Goals
+                </button>
+                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Goal Timeline</h3>
+              <div id="goal-results" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Navigation -->
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a 
+                    href={journeyNav.journeyOverviewUrl}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+
+              <div class="flex items-center space-x-4">
+                <a 
+                  href={`/journey-analysis/${journeyNav.scenarioId}`}
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                >
+                  Complete Journey
+                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h3 class="text-lg font-semibold mb-4">🎯 Goal Setting Tips</h3>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p><strong>SMART Goals:</strong> Specific, Measurable, Achievable, Relevant, Time-bound.</p>
+              </div>
+              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p><strong>Start Small:</strong> Break big goals into smaller milestones.</p>
+              </div>
+              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p><strong>Review Regularly:</strong> Adjust goals as life changes.</p>
+              </div>
+              <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <p><strong>Celebrate Wins:</strong> Acknowledge progress along the way.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-4">💡 Goal Categories</h3>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <p><strong>Financial Security:</strong> Emergency fund, debt payoff</p>
+              <p><strong>Major Purchases:</strong> Car, home, education</p>
+              <p><strong>Life Experiences:</strong> Travel, hobbies, family</p>
+              <p><strong>Future Planning:</strong> Retirement, business, legacy</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Goal Planning Calculator
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('goal-planning-form');
+      const calculateBtn = document.getElementById('calculate-goals-btn');
+      const saveBtn = document.getElementById('save-goals-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const resultsSection = document.getElementById('results-section');
+      const goalResults = document.getElementById('goal-results');
+
+      if (calculateBtn) {
+        calculateBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const monthlyBudget = parseFloat(formData.get('monthlySavingsBudget') || '0');
+          
+          const goals = [
+            {
+              name: formData.get('shortTermGoal1'),
+              cost: parseFloat(formData.get('shortTermCost1') || '0'),
+              timeline: parseFloat(formData.get('shortTermTimeline1') || '0'),
+              type: 'Short-term'
+            },
+            {
+              name: formData.get('mediumTermGoal1'),
+              cost: parseFloat(formData.get('mediumTermCost1') || '0'),
+              timeline: parseFloat(formData.get('mediumTermTimeline1') || '0') * 12, // Convert years to months
+              type: 'Medium-term'
+            },
+            {
+              name: formData.get('longTermGoal1'),
+              cost: parseFloat(formData.get('longTermCost1') || '0'),
+              timeline: parseFloat(formData.get('longTermTimeline1') || '0') * 12, // Convert years to months
+              type: 'Long-term'
+            }
+          ].filter(goal => goal.name && goal.cost > 0);
+
+          // Calculate monthly savings needed for each goal
+          const goalCalculations = goals.map(goal => {
+            const monthlyNeeded = goal.cost / goal.timeline;
+            const achievable = monthlyNeeded <= monthlyBudget;
+            const monthsToComplete = monthlyBudget > 0 ? Math.ceil(goal.cost / monthlyBudget) : 0;
+            
+            return {
+              ...goal,
+              monthlyNeeded,
+              achievable,
+              monthsToComplete
+            };
+          });
+
+          // Display results
+          goalResults.innerHTML = `
+            <div class="space-y-4">
+              ${goalCalculations.map(goal => `
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold text-gray-900 dark:text-white">${goal.name}</h4>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${goal.type === 'Short-term' ? 'bg-blue-100 text-blue-800' : goal.type === 'Medium-term' ? 'bg-yellow-100 text-yellow-800' : 'bg-purple-100 text-purple-800'}">${goal.type}</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-600 dark:text-gray-400">Goal Amount:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">$${goal.cost.toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 dark:text-gray-400">Monthly Needed:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">$${goal.monthlyNeeded.toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 dark:text-gray-400">Timeline:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${Math.round(goal.timeline)} months</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 dark:text-gray-400">Status:</span>
+                      <span class="font-semibold ${goal.achievable ? 'text-green-600' : 'text-red-600'}">
+                        ${goal.achievable ? '✅ Achievable' : '⚠️ Needs adjustment'}
+                      </span>
+                    </div>
+                  </div>
+                  ${!goal.achievable ? `
+                    <div class="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm">
+                      <strong>Recommendation:</strong> Increase monthly savings to $${goal.monthlyNeeded.toLocaleString()} 
+                      or extend timeline to ${goal.monthsToComplete} months
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+              
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Total Monthly Budget</h4>
+                <p class="text-lg">
+                  You're allocating <strong>$${monthlyBudget.toLocaleString()}</strong> per month to goals.
+                  ${monthlyBudget > 0 ? 'Consider automating these savings!' : 'Start with what you can afford and increase over time.'}
+                </p>
+              </div>
+            </div>
+          `;
+
+          resultsSection.classList.remove('hidden');
+        });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const goalsData = {
+            shortTermGoals: {
+              goal1: {
+                name: formData.get('shortTermGoal1'),
+                cost: formData.get('shortTermCost1'),
+                timeline: formData.get('shortTermTimeline1')
+              }
+            },
+            mediumTermGoals: {
+              goal1: {
+                name: formData.get('mediumTermGoal1'),
+                cost: formData.get('mediumTermCost1'),
+                timeline: formData.get('mediumTermTimeline1')
+              }
+            },
+            longTermGoals: {
+              goal1: {
+                name: formData.get('longTermGoal1'),
+                cost: formData.get('longTermCost1'),
+                timeline: formData.get('longTermTimeline1')
+              }
+            },
+            strategy: {
+              priorityGoal: formData.get('priorityGoal'),
+              monthlySavingsBudget: formData.get('monthlySavingsBudget')
+            },
+            completedAt: new Date().toISOString()
+          };
+
+          // Store in journey state
+          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+          journeyState.collectedData = journeyState.collectedData || {};
+          journeyState.collectedData['goal-planning'] = goalsData;
+          localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
+
+          // Show success message
+          saveBtn.textContent = '✓ Saved!';
+          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-green-500');
+          
+          setTimeout(() => {
+            saveBtn.textContent = 'Save Goals';
+            saveBtn.classList.remove('bg-green-500');
+            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          }, 2000);
+
+          // Dispatch completion event
+          window.dispatchEvent(new CustomEvent('calculator-completed', {
+            detail: {
+              calculatorId: 'goal-planning',
+              result: goalsData,
+              formData: goalsData
+            }
+          }));
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          form.reset();
+          resultsSection.classList.add('hidden');
+        });
+      }
+    });
+  </script>
+</Layout>

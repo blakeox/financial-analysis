@@ -4,34 +4,52 @@ type ScriptLoaderMap = {
   amortization: () => Promise<unknown>;
   analysis: () => Promise<unknown>;
   analytics: () => Promise<unknown>;
-  autoLoan: () => Promise<unknown>;
+  'auto-loan': () => Promise<unknown>;
   budget: () => Promise<unknown>;
-  debtPayoff: () => Promise<unknown>;
-  enhancedLease: () => Promise<unknown>;
+  'debt-payoff': () => Promise<unknown>;
+  'enhanced-lease': () => Promise<unknown>;
   'journey-page': () => Promise<unknown>;
   models: () => Promise<unknown>;
   'multi-model-scenarios': () => Promise<unknown>;
   pricing: () => Promise<unknown>;
   retirement: () => Promise<unknown>;
-  savingsGoal: () => Promise<unknown>;
-  studentLoans: () => Promise<unknown>;
+  'savings-goal': () => Promise<unknown>;
+  'student-loans': () => Promise<unknown>;
+  'calculator-quick-access': () => Promise<unknown>;
+  // Journey-related scripts
+  'journey-state': () => Promise<unknown>;
+  'journey-navigation': () => Promise<unknown>;
+  'journey-analysis': () => Promise<unknown>;
+  // Business calculators
+  'dcf-valuation': () => Promise<unknown>;
+  'ma-analysis': () => Promise<unknown>;
+  'risk-management': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {
   amortization: () => import('../scripts/amortization.client.ts'),
   analysis: () => import('../scripts/analysis.client.ts'),
   analytics: () => import('../scripts/analytics.client.ts'),
-  autoLoan: () => import('../scripts/auto-loan.client.ts'),
+  'auto-loan': () => import('../scripts/auto-loan.client.ts'),
   budget: () => import('../scripts/budget.client.ts'),
-  debtPayoff: () => import('../scripts/debt-payoff.client.ts'),
-  enhancedLease: () => import('../scripts/enhanced-lease.client.ts'),
+  'debt-payoff': () => import('../scripts/debt-payoff.client.ts'),
+  'enhanced-lease': () => import('../scripts/enhanced-lease.client.ts'),
   'journey-page': () => import('../scripts/journey-page.client.ts'),
   models: () => import('../scripts/models.client.ts'),
   'multi-model-scenarios': () => import('../scripts/multi-model-scenarios.client.ts'),
   pricing: () => import('../scripts/pricing.client.ts'),
-  retirement: () => import('../scripts/retirement.client.ts'),
-  savingsGoal: () => import('../scripts/savings-goal.client.ts'),
-  studentLoans: () => import('../scripts/student-loans.client.ts'),
+  retirement: () => import('../scripts/retirement-simple.client.ts'),
+  'savings-goal': () => import('../scripts/savings-goal-simple.client.ts'),
+  'student-loans': () => import('../scripts/student-loans.client.ts'),
+  'calculator-quick-access': () => import('../scripts/calculator-quick-access.client.ts'),
+  // Journey-related scripts
+  'journey-state': () => import('../scripts/journey-state.client.ts'),
+  'journey-navigation': () => import('../scripts/journey-navigation.client.ts'),
+  'journey-analysis': () => import('../scripts/journey-analysis.client.ts'),
+  // Business calculators
+  'dcf-valuation': () => import('../scripts/dcf-valuation-simple.client.ts'),
+  'ma-analysis': () => import('../scripts/ma-analysis-simple.client.ts'),
+  'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
 };
 
 export type ClientScriptName = keyof typeof scriptLoaders;

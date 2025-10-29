@@ -1,7 +1,7 @@
-import { registerChatButton } from './chat-actions';
-import { storeAnalysisResult } from '../scripts/analysis-results';
-import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import type { DebtPayoffResult } from '@financial-analysis/analysis';
+import { DebtPayoffEngine } from '@financial-analysis/analysis';
+import { storeAnalysisResult } from '../scripts/analysis-results';
+import { registerChatButton } from './chat-actions';
 
 type Strategy = 'avalanche' | 'snowball';
 
@@ -92,7 +92,10 @@ export const formatMonths = (months: number): string => {
   return `${months} months (${(months / 12).toFixed(1)} years)`;
 };
 
-export const describeSavings = (result: DebtPayoffResult, primaryStrategy: Strategy): string | null => {
+export const describeSavings = (
+  result: DebtPayoffResult,
+  primaryStrategy: Strategy
+): string | null => {
   const alternative = result.alternativeStrategy;
   if (!alternative) return null;
 
@@ -126,7 +129,8 @@ export const describeSavings = (result: DebtPayoffResult, primaryStrategy: Strat
 
 export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strategy): string => {
   const timelineEntries: Array<{ name: string; monthsToPayoff: number }> = [];
-  const summary = primaryStrategy === result.summary.strategy ? result.summary : result.alternativeStrategy;
+  const summary =
+    primaryStrategy === result.summary.strategy ? result.summary : result.alternativeStrategy;
 
   if (summary) {
     summary.debtSummaries
@@ -146,106 +150,256 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
           <span class="font-medium">${index + 1}. ${entry.name}</span>
           <span class="text-gray-600 dark:text-gray-400">Month ${entry.monthsToPayoff}</span>
         </div>
-      `,
+      `
     )
     .join('');
 };
 
 export const displayResults = (result: DebtPayoffResult): void => {
+  // Use the generic results structure from IndividualCalculatorPage.astro
+  const resultsContainer = document.getElementById('results-container');
+  const summaryCards = document.getElementById('summary-cards');
+
+  if (!resultsContainer || !summaryCards) {
+    console.error('Required DOM elements not found for debt-payoff results');
+    return;
+  }
+
   const primary = result.summary;
   const alternative = result.alternativeStrategy;
-
   const primaryIsAvalanche = primary.strategy === 'avalanche';
   const avalancheSummary = primaryIsAvalanche ? primary : alternative;
   const snowballSummary = primaryIsAvalanche ? alternative : primary;
 
-  const avalancheMonths = document.getElementById('avalanche-months');
-  if (avalancheMonths && avalancheSummary) {
-    avalancheMonths.textContent = formatMonths(avalancheSummary.totalMonthsToPayoff);
-  }
+  // Render summary cards
+  summaryCards.innerHTML = `
+    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Total Debt</h5>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${toCurrency(primary.totalDebt)}</p>
+    </div>
+    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Avalanche Time</h5>
+      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A'}</p>
+    </div>
+    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Snowball Time</h5>
+      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A'}</p>
+    </div>
+    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Saved</h5>
+      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${toCurrency(primary.totalInterestSaved)}</p>
+    </div>
+  `;
 
-  const avalancheInterest = document.getElementById('avalanche-interest');
-  if (avalancheInterest && avalancheSummary) {
-    avalancheInterest.textContent = toCurrency(avalancheSummary.totalInterestPaid);
-  }
+  // Render detailed comparison
+  resultsContainer.innerHTML = `
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Strategy Comparison</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Avalanche Method</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalInterestPaid) : 'N/A'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalAmountPaid) : 'N/A'}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">Pays highest interest debts first</p>
+        </div>
+        
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Snowball Method</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalInterestPaid) : 'N/A'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalAmountPaid) : 'N/A'}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">Pays smallest debts first</p>
+        </div>
+      </div>
+    </div>
 
-  const snowballMonths = document.getElementById('snowball-months');
-  if (snowballMonths && snowballSummary) {
-    snowballMonths.textContent = formatMonths(snowballSummary.totalMonthsToPayoff);
-  }
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Payoff Timeline</h3>
+      
+      <div class="space-y-3">
+        ${primary.debtSummaries
+          .slice()
+          .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
+          .map(
+            (debt, index) => `
+            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+              <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${debt.name}</span>
+              <span class="text-gray-600 dark:text-gray-400">${formatMonths(debt.monthsToPayoff)}</span>
+            </div>
+          `
+          )
+          .join('')}
+      </div>
+    </div>
 
-  const snowballInterest = document.getElementById('snowball-interest');
-  if (snowballInterest && snowballSummary) {
-    snowballInterest.textContent = toCurrency(snowballSummary.totalInterestPaid);
-  }
-
-  const savingsElement = document.getElementById('savings-alert')?.querySelector('p');
-  if (savingsElement) {
-    const message = describeSavings(result, primary.strategy);
-    savingsElement.textContent = message ?? '';
-  }
-
-  const timeline = document.getElementById('payoff-timeline');
-  if (timeline) {
-    timeline.innerHTML = buildTimeline(result, primary.strategy);
-  }
-
-  document.getElementById('results')?.classList.remove('hidden');
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recommendations</h3>
+      
+      <div class="space-y-4">
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Best Strategy</h4>
+          <p class="text-blue-800 dark:text-blue-200">${primary.strategy === 'avalanche' ? 'Avalanche method saves more money in interest' : 'Snowball method provides psychological motivation'}</p>
+        </div>
+        
+        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Savings Summary</h4>
+          <p class="text-green-800 dark:text-green-200">${describeSavings(result, primary.strategy) || 'Review the comparison above to choose your preferred strategy.'}</p>
+        </div>
+      </div>
+    </div>
+  `;
 };
 
 const initDebtPayoffPage = () => {
   registerChatButton('#debt-chat-button', 'Debt Payoff Optimizer', { tool: 'analyze_debt_payoff' });
 
-  const form = document.getElementById('debt-form');
-  const addDebtBtn = document.getElementById('add-debt-btn');
+  const form = document.getElementById('calculator-form');
 
-  if (!(form instanceof HTMLFormElement)) return;
-
-  let debtCount = 1;
-
-  addDebtBtn?.addEventListener('click', () => {
-    appendDebtInputs(debtCount);
-    debtCount += 1;
-  });
+  if (!(form instanceof HTMLFormElement)) {
+    console.error('Debt payoff form not found');
+    return;
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-    document.getElementById('loading')?.classList.remove('hidden');
+    // Show loading state
+    const calculateBtn = document.getElementById('calculate-btn');
+    if (calculateBtn) {
+      calculateBtn.disabled = true;
+      calculateBtn.textContent = 'Calculating...';
+    }
+
+    // Hide previous results
+    const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.getElementById('results-container');
+    const summaryCards = document.getElementById('summary-cards');
+    resultsSection?.classList.add('hidden');
+    resultsContainer?.classList.add('hidden');
+    summaryCards?.classList.add('hidden');
 
     try {
       const formData = new FormData(form);
-      const monthlyExtraPayment = parseNumber(formData.get('monthlyExtraPayment')) || 0;
-      const debts = collectDebts(formData, debtCount);
 
-      if (debts.length === 0) throw new Error('Please add at least one debt');
+      // Parse debt information from the text field
+      const debtInfo = formData.get('debts') as string;
+      const extraPayment = parseNumber(formData.get('extraPayment')) || 0;
+      const strategy = formData.get('strategy') as string;
+
+      if (!debtInfo || !debtInfo.trim()) {
+        throw new Error('Please enter debt information');
+      }
+
+      // Parse debt information from text format: "balance,interest_rate,minimum_payment"
+      const debtLines = debtInfo
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim());
+      const debts: CollectedDebt[] = [];
+
+      debtLines.forEach((line, index) => {
+        const parts = line.split(',').map((part) => part.trim());
+        if (parts.length >= 3) {
+          const balance = parseNumber(parts[0]);
+          const interestRate = parseNumber(parts[1]);
+          const minimumPayment = parseNumber(parts[2]);
+
+          if (
+            !Number.isNaN(balance) &&
+            !Number.isNaN(interestRate) &&
+            !Number.isNaN(minimumPayment)
+          ) {
+            debts.push({
+              name: `Debt ${index + 1}`,
+              balance,
+              interestRate: interestRate / 100, // Convert percentage to decimal
+              minimumPayment,
+            });
+          }
+        }
+      });
+
+      if (debts.length === 0) {
+        throw new Error(
+          'Please enter valid debt information in the format: balance,interest_rate,minimum_payment'
+        );
+      }
 
       const result = DebtPayoffEngine.analyze({
         debts,
-        extraMonthlyPayment: monthlyExtraPayment,
-        strategy: 'avalanche',
+        extraMonthlyPayment: extraPayment,
+        strategy: strategy === 'compare' ? 'avalanche' : (strategy as Strategy) || 'avalanche',
       });
+
       storeAnalysisResult('analyze_debt_payoff', result);
       displayResults(result);
+
+      // Show results
+      resultsSection?.classList.remove('hidden');
+      resultsContainer?.classList.remove('hidden');
+      summaryCards?.classList.remove('hidden');
+
+      // Dispatch calculator completion event for journey integration
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: {
+            calculatorId: 'debt-payoff',
+            result: result,
+            formData: { debts, extraMonthlyPayment: extraPayment, strategy },
+          },
+        })
+      );
     } catch (error) {
-      const errorEl = document.getElementById('error-message');
-      if (errorEl) errorEl.textContent = error instanceof Error ? error.message : 'An error occurred';
-      document.getElementById('error')?.classList.remove('hidden');
       console.error('Debt payoff calculation error:', error);
+      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
-      document.getElementById('loading')?.classList.add('hidden');
+      // Reset button state
+      if (calculateBtn) {
+        calculateBtn.disabled = false;
+        calculateBtn.textContent = 'Calculate';
+      }
     }
   });
 
-  document.getElementById('reset-btn')?.addEventListener('click', () => {
-    form.reset();
-    document.getElementById('results')?.classList.add('hidden');
-    document.getElementById('error')?.classList.add('hidden');
-  });
+  // Add reset handler
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn instanceof HTMLButtonElement) {
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      const resultsSection = document.getElementById('results-section');
+      const resultsContainer = document.getElementById('results-container');
+      const summaryCards = document.getElementById('summary-cards');
+      resultsSection?.classList.add('hidden');
+      resultsContainer?.classList.add('hidden');
+      summaryCards?.classList.add('hidden');
+    });
+  }
 };
 
 initDebtPayoffPage();
 
-  export {};
+export {};
