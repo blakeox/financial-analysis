@@ -63,33 +63,70 @@ export default {
     const isDev = env.ENVIRONMENT === 'development';
     const apiBase = (isDev ? env.API_DEV_ORIGIN : env.API_ORIGIN)?.replace(/\/$/, '');
     const pathname = url.pathname;
-    const isApiPath =
+    let isApiPath =
       pathname === '/openapi.json' ||
       pathname === '/docs' ||
       pathname === '/mcp' ||
       pathname.startsWith('/v1/') ||
       pathname.startsWith('/api/');
+
+    // Debug logging
+    console.log('API Debug:', {
+      pathname,
+      isApiPath,
+      apiBase,
+      isDev,
+      environment: env.ENVIRONMENT,
+    });
+    
+    // Force API path detection for testing
+    if (pathname.startsWith('/v1/')) {
+      console.log('FORCING API PATH DETECTION');
+      isApiPath = true;
+    }
+
     if (isApiPath && apiBase) {
       const forwardUrl = `${apiBase}${pathname}${url.search}`;
+      console.log('Proxying request:', {
+        forwardUrl,
+        method: request.method,
+        headers: Object.fromEntries(request.headers.entries())
+      });
+      
       const apiReq = new Request(forwardUrl, {
         ...request,
         headers: {
           ...Object.fromEntries(request.headers.entries()),
           'x-internal-request': 'true',
-          'origin': 'https://fanalyx.com',
+          origin: 'https://fanalyx.com',
         },
       });
-      const apiRes = await fetch(apiReq);
-      const headers = new Headers(apiRes.headers);
-      headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      headers.set('Access-Control-Allow-Origin', '*');
-      if (isDev) {
-        headers.set('x-dev-proxy', 'web->api');
+      
+      try {
+        const apiRes = await fetch(apiReq);
+        console.log('API response:', {
+          status: apiRes.status,
+          statusText: apiRes.statusText,
+          headers: Object.fromEntries(apiRes.headers.entries())
+        });
+        
+        const headers = new Headers(apiRes.headers);
+        headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        headers.set('Access-Control-Allow-Origin', '*');
+        if (isDev) {
+          headers.set('x-dev-proxy', 'web->api');
+        }
+        for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
+          headers.set(key, value);
+        }
+        return new Response(apiRes.body, { status: apiRes.status, headers });
+      } catch (error) {
+        console.error('API proxy error:', error);
+        return new Response(JSON.stringify({ error: 'API proxy failed', details: error.message }), {
+          status: 502,
+          headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
+        });
       }
-      for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
-        headers.set(key, value);
-      }
-      return new Response(apiRes.body, { status: apiRes.status, headers });
     }
 
     if (isApiPath && !apiBase) {
