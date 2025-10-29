@@ -169,7 +169,7 @@ export const renderChart = (
     for (let i = 0; i <= steps; i++) {
       const value = stepValue * i;
       const y = padding + plotHeight - (value / maxValue) * plotHeight;
-      const x = isLeftAxis ? padding - 10 : chartWidth - padding + 10;
+      const x = isLeftAxis ? padding - 15 : chartWidth - padding + 15;
       const textAnchor = isLeftAxis ? 'end' : 'start';
 
       labels.push(
@@ -261,8 +261,8 @@ export const renderChart = (
           <line x1="${padding}" y1="${chartHeight - padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
           
           <!-- Axis titles -->
-          <text x="${padding - 30}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 30}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
-          <text x="${chartWidth - padding + 30}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 30}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
+          <text x="${padding - 50}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 50}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
+          <text x="${chartWidth - padding + 50}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 50}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
         </svg>
       </div>
       
