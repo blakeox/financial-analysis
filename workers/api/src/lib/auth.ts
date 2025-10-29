@@ -248,21 +248,21 @@ export async function validateApiKey(request: Request, env: Env): Promise<AuthRe
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
   const internalRequestHeader = request.headers.get('x-internal-request');
-  
+
   console.log('API Auth Debug:', {
     origin,
     referer,
     internalRequestHeader,
-    allHeaders: Object.fromEntries(request.headers.entries())
+    allHeaders: Object.fromEntries(request.headers.entries()),
   });
-  
+
   const isInternalRequest =
     origin === 'https://fanalyx.com' ||
     referer?.includes('fanalyx.com') ||
     internalRequestHeader === 'true';
-  
+
   console.log('Internal request check:', { isInternalRequest });
-  
+
   if (isInternalRequest) {
     const mockKeyInfo: ApiKeyInfo = {
       id: 0,
