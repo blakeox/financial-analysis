@@ -112,6 +112,8 @@ export const FinancialJourneyInputSchema = z.object({
 
 export type FinancialJourneyInput = z.infer<typeof FinancialJourneyInputSchema>;
 
+const formatISODate = (date: Date): string => date.toISOString().slice(0, 10);
+
 // ============================================================================
 // RESULT TYPES
 // ============================================================================
@@ -326,13 +328,10 @@ export class FinancialJourneyAnalysisEngine {
     // Generate insights
     const insights = this.generateInsights(validated, journeyOverview, stageAnalysis);
 
-    return {
+    const result: FinancialJourneyResult = {
       journeyOverview,
       stageAnalysis,
-      crossModelAnalysis,
-      progressTracking,
       actionPlan,
-      riskAssessment,
       journeyRoadmap,
       recommendations,
       insights,
@@ -346,6 +345,18 @@ export class FinancialJourneyAnalysisEngine {
         },
       },
     };
+
+    if (crossModelAnalysis) {
+      result.crossModelAnalysis = crossModelAnalysis;
+    }
+    if (progressTracking) {
+      result.progressTracking = progressTracking;
+    }
+    if (riskAssessment) {
+      result.riskAssessment = riskAssessment;
+    }
+
+    return result;
   }
 
   /**
@@ -529,7 +540,9 @@ export class FinancialJourneyAnalysisEngine {
     ];
 
     const currentIndex = stageOrder.indexOf(currentStage);
-    return currentIndex < stageOrder.length - 1 ? stageOrder[currentIndex + 1] : 'completed';
+    return currentIndex < stageOrder.length - 1 && currentIndex >= 0
+      ? stageOrder[currentIndex + 1]!
+      : 'completed';
   }
 
   /**
@@ -781,7 +794,7 @@ export class FinancialJourneyAnalysisEngine {
   /**
    * Estimate stage timeline
    */
-  private static estimateStageTimeline(stage: string, input: FinancialJourneyInput): string {
+  private static estimateStageTimeline(stage: string, _input: FinancialJourneyInput): string {
     const timelines: Record<string, string> = {
       'debt-management': '1-3 years',
       'emergency-funding': '6-18 months',
@@ -926,7 +939,7 @@ export class FinancialJourneyAnalysisEngine {
    * Get current investment allocation
    */
   private static getCurrentInvestmentAllocation(
-    input: FinancialJourneyInput
+    _input: FinancialJourneyInput
   ): Record<string, number> {
     // Simplified - in practice would analyze actual holdings
     return {
@@ -1015,14 +1028,13 @@ export class FinancialJourneyAnalysisEngine {
       id: 'emergency-fund',
       name: 'Emergency Fund Complete',
       description: 'Build 6 months of expenses in emergency fund',
-      targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year
+      targetDate: formatISODate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)), // 1 year
       progress: Math.min(100, emergencyFundProgress),
-      status:
-        emergencyFundProgress >= 100
-          ? 'completed'
-          : emergencyFundProgress > 0
-            ? 'in-progress'
-            : 'not-started',
+      status: (emergencyFundProgress >= 100
+        ? 'completed'
+        : emergencyFundProgress > 0
+          ? 'in-progress'
+          : 'not-started') as 'not-started' | 'in-progress' | 'completed' | 'overdue',
       nextAction: emergencyFundProgress >= 100 ? 'Move to next stage' : 'Increase monthly savings',
     });
 
@@ -1036,9 +1048,13 @@ export class FinancialJourneyAnalysisEngine {
       id: 'debt-free',
       name: 'Debt Free',
       description: 'Eliminate all high-interest debt',
-      targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000 * 2).toISOString().split('T')[0], // 2 years
+      targetDate: formatISODate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000 * 2)), // 2 years
       progress: Math.min(100, debtProgress),
-      status: debtProgress >= 100 ? 'completed' : debtProgress > 0 ? 'in-progress' : 'not-started',
+      status: (debtProgress >= 100
+        ? 'completed'
+        : debtProgress > 0
+          ? 'in-progress'
+          : 'not-started') as 'not-started' | 'in-progress' | 'completed' | 'overdue',
       nextAction: debtProgress >= 100 ? 'Focus on investments' : 'Increase debt payments',
     });
 
@@ -1056,7 +1072,14 @@ export class FinancialJourneyAnalysisEngine {
     onTrack: boolean;
     estimatedCompletion: string;
   }> {
-    const goalProgress = [];
+    const goalProgress: Array<{
+      goalId: string;
+      goalName: string;
+      currentProgress: number;
+      targetProgress: number;
+      onTrack: boolean;
+      estimatedCompletion: string;
+    }> = [];
 
     // Process short-term goals
     input.financialGoals.shortTermGoals.forEach((goal) => {
@@ -1082,7 +1105,7 @@ export class FinancialJourneyAnalysisEngine {
    */
   private static generateImmediateActions(
     input: FinancialJourneyInput,
-    stageAnalysis: any
+    _stageAnalysis: any
   ): Array<{
     action: string;
     priority: 'high' | 'medium' | 'low';
@@ -1126,7 +1149,7 @@ export class FinancialJourneyAnalysisEngine {
    */
   private static generateShortTermActions(
     input: FinancialJourneyInput,
-    stageAnalysis: any
+    _stageAnalysis: any
   ): Array<{
     action: string;
     priority: 'high' | 'medium' | 'low';
@@ -1154,7 +1177,7 @@ export class FinancialJourneyAnalysisEngine {
    */
   private static generateLongTermActions(
     input: FinancialJourneyInput,
-    stageAnalysis: any
+    _stageAnalysis: any
   ): Array<{
     action: string;
     priority: 'high' | 'medium' | 'low';
@@ -1186,7 +1209,12 @@ export class FinancialJourneyAnalysisEngine {
     impact: 'low' | 'medium' | 'high';
     mitigation: string;
   }> {
-    const risks = [];
+    const risks: Array<{
+      risk: string;
+      probability: 'low' | 'medium' | 'high';
+      impact: 'low' | 'medium' | 'high';
+      mitigation: string;
+    }> = [];
 
     if (input.currentFinancials.emergencyFund < input.personalInfo.monthlyExpenses * 3) {
       risks.push({
@@ -1218,7 +1246,12 @@ export class FinancialJourneyAnalysisEngine {
     potentialReturn: number;
     recommendation: string;
   }> {
-    const opportunities = [];
+    const opportunities: Array<{
+      opportunity: string;
+      riskLevel: 'low' | 'medium' | 'high';
+      potentialReturn: number;
+      recommendation: string;
+    }> = [];
 
     if (input.personalInfo.age < 35) {
       opportunities.push({
@@ -1316,8 +1349,8 @@ export class FinancialJourneyAnalysisEngine {
    */
   private static generateRecommendations(
     input: FinancialJourneyInput,
-    stageAnalysis: any,
-    crossModelAnalysis: any
+    _stageAnalysis: any,
+    _crossModelAnalysis: any
   ): Array<{
     category: string;
     priority: 'high' | 'medium' | 'low';
@@ -1327,7 +1360,15 @@ export class FinancialJourneyAnalysisEngine {
     timeline: string;
     estimatedCost: number;
   }> {
-    const recommendations = [];
+    const recommendations: Array<{
+      category: string;
+      priority: 'high' | 'medium' | 'low';
+      description: string;
+      impact: string;
+      action: string;
+      timeline: string;
+      estimatedCost: number;
+    }> = [];
 
     // Stage-specific recommendations
     if (input.journeyStage === 'getting-started') {
@@ -1363,7 +1404,7 @@ export class FinancialJourneyAnalysisEngine {
   private static generateInsights(
     input: FinancialJourneyInput,
     journeyOverview: any,
-    stageAnalysis: any
+    _stageAnalysis: any
   ): string[] {
     const insights = [];
 

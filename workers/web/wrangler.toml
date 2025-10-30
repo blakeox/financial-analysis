@@ -4,7 +4,7 @@ compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ENVIRONMENT = "production"
+ENVIRONMENT = "development"
 # Production API origin
 API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
 # Dev-only: where the API worker listens when using scripts/dev-all.mjs (used when running `pnpm dev`)

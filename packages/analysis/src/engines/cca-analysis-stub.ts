@@ -1,6 +1,6 @@
 // Minimal stub implementation for CCAnalysisEngine
 export class CCAnalysisEngine {
-  static analyze(input: any): any {
+  static analyze(_input: any): any {
     return {
       summary: {
         targetValuation: 1000000,

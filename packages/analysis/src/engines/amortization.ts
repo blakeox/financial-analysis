@@ -68,6 +68,83 @@ export interface AmortizationInsights {
   milestones: AmortizationMilestone[];
 }
 
+export interface AmortizationComprehensiveSummary {
+  principal: number;
+  monthlyPayment: number;
+  totalInterest: number;
+  totalPayments: number;
+  termMonths: number;
+  years: number;
+  annualRate: number;
+  interestShare: number;
+  payoffDate?: string;
+  totalPMI: number;
+  totalExtraPayments: number;
+  assumedMonthlyIncome: number;
+  paymentToIncomeRatio: number;
+  firstYearInterest: number;
+  lastYearInterest: number;
+  interestSaved?: number;
+  timeReduced?: number;
+}
+
+export interface AmortizationNarrativeInsight {
+  category: 'financial' | 'risk' | 'opportunity' | 'optimization';
+  title: string;
+  description: string;
+  impact: 'low' | 'medium' | 'high';
+  actionable: boolean;
+}
+
+export interface AmortizationNarrativeRecommendation {
+  priority: 'low' | 'medium' | 'high';
+  category: 'immediate' | 'short-term' | 'long-term';
+  title: string;
+  description: string;
+  potentialSavings?: number;
+  effort: 'low' | 'medium' | 'high';
+}
+
+export interface AmortizationRiskFactor {
+  factor: string;
+  risk: 'low' | 'medium' | 'high';
+  description: string;
+}
+
+export interface AmortizationOptimizationOpportunity {
+  area: string;
+  currentValue: number;
+  optimizedValue: number;
+  potentialImprovement: number;
+  description: string;
+}
+
+export interface AmortizationComprehensiveAnalysis {
+  summary: AmortizationComprehensiveSummary;
+  timeline: {
+    principalTakeoverMonth: number | null;
+    halfBalanceMonth: number | null;
+    milestones: AmortizationMilestone[];
+  };
+  insights: AmortizationNarrativeInsight[];
+  recommendations: AmortizationNarrativeRecommendation[];
+  riskAssessment: {
+    overallRisk: 'low' | 'medium' | 'high';
+    factors: AmortizationRiskFactor[];
+  };
+  optimizationOpportunities: AmortizationOptimizationOpportunity[];
+  chatHighlights: string[];
+  chatSummary: string;
+  context: {
+    totals: AmortizationComprehensiveSummary;
+    timeline: {
+      principalTakeoverMonth: number | null;
+      halfBalanceMonth: number | null;
+      milestones: AmortizationMilestone[];
+    };
+  };
+}
+
 export type PaymentFrequency = 'monthly' | 'biweekly' | 'weekly';
 
 export interface OneTimePayment {
@@ -525,3 +602,461 @@ export function computeAmortizationInsights(
     milestones: uniqueMilestones,
   };
 }
+
+type NarrativeOptions = {
+  assumedMonthlyIncome?: number;
+};
+
+const clampNumber = (value: number, fallback = 0): number =>
+  Number.isFinite(value) ? value : fallback;
+
+const safeRound = (value: number, digits = 2): number =>
+  clampNumber(Number(value.toFixed(digits)));
+
+const amortizationPrincipalFromSchedule = (schedule: AmortizationResultItem[]): number => {
+  if (!schedule.length) return 0;
+  const first = schedule[0];
+  if (!first) return 0;
+  const extra = clampNumber(first.extraPayment ?? 0);
+  return clampNumber(first.balance + first.principal + extra);
+};
+
+const sumBy = <T>(items: T[], selector: (item: T) => number): number =>
+  items.reduce((sum, item) => sum + clampNumber(selector(item)), 0);
+
+const calculatePaymentToIncomeRatio = (
+  monthlyPayment: number,
+  assumedMonthlyIncome: number
+): number => {
+  if (!assumedMonthlyIncome || assumedMonthlyIncome <= 0) return 0;
+  return monthlyPayment / assumedMonthlyIncome;
+};
+
+const calcExtraPaymentSavings = (
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  monthlyPayment: number,
+  extra: number
+): { savings: number; monthsSaved: number } => {
+  if (!principal || !annualRate || !termMonths || extra <= 0) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const monthlyRate = annualRate / 12;
+  const newPayment = monthlyPayment + extra;
+  if (newPayment <= 0) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const numerator = newPayment;
+  const denominator = newPayment - principal * monthlyRate;
+  if (denominator <= 0) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const newTerm = Math.log(numerator / denominator) / Math.log(1 + monthlyRate);
+  if (!Number.isFinite(newTerm)) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const originalTotal = monthlyPayment * termMonths;
+  const newTotal = newPayment * newTerm;
+  const savings = Math.max(0, originalTotal - newTotal);
+  const monthsSaved = Math.max(0, termMonths - newTerm);
+
+  return { savings: safeRound(savings), monthsSaved: Math.round(monthsSaved) };
+};
+
+const calcRateReductionSavings = (
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  reductionFraction: number
+): number => {
+  if (!principal || !annualRate || !termMonths || reductionFraction <= 0) return 0;
+  const originalMonthly = calculateMonthlyPayment(principal, annualRate, termMonths);
+  const reducedRate = Math.max(annualRate - reductionFraction, 0);
+  const reducedMonthly = calculateMonthlyPayment(principal, reducedRate, termMonths);
+  const originalTotal = originalMonthly * termMonths;
+  const reducedTotal = reducedMonthly * termMonths;
+  return safeRound(Math.max(0, originalTotal - reducedTotal));
+};
+
+const calculateMonthlyPayment = (principal: number, annualRate: number, termMonths: number) => {
+  if (principal <= 0 || termMonths <= 0) return 0;
+  const monthlyRate = annualRate / 12;
+  if (monthlyRate === 0) return principal / termMonths;
+  const factor = Math.pow(1 + monthlyRate, termMonths);
+  return (principal * monthlyRate * factor) / (factor - 1);
+};
+
+export function buildAmortizationComprehensiveAnalysis(
+  result: AmortizationAnalysisResult,
+  options: NarrativeOptions = {}
+): AmortizationComprehensiveAnalysis {
+  const schedule = result.schedule ?? [];
+  const assumedMonthlyIncome = options.assumedMonthlyIncome ?? 5000;
+  const principal = clampNumber(amortizationPrincipalFromSchedule(schedule));
+  const monthlyPayment = clampNumber(result.monthlyPayment);
+  const totalInterest = clampNumber(result.totalInterest);
+  const totalPayments = clampNumber(result.totalPayments);
+  const effectiveTermMonths = schedule.length || clampNumber(
+    monthlyPayment > 0 ? Math.round(totalPayments / monthlyPayment) : 0
+  );
+  const years = effectiveTermMonths / 12;
+  const annualRate = clampNumber(
+    schedule.length ? estimateAnnualRate(schedule, principal) : 0
+  );
+  const totalPMI =
+    clampNumber(result.totalPMI ?? 0) ||
+    safeRound(sumBy(schedule, (item) => clampNumber(item.pmi ?? 0)));
+  const totalExtraPayments = safeRound(
+    sumBy(schedule, (item) => clampNumber(item.extraPayment ?? 0))
+  );
+  const paymentToIncomeRatio = calculatePaymentToIncomeRatio(
+    monthlyPayment,
+    assumedMonthlyIncome
+  );
+
+  const firstYearInterest = safeRound(
+    sumBy(schedule.slice(0, 12), (item) => clampNumber(item.interest))
+  );
+  const lastYearInterest = safeRound(
+    sumBy(schedule.slice(-12), (item) => clampNumber(item.interest))
+  );
+
+  const insights = computeAmortizationInsights(result);
+
+  const summary: AmortizationComprehensiveSummary = {
+    principal,
+    monthlyPayment,
+    totalInterest,
+    totalPayments,
+    termMonths: effectiveTermMonths,
+    years,
+    annualRate,
+    interestShare: totalPayments > 0 ? totalInterest / totalPayments : 0,
+    totalPMI,
+    totalExtraPayments,
+    assumedMonthlyIncome,
+    paymentToIncomeRatio,
+    firstYearInterest,
+    lastYearInterest,
+    interestSaved: clampNumber(result.interestSaved ?? 0),
+    timeReduced: clampNumber(result.timeReduced ?? 0),
+  };
+  if (result.payoffDate) {
+    summary.payoffDate = result.payoffDate;
+  }
+
+  const narrativeInsights: AmortizationNarrativeInsight[] = [
+    {
+      category: 'financial',
+      title: 'Interest Cost Share',
+      description: totalPayments
+        ? `Interest totals ${safeRound(summary.interestShare * 100, 1)}% of the ${formatCurrency(
+            totalPayments
+          )} paid over the term.`
+        : 'Interest share unavailable because total payments were not provided.',
+      impact:
+        summary.interestShare > 0.5 ? 'high' : summary.interestShare > 0.35 ? 'medium' : 'low',
+      actionable: true,
+    },
+    {
+      category: 'optimization',
+      title: 'Payment-to-Income Check',
+      description: assumedMonthlyIncome
+        ? `Monthly payment of ${formatCurrency(
+            monthlyPayment
+          )} equals ${safeRound(paymentToIncomeRatio * 100, 1)}% of a ${formatCurrency(
+            assumedMonthlyIncome
+          )} income (28% benchmark).`
+        : 'Unable to evaluate payment-to-income ratio without an income assumption.',
+      impact:
+        paymentToIncomeRatio > 0.3
+          ? 'high'
+          : paymentToIncomeRatio > 0.2
+            ? 'medium'
+            : 'low',
+      actionable: true,
+    },
+    {
+      category: 'opportunity',
+      title: 'Principal Momentum',
+      description:
+        insights.principalTakeoverMonth != null
+          ? `Principal overtakes interest in month ${insights.principalTakeoverMonth}, building equity faster thereafter.`
+          : 'Principal never overtakes interest within this schedule.',
+      impact: 'medium',
+      actionable: true,
+    },
+    {
+      category: 'financial',
+      title: 'Balance Halfway Point',
+      description:
+        insights.halfBalanceMonth != null
+          ? `Balance falls below half of the original loan in month ${insights.halfBalanceMonth}.`
+          : 'Halfway balance milestone not reached within the modeled term.',
+      impact: 'low',
+      actionable: false,
+    },
+    ...(totalExtraPayments > 0
+      ? [
+          {
+            category: 'optimization' as const,
+            title: 'Extra Payment Impact',
+            description: `Scheduled extra payments total ${formatCurrency(
+              totalExtraPayments
+            )} and accelerate payoff.`,
+            impact: 'medium' as const,
+            actionable: true,
+          },
+        ]
+      : []),
+  ];
+
+  const { savings: savings100, monthsSaved: savings100Months } = calcExtraPaymentSavings(
+    principal,
+    annualRate,
+    effectiveTermMonths,
+    monthlyPayment,
+    100
+  );
+  const { savings: savings250 } = calcExtraPaymentSavings(
+    principal,
+    annualRate,
+    effectiveTermMonths,
+    monthlyPayment,
+    250
+  );
+  const refinanceSavings = calcRateReductionSavings(
+    principal,
+    annualRate,
+    effectiveTermMonths,
+    0.005
+  );
+
+  const narrativeRecommendations: AmortizationNarrativeRecommendation[] = [
+    {
+      priority: paymentToIncomeRatio > 0.3 ? 'high' : 'medium',
+      category: 'immediate',
+      title: 'Validate Affordability',
+      description: `Aim to keep housing costs below 28% of income; current ratio is ${safeRound(
+        paymentToIncomeRatio * 100,
+        1
+      )}%.`,
+      effort: 'low',
+    },
+    {
+      priority: savings100 > 0 ? 'high' : 'medium',
+      category: 'short-term',
+      title: 'Automate $100 Extra Payments',
+      description:
+        savings100 > 0
+          ? `Adding $100 per month could save ${formatCurrency(
+              savings100
+            )} and trim about ${Math.round(savings100Months / 12)} years.`
+          : 'Extra payments accelerate payoff; confirm savings with your lender.',
+      potentialSavings: savings100,
+      effort: 'medium',
+    },
+    {
+      priority: savings250 > savings100 ? 'medium' : 'low',
+      category: 'short-term',
+      title: 'Explore $250 Extra Scenario',
+      description:
+        savings250 > savings100
+          ? `A $250 monthly boost improves savings to ${formatCurrency(
+              savings250
+            )}.`
+          : 'Larger extra payments yield compounding interest reductions.',
+      potentialSavings: savings250,
+      effort: 'high',
+    },
+    {
+      priority: 'medium',
+      category: 'short-term',
+      title: 'Consider Bi-weekly Payments',
+      description:
+        'Twenty-six half-payments per year generate an extra payment that reduces interest and term.',
+      potentialSavings: safeRound(monthlyPayment * 0.5 * 12 * 0.1),
+      effort: 'low',
+    },
+    {
+      priority: refinanceSavings > 0 ? 'medium' : 'low',
+      category: 'long-term',
+      title: 'Monitor Refinance Opportunities',
+      description:
+        refinanceSavings > 0
+          ? `Dropping the rate by 0.5% could save ${formatCurrency(refinanceSavings)}.`
+          : 'Track market rates; refinancing can lower payments and interest.',
+      potentialSavings: refinanceSavings,
+      effort: 'medium',
+    },
+    ...(totalPMI > 0 && result.pmiDropoffMonth
+      ? [
+          {
+            priority: 'medium' as const,
+            category: 'short-term' as const,
+            title: 'Plan for PMI Removal',
+            description: `PMI adds ${formatCurrency(
+              totalPMI
+            )}. Verify loan-to-value near month ${result.pmiDropoffMonth} to request removal.`,
+            effort: 'low' as const,
+          },
+        ]
+      : []),
+  ];
+
+  const riskFactors: AmortizationRiskFactor[] = [
+    {
+      factor: 'Payment Burden',
+      risk:
+        paymentToIncomeRatio > 0.3
+          ? 'high'
+          : paymentToIncomeRatio > 0.2
+            ? 'medium'
+            : 'low',
+      description: `Payment represents ${safeRound(paymentToIncomeRatio * 100, 1)}% of assumed income.`,
+    },
+    {
+      factor: 'Interest Rate Level',
+      risk: summary.annualRate > 0.07 ? 'high' : summary.annualRate > 0.05 ? 'medium' : 'low',
+      description: `Current rate of ${safeRound(summary.annualRate * 100, 2)}%.`,
+    },
+    {
+      factor: 'Interest Cost Exposure',
+      risk:
+        summary.interestShare > 0.5
+          ? 'high'
+          : summary.interestShare > 0.35
+            ? 'medium'
+            : 'low',
+      description: `Interest equals ${safeRound(summary.interestShare * 100, 1)}% of loan cost.`,
+    },
+    {
+      factor: 'Term Length',
+      risk: summary.termMonths > 360 ? 'high' : summary.termMonths > 240 ? 'medium' : 'low',
+      description: `${safeRound(summary.termMonths / 12, 1)}-year commitment.`,
+    },
+  ];
+
+  const riskAssessment = {
+    overallRisk: ((): 'low' | 'medium' | 'high' => {
+      const hasHigh = riskFactors.some((factor) => factor.risk === 'high');
+      if (hasHigh) return 'high';
+      const hasMedium = riskFactors.some((factor) => factor.risk === 'medium');
+      if (hasMedium) return 'medium';
+      return 'low';
+    })(),
+    factors: riskFactors,
+  };
+
+  const optimizationOpportunities: AmortizationOptimizationOpportunity[] = [
+    {
+      area: 'Extra Payments',
+      currentValue: totalExtraPayments,
+      optimizedValue: totalExtraPayments + 100,
+      potentialImprovement: savings100,
+      description: 'Adding $100 per month accelerates payoff and trims interest.',
+    },
+    {
+      area: 'Bi-weekly Strategy',
+      currentValue: monthlyPayment,
+      optimizedValue: safeRound(monthlyPayment / 2),
+      potentialImprovement: safeRound(monthlyPayment * 0.5 * 12 * 0.1),
+      description: 'Switch to 26 half-payments each year (13 full payments).',
+    },
+    {
+      area: 'Rate Reduction',
+      currentValue: summary.annualRate,
+      optimizedValue: Math.max(summary.annualRate - 0.005, 0),
+      potentialImprovement: refinanceSavings,
+      description: 'Track rate dips of 0.5% or more to refinance efficiently.',
+    },
+  ];
+
+  const chatHighlights = [
+    `Monthly payment ${formatCurrency(monthlyPayment)}; interest equals ${safeRound(
+      summary.interestShare * 100,
+      1
+    )}% of total cost.`,
+    insights.principalTakeoverMonth
+      ? `Principal overtakes interest in month ${insights.principalTakeoverMonth}.`
+      : 'Interest remains higher than principal for the full term.',
+    insights.halfBalanceMonth
+      ? `Balance reaches half of the starting amount by month ${insights.halfBalanceMonth}.`
+      : 'Loan never reaches half balance under current schedule.',
+    totalExtraPayments > 0
+      ? `Extra payments sum to ${formatCurrency(totalExtraPayments)} so far.`
+      : 'No extra payments scheduled yet—adding them cuts interest significantly.',
+  ];
+
+  const chatSummary = [
+    `Total payments: ${formatCurrency(totalPayments)} with ${formatCurrency(
+      totalInterest
+    )} in interest (${safeRound(summary.interestShare * 100, 1)}%).`,
+    insights.principalTakeoverMonth
+      ? `Principal outweighs interest after month ${insights.principalTakeoverMonth}.`
+      : 'Interest never drops below the principal portion in this schedule.',
+    paymentToIncomeRatio
+      ? `Payment-to-income ratio stands at ${safeRound(
+          paymentToIncomeRatio * 100,
+          1
+        )}% versus the 28% affordability guideline.`
+      : '',
+    totalExtraPayments > 0
+      ? `Scheduled extra payments total ${formatCurrency(
+          totalExtraPayments
+        )}; keeping them up accelerates payoff.`
+      : 'Consider bi-weekly or extra payments to shorten the term and save interest.',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return {
+    summary,
+    timeline: {
+      principalTakeoverMonth: insights.principalTakeoverMonth,
+      halfBalanceMonth: insights.halfBalanceMonth,
+      milestones: insights.milestones,
+    },
+    insights: narrativeInsights,
+    recommendations: narrativeRecommendations,
+    riskAssessment,
+    optimizationOpportunities,
+    chatHighlights,
+    chatSummary,
+    context: {
+      totals: summary,
+      timeline: {
+        principalTakeoverMonth: insights.principalTakeoverMonth,
+        halfBalanceMonth: insights.halfBalanceMonth,
+        milestones: insights.milestones,
+      },
+    },
+  };
+}
+
+const formatCurrency = (value: number): string =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(clampNumber(value));
+
+const estimateAnnualRate = (
+  schedule: AmortizationResultItem[],
+  principal: number
+): number => {
+  if (!schedule.length || principal <= 0) return 0;
+  const first = schedule[0];
+  if (!first) return 0;
+  const interestPortion = clampNumber(first.interest);
+  const balanceStart = principal;
+  if (balanceStart <= 0) return 0;
+  const monthlyRate = interestPortion / balanceStart;
+  if (!Number.isFinite(monthlyRate) || monthlyRate <= 0) return 0;
+  return monthlyRate * 12;
+};

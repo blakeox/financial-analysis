@@ -27,6 +27,7 @@
     "test:e2e": "playwright test",
     "test:e2e:calculator": "playwright test tests/calculator-e2e.spec.ts",
     "test:e2e:journey": "playwright test tests/journey-e2e.spec.ts",
+    "test:e2e:journey-accessibility": "playwright test tests/journey-accessibility.spec.ts",
     "test:e2e:dev": "playwright test -c playwright.dev.config.ts -g 'Navbar dev HMR stability'",
     "test:e2e:hmr": "PLAYWRIGHT_DEV=1 playwright test -c playwright.dev.config.ts -g 'Navbar dev HMR stability'",
     "test:all": "node scripts/test-runner.mjs",

@@ -7,11 +7,20 @@ export { LeaseAnalyzer } from './engines/lease.js';
 export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
 
 // Export amortization functions and types
-export { computeAmortizationInsights } from './engines/amortization.js';
+export {
+  computeAmortizationInsights,
+  buildAmortizationComprehensiveAnalysis,
+} from './engines/amortization.js';
 export type {
   AmortizationAnalysisResult,
   AmortizationInsights,
   AmortizationResultItem,
+  AmortizationComprehensiveAnalysis,
+  AmortizationComprehensiveSummary,
+  AmortizationNarrativeInsight,
+  AmortizationNarrativeRecommendation,
+  AmortizationOptimizationOpportunity,
+  AmortizationRiskFactor,
 } from './engines/amortization.js';
 
 // Export zod from our dependency for API usage

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { AmortizationAnalyzer, computeAmortizationInsights } from '../engines/amortization';
+import {
+  AmortizationAnalyzer,
+  buildAmortizationComprehensiveAnalysis,
+  computeAmortizationInsights,
+} from '../engines/amortization';
 
 // Helper function to create complete input with defaults
 function createAmortizationInput(overrides: Partial<Parameters<typeof AmortizationAnalyzer.analyze>[0]> = {}) {
@@ -328,5 +332,32 @@ describe('computeAmortizationInsights', () => {
     const takeoverItem = result.schedule[takeoverMonth - 1];
 
     expect(takeoverItem?.principal).toBeGreaterThanOrEqual(takeoverItem?.interest ?? 0);
+  });
+});
+
+describe('buildAmortizationComprehensiveAnalysis', () => {
+  it('builds narrative summary with schedule-driven metrics', () => {
+    const result = AmortizationAnalyzer.analyze(createAmortizationInput());
+
+    const narrative = buildAmortizationComprehensiveAnalysis(result);
+
+    expect(narrative.summary.principal).toBeGreaterThan(0);
+    expect(narrative.summary.totalInterest).toBeCloseTo(result.totalInterest, 2);
+    expect(narrative.timeline.milestones.length).toBeGreaterThan(0);
+    expect(narrative.insights.length).toBeGreaterThan(0);
+    expect(narrative.chatSummary).toContain('Total payments');
+  });
+
+  it('includes extra payment insights when schedule has contributions', () => {
+    const result = AmortizationAnalyzer.analyze(
+      createAmortizationInput({ extraMonthlyPayment: 250 })
+    );
+
+    const narrative = buildAmortizationComprehensiveAnalysis(result);
+
+    expect(narrative.summary.totalExtraPayments).toBeGreaterThan(0);
+    expect(
+      narrative.insights.some((item) => item.title.includes('Extra Payment'))
+    ).toBe(true);
   });
 });

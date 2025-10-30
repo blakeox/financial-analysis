@@ -94,6 +94,9 @@ Thumbs.db
 .rts2_cache_es/
 .rts2_cache_umd/
 
+# Test files (keep these in version control)
+!apps/web/public/test-files/
+
 # Optional REPL history
 .node_repl_history
 

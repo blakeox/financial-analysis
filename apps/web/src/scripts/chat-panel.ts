@@ -274,7 +274,7 @@ class ChatPanel {
     // Check specific page contexts
     if (path.includes('/amortization')) return 'amortization';
     if (path.includes('/ebitda')) return 'ebitda';
-    if (path.includes('/lease-analysis') || path.includes('/enhanced-lease')) return 'lease';
+    if (path.includes('/lease-analysis') || path.includes('/commercial-real-estate-lease')) return 'lease';
     if (path === '/analysis' || path === '/analysis/') return 'lease';
     if (path.includes('/models')) return 'models';
     return 'general';

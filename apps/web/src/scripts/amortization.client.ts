@@ -5,6 +5,7 @@ import type {
 } from '@financial-analysis/analysis';
 import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
+import { publishChatContext } from './chat/chat-context';
 
 // Helper to safely extract total paid amount from API result
 const getTotalPaid = (result: AmortizationAnalysisResult): number => {
@@ -20,11 +21,19 @@ const getTotalInterest = (result: AmortizationAnalysisResult): number => {
   return 0;
 };
 
-// Chart color constants to prevent legend/SVG drift
+// Professional chart color palette
 const CHART_COLORS = {
-  balance: '#3b82f6', // blue-500
-  principal: '#10b981', // emerald-500
-  interest: '#f59e0b', // amber-500
+  balance: '#3b82f6', // blue-500 - modern blue for balance
+  principal: '#10b981', // emerald-500 - vibrant green for principal
+  interest: '#f59e0b', // amber-500 - warm amber for interest
+  grid: '#e5e7eb', // gray-200
+  gridDark: '#374151', // gray-700 for dark mode
+  text: '#1f2937', // gray-800
+  textLight: '#6b7280', // gray-500
+  textDark: '#e5e7eb', // for dark mode
+  background: '#ffffff',
+  backgroundDark: '#1f2937',
+  accent: '#6366f1', // indigo-500
 } as const;
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -59,6 +68,488 @@ const coerceNumber = (value: unknown, fallback = Number.NaN): number => {
 const toCurrency = (value: unknown): string => {
   const numeric = coerceNumber(value, Number.NaN);
   return Number.isFinite(numeric) ? currencyFormatter.format(numeric) : '';
+};
+
+type RiskLevel = 'low' | 'medium' | 'high';
+
+interface AmortizationSummary {
+  principal: number;
+  monthlyPayment: number;
+  totalInterest: number;
+  totalPayments: number;
+  termMonths: number;
+  years: number;
+  annualRate: number;
+  interestShare: number;
+  payoffDate?: string;
+  totalPMI: number;
+  totalExtraPayments: number;
+  assumedMonthlyIncome: number;
+  paymentToIncomeRatio: number;
+  firstYearInterest: number;
+  lastYearInterest: number;
+  interestSaved?: number;
+  timeReduced?: number;
+}
+
+interface AmortizationTimeline {
+  principalTakeoverMonth: number | null;
+  halfBalanceMonth: number | null;
+  milestones: Array<{
+    id: string;
+    month: number;
+    label: string;
+    description: string;
+  }>;
+}
+
+interface AmortizationInsight {
+  category: 'financial' | 'risk' | 'opportunity' | 'optimization';
+  title: string;
+  description: string;
+  impact: RiskLevel;
+  actionable: boolean;
+}
+
+interface AmortizationRecommendation {
+  priority: RiskLevel;
+  category: 'immediate' | 'short-term' | 'long-term';
+  title: string;
+  description: string;
+  potentialSavings?: number;
+  effort: RiskLevel;
+}
+
+interface AmortizationRiskAssessment {
+  overallRisk: RiskLevel;
+  factors: Array<{
+    factor: string;
+    risk: RiskLevel;
+    description: string;
+  }>;
+}
+
+interface AmortizationOptimizationOpportunity {
+  area: string;
+  currentValue: number;
+  optimizedValue: number;
+  potentialImprovement: number;
+  description: string;
+}
+
+interface AmortizationComprehensiveAnalysis {
+  summary: AmortizationSummary;
+  timeline: AmortizationTimeline;
+  insights: AmortizationInsight[];
+  recommendations: AmortizationRecommendation[];
+  riskAssessment: AmortizationRiskAssessment;
+  optimizationOpportunities: AmortizationOptimizationOpportunity[];
+  chatHighlights: string[];
+  chatSummary: string;
+  context: {
+    totals: AmortizationSummary;
+    timeline: AmortizationTimeline;
+  };
+}
+
+const ASSUMED_MONTHLY_INCOME = 5000;
+
+const clampNumber = (value: number, fallback = 0): number =>
+  Number.isFinite(value) ? value : fallback;
+
+const safeRound = (value: number, digits = 2): number => clampNumber(Number(value.toFixed(digits)));
+
+const sumBy = <T>(items: T[], selector: (item: T) => number): number =>
+  items.reduce((sum, item) => sum + selector(item), 0);
+
+const calculateMonthlyPayment = (principal: number, annualRate: number, termMonths: number) => {
+  if (principal <= 0 || termMonths <= 0) return 0;
+  const monthlyRate = annualRate / 12;
+  if (monthlyRate === 0) return principal / termMonths;
+  const factor = Math.pow(1 + monthlyRate, termMonths);
+  return (principal * monthlyRate * factor) / (factor - 1);
+};
+
+const calcExtraPaymentSavings = (
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  monthlyPayment: number,
+  extra: number
+) => {
+  if (!principal || !annualRate || !termMonths || extra <= 0) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const monthlyRate = annualRate / 12;
+  const newPayment = monthlyPayment + extra;
+  const numerator = newPayment;
+  const denominator = newPayment - principal * monthlyRate;
+
+  if (denominator <= 0) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const newTerm = Math.log(numerator / denominator) / Math.log(1 + monthlyRate);
+  if (!Number.isFinite(newTerm)) {
+    return { savings: 0, monthsSaved: 0 };
+  }
+
+  const originalTotal = monthlyPayment * termMonths;
+  const newTotal = newPayment * newTerm;
+  const savings = Math.max(0, originalTotal - newTotal);
+  const monthsSaved = Math.max(0, termMonths - newTerm);
+
+  return {
+    savings: safeRound(savings),
+    monthsSaved: Math.round(monthsSaved),
+  };
+};
+
+const calcRateReductionSavings = (
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  reductionFraction: number
+) => {
+  if (!principal || !annualRate || !termMonths || reductionFraction <= 0) return 0;
+  const originalMonthly = calculateMonthlyPayment(principal, annualRate, termMonths);
+  const reducedRate = Math.max(annualRate - reductionFraction, 0);
+  const reducedMonthly = calculateMonthlyPayment(principal, reducedRate, termMonths);
+  const originalTotal = originalMonthly * termMonths;
+  const reducedTotal = reducedMonthly * termMonths;
+  return safeRound(Math.max(0, originalTotal - reducedTotal));
+};
+
+const buildClientComprehensiveAnalysis = (
+  result: AmortizationAnalysisResult,
+  input: {
+    principal: number;
+    annualRate: number;
+    termMonths: number;
+    extraMonthlyPayment?: number;
+  }
+): AmortizationComprehensiveAnalysis => {
+  const schedule = result.schedule ?? [];
+  const firstItem = schedule[0];
+
+  const startingBalance =
+    firstItem != null
+      ? clampNumber(firstItem.balance + firstItem.principal + (firstItem.extraPayment ?? 0))
+      : input.principal;
+
+  const principal = startingBalance || input.principal;
+  const monthlyPayment = clampNumber(result.monthlyPayment);
+  const totalInterest = getTotalInterest(result);
+  const totalPayments = getTotalPaid(result);
+  const termMonths =
+    schedule.length || clampNumber(input.termMonths) || clampNumber(result.schedule.length);
+  const years = termMonths / 12;
+  const annualRate = clampNumber(input.annualRate);
+  const totalPMI = safeRound(sumBy(schedule, (item) => clampNumber(item.pmi ?? 0)));
+  const totalExtraPayments = safeRound(
+    sumBy(schedule, (item) => clampNumber(item.extraPayment ?? 0))
+  );
+  const paymentToIncomeRatio =
+    ASSUMED_MONTHLY_INCOME > 0 ? monthlyPayment / ASSUMED_MONTHLY_INCOME : 0;
+  const firstYearInterest = safeRound(sumBy(schedule.slice(0, 12), (item) => item.interest || 0));
+  const lastYearInterest = safeRound(sumBy(schedule.slice(-12), (item) => item.interest || 0));
+
+  let highestInterestShare = 0;
+  let highestInterestMonth = schedule[0]?.month ?? 1;
+  let principalTakeoverMonth: number | null = null;
+
+  const halfBalanceTarget = startingBalance / 2;
+  let halfBalanceMonth: number | null = null;
+
+  for (const item of schedule) {
+    const interestShare = item.payment > 0 ? clampNumber(item.interest / item.payment) : 0;
+    if (interestShare > highestInterestShare) {
+      highestInterestShare = interestShare;
+      highestInterestMonth = item.month;
+    }
+    if (principalTakeoverMonth == null && item.principal >= item.interest) {
+      principalTakeoverMonth = item.month;
+    }
+    if (halfBalanceMonth == null && item.balance <= halfBalanceTarget) {
+      halfBalanceMonth = item.month;
+    }
+  }
+
+  const finalMonth = schedule[schedule.length - 1]?.month ?? termMonths;
+
+  const summary: AmortizationSummary = {
+    principal,
+    monthlyPayment,
+    totalInterest,
+    totalPayments,
+    termMonths,
+    years,
+    annualRate,
+    interestShare: totalPayments > 0 ? totalInterest / totalPayments : 0,
+    payoffDate: result.payoffDate,
+    totalPMI,
+    totalExtraPayments,
+    assumedMonthlyIncome: ASSUMED_MONTHLY_INCOME,
+    paymentToIncomeRatio,
+    firstYearInterest,
+    lastYearInterest,
+    interestSaved: clampNumber((result as any).interestSaved ?? 0),
+    timeReduced: clampNumber((result as any).timeReduced ?? 0),
+  };
+
+  const milestones: AmortizationMilestone[] = [
+    {
+      id: 'highest-interest-share',
+      month: highestInterestMonth,
+      label: 'Interest-leaning payment',
+      description: `Interest consumes ${(highestInterestShare * 100).toFixed(1)}% of the payment`,
+    },
+  ];
+
+  if (principalTakeoverMonth != null) {
+    milestones.push({
+      id: 'principal-takeover',
+      month: principalTakeoverMonth,
+      label: 'Principal overtakes interest',
+      description: 'Principal outpaces interest for the first time',
+    });
+  }
+
+  if (halfBalanceMonth != null) {
+    milestones.push({
+      id: 'halfway-balance',
+      month: halfBalanceMonth,
+      label: 'Half of principal repaid',
+      description: 'Remaining balance drops below half of the original loan',
+    });
+  }
+
+  milestones.push({
+    id: 'final-payment',
+    month: finalMonth,
+    label: 'Loan payoff',
+    description: 'Balance reaches zero with the final payment',
+  });
+
+  const insights: AmortizationInsight[] = [
+    {
+      category: 'financial',
+      title: 'Interest Cost Share',
+      description: `Interest totals ${(summary.interestShare * 100).toFixed(1)}% of the ${currencyFormatter.format(
+        totalPayments
+      )} paid over the term.`,
+      impact:
+        summary.interestShare > 0.5 ? 'high' : summary.interestShare > 0.35 ? 'medium' : 'low',
+      actionable: true,
+    },
+    {
+      category: 'optimization',
+      title: 'Payment-to-Income Check',
+      description: `Monthly payment of ${currencyFormatter.format(
+        monthlyPayment
+      )} equals ${(paymentToIncomeRatio * 100).toFixed(1)}% of a ${currencyFormatter.format(
+        ASSUMED_MONTHLY_INCOME
+      )} income (28% benchmark).`,
+      impact: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
+      actionable: true,
+    },
+    {
+      category: 'opportunity',
+      title: 'Equity Momentum',
+      description:
+        principalTakeoverMonth != null
+          ? `Principal overtakes interest in month ${principalTakeoverMonth}, accelerating equity build.`
+          : 'Interest remains larger than principal for the full term.',
+      impact: 'medium',
+      actionable: true,
+    },
+  ];
+
+  const { savings: savings100, monthsSaved: monthsSaved100 } = calcExtraPaymentSavings(
+    principal,
+    annualRate,
+    termMonths,
+    monthlyPayment,
+    100
+  );
+  const { savings: savings250 } = calcExtraPaymentSavings(
+    principal,
+    annualRate,
+    termMonths,
+    monthlyPayment,
+    250
+  );
+  const refinanceSavings = calcRateReductionSavings(principal, annualRate, termMonths, 0.005);
+
+  const recommendations: AmortizationRecommendation[] = [
+    {
+      priority: paymentToIncomeRatio > 0.3 ? 'high' : 'medium',
+      category: 'immediate',
+      title: 'Verify Affordability',
+      description: `Aim to keep housing costs below 28% of income; current ratio is ${(
+        paymentToIncomeRatio * 100
+      ).toFixed(1)}%.`,
+      effort: 'low',
+    },
+    {
+      priority: savings100 > 0 ? 'high' : 'medium',
+      category: 'short-term',
+      title: 'Automate $100 Extra Payments',
+      description:
+        savings100 > 0
+          ? `Adding $100 per month could save ${currencyFormatter.format(
+              savings100
+            )} and trim about ${Math.round(monthsSaved100 / 12)} years.`
+          : 'Extra payments accelerate payoff; confirm savings with your lender.',
+      potentialSavings: savings100,
+      effort: 'medium',
+    },
+    {
+      priority: 'medium',
+      category: 'short-term',
+      title: 'Consider Bi-weekly Payments',
+      description:
+        'Switching to 26 half-payments per year adds one extra payment, trimming interest and term.',
+      potentialSavings: safeRound(monthlyPayment * 0.5 * 12 * 0.1),
+      effort: 'low',
+    },
+    {
+      priority: refinanceSavings > 0 ? 'medium' : 'low',
+      category: 'long-term',
+      title: 'Monitor Refinance Opportunities',
+      description:
+        refinanceSavings > 0
+          ? `Dropping the rate by 0.5% could save ${currencyFormatter.format(refinanceSavings)}.`
+          : 'Track market rates; refinancing can lower payments and interest.',
+      potentialSavings: refinanceSavings,
+      effort: 'medium',
+    },
+  ];
+
+  const riskFactors: AmortizationRiskFactor[] = [
+    {
+      factor: 'Payment Burden',
+      risk: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
+      description: `Payment consumes ${(paymentToIncomeRatio * 100).toFixed(1)}% of assumed income.`,
+    },
+    {
+      factor: 'Interest Rate Level',
+      risk: annualRate > 0.07 ? 'high' : annualRate > 0.05 ? 'medium' : 'low',
+      description: `Current rate ${(annualRate * 100).toFixed(2)}% compared with market averages.`,
+    },
+    {
+      factor: 'Interest Cost Exposure',
+      risk: summary.interestShare > 0.5 ? 'high' : summary.interestShare > 0.35 ? 'medium' : 'low',
+      description: `Interest equals ${(summary.interestShare * 100).toFixed(1)}% of loan cost.`,
+    },
+    {
+      factor: 'Term Length',
+      risk: termMonths > 360 ? 'high' : termMonths > 240 ? 'medium' : 'low',
+      description: `${(termMonths / 12).toFixed(1)}-year commitment.`,
+    },
+  ];
+
+  const riskAssessment: AmortizationRiskAssessment = {
+    overallRisk: riskFactors.some((factor) => factor.risk === 'high')
+      ? 'high'
+      : riskFactors.some((factor) => factor.risk === 'medium')
+        ? 'medium'
+        : 'low',
+    factors: riskFactors,
+  };
+
+  const optimizationOpportunities: AmortizationOptimizationOpportunity[] = [
+    {
+      area: 'Extra Payments',
+      currentValue: totalExtraPayments,
+      optimizedValue: totalExtraPayments + 100,
+      potentialImprovement: savings100,
+      description: 'Adding $100 per month accelerates payoff and trims interest.',
+    },
+    {
+      area: 'Bi-weekly Strategy',
+      currentValue: monthlyPayment,
+      optimizedValue: safeRound(monthlyPayment / 2),
+      potentialImprovement: safeRound(monthlyPayment * 0.5 * 12 * 0.1),
+      description: 'Switch to 26 half-payments each year (13 full payments).',
+    },
+    {
+      area: 'Rate Reduction',
+      currentValue: annualRate,
+      optimizedValue: Math.max(annualRate - 0.005, 0),
+      potentialImprovement: refinanceSavings,
+      description: 'Track rate dips of 0.5% or more to refinance efficiently.',
+    },
+  ];
+
+  const chatHighlights = [
+    `Monthly payment ${currencyFormatter.format(monthlyPayment)}; interest equals ${(
+      summary.interestShare * 100
+    ).toFixed(1)}% of total cost.`,
+    principalTakeoverMonth
+      ? `Principal overtakes interest in month ${principalTakeoverMonth}.`
+      : 'Interest never drops below principal in this schedule.',
+    halfBalanceMonth
+      ? `Balance reaches half of the starting amount by month ${halfBalanceMonth}.`
+      : 'Loan does not reach half balance within the modeled term.',
+    totalExtraPayments > 0
+      ? `Extra payments sum to ${currencyFormatter.format(totalExtraPayments)} so far.`
+      : 'No extra payments scheduled yet—adding them cuts interest significantly.',
+  ];
+
+  const chatSummary = [
+    `Total cost ${currencyFormatter.format(totalPayments)} with ${currencyFormatter.format(
+      totalInterest
+    )} in interest (${(summary.interestShare * 100).toFixed(1)}%).`,
+    principalTakeoverMonth
+      ? `Principal outweighs interest after month ${principalTakeoverMonth}.`
+      : 'Interest remains larger than principal through the current payoff horizon.',
+    `Payment-to-income ratio is ${(paymentToIncomeRatio * 100).toFixed(
+      1
+    )}%, compared with the 28% guideline.`,
+    totalExtraPayments > 0
+      ? `Scheduled extra payments total ${currencyFormatter.format(
+          totalExtraPayments
+        )}; continuing them accelerates payoff.`
+      : 'Consider bi-weekly or extra payments to shorten the term and save interest.',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return {
+    summary,
+    timeline: {
+      principalTakeoverMonth,
+      halfBalanceMonth,
+      milestones,
+    },
+    insights,
+    recommendations,
+    riskAssessment,
+    optimizationOpportunities,
+    chatHighlights,
+    chatSummary,
+    context: {
+      totals: summary,
+      timeline: {
+        principalTakeoverMonth,
+        halfBalanceMonth,
+        milestones,
+      },
+    },
+  };
+};
+
+type AmortizationAnalysisBroadcast = AmortizationComprehensiveAnalysis & {
+  principal: number;
+  annualRate: number;
+  termMonths: number;
+  extraPayment: number;
+  monthlyPayment: number;
+  totalInterest: number;
+  totalPayments: number;
+  rawResult: AmortizationAnalysisResult;
 };
 
 export const renderSummaryCards = (
@@ -148,58 +639,66 @@ export const renderChart = (
     });
   }
 
-  // Create responsive dual-axis line chart using SVG
-  const chartWidth = Math.max(600, displayData.length * 3); // Responsive width based on data
-  const chartHeight = 300;
-  const padding = 60;
-  const plotWidth = chartWidth - padding * 2;
-  const plotHeight = chartHeight - padding * 2;
+  // Create responsive dual-axis line chart using SVG with modern design
+  const chartWidth = Math.max(900, displayData.length * 5); // Wider for better readability
+  const chartHeight = 450; // Taller for better proportions
+  const padding = { top: 50, right: 130, bottom: 70, left: 130 }; // Extra generous padding for axis titles and labels
+  const plotWidth = chartWidth - padding.left - padding.right;
+  const plotHeight = chartHeight - padding.top - padding.bottom;
 
   // Separate scaling for balance vs payment components
   const maxBalance = Math.max(1, Math.max(...displayData.map((entry) => entry.balance)));
   const maxPayment = Math.max(1, Math.max(...displayData.map((entry) => entry.payment)));
 
   // Generate line paths with dual Y-axis scaling
-  const generateLinePath = (data: number[], maxValue: number, _isLeftAxis: boolean = true) => {
+  const generateLinePath = (data: number[], maxValue: number, isLeftAxis: boolean = true) => {
     const points = data.map((value, index) => {
-      const denom = data.length > 1 ? (data.length - 1) : 1;
-      const x = padding + (index / denom) * plotWidth;
-      const y = padding + plotHeight - (value / maxValue) * plotHeight;
+      const denom = data.length > 1 ? data.length - 1 : 1;
+      const x = padding.left + (index / denom) * plotWidth;
+      const y = padding.top + plotHeight - (value / maxValue) * plotHeight;
       return `${x},${y}`;
     });
     return `M ${points.join(' L ')}`;
   };
 
   // Prepare data for lines
+  // Payments on LEFT axis, Balance on RIGHT axis
   const balanceData = displayData.map((entry) => entry.balance);
   const principalData = displayData.map((entry) => entry.principal);
   const interestData = displayData.map((entry) => entry.interest);
 
   // Generate SVG paths with proper scaling
-  const balancePath = generateLinePath(balanceData, maxBalance, true);
-  const principalPath = generateLinePath(principalData, maxPayment, false);
-  const interestPath = generateLinePath(interestData, maxPayment, false);
+  // Balance uses right axis (isLeftAxis = false)
+  // Payments use left axis (isLeftAxis = true)
+  const balancePath = generateLinePath(balanceData, maxBalance, false);
+  const principalPath = generateLinePath(principalData, maxPayment, true);
+  const interestPath = generateLinePath(interestData, maxPayment, true);
 
-  // Generate Y-axis labels
+  // Generate Y-axis labels with better formatting
+  // LEFT axis: Payments, RIGHT axis: Balance
   const generateYAxisLabels = (maxValue: number, isLeftAxis: boolean = true) => {
-    const steps = 5;
+    const steps = 6;
     const stepValue = maxValue / steps;
     const labels = [];
 
     for (let i = 0; i <= steps; i++) {
       const value = stepValue * i;
-      const y = padding + plotHeight - (value / maxValue) * plotHeight;
-      const x = isLeftAxis ? padding - 35 : chartWidth - padding + 35;
+      const y = padding.top + plotHeight - (value / maxValue) * plotHeight;
+      // Position labels closer to the axis line to avoid overlap with rotated titles
+      const x = isLeftAxis ? padding.left - 15 : chartWidth - padding.right + 15;
       const textAnchor = isLeftAxis ? 'end' : 'start';
+      const fontSize = '13px';
+      const fontWeight = '600';
+      const color = CHART_COLORS.text;
 
       labels.push(
-        `<text x="${x}" y="${y + 4}" text-anchor="${textAnchor}" class="text-xs fill-gray-600 dark:fill-gray-400">${toCurrency(value)}</text>`
+        `<text x="${x}" y="${y + 5}" text-anchor="${textAnchor}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${color}" class="dark:fill-gray-300">${toCurrency(value)}</text>`
       );
     }
     return labels.join('');
   };
 
-  // Generate x-axis labels
+  // Generate x-axis labels with better formatting
   const xAxisLabels = displayData
     .filter(
       (entry, _index) =>
@@ -209,86 +708,119 @@ export const renderChart = (
         (totalMonths > 60 && entry.month % 24 === 0)
     )
     .map((entry) => {
-      const denom = totalMonths > 1 ? (totalMonths - 1) : 1;
-      const x = padding + ((entry.month - 1) / denom) * plotWidth;
-      return `<text x="${x}" y="${chartHeight - 20}" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">${entry.month}</text>`;
+      const denom = totalMonths > 1 ? totalMonths - 1 : 1;
+      const x = padding.left + ((entry.month - 1) / denom) * plotWidth;
+      const year = Math.ceil(entry.month / 12);
+      const label = totalMonths > 24 ? `Year ${year}` : `Month ${entry.month}`;
+      return `<text x="${x}" y="${chartHeight - 20}" text-anchor="middle" font-size="11px" font-weight="500" fill="${CHART_COLORS.textLight}">${label}</text>`;
     })
     .join('');
 
-  // Generate grid lines
-  const generateGridLines = (maxValue: number, _isLeftAxis: boolean = true) => {
-    const steps = 5;
+  // Generate grid lines with better styling - using payment scale (left axis)
+  const generateGridLines = (maxValue: number) => {
+    const steps = 6;
     const stepValue = maxValue / steps;
     const lines = [];
 
     for (let i = 0; i <= steps; i++) {
       const value = stepValue * i;
-      const y = padding + plotHeight - (value / maxValue) * plotHeight;
-      const x1 = padding;
-      const x2 = chartWidth - padding;
+      const y = padding.top + plotHeight - (value / maxValue) * plotHeight;
+      const x1 = padding.left;
+      const x2 = chartWidth - padding.right;
+      const opacity = i === 0 || i === steps ? 0.15 : 0.25;
+      const strokeColor = CHART_COLORS.grid;
 
       lines.push(
-        `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#e5e7eb" stroke-width="0.5" opacity="0.3"/>`
+        `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${strokeColor}" stroke-width="1" opacity="${opacity}" class="dark:stroke-gray-600"/>`
       );
     }
     return lines.join('');
   };
 
   target.innerHTML = `
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.balance}"></div>
-            <span class="font-medium">Remaining Balance</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.principal}"></div>
-            <span class="font-medium">Principal</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full" style="background-color: ${CHART_COLORS.interest}"></div>
-            <span class="font-medium">Interest</span>
-          </div>
+    <div class="space-y-5">
+      <!-- Enhanced Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Track payment breakdown and remaining balance over time</p>
         </div>
-        <div class="text-xs text-gray-500 dark:text-gray-400">
-          <div>Left axis: Balance | Right axis: Payment components</div>
+        
+        <!-- Enhanced Legend -->
+        <div class="flex flex-wrap items-center gap-5 text-sm bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-lg">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.principal}"></div>
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Principal</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.interest}"></div>
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Interest</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.balance}"></div>
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Balance</span>
+          </div>
         </div>
       </div>
       
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
-        <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full">
-          <!-- Background -->
-          <rect width="100%" height="100%" fill="transparent" />
-          
-          <!-- Grid lines -->
-          ${generateGridLines(maxBalance, true)}
-          
-          <!-- Chart lines -->
-          <path d="${balancePath}" fill="none" stroke="${CHART_COLORS.balance}" stroke-width="3" opacity="0.9"/>
-          <path d="${principalPath}" fill="none" stroke="${CHART_COLORS.principal}" stroke-width="3" opacity="0.9"/>
-          <path d="${interestPath}" fill="none" stroke="${CHART_COLORS.interest}" stroke-width="3" opacity="0.9"/>
-          
-          <!-- X-axis labels -->
-          ${xAxisLabels}
-          
-          <!-- Y-axis labels -->
-          ${generateYAxisLabels(maxBalance, true)}
-          ${generateYAxisLabels(maxPayment, false)}
-          
-          <!-- Axis lines -->
-          <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
-          <line x1="${chartWidth - padding}" y1="${padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
-          <line x1="${padding}" y1="${chartHeight - padding}" x2="${chartWidth - padding}" y2="${chartHeight - padding}" stroke="#374151" stroke-width="2"/>
-          
-          <!-- Axis titles -->
-          <text x="${padding - 90}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding - 90}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Balance ($)</text>
-          <text x="${chartWidth - padding + 90}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding + 90}, ${chartHeight / 2})" class="text-sm fill-gray-700 dark:fill-gray-300 font-medium">Payment ($)</text>
-        </svg>
+      <!-- Enhanced Chart Container -->
+      <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
+        <div class="min-w-full">
+          <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full h-auto" style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));">
+            <!-- Subtle background gradient -->
+            <defs>
+              <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(59, 130, 246, 0.05);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(59, 130, 246, 0.0);stop-opacity:1" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
+            <!-- Background -->
+            <rect width="100%" height="100%" fill="url(#chartGradient)" />
+            
+            <!-- Grid lines using payment scale (left axis) -->
+            ${generateGridLines(maxPayment)}
+            
+            <!-- Chart lines with enhanced styling and glow effect -->
+            <g filter="url(#glow)">
+              <path d="${principalPath}" fill="none" stroke="${CHART_COLORS.principal}" stroke-width="3.5" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="${interestPath}" fill="none" stroke="${CHART_COLORS.interest}" stroke-width="3.5" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="${balancePath}" fill="none" stroke="${CHART_COLORS.balance}" stroke-width="3.5" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            
+            <!-- X-axis labels with better styling -->
+            ${xAxisLabels}
+            
+            <!-- Y-axis labels: LEFT = Payments, RIGHT = Balance -->
+            ${generateYAxisLabels(maxPayment, true)}
+            ${generateYAxisLabels(maxBalance, false)}
+            
+            <!-- Enhanced axis lines -->
+            <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${chartHeight - padding.bottom}" stroke="${CHART_COLORS.text}" stroke-width="2.5" opacity="0.8" class="dark:stroke-gray-400"/>
+            <line x1="${chartWidth - padding.right}" y1="${padding.top}" x2="${chartWidth - padding.right}" y2="${chartHeight - padding.bottom}" stroke="${CHART_COLORS.text}" stroke-width="2.5" opacity="0.8" class="dark:stroke-gray-400"/>
+            <line x1="${padding.left}" y1="${chartHeight - padding.bottom}" x2="${chartWidth - padding.right}" y2="${chartHeight - padding.bottom}" stroke="${CHART_COLORS.text}" stroke-width="2.5" opacity="0.8" class="dark:stroke-gray-400"/>
+            
+            <!-- Axis titles with color coding - positioned far from axis to avoid overlap -->
+            <text x="${padding.left - 95}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding.left - 95}, ${chartHeight / 2})" font-size="15px" font-weight="700" fill="${CHART_COLORS.text}" class="dark:fill-gray-200">Monthly Payment ($)</text>
+            <text x="${chartWidth - padding.right + 95}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding.right + 95}, ${chartHeight / 2})" font-size="15px" font-weight="700" fill="${CHART_COLORS.balance}" class="dark:fill-blue-400">Remaining Balance ($)</text>
+          </svg>
+        </div>
       </div>
       
-      <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
-        Complete ${totalMonths}-month amortization schedule. Use the detailed table below for exact values.
+      <!-- Enhanced Chart Footer -->
+      <div class="text-center pt-2">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          <span class="font-semibold text-gray-700 dark:text-gray-300">${totalMonths} months</span> complete schedule • 
+          <span class="font-medium text-emerald-600 dark:text-emerald-400">Left:</span> Payment components (Principal & Interest) • 
+          <span class="font-medium text-blue-600 dark:text-blue-400">Right:</span> Remaining loan balance
+        </p>
       </div>
     </div>
   `;
@@ -415,11 +947,13 @@ export const handleSuccess = (
   resultsSection?.removeAttribute('hidden');
   resultsSection?.setAttribute('data-rendered', 'true');
 
-  // Show the amortization chart and table if they exist
+  // Show the amortization chart, table, and comprehensive analysis if they exist
   const chartContainer = document.getElementById('amortization-chart-container');
   const tableContainer = document.getElementById('amortization-table-container');
+  const analysisContainer = document.getElementById('comprehensive-analysis-container');
   chartContainer?.classList.remove('hidden');
   tableContainer?.classList.remove('hidden');
+  analysisContainer?.classList.remove('hidden');
 };
 
 const updateEnhancedAnalysis = (
@@ -431,25 +965,99 @@ const updateEnhancedAnalysis = (
     extraMonthlyPayment?: number;
   }
 ): void => {
-  // Dispatch custom event to update the enhanced analysis component
-  const analysisData = {
+  console.log('updateEnhancedAnalysis: Starting with result:', result);
+  console.log('updateEnhancedAnalysis: Starting with inputs:', inputs);
+
+  const comprehensive = buildClientComprehensiveAnalysis(result, {
     principal: inputs.principal,
     annualRate: inputs.annualRate,
     termMonths: inputs.termMonths,
-    extraPayment: inputs.extraMonthlyPayment || 0,
-    monthlyPayment: result.monthlyPayment,
-    totalInterest: getTotalInterest(result),
-    totalPayments: getTotalPaid(result),
-  };
-
-  const event = new CustomEvent('analysis-result-updated', {
-    detail: {
-      modelType: 'amortization',
-      result: analysisData,
-    },
+    extraMonthlyPayment: inputs.extraMonthlyPayment,
   });
 
-  document.dispatchEvent(event);
+  const analysisData: AmortizationAnalysisBroadcast = {
+    ...comprehensive,
+    principal: comprehensive.summary.principal || inputs.principal,
+    annualRate: comprehensive.summary.annualRate || inputs.annualRate,
+    termMonths: comprehensive.summary.termMonths || inputs.termMonths,
+    extraPayment: inputs.extraMonthlyPayment || 0,
+    monthlyPayment: comprehensive.summary.monthlyPayment || result.monthlyPayment,
+    totalInterest: comprehensive.summary.totalInterest || getTotalInterest(result),
+    totalPayments: comprehensive.summary.totalPayments || getTotalPaid(result),
+    rawResult: result,
+  };
+
+  console.log('updateEnhancedAnalysis: Comprehensive analysis prepared:', analysisData);
+
+  const fireAnalysisEvents = () => {
+    const detail = {
+      modelType: 'amortization',
+      result: analysisData,
+    };
+
+    document.dispatchEvent(new CustomEvent('analysis-result-updated', { detail }));
+    window.dispatchEvent(new CustomEvent('amortization-analysis-ready', { detail: analysisData }));
+
+    publishChatContext('amortization', 'Amortization analysis', {
+      summary: analysisData.summary,
+      chatSummary: analysisData.chatSummary,
+      highlights: analysisData.chatHighlights,
+      timeline: analysisData.timeline,
+    });
+  };
+
+  // Store data globally first
+  window.amortizationAnalysisData = analysisData;
+
+  // Function to attempt population with retry logic
+  const attemptPopulation = (retryCount = 0) => {
+    const maxRetries = 5;
+    const retryDelay = 200;
+
+    console.log(
+      `updateEnhancedAnalysis: Attempting to populate (attempt ${retryCount + 1}/${maxRetries})`
+    );
+    console.log('updateEnhancedAnalysis: Analysis data structure:', {
+      hasSummary: !!analysisData.summary,
+      hasInsights: Array.isArray(analysisData.insights),
+      insightsCount: analysisData.insights?.length ?? 0,
+      hasRecommendations: Array.isArray(analysisData.recommendations),
+      recommendationsCount: analysisData.recommendations?.length ?? 0,
+      hasRiskAssessment: !!analysisData.riskAssessment,
+      hasOptimizationOpportunities: Array.isArray(analysisData.optimizationOpportunities),
+    });
+
+    if (typeof (window as any).populateAnalysisData === 'function') {
+      console.log('updateEnhancedAnalysis: populateAnalysisData function found, calling...');
+      try {
+        (window as any).populateAnalysisData(analysisData);
+        console.log('updateEnhancedAnalysis: populateAnalysisData called successfully');
+        fireAnalysisEvents();
+        return; // Success, no need to retry
+      } catch (error) {
+        console.error('updateEnhancedAnalysis: Error calling populateAnalysisData:', error);
+        // Still fire events even if direct call failed
+        fireAnalysisEvents();
+        return;
+      }
+    } else {
+      console.warn(
+        `updateEnhancedAnalysis: populateAnalysisData function not found (attempt ${retryCount + 1}/${maxRetries})`
+      );
+
+      if (retryCount < maxRetries - 1) {
+        // Retry after a delay
+        setTimeout(() => attemptPopulation(retryCount + 1), retryDelay);
+      } else {
+        // Max retries reached, fire events as fallback
+        console.warn('updateEnhancedAnalysis: Max retries reached, using event fallback only');
+        fireAnalysisEvents();
+      }
+    }
+  };
+
+  // Initial attempt after DOM ready delay
+  setTimeout(() => attemptPopulation(), 100);
 };
 
 const showLoading = (): void => {
@@ -536,13 +1144,172 @@ if (resetBtn instanceof HTMLButtonElement && form instanceof HTMLFormElement) {
     const resultsSection = document.getElementById('results-section');
     const chartContainer = document.getElementById('amortization-chart-container');
     const tableContainer = document.getElementById('amortization-table-container');
+    const analysisContainer = document.getElementById('comprehensive-analysis-container');
     resultsContainer?.classList.add('hidden');
     resultsSection?.classList.add('hidden');
     chartContainer?.classList.add('hidden');
     tableContainer?.classList.add('hidden');
+    analysisContainer?.classList.add('hidden');
     hideError();
     hideLoading();
     setAnalyzing(false);
+  });
+}
+
+const testAnalysisBtn = document.getElementById('test-analysis-btn');
+const debugLog = document.getElementById('debug-log');
+
+if (testAnalysisBtn && debugLog) {
+  testAnalysisBtn.addEventListener('click', () => {
+    debugLog.innerHTML = 'Testing comprehensive analysis...<br>';
+
+    const summary: AmortizationSummary = {
+      principal: 300000,
+      monthlyPayment: 1520.06,
+      totalInterest: 247221.6,
+      totalPayments: 547221.6,
+      termMonths: 360,
+      years: 30,
+      annualRate: 0.045,
+      interestShare: 247221.6 / 547221.6,
+      payoffDate: '2054-01-01',
+      totalPMI: 0,
+      totalExtraPayments: 0,
+      assumedMonthlyIncome: ASSUMED_MONTHLY_INCOME,
+      paymentToIncomeRatio: 1520.06 / ASSUMED_MONTHLY_INCOME,
+      firstYearInterest: 13450,
+      lastYearInterest: 1200,
+      interestSaved: 0,
+      timeReduced: 0,
+    };
+
+    const timeline: AmortizationTimeline = {
+      principalTakeoverMonth: 62,
+      halfBalanceMonth: 178,
+      milestones: [
+        {
+          id: 'highest-interest-share',
+          month: 1,
+          label: 'Interest-leaning payment',
+          description: 'Interest consumes 71.0% of the payment',
+        },
+        {
+          id: 'principal-takeover',
+          month: 62,
+          label: 'Principal overtakes interest',
+          description: 'Principal outpaces interest for the first time',
+        },
+        {
+          id: 'halfway-balance',
+          month: 178,
+          label: 'Half of principal repaid',
+          description: 'Remaining balance drops below half of the original loan',
+        },
+        {
+          id: 'final-payment',
+          month: 360,
+          label: 'Loan payoff',
+          description: 'Balance reaches zero with the final payment',
+        },
+      ],
+    };
+
+    const mockAnalysis: AmortizationAnalysisBroadcast = {
+      summary,
+      timeline,
+      insights: [
+        {
+          category: 'financial',
+          title: 'Interest Cost Share',
+          description: 'Interest totals 45.2% of the overall loan cost.',
+          impact: 'medium',
+          actionable: true,
+        },
+        {
+          category: 'optimization',
+          title: 'Payment-to-Income Check',
+          description: 'Monthly payment equals 30.4% of a typical $5,000 income.',
+          impact: 'medium',
+          actionable: true,
+        },
+        {
+          category: 'opportunity',
+          title: 'Equity Momentum',
+          description: 'Principal overtakes interest in year 6, boosting equity growth.',
+          impact: 'medium',
+          actionable: true,
+        },
+      ],
+      recommendations: [
+        {
+          priority: 'medium',
+          category: 'immediate',
+          title: 'Validate Affordability',
+          description: 'Confirm total housing costs remain under 28% of income.',
+          effort: 'low',
+        },
+        {
+          priority: 'medium',
+          category: 'short-term',
+          title: 'Automate $100 Extra Payments',
+          description: 'Extra payments can trim roughly 3 years and save over $35,000.',
+          potentialSavings: 35000,
+          effort: 'medium',
+        },
+      ],
+      riskAssessment: {
+        overallRisk: 'medium',
+        factors: [
+          {
+            factor: 'Payment Burden',
+            risk: 'medium',
+            description: 'Payment consumes 30.4% of assumed income.',
+          },
+          {
+            factor: 'Interest Cost Exposure',
+            risk: 'medium',
+            description: 'Interest equals 45.2% of loan cost.',
+          },
+        ],
+      },
+      optimizationOpportunities: [
+        {
+          area: 'Extra Payments',
+          currentValue: 0,
+          optimizedValue: 100,
+          potentialImprovement: 35000,
+          description: 'Adding $100 per month accelerates payoff and trims interest.',
+        },
+        {
+          area: 'Bi-weekly Strategy',
+          currentValue: 1520.06,
+          optimizedValue: 760.03,
+          potentialImprovement: 12000,
+          description: 'Switch to 26 half-payments each year.',
+        },
+      ],
+      chatHighlights: [
+        'Monthly payment $1,520; interest represents 45.2% of total cost.',
+        'Principal overtakes interest in month 62.',
+        'Balance reaches half of the starting amount by month 178.',
+      ],
+      chatSummary:
+        'Total cost $547,222 with $247,222 in interest (45.2%). Principal outweighs interest after year 5. Payment-to-income ratio sits at 30.4%.',
+      context: { totals: summary, timeline },
+      principal: summary.principal,
+      annualRate: summary.annualRate,
+      termMonths: summary.termMonths,
+      extraPayment: 0,
+      monthlyPayment: summary.monthlyPayment,
+      totalInterest: summary.totalInterest,
+      totalPayments: summary.totalPayments,
+      rawResult: {} as AmortizationAnalysisResult,
+    };
+
+    populateAnalysisData(mockAnalysis);
+    window.amortizationAnalysisData = mockAnalysis;
+
+    debugLog.innerHTML += 'Mock analysis populated.<br>';
   });
 }
 

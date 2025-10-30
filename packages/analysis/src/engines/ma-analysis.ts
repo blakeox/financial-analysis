@@ -351,12 +351,12 @@ export class MAAnalysisEngine {
     return {
       transactionSummary,
       valuation,
-      accretionDilution,
+      ...(accretionDilution && { accretionDilution }),
       synergyAnalysis,
       financialImpact,
       integrationAnalysis,
-      sensitivity,
-      scenarios,
+      ...(sensitivity && { sensitivity }),
+      ...(scenarios && { scenarios }),
       keyMetrics,
       insights,
       warnings,
@@ -404,7 +404,7 @@ export class MAAnalysisEngine {
    * Calculate valuation
    */
   private static calculateValuation(input: MAAnalysisInput) {
-    const { acquirer, target, transactionTerms, synergies, analysis } = input;
+    const { acquirer, target, synergies, analysis } = input;
 
     // Target standalone value (simplified)
     const targetStandaloneValue = target.marketCap;
@@ -470,7 +470,7 @@ export class MAAnalysisEngine {
     return {
       epsAccretion,
       summary: {
-        year1Accretion: epsAccretion[0].accretionPercent,
+        year1Accretion: epsAccretion[0]?.accretionPercent || 0,
         year3Accretion: epsAccretion[2]?.accretionPercent || 0,
         year5Accretion: epsAccretion[4]?.accretionPercent || 0,
         averageAccretion:
@@ -644,7 +644,7 @@ export class MAAnalysisEngine {
    * Analyze integration
    */
   private static analyzeIntegration(input: MAAnalysisInput, synergyAnalysis: any) {
-    const { integration, synergies } = input;
+    const { integration } = input;
 
     const totalCosts =
       integration.costs.oneTimeCosts + integration.costs.annualCosts * integration.costs.duration;
@@ -696,7 +696,7 @@ export class MAAnalysisEngine {
    * Generate strategic rationale
    */
   private static generateStrategicRationale(input: MAAnalysisInput): string {
-    const { transaction, acquirer, target } = input;
+    const { transaction, acquirer } = input;
 
     if (transaction.type === 'acquisition') {
       return `Strategic acquisition to expand ${acquirer.name}'s market presence and capabilities`;
@@ -740,7 +740,7 @@ export class MAAnalysisEngine {
    * Perform sensitivity analysis
    */
   private static performSensitivityAnalysis(input: MAAnalysisInput) {
-    const { transactionTerms, synergies, analysis } = input;
+    const { transactionTerms, synergies } = input;
 
     const sensitivity = {
       purchasePrice: [] as Array<{ price: number; valueCreation: number }>,
@@ -850,7 +850,7 @@ export class MAAnalysisEngine {
    */
   private static generateWarnings(
     input: MAAnalysisInput,
-    valuation: any,
+    _valuation: any,
     synergyAnalysis: any
   ): string[] {
     const warnings = [];
@@ -873,7 +873,7 @@ export class MAAnalysisEngine {
    */
   private static generateRecommendations(
     input: MAAnalysisInput,
-    valuation: any,
+    _valuation: any,
     synergyAnalysis: any
   ): Array<{
     category: string;

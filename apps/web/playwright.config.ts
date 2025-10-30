@@ -11,17 +11,17 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4321',
+    baseURL: 'http://localhost:8788',
     trace: 'on-first-retry',
   },
   webServer: {
     command:
-      'node ./scripts/ensure-port-free.mjs && pnpm build && astro preview --port 4321 --host 127.0.0.1 --strictPort',
+      'cd ../.. && pnpm run dev:all',
     cwd: __dirname,
-    url: 'http://127.0.0.1:4321',
+    url: 'http://localhost:8788',
     timeout: 240_000,
-    // Always start a fresh server to avoid connecting to an unrelated server on the same port
-    reuseExistingServer: false,
+    // Reuse existing server if available
+    reuseExistingServer: true,
   },
   projects: [
     {

@@ -59,25 +59,55 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   useEffect(() => {
     console.log('EnhancedAnalysisResults mounted with props:', { modelType, modelData });
   }, []);
+
+  // Add a direct data injection method for debugging
+  useEffect(() => {
+    // Expose a global method for direct data injection
+    (window as any).injectAnalysisData = (data: Record<string, unknown>) => {
+      console.log('EnhancedAnalysisResults: Direct data injection called with:', data);
+      setCurrentModelData(data);
+      generateAnalysis();
+    };
+
+    // Also listen for any custom events that might be missed
+    const handleAnyAnalysisEvent = (event: CustomEvent) => {
+      console.log(
+        'EnhancedAnalysisResults: Received any analysis event:',
+        event.type,
+        event.detail
+      );
+      if (event.detail && typeof event.detail === 'object') {
+        setCurrentModelData(event.detail as Record<string, unknown>);
+        generateAnalysis();
+      }
+    };
+
+    // Listen for multiple event types
+    const eventTypes = [
+      'analysis-result-updated',
+      'data-updated',
+      'amortization-analysis-ready',
+      'analysis-data-ready',
+      'calculator-completed',
+    ];
+
+    eventTypes.forEach((eventType) => {
+      document.addEventListener(eventType, handleAnyAnalysisEvent as EventListener);
+      window.addEventListener(eventType, handleAnyAnalysisEvent as EventListener);
+    });
+
+    return () => {
+      eventTypes.forEach((eventType) => {
+        document.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
+        window.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
+      });
+      delete (window as any).injectAnalysisData;
+    };
+  }, []);
   const [isExpanded, setIsExpanded] = useState(true);
   const [currentModelData, setCurrentModelData] = useState<Record<string, unknown>>(modelData);
 
-  // Add some sample data for testing if no data is provided
-  useEffect(() => {
-    if (!currentModelData || Object.keys(currentModelData).length === 0) {
-      // Set some sample data for testing the component
-      const sampleData = {
-        principal: 300000,
-        annualRate: 0.075,
-        termMonths: 360,
-        extraPayment: 0,
-        monthlyPayment: 2097.64,
-        totalInterest: 455150.4,
-        totalPayments: 755150.4,
-      };
-      setCurrentModelData(sampleData);
-    }
-  }, [currentModelData]);
+  // Don't set sample data - wait for real data from the calculator
 
   useEffect(() => {
     if (modelData && Object.keys(modelData).length > 0) {
@@ -91,18 +121,48 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
     const handleAnalysisUpdate = (event: CustomEvent) => {
       console.log('EnhancedAnalysisResults: Received analysis update event', event.detail);
       const { modelType: updatedModelType, result: updatedResult } = event.detail;
+      console.log('EnhancedAnalysisResults: Model type match?', updatedModelType === modelType);
       if (updatedModelType === modelType) {
         console.log('EnhancedAnalysisResults: Updating model data', updatedResult);
         setCurrentModelData(updatedResult);
         generateAnalysis();
+      } else {
+        console.log('EnhancedAnalysisResults: Model type mismatch, ignoring event');
       }
     };
 
+    const handleDataUpdate = (event: CustomEvent) => {
+      console.log('EnhancedAnalysisResults: Received direct data update event', event.detail);
+      setCurrentModelData(event.detail);
+      generateAnalysis();
+    };
+
+    const handleGlobalAnalysisReady = (event: CustomEvent) => {
+      console.log('EnhancedAnalysisResults: Received global analysis ready event', event.detail);
+      if (modelType === 'amortization') {
+        setCurrentModelData(event.detail);
+        generateAnalysis();
+      }
+    };
+
+    console.log('EnhancedAnalysisResults: Setting up event listeners for modelType:', modelType);
     document.addEventListener('analysis-result-updated', handleAnalysisUpdate as EventListener);
+    document.addEventListener('data-updated', handleDataUpdate as EventListener);
+    window.addEventListener(
+      'amortization-analysis-ready',
+      handleGlobalAnalysisReady as EventListener
+    );
+
     return () => {
+      console.log('EnhancedAnalysisResults: Cleaning up event listeners');
       document.removeEventListener(
         'analysis-result-updated',
         handleAnalysisUpdate as EventListener
+      );
+      document.removeEventListener('data-updated', handleDataUpdate as EventListener);
+      window.removeEventListener(
+        'amortization-analysis-ready',
+        handleGlobalAnalysisReady as EventListener
       );
     };
   }, [modelType]);
@@ -115,6 +175,18 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     if (!currentModelData || Object.keys(currentModelData).length === 0) {
       console.log('EnhancedAnalysisResults: No model data, skipping analysis');
+      return;
+    }
+
+    if (
+      typeof currentModelData === 'object' &&
+      'summary' in currentModelData &&
+      'insights' in currentModelData &&
+      Array.isArray((currentModelData as DetailedAnalysis).insights)
+    ) {
+      console.log('EnhancedAnalysisResults: Using provided comprehensive analysis payload');
+      setAnalysis(currentModelData as DetailedAnalysis);
+      setIsLoading(false);
       return;
     }
 
@@ -295,6 +367,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
       residualValue: '🏷️',
       totalCost: '💸',
       costPerMonth: '📅',
+      yearsToPayoff: '⏰',
+      firstYearInterest: '🔢',
+      lastYearInterest: '🔢',
+      equityBuildRate: '📈',
+      extraPayment: '➕',
+      interestToPrincipalRatio: '📊',
+      paymentToIncomeRatio: '📊',
     };
     return iconMap[key] || '📋';
   };
@@ -576,14 +655,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     No Analysis Data Yet
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Run an analysis to see detailed insights, recommendations, and risk assessment.
+                    Run an amortization calculation to see detailed insights, recommendations, and
+                    risk assessment.
                   </p>
-                  <button
-                    onClick={() => console.log('Test button clicked!')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Test Button (Check Console)
-                  </button>
                 </div>
               </div>
             </CardContent>
@@ -594,7 +668,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   }
 
   return (
-    <div className={`enhanced-analysis-results ${className}`}>
+    <div className={`enhanced-analysis-results ${className}`} data-enhanced-analysis="true">
       <Card className="shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">

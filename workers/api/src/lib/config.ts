@@ -6,8 +6,9 @@ export function getAnalysisCacheTtl(env: Env): number {
 }
 
 export function getMaxJsonBytes(env: Env): number {
-  const n = Number(env.ANALYSIS_MAX_JSON_BYTES ?? 65536);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 65536;
+  // Increased from 64KB to 10MB to handle large base64-encoded files
+  const n = Number(env.ANALYSIS_MAX_JSON_BYTES ?? 10 * 1024 * 1024);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 10 * 1024 * 1024;
 }
 
 export function getThresholds(env: Env) {

@@ -84,6 +84,8 @@ export const AutoLoanInputSchema = z.object({
 
 export type AutoLoanInput = z.infer<typeof AutoLoanInputSchema>;
 
+const formatISODate = (date: Date): string => date.toISOString().slice(0, 10);
+
 // ============================================================================
 // RESULT TYPES
 // ============================================================================
@@ -233,12 +235,8 @@ export class AutoLoanAnalysisEngine {
       refinancingAnalysis
     );
 
-    return {
+    const result: AutoLoanResult = {
       loanAnalysis,
-      leaseAnalysis,
-      comparison,
-      refinancingAnalysis,
-      tcoAnalysis,
       insights,
       recommendations,
       metadata: {
@@ -252,6 +250,21 @@ export class AutoLoanAnalysisEngine {
         },
       },
     };
+
+    if (leaseAnalysis) {
+      result.leaseAnalysis = leaseAnalysis;
+    }
+    if (comparison) {
+      result.comparison = comparison;
+    }
+    if (refinancingAnalysis) {
+      result.refinancingAnalysis = refinancingAnalysis;
+    }
+    if (tcoAnalysis) {
+      result.tcoAnalysis = tcoAnalysis;
+    }
+
+    return result;
   }
 
   /**
@@ -263,8 +276,8 @@ export class AutoLoanAnalysisEngine {
     // Calculate total loan amount including taxes and fees
     const taxableAmount = vehicle.negotiatedPrice - vehicle.tradeInValue - vehicle.downPayment;
     const salesTax = taxableAmount * loanTerms.salesTaxRate;
-    const totalFees = Object.values(loanTerms.fees).reduce((sum, fee) => sum + fee, 0);
-    const totalLoanAmount = loanTerms.loanAmount + salesTax + totalFees;
+const totalFees = Object.values(loanTerms.fees).reduce((sum, fee) => sum + fee, 0);
+const totalLoanAmount = loanTerms.loanAmount + salesTax + totalFees;
 
     // Calculate monthly payment using PMT formula
     const monthlyRate = loanTerms.interestRate / 12;
@@ -305,7 +318,7 @@ export class AutoLoanAnalysisEngine {
       totalInterest,
       totalCost,
       effectiveRate,
-      payoffDate: payoffDate.toISOString().split('T')[0],
+      payoffDate: formatISODate(payoffDate),
       paymentSchedule,
     };
   }
@@ -314,7 +327,7 @@ export class AutoLoanAnalysisEngine {
    * Calculate lease analysis
    */
   private static calculateLeaseAnalysis(input: AutoLoanInput) {
-    const { leaseTerms, vehicle } = input;
+    const { leaseTerms } = input;
     if (!leaseTerms) return undefined;
 
     // Calculate monthly lease payment
@@ -350,7 +363,7 @@ export class AutoLoanAnalysisEngine {
       totalPayments,
       totalCost,
       effectiveRate,
-      endDate: endDate.toISOString().split('T')[0],
+      endDate: formatISODate(endDate),
       buyoutCost,
       totalCostIfPurchased,
     };
@@ -565,7 +578,7 @@ export class AutoLoanAnalysisEngine {
 
       schedule.push({
         paymentNumber: i,
-        paymentDate: paymentDate.toISOString().split('T')[0],
+        paymentDate: formatISODate(paymentDate),
         principalPayment,
         interestPayment,
         remainingBalance,
@@ -581,8 +594,8 @@ export class AutoLoanAnalysisEngine {
    */
   private static generateInsights(
     input: AutoLoanInput,
-    loanAnalysis: any,
-    leaseAnalysis: any,
+    _loanAnalysis: any,
+    _leaseAnalysis: any,
     tcoAnalysis: any
   ): string[] {
     const insights = [];
@@ -619,8 +632,8 @@ export class AutoLoanAnalysisEngine {
    */
   private static generateRecommendations(
     input: AutoLoanInput,
-    loanAnalysis: any,
-    leaseAnalysis: any,
+    _loanAnalysis: any,
+    _leaseAnalysis: any,
     refinancingAnalysis: any
   ): Array<{
     category: string;

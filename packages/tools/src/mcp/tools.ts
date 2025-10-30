@@ -11,6 +11,7 @@ import {
 import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
 import { LeaseTool } from '../tools/lease.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
+import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
 import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
@@ -109,6 +110,12 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: BudgetTool.inputSchema,
       execute: BudgetTool.execute.bind(BudgetTool),
     },
+    {
+      name: PopulateLeaseFormTool.toolName,
+      description: PopulateLeaseFormTool.description,
+      inputSchema: PopulateLeaseFormTool.inputSchema,
+      execute: PopulateLeaseFormTool.execute.bind(PopulateLeaseFormTool),
+    },
   ];
 }
 
@@ -131,6 +138,7 @@ function getConciseDescription(toolName: string): string {
     analyze_student_loans: 'Optimize student loan repayment strategies',
     analyze_retirement_savings: 'Plan retirement savings and projections',
     optimize_budget: 'Analyze and optimize personal budget',
+    populate_lease_form: 'Populate lease analysis form fields from extracted data or natural language',
   };
 
   return descriptions[toolName] || 'Financial analysis tool';

@@ -601,3 +601,5 @@ export function hasJourneySpecificConfig(scenarioId: string, calculatorId: strin
   return getJourneyCalculatorConfig(scenarioId, calculatorId) !== null;
 }
 
+
+
