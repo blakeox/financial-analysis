@@ -161,3 +161,5 @@ The core functionality (templates, analysis engine, AI extraction) is working an
 **Recommendation**: Fix the 8 failing tests, then verify the page renders correctly in a browser. The analysis should work once these minor issues are resolved.
 
 
+
+

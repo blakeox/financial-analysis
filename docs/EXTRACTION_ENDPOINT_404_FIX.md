@@ -113,3 +113,5 @@ After starting both workers, you should see:
 The endpoint `/v1/api/extract/lease-direct` **does exist** in `workers/api/src/index.ts` at line 3097. The issue is that the request is hitting the wrong server.
 
 
+
+
