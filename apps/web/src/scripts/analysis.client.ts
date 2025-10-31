@@ -1,5 +1,6 @@
 import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
+import { formatCurrency, formatNumber, isFiniteNumber } from '../utils/calculator-utilities';
 
 type LeaseScheduleEntry = {
   month: number;
@@ -23,19 +24,6 @@ type LeaseAnalysisPayload = {
   termMonths: number;
   residualValue: number;
 };
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 2,
-});
-
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 2,
-});
-
-const isFiniteNumber = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isFinite(value);
 
 const isLeaseScheduleEntry = (entry: unknown): entry is LeaseScheduleEntry => {
   if (!entry || typeof entry !== 'object') {
@@ -66,9 +54,6 @@ const isLeaseAnalysisResult = (data: unknown): data is LeaseAnalysisResult => {
     candidate.schedule.every(isLeaseScheduleEntry)
   );
 };
-
-const formatCurrency = (value: number): string => currencyFormatter.format(value);
-const formatNumber = (value: number): string => numberFormatter.format(value);
 
 const parseFloatFromForm = (formData: FormData, field: string): number => {
   const raw = formData.get(field);

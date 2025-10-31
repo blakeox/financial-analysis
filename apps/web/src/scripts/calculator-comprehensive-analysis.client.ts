@@ -12,6 +12,11 @@ import {
   generateRiskAssessment,
   generateOptimizationOpportunities
 } from './analysis-content-generators.client';
+import {
+  formatCurrency,
+  formatPercent as formatPercentDecimal,
+  formatMonths
+} from '../utils/calculator-utilities';
 
 // Initialize a placeholder function immediately to ensure it exists
 if (typeof window !== 'undefined') {
@@ -152,22 +157,7 @@ export function populateAnalysisData(rawData: any) {
           termMonths: rawData.termMonths ?? 0,
         };
 
-  const formatCurrency = (value: any) => {
-    const numeric = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(numeric)
-      ? `$${numeric.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-      : '-';
-  };
-
-  const formatPercent = (value: any) => {
-    const numeric = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(numeric) ? `${(numeric * 100).toFixed(2)}%` : '-';
-  };
-
-  const formatMonths = (value: any) => {
-    const numeric = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(numeric) ? `${numeric} months` : '-';
-  };
+  // Use shared utilities for formatting (imported above)
 
   // Show the comprehensive analysis container
   const analysisContainer = document.getElementById('comprehensive-analysis-container');
@@ -208,7 +198,7 @@ export function populateAnalysisData(rawData: any) {
   if (monthlyPaymentEl) monthlyPaymentEl.textContent = formatCurrency(summary.monthlyPayment);
   if (totalInterestEl) totalInterestEl.textContent = formatCurrency(summary.totalInterest);
   if (totalPaymentsEl) totalPaymentsEl.textContent = formatCurrency(summary.totalPayments);
-  if (interestRateEl) interestRateEl.textContent = formatPercent(summary.annualRate ?? rawData.annualRate);
+  if (interestRateEl) interestRateEl.textContent = formatPercentDecimal(summary.annualRate ?? rawData.annualRate);
   if (loanTermEl) loanTermEl.textContent = formatMonths(summary.termMonths ?? rawData.termMonths);
 
   if (takeawaysWrapper && takeawaysList) {
