@@ -260,12 +260,12 @@ class ChatPanel {
         const journeyId = journeyMatch[1];
         // Map journey IDs to appropriate contexts
         const journeyContextMap: Record<string, ContextKey> = {
+          'startup-planning': 'startup-planning',
+          'ma-analysis-journey': 'general',
           'young-professional': 'general',
           'family-planning': 'general', 
           'home-buying': 'amortization',
-          'debt-elimination': 'general',
-          'investment-portfolio': 'general',
-          'pre-retirement': 'general'
+          'investment-analysis-journey': 'general',
         };
         return journeyContextMap[journeyId] || 'general';
       }
@@ -289,15 +289,15 @@ class ChatPanel {
       const journeyMatch = path.match(/\/journey\/([^\/]+)/);
       if (journeyMatch) {
         const journeyId = journeyMatch[1];
-        const journeyLabels: Record<string, string> = {
-          'young-professional': 'Young Professional Journey',
-          'family-planning': 'Family Planning Journey',
-          'home-buying': 'Home Buying Journey', 
-          'debt-elimination': 'Debt Elimination Strategy',
-          'investment-portfolio': 'Investment Portfolio Build',
-          'pre-retirement': 'Pre-Retirement Planning'
-        };
-        label = journeyLabels[journeyId] || 'Financial Journey';
+      const journeyLabels: Record<string, string> = {
+        'startup-planning': 'Startup Planning Journey',
+        'ma-analysis-journey': 'M&A Analysis Journey',
+        'young-professional': 'Young Professional Journey',
+        'family-planning': 'Family Planning Journey',
+        'home-buying': 'Home Buying Journey',
+        'investment-analysis-journey': 'Investment Analysis Journey',
+      };
+      label = journeyLabels[journeyId] || 'Financial Journey';
       }
     } else {
       // Use existing context mapping for other pages
@@ -307,6 +307,7 @@ class ChatPanel {
         amortization: 'Amortization',
         models: 'Models',
         general: 'General',
+        'startup-planning': 'Startup Planning',
       };
       const activeContext = this.getActiveContextKey();
       label = this.customContextLabel || contexts[activeContext] || 'General';
