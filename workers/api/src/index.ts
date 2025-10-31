@@ -2902,6 +2902,7 @@ router.post(
         analyze_auto_loan: ['auto loan', 'car loan', 'vehicle'],
         analyze_lease: ['lease', 'leasing'],
         analyze_amortization: ['amortization', 'mortgage', 'loan schedule'],
+        analyze_mortgage_scenario: ['mortgage scenario', 'compare mortgage', 'mortgage comparison', 'mortgage options', 'rate comparison', 'refinance scenario'],
         // Startup planning specific tools
         analyze_cash_flow: ['cash flow', 'burn rate', 'runway', 'cash projection', 'liquidity'],
         ebitda_forecasting: ['ebitda', 'revenue projection', 'forecast', 'projection', 'financial forecast'],

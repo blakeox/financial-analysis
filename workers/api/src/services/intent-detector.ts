@@ -33,6 +33,7 @@ export class IntentDetector {
     analyze_enhanced_lease: ['commercial lease', 'detailed lease', 'advanced lease'],
     populate_lease_form: ['populate lease', 'fill lease form'],
     analyze_amortization: ['amortization', 'mortgage', 'loan schedule'],
+    analyze_mortgage_scenario: ['mortgage scenario', 'compare mortgage', 'mortgage comparison', 'mortgage options', 'rate comparison', 'refinance scenario'],
     
     // Business Finance Tools
     analyze_cash_flow: ['cash flow', 'burn rate', 'runway', 'cash projection', 'liquidity'],
