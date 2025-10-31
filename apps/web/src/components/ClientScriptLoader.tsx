@@ -28,6 +28,7 @@ type ScriptLoaderMap = {
   'dcf-valuation': () => Promise<unknown>;
   'ma-analysis': () => Promise<unknown>;
   'risk-management': () => Promise<unknown>;
+  'dashboard-personal': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {
@@ -58,6 +59,8 @@ const scriptLoaders: ScriptLoaderMap = {
   'ma-analysis': () => import('../scripts/ma-analysis-simple.client.ts'),
   'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
   'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
+  // Dashboard
+  'dashboard-personal': () => import('../scripts/dashboard-personal.client.ts'),
 };
 
 export type ClientScriptName = keyof typeof scriptLoaders;
