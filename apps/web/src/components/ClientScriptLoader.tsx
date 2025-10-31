@@ -20,6 +20,7 @@ type ScriptLoaderMap = {
   'analysis-content-generators': () => Promise<unknown>;
   'field-highlighting': () => Promise<unknown>;
   'equipment-lease': () => Promise<unknown>;
+  'mortgage-scenario-planning': () => Promise<unknown>;
   // Journey-related scripts
   'journey-state': () => Promise<unknown>;
   'journey-navigation': () => Promise<unknown>;
@@ -59,6 +60,7 @@ const scriptLoaders: ScriptLoaderMap = {
   'ma-analysis': () => import('../scripts/ma-analysis-simple.client.ts'),
   'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
   'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
+  'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning.client.ts'),
   // Dashboard
   'dashboard-personal': () => import('../scripts/dashboard-personal.client.ts'),
 };

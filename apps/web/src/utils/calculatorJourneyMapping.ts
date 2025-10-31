@@ -32,6 +32,9 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
     'amortization': [
       { journeyId: 'home-buying', relevance: 'high', why: 'Part of the home buying process' },
     ],
+    'mortgage-scenario-planning': [
+      { journeyId: 'home-buying', relevance: 'high', why: 'Compare mortgage options and payoff strategies' },
+    ],
     'auto-loan': [
       { journeyId: 'young-professional', relevance: 'medium', why: 'Vehicle financing considerations' },
       { journeyId: 'family-planning', relevance: 'medium', why: 'Family vehicle planning' },
