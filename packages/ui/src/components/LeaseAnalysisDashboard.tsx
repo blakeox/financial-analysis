@@ -157,7 +157,7 @@ function LeaseDocumentUpload({
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+            </svg>
             </button>
           </div>
         )}
@@ -816,6 +816,9 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  // Keep track of previous state to generate change analyses
+  const prevFormDataRef = useRef<LeaseFormData | null>(null);
+  const prevResultRef = useRef<EnhancedLeaseAnalysisResult | null>(null);
   // Ensure global analysisResults exists for chat context
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -915,8 +918,42 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
         } catch {
           errorData = { message: errorText };
         }
-        // Prefer detailed validation issues when available
-        const firstIssue = errorData?.error?.issues?.[0]?.message;
+
+        // Capture server-side validation issues for LLM context
+        const issues = Array.isArray(errorData?.error?.issues) ? errorData.error.issues : [];
+        const issueSummaries = issues.map((i: any) => ({
+          path: String(i?.path ?? ''),
+          message: String(i?.message ?? ''),
+          code: String(i?.code ?? ''),
+        }));
+
+        // Build simple suggestions the LLM can use directly
+        const suggestions = issueSummaries.map((iss: { path: string; message: string }) => {
+          const field = iss.path || 'field';
+          if (/baseRent/i.test(field)) return `Set baseRent to a positive number, e.g., 5000`;
+          if (/principal/i.test(field)) return `Set principal to a positive number, e.g., 25000`;
+          if (/termMonths/i.test(field)) return `Use a whole number of months, e.g., 36 or 60`;
+          if (/annualRate|discountRate/i.test(field)) return `Enter a percentage between 0 and 100, e.g., 5.0`;
+          if (/escalation\.type/i.test(field)) return `Choose one of: none, fixed, cpi, market, stepped`;
+          return `Adjust ${field} to satisfy: ${iss.message}`;
+        });
+
+        if (typeof window !== 'undefined') {
+          if (!window.analysisResults) window.analysisResults = {};
+          window.analysisResults['analysis_errors'] = {
+            message: errorData?.error?.message || errorData?.message || 'Analysis failed',
+            issues: issueSummaries,
+            suggestions,
+            lastInput: formData,
+          };
+          window.dispatchEvent(
+            new CustomEvent('analysis-result-updated', {
+              detail: { toolName: 'analysis_errors', result: window.analysisResults['analysis_errors'] },
+            })
+          );
+        }
+
+        const firstIssue = issues?.[0]?.message;
         const composed = firstIssue
           ? `${errorData.error?.message || 'Validation error'}: ${firstIssue}`
           : errorData.error?.message || errorData.message || 'Analysis failed';
@@ -926,6 +963,81 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       const analysisResult: EnhancedLeaseAnalysisResult = await response.json();
       console.log('✅ Analysis result received:', analysisResult);
       setResult(analysisResult);
+
+      // Build change analysis vs previous run
+      const previousInput = prevFormDataRef.current;
+      const previousResult = prevResultRef.current;
+      if (previousInput && previousResult) {
+        const changedFields: Array<{ field: string; before: unknown; after: unknown }> = [];
+        const collectChanges = (a: Record<string, unknown>, b: Record<string, unknown>, prefix = '') => {
+          const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+          keys.forEach((k) => {
+            const key = prefix ? `${prefix}.${k}` : k;
+            const av = (a as any)?.[k];
+            const bv = (b as any)?.[k];
+            const bothObjects = av && bv && typeof av === 'object' && typeof bv === 'object';
+            if (bothObjects && !Array.isArray(av) && !Array.isArray(bv)) {
+              collectChanges(av as Record<string, unknown>, bv as Record<string, unknown>, key);
+            } else if (JSON.stringify(av) !== JSON.stringify(bv)) {
+              changedFields.push({ field: key, before: av, after: bv });
+            }
+          });
+        };
+        collectChanges(previousInput as unknown as Record<string, unknown>, formData as unknown as Record<string, unknown>);
+
+        const metricDelta = (name: keyof typeof analysisResult.metrics) => {
+          const before = previousResult.metrics?.[name] as number | undefined;
+          const after = analysisResult.metrics?.[name] as number | undefined;
+          return before !== undefined && after !== undefined
+            ? { before, after, delta: after - before, deltaPct: before !== 0 ? (after - before) / before : null }
+            : undefined;
+        };
+
+        const deltas = {
+          totalCost: metricDelta('totalCost'),
+          presentValue: metricDelta('presentValue'),
+          effectiveAnnualRate: metricDelta('effectiveAnnualRate'),
+          averageMonthly: metricDelta('averageMonthlyPayment'),
+        } as const;
+
+        const narrativeParts: string[] = [];
+        if (changedFields.length > 0) {
+          const firstFew = changedFields.slice(0, 5).map((c) => `${c.field}: ${String(c.before)} → ${String(c.after)}`);
+          narrativeParts.push(`Inputs changed (${changedFields.length}): ${firstFew.join('; ')}${changedFields.length > 5 ? '…' : ''}`);
+        }
+        const addMetricLine = (label: string, d?: { before: number; after: number; delta: number; deltaPct: number | null }) => {
+          if (!d) return;
+          const pct = d.deltaPct == null ? '' : ` (${(d.deltaPct * 100).toFixed(2)}%)`;
+          narrativeParts.push(`${label}: ${d.before.toLocaleString()} → ${d.after.toLocaleString()} (Δ ${d.delta.toLocaleString()}${pct})`);
+        };
+        addMetricLine('Total Cost', deltas.totalCost as any);
+        addMetricLine('Present Value', deltas.presentValue as any);
+        addMetricLine('Effective Annual Rate', deltas.effectiveAnnualRate as any);
+        addMetricLine('Average Monthly', deltas.averageMonthly as any);
+
+        const changeReport = {
+          changedFields,
+          deltas,
+          summary: narrativeParts.join(' | '),
+          previousInput,
+          previousResult,
+          currentInput: formData,
+          currentResult: analysisResult,
+          timestamp: new Date().toISOString(),
+        };
+
+        if (typeof window !== 'undefined') {
+          if (!window.analysisResults) window.analysisResults = {};
+          window.analysisResults['analysis_change_report'] = changeReport;
+          window.dispatchEvent(new CustomEvent('analysis-result-updated', {
+            detail: { toolName: 'analysis_change_report', result: changeReport }
+          }));
+        }
+      }
+
+      // Update previous snapshots
+      prevFormDataRef.current = { ...formData };
+      prevResultRef.current = analysisResult;
       
       // Store result for chat panel integration
       if (typeof window !== 'undefined' && window.analysisResults) {
@@ -2333,47 +2445,49 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
               <div className="space-y-4">
                 {/* Advanced inputs collapsed by default */}
                 {showAdvanced && (
-                {/* Escalations */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Rent Escalations</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Select
-                      label="Escalation Type"
-                      value={formData.escalation?.type || 'none'}
-                      onChange={(value: string) =>
-                        handleNestedInputChange('escalation', 'type', value as EscalationType)
-                      }
-                      options={[
-                        { value: 'none', label: 'No Escalations' },
-                        { value: 'fixed', label: 'Fixed Percentage' },
-                        { value: 'cpi', label: 'CPI-Based' },
-                        { value: 'market', label: 'Market Rate' },
-                        { value: 'stepped', label: 'Stepped Increases' },
-                      ]}
-                    />
+                  <>
+                    {/* Escalations */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Rent Escalations</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Select
+                          label="Escalation Type"
+                          value={formData.escalation?.type || 'none'}
+                          onChange={(value: string) =>
+                            handleNestedInputChange('escalation', 'type', value as EscalationType)
+                          }
+                          options={[
+                            { value: 'none', label: 'No Escalations' },
+                            { value: 'fixed', label: 'Fixed Percentage' },
+                            { value: 'cpi', label: 'CPI-Based' },
+                            { value: 'market', label: 'Market Rate' },
+                            { value: 'stepped', label: 'Stepped Increases' },
+                          ]}
+                        />
 
-                    {formData.escalation?.type !== 'none' && (
-                      <Input
-                        label="Annual Escalation Rate"
-                        type="number"
-                        value={formData.escalation?.rate ? formData.escalation.rate * 100 : 0}
-                        onChange={(e) =>
-                          handleNestedInputChange(
-                            'escalation',
-                            'rate',
-                            parsers.percentage(e.target.value)
-                          )
-                        }
-                        min="0"
-                        max="10"
-                        step="0.1"
-                        helperText="Enter as percentage (e.g., 3.0 for 3%)"
-                      />
-                    )}
-                  </CardContent>
-                </Card>
+                        {formData.escalation?.type !== 'none' && (
+                          <Input
+                            label="Annual Escalation Rate"
+                            type="number"
+                            value={formData.escalation?.rate ? formData.escalation.rate * 100 : 0}
+                            onChange={(e) =>
+                              handleNestedInputChange(
+                                'escalation',
+                                'rate',
+                                parsers.percentage(e.target.value)
+                              )
+                            }
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            helperText="Enter as percentage (e.g., 3.0 for 3%)"
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+                  </>
                 )}
 
                 {/* Advanced Options Section */}
