@@ -6,27 +6,10 @@
 
 import { storeAnalysisResult } from './analysis-results';
 import { registerChatButton } from './chat-actions';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
-
-const formatCurrency = (value: number | string | undefined): string => {
-  if (value === undefined || value === null) return 'N/A';
-  const numeric = typeof value === 'number' ? value : Number.parseFloat(String(value));
-  if (!Number.isFinite(numeric)) return 'N/A';
-  return currencyFormatter.format(numeric);
-};
-
-const formatPercent = (value: number | string | undefined): string => {
-  if (value === undefined || value === null) return 'N/A';
-  const numeric = typeof value === 'number' ? value : Number.parseFloat(String(value));
-  if (!Number.isFinite(numeric)) return 'N/A';
-  return `${numeric.toFixed(1)}%`;
-};
+import {
+  formatCurrencyWhole as formatCurrency,
+  formatPercentSimple as formatPercent,
+} from '../utils/calculator-utilities';
 
 interface RetirementInputs {
   currentAge: number;
