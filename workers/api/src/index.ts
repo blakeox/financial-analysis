@@ -41,9 +41,18 @@ import {
   validateChatMessage,
   validateRequestSize,
   type RateLimitInfo,
+  type RequestContext,
 } from './lib';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerHealthRoute } from './routes/health';
+// LLM optimization services
+import { IntelligentCache } from './services/llm-cache';
+import { LLMRetryHandler, defaultShouldRetry } from './services/llm-retry';
+import { ResponseValidator } from './services/response-validator';
+import { LLMMetricsCollector } from './services/llm-metrics';
+import { estimateTokens, estimateCost } from './utils/tokens';
+import { buildPrompt } from './prompts/prompt-templates';
+import { createLLMOrchestrator, canCreateOrchestrator } from './services/llm-service-factory';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -97,8 +106,89 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
-// Helper to analyze parameter changes and their impact
-function analyzeParameterChanges(
+// Helper to retrieve website context via AutoRAG (reusable across contexts)
+async function retrieveWebsiteContext(
+  env: Env,
+  sanitizedMessage: string,
+  requestContext: RequestContext
+): Promise<string> {
+  if (!env.AI) {
+    return '';
+  }
+
+  try {
+    const aiAutorag = env.AI.autorag('ai-search-gentle-tree-ce67-d9b958');
+    
+    const websiteResponse = await aiAutorag.aiSearch({
+      query: sanitizedMessage
+    });
+    
+    // Log raw response structure for debugging
+    logInfo(requestContext, 'AutoRAG raw response debug', {
+      responseType: typeof websiteResponse,
+      isResponseInstance: websiteResponse instanceof Response,
+      hasKeys: websiteResponse && typeof websiteResponse === 'object' ? Object.keys(websiteResponse).join(',') : 'not object'
+    });
+    
+    // Handle response - could be Response object or direct data
+    let websiteResults: any[] = [];
+    
+    if (websiteResponse instanceof Response) {
+      // Streaming response, skip for now
+      logInfo(requestContext, 'AutoRAG returned streaming Response, skipping');
+      websiteResults = [];
+    } else if (websiteResponse && typeof websiteResponse === 'object') {
+      // Try to extract results from various possible structures
+      const responseAny = websiteResponse as any;
+      
+      // Try different possible response structures
+      if (Array.isArray(responseAny.results)) {
+        websiteResults = responseAny.results;
+      } else if (Array.isArray(responseAny.data)) {
+        websiteResults = responseAny.data;
+      } else if (Array.isArray(responseAny)) {
+        websiteResults = responseAny;
+      } else if (responseAny.items && Array.isArray(responseAny.items)) {
+        websiteResults = responseAny.items;
+      } else {
+        logWarn(requestContext, 'AutoRAG response structure unknown', {
+          keys: Object.keys(responseAny).join(', ')
+        });
+      }
+    }
+    
+    if (websiteResults.length > 0) {
+      // Format results for LLM
+      const formattedResults = websiteResults
+        .map((result: any, idx: number) => {
+          const url = result.url || 'Unknown URL';
+          const content = result.content || result.text || '';
+          const title = result.metadata?.title || 'Page Content';
+          
+          return `${idx + 1}. **${title}** (${url})\n   ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}`;
+        })
+        .join('\n\n');
+      
+      logInfo(requestContext, 'Retrieved website content from AutoRAG', {
+        results: websiteResults.length
+      });
+      
+      return `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
+    } else {
+      logInfo(requestContext, 'AutoRAG returned no results');
+    }
+  } catch (error) {
+    logWarn(requestContext, 'AutoRAG search failed', {
+      error: error instanceof Error ? error.message : String(error)
+    });
+    // Continue without website context - graceful degradation
+  }
+  
+  return '';
+}
+
+// Export helper for use in orchestrator
+export function analyzeParameterChanges(
   modelType: string,
   newParams: Record<string, unknown>,
   oldParams: Record<string, unknown>
@@ -117,7 +207,7 @@ function analyzeParameterChanges(
 }
 
 // Generate intelligent descriptions of parameter changes
-function generateChangeDescription(
+export function generateChangeDescription(
   modelType: string,
   field: string,
   oldValue: unknown,
@@ -169,7 +259,7 @@ function generateChangeDescription(
 }
 
 // Helper to extract previous model state from memory context
-function getPreviousModelState(
+export function getPreviousModelState(
   toolName: string,
   memoryContext: { conversationHistory?: string; modelStates?: string }
 ): Record<string, unknown> | undefined {
@@ -210,8 +300,8 @@ function getPreviousModelState(
   return Object.keys(params).length > 0 ? params : undefined;
 }
 
-// Helper to format MCP tool results with intelligent analysis and memory context
-function formatMCPToolAnalysis(
+// Export helper for use in orchestrator
+export function formatMCPToolAnalysis(
   toolName: string,
   result: unknown,
   inputData: Record<string, unknown>,
@@ -1290,26 +1380,148 @@ router.post(
       .join('\n');
     const prompt = `${system ? system.content + '\n\n' : ''}${userParts}`.slice(0, 10000);
 
-    // Call Workers AI with optional AI Gateway support for caching and logging
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ai = env.AI as any;
+    // Initialize optimization services
+    const startTime = Date.now();
+    const requestId = crypto.randomUUID();
+    const cache = env.KV ? new IntelligentCache(env.KV) : null;
+    const retry = new LLMRetryHandler();
+    const metrics = env.KV ? new LLMMetricsCollector(env.KV) : null;
 
-    // Configure AI Gateway if available
-    const aiOptions = env.AI_GATEWAY_ID
-      ? {
-          gateway: {
-            id: env.AI_GATEWAY_ID,
-            skipCache: false,
-            cacheTtl: 3600, // 1 hour cache for identical prompts
+    // Check cache first
+    if (cache) {
+      try {
+        const cached = await cache.get(prompt);
+        if (cached && cached.value) {
+          const latency = Date.now() - startTime;
+          await metrics?.recordRequest({
+            requestId,
+            timestamp: startTime,
+            model: 'cache',
+            promptTokens: 0,
+            responseTokens: 0,
+            totalTokens: 0,
+            latency,
+            cacheHit: true,
+            success: true,
+            retryCount: 0,
+          });
+
+          const reply: ChatResponse = {
+            role: 'assistant',
+            content: String(cached.value),
+            model,
+          };
+          return new Response(JSON.stringify(reply), { 
+            status: 200, 
+            headers: buildDefaultHeaders(env) 
+          });
+        }
+      } catch (error) {
+        logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Cache check failed', { error });
+      }
+    }
+
+    // Call Workers AI with retry logic and validation
+    let retryCount = 0;
+    let aiRes: any;
+    let finalText: string = '';
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ai = env.AI as any;
+
+      // Configure AI Gateway if available
+      const aiOptions = env.AI_GATEWAY_ID
+        ? {
+            gateway: {
+              id: env.AI_GATEWAY_ID,
+              skipCache: false,
+              cacheTtl: 3600, // 1 hour cache for identical prompts
+            },
+          }
+        : {};
+
+      aiRes = await retry.callWithRetry(
+        async () => {
+          retryCount++;
+          return await ai.run(model, { prompt }, aiOptions);
+        },
+        {
+          maxRetries: 3,
+          shouldRetry: defaultShouldRetry,
+          onRetry: (attempt, error) => {
+            logWarn(buildRequestContext(request, env.ENVIRONMENT), `LLM retry attempt ${attempt}`, { error: error.message });
           },
         }
-      : {};
+      );
 
-    const aiRes = await ai.run(model, { prompt }, aiOptions);
-    const text: string = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
+      finalText = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
+
+      // Validate response quality
+      const validation = ResponseValidator.validateLLMResponse(finalText);
+      if (!validation.valid) {
+        logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Response validation failed', { issues: validation.issues });
+      }
+
+      // Cache successful responses
+      if (cache && validation.valid) {
+        try {
+          await cache.set(prompt, finalText, 3600);
+        } catch (error) {
+          logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Failed to cache response', { error });
+        }
+      }
+
+    } catch (error) {
+      const latency = Date.now() - startTime;
+      const promptTokenEstimate = estimateTokens(prompt);
+      await metrics?.recordRequest({
+        requestId,
+        timestamp: startTime,
+        model,
+        promptTokens: promptTokenEstimate,
+        responseTokens: 0,
+        totalTokens: promptTokenEstimate,
+        latency,
+        cacheHit: false,
+        success: false,
+        errorType: error instanceof Error ? error.message : String(error),
+        retryCount,
+      });
+
+      // Return error response
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: error instanceof Error ? error.message : 'AI request failed',
+            code: 'AI_REQUEST_FAILED',
+          },
+        }),
+        { status: 500, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    // Record success metrics
+    const latency = Date.now() - startTime;
+    const promptTokens = estimateTokens(prompt);
+    const responseTokens = estimateTokens(finalText);
+    await metrics?.recordRequest({
+      requestId,
+      timestamp: startTime,
+      model,
+      promptTokens,
+      responseTokens,
+      totalTokens: promptTokens + responseTokens,
+      latency,
+      cacheHit: false,
+      success: true,
+      retryCount,
+      cost: estimateCost(model, promptTokens, responseTokens),
+    });
+
     const reply: ChatResponse = {
       role: 'assistant',
-      content: String(text || '').slice(0, 12000),
+      content: String(finalText || '').slice(0, 12000),
       model,
     };
     return new Response(JSON.stringify(reply), { status: 200, headers: buildDefaultHeaders(env) });
@@ -2613,6 +2825,8 @@ router.post(
         currentModel?: Record<string, unknown>;
         availableTools?: Array<{ name: string; description: string }>;
         toolOutputs?: Record<string, unknown>;
+        contextData?: Record<string, unknown>;
+        contextLabel?: string | null;
         memoryContext?: {
           conversationHistory?: string;
           modelStates?: string;
@@ -2624,6 +2838,8 @@ router.post(
         currentModel = {},
         availableTools = [],
         toolOutputs = {},
+        contextData = {},
+        contextLabel = null,
         memoryContext = {},
       } = body;
 
@@ -2686,6 +2902,10 @@ router.post(
         analyze_auto_loan: ['auto loan', 'car loan', 'vehicle'],
         analyze_lease: ['lease', 'leasing'],
         analyze_amortization: ['amortization', 'mortgage', 'loan schedule'],
+        // Startup planning specific tools
+        analyze_cash_flow: ['cash flow', 'burn rate', 'runway', 'cash projection', 'liquidity'],
+        ebitda_forecasting: ['ebitda', 'revenue projection', 'forecast', 'projection', 'financial forecast'],
+        analyze_financial_journey: ['journey', 'multi-stage', 'comprehensive planning', 'capital investment', 'seed round', 'series a'],
       };
 
       // Try to match user intent to an MCP tool
@@ -2946,8 +3166,337 @@ router.post(
         }
       }
 
-      // If no specific changes detected, provide general assistance
-      if (Object.keys(modelChanges).length === 0) {
+      // Try orchestrator first for startup-planning and other contexts
+      if (canCreateOrchestrator(env) && Object.keys(modelChanges).length === 0) {
+        try {
+          const orchestrator = createLLMOrchestrator(env);
+          
+          const orchestratorRequest = {
+            message: sanitizedMessage,
+            context,
+            contextData,
+            currentModel,
+            availableTools,
+            toolOutputs,
+            memoryContext,
+            requestId: requestContext.requestId,
+          };
+          
+          const result = await orchestrator.handle(orchestratorRequest);
+          
+          // Use orchestrator response
+          contextualResponse = result.response;
+          
+          if (result.modelChanges && Object.keys(result.modelChanges).length > 0) {
+            modelChanges = result.modelChanges as Record<string, string | number>;
+          }
+          
+          if (result.explanation) {
+            explanation = result.explanation;
+          }
+          
+          logInfo(requestContext, 'LLM orchestrator completed', {
+            intent: result.metadata?.intent || 'unknown',
+            fromCache: result.fromCache || false,
+          });
+          
+          // Return orchestrator response if successful
+          const response = {
+            response: contextualResponse,
+            modelChanges,
+            context,
+            fromCache: result.fromCache || false,
+            thinking: [`Orchestrator handled: ${result.metadata?.intent || 'unknown'}`],
+          };
+          
+          return new Response(JSON.stringify(response), {
+            status: 200,
+            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+          });
+        } catch (orchestratorError) {
+          logWarn(requestContext, 'Orchestrator failed, falling back to legacy handler', {
+            error: orchestratorError instanceof Error ? orchestratorError.message : String(orchestratorError),
+          });
+          // Fall through to legacy handlers below
+        }
+      }
+      
+      // Legacy handler for startup-planning (fallback)
+      if (context === 'startup-planning' && Object.keys(modelChanges).length === 0) {
+        if (!env.AI) {
+          contextualResponse = 'AI model is not configured in this environment.';
+          explanation = 'Please contact support if this issue persists.';
+        } else {
+          try {
+            // Extract phase information from contextData
+            const phaseData = contextData as {
+              phase?: number;
+              phaseName?: string;
+              description?: string;
+              keyFields?: string[];
+              helpTopics?: string[];
+              currentPhaseData?: Record<string, unknown>;
+              previousPhases?: {
+                phase1?: Record<string, unknown>;
+                phase2?: Record<string, unknown>;
+                phase3?: Record<string, unknown>;
+              };
+            };
+
+            // Filter relevant tools for startup planning
+            const relevantTools = availableTools.filter(tool => {
+              const toolName = tool.name.toLowerCase();
+              return toolName.includes('cash') || 
+                     toolName.includes('ebitda') || 
+                     toolName.includes('budget') ||
+                     toolName.includes('journey') ||
+                     toolName.includes('forecast');
+            });
+
+            // Build context for the prompt
+            const promptContext: Record<string, unknown> = {
+              phase: phaseData.phase || 1,
+              phaseName: phaseData.phaseName || 'Startup Planning',
+              userMessage: sanitizedMessage,
+              availableFields: phaseData.keyFields || [],
+              helpTopics: phaseData.helpTopics || [],
+              // Include relevant tools information
+              relevantTools: relevantTools.length > 0 ? relevantTools.map(t => ({
+                name: t.name,
+                description: t.description
+              })) : undefined,
+            };
+
+            // Add conversation history if available
+            if (memoryContext.conversationHistory && memoryContext.conversationHistory.length > 0) {
+              promptContext.conversationHistory = memoryContext.conversationHistory;
+            }
+
+            // Add current phase data if available
+            if (phaseData.currentPhaseData) {
+              promptContext.currentPhaseData = phaseData.currentPhaseData;
+            } else if (Object.keys(currentModel).length > 0) {
+              promptContext.currentPhaseData = currentModel;
+            }
+
+            // Add previous phases data for cross-phase analysis
+            if (phaseData.previousPhases) {
+              promptContext.previousPhases = phaseData.previousPhases;
+              // Build a summary of previous phases for the LLM
+              const previousPhasesSummary: string[] = [];
+              if (phaseData.previousPhases.phase1) {
+                const p1 = phaseData.previousPhases.phase1;
+                previousPhasesSummary.push(
+                  `Phase 1 (Initial Capital Investment): Investment of $${p1.totalInvestment?.toLocaleString() || 'N/A'}, ${p1.equityOffered || 'N/A'}% equity offered, Valuation: $${p1.valuation?.toLocaleString() || 'N/A'}`
+                );
+              }
+              if (phaseData.previousPhases.phase2) {
+                const p2 = phaseData.previousPhases.phase2;
+                previousPhasesSummary.push(
+                  `Phase 2 (Budget Planning): Monthly revenue of $${p2.monthlyRevenue?.toLocaleString() || 'N/A'}, Growth rate: ${p2.growthRate || 'N/A'}%`
+                );
+              }
+              if (phaseData.previousPhases.phase3) {
+                const p3 = phaseData.previousPhases.phase3;
+                previousPhasesSummary.push(
+                  `Phase 3 (Funding Strategy): Next round target: $${p3.nextFundingRound?.toLocaleString() || 'N/A'}, Current burn rate: $${p3.currentBurnRate?.toLocaleString() || 'N/A'}/month`
+                );
+              }
+            if (previousPhasesSummary.length > 0) {
+              promptContext.previousPhasesSummary = previousPhasesSummary.join('\n');
+            }
+          }
+
+          // Retrieve website context via AutoRAG
+          const websiteContext = await retrieveWebsiteContext(env, sanitizedMessage, requestContext);
+          if (websiteContext) {
+            promptContext.websiteContent = websiteContext;
+          }
+
+          // Build prompt from template
+          const prompt = buildPrompt('startupPlanningAssistant', promptContext);
+
+            // Check cache first (for common questions)
+            const startTime = Date.now();
+            const requestId = crypto.randomUUID();
+            const cache = env.KV ? new IntelligentCache(env.KV) : null;
+            const retry = new LLMRetryHandler();
+            const metrics = env.KV ? new LLMMetricsCollector(env.KV) : null;
+
+            // Create cache key from user message and phase (common questions get cached)
+            const cacheKey = `startup-planning:phase-${phaseData.phase || 1}:${sanitizedMessage.substring(0, 100)}`;
+            
+            if (cache) {
+              try {
+                const cached = await cache.get(cacheKey);
+                if (cached && cached.value) {
+                  const latency = Date.now() - startTime;
+                  await metrics?.recordRequest({
+                    requestId,
+                    timestamp: startTime,
+                    model: 'cache',
+                    promptTokens: 0,
+                    responseTokens: 0,
+                    totalTokens: 0,
+                    latency,
+                    cacheHit: true,
+                    success: true,
+                    retryCount: 0,
+                  });
+
+                  contextualResponse = String(cached.value);
+                  explanation = `Phase ${phaseData.phase || 1} guidance (from cache).`;
+                  
+                  logInfo(requestContext, 'Startup planning response served from cache', {
+                    phase: phaseData.phase,
+                  });
+                  
+                  // Skip LLM call since we have cached response
+                  // But we still need to add tool suggestions
+                  const phaseNumber = phaseData.phase || 1;
+                  const toolSuggestions: string[] = [];
+                  if (relevantTools.length > 0) {
+                    const cashFlowTool = relevantTools.find(t => t.name.includes('cash'));
+                    const ebitdaTool = relevantTools.find(t => t.name.includes('ebitda'));
+                    
+                    if (phaseNumber === 2 && cashFlowTool) {
+                      toolSuggestions.push(`💡 Tip: You can use the cash flow analysis tool to calculate your runway and burn rate.`);
+                    }
+                    if ((phaseNumber === 2 || phaseNumber === 4) && ebitdaTool) {
+                      toolSuggestions.push(`💡 Tip: Use the EBITDA forecasting tool for detailed revenue projections.`);
+                    }
+                  }
+                  
+                  if (toolSuggestions.length > 0) {
+                    contextualResponse += '\n\n' + toolSuggestions.join('\n');
+                  }
+                  
+                  // Return early with cached response
+                  const response = {
+                    response: `${contextualResponse}\n\n${explanation}`,
+                    modelChanges,
+                    context,
+                    fromCache: true,
+                    thinking: [`Served cached response for phase ${phaseNumber}`],
+                  };
+                  
+                  return new Response(JSON.stringify(response), {
+                    status: 200,
+                    headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+                  });
+                }
+              } catch (error) {
+                logWarn(requestContext, 'Cache check failed for startup planning', { error });
+              }
+            }
+
+            const model = env.WORKERS_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct';
+            
+            // Configure AI Gateway if available
+            const aiOptions = env.AI_GATEWAY_ID
+              ? {
+                  gateway: {
+                    id: env.AI_GATEWAY_ID,
+                    skipCache: false,
+                    cacheTtl: 3600,
+                  },
+                }
+              : {};
+
+            const ai = env.AI as any;
+            let aiRes: any;
+            let retryCount = 0;
+
+            aiRes = await retry.callWithRetry(
+              async () => {
+                retryCount++;
+                return await ai.run(model, { prompt }, aiOptions);
+              },
+              {
+                maxRetries: 3,
+                shouldRetry: defaultShouldRetry,
+                onRetry: (attempt, error) => {
+                  logWarn(requestContext, `LLM retry attempt ${attempt} for startup planning`, {
+                    error: error.message,
+                  });
+                },
+              }
+            );
+
+            const finalText = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
+
+            // Validate response
+            const validation = ResponseValidator.validateLLMResponse(finalText);
+            if (!validation.valid) {
+              logWarn(requestContext, 'Startup planning response validation failed', {
+                issues: validation.issues,
+              });
+            }
+
+            // Cache successful responses (for common questions)
+            if (cache && validation.valid) {
+              try {
+                await cache.set(cacheKey, finalText, 3600); // Cache for 1 hour
+              } catch (error) {
+                logWarn(requestContext, 'Failed to cache startup planning response', { error });
+              }
+            }
+
+            // Record metrics
+            const latency = Date.now() - startTime;
+            const promptTokens = estimateTokens(prompt);
+            const responseTokens = estimateTokens(finalText);
+            await metrics?.recordRequest({
+              requestId,
+              timestamp: startTime,
+              model,
+              promptTokens,
+              responseTokens,
+              totalTokens: promptTokens + responseTokens,
+              latency,
+              cacheHit: false,
+              success: true,
+              retryCount,
+              cost: estimateCost(model, promptTokens, responseTokens),
+            });
+
+            contextualResponse = String(finalText || '').slice(0, 8000);
+            const phaseNumber = phaseData.phase || 1;
+            
+            // Add tool suggestions if relevant tools are available
+            const toolSuggestions: string[] = [];
+            if (relevantTools.length > 0) {
+              const cashFlowTool = relevantTools.find(t => t.name.includes('cash'));
+              const ebitdaTool = relevantTools.find(t => t.name.includes('ebitda'));
+              
+              if (phaseNumber === 2 && cashFlowTool) {
+                toolSuggestions.push(`💡 Tip: You can use the cash flow analysis tool to calculate your runway and burn rate.`);
+              }
+              if ((phaseNumber === 2 || phaseNumber === 4) && ebitdaTool) {
+                toolSuggestions.push(`💡 Tip: Use the EBITDA forecasting tool for detailed revenue projections.`);
+              }
+            }
+            
+            if (toolSuggestions.length > 0) {
+              contextualResponse += '\n\n' + toolSuggestions.join('\n');
+            }
+            
+            explanation = `Phase ${phaseNumber} guidance provided based on your startup planning context${toolSuggestions.length > 0 ? ' with tool suggestions' : ''}.`;
+
+            logInfo(requestContext, 'Startup planning LLM response generated', {
+              phase: phaseData.phase,
+              toolsSuggested: toolSuggestions.length,
+            });
+          } catch (error) {
+            logWarn(requestContext, 'LLM call failed for startup planning', {
+              error: error instanceof Error ? error.message : String(error),
+            });
+            // Fall back to general assistance
+            contextualResponse = `I can help with ${contextLabel || 'startup planning'}.`;
+            explanation = 'I can assist with capital investment, budget planning, funding strategy, and growth planning. What specific question can I help you with?';
+          }
+        }
+      } else if (Object.keys(modelChanges).length === 0) {
         // Short, help-on-demand response: keeps startup concise but points users to ask for help
         contextualResponse = `I can help update the ${context} model. Try: "Set interest to 4.5%" or "Show a 20-year term". Say "help" for more examples.`;
         explanation = `I can change interest rates, amounts, and terms. Ask for a specific value or say "help" to see example requests.`;
