@@ -6,6 +6,12 @@ import type {
 import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 import { publishChatContext } from './chat/chat-context';
+import {
+  parseNumberWithFallback as parseNumber,
+  isFiniteNumber,
+  coerceNumber,
+  formatCurrency,
+} from '../utils/calculator-utilities';
 
 // Helper to safely extract total paid amount from API result
 const getTotalPaid = (result: AmortizationAnalysisResult): number => {
@@ -36,38 +42,9 @@ const CHART_COLORS = {
   accent: '#6366f1', // indigo-500
 } as const;
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const parseNumber = (value: FormDataEntryValue | null, fallback = Number.NaN): number => {
-  if (value === null) return fallback;
-  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsed = Number.parseFloat(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  }
-  return fallback;
-};
-
-const isFiniteNumber = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isFinite(value);
-
-const coerceNumber = (value: unknown, fallback = Number.NaN): number => {
-  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
-  if (typeof value === 'string') {
-    const parsed = Number.parseFloat(value.replace(/[$,]/g, ''));
-    return Number.isFinite(parsed) ? parsed : fallback;
-  }
-  return fallback;
-};
-
 const toCurrency = (value: unknown): string => {
   const numeric = coerceNumber(value, Number.NaN);
-  return Number.isFinite(numeric) ? currencyFormatter.format(numeric) : '';
+  return Number.isFinite(numeric) ? formatCurrency(numeric) : '';
 };
 
 type RiskLevel = 'low' | 'medium' | 'high';
