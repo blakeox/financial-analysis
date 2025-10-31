@@ -1,0 +1,374 @@
+/**
+ * LLM Orchestrator
+ * Coordinates LLM services and handles request routing
+ */
+
+// @ts-ignore - Cloudflare Workers types
+import type { Ai } from '@cloudflare/workers-types';
+import { handleMCPRequest } from '@financial-analysis/tools';
+import type { ContextManager } from './context-manager';
+import { ContextManager as ContextManagerImpl } from './context-manager';
+import type { IntentDetector, IntentDetection, ToolSummary } from './intent-detector';
+import { IntentDetector as IntentDetectorImpl } from './intent-detector';
+import type { LLMService, LLMRequest } from './llm-service';
+import { LLMService as LLMServiceImpl } from './llm-service';
+import { IntelligentCache as IntelligentCacheImpl } from './llm-cache';
+import { LLMRetryHandler as LLMRetryHandlerImpl } from './llm-retry';
+import { LLMMetricsCollector as LLMMetricsCollectorImpl } from './llm-metrics';
+import { 
+  formatMCPToolAnalysis
+} from '../index';
+
+export interface OrchestrationRequest {
+  message: string;
+  context: string;
+  contextData?: Record<string, unknown>;
+  currentModel?: Record<string, unknown>;
+  availableTools?: ToolSummary[];
+  toolOutputs?: Record<string, unknown>;
+  memoryContext?: {
+    conversationHistory?: string;
+    modelStates?: string;
+  };
+  requestId?: string;
+}
+
+export interface OrchestrationResponse {
+  response: string;
+  toolUsed?: string | undefined;
+  modelChanges?: Record<string, unknown> | undefined;
+  explanation?: string | undefined;
+  fromCache?: boolean | undefined;
+  metadata?: {
+    intent?: string | undefined;
+    latency?: number | undefined;
+    attempt?: number | undefined;
+  } | undefined;
+}
+
+export interface OrchestratorConfig {
+  enableAutoRAG?: boolean;
+  autoRAGInstanceId?: string;
+  enableCaching?: boolean;
+  enableRetry?: boolean;
+  enableMetrics?: boolean;
+}
+
+export class LLMOrchestrator {
+  private llm: LLMService;
+  private contextManager: ContextManager;
+  private intentDetector: IntentDetector;
+
+  constructor(
+    ai: Ai,
+    private env: { KV?: any },
+    config?: OrchestratorConfig
+  ) {
+    // Initialize services
+    const cache = env.KV ? new IntelligentCacheImpl(env.KV) : undefined;
+    const retry = new LLMRetryHandlerImpl();
+    const metrics = env.KV ? new LLMMetricsCollectorImpl(env.KV) : undefined;
+
+    this.llm = new LLMServiceImpl(ai, cache, retry, metrics);
+    this.contextManager = new ContextManagerImpl(ai, config?.autoRAGInstanceId);
+    this.intentDetector = new IntentDetectorImpl();
+  }
+
+  /**
+   * Main orchestration method
+   */
+  async handle(request: OrchestrationRequest): Promise<OrchestrationResponse> {
+    const {
+      message,
+      context,
+      contextData,
+      currentModel = {},
+      availableTools = [],
+      toolOutputs = {},
+      memoryContext,
+      requestId,
+    } = request;
+
+    // 1. Detect intent
+    const intent = this.intentDetector.detect(message, context, availableTools);
+
+    // 2. Handle based on intent
+    switch (intent.intent) {
+      case 'tool_call':
+        return await this.handleToolCall(
+          intent,
+          currentModel,
+          toolOutputs,
+          memoryContext
+        );
+
+      case 'field_update':
+        return await this.handleFieldUpdate(
+          intent,
+          currentModel,
+          context
+        );
+
+      case 'llm_question':
+      case 'general':
+      default:
+        return await this.handleLLMQuestion(
+          message,
+          context,
+          contextData,
+          availableTools,
+          memoryContext,
+          requestId
+        );
+    }
+  }
+
+  /**
+   * Handle tool call intent
+   */
+  private async handleToolCall(
+    intent: IntentDetection,
+    currentModel: Record<string, unknown>,
+    toolOutputs: Record<string, unknown>,
+    memoryContext: { conversationHistory?: string; modelStates?: string } | undefined
+  ): Promise<OrchestrationResponse> {
+    const toolName = intent.suggestedTool;
+
+    if (!toolName) {
+      // No tool suggested, fall back to LLM
+      return {
+        response: 'I understand you want to use a tool, but I couldn\'t determine which one. Could you clarify?',
+        metadata: { intent: 'tool_call' },
+      };
+    }
+
+    // Check if we already have output for this tool
+    const existingOutput = toolOutputs[toolName];
+    if (existingOutput) {
+      const analysisResponse = formatMCPToolAnalysis(toolName, existingOutput, currentModel);
+      
+      return {
+        response: analysisResponse,
+        toolUsed: toolName,
+        fromCache: true,
+        metadata: { intent: 'tool_call' },
+      };
+    }
+
+    // Call the tool
+    if (Object.keys(currentModel).length > 0) {
+      try {
+        const mcpResult = await handleMCPRequest(
+          'tools/call',
+          {
+            name: toolName,
+            arguments: currentModel,
+          },
+          this.env
+        );
+
+        // Get previous state for comparison
+        const previousState = this.getPreviousModelState(toolName, memoryContext);
+
+        // Format the result
+        const analysisResponse = formatMCPToolAnalysis(
+          toolName,
+          mcpResult,
+          currentModel,
+          previousState
+        );
+
+        return {
+          response: analysisResponse,
+          toolUsed: toolName,
+          metadata: { intent: 'tool_call' },
+        };
+      } catch (error) {
+        // Tool call failed, return error message
+        return {
+          response: `I had trouble calling the ${toolName} tool. ${error instanceof Error ? error.message : 'Please try again or ask me directly.'}`,
+          metadata: { intent: 'tool_call' },
+        };
+      }
+    }
+
+    return {
+      response: `I need some data to run the ${toolName} tool. Please fill in the form first.`,
+      metadata: { intent: 'tool_call' },
+    };
+  }
+
+  /**
+   * Handle field update intent
+   */
+  private async handleFieldUpdate(
+    intent: IntentDetection,
+    currentModel: Record<string, unknown>,
+    context: string
+  ): Promise<OrchestrationResponse> {
+    const parameters = intent.parameters || {};
+
+    if (Object.keys(parameters).length === 0) {
+      return {
+        response: 'I couldn\'t determine what to update from your message. Could you be more specific?',
+        modelChanges: {},
+        metadata: { intent: 'field_update' },
+      };
+    }
+
+    // Apply field mappings if needed
+    const modelChanges = this.applyFieldMappings(parameters, context);
+
+    // Generate explanation
+    const explanation = this.generateFieldUpdateExplanation(parameters, currentModel);
+
+    return {
+      response: 'I\'ve updated the values as requested.',
+      modelChanges,
+      explanation,
+      metadata: { intent: 'field_update' },
+    };
+  }
+
+  /**
+   * Handle LLM question intent
+   */
+  private async handleLLMQuestion(
+    message: string,
+    context: string,
+    contextData: Record<string, unknown> | undefined,
+    availableTools: ToolSummary[],
+    memoryContext: { conversationHistory?: string; modelStates?: string } | undefined,
+    requestId: string | undefined
+  ): Promise<OrchestrationResponse> {
+    // Build context
+    const builtContext = await this.contextManager.build({
+      message,
+      contextKey: context,
+      contextData,
+      memoryContext,
+      availableTools,
+      enableAutoRAG: true,
+      requestId,
+    });
+
+    // Call LLM
+    const llmRequest: LLMRequest = {
+      prompt: builtContext.prompt,
+      systemPrompt: builtContext.systemPrompt,
+      metadata: {
+        requestId: requestId || undefined,
+        context,
+        cacheKey: builtContext.cacheKey,
+      },
+    };
+
+    const llmResponse = await this.llm.chat(llmRequest);
+
+    // Return response
+    const response: OrchestrationResponse = {
+      response: llmResponse.content,
+      fromCache: llmResponse.fromCache,
+    };
+    
+    if (llmResponse.latency !== undefined || llmResponse.metadata?.attempt !== undefined) {
+      response.metadata = {
+        intent: 'llm_question',
+        latency: llmResponse.latency || undefined,
+        attempt: llmResponse.metadata?.attempt || undefined,
+      };
+    }
+    
+    return response;
+  }
+
+  /**
+   * Apply field mappings based on context
+   */
+  private applyFieldMappings(
+    parameters: Record<string, unknown>,
+    context: string
+  ): Record<string, unknown> {
+    const fieldMappings: Record<string, Record<string, string>> = {
+      lease: {
+        interestRate: 'annualRate',
+        leasePrincipal: 'principal',
+        leaseTerm: 'termMonths',
+        residual: 'residualValue',
+      },
+      amortization: {
+        interestRate: 'annualRate',
+        loanAmount: 'principal',
+        term: 'termMonths',
+      },
+      ebitda: {
+        initialRevenue: 'revenue',
+        revenueGrowthRate: 'growthRate',
+        expenses: 'expenses',
+      },
+    };
+
+    const mapping = fieldMappings[context];
+    if (!mapping) {
+      return parameters;
+    }
+
+    const mapped: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(parameters)) {
+      const mappedKey = mapping[key] || key;
+      mapped[mappedKey] = value;
+    }
+
+    return mapped;
+  }
+
+  /**
+   * Generate explanation for field update
+   */
+  private generateFieldUpdateExplanation(
+    parameters: Record<string, unknown>,
+    currentModel: Record<string, unknown>
+  ): string {
+    // Get the first field being updated
+    const fields = Object.keys(parameters);
+    if (fields.length === 0) {
+      return 'Field updated';
+    }
+    const field = fields[0];
+    if (!field) {
+      return 'Field updated';
+    }
+    const newValue = parameters[field];
+    const oldValue = currentModel[field];
+
+    if (oldValue !== undefined && newValue !== undefined) {
+      return `Updated ${field} from ${oldValue} to ${newValue}`;
+    }
+
+    if (newValue !== undefined) {
+      return `Set ${field} to ${newValue}`;
+    }
+
+    return 'Field updated';
+  }
+
+  /**
+   * Get previous model state
+   */
+  private getPreviousModelState(
+    toolName: string,
+    memoryContext: { conversationHistory?: string; modelStates?: string } | undefined
+  ): Record<string, unknown> | undefined {
+    if (!memoryContext?.modelStates) {
+      return undefined;
+    }
+
+    try {
+      const modelStates = JSON.parse(memoryContext.modelStates);
+      return modelStates[toolName];
+    } catch {
+      return undefined;
+    }
+  }
+}
+
