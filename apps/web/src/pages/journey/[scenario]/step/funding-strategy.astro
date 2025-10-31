@@ -4,9 +4,15 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths = Object.keys(journeyData).map((scenarioId) => ({
-    params: { scenario: scenarioId },
-  }));
+  const paths: Array<{ params: { scenario: string } }> = [];
+
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'funding-strategy')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
+  });
 
   return paths;
 }
@@ -21,13 +27,14 @@ if (!currentScenario) {
 
 // Journey navigation data
 const currentStep = currentScenario.models.find(m => m.id === 'funding-strategy');
-const nextStep = currentScenario.models.find(m => m.order === 4);
-const previousStep = currentScenario.models.find(m => m.order === 2);
+const currentStepOrder = currentStep?.order || 3;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: 3,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -43,8 +50,8 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `Funding Strategy - Step 3 of ${currentScenario.name}`;
-const seoDescription = `Plan funding milestones and runway. This is step 3 of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
 <script define:vars={{ journeyNav }}>
