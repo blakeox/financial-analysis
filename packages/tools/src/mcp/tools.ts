@@ -3,18 +3,29 @@ import { AutoLoanTool } from '../tools/auto-loan.js';
 import { BondPricingTool } from '../tools/bond-pricing.js';
 import { BudgetTool } from '../tools/budget.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
+import { CCAAnalysisTool } from '../tools/cca-analysis.js';
+import { CollegeSavingsTool } from '../tools/college-savings.js';
+import { DCFAnalysisTool } from '../tools/dcf-analysis.js';
 import { DebtPayoffTool } from '../tools/debt-payoff.js';
 import {
   EbitdaForecastingTool,
   EbitdaScenarioComparisonTool,
 } from '../tools/ebitda-forecasting.js';
 import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
+import { FinancialJourneyTool } from '../tools/financial-journey.js';
+import { HomeBuyingAffordabilityTool } from '../tools/home-buying-affordability.js';
+import { InsuranceNeedsTool } from '../tools/insurance-needs.js';
+import { InteractiveModelTool } from '../tools/interactive-model.js';
+import { InvestmentPortfolioTool } from '../tools/investment-portfolio.js';
 import { LeaseTool } from '../tools/lease.js';
+import { MAAnalysisTool } from '../tools/ma-analysis.js';
+import { MultiModelScenarioTool } from '../tools/multi-model-scenario.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
 import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
+import { TaxOptimizationTool } from '../tools/tax-optimization.js';
 
 export interface MCPTool {
   name: string;
@@ -116,6 +127,72 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: PopulateLeaseFormTool.inputSchema,
       execute: PopulateLeaseFormTool.execute.bind(PopulateLeaseFormTool),
     },
+    {
+      name: CollegeSavingsTool.toolName,
+      description: CollegeSavingsTool.description,
+      inputSchema: CollegeSavingsTool.inputSchema,
+      execute: CollegeSavingsTool.execute.bind(CollegeSavingsTool),
+    },
+    {
+      name: HomeBuyingAffordabilityTool.toolName,
+      description: HomeBuyingAffordabilityTool.description,
+      inputSchema: HomeBuyingAffordabilityTool.inputSchema,
+      execute: HomeBuyingAffordabilityTool.execute.bind(HomeBuyingAffordabilityTool),
+    },
+    {
+      name: TaxOptimizationTool.toolName,
+      description: TaxOptimizationTool.description,
+      inputSchema: TaxOptimizationTool.inputSchema,
+      execute: TaxOptimizationTool.execute.bind(TaxOptimizationTool),
+    },
+    {
+      name: InsuranceNeedsTool.toolName,
+      description: InsuranceNeedsTool.description,
+      inputSchema: InsuranceNeedsTool.inputSchema,
+      execute: InsuranceNeedsTool.execute.bind(InsuranceNeedsTool),
+    },
+    {
+      name: InvestmentPortfolioTool.toolName,
+      description: InvestmentPortfolioTool.description,
+      inputSchema: InvestmentPortfolioTool.inputSchema,
+      execute: InvestmentPortfolioTool.execute.bind(InvestmentPortfolioTool),
+    },
+    {
+      name: FinancialJourneyTool.toolName,
+      description: FinancialJourneyTool.description,
+      inputSchema: FinancialJourneyTool.inputSchema,
+      execute: FinancialJourneyTool.execute.bind(FinancialJourneyTool),
+    },
+    {
+      name: InteractiveModelTool.toolName,
+      description: InteractiveModelTool.description,
+      inputSchema: InteractiveModelTool.inputSchema,
+      execute: InteractiveModelTool.execute.bind(InteractiveModelTool),
+    },
+    {
+      name: MultiModelScenarioTool.toolName,
+      description: MultiModelScenarioTool.description,
+      inputSchema: MultiModelScenarioTool.inputSchema,
+      execute: MultiModelScenarioTool.execute.bind(MultiModelScenarioTool),
+    },
+    {
+      name: MAAnalysisTool.toolName,
+      description: MAAnalysisTool.description,
+      inputSchema: MAAnalysisTool.inputSchema,
+      execute: MAAnalysisTool.execute.bind(MAAnalysisTool),
+    },
+    {
+      name: DCFAnalysisTool.toolName,
+      description: DCFAnalysisTool.description,
+      inputSchema: DCFAnalysisTool.inputSchema,
+      execute: DCFAnalysisTool.execute.bind(DCFAnalysisTool),
+    },
+    {
+      name: CCAAnalysisTool.toolName,
+      description: CCAAnalysisTool.description,
+      inputSchema: CCAAnalysisTool.inputSchema,
+      execute: CCAAnalysisTool.execute.bind(CCAAnalysisTool),
+    },
   ];
 }
 
@@ -139,6 +216,17 @@ function getConciseDescription(toolName: string): string {
     analyze_retirement_savings: 'Plan retirement savings and projections',
     optimize_budget: 'Analyze and optimize personal budget',
     populate_lease_form: 'Populate lease analysis form fields from extracted data or natural language',
+    analyze_college_savings: 'Plan college savings with 529 plans, ESA, and financial aid impact',
+    analyze_home_buying_affordability: 'Assess home buying affordability and mortgage options',
+    analyze_tax_optimization: 'Optimize tax strategies including IRA, deductions, and capital gains',
+    analyze_insurance_needs: 'Calculate life, disability, and long-term care insurance needs',
+    analyze_investment_portfolio: 'Optimize investment portfolio allocation and rebalancing',
+    analyze_financial_journey: 'Comprehensive multi-stage financial journey planning and analysis',
+    interactive_financial_model: 'Interactive financial model management and modification',
+    multi_model_scenario_analysis: 'Analyze complex multi-model financial scenarios',
+    analyze_ma_deal: 'Comprehensive M&A deal analysis including synergies, accretion/dilution, and integration planning',
+    analyze_dcf_valuation: 'DCF valuation with WACC, cash flow projections, terminal value, and sensitivity analysis',
+    analyze_cca_valuation: 'Comparable company analysis with trading multiples and peer group valuation',
   };
 
   return descriptions[toolName] || 'Financial analysis tool';

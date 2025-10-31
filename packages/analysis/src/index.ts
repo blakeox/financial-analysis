@@ -5,6 +5,11 @@ export { EbitdaForecaster } from './engines/ebitda-forecasting.js';
 export { EnhancedLeaseAnalyzer } from './engines/enhanced-lease.js';
 export { LeaseAnalyzer } from './engines/lease.js';
 export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
+export { MAAnalysisEngine } from './engines/ma-analysis.js';
+export { DCFValuationEngine } from './engines/dcf-analysis.js';
+export { CCAValuationEngine } from './engines/cca-analysis.js';
+export { FinancialJourneyAnalysisEngine } from './engines/financial-journey.js';
+export { InsuranceNeedsCalculator } from './engines/insurance-needs.js';
 
 // Export amortization functions and types
 export {
@@ -134,3 +139,39 @@ export type {
   IncomeSource,
 } from './schemas/budget.js';
 export type { BudgetResult } from './types/budget-result.js';
+
+// M&A analysis schemas and types
+export { MAAnalysisInputSchema } from './engines/ma-analysis.js';
+export type { MAAnalysisInput, MAAnalysisResult } from './engines/ma-analysis.js';
+
+// DCF valuation schemas and types
+export { DCFValuationInputSchema } from './engines/dcf-analysis.js';
+export type { DCFValuationInput, DCFValuationResult } from './engines/dcf-analysis.js';
+
+// CCA valuation schemas and types
+export { CCAValuationInputSchema } from './engines/cca-analysis.js';
+export type { CCAValuationInput, CCAValuationResult } from './engines/cca-analysis.js';
+
+// Financial journey schemas and types
+export { FinancialJourneyInputSchema } from './engines/financial-journey.js';
+export type { FinancialJourneyInput, FinancialJourneyResult } from './engines/financial-journey.js';
+
+// Insurance needs schemas and types
+export { InsuranceNeedsInputSchema } from './engines/insurance-needs.js';
+export type { InsuranceNeedsInput, InsuranceNeedsResult } from './engines/insurance-needs.js';
+
+// College savings schemas and types (stub)
+export { CollegeSavingsPlanner } from './engines/college-savings-stub.js';
+export { CollegeSavingsInputSchema } from './schemas/college-savings.js';
+
+// Home buying schemas and types (stub - need to check)
+export { HomeBuyingAffordabilityCalculator } from './engines/home-buying-affordability-stub.js';
+export { HomeBuyingAffordabilityInputSchema } from './schemas/home-buying-affordability.js';
+
+// Investment portfolio schemas and types (stub - need to check)
+export { InvestmentPortfolioAnalyzer } from './engines/investment-portfolio-stub.js';
+export { InvestmentPortfolioInputSchema } from './schemas/investment-portfolio.js';
+
+// Tax optimization schemas and types (stub - need to check)
+export { TaxOptimizationPlanner } from './engines/tax-optimization-stub.js';
+export { TaxOptimizationInputSchema } from './schemas/tax-optimization.js';
