@@ -3,15 +3,15 @@ import type {
   AmortizationInput,
   AmortizationResultItem,
 } from '@financial-analysis/analysis';
+import {
+  coerceNumber,
+  formatCurrency,
+  isFiniteNumber,
+  parseNumberWithFallback as parseNumber,
+} from '../utils/calculator-utilities';
 import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 import { publishChatContext } from './chat/chat-context';
-import {
-  parseNumberWithFallback as parseNumber,
-  isFiniteNumber,
-  coerceNumber,
-  formatCurrency,
-} from '../utils/calculator-utilities';
 
 // Helper to safely extract total paid amount from API result
 const getTotalPaid = (result: AmortizationAnalysisResult): number => {
@@ -1160,156 +1160,156 @@ function initializeAmortization() {
 
   if (testAnalysisBtn && debugLog) {
     testAnalysisBtn.addEventListener('click', () => {
-    debugLog.innerHTML = 'Testing comprehensive analysis...<br>';
+      debugLog.innerHTML = 'Testing comprehensive analysis...<br>';
 
-    const summary: AmortizationSummary = {
-      principal: 300000,
-      monthlyPayment: 1520.06,
-      totalInterest: 247221.6,
-      totalPayments: 547221.6,
-      termMonths: 360,
-      years: 30,
-      annualRate: 0.045,
-      interestShare: 247221.6 / 547221.6,
-      payoffDate: '2054-01-01',
-      totalPMI: 0,
-      totalExtraPayments: 0,
-      assumedMonthlyIncome: ASSUMED_MONTHLY_INCOME,
-      paymentToIncomeRatio: 1520.06 / ASSUMED_MONTHLY_INCOME,
-      firstYearInterest: 13450,
-      lastYearInterest: 1200,
-      interestSaved: 0,
-      timeReduced: 0,
-    };
+      const summary: AmortizationSummary = {
+        principal: 300000,
+        monthlyPayment: 1520.06,
+        totalInterest: 247221.6,
+        totalPayments: 547221.6,
+        termMonths: 360,
+        years: 30,
+        annualRate: 0.045,
+        interestShare: 247221.6 / 547221.6,
+        payoffDate: '2054-01-01',
+        totalPMI: 0,
+        totalExtraPayments: 0,
+        assumedMonthlyIncome: ASSUMED_MONTHLY_INCOME,
+        paymentToIncomeRatio: 1520.06 / ASSUMED_MONTHLY_INCOME,
+        firstYearInterest: 13450,
+        lastYearInterest: 1200,
+        interestSaved: 0,
+        timeReduced: 0,
+      };
 
-    const timeline: AmortizationTimeline = {
-      principalTakeoverMonth: 62,
-      halfBalanceMonth: 178,
-      milestones: [
-        {
-          id: 'highest-interest-share',
-          month: 1,
-          label: 'Interest-leaning payment',
-          description: 'Interest consumes 71.0% of the payment',
-        },
-        {
-          id: 'principal-takeover',
-          month: 62,
-          label: 'Principal overtakes interest',
-          description: 'Principal outpaces interest for the first time',
-        },
-        {
-          id: 'halfway-balance',
-          month: 178,
-          label: 'Half of principal repaid',
-          description: 'Remaining balance drops below half of the original loan',
-        },
-        {
-          id: 'final-payment',
-          month: 360,
-          label: 'Loan payoff',
-          description: 'Balance reaches zero with the final payment',
-        },
-      ],
-    };
-
-    const mockAnalysis: AmortizationAnalysisBroadcast = {
-      summary,
-      timeline,
-      insights: [
-        {
-          category: 'financial',
-          title: 'Interest Cost Share',
-          description: 'Interest totals 45.2% of the overall loan cost.',
-          impact: 'medium',
-          actionable: true,
-        },
-        {
-          category: 'optimization',
-          title: 'Payment-to-Income Check',
-          description: 'Monthly payment equals 30.4% of a typical $5,000 income.',
-          impact: 'medium',
-          actionable: true,
-        },
-        {
-          category: 'opportunity',
-          title: 'Equity Momentum',
-          description: 'Principal overtakes interest in year 6, boosting equity growth.',
-          impact: 'medium',
-          actionable: true,
-        },
-      ],
-      recommendations: [
-        {
-          priority: 'medium',
-          category: 'immediate',
-          title: 'Validate Affordability',
-          description: 'Confirm total housing costs remain under 28% of income.',
-          effort: 'low',
-        },
-        {
-          priority: 'medium',
-          category: 'short-term',
-          title: 'Automate $100 Extra Payments',
-          description: 'Extra payments can trim roughly 3 years and save over $35,000.',
-          potentialSavings: 35000,
-          effort: 'medium',
-        },
-      ],
-      riskAssessment: {
-        overallRisk: 'medium',
-        factors: [
+      const timeline: AmortizationTimeline = {
+        principalTakeoverMonth: 62,
+        halfBalanceMonth: 178,
+        milestones: [
           {
-            factor: 'Payment Burden',
-            risk: 'medium',
-            description: 'Payment consumes 30.4% of assumed income.',
+            id: 'highest-interest-share',
+            month: 1,
+            label: 'Interest-leaning payment',
+            description: 'Interest consumes 71.0% of the payment',
           },
           {
-            factor: 'Interest Cost Exposure',
-            risk: 'medium',
-            description: 'Interest equals 45.2% of loan cost.',
+            id: 'principal-takeover',
+            month: 62,
+            label: 'Principal overtakes interest',
+            description: 'Principal outpaces interest for the first time',
+          },
+          {
+            id: 'halfway-balance',
+            month: 178,
+            label: 'Half of principal repaid',
+            description: 'Remaining balance drops below half of the original loan',
+          },
+          {
+            id: 'final-payment',
+            month: 360,
+            label: 'Loan payoff',
+            description: 'Balance reaches zero with the final payment',
           },
         ],
-      },
-      optimizationOpportunities: [
-        {
-          area: 'Extra Payments',
-          currentValue: 0,
-          optimizedValue: 100,
-          potentialImprovement: 35000,
-          description: 'Adding $100 per month accelerates payoff and trims interest.',
-        },
-        {
-          area: 'Bi-weekly Strategy',
-          currentValue: 1520.06,
-          optimizedValue: 760.03,
-          potentialImprovement: 12000,
-          description: 'Switch to 26 half-payments each year.',
-        },
-      ],
-      chatHighlights: [
-        'Monthly payment $1,520; interest represents 45.2% of total cost.',
-        'Principal overtakes interest in month 62.',
-        'Balance reaches half of the starting amount by month 178.',
-      ],
-      chatSummary:
-        'Total cost $547,222 with $247,222 in interest (45.2%). Principal outweighs interest after year 5. Payment-to-income ratio sits at 30.4%.',
-      context: { totals: summary, timeline },
-      principal: summary.principal,
-      annualRate: summary.annualRate,
-      termMonths: summary.termMonths,
-      extraPayment: 0,
-      monthlyPayment: summary.monthlyPayment,
-      totalInterest: summary.totalInterest,
-      totalPayments: summary.totalPayments,
-      rawResult: {} as AmortizationAnalysisResult,
-    };
+      };
 
-    (window as any).populateAnalysisData?.(mockAnalysis);
-    (window as any).amortizationAnalysisData = mockAnalysis;
+      const mockAnalysis: AmortizationAnalysisBroadcast = {
+        summary,
+        timeline,
+        insights: [
+          {
+            category: 'financial',
+            title: 'Interest Cost Share',
+            description: 'Interest totals 45.2% of the overall loan cost.',
+            impact: 'medium',
+            actionable: true,
+          },
+          {
+            category: 'optimization',
+            title: 'Payment-to-Income Check',
+            description: 'Monthly payment equals 30.4% of a typical $5,000 income.',
+            impact: 'medium',
+            actionable: true,
+          },
+          {
+            category: 'opportunity',
+            title: 'Equity Momentum',
+            description: 'Principal overtakes interest in year 6, boosting equity growth.',
+            impact: 'medium',
+            actionable: true,
+          },
+        ],
+        recommendations: [
+          {
+            priority: 'medium',
+            category: 'immediate',
+            title: 'Validate Affordability',
+            description: 'Confirm total housing costs remain under 28% of income.',
+            effort: 'low',
+          },
+          {
+            priority: 'medium',
+            category: 'short-term',
+            title: 'Automate $100 Extra Payments',
+            description: 'Extra payments can trim roughly 3 years and save over $35,000.',
+            potentialSavings: 35000,
+            effort: 'medium',
+          },
+        ],
+        riskAssessment: {
+          overallRisk: 'medium',
+          factors: [
+            {
+              factor: 'Payment Burden',
+              risk: 'medium',
+              description: 'Payment consumes 30.4% of assumed income.',
+            },
+            {
+              factor: 'Interest Cost Exposure',
+              risk: 'medium',
+              description: 'Interest equals 45.2% of loan cost.',
+            },
+          ],
+        },
+        optimizationOpportunities: [
+          {
+            area: 'Extra Payments',
+            currentValue: 0,
+            optimizedValue: 100,
+            potentialImprovement: 35000,
+            description: 'Adding $100 per month accelerates payoff and trims interest.',
+          },
+          {
+            area: 'Bi-weekly Strategy',
+            currentValue: 1520.06,
+            optimizedValue: 760.03,
+            potentialImprovement: 12000,
+            description: 'Switch to 26 half-payments each year.',
+          },
+        ],
+        chatHighlights: [
+          'Monthly payment $1,520; interest represents 45.2% of total cost.',
+          'Principal overtakes interest in month 62.',
+          'Balance reaches half of the starting amount by month 178.',
+        ],
+        chatSummary:
+          'Total cost $547,222 with $247,222 in interest (45.2%). Principal outweighs interest after year 5. Payment-to-income ratio sits at 30.4%.',
+        context: { totals: summary, timeline },
+        principal: summary.principal,
+        annualRate: summary.annualRate,
+        termMonths: summary.termMonths,
+        extraPayment: 0,
+        monthlyPayment: summary.monthlyPayment,
+        totalInterest: summary.totalInterest,
+        totalPayments: summary.totalPayments,
+        rawResult: {} as AmortizationAnalysisResult,
+      };
 
-    debugLog.innerHTML += 'Mock analysis populated.<br>';
-  });
+      (window as any).populateAnalysisData?.(mockAnalysis);
+      (window as any).amortizationAnalysisData = mockAnalysis;
+
+      debugLog.innerHTML += 'Mock analysis populated.<br>';
+    });
   }
 }
 
