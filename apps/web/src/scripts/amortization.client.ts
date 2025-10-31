@@ -49,6 +49,19 @@ const toCurrency = (value: unknown): string => {
 
 type RiskLevel = 'low' | 'medium' | 'high';
 
+type AmortizationMilestone = {
+  id: string;
+  month: number;
+  label: string;
+  description: string;
+};
+
+type AmortizationRiskFactor = {
+  factor: string;
+  risk: RiskLevel;
+  description: string;
+};
+
 interface AmortizationSummary {
   principal: number;
   monthlyPayment: number;
@@ -313,7 +326,7 @@ const buildClientComprehensiveAnalysis = (
     {
       category: 'financial',
       title: 'Interest Cost Share',
-      description: `Interest totals ${(summary.interestShare * 100).toFixed(1)}% of the ${currencyFormatter.format(
+      description: `Interest totals ${(summary.interestShare * 100).toFixed(1)}% of the ${toCurrency(
         totalPayments
       )} paid over the term.`,
       impact:
@@ -323,9 +336,9 @@ const buildClientComprehensiveAnalysis = (
     {
       category: 'optimization',
       title: 'Payment-to-Income Check',
-      description: `Monthly payment of ${currencyFormatter.format(
+      description: `Monthly payment of ${toCurrency(
         monthlyPayment
-      )} equals ${(paymentToIncomeRatio * 100).toFixed(1)}% of a ${currencyFormatter.format(
+      )} equals ${(paymentToIncomeRatio * 100).toFixed(1)}% of a ${toCurrency(
         ASSUMED_MONTHLY_INCOME
       )} income (28% benchmark).`,
       impact: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
@@ -350,13 +363,14 @@ const buildClientComprehensiveAnalysis = (
     monthlyPayment,
     100
   );
-  const { savings: savings250 } = calcExtraPaymentSavings(
-    principal,
-    annualRate,
-    termMonths,
-    monthlyPayment,
-    250
-  );
+  // Unused: savings250 kept for potential future use
+  // const { savings: savings250 } = calcExtraPaymentSavings(
+  //   principal,
+  //   annualRate,
+  //   termMonths,
+  //   monthlyPayment,
+  //   250
+  // );
   const refinanceSavings = calcRateReductionSavings(principal, annualRate, termMonths, 0.005);
 
   const recommendations: AmortizationRecommendation[] = [
@@ -375,7 +389,7 @@ const buildClientComprehensiveAnalysis = (
       title: 'Automate $100 Extra Payments',
       description:
         savings100 > 0
-          ? `Adding $100 per month could save ${currencyFormatter.format(
+          ? `Adding $100 per month could save ${toCurrency(
               savings100
             )} and trim about ${Math.round(monthsSaved100 / 12)} years.`
           : 'Extra payments accelerate payoff; confirm savings with your lender.',
@@ -397,7 +411,7 @@ const buildClientComprehensiveAnalysis = (
       title: 'Monitor Refinance Opportunities',
       description:
         refinanceSavings > 0
-          ? `Dropping the rate by 0.5% could save ${currencyFormatter.format(refinanceSavings)}.`
+          ? `Dropping the rate by 0.5% could save ${toCurrency(refinanceSavings)}.`
           : 'Track market rates; refinancing can lower payments and interest.',
       potentialSavings: refinanceSavings,
       effort: 'medium',
@@ -461,7 +475,7 @@ const buildClientComprehensiveAnalysis = (
   ];
 
   const chatHighlights = [
-    `Monthly payment ${currencyFormatter.format(monthlyPayment)}; interest equals ${(
+    `Monthly payment ${toCurrency(monthlyPayment)}; interest equals ${(
       summary.interestShare * 100
     ).toFixed(1)}% of total cost.`,
     principalTakeoverMonth
@@ -471,12 +485,12 @@ const buildClientComprehensiveAnalysis = (
       ? `Balance reaches half of the starting amount by month ${halfBalanceMonth}.`
       : 'Loan does not reach half balance within the modeled term.',
     totalExtraPayments > 0
-      ? `Extra payments sum to ${currencyFormatter.format(totalExtraPayments)} so far.`
+      ? `Extra payments sum to ${toCurrency(totalExtraPayments)} so far.`
       : 'No extra payments scheduled yet—adding them cuts interest significantly.',
   ];
 
   const chatSummary = [
-    `Total cost ${currencyFormatter.format(totalPayments)} with ${currencyFormatter.format(
+    `Total cost ${toCurrency(totalPayments)} with ${toCurrency(
       totalInterest
     )} in interest (${(summary.interestShare * 100).toFixed(1)}%).`,
     principalTakeoverMonth
@@ -486,7 +500,7 @@ const buildClientComprehensiveAnalysis = (
       1
     )}%, compared with the 28% guideline.`,
     totalExtraPayments > 0
-      ? `Scheduled extra payments total ${currencyFormatter.format(
+      ? `Scheduled extra payments total ${toCurrency(
           totalExtraPayments
         )}; continuing them accelerates payoff.`
       : 'Consider bi-weekly or extra payments to shorten the term and save interest.',
@@ -545,16 +559,16 @@ export const renderSummaryCards = (
   target.innerHTML = `
     <div class="bg-blue-600 text-white rounded-lg p-6">
       <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly Payment</p>
-      <p class="text-3xl font-bold">${currencyFormatter.format(monthlyPayment)}</p>
+      <p class="text-3xl font-bold">${toCurrency(monthlyPayment)}</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Interest</p>
-      <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${currencyFormatter.format(totalInterest)}</p>
+      <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${toCurrency(totalInterest)}</p>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${interestShare}% of total payments</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Paid</p>
-      <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">${currencyFormatter.format(totalPayments)}</p>
+      <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">${toCurrency(totalPayments)}</p>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Over ${termMonths} months</p>
     </div>
   `;
@@ -628,7 +642,7 @@ export const renderChart = (
   const maxPayment = Math.max(1, Math.max(...displayData.map((entry) => entry.payment)));
 
   // Generate line paths with dual Y-axis scaling
-  const generateLinePath = (data: number[], maxValue: number, isLeftAxis: boolean = true) => {
+  const generateLinePath = (data: number[], maxValue: number, _isLeftAxis: boolean = true) => {
     const points = data.map((value, index) => {
       const denom = data.length > 1 ? data.length - 1 : 1;
       const x = padding.left + (index / denom) * plotWidth;
@@ -984,7 +998,7 @@ const updateEnhancedAnalysis = (
   };
 
   // Store data globally first
-  window.amortizationAnalysisData = analysisData;
+  (window as any).amortizationAnalysisData = analysisData;
 
   // Function to attempt population with retry logic
   const attemptPopulation = (retryCount = 0) => {
@@ -1067,77 +1081,85 @@ const hideError = (): void => {
   if (errorMessage) errorMessage.textContent = '';
 };
 
-const form = document.getElementById('calculator-form');
-const analyzeBtn = document.getElementById('calculate-btn');
+// Initialize amortization calculator
+function initializeAmortization() {
+  const form = document.getElementById('calculator-form');
+  const analyzeBtn = document.getElementById('calculate-btn');
 
-const setAnalyzing = (isAnalyzing: boolean): void => {
-  if (analyzeBtn instanceof HTMLButtonElement) {
-    analyzeBtn.disabled = isAnalyzing;
-    analyzeBtn.dataset.loading = isAnalyzing ? 'true' : 'false';
-    analyzeBtn.classList.toggle('opacity-75', isAnalyzing);
-  }
-};
-
-if (form instanceof HTMLFormElement) {
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    hideError();
-    showLoading();
-    setAnalyzing(true);
-
-    try {
-      const payload = parseAmortizationInput(new FormData(form));
-      const data = await postAnalysisRequest<AmortizationAnalysisResult>(
-        '/v1/api/analysis/amortization',
-        payload
-      );
-
-      handleSuccess(data, payload);
-      hideError();
-    } catch (error) {
-      console.error('Amortization calculation error:', error);
-      const message =
-        error instanceof AnalysisRequestError
-          ? error.message
-          : error instanceof Error
-            ? error.message
-            : 'Failed to calculate amortization';
-      showError(message);
-    } finally {
-      hideLoading();
-      setAnalyzing(false);
+  const setAnalyzing = (isAnalyzing: boolean): void => {
+    if (analyzeBtn instanceof HTMLButtonElement) {
+      analyzeBtn.disabled = isAnalyzing;
+      analyzeBtn.dataset.loading = isAnalyzing ? 'true' : 'false';
+      analyzeBtn.classList.toggle('opacity-75', isAnalyzing);
     }
-  });
-} else {
-  console.error('Amortization form not found');
-}
+  };
 
-const resetBtn = document.getElementById('reset-btn');
+  if (form instanceof HTMLFormElement) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      hideError();
+      showLoading();
+      setAnalyzing(true);
 
-if (resetBtn instanceof HTMLButtonElement && form instanceof HTMLFormElement) {
-  resetBtn.addEventListener('click', () => {
-    form.reset();
-    const resultsContainer = document.getElementById('results-container');
-    const resultsSection = document.getElementById('results-section');
-    const chartContainer = document.getElementById('amortization-chart-container');
-    const tableContainer = document.getElementById('amortization-table-container');
-    const analysisContainer = document.getElementById('comprehensive-analysis-container');
-    resultsContainer?.classList.add('hidden');
-    resultsSection?.classList.add('hidden');
-    chartContainer?.classList.add('hidden');
-    tableContainer?.classList.add('hidden');
-    analysisContainer?.classList.add('hidden');
-    hideError();
-    hideLoading();
-    setAnalyzing(false);
-  });
-}
+      try {
+        const payload = parseAmortizationInput(new FormData(form));
+        const data = await postAnalysisRequest<AmortizationAnalysisResult>(
+          '/v1/api/analysis/amortization',
+          payload
+        );
 
-const testAnalysisBtn = document.getElementById('test-analysis-btn');
-const debugLog = document.getElementById('debug-log');
+        handleSuccess(data, payload);
+        hideError();
+      } catch (error) {
+        console.error('Amortization calculation error:', error);
+        const message =
+          error instanceof AnalysisRequestError
+            ? error.message
+            : error instanceof Error
+              ? error.message
+              : 'Failed to calculate amortization';
+        showError(message);
+      } finally {
+        hideLoading();
+        setAnalyzing(false);
+      }
+    });
+  } else {
+    console.error('Amortization form not found');
+    return;
+  }
 
-if (testAnalysisBtn && debugLog) {
-  testAnalysisBtn.addEventListener('click', () => {
+  const resetBtn = document.getElementById('reset-btn');
+
+  if (resetBtn instanceof HTMLButtonElement && form instanceof HTMLFormElement) {
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      const resultsContainer = document.getElementById('results-container');
+      const resultsSection = document.getElementById('results-section');
+      const chartContainer = document.getElementById('amortization-chart-container');
+      const tableContainer = document.getElementById('amortization-table-container');
+      const analysisContainer = document.getElementById('comprehensive-analysis-container');
+      resultsContainer?.classList.add('hidden');
+      resultsSection?.classList.add('hidden');
+      chartContainer?.classList.add('hidden');
+      tableContainer?.classList.add('hidden');
+      analysisContainer?.classList.add('hidden');
+      hideError();
+      hideLoading();
+      const btn = document.getElementById('calculate-btn');
+      if (btn instanceof HTMLButtonElement) {
+        btn.disabled = false;
+        btn.dataset.loading = 'false';
+        btn.classList.remove('opacity-75');
+      }
+    });
+  }
+
+  const testAnalysisBtn = document.getElementById('test-analysis-btn');
+  const debugLog = document.getElementById('debug-log');
+
+  if (testAnalysisBtn && debugLog) {
+    testAnalysisBtn.addEventListener('click', () => {
     debugLog.innerHTML = 'Testing comprehensive analysis...<br>';
 
     const summary: AmortizationSummary = {
@@ -1283,11 +1305,19 @@ if (testAnalysisBtn && debugLog) {
       rawResult: {} as AmortizationAnalysisResult,
     };
 
-    populateAnalysisData(mockAnalysis);
-    window.amortizationAnalysisData = mockAnalysis;
+    (window as any).populateAnalysisData?.(mockAnalysis);
+    (window as any).amortizationAnalysisData = mockAnalysis;
 
     debugLog.innerHTML += 'Mock analysis populated.<br>';
   });
+  }
+}
+
+// Call initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAmortization);
+} else {
+  initializeAmortization();
 }
 
 export {};
