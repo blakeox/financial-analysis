@@ -4,37 +4,38 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+  const paths: Array<{ params: { scenario: string } }> = [];
 
-  // Generate paths for each journey step
-  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
-    scenario.models.forEach((model, index) => {
-      const stepId = model.id;
-      paths.push({
-        params: {
-          scenario: scenarioId,
-          stepId: stepId
-        }
-      });
-    });
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'financial-snapshot')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
   });
 
   return paths;
 }
 
-const { scenario, stepId } = Astro.params;
+const { scenario } = Astro.params;
 const journeyData = getJourneyData();
 const currentScenario = journeyData[scenario!];
-const currentModel = currentScenario.models.find(m => m.id === stepId);
-const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
-const nextStep = currentScenario.models[stepNumber];
-const previousStep = currentScenario.models[stepNumber - 2];
+
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+// Find financial-snapshot step in this journey
+const currentStep = currentScenario.models.find(m => m.id === 'financial-snapshot');
+const currentStepOrder = currentStep?.order || 1;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 // Journey navigation data
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: stepNumber,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -50,8 +51,8 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
-const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
@@ -77,7 +78,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
             </svg>
-            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
           </li>
         </ol>
       </nav>
@@ -90,11 +91,11 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center mb-4">
               <span class="text-3xl mr-3">📊</span>
               <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
                 <div class="mt-2">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
                   </span>
                 </div>
               </div>
@@ -106,17 +107,17 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
               <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {stepNumber} of {currentScenario.models.length}
+                Step {currentStepOrder} of {currentScenario.models.length}
               </span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
                 class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
               ></div>
             </div>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
             </p>
           </div>
 
