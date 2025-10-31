@@ -3,6 +3,7 @@ import { SavingsGoalEngine } from '@financial-analysis/analysis';
 import type { FormControllerState } from '@financial-analysis/tools';
 import { z } from 'zod';
 import { storeAnalysisResult } from './analysis-results';
+import { CURRENCY_FORMATTER } from '../utils/calculator-utilities';
 
 const numericField = (message: string) =>
   z.preprocess(
@@ -63,11 +64,7 @@ export const DEFAULT_VALUES: SavingsGoalFormValues = {
   goalType: 'general',
 };
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-});
+// Use shared CURRENCY_FORMATTER from utils/calculator-utilities
 
 export type ScreenRefs = {
   loading: HTMLElement | null;
@@ -165,7 +162,7 @@ export const displayResults = (result: SavingsGoalResult): void => {
 
   Object.entries(totals).forEach(([id, value]) => {
     const el = document.getElementById(id);
-    if (el) el.textContent = currencyFormatter.format(Number.parseFloat(value));
+    if (el) el.textContent = CURRENCY_FORMATTER.format(Number.parseFloat(value));
   });
 
   const effectiveRateEl = document.getElementById('effective-rate');
