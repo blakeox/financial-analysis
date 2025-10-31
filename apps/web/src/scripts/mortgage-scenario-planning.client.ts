@@ -223,13 +223,20 @@ function displayResults(scenarios: Scenario[]): void {
   
   if (!resultsSection || !summaryCards || !resultsContent) return;
   
+  // Separate base scenarios from refinance scenarios
+  const baseScenarios = scenarios.filter(s => !s.name.includes('Refinance'));
+  const refinanceScenarios = scenarios.filter(s => s.name.includes('Refinance'));
+  
   // Find best scenario (lowest total cost)
   const bestScenario = scenarios.reduce((best, current) => 
     current.totalCost < best.totalCost ? current : best
   );
   
-  // Render summary cards (top 3 scenarios)
-  const topScenarios = [...scenarios].sort((a, b) => a.totalCost - b.totalCost).slice(0, 3);
+  // Render summary cards (showing base scenarios first, then refinance if available)
+  const displayScenarios = baseScenarios.length > 0 
+    ? [...baseScenarios, ...refinanceScenarios] 
+    : scenarios;
+  const topScenarios = displayScenarios.slice(0, 3);
   
   summaryCards.innerHTML = topScenarios.map((scenario, idx) => {
     const isBest = scenario.name === bestScenario.name;
@@ -246,10 +253,11 @@ function displayResults(scenarios: Scenario[]): void {
     `;
   }).join('');
   
-  // Render detailed comparison table
+  // Render detailed comparison with separate sections for base vs refinance
   resultsContent.innerHTML = `
+    <!-- Base Scenarios Comparison -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Detailed Comparison</h2>
+      <h2 class="text-xl font-semibold mb-4">Original Scenarios Comparison</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
@@ -262,8 +270,8 @@ function displayResults(scenarios: Scenario[]): void {
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            ${scenarios.map(scenario => {
-              const isBest = scenario.name === bestScenario.name;
+            ${baseScenarios.map(scenario => {
+              const isBest = scenario.name === bestScenario.name && baseScenarios.includes(bestScenario);
               const rowClass = isBest ? 'bg-green-50 dark:bg-green-900/20 font-semibold' : '';
               const months = scenario.payoffMonths;
               const years = Math.floor(months / 12);
@@ -296,17 +304,77 @@ function displayResults(scenarios: Scenario[]): void {
       </div>
     </div>
     
+    ${refinanceScenarios.length > 0 ? `
+      <!-- Refinance Scenarios Comparison -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Updated Scenarios with Refinancing</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          These scenarios assume you refinance after 5 years at the new rate.
+        </p>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scenario</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">New Monthly Payment</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Interest</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Cost</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Payoff Time</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              ${refinanceScenarios.map(scenario => {
+                const isBest = scenario.name === bestScenario.name && refinanceScenarios.includes(bestScenario);
+                const rowClass = isBest ? 'bg-green-50 dark:bg-green-900/20 font-semibold' : '';
+                const months = scenario.payoffMonths;
+                const years = Math.floor(months / 12);
+                const monthsRemainder = months % 12;
+                const timeDisplay = years > 0 ? `${years}yr ${monthsRemainder}mo` : `${monthsRemainder}mo`;
+                
+                return `
+                  <tr class="${rowClass}">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                      ${scenario.name}
+                      ${isBest ? '<span class="ml-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">BEST</span>' : ''}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
+                      ${formatCurrency(scenario.monthlyPayment)}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+                      ${formatCurrency(scenario.totalInterest)}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
+                      ${formatCurrency(scenario.totalCost)}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+                      ${timeDisplay}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : ''}
+    
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
       <h3 class="text-lg font-semibold mb-4">📊 Key Insights</h3>
       <div class="space-y-3">
         <p class="text-sm">
           <strong>Best Value:</strong> <span class="font-semibold text-green-600 dark:text-green-400">${bestScenario.name}</span> 
-          saves ${formatCurrency(scenarios[0].totalCost - bestScenario.totalCost)} compared to the most expensive option.
+          saves ${formatCurrency(Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost)} compared to the most expensive option.
         </p>
-        ${scenarios.length > 2 ? `
+        ${refinanceScenarios.length > 0 ? `
           <p class="text-sm">
-            <strong>Refinancing Analysis:</strong> Compare the "Refinance" scenarios to see if refinancing after 5 years 
-            makes financial sense for your situation.
+            <strong>Refinancing Analysis:</strong> Refinancing after 5 years ${findRefinanceSavings(baseScenarios[0], refinanceScenarios[0])}.
+          </p>
+        ` : ''}
+        ${baseScenarios.length === 2 ? `
+          <p class="text-sm">
+            <strong>Comparison:</strong> Scenario 2 ${baseScenarios[1].totalCost < baseScenarios[0].totalCost ? 'saves' : 'costs'} 
+            ${formatCurrency(Math.abs(baseScenarios[1].totalCost - baseScenarios[0].totalCost))} 
+            ${baseScenarios[1].totalCost < baseScenarios[0].totalCost ? 'less' : 'more'} than Scenario 1.
           </p>
         ` : ''}
       </div>
@@ -314,6 +382,17 @@ function displayResults(scenarios: Scenario[]): void {
   `;
   
   resultsSection.classList.remove('hidden');
+}
+
+function findRefinanceSavings(base: Scenario, refi: Scenario): string {
+  const savings = base.totalCost - refi.totalCost;
+  if (savings > 0) {
+    return `could save you ${formatCurrency(savings)} compared to no refinancing`;
+  } else if (savings < 0) {
+    return `would cost ${formatCurrency(Math.abs(savings))} more than no refinancing`;
+  } else {
+    return 'has the same total cost';
+  }
 }
 
 // Initialize when DOM is ready
