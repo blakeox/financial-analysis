@@ -314,6 +314,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Action Buttons -->
               <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="calculate-strategy-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Calculate Strategy
+                </button>
                 <button type="submit" id="save-strategy-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
                   Save Debt Strategy
                 </button>
@@ -322,6 +325,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </button>
               </div>
             </form>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Debt Payoff Strategy</h3>
+              <div id="strategy-results" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
           </div>
 
           <!-- Journey Navigation -->
@@ -411,10 +422,175 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
   <script>
     // Debt Strategy Form Handler
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Dynamically import debt payoff engine
+      let DebtPayoffEngine;
+      try {
+        const debtPayoffModule = await import('@financial-analysis/analysis');
+        DebtPayoffEngine = debtPayoffModule.DebtPayoffEngine;
+      } catch (error) {
+        console.error('Failed to import DebtPayoffEngine:', error);
+      }
+
       const form = document.getElementById('debt-strategy-form');
+      const calculateBtn = document.getElementById('calculate-strategy-btn');
       const saveBtn = document.getElementById('save-strategy-btn');
       const resetBtn = document.getElementById('reset-btn');
+      const resultsSection = document.getElementById('results-section');
+      const strategyResults = document.getElementById('strategy-results');
+
+      if (calculateBtn && DebtPayoffEngine) {
+        calculateBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const studentLoanBalance = parseFloat(formData.get('studentLoanBalance') || '0');
+          const creditCardBalance = parseFloat(formData.get('creditCardBalance') || '0');
+          const carLoanBalance = parseFloat(formData.get('carLoanBalance') || '0');
+          
+          if (studentLoanBalance === 0 && creditCardBalance === 0 && carLoanBalance === 0) {
+            alert('Please enter at least one debt balance to calculate a strategy.');
+            return;
+          }
+
+          // Build debts array
+          const debts = [];
+          if (studentLoanBalance > 0) {
+            debts.push({
+              name: 'Student Loans',
+              balance: studentLoanBalance,
+              interestRate: parseFloat(formData.get('studentLoanRate') || '0') / 100,
+              minimumPayment: parseFloat(formData.get('monthlyPayment') || '100')
+            });
+          }
+          if (creditCardBalance > 0) {
+            debts.push({
+              name: 'Credit Card',
+              balance: creditCardBalance,
+              interestRate: parseFloat(formData.get('creditCardRate') || '0') / 100,
+              minimumPayment: Math.max(25, creditCardBalance * 0.02) // 2% minimum
+            });
+          }
+          if (carLoanBalance > 0) {
+            debts.push({
+              name: 'Car Loan',
+              balance: carLoanBalance,
+              interestRate: parseFloat(formData.get('carLoanRate') || '0') / 100,
+              minimumPayment: 250 // placeholder
+            });
+          }
+
+          const extraPayment = parseFloat(formData.get('extraPayment') || '0');
+          const payoffMethod = formData.get('payoffMethod') || 'avalanche';
+          
+          // Calculate results
+          const result = DebtPayoffEngine.analyze({
+            debts,
+            extraMonthlyPayment: extraPayment,
+            strategy: payoffMethod === 'avalanche' || payoffMethod === 'snowball' ? payoffMethod : 'avalanche'
+          });
+
+          // Display results
+          const primary = result.summary;
+          const alternative = result.alternativeStrategy;
+          
+          const formatMonths = (months) => {
+            const years = (months / 12).toFixed(1);
+            return `${months} months (${years} years)`;
+          };
+          
+          const formatCurrency = (value) => {
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0
+            }).format(value);
+          };
+
+          const comparison = parseFloat(result.comparisonSavings || '0');
+          const monthDifference = alternative ? alternative.totalMonthsToPayoff - primary.totalMonthsToPayoff : 0;
+          
+          strategyResults.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Avalanche Method</h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Pays highest interest debts first (saves most money)</p>
+              </div>
+              
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Snowball Method</h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Pays smallest debts first (psychological wins)</p>
+              </div>
+            </div>
+
+            ${comparison > 0 ? `
+              <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
+                <p class="text-sm text-green-800 dark:text-green-200">
+                  <strong>💡 Avalanche saves ${formatCurrency(Math.abs(comparison))} in interest!</strong>
+                </p>
+              </div>
+            ` : monthDifference < 0 ? `
+              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+                <p class="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>💡 Snowball pays off ${Math.abs(monthDifference)} months faster!</strong>
+                </p>
+              </div>
+            ` : ''}
+
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Payoff Timeline</h4>
+              <div class="space-y-2">
+                ${primary.debtSummaries
+                  .slice()
+                  .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
+                  .map((debt, index) => `
+                    <div class="flex justify-between items-center text-sm py-1 border-b border-gray-200 dark:border-gray-600">
+                      <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${debt.name}</span>
+                      <span class="text-gray-600 dark:text-gray-400">${formatMonths(debt.monthsToPayoff)}</span>
+                    </div>
+                  `)
+                  .join('')}
+              </div>
+            </div>
+          `;
+
+          resultsSection?.classList.remove('hidden');
+        });
+      } else if (calculateBtn && !DebtPayoffEngine) {
+        calculateBtn.disabled = true;
+        calculateBtn.textContent = 'Engine Loading...';
+        alert('Debt payoff calculator is loading. Please refresh and try again.');
+      }
 
       if (saveBtn) {
         saveBtn.addEventListener('click', function(e) {
@@ -478,6 +654,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
           form.reset();
+          resultsSection?.classList.add('hidden');
         });
       }
     });
