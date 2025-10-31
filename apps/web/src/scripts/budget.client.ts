@@ -2,26 +2,7 @@ import type { BudgetResult } from '@financial-analysis/analysis';
 import { BudgetEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from './analysis-results';
 import { registerChatButton } from './chat-actions';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-});
-
-const formatCurrency = (value: string | undefined): string => {
-  if (!value) return 'N/A';
-  const numeric = Number.parseFloat(value);
-  if (!Number.isFinite(numeric)) return value;
-  return currencyFormatter.format(numeric);
-};
-
-const formatPercent = (value: string | undefined): string => {
-  if (!value) return 'N/A';
-  const numeric = Number.parseFloat(value);
-  if (!Number.isFinite(numeric)) return value;
-  return `${numeric.toFixed(1)}%`;
-};
+import { formatCurrency, formatPercentSimple } from '../utils/calculator-utilities';
 
 type OptimizationGoal = 'maximize_savings' | 'reduce_debt' | 'balance' | 'reduce_discretionary';
 
@@ -40,6 +21,14 @@ export const parseNumber = (value: FormDataEntryValue | null): number => {
   if (value === null) return Number.NaN;
   const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
   return Number.isFinite(numericValue) ? numericValue : Number.NaN;
+};
+
+// Use shared utilities for formatting
+const formatPercent = (value: string | undefined): string => {
+  if (!value) return 'N/A';
+  const numeric = Number.parseFloat(value);
+  if (!Number.isFinite(numeric)) return value;
+  return formatPercentSimple(numeric);
 };
 
 export const displayResults = (result: BudgetResult): void => {

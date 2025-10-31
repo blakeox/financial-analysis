@@ -2,19 +2,7 @@ import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from './analysis-results';
 import { registerChatButton } from './chat-actions';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-});
-
-const formatCurrency = (value: string | number | undefined): string => {
-  if (value === undefined || value === null) return 'N/A';
-  const numeric = typeof value === 'number' ? value : Number.parseFloat(String(value));
-  if (!Number.isFinite(numeric)) return 'N/A';
-  return currencyFormatter.format(numeric);
-};
+import { formatCurrency } from '../utils/calculator-utilities';
 
 type PaymentStrategy = 'avalanche' | 'snowball' | 'standard';
 type LoanType = 'federal_unsubsidized' | 'federal_subsidized' | 'private';

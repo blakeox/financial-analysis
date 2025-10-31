@@ -2,6 +2,7 @@ import type { DebtPayoffResult } from '@financial-analysis/analysis';
 import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../scripts/analysis-results';
 import { registerChatButton } from './chat-actions';
+import { formatCurrency } from '../utils/calculator-utilities';
 
 type Strategy = 'avalanche' | 'snowball';
 
@@ -12,22 +13,10 @@ type CollectedDebt = {
   minimumPayment: number;
 };
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-});
-
 const toCurrency = (value: string | undefined): string => {
   if (typeof value !== 'string') return '';
   const numeric = Number.parseFloat(value);
-  return Number.isFinite(numeric) ? currencyFormatter.format(Math.abs(numeric)) : '';
-};
-
-export const parseNumber = (value: FormDataEntryValue | null): number => {
-  if (value === null) return Number.NaN;
-  const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
-  return Number.isFinite(numericValue) ? numericValue : Number.NaN;
+  return formatCurrency(numeric);
 };
 
 const appendDebtInputs = (index: number): void => {
@@ -89,7 +78,8 @@ export const collectDebts = (formData: FormData, count: number): CollectedDebt[]
 };
 
 export const formatMonths = (months: number): string => {
-  return `${months} months (${(months / 12).toFixed(1)} years)`;
+  const years = (months / 12).toFixed(1);
+  return `${months} ${months === 1 ? 'month' : 'months'} (${years} ${years === '1.0' ? 'year' : 'years'})`;
 };
 
 export const describeSavings = (

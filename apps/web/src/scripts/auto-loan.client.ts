@@ -1,59 +1,15 @@
 import type { AutoLoanInput, AutoLoanResult } from '@financial-analysis/analysis';
 import { AutoLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from './analysis-results';
+import {
+  parseNumber,
+  formatCurrency,
+  formatCurrencyWhole,
+  formatPercentDecimal,
+} from '../utils/calculator-utilities';
 
-const currencyFull = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const currencyWhole = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
-
-const percentFormatter = new Intl.NumberFormat('en-US', {
-  style: 'percent',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const formatNumber = (
-  value: FormDataEntryValue | string | number | null | undefined
-): number | null => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null;
-  }
-
-  if (value instanceof File) {
-    return null;
-  }
-
-  if (typeof value === 'string') {
-    const cleaned = value.replace(/[$,%\s]/g, '');
-    if (cleaned.length === 0) return 0;
-    const parsed = Number.parseFloat(cleaned);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-};
-
-const formatCurrency = (value: string | number, useWhole = false): string => {
-  const numeric = typeof value === 'string' ? Number.parseFloat(value) : value;
-  if (!Number.isFinite(numeric)) return '$0.00';
-  return useWhole ? currencyWhole.format(numeric) : currencyFull.format(numeric);
-};
-
-const formatPercent = (value: string | number): string => {
-  const numeric = typeof value === 'string' ? Number.parseFloat(value) : value;
-  if (!Number.isFinite(numeric)) return '0.00%';
-  return percentFormatter.format(numeric);
-};
+// Alias for consistency with existing code
+const formatPercent = formatPercentDecimal;
 
 const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
   const checkbox = document.getElementById(checkboxId) as HTMLInputElement | null;
@@ -70,16 +26,16 @@ const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
 };
 
 export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
-  const vehiclePrice = formatNumber(formData.get('vehiclePrice'));
-  const downPayment = formatNumber(formData.get('downPayment')) ?? 0;
-  const tradeInValue = formatNumber(formData.get('tradeInValue')) ?? 0;
-  const tradeInOwed = formatNumber(formData.get('tradeInOwed')) ?? 0;
-  const salesTaxRatePercent = formatNumber(formData.get('salesTaxRate')) || 7.5; // Default 7.5% sales tax
-  const registrationFees = formatNumber(formData.get('registrationFees')) ?? 0;
-  const dealerFees = formatNumber(formData.get('dealerFees')) ?? 0;
-  const interestRatePercent = formatNumber(formData.get('interestRate'));
-  const loanTermMonths = formatNumber(formData.get('loanTerm')); // Use 'loanTerm' instead of 'loanTermMonths'
-  const manufacturerRebate = formatNumber(formData.get('manufacturerRebate')) ?? 0;
+  const vehiclePrice = parseNumber(formData.get('vehiclePrice'));
+  const downPayment = parseNumber(formData.get('downPayment')) ?? 0;
+  const tradeInValue = parseNumber(formData.get('tradeInValue')) ?? 0;
+  const tradeInOwed = parseNumber(formData.get('tradeInOwed')) ?? 0;
+  const salesTaxRatePercent = parseNumber(formData.get('salesTaxRate')) || 7.5; // Default 7.5% sales tax
+  const registrationFees = parseNumber(formData.get('registrationFees')) ?? 0;
+  const dealerFees = parseNumber(formData.get('dealerFees')) ?? 0;
+  const interestRatePercent = parseNumber(formData.get('interestRate'));
+  const loanTermMonths = parseNumber(formData.get('loanTerm')); // Use 'loanTerm' instead of 'loanTermMonths'
+  const manufacturerRebate = parseNumber(formData.get('manufacturerRebate')) ?? 0;
 
   if (!vehiclePrice || vehiclePrice <= 0) {
     throw new Error('Please enter a valid vehicle price.');
@@ -101,10 +57,10 @@ export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
   const includeExtendedWarranty = formData.has('includeExtendedWarranty');
 
   const gapInsuranceCost = includeGapInsurance
-    ? (formatNumber(formData.get('gapInsuranceCost')) ?? 0)
+    ? (parseNumber(formData.get('gapInsuranceCost')) ?? 0)
     : 0;
   const extendedWarrantyCost = includeExtendedWarranty
-    ? (formatNumber(formData.get('extendedWarrantyCost')) ?? 0)
+    ? (parseNumber(formData.get('extendedWarrantyCost')) ?? 0)
     : 0;
 
   return {
