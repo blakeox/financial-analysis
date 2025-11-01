@@ -410,8 +410,6 @@ Need help with specific values? Just ask!`
     ],
 
     outputFormat: 'natural language with specific financial analysis'
-  },
-
   }
 };
 
