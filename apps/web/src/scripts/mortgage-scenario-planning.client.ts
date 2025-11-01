@@ -33,27 +33,57 @@ function initializeMortgageScenarioPlanning() {
     try {
       const formData = new FormData(form);
       const homePrice = coerceNumber(formData.get('homePrice'), 0);
-      const loanTermYears = parseInt(formData.get('loanTerm') || '30');
+      const loanTermYears = parseInt(String(formData.get('loanTerm') || '30'));
       const termMonths = loanTermYears * 12;
+      
+      // Validate home price
+      if (homePrice <= 0) {
+        alert('Please enter a valid home price');
+        return;
+      }
       
       // Scenario 1
       const scenario1Down = coerceNumber(formData.get('scenario1Down'), 0);
-      const scenario1Rate = coerceNumber(formData.get('scenario1Rate'), 0) / 100;
+      const scenario1Rate = coerceNumber(formData.get('scenario1Rate'), 0);
       const scenario1Extra = coerceNumber(formData.get('scenario1Extra'), 0);
+      
+      // Validate scenario 1
+      if (scenario1Rate <= 0) {
+        alert('Please enter a valid interest rate for Scenario 1');
+        return;
+      }
+      if (scenario1Down >= homePrice) {
+        alert('Scenario 1: Down payment must be less than home price');
+        return;
+      }
+      
       const scenario1Principal = homePrice - scenario1Down;
+      const scenario1RateDecimal = scenario1Rate / 100;
       
       // Scenario 2
       const scenario2Down = coerceNumber(formData.get('scenario2Down'), 0);
-      const scenario2Rate = coerceNumber(formData.get('scenario2Rate'), 0) / 100;
+      const scenario2Rate = coerceNumber(formData.get('scenario2Rate'), 0);
       const scenario2Extra = coerceNumber(formData.get('scenario2Extra'), 0);
+      
+      // Validate scenario 2
+      if (scenario2Rate <= 0) {
+        alert('Please enter a valid interest rate for Scenario 2');
+        return;
+      }
+      if (scenario2Down >= homePrice) {
+        alert('Scenario 2: Down payment must be less than home price');
+        return;
+      }
+      
       const scenario2Principal = homePrice - scenario2Down;
+      const scenario2RateDecimal = scenario2Rate / 100;
       
       // Optional refinance scenario (comparing refinance after 5 years)
       const refinanceRate = coerceNumber(formData.get('refinanceRate'), 0);
       
       // Calculate scenarios
-      const scenario1 = await calculateScenario('Scenario 1', scenario1Principal, scenario1Rate, termMonths, scenario1Extra);
-      const scenario2 = await calculateScenario('Scenario 2', scenario2Principal, scenario2Rate, termMonths, scenario2Extra);
+      const scenario1 = await calculateScenario('Scenario 1', scenario1Principal, scenario1RateDecimal, termMonths, scenario1Extra, scenario1Down, scenario1Rate);
+      const scenario2 = await calculateScenario('Scenario 2', scenario2Principal, scenario2RateDecimal, termMonths, scenario2Extra, scenario2Down, scenario2Rate);
       
       const scenarios = [scenario1, scenario2];
       
@@ -121,7 +151,9 @@ async function calculateScenario(
   principal: number,
   annualRate: number,
   termMonths: number,
-  extraPayment: number
+  extraPayment: number,
+  downPayment: number,
+  ratePercent: number
 ): Promise<Scenario> {
   const result = await postAnalysisRequest<AmortizationAnalysisResult>(
     '/v1/api/analysis/amortization',
@@ -140,8 +172,8 @@ async function calculateScenario(
   
   return {
     name,
-    downPayment: 0, // Will be set by caller
-    rate: annualRate,
+    downPayment,
+    rate: ratePercent,
     extraPayment,
     principal,
     monthlyPayment,
