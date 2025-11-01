@@ -1,3 +1,18 @@
+/**
+ * Mortgage Scenario Planner Client Script
+ * 
+ * Compares multiple mortgage scenarios including different down payments,
+ * interest rates, extra payments, and refinancing options.
+ * 
+ * Features:
+ * - Multi-scenario comparison
+ * - Refinancing analysis
+ * - Result caching
+ * - Save/load scenarios
+ * - Journey integration
+ * - Analytics tracking
+ */
+
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
 import {
   coerceNumber,
@@ -7,13 +22,14 @@ import {
   hideLoading,
   showError,
   hideError,
-  showResults,
-  hideResults,
 } from '../utils/calculator-utilities';
 import { postAnalysisRequest } from './analysis-api';
 
-// Type definitions
-type Scenario = {
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+export type Scenario = {
   name: string;
   downPayment: number;
   rate: number;
@@ -25,7 +41,7 @@ type Scenario = {
   payoffMonths: number;
 };
 
-interface MortgageScenarioPlanningInput {
+export interface MortgageScenarioPlanningInput {
   homePrice: number;
   loanTermYears: number;
   scenario1Down: number;
@@ -37,9 +53,19 @@ interface MortgageScenarioPlanningInput {
   refinanceRate?: number;
 }
 
-// Cache for results
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
 const CACHE_KEY = 'mortgage-scenario-results';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const SAVED_SCENARIOS_KEY = 'saved-mortgage-scenarios';
+const RECENT_CALCULATIONS_KEY = 'fanalyx-recent-calculations';
+const REFINANCE_MONTH = 60; // 5 years
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
 
 // Initialize calculator
 function initializeMortgageScenarioPlanning() {
@@ -100,6 +126,10 @@ function setupFormEventListeners(
   }
 }
 
+// ============================================================================
+// FORM HANDLING
+// ============================================================================
+
 async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement | null) {
   if (calculateBtn instanceof HTMLButtonElement) {
     calculateBtn.disabled = true;
@@ -154,21 +184,21 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
     
     // Add refinance comparison if provided
     if (input.refinanceRate && input.refinanceRate > 0) {
-      const refi1 = await calculateRefinanceScenario(
-        'Scenario 1 + Refinance',
-        scenario1,
-        60, // 5 years
-        input.refinanceRate / 100,
-        termMonths
-      );
-      
-      const refi2 = await calculateRefinanceScenario(
-        'Scenario 2 + Refinance',
-        scenario2,
-        60, // 5 years
-        input.refinanceRate / 100,
-        termMonths
-      );
+        const refi1 = await calculateRefinanceScenario(
+          'Scenario 1 + Refinance',
+          scenario1,
+          REFINANCE_MONTH,
+          input.refinanceRate / 100,
+          termMonths
+        );
+        
+        const refi2 = await calculateRefinanceScenario(
+          'Scenario 2 + Refinance',
+          scenario2,
+          REFINANCE_MONTH,
+          input.refinanceRate / 100,
+          termMonths
+        );
       
       scenarios.push(refi1, refi2);
     }
@@ -198,7 +228,10 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
   }
 }
 
-// Parse form input
+// ============================================================================
+// INPUT PARSING & VALIDATION
+// ============================================================================
+
 function parseFormInput(form: HTMLFormElement): MortgageScenarioPlanningInput {
   const formData = new FormData(form);
   return {
@@ -236,6 +269,10 @@ function validateInput(input: MortgageScenarioPlanningInput): void {
     throw new Error('Scenario 2: Down payment must be less than home price');
   }
 }
+
+// ============================================================================
+// SCENARIO CALCULATIONS
+// ============================================================================
 
 async function calculateScenario(
   name: string,
@@ -339,6 +376,10 @@ async function calculateRefinanceScenario(
   };
 }
 
+// ============================================================================
+// RESULTS DISPLAY
+// ============================================================================
+
 function displayResults(scenarios: Scenario[]): void {
   const resultsSection = document.getElementById('results-section');
   const summaryCards = document.getElementById('summary-cards');
@@ -361,44 +402,9 @@ function displayResults(scenarios: Scenario[]): void {
     : scenarios;
   const topScenarios = displayScenarios.slice(0, 3);
   
-  summaryCards.innerHTML = topScenarios.map((scenario, idx) => {
-    const isBest = scenario.name === bestScenario.name;
-    const bgColor = isBest ? 'bg-gradient-to-br from-green-600 to-emerald-600' : idx === 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-white dark:bg-gray-800';
-    const textColor = (isBest || idx === 0) ? 'text-white' : 'text-gray-900 dark:text-white';
-    const borderClass = isBest ? 'border-4 border-green-400 shadow-2xl' : 'border border-gray-300 dark:border-gray-600 shadow-lg';
-    const years = Math.floor(scenario.payoffMonths / 12);
-    const months = scenario.payoffMonths % 12;
-    
-    return `
-      <div class="${bgColor} rounded-xl p-6 ${borderClass} transform hover:scale-105 transition-all duration-200">
-        ${isBest ? '<div class="flex items-center gap-2 mb-3"><span class="bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">✓ BEST VALUE</span></div>' : ''}
-        <h3 class="text-lg font-bold ${textColor} mb-4">${scenario.name}</h3>
-        
-        <div class="space-y-3">
-          <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Monthly Payment</p>
-            <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPayment)}</p>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
-            <div>
-              <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Interest</p>
-              <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
-            </div>
-            <div>
-              <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Payoff Time</p>
-              <p class="text-sm font-semibold ${textColor}">${years}y ${months}m</p>
-            </div>
-          </div>
-          
-          <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Cost</p>
-            <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+  summaryCards.innerHTML = topScenarios
+    .map((scenario, idx) => renderSummaryCard(scenario, idx, scenario.name === bestScenario.name))
+    .join('');
   
   // Render detailed comparison with separate sections for base vs refinance
   resultsContent.innerHTML = `
@@ -410,79 +416,9 @@ function displayResults(scenarios: Scenario[]): void {
       <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Side-by-side comparison of your mortgage options</p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        ${baseScenarios.map((scenario, idx) => {
-          const isBest = scenario.name === bestScenario.name && baseScenarios.includes(bestScenario);
-          const years = Math.floor(scenario.payoffMonths / 12);
-          const months = scenario.payoffMonths % 12;
-          const loanToValuePercent = ((scenario.principal / (scenario.principal + scenario.downPayment)) * 100).toFixed(1);
-          
-          return `
-            <div class="border-2 ${isBest ? 'border-green-500 bg-green-50 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-700'} rounded-lg p-5">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">${scenario.name}</h3>
-                ${isBest ? '<span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">✓ BEST</span>' : ''}
-              </div>
-              
-              <div class="space-y-4">
-                <!-- Loan Details -->
-                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Loan Details</h4>
-                  <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Loan Amount</span>
-                      <span class="text-sm font-semibold">${formatCurrency(scenario.principal)}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Down Payment</span>
-                      <span class="text-sm font-semibold">${formatCurrency(scenario.downPayment)} (${((scenario.downPayment / (scenario.principal + scenario.downPayment)) * 100).toFixed(1)}%)</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Interest Rate</span>
-                      <span class="text-sm font-semibold">${scenario.rate.toFixed(2)}%</span>
-                    </div>
-                    ${scenario.extraPayment > 0 ? `
-                      <div class="flex justify-between items-center text-blue-600 dark:text-blue-400">
-                        <span class="text-sm">Extra Payment</span>
-                        <span class="text-sm font-semibold">+${formatCurrency(scenario.extraPayment)}/mo</span>
-                      </div>
-                    ` : ''}
-                  </div>
-                </div>
-                
-                <!-- Payment Information -->
-                <div>
-                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Monthly Payment</h4>
-                  <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPayment)}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Base: ${formatCurrency(scenario.monthlyPayment - scenario.extraPayment)} + Extra: ${formatCurrency(scenario.extraPayment)}</p>
-                </div>
-                
-                <!-- Cost Breakdown -->
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Interest</p>
-                    <p class="text-lg font-bold text-blue-600 dark:text-blue-400">${formatCurrency(scenario.totalInterest)}</p>
-                  </div>
-                  <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost</p>
-                    <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${formatCurrency(scenario.totalCost)}</p>
-                  </div>
-                </div>
-                
-                <!-- Timeline -->
-                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Payoff Timeline</p>
-                      <p class="text-xl font-bold text-gray-900 dark:text-white">${years} years ${months} months</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${scenario.payoffMonths} total payments</p>
-                    </div>
-                    <div class="text-4xl">⏱️</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('')}
+        ${baseScenarios.map(scenario => 
+          renderDetailedScenarioCard(scenario, scenario.name === bestScenario.name && baseScenarios.includes(bestScenario))
+        ).join('')}
       </div>
     </div>
     
@@ -680,6 +616,139 @@ function displayResults(scenarios: Scenario[]): void {
   resultsSection.classList.remove('hidden');
 }
 
+// ============================================================================
+// DISPLAY HELPERS
+// ============================================================================
+
+function formatTimeDisplay(months: number): { years: number; months: number; display: string } {
+  const years = Math.floor(months / 12);
+  const monthsRemainder = months % 12;
+  return {
+    years,
+    months: monthsRemainder,
+    display: `${years}y ${monthsRemainder}m`,
+  };
+}
+
+function calculateDownPaymentPercent(scenario: Scenario): string {
+  return ((scenario.downPayment / (scenario.principal + scenario.downPayment)) * 100).toFixed(1);
+}
+
+function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): string {
+  const bgColor = isBest 
+    ? 'bg-gradient-to-br from-green-600 to-emerald-600' 
+    : idx === 0 
+      ? 'bg-gradient-to-br from-blue-600 to-indigo-600' 
+      : 'bg-white dark:bg-gray-800';
+  const textColor = (isBest || idx === 0) ? 'text-white' : 'text-gray-900 dark:text-white';
+  const borderClass = isBest 
+    ? 'border-4 border-green-400 shadow-2xl' 
+    : 'border border-gray-300 dark:border-gray-600 shadow-lg';
+  const time = formatTimeDisplay(scenario.payoffMonths);
+  
+  return `
+    <div class="${bgColor} rounded-xl p-6 ${borderClass} transform hover:scale-105 transition-all duration-200">
+      ${isBest ? '<div class="flex items-center gap-2 mb-3"><span class="bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">✓ BEST VALUE</span></div>' : ''}
+      <h3 class="text-lg font-bold ${textColor} mb-4">${scenario.name}</h3>
+      
+      <div class="space-y-3">
+        <div>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Monthly Payment</p>
+          <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPayment)}</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
+          <div>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Interest</p>
+            <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
+          </div>
+          <div>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Payoff Time</p>
+            <p class="text-sm font-semibold ${textColor}">${time.display}</p>
+          </div>
+        </div>
+        
+        <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Cost</p>
+          <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string {
+  const time = formatTimeDisplay(scenario.payoffMonths);
+  const downPercent = calculateDownPaymentPercent(scenario);
+  
+  return `
+    <div class="border-2 ${isBest ? 'border-green-500 bg-green-50 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-700'} rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">${scenario.name}</h3>
+        ${isBest ? '<span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">✓ BEST</span>' : ''}
+      </div>
+      
+      <div class="space-y-4">
+        <!-- Loan Details -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+          <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Loan Details</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Loan Amount</span>
+              <span class="text-sm font-semibold">${formatCurrency(scenario.principal)}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Down Payment</span>
+              <span class="text-sm font-semibold">${formatCurrency(scenario.downPayment)} (${downPercent}%)</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Interest Rate</span>
+              <span class="text-sm font-semibold">${scenario.rate.toFixed(2)}%</span>
+            </div>
+            ${scenario.extraPayment > 0 ? `
+              <div class="flex justify-between items-center text-blue-600 dark:text-blue-400">
+                <span class="text-sm">Extra Payment</span>
+                <span class="text-sm font-semibold">+${formatCurrency(scenario.extraPayment)}/mo</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        
+        <!-- Payment Information -->
+        <div>
+          <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Monthly Payment</h4>
+          <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPayment)}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Base: ${formatCurrency(scenario.monthlyPayment - scenario.extraPayment)} + Extra: ${formatCurrency(scenario.extraPayment)}</p>
+        </div>
+        
+        <!-- Cost Breakdown -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Interest</p>
+            <p class="text-lg font-bold text-blue-600 dark:text-blue-400">${formatCurrency(scenario.totalInterest)}</p>
+          </div>
+          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost</p>
+            <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${formatCurrency(scenario.totalCost)}</p>
+          </div>
+        </div>
+        
+        <!-- Timeline -->
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Payoff Timeline</p>
+              <p class="text-xl font-bold text-gray-900 dark:text-white">${time.years} years ${time.months} months</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${scenario.payoffMonths} total payments</p>
+            </div>
+            <div class="text-4xl">⏱️</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function generateComparisonInsight(scenario1: Scenario, scenario2: Scenario): string {
   const monthlyDiff = scenario2.monthlyPayment - scenario1.monthlyPayment;
   const totalDiff = scenario2.totalCost - scenario1.totalCost;
@@ -800,7 +869,10 @@ function findRefinanceSavings(base: Scenario, refi: Scenario): string {
   }
 }
 
-// Cache management
+// ============================================================================
+// CACHING & PERSISTENCE
+// ============================================================================
+
 function getCachedResults(input: MortgageScenarioPlanningInput): Scenario[] | null {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
@@ -863,7 +935,10 @@ function loadCachedResults(): void {
   }
 }
 
-// Scenario save/load
+// ============================================================================
+// SCENARIO SAVE/LOAD
+// ============================================================================
+
 function saveScenario(form: HTMLFormElement): void {
   try {
     const input = parseFormInput(form);
@@ -871,7 +946,7 @@ function saveScenario(form: HTMLFormElement): void {
     
     if (!name) return;
     
-    const saved = JSON.parse(localStorage.getItem('saved-mortgage-scenarios') || '[]');
+    const saved = JSON.parse(localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]');
     saved.push({
       id: Date.now(),
       name,
@@ -879,7 +954,7 @@ function saveScenario(form: HTMLFormElement): void {
       savedAt: new Date().toISOString(),
     });
     
-    localStorage.setItem('saved-mortgage-scenarios', JSON.stringify(saved));
+    localStorage.setItem(SAVED_SCENARIOS_KEY, JSON.stringify(saved));
     alert(`Scenario "${name}" saved successfully!`);
   } catch (error) {
     console.error('Failed to save scenario:', error);
@@ -894,7 +969,7 @@ function loadSavedScenario(form: HTMLFormElement): void {
     
     if (!scenarioId) return;
     
-    const saved = JSON.parse(localStorage.getItem('saved-mortgage-scenarios') || '[]');
+    const saved = JSON.parse(localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]');
     const scenario = saved.find((s: any) => s.id === parseInt(scenarioId));
     
     if (!scenario) return;
@@ -917,14 +992,17 @@ function loadSavedScenario(form: HTMLFormElement): void {
   }
 }
 
-// Store calculation in recent calculations for dashboard
+// ============================================================================
+// INTEGRATION & TRACKING
+// ============================================================================
+
 function storeRecentCalculation(input: MortgageScenarioPlanningInput, scenarios: Scenario[]): void {
   try {
     const bestScenario = scenarios.reduce((best, current) => 
       current.totalCost < best.totalCost ? current : best
     );
     
-    const recentCalculations = JSON.parse(localStorage.getItem('fanalyx-recent-calculations') || '[]');
+    const recentCalculations = JSON.parse(localStorage.getItem(RECENT_CALCULATIONS_KEY) || '[]');
     
     recentCalculations.unshift({
       id: 'mortgage-scenario-planning',
@@ -941,7 +1019,7 @@ function storeRecentCalculation(input: MortgageScenarioPlanningInput, scenarios:
     });
     
     // Keep only last 10 calculations
-    localStorage.setItem('fanalyx-recent-calculations', JSON.stringify(recentCalculations.slice(0, 10)));
+    localStorage.setItem(RECENT_CALCULATIONS_KEY, JSON.stringify(recentCalculations.slice(0, 10)));
   } catch (error) {
     console.warn('Failed to store recent calculation:', error);
   }
