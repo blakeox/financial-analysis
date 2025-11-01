@@ -310,8 +310,11 @@ async function calculateScenario(
   
   const monthlyPayment = result.monthlyPayment;
   const totalInterest = getTotalInterest(result);
-  const totalCost = monthlyPayment * result.totalPayments;
-  const payoffMonths = result.totalPayments;
+  const payoffMonths = result.totalPayments || termMonths;
+  const totalCost = monthlyPayment * payoffMonths;
+  
+  // Validate payoff months is reasonable (max 30 years = 360 months)
+  const validatedPayoffMonths = payoffMonths > 0 && payoffMonths <= 360 ? payoffMonths : termMonths;
   
   return {
     name,
@@ -322,13 +325,14 @@ async function calculateScenario(
     monthlyPayment,
     totalInterest,
     totalCost,
-    payoffMonths,
+    payoffMonths: validatedPayoffMonths,
   };
 }
 
 function getTotalInterest(result: AmortizationAnalysisResult): number {
   if (isFiniteNumber((result as any).totalInterest)) return Number((result as any).totalInterest);
   if (isFiniteNumber((result as any).interestPaid)) return Number((result as any).interestPaid);
+  if (isFiniteNumber((result as any).totalInterestPaid)) return Number((result as any).totalInterestPaid);
   return 0;
 }
 
