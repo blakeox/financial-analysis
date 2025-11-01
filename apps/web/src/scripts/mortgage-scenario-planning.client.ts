@@ -155,13 +155,17 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
       return;
     }
     
-    // Calculate scenarios
+    // Calculate scenarios with descriptive names
     const termMonths = input.loanTermYears * 12;
     const scenario1Principal = input.homePrice - input.scenario1Down;
     const scenario2Principal = input.homePrice - input.scenario2Down;
     
+    // Generate descriptive names
+    const scenario1Name = generateScenarioName(input.scenario1Down, input.homePrice, input.scenario1Rate, input.scenario1Extra);
+    const scenario2Name = generateScenarioName(input.scenario2Down, input.homePrice, input.scenario2Rate, input.scenario2Extra);
+    
     const scenario1 = await calculateScenario(
-      'Scenario 1',
+      scenario1Name,
       scenario1Principal,
       input.scenario1Rate / 100,
       termMonths,
@@ -171,7 +175,7 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
     );
     
     const scenario2 = await calculateScenario(
-      'Scenario 2',
+      scenario2Name,
       scenario2Principal,
       input.scenario2Rate / 100,
       termMonths,
@@ -185,7 +189,7 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
     // Add refinance comparison if provided
     if (input.refinanceRate && input.refinanceRate > 0) {
         const refi1 = await calculateRefinanceScenario(
-          'Scenario 1 + Refinance',
+          `${scenario1Name} (Refinanced)`,
           scenario1,
           REFINANCE_MONTH,
           input.refinanceRate / 100,
@@ -193,7 +197,7 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
         );
         
         const refi2 = await calculateRefinanceScenario(
-          'Scenario 2 + Refinance',
+          `${scenario2Name} (Refinanced)`,
           scenario2,
           REFINANCE_MONTH,
           input.refinanceRate / 100,
@@ -620,6 +624,43 @@ function displayResults(scenarios: Scenario[]): void {
 // DISPLAY HELPERS
 // ============================================================================
 
+function generateScenarioName(downPayment: number, homePrice: number, rate: number, extraPayment: number): string {
+  const downPercent = Math.round((downPayment / homePrice) * 100);
+  const rateFormatted = rate.toFixed(2);
+  
+  // Build descriptive name based on characteristics
+  let name = '';
+  
+  // Down payment descriptor
+  if (downPercent >= 20) {
+    name = `${downPercent}% Down`;
+  } else if (downPercent >= 10) {
+    name = `${downPercent}% Down (PMI)`;
+  } else if (downPercent >= 5) {
+    name = `${downPercent}% Down (High PMI)`;
+  } else {
+    name = `${downPercent}% Down (FHA)`;
+  }
+  
+  // Rate descriptor
+  if (rate < 5.0) {
+    name += ` @ ${rateFormatted}% (Low)`;
+  } else if (rate < 7.0) {
+    name += ` @ ${rateFormatted}%`;
+  } else {
+    name += ` @ ${rateFormatted}% (High)`;
+  }
+  
+  // Extra payment descriptor
+  if (extraPayment >= 500) {
+    name += ` + $${Math.round(extraPayment / 100) * 100} extra`;
+  } else if (extraPayment > 0) {
+    name += ` + extra payments`;
+  }
+  
+  return name;
+}
+
 function formatTimeDisplay(months: number): { years: number; months: number; display: string } {
   const years = Math.floor(months / 12);
   const monthsRemainder = months % 12;
@@ -755,19 +796,13 @@ function generateComparisonInsight(scenario1: Scenario, scenario2: Scenario): st
   const interestDiff = scenario2.totalInterest - scenario1.totalInterest;
   const timeDiff = scenario2.payoffMonths - scenario1.payoffMonths;
   
-  if (totalDiff > 0) {
-    // Scenario 1 is cheaper
-    return `<strong>Scenario 1</strong> saves you ${formatCurrency(Math.abs(totalDiff))} over the life of the loan. 
-            While ${monthlyDiff > 0 ? 'the monthly payment is lower' : 'you pay more monthly'}, 
-            you'll pay ${formatCurrency(Math.abs(interestDiff))} ${interestDiff < 0 ? 'less' : 'more'} in interest 
-            and pay off the loan ${Math.abs(timeDiff)} months ${timeDiff < 0 ? 'faster' : 'slower'}.`;
-  } else {
-    // Scenario 2 is cheaper
-    return `<strong>Scenario 2</strong> saves you ${formatCurrency(Math.abs(totalDiff))} over the life of the loan. 
-            While ${monthlyDiff < 0 ? 'the monthly payment is lower' : 'you pay more monthly'}, 
-            you'll pay ${formatCurrency(Math.abs(interestDiff))} ${interestDiff > 0 ? 'less' : 'more'} in interest 
-            and pay off the loan ${Math.abs(timeDiff)} months ${timeDiff > 0 ? 'faster' : 'slower'}.`;
-  }
+  const betterScenario = totalDiff > 0 ? scenario1 : scenario2;
+  const worseScenario = totalDiff > 0 ? scenario2 : scenario1;
+  
+  return `<strong>${betterScenario.name}</strong> saves you ${formatCurrency(Math.abs(totalDiff))} over the life of the loan compared to <strong>${worseScenario.name}</strong>. 
+          ${Math.abs(monthlyDiff) > 50 ? `The monthly payment differs by ${formatCurrency(Math.abs(monthlyDiff))}, ` : ''}
+          ${Math.abs(interestDiff) > 10000 ? `saving ${formatCurrency(Math.abs(interestDiff))} in interest ` : ''}
+          ${Math.abs(timeDiff) >= 12 ? `and paying off ${Math.abs(timeDiff)} months ${timeDiff < 0 ? 'faster' : 'slower'}` : ''}.`;
 }
 
 function generateRecommendations(baseScenarios: Scenario[], refinanceScenarios: Scenario[], bestScenario: Scenario): string {
