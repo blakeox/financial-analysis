@@ -17,6 +17,81 @@ type ExpenseType =
   | 'entertainment'
   | 'other';
 
+// Emergency Fund Progress Tracker
+interface EmergencyFundProgress {
+  currentAmount: number;
+  targetAmount: number;
+  monthsOfExpenses: number;
+  targetMonths: number;
+  percentComplete: number;
+  monthsToComplete: number;
+  status: 'none' | 'starter' | 'partial' | 'complete' | 'excess';
+  recommendation: string;
+}
+
+function calculateEmergencyFundProgress(
+  currentAmount: number,
+  monthlyExpenses: number,
+  monthlySavings: number,
+  targetMonths: number = 6
+): EmergencyFundProgress {
+  const targetAmount = monthlyExpenses * targetMonths;
+  const monthsOfExpenses = currentAmount / monthlyExpenses;
+  const percentComplete = (currentAmount / targetAmount) * 100;
+  const remaining = Math.max(0, targetAmount - currentAmount);
+  const monthsToComplete = monthlySavings > 0 ? Math.ceil(remaining / monthlySavings) : Infinity;
+  
+  let status: EmergencyFundProgress['status'] = 'none';
+  let recommendation = '';
+  
+  if (monthsOfExpenses === 0) {
+    status = 'none';
+    recommendation = 'Start building your emergency fund! Aim for at least 1 month of expenses first.';
+  } else if (monthsOfExpenses < 1) {
+    status = 'starter';
+    recommendation = 'Good start! Continue building toward 3-6 months of expenses for full protection.';
+  } else if (monthsOfExpenses < 3) {
+    status = 'partial';
+    recommendation = 'Making progress! Aim for at least 3 months to cover most emergencies.';
+  } else if (monthsOfExpenses < targetMonths) {
+    status = 'partial';
+    recommendation = `Almost there! ${(targetMonths - monthsOfExpenses).toFixed(1)} more months to reach your ${targetMonths}-month goal.`;
+  } else if (monthsOfExpenses >= targetMonths && monthsOfExpenses < targetMonths + 3) {
+    status = 'complete';
+    recommendation = 'Excellent! You have a solid emergency fund. Consider investing excess savings.';
+  } else {
+    status = 'excess';
+    recommendation = 'Your emergency fund is well-funded! Consider investing excess funds for growth.';
+  }
+  
+  return {
+    currentAmount,
+    targetAmount,
+    monthsOfExpenses,
+    targetMonths,
+    percentComplete: Math.min(100, percentComplete),
+    monthsToComplete,
+    status,
+    recommendation,
+  };
+}
+
+// Spending Insights
+interface SpendingInsights {
+  topCategories: Array<{ category: string; amount: number; percent: number }>;
+  savings: {
+    actual: number;
+    potential: number;
+    opportunities: string[];
+  };
+  comparisons: {
+    housingToIncome: number;
+    transportationToIncome: number;
+    foodToIncome: number;
+  };
+  recommendations: string[];
+}
+
 export const parseNumber = (value: FormDataEntryValue | null): number => {
   if (value === null) return Number.NaN;
   const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
@@ -31,7 +106,7 @@ const formatPercent = (value: string | undefined): string => {
   return formatPercentSimple(numeric);
 };
 
-export const displayResults = (result: BudgetResult): void => {
+export const displayResults = (result: BudgetResult, emergencyFundAmount: number = 0): void => {
   // Use the generic results structure from IndividualCalculatorPage.astro
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
@@ -41,7 +116,12 @@ export const displayResults = (result: BudgetResult): void => {
     return;
   }
 
-  // Render summary cards
+  // Calculate emergency fund progress
+  const monthlyExpenses = parseFloat(result.expenseSummary.totalMonthlyExpenses || '0');
+  const monthlySavings = parseFloat(result.metrics.monthlyNetIncome || '0');
+  const emergencyFund = calculateEmergencyFundProgress(emergencyFundAmount, monthlyExpenses, monthlySavings);
+
+  // Render summary cards with emergency fund
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Income</h5>
@@ -54,10 +134,12 @@ export const displayResults = (result: BudgetResult): void => {
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Net Income</h5>
       <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.metrics.monthlyNetIncome)}</p>
+      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months saved</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Savings Rate</h5>
       <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatPercent(result.metrics.savingsRate)}</p>
+      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Emergency fund: ${emergencyFund.percentComplete.toFixed(0)}%</p>
     </div>
   `;
 
@@ -65,6 +147,47 @@ export const displayResults = (result: BudgetResult): void => {
   const { needs, wants, savings } = result.budgetRuleAnalysis;
 
   resultsContainer.innerHTML = `
+    <!-- Emergency Fund Progress Tracker -->
+    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+      <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+        <span>🛡️</span> Emergency Fund Progress
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${emergencyFund.recommendation}</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Fund</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.currentAmount)}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Target Fund</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.targetAmount)}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.targetMonths} months</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Time to Complete</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">At current savings</p>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-gray-600 dark:text-gray-400">Progress</span>
+          <span class="font-semibold text-gray-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+          <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+          <span>$0</span>
+          <span class="font-semibold">${formatCurrency(emergencyFund.currentAmount)}</span>
+          <span>${formatCurrency(emergencyFund.targetAmount)}</span>
+        </div>
+      </div>
+    </div>
+    
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">50/30/20 Budget Analysis</h3>
       
