@@ -114,6 +114,43 @@ export class ContextManager {
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
 
+    } else if (contextKey === 'mortgage-scenario-planning' && contextData) {
+      // Mortgage Scenario Planner - CFP Assistant
+      const mortgageData = contextData as {
+        calculatorType?: string;
+        calculatorName?: string;
+        currentFormData?: any;
+        results?: any;
+        formData?: any;
+        cfpGuidance?: string[];
+      };
+
+      const promptContext: Record<string, unknown> = {
+        userMessage: message,
+        calculatorName: mortgageData.calculatorName || 'Mortgage Scenario Planner',
+      };
+
+      // Add form data if available
+      if (mortgageData.currentFormData) {
+        promptContext.currentFormData = mortgageData.currentFormData;
+      }
+
+      // Add results if available
+      if (mortgageData.results) {
+        promptContext.results = mortgageData.results;
+      }
+
+      // Add conversation history
+      if (memoryContext?.conversationHistory) {
+        promptContext.conversationHistory = memoryContext.conversationHistory;
+      }
+
+      // Build prompt from CFP template
+      const fullPrompt = buildPrompt('mortgageScenarioCFP', promptContext);
+      const split = this.splitPrompt(fullPrompt);
+      systemPrompt = split.systemPrompt;
+      basePrompt = split.userPrompt;
+
     } else if (contextKey === 'general' || !contextKey) {
       // General context - use chat assistant template
       const fullPrompt = buildPrompt('chatAssistant', {

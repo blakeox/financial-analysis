@@ -411,6 +411,15 @@ class ChatPanel {
         intro: 'Hi — I can help with amortization schedules.',
         examples: ['"Set interest to 4.5%"', '"Show a 20-year term"'],
       },
+      'mortgage-scenario-planning': {
+        intro: 'Hi — I\'m your CFP assistant for mortgage scenario planning.',
+        examples: [
+          '"Help me fill out the form"',
+          '"Which scenario is better?"',
+          '"Should I put 20% down?"',
+          '"Explain the results"'
+        ],
+      },
       models: {
         intro: 'Hi — select a model or ask about available tools.',
         examples: ['"What models are available?"', '"Tell me about lease analysis"'],
