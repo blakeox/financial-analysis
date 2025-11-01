@@ -90,6 +90,16 @@ export const STRIPE_PRODUCTS: Record<ApiTier, StripeProduct> = {
     rateLimitPerSec: 5,
     overagePerRequest: 0,
   },
+  internal: {
+    id: 'prod_internal',
+    name: 'Internal Tier',
+    tier: 'internal',
+    priceId: '', // No Stripe price for internal tier
+    monthlyPrice: 0,
+    monthlyQuota: 100_000,
+    rateLimitPerSec: 1000,
+    overagePerRequest: 0,
+  },
 };
 
 /**

@@ -167,7 +167,7 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
             secondaryTools: matchedTools.slice(1),
             reasoning: `Matched keyword: ${keyword}`,
             confidence: 0.6,
-          };
+          } as ToolRecommendation;
         }
       }
     }
@@ -175,8 +175,8 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
     // No match found
     return {
       confidence: 0.2,
-      secondaryTools: [],
-    };
+      reasoning: 'No matching tools found',
+    } as ToolRecommendation;
   }
 
   /**
@@ -190,10 +190,10 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
     if (numbers && numbers.length > 0) {
       // Try to identify what the numbers represent based on tool
       if (toolName.includes('amortization')) {
-        if (numbers.length >= 3) {
-          params.principal = parseFloat(numbers[0].replace(/,/g, ''));
-          params.annualRate = parseFloat(numbers[1].replace(/,/g, '')) / 100;
-          params.termMonths = parseInt(numbers[2].replace(/,/g, ''));
+        if (numbers && numbers.length >= 3) {
+          params.principal = parseFloat(numbers[0]?.replace(/,/g, '') || '0');
+          params.annualRate = parseFloat(numbers[1]?.replace(/,/g, '') || '0') / 100;
+          params.termMonths = parseInt(numbers[2]?.replace(/,/g, '') || '0');
         }
       }
       // Add more parameter extraction logic for other tools

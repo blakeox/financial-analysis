@@ -7,7 +7,7 @@
 
 import type { Env } from '../types';
 
-export type ApiTier = 'free' | 'pro' | 'enterprise' | 'test';
+export type ApiTier = 'free' | 'pro' | 'enterprise' | 'test' | 'internal';
 
 export interface ApiKeyInfo {
   id: number;
