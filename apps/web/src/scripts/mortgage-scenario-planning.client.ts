@@ -272,67 +272,126 @@ function displayResults(scenarios: Scenario[]): void {
   
   summaryCards.innerHTML = topScenarios.map((scenario, idx) => {
     const isBest = scenario.name === bestScenario.name;
-    const bgColor = idx === 0 ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800';
-    const borderClass = isBest ? 'border-4 border-green-500' : 'border border-gray-300 dark:border-gray-600';
+    const bgColor = isBest ? 'bg-gradient-to-br from-green-600 to-emerald-600' : idx === 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-white dark:bg-gray-800';
+    const textColor = (isBest || idx === 0) ? 'text-white' : 'text-gray-900 dark:text-white';
+    const borderClass = isBest ? 'border-4 border-green-400 shadow-2xl' : 'border border-gray-300 dark:border-gray-600 shadow-lg';
+    const years = Math.floor(scenario.payoffMonths / 12);
+    const months = scenario.payoffMonths % 12;
     
     return `
-      <div class="${bgColor} rounded-lg p-6 shadow ${borderClass}">
-        ${isBest ? '<span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold mb-2">BEST VALUE</span>' : ''}
-        <p class="text-sm ${idx === 0 ? 'opacity-90' : 'text-gray-500 dark:text-gray-400'} mb-2">${scenario.name}</p>
-        <p class="${idx === 0 ? 'text-3xl' : 'text-2xl'} font-bold">${formatCurrency(scenario.totalCost)}</p>
-        <p class="text-xs ${idx === 0 ? 'opacity-90' : 'text-gray-500 dark:text-gray-400'} mt-2">${formatCurrency(scenario.monthlyPayment)}/mo</p>
+      <div class="${bgColor} rounded-xl p-6 ${borderClass} transform hover:scale-105 transition-all duration-200">
+        ${isBest ? '<div class="flex items-center gap-2 mb-3"><span class="bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">✓ BEST VALUE</span></div>' : ''}
+        <h3 class="text-lg font-bold ${textColor} mb-4">${scenario.name}</h3>
+        
+        <div class="space-y-3">
+          <div>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Monthly Payment</p>
+            <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPayment)}</p>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
+            <div>
+              <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Interest</p>
+              <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
+            </div>
+            <div>
+              <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Payoff Time</p>
+              <p class="text-sm font-semibold ${textColor}">${years}y ${months}m</p>
+            </div>
+          </div>
+          
+          <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Total Cost</p>
+            <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
   
   // Render detailed comparison with separate sections for base vs refinance
   resultsContent.innerHTML = `
-    <!-- Base Scenarios Comparison -->
+    <!-- Base Scenarios Detailed Comparison -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Original Scenarios Comparison</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scenario</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Monthly Payment</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Interest</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Cost</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Payoff Time</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            ${baseScenarios.map(scenario => {
-              const isBest = scenario.name === bestScenario.name && baseScenarios.includes(bestScenario);
-              const rowClass = isBest ? 'bg-green-50 dark:bg-green-900/20 font-semibold' : '';
-              const months = scenario.payoffMonths;
-              const years = Math.floor(months / 12);
-              const monthsRemainder = months % 12;
-              const timeDisplay = years > 0 ? `${years}yr ${monthsRemainder}mo` : `${monthsRemainder}mo`;
+      <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
+        <span>📋</span> Original Scenarios Comparison
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Side-by-side comparison of your mortgage options</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        ${baseScenarios.map((scenario, idx) => {
+          const isBest = scenario.name === bestScenario.name && baseScenarios.includes(bestScenario);
+          const years = Math.floor(scenario.payoffMonths / 12);
+          const months = scenario.payoffMonths % 12;
+          const loanToValuePercent = ((scenario.principal / (scenario.principal + scenario.downPayment)) * 100).toFixed(1);
+          
+          return `
+            <div class="border-2 ${isBest ? 'border-green-500 bg-green-50 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-700'} rounded-lg p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">${scenario.name}</h3>
+                ${isBest ? '<span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">✓ BEST</span>' : ''}
+              </div>
               
-              return `
-                <tr class="${rowClass}">
-                  <td class="px-4 py-3 whitespace-nowrap text-sm">
-                    ${scenario.name}
-                    ${isBest ? '<span class="ml-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">BEST</span>' : ''}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
-                    ${formatCurrency(scenario.monthlyPayment)}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
-                    ${formatCurrency(scenario.totalInterest)}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
-                    ${formatCurrency(scenario.totalCost)}
-                  </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
-                    ${timeDisplay}
-                  </td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
+              <div class="space-y-4">
+                <!-- Loan Details -->
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Loan Details</h4>
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600 dark:text-gray-400">Loan Amount</span>
+                      <span class="text-sm font-semibold">${formatCurrency(scenario.principal)}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600 dark:text-gray-400">Down Payment</span>
+                      <span class="text-sm font-semibold">${formatCurrency(scenario.downPayment)} (${((scenario.downPayment / (scenario.principal + scenario.downPayment)) * 100).toFixed(1)}%)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600 dark:text-gray-400">Interest Rate</span>
+                      <span class="text-sm font-semibold">${scenario.rate.toFixed(2)}%</span>
+                    </div>
+                    ${scenario.extraPayment > 0 ? `
+                      <div class="flex justify-between items-center text-blue-600 dark:text-blue-400">
+                        <span class="text-sm">Extra Payment</span>
+                        <span class="text-sm font-semibold">+${formatCurrency(scenario.extraPayment)}/mo</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div>
+                  <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Monthly Payment</h4>
+                  <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPayment)}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Base: ${formatCurrency(scenario.monthlyPayment - scenario.extraPayment)} + Extra: ${formatCurrency(scenario.extraPayment)}</p>
+                </div>
+                
+                <!-- Cost Breakdown -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Interest</p>
+                    <p class="text-lg font-bold text-blue-600 dark:text-blue-400">${formatCurrency(scenario.totalInterest)}</p>
+                  </div>
+                  <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost</p>
+                    <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${formatCurrency(scenario.totalCost)}</p>
+                  </div>
+                </div>
+                
+                <!-- Timeline -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Payoff Timeline</p>
+                      <p class="text-xl font-bold text-gray-900 dark:text-white">${years} years ${months} months</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${scenario.payoffMonths} total payments</p>
+                    </div>
+                    <div class="text-4xl">⏱️</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
       </div>
     </div>
     
