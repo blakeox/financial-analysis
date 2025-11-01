@@ -504,15 +504,81 @@ function displayResults(scenarios: Scenario[]): void {
         </h3>
         
         <div class="space-y-4">
+          ${baseScenarios.length === 2 ? `
+            <!-- Options Comparison - Lead with this -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border-2 border-blue-300 dark:border-blue-600">
+              <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span>⚖️</span> Comparing Your Options
+              </h4>
+              
+              <!-- Cost Difference Summary -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-5 mb-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h5 class="font-semibold text-gray-900 dark:text-white">Total Cost Over Loan Life</h5>
+                  <span class="text-2xl font-bold ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'text-green-600' : 'text-red-600'}">
+                    ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? '▼' : '▲'} ${formatCurrency(Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost))}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  <strong>${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? baseScenarios[0].name : baseScenarios[1].name}</strong> 
+                  ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'costs less' : 'costs more'} than 
+                  <strong>${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? baseScenarios[1].name : baseScenarios[0].name}</strong> 
+                  by this amount over the full loan term.
+                </p>
+              </div>
+              
+              <!-- Detailed Comparison Metrics -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase mb-2">Monthly Payment</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}</p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">
+                    ${baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment ? 
+                      `Option A pays less per month` : 
+                      `Option B pays less per month`}
+                  </p>
+                </div>
+                <div class="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase mb-2">Total Interest</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">
+                    ${baseScenarios[0].totalInterest < baseScenarios[1].totalInterest ? 
+                      `Option A pays less interest` : 
+                      `Option B pays less interest`}
+                  </p>
+                </div>
+                <div class="text-center p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                  <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase mb-2">Payoff Timeline</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white mb-1">${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo</p>
+                  <p class="text-xs text-gray-600 dark:text-gray-400">
+                    ${baseScenarios[0].payoffMonths < baseScenarios[1].payoffMonths ? 
+                      `Option A pays off faster` : 
+                      `Option B pays off faster`}
+                  </p>
+                </div>
+              </div>
+              
+              <!-- Detailed Comparison Write-up -->
+              <div class="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <h5 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <span>📝</span> Understanding the Tradeoffs
+                </h5>
+                <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  ${generateDetailedComparison(baseScenarios[0], baseScenarios[1])}
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          
           <!-- Best Value Analysis -->
           <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-green-500">
             <h4 class="font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
-              <span>✓</span> Best Value Recommendation
+              <span>✓</span> Recommended Option
             </h4>
             <p class="text-sm text-gray-700 dark:text-gray-300">
-              <strong>${bestScenario.name}</strong> offers the best overall value, saving you 
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost)}</span> 
-              compared to the most expensive option over the life of the loan.
+              Based on total cost analysis, <strong>${bestScenario.name}</strong> provides the best overall value
+              ${Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost > 0 ? 
+                `, saving you <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost)}</span> over the life of the loan` : ''}.
             </p>
             ${baseScenarios.length === 2 && bestScenario === baseScenarios[0] ? `
               <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
@@ -524,33 +590,6 @@ function displayResults(scenarios: Scenario[]): void {
               </p>
             ` : ''}
           </div>
-          
-          ${baseScenarios.length === 2 ? `
-            <!-- Scenario Comparison -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Scenario Comparison</h4>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Monthly Payment Difference</p>
-                  <p class="text-lg font-bold ${baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}/mo</p>
-                </div>
-                <div class="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Interest Saved/Lost</p>
-                  <p class="text-lg font-bold ${baseScenarios[0].totalInterest < baseScenarios[1].totalInterest ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
-                </div>
-                <div class="text-center p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost Difference</p>
-                  <p class="text-lg font-bold ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost))}</p>
-                </div>
-              </div>
-              
-              <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p class="text-sm text-gray-700 dark:text-gray-300">
-                  ${generateComparisonInsight(baseScenarios[0], baseScenarios[1])}
-                </p>
-              </div>
-            </div>
-          ` : ''}
           
           ${refinanceScenarios.length > 0 ? `
             <!-- Refinancing Analysis -->
@@ -803,6 +842,76 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
       </div>
     </div>
   `;
+}
+
+function generateDetailedComparison(optionA: Scenario, optionB: Scenario): string {
+  const monthlyDiff = Math.abs(optionA.monthlyPayment - optionB.monthlyPayment);
+  const interestDiff = Math.abs(optionA.totalInterest - optionB.totalInterest);
+  const totalDiff = Math.abs(optionA.totalCost - optionB.totalCost);
+  const timeDiff = Math.abs(optionA.payoffMonths - optionB.payoffMonths);
+  
+  const lowerMonthly = optionA.monthlyPayment < optionB.monthlyPayment ? 'Option A' : 'Option B';
+  const lowerInterest = optionA.totalInterest < optionB.totalInterest ? 'Option A' : 'Option B';
+  const lowerTotal = optionA.totalCost < optionB.totalCost ? 'Option A' : 'Option B';
+  const fasterPayoff = optionA.payoffMonths < optionB.payoffMonths ? 'Option A' : 'Option B';
+  
+  const downPaymentA = ((optionA.downPayment / (optionA.principal + optionA.downPayment)) * 100).toFixed(1);
+  const downPaymentB = ((optionB.downPayment / (optionB.principal + optionB.downPayment)) * 100).toFixed(1);
+  
+  let analysis = '<ul class="list-disc list-inside space-y-2">';
+  
+  // Down payment comparison
+  analysis += `
+    <li><strong>Down Payment:</strong> Option A puts down ${downPaymentA}% (${formatCurrency(optionA.downPayment)}) vs 
+    Option B at ${downPaymentB}% (${formatCurrency(optionB.downPayment)}). 
+    ${parseFloat(downPaymentA) >= 20 && parseFloat(downPaymentB) < 20 ? 'Option A avoids PMI, while Option B will require it.' : 
+      parseFloat(downPaymentB) >= 20 && parseFloat(downPaymentA) < 20 ? 'Option B avoids PMI, while Option A will require it.' : 
+      parseFloat(downPaymentA) < 20 && parseFloat(downPaymentB) < 20 ? 'Both options require PMI since down payments are under 20%.' : 
+      'Both options avoid PMI with 20%+ down payments.'}</li>
+  `;
+  
+  // Interest rate comparison
+  const rateDiff = Math.abs(optionA.rate - optionB.rate);
+  if (rateDiff >= 0.1) {
+    analysis += `
+      <li><strong>Interest Rate:</strong> ${rateDiff.toFixed(2)}% rate difference translates to ${formatCurrency(interestDiff)} in total interest. 
+      ${lowerInterest} has the ${optionA.rate < optionB.rate ? optionA.rate : optionB.rate}% rate, 
+      resulting in significant long-term savings.</li>
+    `;
+  }
+  
+  // Monthly payment tradeoff
+  if (monthlyDiff >= 100) {
+    const monthlyPerYear = monthlyDiff * 12;
+    analysis += `
+      <li><strong>Monthly Budget Impact:</strong> ${lowerMonthly} has ${formatCurrency(monthlyDiff)} lower monthly payments, 
+      which equals ${formatCurrency(monthlyPerYear)} annually. This could improve monthly cash flow but may cost more over time.</li>
+    `;
+  }
+  
+  // Long-term cost analysis
+  if (totalDiff >= 10000) {
+    const yearsOfPayments = Math.round(totalDiff / monthlyDiff);
+    analysis += `
+      <li><strong>Long-term Cost:</strong> While ${lowerTotal} costs ${formatCurrency(totalDiff)} less overall, 
+      the ${lowerTotal === lowerMonthly ? 'lower monthly payment' : 'higher monthly payment'} means 
+      ${lowerTotal === lowerMonthly ? 'more affordable near-term' : 'you\'re paying more upfront for long-term savings'}.</li>
+    `;
+  }
+  
+  // Extra payments impact
+  if (optionA.extraPayment > 0 || optionB.extraPayment > 0) {
+    const hasExtra = optionA.extraPayment > 0 ? 'Option A' : 'Option B';
+    const extraAmount = Math.max(optionA.extraPayment, optionB.extraPayment);
+    analysis += `
+      <li><strong>Early Payoff Strategy:</strong> ${hasExtra} includes ${formatCurrency(extraAmount)} extra monthly payment, 
+      accelerating payoff by approximately ${Math.round(timeDiff / 12)} years and reducing total interest paid.</li>
+    `;
+  }
+  
+  analysis += '</ul>';
+  
+  return analysis;
 }
 
 function generateComparisonInsight(scenario1: Scenario, scenario2: Scenario): string {
