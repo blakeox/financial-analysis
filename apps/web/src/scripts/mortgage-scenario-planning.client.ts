@@ -1,7 +1,18 @@
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
-import { coerceNumber, formatCurrency, isFiniteNumber } from '../utils/calculator-utilities';
+import {
+  coerceNumber,
+  formatCurrency,
+  isFiniteNumber,
+  showLoading,
+  hideLoading,
+  showError,
+  hideError,
+  showResults,
+  hideResults,
+} from '../utils/calculator-utilities';
 import { postAnalysisRequest } from './analysis-api';
 
+// Type definitions
 type Scenario = {
   name: string;
   downPayment: number;
@@ -14,135 +25,215 @@ type Scenario = {
   payoffMonths: number;
 };
 
+interface MortgageScenarioPlanningInput {
+  homePrice: number;
+  loanTermYears: number;
+  scenario1Down: number;
+  scenario1Rate: number;
+  scenario1Extra: number;
+  scenario2Down: number;
+  scenario2Rate: number;
+  scenario2Extra: number;
+  refinanceRate?: number;
+}
+
+// Cache for results
+const CACHE_KEY = 'mortgage-scenario-results';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 // Initialize calculator
 function initializeMortgageScenarioPlanning() {
   const form = document.getElementById('calculator-form');
   const calculateBtn = document.getElementById('calculate-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const saveBtn = document.getElementById('save-btn');
   
-  if (!(form instanceof HTMLFormElement && calculateBtn instanceof HTMLButtonElement)) {
+  if (!(form instanceof HTMLFormElement)) {
     console.error('Mortgage scenario planning form not found');
     return;
   }
 
-  calculateBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    calculateBtn.disabled = true;
-    calculateBtn.textContent = 'Calculating...';
-    
-    try {
-      const formData = new FormData(form);
-      const homePrice = coerceNumber(formData.get('homePrice'), 0);
-      const loanTermYears = parseInt(String(formData.get('loanTerm') || '30'));
-      const termMonths = loanTermYears * 12;
-      
-      // Validate home price
-      if (homePrice <= 0) {
-        alert('Please enter a valid home price');
-        return;
-      }
-      
-      // Scenario 1
-      const scenario1Down = coerceNumber(formData.get('scenario1Down'), 0);
-      const scenario1Rate = coerceNumber(formData.get('scenario1Rate'), 0);
-      const scenario1Extra = coerceNumber(formData.get('scenario1Extra'), 0);
-      
-      // Validate scenario 1
-      if (scenario1Rate <= 0) {
-        alert('Please enter a valid interest rate for Scenario 1');
-        return;
-      }
-      if (scenario1Down >= homePrice) {
-        alert('Scenario 1: Down payment must be less than home price');
-        return;
-      }
-      
-      const scenario1Principal = homePrice - scenario1Down;
-      const scenario1RateDecimal = scenario1Rate / 100;
-      
-      // Scenario 2
-      const scenario2Down = coerceNumber(formData.get('scenario2Down'), 0);
-      const scenario2Rate = coerceNumber(formData.get('scenario2Rate'), 0);
-      const scenario2Extra = coerceNumber(formData.get('scenario2Extra'), 0);
-      
-      // Validate scenario 2
-      if (scenario2Rate <= 0) {
-        alert('Please enter a valid interest rate for Scenario 2');
-        return;
-      }
-      if (scenario2Down >= homePrice) {
-        alert('Scenario 2: Down payment must be less than home price');
-        return;
-      }
-      
-      const scenario2Principal = homePrice - scenario2Down;
-      const scenario2RateDecimal = scenario2Rate / 100;
-      
-      // Optional refinance scenario (comparing refinance after 5 years)
-      const refinanceRate = coerceNumber(formData.get('refinanceRate'), 0);
-      
-      // Calculate scenarios
-      const scenario1 = await calculateScenario('Scenario 1', scenario1Principal, scenario1RateDecimal, termMonths, scenario1Extra, scenario1Down, scenario1Rate);
-      const scenario2 = await calculateScenario('Scenario 2', scenario2Principal, scenario2RateDecimal, termMonths, scenario2Extra, scenario2Down, scenario2Rate);
-      
-      const scenarios = [scenario1, scenario2];
-      
-      // Add refinance comparison if provided
-      if (refinanceRate > 0) {
-        // Scenario 1 with refinance after 5 years
-        const refi1 = await calculateRefinanceScenario(
-          'Scenario 1 + Refinance',
-          scenario1,
-          60, // 5 years = 60 months
-          refinanceRate / 100,
-          termMonths
-        );
-        
-        // Scenario 2 with refinance after 5 years
-        const refi2 = await calculateRefinanceScenario(
-          'Scenario 2 + Refinance',
-          scenario2,
-          60, // 5 years = 60 months
-          refinanceRate / 100,
-          termMonths
-        );
-        
-        scenarios.push(refi1, refi2);
-      }
-      
-      // Display results
-      displayResults(scenarios);
-      
-      // Dispatch completion event for journey integration
-      window.dispatchEvent(
-        new CustomEvent('calculator-completed', {
-          detail: {
-            calculatorId: 'mortgage-scenario-planning',
-            result: { scenarios },
-            formData: {
-              homePrice,
-              loanTermYears,
-              scenario1,
-              scenario2,
-            },
-          },
-        })
-      );
-    } catch (error) {
-      console.error('Mortgage scenario planning error:', error);
-      alert('Failed to calculate scenarios. Please try again.');
-    } finally {
-      calculateBtn.disabled = false;
-      calculateBtn.textContent = 'Calculate';
-    }
-  });
+  // Set up event listeners
+  setupFormEventListeners(form, calculateBtn, resetBtn, saveBtn);
+  
+  // Load cached results if available
+  loadCachedResults();
+  
+  // Load saved scenario if available
+  loadSavedScenario(form);
+}
 
-  const resetBtn = document.getElementById('reset-btn');
+function setupFormEventListeners(
+  form: HTMLFormElement,
+  calculateBtn: HTMLElement | null,
+  resetBtn: HTMLElement | null,
+  saveBtn: HTMLElement | null
+) {
+  // Calculate button
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await handleCalculate(form, calculateBtn);
+  });
+  
+  if (calculateBtn instanceof HTMLButtonElement) {
+    calculateBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await handleCalculate(form, calculateBtn);
+    });
+  }
+  
+  // Reset button
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
-      document.getElementById('results-section')?.classList.add('hidden');
+      const resultsSection = document.getElementById('results-section');
+      if (resultsSection) resultsSection.classList.add('hidden');
+      clearCache();
     });
+  }
+  
+  // Save button
+  if (saveBtn instanceof HTMLButtonElement) {
+    saveBtn.addEventListener('click', () => {
+      saveScenario(form);
+    });
+  }
+}
+
+async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement | null) {
+  if (calculateBtn instanceof HTMLButtonElement) {
+    calculateBtn.disabled = true;
+    calculateBtn.textContent = '📊 Calculating...';
+  }
+  
+  hideError();
+  showLoading();
+  
+  try {
+    const input = parseFormInput(form);
+    validateInput(input);
+    
+    // Check cache first
+    const cached = getCachedResults(input);
+    if (cached) {
+      displayResults(cached);
+      hideLoading();
+      if (calculateBtn instanceof HTMLButtonElement) {
+        calculateBtn.disabled = false;
+        calculateBtn.textContent = '📊 Calculate Scenarios';
+      }
+      return;
+    }
+    
+    // Calculate scenarios
+    const termMonths = input.loanTermYears * 12;
+    const scenario1Principal = input.homePrice - input.scenario1Down;
+    const scenario2Principal = input.homePrice - input.scenario2Down;
+    
+    const scenario1 = await calculateScenario(
+      'Scenario 1',
+      scenario1Principal,
+      input.scenario1Rate / 100,
+      termMonths,
+      input.scenario1Extra,
+      input.scenario1Down,
+      input.scenario1Rate
+    );
+    
+    const scenario2 = await calculateScenario(
+      'Scenario 2',
+      scenario2Principal,
+      input.scenario2Rate / 100,
+      termMonths,
+      input.scenario2Extra,
+      input.scenario2Down,
+      input.scenario2Rate
+    );
+    
+    const scenarios = [scenario1, scenario2];
+    
+    // Add refinance comparison if provided
+    if (input.refinanceRate && input.refinanceRate > 0) {
+      const refi1 = await calculateRefinanceScenario(
+        'Scenario 1 + Refinance',
+        scenario1,
+        60, // 5 years
+        input.refinanceRate / 100,
+        termMonths
+      );
+      
+      const refi2 = await calculateRefinanceScenario(
+        'Scenario 2 + Refinance',
+        scenario2,
+        60, // 5 years
+        input.refinanceRate / 100,
+        termMonths
+      );
+      
+      scenarios.push(refi1, refi2);
+    }
+    
+    // Cache results
+    cacheResults(input, scenarios);
+    
+    // Display results
+    displayResults(scenarios);
+    
+    // Store in recent calculations for dashboard
+    storeRecentCalculation(input, scenarios);
+    
+    // Dispatch completion event for journey integration
+    dispatchCalculatorCompletedEvent(input, scenarios);
+    
+  } catch (error) {
+    console.error('Mortgage scenario planning error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to calculate scenarios. Please try again.';
+    showError(message);
+  } finally {
+    hideLoading();
+    if (calculateBtn instanceof HTMLButtonElement) {
+      calculateBtn.disabled = false;
+      calculateBtn.textContent = '📊 Calculate Scenarios';
+    }
+  }
+}
+
+// Parse form input
+function parseFormInput(form: HTMLFormElement): MortgageScenarioPlanningInput {
+  const formData = new FormData(form);
+  return {
+    homePrice: coerceNumber(formData.get('homePrice'), 0),
+    loanTermYears: parseInt(String(formData.get('loanTerm') || '30')),
+    scenario1Down: coerceNumber(formData.get('scenario1Down'), 0),
+    scenario1Rate: coerceNumber(formData.get('scenario1Rate'), 0),
+    scenario1Extra: coerceNumber(formData.get('scenario1Extra'), 0),
+    scenario2Down: coerceNumber(formData.get('scenario2Down'), 0),
+    scenario2Rate: coerceNumber(formData.get('scenario2Rate'), 0),
+    scenario2Extra: coerceNumber(formData.get('scenario2Extra'), 0),
+    refinanceRate: coerceNumber(formData.get('refinanceRate'), undefined),
+  };
+}
+
+// Validate input
+function validateInput(input: MortgageScenarioPlanningInput): void {
+  if (input.homePrice <= 0) {
+    throw new Error('Please enter a valid home price');
+  }
+  
+  if (input.scenario1Rate <= 0) {
+    throw new Error('Please enter a valid interest rate for Scenario 1');
+  }
+  
+  if (input.scenario1Down >= input.homePrice) {
+    throw new Error('Scenario 1: Down payment must be less than home price');
+  }
+  
+  if (input.scenario2Rate <= 0) {
+    throw new Error('Please enter a valid interest rate for Scenario 2');
+  }
+  
+  if (input.scenario2Down >= input.homePrice) {
+    throw new Error('Scenario 2: Down payment must be less than home price');
   }
 }
 
@@ -706,6 +797,196 @@ function findRefinanceSavings(base: Scenario, refi: Scenario): string {
     return `would cost ${formatCurrency(Math.abs(savings))} more than no refinancing`;
   } else {
     return 'has the same total cost';
+  }
+}
+
+// Cache management
+function getCachedResults(input: MortgageScenarioPlanningInput): Scenario[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+    
+    const { timestamp, input: cachedInput, scenarios } = JSON.parse(cached);
+    const now = Date.now();
+    
+    // Check if cache is still valid
+    if (now - timestamp > CACHE_DURATION) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
+    // Check if input matches
+    if (JSON.stringify(input) === JSON.stringify(cachedInput)) {
+      return scenarios;
+    }
+    
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function cacheResults(input: MortgageScenarioPlanningInput, scenarios: Scenario[]): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      timestamp: Date.now(),
+      input,
+      scenarios,
+    }));
+  } catch (error) {
+    console.warn('Failed to cache results:', error);
+  }
+}
+
+function clearCache(): void {
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch (error) {
+    console.warn('Failed to clear cache:', error);
+  }
+}
+
+function loadCachedResults(): void {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return;
+    
+    const { timestamp, scenarios } = JSON.parse(cached);
+    const now = Date.now();
+    
+    // Only load if recent
+    if (now - timestamp <= CACHE_DURATION) {
+      displayResults(scenarios);
+    }
+  } catch {
+    // Ignore errors
+  }
+}
+
+// Scenario save/load
+function saveScenario(form: HTMLFormElement): void {
+  try {
+    const input = parseFormInput(form);
+    const name = prompt('Enter a name for this scenario:', 'My Mortgage Comparison');
+    
+    if (!name) return;
+    
+    const saved = JSON.parse(localStorage.getItem('saved-mortgage-scenarios') || '[]');
+    saved.push({
+      id: Date.now(),
+      name,
+      input,
+      savedAt: new Date().toISOString(),
+    });
+    
+    localStorage.setItem('saved-mortgage-scenarios', JSON.stringify(saved));
+    alert(`Scenario "${name}" saved successfully!`);
+  } catch (error) {
+    console.error('Failed to save scenario:', error);
+    alert('Failed to save scenario. Please try again.');
+  }
+}
+
+function loadSavedScenario(form: HTMLFormElement): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const scenarioId = params.get('scenario');
+    
+    if (!scenarioId) return;
+    
+    const saved = JSON.parse(localStorage.getItem('saved-mortgage-scenarios') || '[]');
+    const scenario = saved.find((s: any) => s.id === parseInt(scenarioId));
+    
+    if (!scenario) return;
+    
+    // Populate form with saved values
+    const { input } = scenario;
+    (form.elements.namedItem('homePrice') as HTMLInputElement).value = String(input.homePrice);
+    (form.elements.namedItem('loanTerm') as HTMLSelectElement).value = String(input.loanTermYears);
+    (form.elements.namedItem('scenario1Down') as HTMLInputElement).value = String(input.scenario1Down);
+    (form.elements.namedItem('scenario1Rate') as HTMLInputElement).value = String(input.scenario1Rate);
+    (form.elements.namedItem('scenario1Extra') as HTMLInputElement).value = String(input.scenario1Extra || '');
+    (form.elements.namedItem('scenario2Down') as HTMLInputElement).value = String(input.scenario2Down);
+    (form.elements.namedItem('scenario2Rate') as HTMLInputElement).value = String(input.scenario2Rate);
+    (form.elements.namedItem('scenario2Extra') as HTMLInputElement).value = String(input.scenario2Extra || '');
+    if (input.refinanceRate) {
+      (form.elements.namedItem('refinanceRate') as HTMLInputElement).value = String(input.refinanceRate);
+    }
+  } catch {
+    // Ignore errors
+  }
+}
+
+// Store calculation in recent calculations for dashboard
+function storeRecentCalculation(input: MortgageScenarioPlanningInput, scenarios: Scenario[]): void {
+  try {
+    const bestScenario = scenarios.reduce((best, current) => 
+      current.totalCost < best.totalCost ? current : best
+    );
+    
+    const recentCalculations = JSON.parse(localStorage.getItem('fanalyx-recent-calculations') || '[]');
+    
+    recentCalculations.unshift({
+      id: 'mortgage-scenario-planning',
+      title: 'Mortgage Scenario Planner',
+      icon: '🏡',
+      url: '/calculator/mortgage-scenario-planning',
+      timestamp: new Date().toISOString(),
+      summary: `${scenarios.length} scenarios compared, best: ${bestScenario.name}`,
+      result: {
+        homePrice: input.homePrice,
+        bestMonthlyPayment: bestScenario.monthlyPayment,
+        totalSavings: Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost,
+      },
+    });
+    
+    // Keep only last 10 calculations
+    localStorage.setItem('fanalyx-recent-calculations', JSON.stringify(recentCalculations.slice(0, 10)));
+  } catch (error) {
+    console.warn('Failed to store recent calculation:', error);
+  }
+}
+
+// Event dispatching for journey integration
+function dispatchCalculatorCompletedEvent(input: MortgageScenarioPlanningInput, scenarios: Scenario[]): void {
+  const bestScenario = scenarios.reduce((best, current) => 
+    current.totalCost < best.totalCost ? current : best
+  );
+  
+  // Dispatch event for journey integration
+  window.dispatchEvent(
+    new CustomEvent('calculator-completed', {
+      detail: {
+        calculatorId: 'mortgage-scenario-planning',
+        timestamp: new Date().toISOString(),
+        result: { scenarios },
+        formData: {
+          homePrice: input.homePrice,
+          loanTermYears: input.loanTermYears,
+          bestScenario: bestScenario.name,
+          totalSavings: Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost,
+          scenarios: scenarios.map(s => ({
+            name: s.name,
+            monthlyPayment: s.monthlyPayment,
+            totalCost: s.totalCost,
+          })),
+        },
+      },
+    })
+  );
+  
+  // Track analytics if available
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'mortgage_scenario_calculated', {
+      event_category: 'calculator',
+      event_label: 'mortgage_scenario_planning',
+      value: Math.round(bestScenario.totalCost),
+      home_price: input.homePrice,
+      loan_term: input.loanTermYears,
+      num_scenarios: scenarios.length,
+      has_refinance: scenarios.some(s => s.name.includes('Refinance')),
+      has_extra_payments: input.scenario1Extra > 0 || input.scenario2Extra > 0,
+    });
   }
 }
 
