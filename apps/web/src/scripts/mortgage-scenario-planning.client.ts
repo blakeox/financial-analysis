@@ -449,30 +449,253 @@ function displayResults(scenarios: Scenario[]): void {
       </div>
     ` : ''}
     
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
-      <h3 class="text-lg font-semibold mb-4">📊 Key Insights</h3>
-      <div class="space-y-3">
-        <p class="text-sm">
-          <strong>Best Value:</strong> <span class="font-semibold text-green-600 dark:text-green-400">${bestScenario.name}</span> 
-          saves ${formatCurrency(Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost)} compared to the most expensive option.
-        </p>
-        ${refinanceScenarios.length > 0 ? `
-          <p class="text-sm">
-            <strong>Refinancing Analysis:</strong> Refinancing after 5 years ${findRefinanceSavings(baseScenarios[0], refinanceScenarios[0])}.
+    <!-- Comprehensive Analysis Section -->
+    <div class="space-y-6">
+      <!-- Key Insights -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>📊</span> Key Insights & Analysis
+        </h3>
+        
+        <div class="space-y-4">
+          <!-- Best Value Analysis -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-green-500">
+            <h4 class="font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
+              <span>✓</span> Best Value Recommendation
+            </h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              <strong>${bestScenario.name}</strong> offers the best overall value, saving you 
+              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost)}</span> 
+              compared to the most expensive option over the life of the loan.
+            </p>
+            ${baseScenarios.length === 2 && bestScenario === baseScenarios[0] ? `
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                💡 This represents a ${((1 - bestScenario.totalCost / baseScenarios[1].totalCost) * 100).toFixed(1)}% reduction in total cost.
+              </p>
+            ` : baseScenarios.length === 2 ? `
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                💡 This represents a ${((1 - bestScenario.totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}% reduction in total cost.
+              </p>
+            ` : ''}
+          </div>
+          
+          ${baseScenarios.length === 2 ? `
+            <!-- Scenario Comparison -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Scenario Comparison</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Monthly Payment Difference</p>
+                  <p class="text-lg font-bold ${baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}/mo</p>
+                </div>
+                <div class="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Interest Saved/Lost</p>
+                  <p class="text-lg font-bold ${baseScenarios[0].totalInterest < baseScenarios[1].totalInterest ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
+                </div>
+                <div class="text-center p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost Difference</p>
+                  <p class="text-lg font-bold ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'text-green-600' : 'text-red-600'}">${formatCurrency(Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost))}</p>
+                </div>
+              </div>
+              
+              <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  ${generateComparisonInsight(baseScenarios[0], baseScenarios[1])}
+                </p>
+              </div>
+            </div>
+          ` : ''}
+          
+          ${refinanceScenarios.length > 0 ? `
+            <!-- Refinancing Analysis -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-purple-500">
+              <h4 class="font-semibold text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-2">
+                <span>🔄</span> Refinancing Analysis
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                Refinancing after 5 years ${findRefinanceSavings(baseScenarios[0], refinanceScenarios[0])}.
+              </p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Potential Savings</p>
+                  <p class="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    ${formatCurrency(Math.max(0, baseScenarios[0].totalCost - refinanceScenarios[0].totalCost))}
+                  </p>
+                </div>
+                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">ROI from Refinancing</p>
+                  <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                    ${((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-3">
+                ⚠️ Note: This doesn't include refinancing closing costs, which typically range from 2-5% of the loan amount.
+              </p>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      
+      <!-- Financial Recommendations -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>💡</span> Financial Recommendations
+        </h3>
+        
+        <div class="space-y-3">
+          ${generateRecommendations(baseScenarios, refinanceScenarios, bestScenario)}
+        </div>
+      </div>
+      
+      <!-- Important Considerations -->
+      <div class="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-700">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>⚠️</span> Important Considerations
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white">✓ Factors Included</h4>
+            <ul class="text-xs text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+              <li>Principal and interest payments</li>
+              <li>Total interest over loan term</li>
+              <li>Impact of extra payments</li>
+              <li>Refinancing scenarios (if selected)</li>
+            </ul>
+          </div>
+          
+          <div class="space-y-2">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white">⚠️ Not Included</h4>
+            <ul class="text-xs text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+              <li>Property taxes and insurance (PITI)</li>
+              <li>PMI (if down payment < 20%)</li>
+              <li>HOA fees or maintenance costs</li>
+              <li>Closing costs and origination fees</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg">
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            <strong>Pro Tip:</strong> Your actual monthly housing payment will be higher when including taxes, insurance, and other costs. 
+            Budget for 20-30% more than the mortgage payment shown here.
           </p>
-        ` : ''}
-        ${baseScenarios.length === 2 ? `
-          <p class="text-sm">
-            <strong>Comparison:</strong> Scenario 2 ${baseScenarios[1].totalCost < baseScenarios[0].totalCost ? 'saves' : 'costs'} 
-            ${formatCurrency(Math.abs(baseScenarios[1].totalCost - baseScenarios[0].totalCost))} 
-            ${baseScenarios[1].totalCost < baseScenarios[0].totalCost ? 'less' : 'more'} than Scenario 1.
-          </p>
-        ` : ''}
+        </div>
       </div>
     </div>
   `;
   
   resultsSection.classList.remove('hidden');
+}
+
+function generateComparisonInsight(scenario1: Scenario, scenario2: Scenario): string {
+  const monthlyDiff = scenario2.monthlyPayment - scenario1.monthlyPayment;
+  const totalDiff = scenario2.totalCost - scenario1.totalCost;
+  const interestDiff = scenario2.totalInterest - scenario1.totalInterest;
+  const timeDiff = scenario2.payoffMonths - scenario1.payoffMonths;
+  
+  if (totalDiff > 0) {
+    // Scenario 1 is cheaper
+    return `<strong>Scenario 1</strong> saves you ${formatCurrency(Math.abs(totalDiff))} over the life of the loan. 
+            While ${monthlyDiff > 0 ? 'the monthly payment is lower' : 'you pay more monthly'}, 
+            you'll pay ${formatCurrency(Math.abs(interestDiff))} ${interestDiff < 0 ? 'less' : 'more'} in interest 
+            and pay off the loan ${Math.abs(timeDiff)} months ${timeDiff < 0 ? 'faster' : 'slower'}.`;
+  } else {
+    // Scenario 2 is cheaper
+    return `<strong>Scenario 2</strong> saves you ${formatCurrency(Math.abs(totalDiff))} over the life of the loan. 
+            While ${monthlyDiff < 0 ? 'the monthly payment is lower' : 'you pay more monthly'}, 
+            you'll pay ${formatCurrency(Math.abs(interestDiff))} ${interestDiff > 0 ? 'less' : 'more'} in interest 
+            and pay off the loan ${Math.abs(timeDiff)} months ${timeDiff > 0 ? 'faster' : 'slower'}.`;
+  }
+}
+
+function generateRecommendations(baseScenarios: Scenario[], refinanceScenarios: Scenario[], bestScenario: Scenario): string {
+  const recommendations: string[] = [];
+  
+  // Down payment recommendation
+  if (baseScenarios.length === 2) {
+    const s1DownPercent = (baseScenarios[0].downPayment / (baseScenarios[0].principal + baseScenarios[0].downPayment)) * 100;
+    const s2DownPercent = (baseScenarios[1].downPayment / (baseScenarios[1].principal + baseScenarios[1].downPayment)) * 100;
+    
+    if (s1DownPercent < 20 || s2DownPercent < 20) {
+      recommendations.push(`
+        <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+          <div class="text-2xl">🏦</div>
+          <div>
+            <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Consider 20% Down Payment</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+              Putting down at least 20% helps you avoid PMI (Private Mortgage Insurance), which can add $50-$200+ to your monthly payment.
+            </p>
+          </div>
+        </div>
+      `);
+    }
+  }
+  
+  // Extra payment recommendation
+  const hasExtraPayments = baseScenarios.some(s => s.extraPayment > 0);
+  if (!hasExtraPayments) {
+    recommendations.push(`
+      <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+        <div class="text-2xl">💰</div>
+        <div>
+          <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Make Extra Payments</p>
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            Even small extra payments (like $100/month) can save tens of thousands in interest and shave years off your mortgage.
+          </p>
+        </div>
+      </div>
+    `);
+  }
+  
+  // Interest rate shopping
+  if (baseScenarios.length === 2 && Math.abs(baseScenarios[0].rate - baseScenarios[1].rate) >= 0.25) {
+    recommendations.push(`
+      <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+        <div class="text-2xl">📉</div>
+        <div>
+          <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Shop Around for Rates</p>
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            Even a 0.25% difference in rates can save you thousands. Compare rates from at least 3-5 different lenders.
+          </p>
+        </div>
+      </div>
+    `);
+  }
+  
+  // Emergency fund
+  recommendations.push(`
+    <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+      <div class="text-2xl">🛡️</div>
+      <div>
+        <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Maintain Emergency Fund</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400">
+          Keep 3-6 months of expenses in savings before and after buying. Homeownership comes with unexpected costs.
+        </p>
+      </div>
+    </div>
+  `);
+  
+  // Refinancing recommendation
+  if (refinanceScenarios.length > 0) {
+    const savings = baseScenarios[0].totalCost - refinanceScenarios[0].totalCost;
+    if (savings > 10000) {
+      recommendations.push(`
+        <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+          <div class="text-2xl">🔄</div>
+          <div>
+            <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Monitor Refinancing Opportunities</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+              If rates drop by 0.5%+, refinancing could save you ${formatCurrency(savings)}. Watch the market closely.
+            </p>
+          </div>
+        </div>
+      `);
+    }
+  }
+  
+  return recommendations.join('');
 }
 
 function findRefinanceSavings(base: Scenario, refi: Scenario): string {
