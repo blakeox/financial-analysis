@@ -39,6 +39,13 @@ export type Scenario = {
   totalInterest: number;
   totalCost: number;
   payoffMonths: number;
+  // PMI fields
+  hasPMI: boolean;
+  pmiMonthly: number;
+  pmiTotalCost: number;
+  pmiDropMonth: number;
+  // Affordability
+  monthlyPaymentWithPMI: number;
 };
 
 export interface MortgageScenarioPlanningInput {
@@ -51,6 +58,7 @@ export interface MortgageScenarioPlanningInput {
   scenario2Rate: number;
   scenario2Extra: number;
   refinanceRate?: number;
+  grossMonthlyIncome?: number;
 }
 
 // ============================================================================
@@ -182,7 +190,8 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
       termMonths,
       input.scenario1Extra,
       input.scenario1Down,
-      input.scenario1Rate
+      input.scenario1Rate,
+      input.homePrice
     );
     
     const scenario2 = await calculateScenario(
@@ -192,7 +201,8 @@ async function handleCalculate(form: HTMLFormElement, calculateBtn: HTMLElement 
       termMonths,
       input.scenario2Extra,
       input.scenario2Down,
-      input.scenario2Rate
+      input.scenario2Rate,
+      input.homePrice
     );
     
     const scenarios = [scenario1, scenario2];
@@ -259,6 +269,7 @@ function parseFormInput(form: HTMLFormElement): MortgageScenarioPlanningInput {
     scenario2Rate: coerceNumber(formData.get('scenario2Rate'), 0),
     scenario2Extra: coerceNumber(formData.get('scenario2Extra'), 0),
     refinanceRate: coerceNumber(formData.get('refinanceRate'), undefined),
+    grossMonthlyIncome: coerceNumber(formData.get('grossMonthlyIncome'), undefined),
   };
 }
 
@@ -289,6 +300,56 @@ function validateInput(input: MortgageScenarioPlanningInput): void {
 // SCENARIO CALCULATIONS
 // ============================================================================
 
+function calculatePMI(principal: number, downPayment: number, homePrice: number): {
+  hasPMI: boolean;
+  pmiMonthly: number;
+  pmiDropMonth: number;
+  pmiTotalCost: number;
+} {
+  const downPaymentPercent = (downPayment / homePrice) * 100;
+  
+  // No PMI if down payment >= 20%
+  if (downPaymentPercent >= 20) {
+    return { hasPMI: false, pmiMonthly: 0, pmiDropMonth: 0, pmiTotalCost: 0 };
+  }
+  
+  // Calculate PMI rate based on down payment amount
+  let pmiRate = 0.01; // 1% annual default
+  if (downPaymentPercent >= 15) {
+    pmiRate = 0.005; // 0.5% for 15-19.99% down
+  } else if (downPaymentPercent >= 10) {
+    pmiRate = 0.0075; // 0.75% for 10-14.99% down
+  } else if (downPaymentPercent >= 5) {
+    pmiRate = 0.01; // 1% for 5-9.99% down
+  } else {
+    pmiRate = 0.012; // 1.2% for <5% down (FHA territory)
+  }
+  
+  const pmiAnnual = principal * pmiRate;
+  const pmiMonthly = pmiAnnual / 12;
+  
+  // PMI drops off when equity reaches 20% (80% LTV)
+  // Approximate: assuming principal paydown, not considering appreciation
+  const equityNeeded = homePrice * 0.20;
+  const equityToGain = equityNeeded - downPayment;
+  
+  // Rough estimate: divide equity needed by average monthly principal payment
+  // For a more accurate calculation, we'd need the amortization schedule
+  const avgMonthlyPrincipal = principal / 360; // Conservative estimate
+  const pmiDropMonth = Math.ceil(equityToGain / avgMonthlyPrincipal);
+  
+  // Cap at loan term
+  const actualDropMonth = Math.min(pmiDropMonth, 360);
+  const pmiTotalCost = pmiMonthly * actualDropMonth;
+  
+  return {
+    hasPMI: true,
+    pmiMonthly,
+    pmiDropMonth: actualDropMonth,
+    pmiTotalCost,
+  };
+}
+
 async function calculateScenario(
   name: string,
   principal: number,
@@ -296,7 +357,8 @@ async function calculateScenario(
   termMonths: number,
   extraPayment: number,
   downPayment: number,
-  ratePercent: number
+  ratePercent: number,
+  homePrice: number
 ): Promise<Scenario> {
   const result = await postAnalysisRequest<AmortizationAnalysisResult>(
     '/v1/api/analysis/amortization',
@@ -316,6 +378,10 @@ async function calculateScenario(
   // Validate payoff months is reasonable (max 30 years = 360 months)
   const validatedPayoffMonths = payoffMonths > 0 && payoffMonths <= 360 ? payoffMonths : termMonths;
   
+  // Calculate PMI
+  const pmi = calculatePMI(principal, downPayment, homePrice);
+  const monthlyPaymentWithPMI = monthlyPayment + pmi.pmiMonthly;
+  
   return {
     name,
     downPayment,
@@ -326,6 +392,11 @@ async function calculateScenario(
     totalInterest,
     totalCost,
     payoffMonths: validatedPayoffMonths,
+    hasPMI: pmi.hasPMI,
+    pmiMonthly: pmi.pmiMonthly,
+    pmiTotalCost: pmi.pmiTotalCost,
+    pmiDropMonth: pmi.pmiDropMonth,
+    monthlyPaymentWithPMI,
   };
 }
 
@@ -425,8 +496,61 @@ function displayResults(scenarios: Scenario[]): void {
     .map((scenario, idx) => renderSummaryCard(scenario, idx, scenario.name === bestScenario.name))
     .join('');
   
+  // Get affordability data if income provided
+  const input = document.getElementById('calculator-form') as HTMLFormElement;
+  const formData = input ? parseFormInput(input) : null;
+  const hasIncome = formData?.grossMonthlyIncome && formData.grossMonthlyIncome > 0;
+  
   // Render detailed comparison with separate sections for base vs refinance
   resultsContent.innerHTML = `
+    ${hasIncome && formData ? `
+      <!-- Affordability Analysis -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+        <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
+          <span>💵</span> Affordability Analysis
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Based on your gross monthly income of ${formatCurrency(formData.grossMonthlyIncome)}</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${baseScenarios.map(scenario => {
+            const dtiRatio = (scenario.monthlyPaymentWithPMI / formData.grossMonthlyIncome!) * 100;
+            const isAffordable = dtiRatio <= 28;
+            const comfortLevel = dtiRatio <= 20 ? 'Excellent' : dtiRatio <= 28 ? 'Good' : dtiRatio <= 35 ? 'Tight' : 'Risky';
+            const colorClass = dtiRatio <= 28 ? 'text-green-600 dark:text-green-400' : dtiRatio <= 35 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400';
+            
+            return `
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 ${isAffordable ? 'border-green-300 dark:border-green-700' : 'border-yellow-300 dark:border-yellow-700'}">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${scenario.name}</h4>
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+                    <span class="font-semibold">${formatCurrency(scenario.monthlyPaymentWithPMI)}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Debt-to-Income Ratio</span>
+                    <span class="font-bold ${colorClass}">${dtiRatio.toFixed(1)}%</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Comfort Level</span>
+                    <span class="font-semibold ${colorClass}">${comfortLevel}</span>
+                  </div>
+                  <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                      ${isAffordable ? 
+                        '✓ Within recommended 28% limit' : 
+                        '⚠️ Exceeds recommended 28% limit - consider lower price or higher income'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : ''}
+    
+    ${renderPaymentBreakdownChart(baseScenarios)}
+    
     <!-- Base Scenarios Detailed Comparison -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -729,6 +853,174 @@ function calculateDownPaymentPercent(scenario: Scenario): string {
   return ((scenario.downPayment / (scenario.principal + scenario.downPayment)) * 100).toFixed(1);
 }
 
+// ============================================================================
+// VISUAL CHART RENDERING
+// ============================================================================
+
+function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
+  const canvasId = `payment-chart-${Date.now()}`;
+  
+  // Defer canvas rendering to next tick
+  setTimeout(() => {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Calculate chart data for both scenarios
+    const chartData = scenarios.slice(0, 2).map(scenario => {
+      const years = Math.ceil(scenario.payoffMonths / 12);
+      const points: { year: number; principal: number; interest: number }[] = [];
+      
+      const monthlyRate = scenario.rate / 100 / 12;
+      let remainingPrincipal = scenario.principal;
+      
+      for (let year = 0; year <= Math.min(years, 30); year++) {
+        const month = year * 12;
+        if (month >= scenario.payoffMonths) break;
+        
+        let yearPrincipal = 0;
+        let yearInterest = 0;
+        
+        for (let m = 0; m < 12 && (month + m) < scenario.payoffMonths; m++) {
+          const interestPayment = remainingPrincipal * monthlyRate;
+          const principalPayment = Math.min(scenario.monthlyPayment - interestPayment, remainingPrincipal);
+          
+          yearPrincipal += principalPayment;
+          yearInterest += interestPayment;
+          remainingPrincipal = Math.max(0, remainingPrincipal - principalPayment);
+        }
+        
+        points.push({ year, principal: yearPrincipal, interest: yearInterest });
+      }
+      
+      return { scenario, points };
+    });
+    
+    // Set canvas dimensions
+    const width = canvas.offsetWidth;
+    const height = 400;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Chart settings
+    const padding = { top: 50, right: 40, bottom: 60, left: 80 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    
+    // Find max values for scaling
+    const allPoints = chartData.flatMap(d => d.points);
+    const maxPayment = Math.max(...allPoints.map(p => p.principal + p.interest));
+    const maxYear = Math.max(...allPoints.map(p => p.year));
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw background
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#1f2937' : '#f9fafb';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Draw grid lines
+    ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#374151' : '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = padding.top + (chartHeight * i) / 5;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+      
+      // Y-axis labels
+      const value = maxPayment * (1 - i / 5);
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#9ca3af' : '#6b7280';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`$${(value / 1000).toFixed(0)}k`, padding.left - 10, y + 4);
+    }
+    
+    // Draw X-axis labels
+    ctx.textAlign = 'center';
+    const step = Math.max(1, Math.ceil(maxYear / 10));
+    for (let year = 0; year <= maxYear; year += step) {
+      const x = padding.left + (chartWidth * year) / maxYear;
+      ctx.fillText(`Y${year}`, x, height - padding.bottom + 25);
+    }
+    
+    // Draw bars for each scenario
+    const colors = [
+      { principal: '#3b82f6', interest: '#93c5fd', label: 'A' },
+      { principal: '#10b981', interest: '#6ee7b7', label: 'B' }
+    ];
+    
+    const barGroupWidth = chartWidth / maxYear;
+    const barWidth = (barGroupWidth / (chartData.length + 1)) - 2;
+    
+    chartData.forEach((data, scenarioIdx) => {
+      data.points.forEach(point => {
+        const xBase = padding.left + (chartWidth * point.year) / maxYear;
+        const x = xBase + (scenarioIdx * barWidth);
+        const totalPayment = point.principal + point.interest;
+        
+        if (totalPayment === 0) return;
+        
+        // Draw interest (top part)
+        const interestHeight = (chartHeight * point.interest) / maxPayment;
+        const interestY = padding.top + chartHeight - (chartHeight * totalPayment) / maxPayment;
+        ctx.fillStyle = colors[scenarioIdx].interest;
+        ctx.fillRect(x, interestY, barWidth, interestHeight);
+        
+        // Draw principal (bottom part)
+        const principalHeight = (chartHeight * point.principal) / maxPayment;
+        const principalY = padding.top + chartHeight - (chartHeight * point.principal) / maxPayment;
+        ctx.fillStyle = colors[scenarioIdx].principal;
+        ctx.fillRect(x, principalY, barWidth, principalHeight);
+      });
+    });
+    
+    // Draw legend
+    const legendY = 20;
+    ctx.textAlign = 'left';
+    
+    chartData.forEach((data, idx) => {
+      const startX = padding.left + idx * (width / 2 - padding.left);
+      
+      // Principal box
+      ctx.fillStyle = colors[idx].principal;
+      ctx.fillRect(startX, legendY, 15, 15);
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#f3f4f6' : '#1f2937';
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`Option ${colors[idx].label} Principal`, startX + 20, legendY + 11);
+      
+      // Interest box (below)
+      ctx.fillStyle = colors[idx].interest;
+      ctx.fillRect(startX + 120, legendY, 15, 15);
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#f3f4f6' : '#1f2937';
+      ctx.fillText('Interest', startX + 140, legendY + 11);
+    });
+  }, 100);
+  
+  return `
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
+        <span>📊</span> Visual Payment Breakdown
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">See how your annual payments split between principal and interest over time</p>
+      <canvas id="${canvasId}" class="w-full" style="max-width: 100%; height: 400px;"></canvas>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-400">
+        <div class="flex gap-2">
+          <span>💡</span>
+          <p>Interest payments decrease and principal payments increase over time</p>
+        </div>
+        <div class="flex gap-2">
+          <span>📈</span>
+          <p>Compare side-by-side: Option A (blue) vs Option B (green)</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): string {
   const bgColor = isBest 
     ? 'bg-gradient-to-br from-green-600 to-emerald-600' 
@@ -746,11 +1038,12 @@ function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): st
       ${isBest ? '<div class="flex items-center gap-2 mb-3"><span class="bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">✓ BEST VALUE</span></div>' : ''}
       <h3 class="text-lg font-bold ${textColor} mb-4">${scenario.name}</h3>
       
-      <div class="space-y-3">
-        <div>
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Monthly Payment</p>
-          <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPayment)}</p>
-        </div>
+        <div class="space-y-3">
+          <div>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
+            <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
+            ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
+          </div>
         
         <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-gray-200 dark:border-gray-700'}">
           <div>
@@ -812,8 +1105,17 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         <!-- Payment Information -->
         <div>
           <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Monthly Payment</h4>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPayment)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Base: ${formatCurrency(scenario.monthlyPayment - scenario.extraPayment)} + Extra: ${formatCurrency(scenario.extraPayment)}</p>
+          <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
+          ${scenario.hasPMI ? `
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
+              P&I: ${formatCurrency(scenario.monthlyPayment)} + PMI: ${formatCurrency(scenario.pmiMonthly)}
+            </p>
+            <p class="text-xs text-orange-600 dark:text-orange-400">
+              ⚠️ PMI until month ${scenario.pmiDropMonth} (${Math.round(scenario.pmiDropMonth / 12)}y) - Total: ${formatCurrency(scenario.pmiTotalCost)}
+            </p>
+          ` : `
+            <p class="text-xs text-gray-500 dark:text-gray-400">Base: ${formatCurrency(scenario.monthlyPayment - scenario.extraPayment)} + Extra: ${formatCurrency(scenario.extraPayment)}</p>
+          `}
         </div>
         
         <!-- Cost Breakdown -->
