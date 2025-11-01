@@ -1172,11 +1172,12 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         id: 'homePrice',
         name: 'homePrice',
         type: 'number',
-        label: 'Home Price ($)',
+        label: 'Home Price',
         min: 0,
         step: 1000,
         required: true,
-        group: 'base-loan',
+        group: '📋 Loan Basics',
+        placeholder: '500000',
       },
       {
         id: 'loanTerm',
@@ -1186,80 +1187,88 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         required: true,
         options: [
           { value: '15', label: '15 years' },
+          { value: '20', label: '20 years' },
           { value: '30', label: '30 years' },
         ],
-        group: 'base-loan',
+        group: '📋 Loan Basics',
       },
       {
         id: 'scenario1Down',
         name: 'scenario1Down',
         type: 'number',
-        label: 'Scenario 1: Down Payment ($)',
+        label: 'Down Payment',
         min: 0,
         step: 1000,
         required: true,
-        group: 'scenario1',
+        group: '💰 Scenario 1',
+        placeholder: '100000',
       },
       {
         id: 'scenario1Rate',
         name: 'scenario1Rate',
         type: 'number',
-        label: 'Scenario 1: Interest Rate (%)',
+        label: 'Interest Rate (%)',
         min: 0,
         max: 30,
         step: 0.01,
         required: true,
-        group: 'scenario1',
+        group: '💰 Scenario 1',
+        placeholder: '6.5',
       },
       {
         id: 'scenario1Extra',
         name: 'scenario1Extra',
         type: 'number',
-        label: 'Scenario 1: Extra Monthly Payment ($)',
+        label: 'Extra Monthly Payment (Optional)',
         min: 0,
         step: 100,
-        group: 'scenario1',
+        group: '💰 Scenario 1',
+        placeholder: '0',
       },
       {
         id: 'scenario2Down',
         name: 'scenario2Down',
         type: 'number',
-        label: 'Scenario 2: Down Payment ($)',
+        label: 'Down Payment',
         min: 0,
         step: 1000,
         required: true,
-        group: 'scenario2',
+        group: '🏠 Scenario 2',
+        placeholder: '75000',
       },
       {
         id: 'scenario2Rate',
         name: 'scenario2Rate',
         type: 'number',
-        label: 'Scenario 2: Interest Rate (%)',
+        label: 'Interest Rate (%)',
         min: 0,
         max: 30,
         step: 0.01,
         required: true,
-        group: 'scenario2',
+        group: '🏠 Scenario 2',
+        placeholder: '7.0',
       },
       {
         id: 'scenario2Extra',
         name: 'scenario2Extra',
         type: 'number',
-        label: 'Scenario 2: Extra Monthly Payment ($)',
+        label: 'Extra Monthly Payment (Optional)',
         min: 0,
         step: 100,
-        group: 'scenario2',
+        group: '🏠 Scenario 2',
+        placeholder: '0',
       },
       {
         id: 'refinanceRate',
         name: 'refinanceRate',
         type: 'number',
-        label: 'Refinance Rate (%) (Optional)',
+        label: 'Refinance Rate (%)',
         min: 0,
         max: 30,
         step: 0.01,
-        group: 'refinance',
-        helpText: 'Compare refinancing after 5 years',
+        group: '🔄 Refinancing (Optional)',
+        helpText: 'If provided, compare refinancing after 5 years at this rate',
+        placeholder: '5.5',
       },
     ],
     clientScript: 'mortgage-scenario-planning',
@@ -1309,9 +1318,14 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
 
   let html = '<form id="calculator-form" class="space-y-6" novalidate>';
 
-  Object.entries(groupedFields).forEach(([groupName, groupFields]) => {
+  Object.entries(groupedFields).forEach(([groupName, groupFields], index) => {
     if (groupName !== 'default') {
-      html += `<div class="mb-6"><h3 class="text-lg font-semibold mb-4">${groupName}</h3>`;
+      const isOptional = groupName.includes('Optional');
+      const sectionClass = isOptional 
+        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50' 
+        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
     }
 
     html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
@@ -1328,15 +1342,15 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   });
 
   html += `
-    <div class="flex space-x-4">
-      <button type="submit" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
-        Calculate
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        📊 Calculate Scenarios
       </button>
-      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors duration-200">
+      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
         Reset
       </button>
-      <button type="button" id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
-        Save Scenario
+      <button type="button" id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+        💾 Save
       </button>
     </div>
   </form>`;
@@ -1437,7 +1451,12 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
 
   Object.entries(groupedFields).forEach(([groupName, groupFields]) => {
     if (groupName !== 'default') {
-      html += `<div class="mb-6"><h3 class="text-lg font-semibold mb-4">${groupName}</h3>`;
+      const isOptional = groupName.includes('Optional');
+      const sectionClass = isOptional 
+        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50' 
+        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
     }
 
     // Use a more balanced grid layout
@@ -1468,15 +1487,15 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
   });
 
   html += `
-    <div class="flex flex-wrap gap-4 mt-8">
-      <button type="submit" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-        Calculate
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        📊 Calculate Scenarios
       </button>
       <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
         Reset
       </button>
       <button type="button" id="save-scenario-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-        Save Scenario
+        💾 Save
       </button>
     </div>
   </form>`;
