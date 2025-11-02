@@ -15,6 +15,157 @@ type StudentLoanInput = {
   loanType: LoanType;
 };
 
+// Forgiveness Program Eligibility
+interface ForgivenessEligibility {
+  pslf: { eligible: boolean; requirements: string[]; timeline: string };
+  idrForgiveness: { eligible: boolean; requirements: string[]; timeline: string };
+  teacherLoan: { eligible: boolean; requirements: string[]; timeline: string };
+  savings: { pslf: number; idr: number; teacher: number };
+}
+
+function checkForgivenessEligibility(
+  balance: number,
+  loanType: LoanType,
+  employment: string = 'private',
+  isTeacher: boolean = false,
+  yearsEmployed: number = 0
+): ForgivenessEligibility {
+  const isFederal = loanType.startsWith('federal');
+  
+  // PSLF (Public Service Loan Forgiveness)
+  const pslf = {
+    eligible: isFederal && employment === 'public',
+    requirements: [
+      'Work full-time for qualifying public service employer',
+      'Make 120 qualifying monthly payments (10 years)',
+      'Be enrolled in income-driven repayment plan',
+      'Have Direct Loans (or consolidate first)',
+    ],
+    timeline: '10 years',
+  };
+  
+  // IDR Forgiveness (Income-Driven Repayment)
+  const idrForgiveness = {
+    eligible: isFederal,
+    requirements: [
+      'Enroll in an income-driven repayment plan (IDR)',
+      'Make payments for 20-25 years',
+      'Remaining balance forgiven (may be taxable)',
+      'Federal loans only',
+    ],
+    timeline: '20-25 years',
+  };
+  
+  // Teacher Loan Forgiveness
+  const teacherLoan = {
+    eligible: isFederal && isTeacher,
+    requirements: [
+      'Teach full-time for 5 years',
+      'Teach at low-income school',
+      'Up to $17,500 forgiveness',
+      'Cannot combine with PSLF',
+    ],
+    timeline: '5 years',
+  };
+  
+  // Estimate savings
+  const pslfSavings = pslf.eligible ? balance * 0.5 : 0; // Avg 50% forgiven
+  const idrSavings = idrForgiveness.eligible ? balance * 0.3 : 0; // Avg 30% forgiven after 20-25 years
+  const teacherSavings = teacherLoan.eligible ? Math.min(17500, balance) : 0;
+  
+  return {
+    pslf,
+    idrForgiveness,
+    teacherLoan,
+    savings: {
+      pslf: pslfSavings,
+      idr: idrSavings,
+      teacher: teacherSavings,
+    },
+  };
+}
+
+// Refinance Comparison
+interface RefinanceComparison {
+  current: { rate: number; payment: number; totalCost: number; months: number };
+  refinanced: { rate: number; payment: number; totalCost: number; months: number };
+  savings: number;
+  costDifference: number;
+  recommendation: string;
+  warnings: string[];
+}
+
+function compareRefinance(
+  balance: number,
+  currentRate: number,
+  loanType: LoanType,
+  creditScore: number = 700
+): RefinanceComparison {
+  const isFederal = loanType.startsWith('federal');
+  
+  // Estimate refinance rate based on credit score
+  let refinanceRate = currentRate;
+  if (creditScore >= 780) refinanceRate = Math.max(0.03, currentRate - 0.03); // 3% reduction
+  else if (creditScore >= 720) refinanceRate = Math.max(0.035, currentRate - 0.02); // 2% reduction
+  else if (creditScore >= 680) refinanceRate = Math.max(0.04, currentRate - 0.01); // 1% reduction
+  else refinanceRate = currentRate; // No benefit
+  
+  const months = 120; // 10-year term
+  
+  // Current loan calculations
+  const currentMonthlyRate = currentRate / 12;
+  const currentPayment = (balance * (currentMonthlyRate * Math.pow(1 + currentMonthlyRate, months))) /
+    (Math.pow(1 + currentMonthlyRate, months) - 1);
+  const currentTotalCost = currentPayment * months;
+  
+  // Refinanced loan calculations
+  const refinanceMonthlyRate = refinanceRate / 12;
+  const refinancePayment = (balance * (refinanceMonthlyRate * Math.pow(1 + refinanceMonthlyRate, months))) /
+    (Math.pow(1 + refinanceMonthlyRate, months) - 1);
+  const refinanceTotalCost = refinancePayment * months;
+  
+  const savings = currentTotalCost - refinanceTotalCost;
+  const costDifference = currentPayment - refinancePayment;
+  
+  // Warnings for federal loans
+  const warnings: string[] = [];
+  if (isFederal) {
+    warnings.push('⚠️ You will lose federal protections (forbearance, deferment)');
+    warnings.push('⚠️ No longer eligible for forgiveness programs (PSLF, IDR)');
+    warnings.push('⚠️ Loss of income-driven repayment options');
+  }
+  
+  let recommendation = '';
+  if (savings > 5000 && !isFederal) {
+    recommendation = 'Refinancing recommended: Significant savings with no federal benefits to lose';
+  } else if (savings > 5000 && isFederal) {
+    recommendation = 'Consider carefully: Savings are significant but you will lose federal protections';
+  } else if (savings > 0 && savings < 5000) {
+    recommendation = 'Marginal benefit: Savings are modest. Weigh against refinancing costs and federal benefits';
+  } else {
+    recommendation = 'Not recommended: Insufficient savings or your credit score may not qualify for better rates';
+  }
+  
+  return {
+    current: {
+      rate: currentRate * 100,
+      payment: currentPayment,
+      totalCost: currentTotalCost,
+      months,
+    },
+    refinanced: {
+      rate: refinanceRate * 100,
+      payment: refinancePayment,
+      totalCost: refinanceTotalCost,
+      months,
+    },
+    savings,
+    costDifference,
+    recommendation,
+    warnings,
+  };
+}
+
 type ScreenRefs = {
   loading: HTMLElement | null;
   error: HTMLElement | null;
