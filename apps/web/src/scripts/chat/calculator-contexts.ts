@@ -30,6 +30,7 @@ export type CalculatorContextKey =
   | 'unit-economics'
   | 'business-valuation'
   | 'revenue-forecast'
+  | 'business-growth'
   | 'models'
   | 'general'
   | 'startup-planning';
@@ -409,6 +410,17 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     },
   },
   
+  'business-growth': {
+    id: 'business-growth',
+    label: 'Business Growth',
+    intro: 'Hi — I can help plan your business growth strategy.',
+    examples: [
+      'How do I increase my business value?',
+      'What are my unit economics?',
+      'Project my revenue for next year',
+    ],
+  },
+  
   'startup-planning': {
     id: 'startup-planning',
     label: 'Startup Planning',
@@ -454,10 +466,12 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
       const journeyId = journeyMatch[1];
       const journeyContextMap: Record<string, CalculatorContextKey> = {
         'startup-planning': 'startup-planning',
+        'business-growth': 'business-growth',
         'ma-analysis-journey': 'general',
         'young-professional': 'general',
         'family-planning': 'general',
         'home-buying': 'amortization',
+        'debt-freedom': 'general',
         'investment-analysis-journey': 'general',
       };
       return journeyContextMap[journeyId] || 'general';
