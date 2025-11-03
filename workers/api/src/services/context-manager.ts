@@ -153,8 +153,10 @@ export class ContextManager {
 
     } else if (contextKey === 'general' || !contextKey) {
       // General context - use chat assistant template
+      // Include available tools so AI can intelligently decide when to use them
       const fullPrompt = buildPrompt('chatAssistant', {
         userMessage: message,
+        availableTools: availableTools || [],
       });
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
@@ -280,7 +282,7 @@ export class ContextManager {
     
     // Include prompt version to bust cache when prompts are updated
     // Change this version number whenever system prompts are significantly updated
-    const promptVersion = 'v2'; // Updated 2025-11-03: Added all 31 calculators to chatAssistant + calculatorAssistant
+    const promptVersion = 'v3'; // Updated 2025-11-03: Dynamic MCP tool discovery + ChatGPT-style intelligent tool calling
     
     return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}`;
   }
