@@ -74,43 +74,22 @@ describe('budget.client', () => {
       optimizationGoal: 'balance',
     });
 
+    // Create new DOM structure that matches IndividualCalculatorPage
     document.body.innerHTML = `
-      <div id="results" class="hidden"></div>
-      <div id="total-income"></div>
-      <div id="total-expenses"></div>
-      <div id="net-income"></div>
-      <div id="savings-rate"></div>
-      <div id="rule-analysis"></div>
-      <ul id="recommendations"></ul>
+      <div id="results-container"></div>
+      <div id="summary-cards"></div>
     `;
 
     displayResults(result);
 
-    const currencyFormatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    });
-
-    const formatCurrency = (value: string) =>
-      currencyFormatter.format(Number.parseFloat(value));
-
-    expect(document.getElementById('results')?.classList.contains('hidden')).toBe(false);
-    expect(document.getElementById('total-income')?.textContent).toBe(
-      formatCurrency(result.incomeSummary.totalMonthlyIncome),
-    );
-    expect(document.getElementById('total-expenses')?.textContent).toBe(
-      formatCurrency(result.expenseSummary.totalMonthlyExpenses),
-    );
-    expect(document.getElementById('net-income')?.textContent).toBe(
-      formatCurrency(result.metrics.monthlyNetIncome),
-    );
-    expect(document.getElementById('savings-rate')?.textContent).toBe(
-      `${Number.parseFloat(result.metrics.savingsRate).toFixed(1)}%`,
-    );
-    expect(document.getElementById('rule-analysis')?.innerHTML).toContain(
-      formatCurrency(result.budgetRuleAnalysis.needs.current),
-    );
-    expect(document.querySelectorAll('#recommendations li').length).toBeGreaterThan(0);
+    // Verify summary cards were populated with budget data
+    const summaryCards = document.getElementById('summary-cards');
+    expect(summaryCards).toBeTruthy();
+    expect(summaryCards?.innerHTML).toContain('Monthly Income');
+    expect(summaryCards?.innerHTML).toContain('$6,300'); // Total income (5500 + 800)
+    expect(summaryCards?.innerHTML).toContain('Monthly Expenses');
+    expect(summaryCards?.innerHTML).toContain('$2,795'); // Total expenses (2100 + 650 + 45)
+    expect(summaryCards?.innerHTML).toContain('Net Income');
+    expect(summaryCards?.innerHTML).toContain('$3,505'); // Net income (6300 - 2795)
   });
 });

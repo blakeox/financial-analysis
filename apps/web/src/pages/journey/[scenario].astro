@@ -58,7 +58,9 @@ if (!currentScenario) {
               {currentScenario.complexity}
             </span>
             <span class="flex items-center">
-              <img src="/fanalyx_favicon.png" alt="Duration" class="w-4 h-4 mr-1">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+              </svg>
               {currentScenario.duration}
             </span>
           </div>
@@ -138,7 +140,9 @@ if (!currentScenario) {
            class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
           <span class="mr-2">{currentScenario.icon}</span>
           Start Your Journey
-          <img src="/fanalyx_favicon.png" alt="Start" class="w-5 h-5 ml-2">
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
         </a>
         <p class="text-gray-600 dark:text-gray-400 mt-4">
           Begin with the first step: <strong>{currentScenario.models[0].name}</strong>

@@ -196,7 +196,7 @@ describe('Rent vs Buy Calculator', () => {
       const futureValue = 500000 * Math.pow(0.98, 5);
       
       expect(futureValue).toBeLessThan(500000);
-      expect(futureValue).toBeCloseTo(452755, -2);
+      expect(futureValue).toBeCloseTo(451960, -2); // Allow tolerance of 100
     });
 
     it('should handle very short analysis periods (1 year)', () => {

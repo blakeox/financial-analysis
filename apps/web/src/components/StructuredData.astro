@@ -1,0 +1,164 @@
+---
+/**
+ * Structured Data Component for JSON-LD Schema Markup
+ * Provides rich snippets for search engines
+ */
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface Props {
+  type: 'breadcrumb' | 'faq' | 'software' | 'article' | 'organization' | 'website';
+  breadcrumbs?: BreadcrumbItem[];
+  faqs?: FAQItem[];
+  softwareApp?: {
+    name: string;
+    description: string;
+    category?: string;
+    rating?: number;
+    ratingCount?: number;
+  };
+  article?: {
+    headline: string;
+    description: string;
+    author: string;
+    datePublished?: string;
+    dateModified?: string;
+    image?: string;
+  };
+  organization?: {
+    name: string;
+    url: string;
+    logo: string;
+    description?: string;
+    sameAs?: string[];
+  };
+  website?: {
+    name: string;
+    url: string;
+    description: string;
+    searchUrl?: string;
+  };
+}
+
+const { type, breadcrumbs, faqs, softwareApp, article, organization, website } = Astro.props as Props;
+
+const siteUrl = 'https://fanalyx.com';
+
+// Generate appropriate schema based on type
+let schemaData: any;
+
+if (type === 'breadcrumb' && breadcrumbs) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`,
+    })),
+  };
+} else if (type === 'faq' && faqs) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+} else if (type === 'software' && softwareApp) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: softwareApp.name,
+    description: softwareApp.description,
+    applicationCategory: softwareApp.category || 'FinanceApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+    ...(softwareApp.rating && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: softwareApp.rating,
+        ratingCount: softwareApp.ratingCount || 100,
+        bestRating: '5',
+        worstRating: '1',
+      },
+    }),
+  };
+} else if (type === 'article' && article) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.headline,
+    description: article.description,
+    author: {
+      '@type': 'Organization',
+      name: article.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Fanalyx',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/fanalyx_favicon.png`,
+      },
+    },
+    datePublished: article.datePublished || new Date().toISOString(),
+    dateModified: article.dateModified || new Date().toISOString(),
+    ...(article.image && {
+      image: article.image.startsWith('http') ? article.image : `${siteUrl}${article.image}`,
+    }),
+  };
+} else if (type === 'organization' && organization) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: organization.name,
+    url: organization.url,
+    logo: organization.logo.startsWith('http') ? organization.logo : `${siteUrl}${organization.logo}`,
+    ...(organization.description && { description: organization.description }),
+    ...(organization.sameAs && { sameAs: organization.sameAs }),
+  };
+} else if (type === 'website' && website) {
+  schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: website.name,
+    url: website.url,
+    description: website.description,
+    ...(website.searchUrl && {
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: website.searchUrl,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    }),
+  };
+}
+---
+
+{schemaData && (
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+)}
+

@@ -1,0 +1,406 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Calculation Result Snapshots > should have consistent debt payoff results 1`] = `
+{
+  "monthlyPayment": 500,
+  "monthsToPayoff": 24,
+  "originalBalance": 10000,
+  "totalInterest": 1978,
+  "totalPaid": 11978,
+}
+`;
+
+exports[`Calculation Result Snapshots > should have consistent investment growth results 1`] = `
+{
+  "finalBalance": 102422,
+  "monthlyContribution": 500,
+  "months": 120,
+  "totalContributions": 60000,
+  "totalGrowth": 42422,
+}
+`;
+
+exports[`Calculation Result Snapshots > should have consistent mortgage calculation results 1`] = `
+{
+  "monthlyPayment": 2528.27,
+  "months": 360,
+  "principal": 400000,
+  "totalInterest": 510178,
+  "totalPaid": 910178,
+}
+`;
+
+exports[`Calculator Results Snapshots > Chart Data Structure > should generate consistent chart data points 1`] = `
+[
+  {
+    "interest": 15000,
+    "principal": 10000,
+    "year": 0,
+  },
+  {
+    "interest": 14000,
+    "principal": 12000,
+    "year": 1,
+  },
+  {
+    "interest": 13000,
+    "principal": 14000,
+    "year": 2,
+  },
+  {
+    "interest": 12000,
+    "principal": 16000,
+    "year": 3,
+  },
+  {
+    "interest": 11000,
+    "principal": 18000,
+    "year": 4,
+  },
+  {
+    "interest": 10000,
+    "principal": 20000,
+    "year": 5,
+  },
+]
+`;
+
+exports[`Calculator Results Snapshots > Comparison Table Generation > should generate strategy comparison table consistently 1`] = `
+"
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+              <div class="border rounded-lg p-4">
+                <h3>Pay Debt</h3>
+                <p>Payment: $700</p>
+                <p>Total: $10,500</p>
+              </div>
+            
+              <div class="border rounded-lg p-4">
+                <h3>Invest</h3>
+                <p>Payment: $200</p>
+                <p>Total: $15,000</p>
+              </div>
+            
+          </div>
+        "
+`;
+
+exports[`Calculator Results Snapshots > Progress Bar HTML > should generate milestone indicators > milestone-achieved 1`] = `
+"
+          <div class="milestone achieved">
+            <span>✅</span>
+            <span>25%</span>
+          </div>
+        "
+`;
+
+exports[`Calculator Results Snapshots > Progress Bar HTML > should generate milestone indicators > milestone-pending 1`] = `
+"
+          <div class="milestone pending">
+            <span>⏳</span>
+            <span>75%</span>
+          </div>
+        "
+`;
+
+exports[`Calculator Results Snapshots > Progress Bar HTML > should generate progress bar with correct width > complete-progress 1`] = `
+"
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
+          </div>
+        "
+`;
+
+exports[`Calculator Results Snapshots > Progress Bar HTML > should generate progress bar with correct width > half-progress 1`] = `
+"
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div class="bg-green-500 h-4 rounded-full" style="width: 50%"></div>
+          </div>
+        "
+`;
+
+exports[`Calculator Results Snapshots > Recommendation Text Generation > should generate consistent recommendations > close-call 1`] = `"Consider both options carefully."`;
+
+exports[`Calculator Results Snapshots > Recommendation Text Generation > should generate consistent recommendations > slight-rent 1`] = `"Slight Rent Advantage: Rent comes out $15,000 ahead."`;
+
+exports[`Calculator Results Snapshots > Recommendation Text Generation > should generate consistent recommendations > strong-buy 1`] = `"Strong Buy: You'll be $75,000 better off over the analysis period."`;
+
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate PMI warning card consistently 1`] = `
+"<p class="text-xs text-orange-600 dark:text-orange-400">
+          ⚠️ PMI until month 120 (10y) - Total: $45,000
+        </p>"
+`;
+
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > affordable 1`] = `"<p class="text-xs text-green-600">✓ Within recommended 28% limit</p>"`;
+
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > not-affordable 1`] = `"<p class="text-xs text-red-600">⚠️ Exceeds recommended 28% limit</p>"`;
+
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate consistent summary card HTML 1`] = `
+"<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Payment</h5>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">$2,528</p>
+            <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">P&I only</p>
+          </div>"
+`;
+
+exports[`Comparison Result Snapshots > should generate rent vs buy comparison consistently 1`] = `
+{
+  "breakEvenYear": 4,
+  "buy": {
+    "equity": 150000,
+    "netPosition": 50000,
+    "totalCost": 450000,
+  },
+  "difference": 130000,
+  "rent": {
+    "equity": 100000,
+    "netPosition": -80000,
+    "totalCost": 180000,
+  },
+  "winner": "Buy",
+}
+`;
+
+exports[`Comparison Result Snapshots > should generate strategy wealth comparison 1`] = `
+[
+  {
+    "debtRemaining": 0,
+    "endingWealth": 75000,
+    "investmentBalance": 75000,
+    "name": "Pay Debt First",
+  },
+  {
+    "debtRemaining": 5000,
+    "endingWealth": 85000,
+    "investmentBalance": 90000,
+    "name": "Invest First",
+  },
+  {
+    "debtRemaining": 0,
+    "endingWealth": 80000,
+    "investmentBalance": 80000,
+    "name": "Hybrid",
+  },
+]
+`;
+
+exports[`Data Structure Snapshots > should have consistent Roth vs Traditional structure 1`] = `
+{
+  "difference": 120000,
+  "recommendation": "Roth IRA recommended...",
+  "roth": {
+    "afterTax": 1000000,
+    "balance": 1000000,
+    "monthlyAfterTax": 3333,
+  },
+  "traditional": {
+    "afterTax": 880000,
+    "balance": 1000000,
+    "monthlyAfterTax": 2933,
+  },
+}
+`;
+
+exports[`Data Structure Snapshots > should have consistent credit score impact structure 1`] = `
+{
+  "currentEstimate": 650,
+  "factors": {
+    "creditUtilization": {
+      "current": 75,
+      "impact": "Reduce utilization below 30%",
+      "projected": 0,
+    },
+    "debtToIncome": {
+      "current": 40,
+      "impact": "Lower DTI improves approval odds",
+      "projected": 0,
+    },
+    "paymentHistory": {
+      "current": 95,
+      "impact": "Improve on-time payments",
+      "projected": 100,
+    },
+  },
+  "finalEstimate": 750,
+  "projectedImprovement": 100,
+  "timeline": [
+    {
+      "month": 0,
+      "score": 650,
+    },
+    {
+      "month": 12,
+      "score": 700,
+    },
+    {
+      "month": 24,
+      "score": 750,
+    },
+  ],
+}
+`;
+
+exports[`Data Structure Snapshots > should have consistent scenario result structure 1`] = `
+{
+  "hasPMI": false,
+  "monthlyPayment": 2528,
+  "monthlyPaymentWithPMI": 2528,
+  "name": "20% Down @ 6.50%",
+  "payoffMonths": 360,
+  "pmiDropMonth": 0,
+  "pmiMonthly": 0,
+  "pmiTotalCost": 0,
+  "totalCost": 911370,
+  "totalInterest": 511370,
+}
+`;
+
+exports[`Error Message Snapshots > should generate consistent business logic errors 1`] = `
+{
+  "insufficientPayment": "Monthly payment must cover at least the interest charge",
+  "negativeBalance": "Balance cannot be negative",
+  "noEmergencyFund": "Build a 3-6 month emergency fund before investing",
+  "unrealisticRate": "Interest rate seems unrealistic - please verify",
+}
+`;
+
+exports[`Error Message Snapshots > should generate consistent validation error messages 1`] = `
+{
+  "downPayment": "Down payment must be less than home price",
+  "homePrice": "Please enter a valid home price",
+  "interestRate": "Interest rate must be between 0 and 30",
+  "monthlyRent": "Please enter a valid monthly rent",
+  "yearsToAnalyze": "Analysis period must be 1-30 years",
+}
+`;
+
+exports[`Formatting Snapshots > should format currency consistently 1`] = `
+{
+  "decimal": "$1,235",
+  "large": "$1,000,000",
+  "medium": "$50,000",
+  "negative": "-$500",
+  "small": "$100",
+  "zero": "$0",
+}
+`;
+
+exports[`Formatting Snapshots > should format percentages consistently 1`] = `
+{
+  "decimal": "18.99%",
+  "large": "100.00%",
+  "small": "0.50%",
+  "whole": "50.00%",
+}
+`;
+
+exports[`Formatting Snapshots > should format time durations consistently 1`] = `
+{
+  "fiveYears": "5y 0m",
+  "oneYear": "1y 0m",
+  "partial": "2y 3m",
+}
+`;
+
+exports[`Recommendation Logic Snapshots > should generate Roth vs Traditional recommendations 1`] = `
+[
+  "Traditional IRA/401(k) recommended",
+  "Roth IRA/401(k) recommended",
+  "Consider Both",
+]
+`;
+
+exports[`Recommendation Logic Snapshots > should generate invest vs debt recommendations 1`] = `
+[
+  "Pay off debt",
+  "Invest (get employer match)",
+  "Pay off debt",
+  "Build emergency fund first",
+]
+`;
+
+exports[`Tax Calculation Snapshots > should calculate federal tax brackets consistently 1`] = `
+{
+  "married100k": 12655,
+  "single50k": 6308,
+}
+`;
+
+exports[`Tax Calculation Snapshots > should calculate self-employment tax consistently 1`] = `
+{
+  "high": 14130,
+  "low": 2826,
+  "medium": 7630,
+}
+`;
+
+exports[`Visual Component Snapshots > should generate credit score timeline 1`] = `
+[
+  {
+    "month": 0,
+    "score": 650,
+  },
+  {
+    "month": 6,
+    "score": 680,
+  },
+  {
+    "month": 12,
+    "score": 710,
+  },
+  {
+    "month": 18,
+    "score": 730,
+  },
+  {
+    "month": 24,
+    "score": 750,
+  },
+]
+`;
+
+exports[`Visual Component Snapshots > should generate emergency fund progress HTML 1`] = `
+{
+  "currentAmount": 15000,
+  "monthsOfExpenses": 3,
+  "monthsToComplete": 15,
+  "percentComplete": 50,
+  "recommendation": "Making progress! Aim for at least 3 months.",
+  "status": "partial",
+  "targetAmount": 30000,
+  "targetMonths": 6,
+}
+`;
+
+exports[`Visual Component Snapshots > should generate milestone cards consistently 1`] = `
+[
+  {
+    "achieved": true,
+    "amount": 12500,
+    "date": "Mar 2025",
+    "months": 6,
+    "percent": 25,
+  },
+  {
+    "achieved": false,
+    "amount": 25000,
+    "date": "Sep 2025",
+    "months": 12,
+    "percent": 50,
+  },
+  {
+    "achieved": false,
+    "amount": 37500,
+    "date": "Mar 2026",
+    "months": 18,
+    "percent": 75,
+  },
+  {
+    "achieved": false,
+    "amount": 50000,
+    "date": "Sep 2026",
+    "months": 24,
+    "percent": 100,
+  },
+]
+`;

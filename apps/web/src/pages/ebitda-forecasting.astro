@@ -1,80 +1,65 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
 import AdSense from '../components/AdSense.astro';
 // ChatPanel is now in Layout.astro
-
-// FAQ Schema for SEO
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "What is EBITDA and why is it important?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) measures a company's operating profitability. It's crucial for comparing companies, securing financing, and valuing businesses. Investors typically value service companies at 3-6x EBITDA."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How do I forecast EBITDA for my service business?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Start with revenue projections based on billable hours and rates. Subtract cost of goods sold and operating expenses (salaries, rent, marketing). Our calculator helps model multiple years with growth assumptions, employee additions, and expense scaling."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What's a good EBITDA margin for a service business?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Service businesses typically target 15-25% EBITDA margins. Professional services (consulting, legal, accounting) often achieve 20-30%, while labor-intensive services may see 10-20%. Use our forecasting tool to set and track margin targets as you grow."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How do I improve my EBITDA?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Increase revenue through pricing or volume, reduce direct labor costs through efficiency, negotiate better vendor pricing, automate processes, and maintain disciplined expense management. Our scenario planning tool helps model the impact of different improvement strategies."
-      }
-    }
-  ]
-};
 ---
 
-<Layout title="EBITDA Forecasting" description="Generate EBITDA forecasts for service industry scenario planning with employee and expense modeling" canonical={Astro.url.href}>
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+<Layout 
+  title="EBITDA Forecasting Calculator - Free Business Valuation & Financial Planning Tool | Fanalyx" 
+  description="Free EBITDA forecasting calculator for service businesses. Create multi-year financial projections, model employee costs, track profit margins, and plan for growth. Professional business valuation made simple."
+  keywords="EBITDA calculator, EBITDA forecasting, business valuation calculator, financial projections, service business calculator, profit margin calculator, business planning tool, financial modeling"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/models' },
+      { name: 'EBITDA Forecasting', url: '/ebitda-forecasting' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'EBITDA Forecasting Calculator',
+      description: 'Professional EBITDA forecasting tool for service businesses with multi-year projections, employee modeling, expense tracking, and scenario planning capabilities.',
+      category: 'FinanceApplication',
+      rating: 4.7,
+      ratingCount: 180
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is EBITDA and why is it important?',
+        answer: 'EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) measures a company\'s operating profitability. It\'s crucial for comparing companies, securing financing, and valuing businesses. Investors typically value service companies at 3-6x EBITDA.'
+      },
+      {
+        question: 'How do I forecast EBITDA for my service business?',
+        answer: 'Start with revenue projections based on billable hours and rates. Subtract cost of goods sold and operating expenses (salaries, rent, marketing). Our calculator helps model multiple years with growth assumptions, employee additions, and expense scaling.'
+      },
+      {
+        question: 'What\'s a good EBITDA margin for a service business?',
+        answer: 'Service businesses typically target 15-25% EBITDA margins. Professional services (consulting, legal, accounting) often achieve 20-30%, while labor-intensive services may see 10-20%. Use our forecasting tool to set and track margin targets as you grow.'
+      },
+      {
+        question: 'How do I improve my EBITDA?',
+        answer: 'Increase revenue through pricing or volume, reduce direct labor costs through efficiency, negotiate better vendor pricing, automate processes, and maintain disciplined expense management. Our scenario planning tool helps model the impact of different improvement strategies.'
+      },
+      {
+        question: 'Can I export my EBITDA forecasts?',
+        answer: 'Yes! Our calculator allows you to export detailed financial projections, including revenue breakdown, expense schedules, and EBITDA margins for presentations to investors, lenders, or internal planning purposes.'
+      }
+    ]}
+  />
   <div class="container mx-auto px-4 py-8">
-    <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.url).toString() },
-          { '@type': 'ListItem', position: 2, name: 'EBITDA Forecasting', item: Astro.url.href },
-        ],
-      })}
-    </script>
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'EBITDA Forecasting',
-        applicationCategory: 'FinanceApplication',
-        operatingSystem: 'Web',
-        url: Astro.url.href,
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
-          availability: 'https://schema.org/InStock',
-        },
-      })}
-    </script>
     
     <div class="max-w-7xl mx-auto">
       <h1 class="text-3xl font-bold mb-2">EBITDA Forecasting</h1>

@@ -2,7 +2,13 @@ import type { DebtPayoffResult } from '@financial-analysis/analysis';
 import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../scripts/analysis-results';
 import { registerChatButton } from './chat-actions';
-import { formatCurrency } from '../utils/calculator-utilities';
+import { formatCurrency, parseNumber } from '../utils/calculator-utilities';
+
+// Currency formatter for displaying monetary values
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
 
 type Strategy = 'avalanche' | 'snowball';
 

@@ -10,16 +10,50 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/debug') &&
         !page.includes('/models-old') &&
-        !page.includes('/models-clean'),
+        !page.includes('/models-clean') &&
+        !page.includes('/test-') &&
+        !page.includes('/_'),
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),
-      customPages: [
-        'https://fanalyx.com/',
-        'https://fanalyx.com/models',
-        'https://fanalyx.com/models/personal',
-        'https://fanalyx.com/models/business',
-      ],
+      // Custom priority and changefreq based on page importance
+      serialize(item) {
+        // Homepage - highest priority
+        if (item.url === 'https://fanalyx.com/' || item.url.endsWith('fanalyx.com/')) {
+          item.priority = 1.0;
+          item.changefreq = 'daily';
+        }
+        // Main category pages
+        else if (
+          item.url.includes('/models') ||
+          item.url.includes('/journey') ||
+          item.url.includes('/developers')
+        ) {
+          item.priority = 0.9;
+          item.changefreq = 'weekly';
+        }
+        // Calculator pages
+        else if (
+          item.url.includes('/calculator/') ||
+          item.url.includes('/lease-analysis') ||
+          item.url.includes('/ebitda-forecasting') ||
+          item.url.includes('/commercial-real-estate')
+        ) {
+          item.priority = 0.8;
+          item.changefreq = 'weekly';
+        }
+        // Journey and step pages
+        else if (item.url.includes('/journey/') || item.url.includes('/step/')) {
+          item.priority = 0.7;
+          item.changefreq = 'monthly';
+        }
+        // Other pages (privacy, terms, status, etc.)
+        else {
+          item.priority = 0.5;
+          item.changefreq = 'monthly';
+        }
+        return item;
+      },
     }),
   ],
   output: 'static', // Static site for Cloudflare Pages

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@financial-analysis/ui';
 import AdSense from '../components/AdSense.astro';
 import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
@@ -7,27 +8,61 @@ import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 export const organizationLogo = fanalyxLogo;
 ---
 
-<Layout title="Free Financial Calculators & AI Insights" description="29 free calculators for loans, savings, retirement, investments, and business planning. Get instant calculations plus AI-powered guidance.">
+<Layout 
+  title="Free Financial Calculators & AI Insights - 29 Professional Tools | Fanalyx" 
+  description="29 free financial calculators with AI-powered analysis. Professional tools for loans, mortgages, retirement, investments, and business planning. No signup required, instant results with expert guidance."
+  keywords="financial calculator, free calculator, loan calculator, mortgage calculator, retirement calculator, investment calculator, business calculator, AI financial advisor, financial planning tools"
+>
   <div class="min-h-screen bg-slate-950 text-white">
-    <!-- Structured Data -->
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Financial Analysis',
-        url: Astro.url.origin,
-        description: 'Free financial calculators with AI-powered insights for loans, savings, retirement, investments, and business planning.'
-      })}
-    </script>
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: 'Financial Analysis',
-        url: Astro.url.origin,
-  logo: new URL(organizationLogo, Astro.url).toString(),
-      })}
-    </script>
+    <!-- Structured Data for Homepage -->
+    <StructuredData 
+      type="website" 
+      website={{
+        name: 'Fanalyx - Financial Analysis Tools',
+        url: 'https://fanalyx.com',
+        description: 'Professional financial calculators and AI-powered analysis tools for personal finance, business planning, loans, investments, and retirement. 100% free with no signup required.'
+      }}
+    />
+    
+    <StructuredData 
+      type="organization" 
+      organization={{
+        name: 'Fanalyx',
+        url: 'https://fanalyx.com',
+        logo: `https://fanalyx.com${organizationLogo}`,
+        description: 'Fanalyx provides free, professional-grade financial calculators and AI-powered analysis tools to help individuals and businesses make smarter financial decisions.',
+        sameAs: [
+          'https://twitter.com/fanalyx',
+          'https://linkedin.com/company/fanalyx'
+        ]
+      }}
+    />
+    
+    <StructuredData 
+      type="faq" 
+      faqs={[
+        {
+          question: 'Are the financial calculators really free?',
+          answer: 'Yes! All 29 financial calculators are 100% free with no hidden fees, no credit card required, and no signup needed. You get full access to all features including AI-powered analysis and recommendations.'
+        },
+        {
+          question: 'Do I need to create an account?',
+          answer: 'No account required! All calculators work instantly without any signup. Your privacy is protected - we do not track or store your financial data.'
+        },
+        {
+          question: 'What types of calculators are available?',
+          answer: 'We offer 29 calculators including mortgage/loan calculators, retirement planning tools, investment analyzers, debt payoff calculators, budget planners, business valuation tools, lease analysis, and more. All with AI-powered insights.'
+        },
+        {
+          question: 'How does the AI analysis work?',
+          answer: 'Our AI analyzes your calculations and provides personalized recommendations based on your specific situation. It explains results in plain language and suggests optimization strategies to help you achieve better financial outcomes.'
+        },
+        {
+          question: 'Can I use these calculators for business planning?',
+          answer: 'Absolutely! We have specialized business calculators for EBITDA forecasting, lease analysis, commercial real estate, cash flow projections, and more. Perfect for entrepreneurs, startups, and established businesses.'
+        }
+      ]}
+    />
     <!-- Hero Section -->
     <section class="relative overflow-hidden">
   <div class="absolute inset-0 bg-linear-to-br from-blue-600/30 via-indigo-500/25 to-purple-500/20" aria-hidden="true" />

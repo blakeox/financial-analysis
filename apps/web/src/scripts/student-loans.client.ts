@@ -353,7 +353,15 @@ export const displayResults = (result: StudentLoanResult): void => {
   `;
 };
 
-export const handleSubmit = async (form: HTMLFormElement): Promise<void> => {
+export const handleSubmit = async (
+  form: HTMLFormElement,
+  refs?: {
+    results?: HTMLElement | null;
+    error?: HTMLElement | null;
+    errorMessage?: HTMLElement | null;
+    loading?: HTMLElement | null;
+  }
+): Promise<void> => {
   // Show loading state
   const calculateBtn = document.getElementById('calculate-btn');
   if (calculateBtn) {
@@ -362,7 +370,7 @@ export const handleSubmit = async (form: HTMLFormElement): Promise<void> => {
   }
 
   // Hide previous results
-  const resultsSection = document.getElementById('results-section');
+  const resultsSection = refs?.results || document.getElementById('results-section');
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
   resultsSection?.classList.add('hidden');
@@ -477,7 +485,17 @@ export const handleSubmit = async (form: HTMLFormElement): Promise<void> => {
     );
   } catch (error) {
     console.error('Student loan calculation error:', error);
-    alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+    
+    // Show error in UI
+    if (refs?.error && refs?.errorMessage) {
+      refs.error.classList.remove('hidden');
+      refs.errorMessage.textContent = error instanceof Error ? error.message : 'An unexpected error occurred';
+    } else {
+      // Fallback to alert if refs not provided (backward compatibility)
+      if (typeof alert !== 'undefined') {
+        alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+      }
+    }
   } finally {
     // Reset button state
     if (calculateBtn) {
