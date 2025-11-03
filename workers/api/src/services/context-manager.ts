@@ -161,8 +161,15 @@ export class ContextManager {
       basePrompt = split.userPrompt;
 
     } else {
-      // Default: just use the message
-      basePrompt = message;
+      // Calculator-specific contexts - use calculator assistant template
+      // This gives AI context about calculator families and how to help
+      const fullPrompt = buildPrompt('calculatorAssistant', {
+        userMessage: message,
+        calculatorContext: contextKey,
+      });
+      const split = this.splitPrompt(fullPrompt);
+      systemPrompt = split.systemPrompt;
+      basePrompt = split.userPrompt;
     }
 
     // Retrieve website content via AutoRAG if enabled
