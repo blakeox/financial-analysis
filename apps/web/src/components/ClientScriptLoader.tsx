@@ -61,6 +61,10 @@ const scriptLoaders: ScriptLoaderMap = {
   'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
   'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
   'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning.client.ts'),
+  'rent-vs-buy': () => import('../scripts/rent-vs-buy.client.ts'),
+  'invest-vs-payoff-debt': () => import('../scripts/invest-vs-payoff-debt.client.ts'),
+  'side-hustle-income': () => import('../scripts/side-hustle-income.client.ts'),
+  'credit-card-payoff': () => import('../scripts/credit-card-payoff.client.ts'),
   // Dashboard
   'dashboard-personal': () => import('../scripts/dashboard-personal.client.ts'),
 };
