@@ -157,7 +157,7 @@ export class IntentDetector {
   /**
    * Detect if user wants to update a field
    */
-  private detectFieldUpdate(message: string): IntentDetection {
+  public detectFieldUpdate(message: string): IntentDetection {
     for (const pattern of this.fieldPatterns) {
       if (pattern.keywords.some((keyword) => message.includes(keyword))) {
         const value = pattern.extractor(message);

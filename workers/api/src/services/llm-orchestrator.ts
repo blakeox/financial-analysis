@@ -89,38 +89,35 @@ export class LLMOrchestrator {
       requestId,
     } = request;
 
-    // 1. Detect intent
-    const intent = this.intentDetector.detect(message, context, availableTools);
-
-    // 2. Handle based on intent
-    switch (intent.intent) {
-      case 'tool_call':
-        return await this.handleToolCall(
-          intent,
-          currentModel,
-          toolOutputs,
-          memoryContext
-        );
-
-      case 'field_update':
+    // NEW: Skip keyword-based intent detection, let LLM do semantic matching
+    // The LLM sees available tools and intelligently decides if/when to call them
+    // This enables natural language variations like:
+    // - "What's my monthly payment?" → analyze_amortization
+    // - "Project my revenue" → ebitda_forecasting
+    // - "How do I pay off debt faster?" → analyze_debt_payoff
+    
+    // Check for explicit field updates first (these are simple pattern matches)
+    if (['lease', 'amortization', 'ebitda', 'startup-planning'].includes(context)) {
+      const fieldIntent = this.intentDetector.detectFieldUpdate(message.toLowerCase());
+      if (fieldIntent && fieldIntent.confidence > 0.6) {
         return await this.handleFieldUpdate(
-          intent,
+          fieldIntent,
           currentModel,
           context
         );
-
-      case 'llm_question':
-      case 'general':
-      default:
-        return await this.handleLLMQuestion(
-          message,
-          context,
-          contextData,
-          availableTools,
-          memoryContext,
-          requestId
-        );
+      }
     }
+
+    // For everything else, let the LLM intelligently decide
+    // It will see available tools and semantic match user intent
+    return await this.handleLLMQuestion(
+      message,
+      context,
+      contextData,
+      availableTools,
+      memoryContext,
+      requestId
+    );
   }
 
   /**

@@ -82,9 +82,15 @@ You will be provided with a list of available MCP tools. Each tool has:
 - **Real Estate**: Lease analysis, rent vs buy, mortgage scenarios
 - **Investment**: Bond pricing, options pricing, portfolio analysis
 
-**Intelligent Tool Selection:**
-- Read tool descriptions carefully
-- Match user intent to the right tool
+**Intelligent Tool Selection (Semantic Matching):**
+- Understand user INTENT, not just keywords
+- Examples of semantic matching:
+  - "What's my monthly payment?" → analyze_amortization
+  - "Project my revenue next year" → ebitda_forecasting  
+  - "How do I get out of debt?" → analyze_debt_payoff
+  - "What's my home worth?" → analyze_home_buying_affordability
+  - "Plan my retirement" → analyze_retirement_savings
+- Read tool descriptions carefully to find best match
 - If user data is incomplete, ask for required fields
 - Explain what calculation you're performing
 
