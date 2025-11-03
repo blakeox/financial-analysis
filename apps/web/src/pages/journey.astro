@@ -182,23 +182,23 @@ const faqSchema = {
           </div>
             </div>
 
-        <!-- Debt Elimination Strategy -->
-        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="debt-elimination">
+        <!-- Debt Freedom Journey -->
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="debt-freedom" onclick="window.selectScenario && window.selectScenario('debt-freedom'); window.scenarioManager && window.scenarioManager.selectScenario('debt-freedom'); if (!window.selectScenario && !window.scenarioManager) { window.location.href = '/journey/debt-freedom'; }">
           <div class="flex items-center mb-4">
             <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-4">
               <span class="text-2xl">💳</span>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Debt Elimination Strategy</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Debt & Investment</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Debt Freedom Journey</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Ages 25-45</p>
             </div>
           </div>
           <p class="text-gray-600 dark:text-gray-400 mb-4">
-            Comprehensive debt payoff strategy combining multiple debt types with investment optimization for maximum financial growth.
+            Complete debt elimination journey for credit cards, student loans, and other debts. Create your path to financial freedom.
           </p>
           <div class="flex items-center justify-between">
-            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">Intermediate</span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">Beginner</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">1-2 hours</span>
           </div>
       </div>
 
@@ -263,11 +263,11 @@ const faqSchema = {
               </div>
             </div>
             <p class="text-gray-600 dark:text-gray-400 mb-4">
-              Complete financial planning journey for startups including cash flow projections, funding analysis, and growth planning.
+              Complete financial planning for startups including revenue projections, unit economics, cash flow, funding strategy, and business valuation. Perfect for fundraising.
             </p>
             <div class="flex items-center justify-between">
               <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">Beginner</span>
-              <span class="text-sm text-gray-500 dark:text-gray-400">2-3 hours</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">3-4 hours</span>
             </div>
           </div>
 
