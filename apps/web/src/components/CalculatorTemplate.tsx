@@ -1943,6 +1943,259 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
     clientScript: 'credit-card-payoff',
     analysisType: 'credit-card-payoff',
   },
+  
+  // ============================================================================
+  // BUSINESS CALCULATORS
+  // ============================================================================
+  
+  'break-even': {
+    id: 'break-even',
+    title: 'Break-Even Analysis Calculator',
+    description: 'Calculate your break-even point in units and revenue, analyze contribution margin, and understand when your business becomes profitable',
+    category: 'business',
+    icon: '📊',
+    color: 'blue',
+    keywords: ['break-even', 'contribution margin', 'fixed costs', 'variable costs', 'profitability', 'margin of safety'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is break-even analysis?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Break-even analysis determines the sales volume needed to cover all costs. It shows when you stop losing money and start making profit.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is contribution margin?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Contribution margin is the selling price minus variable costs per unit. It represents how much each unit sold contributes toward covering fixed costs.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Break-Even Analysis', href: '/calculator/break-even' },
+    ],
+    formFields: [
+      { id: 'fixedCosts', name: 'fixedCosts', type: 'number', label: 'Fixed Costs (Monthly)', placeholder: '50000', min: 0, step: 100, required: true, helpText: 'Rent, salaries, insurance - costs that don\'t change with volume' },
+      { id: 'variableCostPerUnit', name: 'variableCostPerUnit', type: 'number', label: 'Variable Cost per Unit', placeholder: '25', min: 0, step: 0.01, required: true, helpText: 'Materials, direct labor - costs that vary with each unit produced' },
+      { id: 'sellingPricePerUnit', name: 'sellingPricePerUnit', type: 'number', label: 'Selling Price per Unit', placeholder: '50', min: 0, step: 0.01, required: true, helpText: 'Price you charge customers for one unit' },
+      { id: 'currentSalesUnits', name: 'currentSalesUnits', type: 'number', label: 'Current Sales (Units/Month)', placeholder: '2000', min: 0, helpText: 'Optional: Your current monthly sales volume' },
+      { id: 'targetProfit', name: 'targetProfit', type: 'number', label: 'Target Monthly Profit', placeholder: '20000', min: 0, helpText: 'Optional: Desired monthly profit goal' },
+    ],
+    clientScript: 'break-even',
+    analysisType: 'break-even',
+  },
+  
+  'cash-flow-forecast': {
+    id: 'cash-flow-forecast',
+    title: 'Cash Flow Forecasting Calculator',
+    description: 'Project your cash flow for the next 12 months including AR/AP timing, working capital needs, and cash runway analysis',
+    category: 'business',
+    icon: '💵',
+    color: 'green',
+    keywords: ['cash flow', 'forecasting', 'working capital', 'burn rate', 'runway', 'AR', 'AP', 'DSO', 'DPO'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Why is cash flow more important than profit?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'You can be profitable on paper but run out of cash due to timing differences. Cash flow shows actual money in/out and determines if you can pay bills.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is cash runway?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Cash runway is how many months your business can operate before running out of cash, assuming current burn rate continues.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Cash Flow Forecast', href: '/calculator/cash-flow-forecast' },
+    ],
+    formFields: [
+      { id: 'startingCash', name: 'startingCash', type: 'number', label: 'Starting Cash Balance', placeholder: '100000', min: 0, step: 100, required: true },
+      { id: 'monthlyRevenue', name: 'monthlyRevenue', type: 'number', label: 'Monthly Revenue', placeholder: '50000', min: 0, step: 100, required: true },
+      { id: 'revenueGrowthRate', name: 'revenueGrowthRate', type: 'number', label: 'Revenue Growth Rate (%/year)', placeholder: '20', min: -100, max: 1000, step: 0.1, required: true },
+      { id: 'averageCollectionDays', name: 'averageCollectionDays', type: 'number', label: 'Days to Collect Payment (DSO)', placeholder: '45', min: 0, max: 365, step: 1, required: true, helpText: 'How long customers take to pay invoices' },
+      { id: 'monthlyExpenses', name: 'monthlyExpenses', type: 'number', label: 'Monthly Expenses', placeholder: '40000', min: 0, step: 100, required: true },
+      { id: 'expenseGrowthRate', name: 'expenseGrowthRate', type: 'number', label: 'Expense Growth Rate (%/year)', placeholder: '10', min: -100, max: 1000, step: 0.1, required: true },
+      { id: 'averagePaymentDays', name: 'averagePaymentDays', type: 'number', label: 'Days to Pay Vendors (DPO)', placeholder: '30', min: 0, max: 365, step: 1, required: true, helpText: 'How long you take to pay bills' },
+    ],
+    clientScript: 'cash-flow-forecast',
+    analysisType: 'cash-flow-forecast',
+  },
+  
+  'business-loan-qualifier': {
+    id: 'business-loan-qualifier',
+    title: 'Business Loan Qualifier',
+    description: 'Find out which business loans you qualify for including SBA 7(a), SBA 504, bank term loans, and lines of credit',
+    category: 'business',
+    icon: '🏦',
+    color: 'purple',
+    keywords: ['business loan', 'SBA', 'DSCR', 'LTV', 'loan qualification', 'financing', 'approval odds'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is DSCR and why does it matter?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Debt Service Coverage Ratio (DSCR) measures your ability to repay debt. Lenders want 1.25+ meaning you earn $1.25 for every $1 of debt payments.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What\'s the difference between SBA 7(a) and SBA 504?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'SBA 7(a) is flexible for any business purpose up to $5M. SBA 504 is only for real estate/equipment but offers better rates and terms up to $5.5M.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Loan Qualifier', href: '/calculator/business-loan-qualifier' },
+    ],
+    formFields: [
+      { id: 'loanAmount', name: 'loanAmount', type: 'number', label: 'Desired Loan Amount', placeholder: '250000', min: 1, step: 1000, required: true },
+      { id: 'businessRevenue', name: 'businessRevenue', type: 'number', label: 'Annual Business Revenue', placeholder: '500000', min: 1, step: 1000, required: true },
+      { id: 'netIncome', name: 'netIncome', type: 'number', label: 'Annual Net Income', placeholder: '80000', min: 1, step: 1000, required: true, helpText: 'Business must be profitable' },
+      { id: 'existingDebtPayments', name: 'existingDebtPayments', type: 'number', label: 'Existing Monthly Debt Payments', placeholder: '2000', min: 0, step: 100, required: true },
+      { id: 'businessAge', name: 'businessAge', type: 'number', label: 'Business Age (Years)', placeholder: '3', min: 0, max: 100, step: 0.5, required: true },
+      { id: 'creditScore', name: 'creditScore', type: 'number', label: 'Credit Score', placeholder: '720', min: 300, max: 850, step: 1, required: true },
+      { id: 'collateralValue', name: 'collateralValue', type: 'number', label: 'Collateral Value', placeholder: '300000', min: 0, step: 1000, helpText: 'Optional: Value of assets to secure loan' },
+      { id: 'loanPurpose', name: 'loanPurpose', type: 'select', label: 'Loan Purpose', required: true, options: [
+        { value: 'working-capital', label: 'Working Capital' },
+        { value: 'equipment', label: 'Equipment Purchase' },
+        { value: 'real-estate', label: 'Real Estate' },
+        { value: 'expansion', label: 'Business Expansion' },
+        { value: 'acquisition', label: 'Business Acquisition' },
+      ]},
+      { id: 'personalGuaranteeAvailable', name: 'personalGuaranteeAvailable', type: 'select', label: 'Personal Guarantee Available?', required: true, options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' },
+      ]},
+    ],
+    clientScript: 'business-loan-qualifier',
+    analysisType: 'business-loan-qualifier',
+  },
+  
+  'pricing-strategy': {
+    id: 'pricing-strategy',
+    title: 'Pricing Strategy Calculator',
+    description: 'Optimize your product pricing with cost-plus, value-based, and competitive strategies. Find the optimal price point for maximum profit.',
+    category: 'business',
+    icon: '💲',
+    color: 'orange',
+    keywords: ['pricing', 'strategy', 'cost-plus', 'value-based', 'pricing optimization', 'profit margin', 'elasticity'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is value-based pricing?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Value-based pricing sets price based on what customers are willing to pay for the value delivered, not your costs. Often captures 30-40% more profit than cost-plus.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does price elasticity affect my business?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Price elasticity measures how demand changes when price changes. A 10% price increase with 1.0 elasticity means 10% fewer units sold. Understanding this prevents pricing mistakes.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Pricing Strategy', href: '/calculator/pricing-strategy' },
+    ],
+    formFields: [
+      { id: 'costPerUnit', name: 'costPerUnit', type: 'number', label: 'Cost per Unit', placeholder: '25', min: 0, step: 0.01, required: true, helpText: 'Your total cost to produce one unit' },
+      { id: 'targetMargin', name: 'targetMargin', type: 'number', label: 'Target Margin (%)', placeholder: '40', min: 0, max: 1000, step: 1, required: true, helpText: 'Desired profit margin for cost-plus pricing' },
+      { id: 'marketPrice', name: 'marketPrice', type: 'number', label: 'Competitor Market Price', placeholder: '50', min: 0, step: 0.01, required: true, helpText: 'What competitors charge for similar products' },
+      { id: 'valueToCustomer', name: 'valueToCustomer', type: 'number', label: 'Value to Customer', placeholder: '100', min: 0, step: 0.01, required: true, helpText: 'Economic value your product creates for customers' },
+      { id: 'unitsSoldMonthly', name: 'unitsSoldMonthly', type: 'number', label: 'Units Sold Monthly', placeholder: '500', min: 1, step: 1, required: true, helpText: 'Current or expected monthly sales volume' },
+      { id: 'priceElasticity', name: 'priceElasticity', type: 'number', label: 'Price Elasticity', placeholder: '1.0', min: 0, max: 10, step: 0.1, required: true, helpText: '% demand change per % price change (1.0 = elastic, 0.5 = inelastic)' },
+    ],
+    clientScript: 'pricing-strategy',
+    analysisType: 'pricing-strategy',
+  },
+  
+  'saas-metrics': {
+    id: 'saas-metrics',
+    title: 'SaaS Metrics Dashboard',
+    description: 'Track MRR, ARR, churn, CAC, LTV, LTV:CAC ratio, payback period, and Rule of 40 for your SaaS business',
+    category: 'business',
+    icon: '📈',
+    color: 'indigo',
+    keywords: ['SaaS', 'MRR', 'ARR', 'churn', 'CAC', 'LTV', 'metrics', 'Rule of 40', 'subscription'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is a good LTV:CAC ratio for SaaS?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A healthy LTV:CAC ratio is 3:1 or higher. This means customer lifetime value is 3x the cost to acquire them. Below 3:1 suggests unit economics need improvement.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the Rule of 40?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Rule of 40 states that growth rate + profit margin should equal 40% or more. It measures the balance between growth and profitability for SaaS companies.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'SaaS Metrics', href: '/calculator/saas-metrics' },
+    ],
+    formFields: [
+      { id: 'activeCustomers', name: 'activeCustomers', type: 'number', label: 'Active Customers', placeholder: '150', min: 1, step: 1, required: true },
+      { id: 'averageMonthlyRevenue', name: 'averageMonthlyRevenue', type: 'number', label: 'Average Revenue per Customer', placeholder: '99', min: 0.01, step: 0.01, required: true, helpText: 'Monthly subscription price per customer' },
+      { id: 'newCustomersLastMonth', name: 'newCustomersLastMonth', type: 'number', label: 'New Customers Last Month', placeholder: '20', min: 0, step: 1, required: true },
+      { id: 'churnedCustomersLastMonth', name: 'churnedCustomersLastMonth', type: 'number', label: 'Churned Customers Last Month', placeholder: '5', min: 0, step: 1, required: true },
+      { id: 'salesMarketingSpend', name: 'salesMarketingSpend', type: 'number', label: 'Sales & Marketing Spend (Last Month)', placeholder: '10000', min: 0, step: 100, required: true },
+      { id: 'averageCustomerLifetimeMonths', name: 'averageCustomerLifetimeMonths', type: 'number', label: 'Avg Customer Lifetime (Months)', placeholder: '24', min: 1, step: 1, required: true, helpText: 'How long customers stay on average' },
+      { id: 'grossMargin', name: 'grossMargin', type: 'number', label: 'Gross Margin (%)', placeholder: '80', min: 0, max: 100, step: 1, required: true, helpText: 'Typical SaaS is 70-85%' },
+      { id: 'revenueGrowthRate', name: 'revenueGrowthRate', type: 'number', label: 'Revenue Growth Rate (% Annual)', placeholder: '50', min: -100, max: 1000, step: 1, required: true },
+    ],
+    clientScript: 'saas-metrics',
+    analysisType: 'saas-metrics',
+  },
 };
 
 // Utility functions for calculator discovery and filtering

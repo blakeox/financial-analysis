@@ -29,6 +29,11 @@ type ScriptLoaderMap = {
   'dcf-valuation': () => Promise<unknown>;
   'ma-analysis': () => Promise<unknown>;
   'risk-management': () => Promise<unknown>;
+  'break-even': () => Promise<unknown>;
+  'cash-flow-forecast': () => Promise<unknown>;
+  'business-loan-qualifier': () => Promise<unknown>;
+  'pricing-strategy': () => Promise<unknown>;
+  'saas-metrics': () => Promise<unknown>;
   'dashboard-personal': () => Promise<unknown>;
 };
 
@@ -59,6 +64,11 @@ const scriptLoaders: ScriptLoaderMap = {
   'dcf-valuation': () => import('../scripts/dcf-valuation-simple.client.ts'),
   'ma-analysis': () => import('../scripts/ma-analysis-simple.client.ts'),
   'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
+  'break-even': () => import('../scripts/break-even.client.ts'),
+  'cash-flow-forecast': () => import('../scripts/cash-flow-forecast.client.ts'),
+  'business-loan-qualifier': () => import('../scripts/business-loan-qualifier.client.ts'),
+  'pricing-strategy': () => import('../scripts/pricing-strategy.client.ts'),
+  'saas-metrics': () => import('../scripts/saas-metrics.client.ts'),
   'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
   'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning.client.ts'),
   'rent-vs-buy': () => import('../scripts/rent-vs-buy.client.ts'),
