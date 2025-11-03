@@ -297,6 +297,7 @@ export function AmortizationResults({
 
       {showChart ? (
         <AmortizationChart
+          className="w-full"
           schedule={schedule}
           title={chartTitle}
           milestones={insights.milestones}

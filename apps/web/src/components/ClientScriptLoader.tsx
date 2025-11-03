@@ -7,7 +7,7 @@ type ScriptLoaderMap = {
   'auto-loan': () => Promise<unknown>;
   budget: () => Promise<unknown>;
   'debt-payoff': () => Promise<unknown>;
-  'enhanced-lease': () => Promise<unknown>;
+  'commercial-real-estate-lease': () => Promise<unknown>;
   'journey-page': () => Promise<unknown>;
   models: () => Promise<unknown>;
   'multi-model-scenarios': () => Promise<unknown>;
@@ -16,6 +16,11 @@ type ScriptLoaderMap = {
   'savings-goal': () => Promise<unknown>;
   'student-loans': () => Promise<unknown>;
   'calculator-quick-access': () => Promise<unknown>;
+  'calculator-comprehensive-analysis': () => Promise<unknown>;
+  'analysis-content-generators': () => Promise<unknown>;
+  'field-highlighting': () => Promise<unknown>;
+  'equipment-lease': () => Promise<unknown>;
+  'mortgage-scenario-planning': () => Promise<unknown>;
   // Journey-related scripts
   'journey-state': () => Promise<unknown>;
   'journey-navigation': () => Promise<unknown>;
@@ -24,6 +29,12 @@ type ScriptLoaderMap = {
   'dcf-valuation': () => Promise<unknown>;
   'ma-analysis': () => Promise<unknown>;
   'risk-management': () => Promise<unknown>;
+  'break-even': () => Promise<unknown>;
+  'cash-flow-forecast': () => Promise<unknown>;
+  'business-loan-qualifier': () => Promise<unknown>;
+  'pricing-strategy': () => Promise<unknown>;
+  'saas-metrics': () => Promise<unknown>;
+  'dashboard-personal': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {
@@ -33,7 +44,7 @@ const scriptLoaders: ScriptLoaderMap = {
   'auto-loan': () => import('../scripts/auto-loan.client.ts'),
   budget: () => import('../scripts/budget.client.ts'),
   'debt-payoff': () => import('../scripts/debt-payoff.client.ts'),
-  'enhanced-lease': () => import('../scripts/enhanced-lease.client.ts'),
+  'commercial-real-estate-lease': () => import('../scripts/commercial-real-estate-lease.client.ts'),
   'journey-page': () => import('../scripts/journey-page.client.ts'),
   models: () => import('../scripts/models.client.ts'),
   'multi-model-scenarios': () => import('../scripts/multi-model-scenarios.client.ts'),
@@ -42,6 +53,9 @@ const scriptLoaders: ScriptLoaderMap = {
   'savings-goal': () => import('../scripts/savings-goal-simple.client.ts'),
   'student-loans': () => import('../scripts/student-loans.client.ts'),
   'calculator-quick-access': () => import('../scripts/calculator-quick-access.client.ts'),
+  'calculator-comprehensive-analysis': () => import('../scripts/calculator-comprehensive-analysis.client.ts'),
+  'analysis-content-generators': () => import('../scripts/analysis-content-generators.client.ts'),
+  'field-highlighting': () => import('../scripts/field-highlighting.client.ts'),
   // Journey-related scripts
   'journey-state': () => import('../scripts/journey-state.client.ts'),
   'journey-navigation': () => import('../scripts/journey-navigation.client.ts'),
@@ -50,6 +64,19 @@ const scriptLoaders: ScriptLoaderMap = {
   'dcf-valuation': () => import('../scripts/dcf-valuation-simple.client.ts'),
   'ma-analysis': () => import('../scripts/ma-analysis-simple.client.ts'),
   'risk-management': () => import('../scripts/risk-management-simple.client.ts'),
+  'break-even': () => import('../scripts/break-even.client.ts'),
+  'cash-flow-forecast': () => import('../scripts/cash-flow-forecast.client.ts'),
+  'business-loan-qualifier': () => import('../scripts/business-loan-qualifier.client.ts'),
+  'pricing-strategy': () => import('../scripts/pricing-strategy.client.ts'),
+  'saas-metrics': () => import('../scripts/saas-metrics.client.ts'),
+  'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
+  'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning.client.ts'),
+  'rent-vs-buy': () => import('../scripts/rent-vs-buy.client.ts'),
+  'invest-vs-payoff-debt': () => import('../scripts/invest-vs-payoff-debt.client.ts'),
+  'side-hustle-income': () => import('../scripts/side-hustle-income.client.ts'),
+  'credit-card-payoff': () => import('../scripts/credit-card-payoff.client.ts'),
+  // Dashboard
+  'dashboard-personal': () => import('../scripts/dashboard-personal.client.ts'),
 };
 
 export type ClientScriptName = keyof typeof scriptLoaders;

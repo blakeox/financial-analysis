@@ -1,14 +1,17 @@
 import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
+  buildAmortizationComprehensiveAnalysis,
   computeAmortizationInsights,
   type AmortizationAnalysisResult,
+  type AmortizationComprehensiveAnalysis,
   type AmortizationInsights,
   type AmortizationInput,
 } from '@financial-analysis/analysis';
 
 export type AmortizationToolResponse = AmortizationAnalysisResult & {
   insights: AmortizationInsights;
+  comprehensiveAnalysis: AmortizationComprehensiveAnalysis;
 };
 
 export class AmortizationTool {
@@ -120,6 +123,9 @@ export class AmortizationTool {
     const validated = AmortizationInputSchema.parse(input) as AmortizationInput;
     const result = AmortizationAnalyzer.analyze(validated);
     const insights = computeAmortizationInsights(result);
-    return Promise.resolve({ ...result, insights });
+    const comprehensiveAnalysis = buildAmortizationComprehensiveAnalysis(result, {
+      assumedMonthlyIncome: 5000,
+    });
+    return Promise.resolve({ ...result, insights, comprehensiveAnalysis });
   }
 }

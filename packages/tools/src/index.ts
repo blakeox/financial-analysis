@@ -12,6 +12,18 @@ export { SavingsGoalTool } from './tools/savings-goal';
 export { StudentLoanTool } from './tools/student-loan';
 export { RetirementTool } from './tools/retirement';
 export { BudgetTool } from './tools/budget';
+export { CollegeSavingsTool } from './tools/college-savings';
+export { HomeBuyingAffordabilityTool } from './tools/home-buying-affordability';
+export { TaxOptimizationTool } from './tools/tax-optimization';
+export { InsuranceNeedsTool } from './tools/insurance-needs';
+export { InvestmentPortfolioTool } from './tools/investment-portfolio';
+export { FinancialJourneyTool } from './tools/financial-journey';
+export { MultiModelScenarioTool } from './tools/multi-model-scenario';
+export { MAAnalysisTool } from './tools/ma-analysis';
+export { DCFAnalysisTool } from './tools/dcf-analysis';
+export { CCAAnalysisTool } from './tools/cca-analysis';
+export { PopulateLeaseFormTool } from './tools/populate-lease-form';
+export { AutoLoanTool } from './tools/auto-loan';
 
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';

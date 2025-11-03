@@ -1045,6 +1045,1157 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
     clientScript: 'risk-management',
     analysisType: 'risk-management',
   },
+
+  'equipment-lease': {
+    id: 'equipment-lease',
+    title: 'Equipment Lease Calculator',
+    description:
+      'Equipment and machinery lease analysis with payment schedules, residual value, and lease vs buy comparison',
+    category: 'business',
+    icon: '🔧',
+    color: 'cyan',
+    keywords: ['equipment lease', 'machinery', 'finance lease', 'operating lease', 'residual value'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is the difference between finance and operating leases?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A finance lease is treated like ownership for accounting purposes and transfers ownership at the end of the lease term. An operating lease is like renting equipment and returns it at the end.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How do you calculate residual value for equipment leases?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Residual value is the estimated worth of equipment at lease end, typically 10-30% of original cost. Higher residual values result in lower monthly payments.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Equipment Lease', href: '/calculator/equipment-lease' },
+    ],
+    formFields: [
+      {
+        id: 'equipmentCost',
+        name: 'equipmentCost',
+        type: 'number',
+        label: 'Equipment Cost ($)',
+        min: 0,
+        step: 1000,
+        required: true,
+      },
+      {
+        id: 'downPayment',
+        name: 'downPayment',
+        type: 'number',
+        label: 'Down Payment ($)',
+        min: 0,
+        step: 1000,
+      },
+      {
+        id: 'leaseTerm',
+        name: 'leaseTerm',
+        type: 'number',
+        label: 'Lease Term (months)',
+        min: 1,
+        max: 120,
+        required: true,
+      },
+      {
+        id: 'interestRate',
+        name: 'interestRate',
+        type: 'number',
+        label: 'Interest Rate (%)',
+        min: 0,
+        max: 30,
+        step: 0.1,
+        required: true,
+      },
+      {
+        id: 'residualValue',
+        name: 'residualValue',
+        type: 'number',
+        label: 'Residual Value ($)',
+        min: 0,
+        step: 1000,
+      },
+    ],
+    clientScript: 'equipment-lease',
+    analysisType: 'equipment-lease',
+  },
+
+  'invest-vs-payoff-debt': {
+    id: 'invest-vs-payoff-debt',
+    title: 'Invest vs Pay Off Debt Calculator',
+    description: 'Should you use extra money to pay off debt or invest it? Compare strategies with guaranteed vs expected returns',
+    category: 'personal',
+    icon: '⚖️',
+    color: 'purple',
+    keywords: ['invest', 'debt', 'payoff', 'investment', 'strategy', 'financial decision'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Should I invest or pay off debt?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'If your debt interest rate is higher than expected investment returns (typically 7-10%), pay off debt first for a guaranteed return. If debt interest is low (<4%) and you have employer match, invest to capture free money.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Invest vs Pay Debt', href: '/calculator/invest-vs-payoff-debt' },
+    ],
+    formFields: [
+      {
+        id: 'extraMoney',
+        name: 'extraMoney',
+        type: 'number',
+        label: 'Extra Money Per Month ($)',
+        min: 0,
+        step: 50,
+        required: true,
+        placeholder: '500',
+        group: '💰 Available Funds',
+        helpText: 'How much extra can you put toward debt or investing?',
+      },
+      {
+        id: 'debtBalance',
+        name: 'debtBalance',
+        type: 'number',
+        label: 'Total Debt Balance ($)',
+        min: 0,
+        step: 100,
+        required: true,
+        placeholder: '10000',
+        group: '💳 Debt Details',
+      },
+      {
+        id: 'debtInterestRate',
+        name: 'debtInterestRate',
+        type: 'number',
+        label: 'Debt Interest Rate (%)',
+        min: 0,
+        max: 30,
+        step: 0.1,
+        required: true,
+        placeholder: '18',
+        group: '💳 Debt Details',
+      },
+      {
+        id: 'debtMinimumPayment',
+        name: 'debtMinimumPayment',
+        type: 'number',
+        label: 'Minimum Monthly Payment ($)',
+        min: 0,
+        step: 10,
+        required: true,
+        placeholder: '200',
+        group: '💳 Debt Details',
+      },
+      {
+        id: 'debtType',
+        name: 'debtType',
+        type: 'select',
+        label: 'Debt Type',
+        required: true,
+        options: [
+          { value: 'credit-card', label: 'Credit Card' },
+          { value: 'student-loan', label: 'Student Loan' },
+          { value: 'auto-loan', label: 'Auto Loan' },
+          { value: 'personal-loan', label: 'Personal Loan' },
+          { value: 'mortgage', label: 'Mortgage' },
+        ],
+        group: '💳 Debt Details',
+      },
+      {
+        id: 'expectedInvestmentReturn',
+        name: 'expectedInvestmentReturn',
+        type: 'number',
+        label: 'Expected Investment Return (%)',
+        min: 0,
+        max: 20,
+        step: 0.1,
+        placeholder: '10',
+        group: '📈 Investment Assumptions',
+        helpText: 'S&P 500 historical avg: ~10%',
+      },
+      {
+        id: 'employerMatch',
+        name: 'employerMatch',
+        type: 'number',
+        label: 'Employer Match (%)',
+        min: 0,
+        max: 10,
+        step: 0.5,
+        placeholder: '0',
+        group: '📈 Investment Assumptions',
+        helpText: 'If investing in 401(k) with match',
+      },
+      {
+        id: 'timeHorizonYears',
+        name: 'timeHorizonYears',
+        type: 'select',
+        label: 'Time Horizon',
+        required: true,
+        options: [
+          { value: '5', label: '5 years' },
+          { value: '10', label: '10 years' },
+          { value: '15', label: '15 years' },
+          { value: '20', label: '20 years' },
+        ],
+        group: '📊 Analysis Settings',
+      },
+      {
+        id: 'hasEmergencyFund',
+        name: 'hasEmergencyFund',
+        type: 'select',
+        label: 'Emergency Fund Status',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes (3-6 months saved)' },
+          { value: 'no', label: 'No emergency fund yet' },
+        ],
+        group: '📊 Analysis Settings',
+        helpText: 'Critical for this decision',
+      },
+    ],
+    clientScript: 'invest-vs-payoff-debt',
+    analysisType: 'invest-vs-payoff-debt',
+  },
+
+  'rent-vs-buy': {
+    id: 'rent-vs-buy',
+    title: 'Rent vs Buy Calculator',
+    description: 'Compare the financial impact of renting versus buying a home over time, including equity, tax benefits, and opportunity costs',
+    category: 'personal',
+    icon: '🏠',
+    color: 'blue',
+    keywords: ['rent', 'buy', 'homeownership', 'real estate', 'housing decision'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Is it better to rent or buy a home?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'It depends on your local market, how long you plan to stay, home prices, rent costs, and interest rates. Generally, buying makes more sense if you plan to stay 5+ years.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the break-even point for buying vs renting?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'The break-even point is when the total costs of buying (including mortgage, taxes, maintenance) minus equity built equals the total cost of renting. This typically occurs between 3-7 years depending on market conditions.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Rent vs Buy', href: '/calculator/rent-vs-buy' },
+    ],
+    formFields: [
+      {
+        id: 'homePrice',
+        name: 'homePrice',
+        type: 'number',
+        label: 'Home Price ($)',
+        min: 0,
+        step: 1000,
+        required: true,
+        placeholder: '500000',
+        group: '🏠 Home Purchase Details',
+      },
+      {
+        id: 'downPayment',
+        name: 'downPayment',
+        type: 'number',
+        label: 'Down Payment ($)',
+        min: 0,
+        step: 1000,
+        required: true,
+        placeholder: '100000',
+        group: '🏠 Home Purchase Details',
+        helpText: '20% avoids PMI',
+      },
+      {
+        id: 'interestRate',
+        name: 'interestRate',
+        type: 'number',
+        label: 'Mortgage Interest Rate (%)',
+        min: 0,
+        max: 15,
+        step: 0.01,
+        required: true,
+        placeholder: '6.5',
+        group: '🏠 Home Purchase Details',
+      },
+      {
+        id: 'loanTermYears',
+        name: 'loanTermYears',
+        type: 'select',
+        label: 'Loan Term',
+        required: true,
+        options: [
+          { value: '15', label: '15 years' },
+          { value: '20', label: '20 years' },
+          { value: '30', label: '30 years' },
+        ],
+        group: '🏠 Home Purchase Details',
+      },
+      {
+        id: 'propertyTaxRate',
+        name: 'propertyTaxRate',
+        type: 'number',
+        label: 'Property Tax Rate (%)',
+        min: 0,
+        max: 5,
+        step: 0.1,
+        placeholder: '1.2',
+        group: '💰 Ownership Costs',
+        helpText: 'Annual property tax as % of home value',
+      },
+      {
+        id: 'homeInsurance',
+        name: 'homeInsurance',
+        type: 'number',
+        label: 'Home Insurance ($/month)',
+        min: 0,
+        step: 10,
+        placeholder: '150',
+        group: '💰 Ownership Costs',
+      },
+      {
+        id: 'hoaFees',
+        name: 'hoaFees',
+        type: 'number',
+        label: 'HOA Fees ($/month)',
+        min: 0,
+        step: 10,
+        placeholder: '0',
+        group: '💰 Ownership Costs',
+      },
+      {
+        id: 'maintenanceRate',
+        name: 'maintenanceRate',
+        type: 'number',
+        label: 'Annual Maintenance (%)',
+        min: 0,
+        max: 5,
+        step: 0.1,
+        placeholder: '1',
+        group: '💰 Ownership Costs',
+        helpText: 'Typically 1% of home value per year',
+      },
+      {
+        id: 'monthlyRent',
+        name: 'monthlyRent',
+        type: 'number',
+        label: 'Monthly Rent ($)',
+        min: 0,
+        step: 50,
+        required: true,
+        placeholder: '2500',
+        group: '🏢 Rental Details',
+      },
+      {
+        id: 'rentIncreaseRate',
+        name: 'rentIncreaseRate',
+        type: 'number',
+        label: 'Annual Rent Increase (%)',
+        min: 0,
+        max: 20,
+        step: 0.1,
+        placeholder: '3',
+        group: '🏢 Rental Details',
+      },
+      {
+        id: 'rentersInsurance',
+        name: 'rentersInsurance',
+        type: 'number',
+        label: 'Renters Insurance ($/month)',
+        min: 0,
+        step: 5,
+        placeholder: '20',
+        group: '🏢 Rental Details',
+      },
+      {
+        id: 'yearsToAnalyze',
+        name: 'yearsToAnalyze',
+        type: 'select',
+        label: 'Analysis Period',
+        required: true,
+        options: [
+          { value: '3', label: '3 years' },
+          { value: '5', label: '5 years' },
+          { value: '7', label: '7 years' },
+          { value: '10', label: '10 years' },
+          { value: '15', label: '15 years' },
+        ],
+        group: '📊 Analysis Settings',
+        helpText: 'How long do you plan to stay?',
+      },
+      {
+        id: 'appreciationRate',
+        name: 'appreciationRate',
+        type: 'number',
+        label: 'Home Appreciation Rate (%)',
+        min: -5,
+        max: 15,
+        step: 0.1,
+        placeholder: '3',
+        group: '📊 Analysis Settings',
+        helpText: 'Historical average: 3-4% annually',
+      },
+      {
+        id: 'investmentReturnRate',
+        name: 'investmentReturnRate',
+        type: 'number',
+        label: 'Investment Return Rate (%)',
+        min: 0,
+        max: 20,
+        step: 0.1,
+        placeholder: '7',
+        group: '📊 Analysis Settings',
+        helpText: 'Return on invested down payment savings',
+      },
+      {
+        id: 'marginalTaxRate',
+        name: 'marginalTaxRate',
+        type: 'number',
+        label: 'Marginal Tax Rate (%)',
+        min: 0,
+        max: 50,
+        step: 1,
+        placeholder: '22',
+        group: '📊 Analysis Settings',
+        helpText: 'For mortgage interest deduction',
+      },
+      {
+        id: 'closingCostRate',
+        name: 'closingCostRate',
+        type: 'number',
+        label: 'Closing Costs (%)',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        placeholder: '3',
+        group: '💵 Transaction Costs (Optional)',
+        helpText: 'Typically 2-5% of home price',
+      },
+      {
+        id: 'sellingCostRate',
+        name: 'sellingCostRate',
+        type: 'number',
+        label: 'Selling Costs (%)',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        placeholder: '6',
+        group: '💵 Transaction Costs (Optional)',
+        helpText: 'Agent commissions typically 5-6%',
+      },
+    ],
+    clientScript: 'rent-vs-buy',
+    analysisType: 'rent-vs-buy',
+  },
+
+  'mortgage-scenario-planning': {
+    id: 'mortgage-scenario-planning',
+    title: 'Mortgage Scenario Planner',
+    description: 'Compare multiple mortgage options, early payoff strategies, and refinancing scenarios',
+    category: 'personal',
+    icon: '🏡',
+    color: 'green',
+    keywords: ['mortgage', 'scenario', 'compare', 'early payoff', 'refinance', 'loan comparison'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How should I compare different mortgage options?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Compare monthly payments, total interest, and total cost over the life of the loan. Also consider refinancing and early payoff scenarios to see which option saves the most money long-term.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'When should I refinance my mortgage?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Consider refinancing when you can get a lower interest rate that saves enough to cover closing costs within a reasonable timeframe, typically 2-3 years.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Mortgage Scenario Planner', href: '/mortgage-scenario-planning' },
+    ],
+    formFields: [
+      {
+        id: 'homePrice',
+        name: 'homePrice',
+        type: 'number',
+        label: 'Home Price',
+        min: 0,
+        step: 1000,
+        required: true,
+        group: '📋 Loan Basics',
+        placeholder: '500000',
+      },
+      {
+        id: 'loanTerm',
+        name: 'loanTerm',
+        type: 'select',
+        label: 'Loan Term',
+        required: true,
+        options: [
+          { value: '15', label: '15 years' },
+          { value: '20', label: '20 years' },
+          { value: '30', label: '30 years' },
+        ],
+        group: '📋 Loan Basics',
+      },
+      {
+        id: 'scenario1Down',
+        name: 'scenario1Down',
+        type: 'number',
+        label: 'Down Payment',
+        min: 0,
+        step: 1000,
+        required: true,
+        group: '💰 Option A: Conservative Approach',
+        placeholder: '100000',
+        helpText: '20%+ avoids PMI',
+      },
+      {
+        id: 'scenario1Rate',
+        name: 'scenario1Rate',
+        type: 'number',
+        label: 'Interest Rate (%)',
+        min: 0,
+        max: 30,
+        step: 0.01,
+        required: true,
+        group: '💰 Option A: Conservative Approach',
+        placeholder: '6.5',
+        helpText: 'Shop 3-5 lenders for best rate',
+      },
+      {
+        id: 'scenario1Extra',
+        name: 'scenario1Extra',
+        type: 'number',
+        label: 'Extra Monthly Payment (Optional)',
+        min: 0,
+        step: 100,
+        group: '💰 Option A: Conservative Approach',
+        placeholder: '0',
+        helpText: 'Even $100-200 saves thousands in interest',
+      },
+      {
+        id: 'scenario2Down',
+        name: 'scenario2Down',
+        type: 'number',
+        label: 'Down Payment',
+        min: 0,
+        step: 1000,
+        required: true,
+        group: '🏠 Option B: Alternative Approach',
+        placeholder: '75000',
+        helpText: 'Compare different down payment amount',
+      },
+      {
+        id: 'scenario2Rate',
+        name: 'scenario2Rate',
+        type: 'number',
+        label: 'Interest Rate (%)',
+        min: 0,
+        max: 30,
+        step: 0.01,
+        required: true,
+        group: '🏠 Option B: Alternative Approach',
+        placeholder: '7.0',
+        helpText: 'Try a different rate to see impact',
+      },
+      {
+        id: 'scenario2Extra',
+        name: 'scenario2Extra',
+        type: 'number',
+        label: 'Extra Monthly Payment (Optional)',
+        min: 0,
+        step: 100,
+        group: '🏠 Option B: Alternative Approach',
+        placeholder: '0',
+        helpText: 'Compare aggressive payoff strategy',
+      },
+      {
+        id: 'refinanceRate',
+        name: 'refinanceRate',
+        type: 'number',
+        label: 'Refinance Rate (%)',
+        min: 0,
+        max: 30,
+        step: 0.01,
+        group: '🔄 Refinancing (Optional)',
+        helpText: 'If provided, compare refinancing after 5 years at this rate',
+        placeholder: '5.5',
+      },
+      {
+        id: 'grossMonthlyIncome',
+        name: 'grossMonthlyIncome',
+        type: 'number',
+        label: 'Gross Monthly Income (Optional)',
+        min: 0,
+        step: 1000,
+        group: '💵 Affordability Check (Optional)',
+        helpText: 'Check if payments are within recommended debt-to-income ratios',
+        placeholder: '10000',
+      },
+    ],
+    clientScript: 'mortgage-scenario-planning',
+    analysisType: 'mortgage-scenario-planning',
+  },
+
+  'side-hustle-income': {
+    id: 'side-hustle-income',
+    title: 'Side Hustle Income Calculator',
+    description: 'Calculate true after-tax income from freelance/gig work including self-employment tax, quarterly estimated taxes, and business deductions',
+    category: 'personal',
+    icon: '💰',
+    color: 'yellow',
+    keywords: ['freelance', 'self-employed', 'side hustle', 'gig economy', '1099', 'taxes'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How much is self-employment tax?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Self-employment tax is 15.3% (12.4% Social Security + 2.9% Medicare) on 92.35% of your net profit. This covers both employee and employer portions of FICA.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Side Hustle Income', href: '/calculator/side-hustle-income' },
+    ],
+    formFields: [
+      {
+        id: 'monthlyRevenue',
+        name: 'monthlyRevenue',
+        type: 'number',
+        label: 'Monthly Revenue ($)',
+        min: 0,
+        step: 100,
+        required: true,
+        placeholder: '5000',
+        group: '💼 Business Income',
+        helpText: 'Gross revenue before expenses',
+      },
+      {
+        id: 'hoursPerWeek',
+        name: 'hoursPerWeek',
+        type: 'number',
+        label: 'Hours Per Week',
+        min: 0,
+        step: 1,
+        required: true,
+        placeholder: '20',
+        group: '💼 Business Income',
+      },
+      {
+        id: 'businessExpenses',
+        name: 'businessExpenses',
+        type: 'number',
+        label: 'Monthly Business Expenses ($)',
+        min: 0,
+        step: 50,
+        placeholder: '500',
+        group: '💼 Business Income',
+        helpText: 'Deductible expenses: software, equipment, mileage, etc.',
+      },
+      {
+        id: 'filingStatus',
+        name: 'filingStatus',
+        type: 'select',
+        label: 'Filing Status',
+        required: true,
+        options: [
+          { value: 'single', label: 'Single' },
+          { value: 'married', label: 'Married Filing Jointly' },
+          { value: 'head-of-household', label: 'Head of Household' },
+        ],
+        group: '📋 Tax Info',
+      },
+      {
+        id: 'otherIncome',
+        name: 'otherIncome',
+        type: 'number',
+        label: 'Other Annual Income ($)',
+        min: 0,
+        step: 1000,
+        placeholder: '0',
+        group: '📋 Tax Info',
+        helpText: 'W-2 wages, investment income, etc.',
+      },
+      {
+        id: 'stateTaxRate',
+        name: 'stateTaxRate',
+        type: 'number',
+        label: 'State Tax Rate (%)',
+        min: 0,
+        max: 15,
+        step: 0.1,
+        placeholder: '5',
+        group: '📋 Tax Info',
+      },
+      {
+        id: 'selfEmploymentTaxDeduction',
+        name: 'selfEmploymentTaxDeduction',
+        type: 'select',
+        label: 'Deduct Half of SE Tax?',
+        options: [
+          { value: 'yes', label: 'Yes (recommended)' },
+          { value: 'no', label: 'No' },
+        ],
+        group: '💡 Deductions (Optional)',
+        helpText: 'You can deduct 50% of SE tax',
+      },
+      {
+        id: 'qbiDeduction',
+        name: 'qbiDeduction',
+        type: 'select',
+        label: 'Qualify for QBI Deduction?',
+        options: [
+          { value: 'yes', label: 'Yes (20% deduction)' },
+          { value: 'no', label: 'No' },
+        ],
+        group: '💡 Deductions (Optional)',
+        helpText: 'Qualified Business Income deduction',
+      },
+    ],
+    clientScript: 'side-hustle-income',
+    analysisType: 'side-hustle-income',
+  },
+
+  'credit-card-payoff': {
+    id: 'credit-card-payoff',
+    title: 'Credit Card Payoff Calculator',
+    description: 'Optimize credit card debt payoff with balance transfer analysis, utilization impact, and escape the minimum payment trap',
+    category: 'personal',
+    icon: '💳',
+    color: 'red',
+    keywords: ['credit card', 'debt', 'payoff', 'balance transfer', '0% APR', 'utilization'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Should I do a balance transfer?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Balance transfers to 0% APR cards can save thousands in interest if you pay off the balance during the promotional period. Watch out for transfer fees (typically 3-5%) and ensure you can pay it off before the promo ends.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Models', href: '/models' },
+      { name: 'Credit Card Payoff', href: '/calculator/credit-card-payoff' },
+    ],
+    formFields: [
+      {
+        id: 'balance',
+        name: 'balance',
+        type: 'number',
+        label: 'Card Balance ($)',
+        min: 0,
+        step: 50,
+        required: true,
+        placeholder: '5000',
+        group: '💳 Current Card',
+      },
+      {
+        id: 'interestRate',
+        name: 'interestRate',
+        type: 'number',
+        label: 'Interest Rate (% APR)',
+        min: 0,
+        max: 35,
+        step: 0.1,
+        required: true,
+        placeholder: '18.99',
+        group: '💳 Current Card',
+      },
+      {
+        id: 'creditLimit',
+        name: 'creditLimit',
+        type: 'number',
+        label: 'Credit Limit ($)',
+        min: 0,
+        step: 100,
+        required: true,
+        placeholder: '10000',
+        group: '💳 Current Card',
+        helpText: 'For utilization calculation',
+      },
+      {
+        id: 'minimumPaymentPercent',
+        name: 'minimumPaymentPercent',
+        type: 'number',
+        label: 'Minimum Payment (%)',
+        min: 1,
+        max: 10,
+        step: 0.1,
+        placeholder: '2',
+        group: '💳 Current Card',
+        helpText: 'Typically 2-3% of balance',
+      },
+      {
+        id: 'monthlyPayment',
+        name: 'monthlyPayment',
+        type: 'number',
+        label: 'Your Monthly Payment ($)',
+        min: 0,
+        step: 25,
+        required: true,
+        placeholder: '200',
+        group: '💰 Payoff Plan',
+      },
+      {
+        id: 'balanceTransferOffer',
+        name: 'balanceTransferOffer',
+        type: 'select',
+        label: 'Balance Transfer Offer Available?',
+        options: [
+          { value: 'yes', label: 'Yes' },
+          { value: 'no', label: 'No' },
+        ],
+        group: '🔄 Balance Transfer (Optional)',
+      },
+      {
+        id: 'transferAPR',
+        name: 'transferAPR',
+        type: 'number',
+        label: 'Transfer Promo APR (%)',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        placeholder: '0',
+        group: '🔄 Balance Transfer (Optional)',
+        helpText: 'Often 0% for intro period',
+      },
+      {
+        id: 'transferFee',
+        name: 'transferFee',
+        type: 'number',
+        label: 'Transfer Fee (%)',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        placeholder: '3',
+        group: '🔄 Balance Transfer (Optional)',
+        helpText: 'Typically 3-5% of balance',
+      },
+      {
+        id: 'transferPromoPeriod',
+        name: 'transferPromoPeriod',
+        type: 'select',
+        label: 'Promo Period (months)',
+        options: [
+          { value: '6', label: '6 months' },
+          { value: '12', label: '12 months' },
+          { value: '15', label: '15 months' },
+          { value: '18', label: '18 months' },
+          { value: '21', label: '21 months' },
+        ],
+        group: '🔄 Balance Transfer (Optional)',
+      },
+    ],
+    clientScript: 'credit-card-payoff',
+    analysisType: 'credit-card-payoff',
+  },
+  
+  // ============================================================================
+  // BUSINESS CALCULATORS
+  // ============================================================================
+  
+  'break-even': {
+    id: 'break-even',
+    title: 'Break-Even Analysis Calculator',
+    description: 'Calculate your break-even point in units and revenue, analyze contribution margin, and understand when your business becomes profitable',
+    category: 'business',
+    icon: '📊',
+    color: 'blue',
+    keywords: ['break-even', 'contribution margin', 'fixed costs', 'variable costs', 'profitability', 'margin of safety'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is break-even analysis?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Break-even analysis determines the sales volume needed to cover all costs. It shows when you stop losing money and start making profit.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is contribution margin?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Contribution margin is the selling price minus variable costs per unit. It represents how much each unit sold contributes toward covering fixed costs.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Break-Even Analysis', href: '/calculator/break-even' },
+    ],
+    formFields: [
+      { id: 'fixedCosts', name: 'fixedCosts', type: 'number', label: 'Fixed Costs (Monthly)', placeholder: '50000', min: 0, step: 100, required: true, helpText: 'Rent, salaries, insurance - costs that don\'t change with volume' },
+      { id: 'variableCostPerUnit', name: 'variableCostPerUnit', type: 'number', label: 'Variable Cost per Unit', placeholder: '25', min: 0, step: 0.01, required: true, helpText: 'Materials, direct labor - costs that vary with each unit produced' },
+      { id: 'sellingPricePerUnit', name: 'sellingPricePerUnit', type: 'number', label: 'Selling Price per Unit', placeholder: '50', min: 0, step: 0.01, required: true, helpText: 'Price you charge customers for one unit' },
+      { id: 'currentSalesUnits', name: 'currentSalesUnits', type: 'number', label: 'Current Sales (Units/Month)', placeholder: '2000', min: 0, helpText: 'Optional: Your current monthly sales volume' },
+      { id: 'targetProfit', name: 'targetProfit', type: 'number', label: 'Target Monthly Profit', placeholder: '20000', min: 0, helpText: 'Optional: Desired monthly profit goal' },
+    ],
+    clientScript: 'break-even',
+    analysisType: 'break-even',
+  },
+  
+  'cash-flow-forecast': {
+    id: 'cash-flow-forecast',
+    title: 'Cash Flow Forecasting Calculator',
+    description: 'Project your cash flow for the next 12 months including AR/AP timing, working capital needs, and cash runway analysis',
+    category: 'business',
+    icon: '💵',
+    color: 'green',
+    keywords: ['cash flow', 'forecasting', 'working capital', 'burn rate', 'runway', 'AR', 'AP', 'DSO', 'DPO'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Why is cash flow more important than profit?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'You can be profitable on paper but run out of cash due to timing differences. Cash flow shows actual money in/out and determines if you can pay bills.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is cash runway?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Cash runway is how many months your business can operate before running out of cash, assuming current burn rate continues.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Cash Flow Forecast', href: '/calculator/cash-flow-forecast' },
+    ],
+    formFields: [
+      { id: 'startingCash', name: 'startingCash', type: 'number', label: 'Starting Cash Balance', placeholder: '100000', min: 0, step: 100, required: true },
+      { id: 'monthlyRevenue', name: 'monthlyRevenue', type: 'number', label: 'Monthly Revenue', placeholder: '50000', min: 0, step: 100, required: true },
+      { id: 'revenueGrowthRate', name: 'revenueGrowthRate', type: 'number', label: 'Revenue Growth Rate (%/year)', placeholder: '20', min: -100, max: 1000, step: 0.1, required: true },
+      { id: 'averageCollectionDays', name: 'averageCollectionDays', type: 'number', label: 'Days to Collect Payment (DSO)', placeholder: '45', min: 0, max: 365, step: 1, required: true, helpText: 'How long customers take to pay invoices' },
+      { id: 'monthlyExpenses', name: 'monthlyExpenses', type: 'number', label: 'Monthly Expenses', placeholder: '40000', min: 0, step: 100, required: true },
+      { id: 'expenseGrowthRate', name: 'expenseGrowthRate', type: 'number', label: 'Expense Growth Rate (%/year)', placeholder: '10', min: -100, max: 1000, step: 0.1, required: true },
+      { id: 'averagePaymentDays', name: 'averagePaymentDays', type: 'number', label: 'Days to Pay Vendors (DPO)', placeholder: '30', min: 0, max: 365, step: 1, required: true, helpText: 'How long you take to pay bills' },
+    ],
+    clientScript: 'cash-flow-forecast',
+    analysisType: 'cash-flow-forecast',
+  },
+  
+  'business-loan-qualifier': {
+    id: 'business-loan-qualifier',
+    title: 'Business Loan Qualifier',
+    description: 'Find out which business loans you qualify for including SBA 7(a), SBA 504, bank term loans, and lines of credit',
+    category: 'business',
+    icon: '🏦',
+    color: 'purple',
+    keywords: ['business loan', 'SBA', 'DSCR', 'LTV', 'loan qualification', 'financing', 'approval odds'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is DSCR and why does it matter?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Debt Service Coverage Ratio (DSCR) measures your ability to repay debt. Lenders want 1.25+ meaning you earn $1.25 for every $1 of debt payments.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What\'s the difference between SBA 7(a) and SBA 504?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'SBA 7(a) is flexible for any business purpose up to $5M. SBA 504 is only for real estate/equipment but offers better rates and terms up to $5.5M.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Loan Qualifier', href: '/calculator/business-loan-qualifier' },
+    ],
+    formFields: [
+      { id: 'loanAmount', name: 'loanAmount', type: 'number', label: 'Desired Loan Amount', placeholder: '250000', min: 1, step: 1000, required: true },
+      { id: 'businessRevenue', name: 'businessRevenue', type: 'number', label: 'Annual Business Revenue', placeholder: '500000', min: 1, step: 1000, required: true },
+      { id: 'netIncome', name: 'netIncome', type: 'number', label: 'Annual Net Income', placeholder: '80000', min: 1, step: 1000, required: true, helpText: 'Business must be profitable' },
+      { id: 'existingDebtPayments', name: 'existingDebtPayments', type: 'number', label: 'Existing Monthly Debt Payments', placeholder: '2000', min: 0, step: 100, required: true },
+      { id: 'businessAge', name: 'businessAge', type: 'number', label: 'Business Age (Years)', placeholder: '3', min: 0, max: 100, step: 0.5, required: true },
+      { id: 'creditScore', name: 'creditScore', type: 'number', label: 'Credit Score', placeholder: '720', min: 300, max: 850, step: 1, required: true },
+      { id: 'collateralValue', name: 'collateralValue', type: 'number', label: 'Collateral Value', placeholder: '300000', min: 0, step: 1000, helpText: 'Optional: Value of assets to secure loan' },
+      { id: 'loanPurpose', name: 'loanPurpose', type: 'select', label: 'Loan Purpose', required: true, options: [
+        { value: 'working-capital', label: 'Working Capital' },
+        { value: 'equipment', label: 'Equipment Purchase' },
+        { value: 'real-estate', label: 'Real Estate' },
+        { value: 'expansion', label: 'Business Expansion' },
+        { value: 'acquisition', label: 'Business Acquisition' },
+      ]},
+      { id: 'personalGuaranteeAvailable', name: 'personalGuaranteeAvailable', type: 'select', label: 'Personal Guarantee Available?', required: true, options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' },
+      ]},
+    ],
+    clientScript: 'business-loan-qualifier',
+    analysisType: 'business-loan-qualifier',
+  },
+  
+  'pricing-strategy': {
+    id: 'pricing-strategy',
+    title: 'Pricing Strategy Calculator',
+    description: 'Optimize your product pricing with cost-plus, value-based, and competitive strategies. Find the optimal price point for maximum profit.',
+    category: 'business',
+    icon: '💲',
+    color: 'orange',
+    keywords: ['pricing', 'strategy', 'cost-plus', 'value-based', 'pricing optimization', 'profit margin', 'elasticity'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is value-based pricing?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Value-based pricing sets price based on what customers are willing to pay for the value delivered, not your costs. Often captures 30-40% more profit than cost-plus.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does price elasticity affect my business?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Price elasticity measures how demand changes when price changes. A 10% price increase with 1.0 elasticity means 10% fewer units sold. Understanding this prevents pricing mistakes.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'Pricing Strategy', href: '/calculator/pricing-strategy' },
+    ],
+    formFields: [
+      { id: 'costPerUnit', name: 'costPerUnit', type: 'number', label: 'Cost per Unit', placeholder: '25', min: 0, step: 0.01, required: true, helpText: 'Your total cost to produce one unit' },
+      { id: 'targetMargin', name: 'targetMargin', type: 'number', label: 'Target Margin (%)', placeholder: '40', min: 0, max: 1000, step: 1, required: true, helpText: 'Desired profit margin for cost-plus pricing' },
+      { id: 'marketPrice', name: 'marketPrice', type: 'number', label: 'Competitor Market Price', placeholder: '50', min: 0, step: 0.01, required: true, helpText: 'What competitors charge for similar products' },
+      { id: 'valueToCustomer', name: 'valueToCustomer', type: 'number', label: 'Value to Customer', placeholder: '100', min: 0, step: 0.01, required: true, helpText: 'Economic value your product creates for customers' },
+      { id: 'unitsSoldMonthly', name: 'unitsSoldMonthly', type: 'number', label: 'Units Sold Monthly', placeholder: '500', min: 1, step: 1, required: true, helpText: 'Current or expected monthly sales volume' },
+      { id: 'priceElasticity', name: 'priceElasticity', type: 'number', label: 'Price Elasticity', placeholder: '1.0', min: 0, max: 10, step: 0.1, required: true, helpText: '% demand change per % price change (1.0 = elastic, 0.5 = inelastic)' },
+    ],
+    clientScript: 'pricing-strategy',
+    analysisType: 'pricing-strategy',
+  },
+  
+  'saas-metrics': {
+    id: 'saas-metrics',
+    title: 'SaaS Metrics Dashboard',
+    description: 'Track MRR, ARR, churn, CAC, LTV, LTV:CAC ratio, payback period, and Rule of 40 for your SaaS business',
+    category: 'business',
+    icon: '📈',
+    color: 'indigo',
+    keywords: ['SaaS', 'MRR', 'ARR', 'churn', 'CAC', 'LTV', 'metrics', 'Rule of 40', 'subscription'],
+    faqSchema: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is a good LTV:CAC ratio for SaaS?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A healthy LTV:CAC ratio is 3:1 or higher. This means customer lifetime value is 3x the cost to acquire them. Below 3:1 suggests unit economics need improvement.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the Rule of 40?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Rule of 40 states that growth rate + profit margin should equal 40% or more. It measures the balance between growth and profitability for SaaS companies.',
+          },
+        },
+      ],
+    },
+    breadcrumbs: [
+      { name: 'Home', href: '/' },
+      { name: 'Business Tools', href: '/models/business' },
+      { name: 'SaaS Metrics', href: '/calculator/saas-metrics' },
+    ],
+    formFields: [
+      { id: 'activeCustomers', name: 'activeCustomers', type: 'number', label: 'Active Customers', placeholder: '150', min: 1, step: 1, required: true },
+      { id: 'averageMonthlyRevenue', name: 'averageMonthlyRevenue', type: 'number', label: 'Average Revenue per Customer', placeholder: '99', min: 0.01, step: 0.01, required: true, helpText: 'Monthly subscription price per customer' },
+      { id: 'newCustomersLastMonth', name: 'newCustomersLastMonth', type: 'number', label: 'New Customers Last Month', placeholder: '20', min: 0, step: 1, required: true },
+      { id: 'churnedCustomersLastMonth', name: 'churnedCustomersLastMonth', type: 'number', label: 'Churned Customers Last Month', placeholder: '5', min: 0, step: 1, required: true },
+      { id: 'salesMarketingSpend', name: 'salesMarketingSpend', type: 'number', label: 'Sales & Marketing Spend (Last Month)', placeholder: '10000', min: 0, step: 100, required: true },
+      { id: 'averageCustomerLifetimeMonths', name: 'averageCustomerLifetimeMonths', type: 'number', label: 'Avg Customer Lifetime (Months)', placeholder: '24', min: 1, step: 1, required: true, helpText: 'How long customers stay on average' },
+      { id: 'grossMargin', name: 'grossMargin', type: 'number', label: 'Gross Margin (%)', placeholder: '80', min: 0, max: 100, step: 1, required: true, helpText: 'Typical SaaS is 70-85%' },
+      { id: 'revenueGrowthRate', name: 'revenueGrowthRate', type: 'number', label: 'Revenue Growth Rate (% Annual)', placeholder: '50', min: -100, max: 1000, step: 1, required: true },
+    ],
+    clientScript: 'saas-metrics',
+    analysisType: 'saas-metrics',
+  },
 };
 
 // Utility functions for calculator discovery and filtering
@@ -1089,9 +2240,14 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
 
   let html = '<form id="calculator-form" class="space-y-6" novalidate>';
 
-  Object.entries(groupedFields).forEach(([groupName, groupFields]) => {
+  Object.entries(groupedFields).forEach(([groupName, groupFields], index) => {
     if (groupName !== 'default') {
-      html += `<div class="mb-6"><h3 class="text-lg font-semibold mb-4">${groupName}</h3>`;
+      const isOptional = groupName.includes('Optional');
+      const sectionClass = isOptional 
+        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50' 
+        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
     }
 
     html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
@@ -1108,15 +2264,15 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   });
 
   html += `
-    <div class="flex space-x-4">
-      <button type="submit" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
-        Calculate
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        📊 Calculate Scenarios
       </button>
-      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors duration-200">
+      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
         Reset
       </button>
-      <button type="button" id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
-        Save Scenario
+      <button type="button" id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+        💾 Save
       </button>
     </div>
   </form>`;
@@ -1217,7 +2373,12 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
 
   Object.entries(groupedFields).forEach(([groupName, groupFields]) => {
     if (groupName !== 'default') {
-      html += `<div class="mb-6"><h3 class="text-lg font-semibold mb-4">${groupName}</h3>`;
+      const isOptional = groupName.includes('Optional');
+      const sectionClass = isOptional 
+        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50' 
+        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
     }
 
     // Use a more balanced grid layout
@@ -1248,15 +2409,15 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
   });
 
   html += `
-    <div class="flex flex-wrap gap-4 mt-8">
-      <button type="submit" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-        Calculate
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        📊 Calculate Scenarios
       </button>
       <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
         Reset
       </button>
       <button type="button" id="save-scenario-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
-        Save Scenario
+        💾 Save
       </button>
     </div>
   </form>`;

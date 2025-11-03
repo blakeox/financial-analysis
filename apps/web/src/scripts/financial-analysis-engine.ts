@@ -59,14 +59,21 @@ export class FinancialAnalysisEngine {
         (Math.pow(1 + monthlyRate, data.termMonths) - 1);
 
     const totalInterest = data.totalInterest || monthlyPayment * data.termMonths - data.principal;
+    const totalPayments = data.totalPayments || monthlyPayment * data.termMonths;
     const interestToPrincipalRatio = totalInterest / data.principal;
     const monthlyPaymentToIncomeRatio = monthlyPayment / 5000; // Assuming $5k monthly income
+    const yearsToPayoff = data.termMonths / 12;
+    const firstYearInterest =
+      monthlyPayment * 12 * (data.annualRate / 12) * (data.principal / data.principal); // Simplified
+    const lastYearInterest =
+      monthlyPayment * 12 * (data.annualRate / 12) * ((data.principal * 0.1) / data.principal); // Simplified
+    const equityBuildRate = (data.principal - totalInterest) / yearsToPayoff;
 
     const insights: AnalysisInsight[] = [
       {
         category: 'financial',
         title: 'Interest Impact Analysis',
-        description: `You'll pay $${totalInterest.toLocaleString()} in interest, which is ${(interestToPrincipalRatio * 100).toFixed(1)}% of your loan amount.`,
+        description: `You'll pay $${totalInterest.toLocaleString()} in interest, which is ${(interestToPrincipalRatio * 100).toFixed(1)}% of your loan amount. This means you're paying ${(interestToPrincipalRatio + 1).toFixed(1)}x the original loan amount.`,
         impact:
           interestToPrincipalRatio > 0.5
             ? 'high'
@@ -78,7 +85,7 @@ export class FinancialAnalysisEngine {
       {
         category: 'optimization',
         title: 'Payment Affordability',
-        description: `Your monthly payment of $${monthlyPayment.toLocaleString()} represents ${(monthlyPaymentToIncomeRatio * 100).toFixed(1)}% of a typical $5,000 monthly income.`,
+        description: `Your monthly payment of $${monthlyPayment.toLocaleString()} represents ${(monthlyPaymentToIncomeRatio * 100).toFixed(1)}% of a typical $5,000 monthly income. The 28% rule suggests keeping housing costs under $1,400/month.`,
         impact:
           monthlyPaymentToIncomeRatio > 0.3
             ? 'high'
@@ -91,9 +98,23 @@ export class FinancialAnalysisEngine {
         category: 'opportunity',
         title: 'Extra Payment Potential',
         description: data.extraPayment
-          ? `Adding $${data.extraPayment.toLocaleString()} monthly could save significant interest.`
-          : `Consider adding extra payments to reduce total interest cost.`,
+          ? `Adding $${data.extraPayment.toLocaleString()} monthly could save significant interest and reduce your loan term.`
+          : `Consider adding extra payments to reduce total interest cost. Even $100/month could save thousands.`,
         impact: 'medium',
+        actionable: true,
+      },
+      {
+        category: 'financial',
+        title: 'Interest Distribution',
+        description: `In the first year, you'll pay approximately $${firstYearInterest.toLocaleString()} in interest. By the last year, this drops to around $${lastYearInterest.toLocaleString()}, showing how interest decreases over time.`,
+        impact: 'medium',
+        actionable: false,
+      },
+      {
+        category: 'optimization',
+        title: 'Equity Building Timeline',
+        description: `You'll build equity at an average rate of $${equityBuildRate.toLocaleString()} per year. The first few years primarily build interest, while later years build more equity.`,
+        impact: 'low',
         actionable: true,
       },
     ];
@@ -103,15 +124,24 @@ export class FinancialAnalysisEngine {
         priority: 'high',
         category: 'immediate',
         title: 'Verify Affordability',
-        description: "Ensure your monthly payment doesn't exceed 28% of your gross monthly income.",
+        description:
+          "Ensure your monthly payment doesn't exceed 28% of your gross monthly income. Consider your total debt-to-income ratio including other loans.",
         effort: 'low',
+      },
+      {
+        priority: 'high',
+        category: 'immediate',
+        title: 'Emergency Fund Check',
+        description:
+          'Before making extra payments, ensure you have 3-6 months of expenses saved for emergencies.',
+        effort: 'medium',
       },
       {
         priority: 'medium',
         category: 'short-term',
         title: 'Consider Extra Payments',
         description:
-          'Even $100 extra per month could save thousands in interest over the loan term.',
+          'Even $100 extra per month could save thousands in interest over the loan term and reduce your payoff time significantly.',
         potentialSavings: this.calculateExtraPaymentSavings(
           data.principal,
           data.annualRate,
@@ -122,10 +152,28 @@ export class FinancialAnalysisEngine {
       },
       {
         priority: 'medium',
+        category: 'short-term',
+        title: 'Bi-weekly Payment Strategy',
+        description:
+          'Consider bi-weekly payments instead of monthly. This results in 26 half-payments (13 full payments) per year, reducing interest and term.',
+        potentialSavings: monthlyPayment * 0.5 * 12 * (yearsToPayoff * 0.1), // Rough estimate
+        effort: 'low',
+      },
+      {
+        priority: 'medium',
         category: 'long-term',
         title: 'Refinancing Opportunity',
-        description: 'Monitor interest rates for potential refinancing opportunities.',
+        description:
+          'Monitor interest rates for potential refinancing opportunities. Consider refinancing if rates drop by 0.5% or more.',
         effort: 'medium',
+      },
+      {
+        priority: 'low',
+        category: 'long-term',
+        title: 'Tax Optimization',
+        description:
+          'If this is a mortgage, ensure you understand the tax implications of mortgage interest deductions.',
+        effort: 'low',
       },
     ];
 
@@ -133,12 +181,17 @@ export class FinancialAnalysisEngine {
       summary: {
         monthlyPayment: monthlyPayment,
         totalInterest: totalInterest,
-        totalPayments: monthlyPayment * data.termMonths,
+        totalPayments: totalPayments,
         interestToPrincipalRatio: interestToPrincipalRatio,
         paymentToIncomeRatio: monthlyPaymentToIncomeRatio,
         principal: data.principal,
         annualRate: data.annualRate,
         termMonths: data.termMonths,
+        yearsToPayoff: yearsToPayoff,
+        firstYearInterest: firstYearInterest,
+        lastYearInterest: lastYearInterest,
+        equityBuildRate: equityBuildRate,
+        extraPayment: data.extraPayment || 0,
       },
       insights,
       recommendations,
@@ -158,24 +211,39 @@ export class FinancialAnalysisEngine {
                 : monthlyPaymentToIncomeRatio > 0.2
                   ? 'medium'
                   : 'low',
-            description: 'Monthly payment relative to income',
+            description: `Monthly payment represents ${(monthlyPaymentToIncomeRatio * 100).toFixed(1)}% of typical income`,
           },
           {
             factor: 'Interest Rate Risk',
             risk: data.annualRate > 0.08 ? 'high' : data.annualRate > 0.06 ? 'medium' : 'low',
-            description: 'Current interest rate level',
+            description: `Current rate of ${(data.annualRate * 100).toFixed(2)}% is ${data.annualRate > 0.08 ? 'high' : data.annualRate > 0.06 ? 'moderate' : 'low'} risk`,
           },
           {
             factor: 'Loan Term Risk',
             risk: data.termMonths > 360 ? 'high' : data.termMonths > 240 ? 'medium' : 'low',
-            description: 'Length of loan commitment',
+            description: `${yearsToPayoff.toFixed(1)}-year commitment requires long-term financial stability`,
+          },
+          {
+            factor: 'Interest Cost Risk',
+            risk:
+              interestToPrincipalRatio > 0.5
+                ? 'high'
+                : interestToPrincipalRatio > 0.3
+                  ? 'medium'
+                  : 'low',
+            description: `Interest costs ${(interestToPrincipalRatio * 100).toFixed(1)}% of loan amount`,
+          },
+          {
+            factor: 'Refinancing Risk',
+            risk: data.annualRate > 0.07 ? 'medium' : 'low',
+            description: 'Higher rates may limit refinancing opportunities',
           },
         ],
       },
       optimizationOpportunities: [
         {
           area: 'Extra Payments',
-          currentValue: 0,
+          currentValue: data.extraPayment || 0,
           optimizedValue: 100,
           potentialImprovement: this.calculateExtraPaymentSavings(
             data.principal,
@@ -184,6 +252,13 @@ export class FinancialAnalysisEngine {
             100
           ),
           description: 'Adding $100 monthly extra payment',
+        },
+        {
+          area: 'Bi-weekly Payments',
+          currentValue: monthlyPayment,
+          optimizedValue: monthlyPayment * 0.5,
+          potentialImprovement: monthlyPayment * 0.5 * 12 * (yearsToPayoff * 0.1),
+          description: 'Switching to bi-weekly payments (13 payments/year)',
         },
         {
           area: 'Shorter Term',
@@ -195,6 +270,17 @@ export class FinancialAnalysisEngine {
             data.termMonths
           ),
           description: 'Reducing loan term by 20%',
+        },
+        {
+          area: 'Rate Refinancing',
+          currentValue: data.annualRate,
+          optimizedValue: data.annualRate * 0.9,
+          potentialImprovement: this.calculateRateReductionSavings(
+            data.principal,
+            data.annualRate,
+            data.termMonths
+          ),
+          description: 'Refinancing to 10% lower rate',
         },
       ],
     };

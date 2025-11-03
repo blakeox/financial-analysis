@@ -9,41 +9,83 @@ export interface Props {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  type?: 'website' | 'article' | 'product';
+  noindex?: boolean;
 }
 
-const { title, description, url, canonical, image, keywords, author, publishedTime, modifiedTime } = Astro.props as Props;
+const { 
+  title, 
+  description = 'Professional financial calculators and AI-powered analysis tools for personal finance, business planning, loans, investments, and retirement.', 
+  url, 
+  canonical, 
+  image, 
+  keywords, 
+  author = 'Fanalyx', 
+  publishedTime, 
+  modifiedTime,
+  type = 'website',
+  noindex = false
+} = Astro.props as Props;
+
 const siteName = 'Fanalyx';
-const defaultImage = image || '/og-default.png';
+const siteUrl = 'https://fanalyx.com';
+
+// Use favicon as fallback OG image if no image provided
+const defaultImage = image || `${siteUrl}/fanalyx_favicon.png`;
+
+// Auto-generate canonical URL if not provided
+const canonicalUrl = canonical || url || `${siteUrl}${Astro.url.pathname}`;
+
+// Ensure absolute URLs for social media
+const absoluteImage = defaultImage.startsWith('http') ? defaultImage : `${siteUrl}${defaultImage}`;
+const absoluteUrl = canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`;
+
+// Default keywords if not provided
+const defaultKeywords = 'financial calculator, loan calculator, mortgage calculator, retirement planning, investment analysis, business finance, AI financial advisor';
+const finalKeywords = keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords;
 ---
 
 <title>{title}</title>
-{description && <meta name="description" content={description} />}
-{keywords && <meta name="keywords" content={keywords} />}
-{canonical && <link rel="canonical" href={canonical} />}
+<meta name="description" content={description} />
+<meta name="keywords" content={finalKeywords} />
+<link rel="canonical" href={canonicalUrl} />
 
 <!-- Additional SEO Meta Tags -->
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-{author && <meta name="author" content={author} />}
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+<meta name="author" content={author} />
 <meta name="language" content="English" />
 <meta name="revisit-after" content="7 days" />
+<meta name="rating" content="general" />
+<meta name="distribution" content="global" />
 
-<!-- Open Graph -->
-<meta property="og:type" content="website" />
-{url && <meta property="og:url" content={url} />}
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={absoluteUrl} />
 <meta property="og:site_name" content={siteName} />
 <meta property="og:title" content={title} />
-{description && <meta property="og:description" content={description} />}
-<meta property="og:image" content={defaultImage} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={absoluteImage} />
+<meta property="og:image:secure_url" content={absoluteImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={title} />
 <meta property="og:locale" content="en_US" />
 {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
-<!-- Twitter -->
+<!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
-{description && <meta name="twitter:description" content={description} />}
-<meta name="twitter:image" content={defaultImage} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={absoluteImage} />
 <meta name="twitter:image:alt" content={title} />
 <meta name="twitter:site" content="@fanalyx" />
 <meta name="twitter:creator" content="@fanalyx" />
+
+<!-- Additional Meta Tags for Better SEO -->
+<meta name="application-name" content={siteName} />
+<meta name="apple-mobile-web-app-title" content={siteName} />
+<meta name="format-detection" content="telephone=no" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

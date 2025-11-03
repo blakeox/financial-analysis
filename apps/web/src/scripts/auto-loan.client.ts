@@ -1,59 +1,100 @@
 import type { AutoLoanInput, AutoLoanResult } from '@financial-analysis/analysis';
 import { AutoLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from './analysis-results';
+import {
+  parseNumber,
+  formatCurrency,
+  formatCurrencyWhole,
+  formatPercentDecimal,
+} from '../utils/calculator-utilities';
 
-const currencyFull = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+// Alias for consistency with existing code
+const formatPercent = formatPercentDecimal;
 
-const currencyWhole = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
+// Enhanced Total Cost of Ownership calculation
+interface TCOCalculation {
+  loanCosts: {
+    monthlyPayment: number;
+    totalLoanCost: number;
+    totalInterest: number;
+  };
+  ownership: {
+    insurance: { monthly: number; total: number };
+    maintenance: { monthly: number; total: number };
+    fuel: { monthly: number; total: number };
+    depreciation: number;
+  };
+  totals: {
+    monthlyTCO: number;
+    annualTCO: number;
+    totalOverLoanTerm: number;
+    costPerMile: number;
+  };
+}
 
-const percentFormatter = new Intl.NumberFormat('en-US', {
-  style: 'percent',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const formatNumber = (
-  value: FormDataEntryValue | string | number | null | undefined
-): number | null => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null;
-  }
-
-  if (value instanceof File) {
-    return null;
-  }
-
-  if (typeof value === 'string') {
-    const cleaned = value.replace(/[$,%\s]/g, '');
-    if (cleaned.length === 0) return 0;
-    const parsed = Number.parseFloat(cleaned);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-};
-
-const formatCurrency = (value: string | number, useWhole = false): string => {
-  const numeric = typeof value === 'string' ? Number.parseFloat(value) : value;
-  if (!Number.isFinite(numeric)) return '$0.00';
-  return useWhole ? currencyWhole.format(numeric) : currencyFull.format(numeric);
-};
-
-const formatPercent = (value: string | number): string => {
-  const numeric = typeof value === 'string' ? Number.parseFloat(value) : value;
-  if (!Number.isFinite(numeric)) return '0.00%';
-  return percentFormatter.format(numeric);
-};
+function calculateTCO(
+  result: AutoLoanResult,
+  vehiclePrice: number,
+  loanTermMonths: number,
+  annualMileage: number = 12000,
+  insuranceMonthly: number = 150,
+  maintenanceYearly: number = 1200,
+  fuelMpg: number = 25,
+  gasPrice: number = 3.50
+): TCOCalculation {
+  const loanYears = loanTermMonths / 12;
+  
+  // Loan costs (already calculated)
+  const monthlyPayment = result.summary.monthlyPayment;
+  const totalLoanCost = result.summary.totalCost;
+  const totalInterest = result.summary.totalInterest;
+  
+  // Insurance (typically $100-$200/month depending on age, location, vehicle)
+  const insuranceTotal = insuranceMonthly * loanTermMonths;
+  
+  // Maintenance (oil changes, tires, brakes, etc. - typically $1,000-$1,500/year)
+  const maintenanceMonthly = maintenanceYearly / 12;
+  const maintenanceTotal = maintenanceYearly * loanYears;
+  
+  // Fuel costs
+  const milesPerMonth = annualMileage / 12;
+  const gallonsPerMonth = milesPerMonth / fuelMpg;
+  const fuelMonthly = gallonsPerMonth * gasPrice;
+  const fuelTotal = fuelMonthly * loanTermMonths;
+  
+  // Depreciation (new cars typically lose ~20% first year, ~15% each year after)
+  // Use straight-line for simplicity: new cars retain ~40-50% after 5 years
+  const deprecationRate = vehiclePrice > 30000 ? 0.60 : 0.55; // Luxury cars depreciate faster
+  const estimatedResaleValue = vehiclePrice * (1 - deprecationRate * (loanYears / 5));
+  const depreciation = Math.max(0, vehiclePrice - estimatedResaleValue);
+  
+  // Calculate totals
+  const monthlyTCO = monthlyPayment + insuranceMonthly + maintenanceMonthly + fuelMonthly + (depreciation / loanTermMonths);
+  const annualTCO = monthlyTCO * 12;
+  const totalOverLoanTerm = totalLoanCost + insuranceTotal + maintenanceTotal + fuelTotal + depreciation;
+  const totalMiles = annualMileage * loanYears;
+  const costPerMile = totalOverLoanTerm / totalMiles;
+  
+  return {
+    loanCosts: {
+      monthlyPayment,
+      totalLoanCost,
+      totalInterest,
+    },
+    ownership: {
+      insurance: { monthly: insuranceMonthly, total: insuranceTotal },
+      maintenance: { monthly: maintenanceMonthly, total: maintenanceTotal },
+      fuel: { monthly: fuelMonthly, total: fuelTotal },
+      depreciation,
+    },
+    totals: {
+      monthlyTCO,
+      annualTCO,
+      totalOverLoanTerm,
+      costPerMile,
+    },
+  };
+}
 
 const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
   const checkbox = document.getElementById(checkboxId) as HTMLInputElement | null;
@@ -70,16 +111,16 @@ const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
 };
 
 export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
-  const vehiclePrice = formatNumber(formData.get('vehiclePrice'));
-  const downPayment = formatNumber(formData.get('downPayment')) ?? 0;
-  const tradeInValue = formatNumber(formData.get('tradeInValue')) ?? 0;
-  const tradeInOwed = formatNumber(formData.get('tradeInOwed')) ?? 0;
-  const salesTaxRatePercent = formatNumber(formData.get('salesTaxRate')) || 7.5; // Default 7.5% sales tax
-  const registrationFees = formatNumber(formData.get('registrationFees')) ?? 0;
-  const dealerFees = formatNumber(formData.get('dealerFees')) ?? 0;
-  const interestRatePercent = formatNumber(formData.get('interestRate'));
-  const loanTermMonths = formatNumber(formData.get('loanTerm')); // Use 'loanTerm' instead of 'loanTermMonths'
-  const manufacturerRebate = formatNumber(formData.get('manufacturerRebate')) ?? 0;
+  const vehiclePrice = parseNumber(formData.get('vehiclePrice'));
+  const downPayment = parseNumber(formData.get('downPayment')) ?? 0;
+  const tradeInValue = parseNumber(formData.get('tradeInValue')) ?? 0;
+  const tradeInOwed = parseNumber(formData.get('tradeInOwed')) ?? 0;
+  const salesTaxRatePercent = parseNumber(formData.get('salesTaxRate')) || 7.5; // Default 7.5% sales tax
+  const registrationFees = parseNumber(formData.get('registrationFees')) ?? 0;
+  const dealerFees = parseNumber(formData.get('dealerFees')) ?? 0;
+  const interestRatePercent = parseNumber(formData.get('interestRate'));
+  const loanTermMonths = parseNumber(formData.get('loanTerm')); // Use 'loanTerm' instead of 'loanTermMonths'
+  const manufacturerRebate = parseNumber(formData.get('manufacturerRebate')) ?? 0;
 
   if (!vehiclePrice || vehiclePrice <= 0) {
     throw new Error('Please enter a valid vehicle price.');
@@ -101,10 +142,10 @@ export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
   const includeExtendedWarranty = formData.has('includeExtendedWarranty');
 
   const gapInsuranceCost = includeGapInsurance
-    ? (formatNumber(formData.get('gapInsuranceCost')) ?? 0)
+    ? (parseNumber(formData.get('gapInsuranceCost')) ?? 0)
     : 0;
   const extendedWarrantyCost = includeExtendedWarranty
-    ? (formatNumber(formData.get('extendedWarrantyCost')) ?? 0)
+    ? (parseNumber(formData.get('extendedWarrantyCost')) ?? 0)
     : 0;
 
   return {
@@ -125,7 +166,17 @@ export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
   };
 };
 
-export const renderAutoLoanResults = (result: AutoLoanResult, termMonths: number): void => {
+export const renderAutoLoanResults = (
+  result: AutoLoanResult,
+  termMonths: number,
+  vehiclePrice: number = 0,
+  enableTCO: boolean = false,
+  annualMileage?: number,
+  insuranceMonthly?: number,
+  maintenanceYearly?: number,
+  fuelMpg?: number,
+  gasPrice?: number
+): void => {
   const { summary, costBreakdown, earlyPayoffScenarios } = result;
 
   // Use the generic results structure from IndividualCalculatorPage.astro
@@ -137,11 +188,17 @@ export const renderAutoLoanResults = (result: AutoLoanResult, termMonths: number
     return;
   }
 
-  // Render summary cards
+  // Calculate TCO if enabled
+  const tco = enableTCO && vehiclePrice > 0
+    ? calculateTCO(result, vehiclePrice, termMonths, annualMileage, insuranceMonthly, maintenanceYearly, fuelMpg, gasPrice)
+    : null;
+
+  // Render summary cards with TCO
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Payment</h5>
       <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(summary.monthlyPayment)}</p>
+      ${tco ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo</p>` : ''}
     </div>
     <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Total Interest</h5>
@@ -150,10 +207,11 @@ export const renderAutoLoanResults = (result: AutoLoanResult, termMonths: number
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Cost</h5>
       <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(summary.totalCost)}</p>
+      ${tco ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Loan Term</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${termMonths} months</p>
+      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">${tco ? 'Cost Per Mile' : 'Loan Term'}</h5>
+      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${tco ? formatCurrency(tco.totals.costPerMile) : `${termMonths} months`}</p>
     </div>
   `;
 

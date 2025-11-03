@@ -83,7 +83,9 @@ describe('AmortizationResults', () => {
   it('displays PMI information when present', () => {
     render(<AmortizationResults result={resultWithPMI} />);
 
-    expect(screen.getByText('$200.00')).toBeInTheDocument(); // Total PMI
+    const pmiCard = screen.getByText(/total pmi/i).closest('div');
+    expect(pmiCard).not.toBeNull();
+    expect(within(pmiCard as HTMLDivElement).getByText(/\$200(\.00)?/)).toBeInTheDocument();
     expect(screen.getByText('Drops off month 60')).toBeInTheDocument();
     expect(screen.getByText('PMI')).toBeInTheDocument(); // PMI column header
   });
@@ -94,7 +96,9 @@ describe('AmortizationResults', () => {
     expect(screen.getByText('$72.84')).toBeInTheDocument(); // Interest saved
     expect(screen.getByText('2')).toBeInTheDocument(); // Months reduced (shown as "0 y 2 m")
     expect(screen.getByText('Sep 30, 2024')).toBeInTheDocument(); // Formatted payoff date
-    expect(screen.getByText('$400.00')).toBeInTheDocument(); // Total extra payments
+    const extraPaymentsCard = screen.getByText(/extra payments/i).closest('div');
+    expect(extraPaymentsCard).not.toBeNull();
+    expect(within(extraPaymentsCard as HTMLDivElement).getByText(/\$400(\.00)?/)).toBeInTheDocument();
     expect(screen.getByText('Extra')).toBeInTheDocument(); // Extra payment column header
   });
 

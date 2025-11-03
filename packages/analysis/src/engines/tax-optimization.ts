@@ -350,7 +350,7 @@ export class TaxOptimizationPlanner {
    * Calculate tax loss harvesting opportunities
    */
   private static calculateTaxLossHarvesting(input: TaxOptimizationInput) {
-    const { investmentHoldings, goals, currentTaxSituation } = input;
+    const { investmentHoldings, currentTaxSituation } = input;
 
     // Find positions with losses
     const lossPositions = investmentHoldings.filter(
@@ -468,7 +468,7 @@ export class TaxOptimizationPlanner {
    * Optimize capital gains
    */
   private static optimizeCapitalGains(input: TaxOptimizationInput) {
-    const { investmentHoldings, currentTaxSituation, goals } = input;
+    const { investmentHoldings, currentTaxSituation } = input;
 
     // Find positions with gains
     const gainPositions = investmentHoldings.filter(
@@ -519,7 +519,7 @@ export class TaxOptimizationPlanner {
    * Analyze charitable giving strategies
    */
   private static analyzeCharitableGiving(input: TaxOptimizationInput) {
-    const { deductionsCredits, investmentHoldings, goals } = input;
+    const { deductionsCredits } = input;
 
     const currentContributions = deductionsCredits.itemizedDeductions.charitableContributions;
 
@@ -604,7 +604,7 @@ export class TaxOptimizationPlanner {
    * Calculate tax summary
    */
   private static calculateTaxSummary(
-    _input: TaxOptimizationInput,
+    input: TaxOptimizationInput,
     taxLossHarvesting: TaxOptimizationResult['taxLossHarvesting'],
     rothTraditionalAnalysis: TaxOptimizationResult['rothTraditionalAnalysis'],
     capitalGainsOptimization: TaxOptimizationResult['capitalGainsOptimization'],
@@ -807,7 +807,7 @@ export class TaxOptimizationPlanner {
    */
   private static recommendRealizationTiming(
     holding: any,
-    currentTaxSituation: any
+    _currentTaxSituation: any
   ): 'immediate' | 'defer' | 'offset' {
     if (holding.holdingPeriod === 'short-term') return 'defer';
     if (holding.unrealizedGainLoss > 10000) return 'offset';
@@ -817,7 +817,7 @@ export class TaxOptimizationPlanner {
   /**
    * Generate tax-efficient strategies
    */
-  private static generateTaxEfficientStrategies(input: TaxOptimizationInput) {
+  private static generateTaxEfficientStrategies(_input: TaxOptimizationInput) {
     const strategies = [];
 
     // Tax-loss harvesting strategy
@@ -842,7 +842,7 @@ export class TaxOptimizationPlanner {
   /**
    * Generate charitable strategies
    */
-  private static generateCharitableStrategies(input: TaxOptimizationInput) {
+  private static generateCharitableStrategies(_input: TaxOptimizationInput) {
     const strategies = [];
 
     strategies.push({
@@ -1009,7 +1009,7 @@ export class TaxOptimizationPlanner {
   /**
    * Generate bracket optimization strategies
    */
-  private static generateBracketOptimizationStrategies(input: TaxOptimizationInput) {
+  private static generateBracketOptimizationStrategies(_input: TaxOptimizationInput) {
     const strategies = [];
 
     strategies.push({

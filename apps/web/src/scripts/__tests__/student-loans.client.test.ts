@@ -2,6 +2,9 @@ import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Mock the alert function for tests
+global.alert = vi.fn();
+
 // Mock the dependencies
 vi.mock('./analysis-results', () => ({
   storeAnalysisResult: vi.fn(),
@@ -266,40 +269,26 @@ describe('Student Loans Calculator', () => {
         insights: [],
       };
 
-      // Mock DOM elements
-      const totalBalanceEl = document.createElement('div');
-      totalBalanceEl.id = 'total-balance';
-      document.body.appendChild(totalBalanceEl);
+      // Mock DOM elements with correct structure
+      const resultsContainer = document.createElement('div');
+      resultsContainer.id = 'results-container';
+      document.body.appendChild(resultsContainer);
 
-      const totalInterestEl = document.createElement('div');
-      totalInterestEl.id = 'total-interest';
-      document.body.appendChild(totalInterestEl);
-
-      const monthlyPaymentEl = document.createElement('div');
-      monthlyPaymentEl.id = 'monthly-payment';
-      document.body.appendChild(monthlyPaymentEl);
-
-      const payoffTimeEl = document.createElement('div');
-      payoffTimeEl.id = 'payoff-time';
-      document.body.appendChild(payoffTimeEl);
-
-      const orderEl = document.createElement('div');
-      orderEl.id = 'payoff-order';
-      document.body.appendChild(orderEl);
+      const summaryCards = document.createElement('div');
+      summaryCards.id = 'summary-cards';
+      document.body.appendChild(summaryCards);
 
       displayResults(mockResult);
 
-      expect(totalBalanceEl.textContent).toBe('$50,000.00');
-      expect(totalInterestEl.textContent).toBe('$19,077.60');
-      expect(monthlyPaymentEl.textContent).toBe('$575.73');
-      expect(payoffTimeEl.textContent).toBe('120 months (10.0 years)');
+      // Verify summary cards were populated
+      expect(summaryCards.innerHTML).toContain('$50,000.00'); // Total Balance
+      expect(summaryCards.innerHTML).toContain('$19,077.60'); // Total Interest
+      expect(summaryCards.innerHTML).toContain('$575.73'); // Monthly Payment
+      expect(summaryCards.innerHTML).toContain('120 months'); // Payoff Time
 
       // Clean up
-      document.body.removeChild(totalBalanceEl);
-      document.body.removeChild(totalInterestEl);
-      document.body.removeChild(monthlyPaymentEl);
-      document.body.removeChild(payoffTimeEl);
-      document.body.removeChild(orderEl);
+      document.body.removeChild(resultsContainer);
+      document.body.removeChild(summaryCards);
     });
   });
 

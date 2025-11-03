@@ -260,12 +260,7 @@ export class InsuranceNeedsCalculator {
     // Generate insights and recommendations
     const insights = this.generateInsights(validated, insuranceSummary, riskAssessment);
     const warnings = this.generateWarnings(validated, insuranceSummary, riskAssessment);
-    const recommendations = this.generateRecommendations(
-      validated,
-      insuranceSummary,
-      riskAssessment,
-      costAnalysis
-    );
+    const recommendations = this.generateRecommendations(validated, insuranceSummary, costAnalysis);
 
     return {
       lifeInsuranceAnalysis,
@@ -328,7 +323,7 @@ export class InsuranceNeedsCalculator {
     }
 
     // Calculate recommended term years
-    const recommendedTermYears = this.calculateRecommendedTermYears(personalInfo, goals);
+    const recommendedTermYears = this.calculateRecommendedTermYears(personalInfo);
 
     // Estimate monthly premium
     const estimatedMonthlyPremium = this.estimateLifeInsurancePremium(

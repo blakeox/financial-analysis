@@ -160,6 +160,19 @@ export const DCFValuationInputSchema = z.object({
 
 export type DCFValuationInput = z.infer<typeof DCFValuationInputSchema>;
 
+type CashFlowProjection = {
+  year: number;
+  revenue: number;
+  ebitda: number;
+  ebit: number;
+  ebitdaMargin: number;
+  depreciation: number;
+  capex: number;
+  workingCapitalChange: number;
+  freeCashFlow: number;
+  presentValue: number;
+};
+
 // ============================================================================
 // RESULT TYPES
 // ============================================================================
@@ -335,7 +348,7 @@ export class DCFValuationEngine {
         )
       : undefined;
 
-    return {
+    const result: DCFValuationResult = {
       valuation: {
         enterpriseValue: enterpriseValue.toNumber(),
         equityValue: equityValue.toNumber(),
@@ -357,9 +370,6 @@ export class DCFValuationEngine {
       wacc,
       cashFlowProjections,
       terminalValue,
-      sensitivity,
-      scenarios,
-      monteCarlo,
       keyMetrics,
       insights,
       warnings,
@@ -371,6 +381,18 @@ export class DCFValuationEngine {
         assumptions: validated.forecastAssumptions,
       },
     };
+
+    if (sensitivity) {
+      result.sensitivity = sensitivity;
+    }
+    if (scenarios) {
+      result.scenarios = scenarios;
+    }
+    if (monteCarlo) {
+      result.monteCarlo = monteCarlo;
+    }
+
+    return result;
   }
 
   /**
@@ -413,14 +435,19 @@ export class DCFValuationEngine {
    * @param wacc - Weighted Average Cost of Capital
    * @returns Array of projected cash flows with present values
    */
-  private static generateCashFlowProjections(input: DCFValuationInput, wacc: number) {
-    const projections = [];
+  private static generateCashFlowProjections(
+    input: DCFValuationInput,
+    wacc: number
+  ): CashFlowProjection[] {
+    const projections: CashFlowProjection[] = [];
     const currentYear = new Date().getFullYear();
     const { forecastAssumptions, historicalFinancials } = input;
 
-    // Get latest historical data
-    const latestRevenue = historicalFinancials.revenue[historicalFinancials.revenue.length - 1];
-    const latestEbitda = historicalFinancials.ebitda[historicalFinancials.ebitda.length - 1];
+    if (historicalFinancials.revenue.length === 0) {
+      throw new Error('At least one historical revenue data point is required for projections');
+    }
+    const latestRevenue =
+      historicalFinancials.revenue[historicalFinancials.revenue.length - 1]!;
 
     for (let year = 1; year <= forecastAssumptions.forecastPeriod; year++) {
       const yearNumber = currentYear + year;
@@ -461,9 +488,9 @@ export class DCFValuationEngine {
         forecastAssumptions.workingCapitalAsPercentOfRevenue[
           `year${year}` as keyof typeof forecastAssumptions.workingCapitalAsPercentOfRevenue
         ];
-      const workingCapitalChange =
-        revenue * wcPercent -
-        (year === 1 ? latestRevenue.amount * wcPercent : projections[year - 2].revenue * wcPercent);
+      const previousRevenue =
+        year === 1 ? latestRevenue.amount : projections[year - 2]!.revenue;
+      const workingCapitalChange = revenue * wcPercent - previousRevenue * wcPercent;
 
       // Free Cash Flow
       const freeCashFlow =
@@ -499,6 +526,9 @@ export class DCFValuationEngine {
   ) {
     const { terminalValue: tvInput, forecastAssumptions } = input;
     const lastProjection = projections[projections.length - 1];
+    if (!lastProjection) {
+      throw new Error('At least one projection is required to compute terminal value');
+    }
 
     let terminalValue = 0;
     let method = '';
@@ -523,8 +553,8 @@ export class DCFValuationEngine {
       method,
       terminalValue,
       presentValueOfTerminalValue,
-      terminalGrowthRate: tvInput.terminalGrowthRate,
-      exitMultiple: tvInput.exitMultiple,
+      terminalGrowthRate: tvInput.terminalGrowthRate ?? 0,
+      ...(tvInput.exitMultiple ? { exitMultiple: tvInput.exitMultiple } : {}),
     };
   }
 
@@ -539,7 +569,7 @@ export class DCFValuationEngine {
   /**
    * Calculate equity value
    */
-  private static calculateEquityValue(enterpriseValue: Decimal, input: DCFValuationInput) {
+  private static calculateEquityValue(enterpriseValue: Decimal, _input: DCFValuationInput) {
     // Simplified calculation - in practice, would subtract net debt, add cash, etc.
     return enterpriseValue;
   }
@@ -547,26 +577,38 @@ export class DCFValuationEngine {
   /**
    * Calculate key metrics
    */
-  private static calculateKeyMetrics(input: DCFValuationInput, projections: any[]) {
+  private static calculateKeyMetrics(input: DCFValuationInput, _projections: any[]) {
     const { historicalFinancials } = input;
 
     // Revenue CAGR
-    const firstRevenue = historicalFinancials.revenue[0].amount;
-    const lastRevenue =
-      historicalFinancials.revenue[historicalFinancials.revenue.length - 1].amount;
-    const revenueCAGR =
-      Math.pow(lastRevenue / firstRevenue, 1 / (historicalFinancials.revenue.length - 1)) - 1;
+    const revenueHistory = historicalFinancials.revenue;
+    let revenueCAGR = 0;
+    if (revenueHistory.length >= 2) {
+      const firstRevenue = revenueHistory[0]!.amount;
+      const lastRevenue = revenueHistory[revenueHistory.length - 1]!.amount;
+      if (firstRevenue > 0) {
+        revenueCAGR =
+          Math.pow(lastRevenue / firstRevenue, 1 / (revenueHistory.length - 1)) - 1;
+      }
+    }
 
     // EBITDA CAGR
-    const firstEBITDA = historicalFinancials.ebitda[0].amount;
-    const lastEBITDA = historicalFinancials.ebitda[historicalFinancials.ebitda.length - 1].amount;
-    const ebitdaCAGR =
-      Math.pow(lastEBITDA / firstEBITDA, 1 / (historicalFinancials.ebitda.length - 1)) - 1;
+    const ebitdaHistory = historicalFinancials.ebitda;
+    let ebitdaCAGR = 0;
+    if (ebitdaHistory.length >= 2) {
+      const firstEBITDA = ebitdaHistory[0]!.amount;
+      const lastEBITDA = ebitdaHistory[ebitdaHistory.length - 1]!.amount;
+      if (firstEBITDA !== 0) {
+        ebitdaCAGR =
+          Math.pow(lastEBITDA / firstEBITDA, 1 / (ebitdaHistory.length - 1)) - 1;
+      }
+    }
 
     // Average EBITDA Margin
     const averageEbitdaMargin =
-      historicalFinancials.ebitda.reduce((sum, e) => sum + e.margin, 0) /
-      historicalFinancials.ebitda.length;
+      ebitdaHistory.length > 0
+        ? ebitdaHistory.reduce((sum, e) => sum + e.margin, 0) / ebitdaHistory.length
+        : 0;
 
     return {
       revenueCAGR,
@@ -583,8 +625,8 @@ export class DCFValuationEngine {
   private static generateInsights(
     input: DCFValuationInput,
     wacc: any,
-    projections: any[],
-    terminalValue: any
+    _projections: any[],
+    _terminalValue: any
   ): string[] {
     const insights = [];
 
@@ -624,7 +666,7 @@ export class DCFValuationEngine {
   private static generateWarnings(
     input: DCFValuationInput,
     wacc: any,
-    projections: any[]
+    _projections: any[]
   ): string[] {
     const warnings = [];
 
@@ -652,8 +694,8 @@ export class DCFValuationEngine {
    */
   private static generateRecommendations(
     input: DCFValuationInput,
-    wacc: any,
-    projections: any[]
+    _wacc: any,
+    _projections: any[]
   ): Array<{
     category: string;
     priority: 'high' | 'medium' | 'low';
@@ -812,23 +854,35 @@ export class DCFValuationEngine {
       valuations.push(enterpriseValue.toNumber());
     }
 
+    if (valuations.length === 0) {
+      return {
+        meanValuation: 0,
+        medianValuation: 0,
+        standardDeviation: 0,
+        confidenceIntervals: { p10: 0, p25: 0, p75: 0, p90: 0 },
+        probabilityOfUpside: 0,
+      };
+    }
+
     // Calculate statistics
     valuations.sort((a, b) => a - b);
     const mean = valuations.reduce((sum, val) => sum + val, 0) / valuations.length;
-    const median = valuations[Math.floor(valuations.length / 2)];
+    const median = valuations[Math.floor(valuations.length / 2)]!;
     const stdDev = Math.sqrt(
       valuations.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / valuations.length
     );
+    const pickPercentile = (ratio: number) =>
+      valuations[Math.min(valuations.length - 1, Math.floor(valuations.length * ratio))]!;
 
     return {
       meanValuation: mean,
       medianValuation: median,
       standardDeviation: stdDev,
       confidenceIntervals: {
-        p10: valuations[Math.floor(valuations.length * 0.1)],
-        p25: valuations[Math.floor(valuations.length * 0.25)],
-        p75: valuations[Math.floor(valuations.length * 0.75)],
-        p90: valuations[Math.floor(valuations.length * 0.9)],
+        p10: pickPercentile(0.1),
+        p25: pickPercentile(0.25),
+        p75: pickPercentile(0.75),
+        p90: pickPercentile(0.9),
       },
       probabilityOfUpside: valuations.filter((val) => val > mean).length / valuations.length,
     };

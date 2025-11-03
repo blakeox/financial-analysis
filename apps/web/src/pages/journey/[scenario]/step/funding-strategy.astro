@@ -4,9 +4,15 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths = Object.keys(journeyData).map((scenarioId) => ({
-    params: { scenario: scenarioId },
-  }));
+  const paths: Array<{ params: { scenario: string } }> = [];
+
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'funding-strategy')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
+  });
 
   return paths;
 }
@@ -21,13 +27,14 @@ if (!currentScenario) {
 
 // Journey navigation data
 const currentStep = currentScenario.models.find(m => m.id === 'funding-strategy');
-const nextStep = currentScenario.models.find(m => m.order === 4);
-const previousStep = currentScenario.models.find(m => m.order === 2);
+const currentStepOrder = currentStep?.order || 3;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: 3,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -43,30 +50,60 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `Funding Strategy - Step 3 of ${currentScenario.name}`;
-const seoDescription = `Plan funding milestones and runway. This is step 3 of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script>
-  // Update chatbot context for this phase
+<script define:vars={{ journeyNav }}>
+  // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
+    // Load journey state to include actual data
+    const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+    const currentPhaseData = journeyState.collectedData?.['funding-strategy'] || {};
+    const previousPhases = {
+      phase1: journeyState.collectedData?.['initial-capital-investment'],
+      phase2: journeyState.collectedData?.['startup-budget']
+    };
+    
+    // Build context data with journey information
+    const contextData = {
+      phase: 3,
+      phaseName: 'Funding Strategy',
+      description: 'Planning funding milestones and runway',
+      keyFields: ['nextFundingRound', 'fundingTimeline', 'currentBurnRate', 'projectedBurnRate', 'fundingSources', 'milestones'],
+      helpTopics: [
+        'When to raise next funding round',
+        'Burn rate vs runway calculation',
+        'Funding source selection',
+        'Milestone-based fundraising',
+        'Dilution vs growth trade-offs'
+      ],
+      // Include current phase data if available
+      currentPhaseData: Object.keys(currentPhaseData).length > 0 ? currentPhaseData : undefined,
+      // Include previous phases for reference
+      previousPhases: (previousPhases.phase1 || previousPhases.phase2) ? {
+        phase1: previousPhases.phase1 ? {
+          totalInvestment: previousPhases.phase1.investment?.total,
+          equityOffered: previousPhases.phase1.terms?.equityOffered
+        } : undefined,
+        phase2: previousPhases.phase2 ? {
+          monthlyRevenue: previousPhases.phase2.revenue?.monthly,
+          growthRate: previousPhases.phase2.revenue?.growthRate,
+          burnRate: (previousPhases.phase2.expenses ? 
+            (parseFloat(previousPhases.phase2.expenses.salaries || 0) + 
+             parseFloat(previousPhases.phase2.expenses.officeRent || 0) + 
+             parseFloat(previousPhases.phase2.expenses.marketing || 0) + 
+             parseFloat(previousPhases.phase2.expenses.other || 0) - 
+             parseFloat(previousPhases.phase2.revenue?.monthly || 0)) : undefined)
+        } : undefined
+      } : undefined
+    };
+
     window.dispatchEvent(new CustomEvent('chat-panel-context', {
       detail: {
-        contextKey: 'funding-strategy',
+        contextKey: 'startup-planning',
         label: 'Funding Strategy',
-        data: {
-          phase: 3,
-          phaseName: 'Funding Strategy',
-          description: 'Planning funding milestones and runway',
-          keyFields: ['nextFundingRound', 'fundingTimeline', 'currentBurnRate', 'projectedBurnRate', 'fundingSources', 'milestones'],
-          helpTopics: [
-            'When to raise next funding round',
-            'Burn rate vs runway calculation',
-            'Funding source selection',
-            'Milestone-based fundraising',
-            'Dilution vs growth trade-offs'
-          ]
-        }
+        data: contextData
       }
     }));
   }

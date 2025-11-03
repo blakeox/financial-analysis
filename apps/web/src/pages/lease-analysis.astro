@@ -1,12 +1,61 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
 ---
 
 <Layout 
-  title="Lease Analysis - Financial Analysis" 
-  description="Advanced lease analysis with AI-powered data extraction, scenario modeling, and comprehensive financial calculations"
+  title="Lease Analysis Calculator - Free Equipment & Property Lease Analysis Tool | Fanalyx" 
+  description="Free lease vs buy calculator with AI-powered analysis. Compare leasing versus purchasing equipment, vehicles, or property. Get detailed financial projections, NPV calculations, and expert recommendations."
+  keywords="lease analysis, lease vs buy calculator, equipment lease calculator, property lease analysis, capital lease calculator, operating lease, lease NPV, lease vs purchase"
+  type="article"
 >
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/models' },
+      { name: 'Lease Analysis', url: '/lease-analysis' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Lease Analysis Calculator',
+      description: 'Professional lease vs buy analysis tool with AI-powered data extraction, scenario modeling, and comprehensive financial calculations including NPV, IRR, and cash flow projections.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 250
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is lease analysis and why is it important?',
+        answer: 'Lease analysis is the process of evaluating whether leasing or buying an asset (equipment, vehicle, property) is more financially beneficial. It compares total costs, tax implications, cash flow impacts, and long-term value to help make informed business decisions.'
+      },
+      {
+        question: 'How does the lease vs buy calculator work?',
+        answer: 'Our calculator compares the Net Present Value (NPV) of leasing versus purchasing. It considers lease payments, purchase price, financing costs, tax benefits, residual value, and opportunity costs to provide a comprehensive financial analysis.'
+      },
+      {
+        question: 'What information do I need for a lease analysis?',
+        answer: 'You need lease terms (monthly payment, duration, escalations), purchase price, financing details (if buying), discount rate, tax rate, and expected residual value. Our AI can extract this information automatically from lease documents.'
+      },
+      {
+        question: 'Can I use this for equipment, vehicles, or real estate?',
+        answer: 'Yes! Our lease analysis calculator works for all types of assets including commercial equipment, vehicles, machinery, and commercial real estate properties. The analysis adapts to different asset types and lease structures.'
+      },
+      {
+        question: 'Is the lease analysis calculator really free?',
+        answer: 'Yes, completely free with no hidden fees or signup required. You get full access to AI-powered analysis, scenario modeling, and detailed financial reports instantly.'
+      }
+    ]}
+  />
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
     <div class="container mx-auto px-4">
       <div class="mb-8">

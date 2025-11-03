@@ -4,37 +4,38 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+  const paths: Array<{ params: { scenario: string } }> = [];
 
-  // Generate paths for each journey step
-  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
-    scenario.models.forEach((model, index) => {
-      const stepId = model.id;
-      paths.push({
-        params: {
-          scenario: scenarioId,
-          stepId: stepId
-        }
-      });
-    });
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'goal-planning')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
   });
 
   return paths;
 }
 
-const { scenario, stepId } = Astro.params;
+const { scenario } = Astro.params;
 const journeyData = getJourneyData();
 const currentScenario = journeyData[scenario!];
-const currentModel = currentScenario.models.find(m => m.id === stepId);
-const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
-const nextStep = currentScenario.models[stepNumber];
-const previousStep = currentScenario.models[stepNumber - 2];
+
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+// Find goal-planning step in this journey
+const currentStep = currentScenario.models.find(m => m.id === 'goal-planning');
+const currentStepOrder = currentStep?.order || 5;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 // Journey navigation data
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: stepNumber,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -50,8 +51,8 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
-const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
@@ -77,7 +78,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
             </svg>
-            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
           </li>
         </ol>
       </nav>
@@ -90,11 +91,11 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center mb-4">
               <span class="text-3xl mr-3">🎯</span>
               <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
                 <div class="mt-2">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
                   </span>
                 </div>
               </div>
@@ -106,25 +107,156 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
               <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {stepNumber} of {currentScenario.models.length}
+                Step {currentStepOrder} of {currentScenario.models.length}
               </span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
                 class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
               ></div>
             </div>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
             </p>
           </div>
 
-          <!-- Goal Planning Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Plan Your Financial Goals</h2>
-            
-            <form id="goal-planning-form" class="space-y-6">
+          {scenario === 'home-buying' ? (
+            <!-- Mortgage Affordability Calculator for Home Buying -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Compare Mortgage Scenarios</h2>
+              
+              <form id="mortgage-comparison-form" class="space-y-6">
+                <!-- Base Loan Information -->
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏠 Base Loan Information</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="home-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Home Price ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="home-price" 
+                        name="homePrice"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="400000"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label for="loan-term" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Loan Term (years) *
+                      </label>
+                      <select 
+                        id="loan-term" 
+                        name="loanTerm"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        required
+                      >
+                        <option value="15">15 years</option>
+                        <option value="30" selected>30 years</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scenario 1: Current Plan -->
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💼 Scenario 1: Current Plan</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="scenario1-down" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Down Payment ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="scenario1-down" 
+                        name="scenario1Down"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="80000"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label for="scenario1-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Interest Rate (%) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="scenario1-rate" 
+                        name="scenario1Rate"
+                        step="0.01"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="7.5"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scenario 2: Alternative Option -->
+                <div class="pb-6">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Scenario 2: Alternative Option</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="scenario2-down" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Down Payment ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="scenario2-down" 
+                        name="scenario2Down"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="100000"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label for="scenario2-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Interest Rate (%) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="scenario2-rate" 
+                        name="scenario2Rate"
+                        step="0.01"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="6.75"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button type="button" id="compare-mortgages-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                    Compare Scenarios
+                  </button>
+                  <button type="button" id="save-compare-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                    Save Comparison
+                  </button>
+                  <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                    Reset Form
+                  </button>
+                </div>
+              </form>
+
+              <!-- Results Section -->
+              <div id="comparison-results" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Mortgage Comparison Results</h3>
+                <div id="comparison-content">
+                  <!-- Results will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+          ) : (
+            <!-- Generic Goal Planning Form for Other Journeys -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Plan Your Financial Goals</h2>
+              
+              <form id="goal-planning-form" class="space-y-6">
               <!-- Short-term Goals (1-2 years) -->
               <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏃‍♂️ Short-term Goals (1-2 years)</h3>
@@ -330,6 +462,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
               </div>
             </div>
           </div>
+          )}
 
           <!-- Journey Navigation -->
           <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
@@ -359,15 +492,27 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
               </div>
 
               <div class="flex items-center space-x-4">
-                <a 
-                  href={`/journey-analysis/${journeyNav.scenarioId}`}
-                  class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                >
-                  Complete Journey
-                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                </a>
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -583,4 +728,250 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
       }
     });
   </script>
+
+  {scenario === 'home-buying' && (
+    <script>
+      // Mortgage Comparison Calculator for Home Buying
+      document.addEventListener('DOMContentLoaded', async function() {
+        // Dynamically import AmortizationEngine
+        let AmortizationEngine;
+        try {
+          const amortModule = await import('@financial-analysis/analysis');
+          AmortizationEngine = amortModule.AmortizationEngine;
+        } catch (error) {
+          console.error('Failed to import AmortizationEngine:', error);
+          return;
+        }
+
+        const form = document.getElementById('mortgage-comparison-form');
+        const compareBtn = document.getElementById('compare-mortgages-btn');
+        const saveBtn = document.getElementById('save-compare-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const comparisonResults = document.getElementById('comparison-results');
+        const comparisonContent = document.getElementById('comparison-content');
+
+        if (compareBtn && AmortizationEngine) {
+          compareBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Collect form data
+            const formData = new FormData(form);
+            const homePrice = parseFloat(formData.get('homePrice') || '0');
+            const loanTerm = parseInt(formData.get('loanTerm') || '30');
+            const scenario1Down = parseFloat(formData.get('scenario1Down') || '0');
+            const scenario1Rate = parseFloat(formData.get('scenario1Rate') || '0') / 100;
+            const scenario2Down = parseFloat(formData.get('scenario2Down') || '0');
+            const scenario2Rate = parseFloat(formData.get('scenario2Rate') || '0') / 100;
+
+            // Calculate scenarios
+            const scenario1Principal = homePrice - scenario1Down;
+            const scenario2Principal = homePrice - scenario2Down;
+
+            const scenario1 = AmortizationEngine.calculate({
+              principal: scenario1Principal,
+              annualRate: scenario1Rate,
+              years: loanTerm
+            });
+
+            const scenario2 = AmortizationEngine.calculate({
+              principal: scenario2Principal,
+              annualRate: scenario2Rate,
+              years: loanTerm
+            });
+
+            // Format currency
+            const formatCurrency = (value) => {
+              return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(value);
+            };
+
+            // Calculate savings
+            const monthlySavings = scenario1.monthlyPayment - scenario2.monthlyPayment;
+            const totalInterestSavings = scenario1.totalInterest - scenario2.totalInterest;
+            const totalCostSavings = (scenario1.monthlyPayment * scenario1.totalPayments) - (scenario2.monthlyPayment * scenario2.totalPayments);
+
+            // Determine which scenario is better
+            const winner = monthlySavings > 0 && totalInterestSavings > 0 ? 'scenario2' : 'scenario1';
+            const winnerText = winner === 'scenario2' ? 'Scenario 2' : 'Scenario 1';
+            const winnerReason = winner === 'scenario2' 
+              ? `Scenario 2 saves you ${formatCurrency(Math.abs(monthlySavings))} per month and ${formatCurrency(Math.abs(totalCostSavings))} over the life of the loan!`
+              : `Scenario 1 has a lower total cost if you can afford the higher monthly payment.`;
+
+            // Display results
+            comparisonContent.innerHTML = `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Scenario 1 -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border-2 ${winner === 'scenario1' ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'}">
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💼 Scenario 1</h4>
+                    ${winner === 'scenario1' ? '<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-medium">Best Value</span>' : ''}
+                  </div>
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Down Payment:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1Down)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Loan Amount:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1Principal)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Rate:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${(scenario1Rate * 100).toFixed(2)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Monthly Payment:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1.monthlyPayment)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Total Interest:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1.totalInterest)}</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
+                      <span class="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
+                      <span class="font-bold text-lg text-gray-900 dark:text-white">${formatCurrency(scenario1.monthlyPayment * scenario1.totalPayments)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scenario 2 -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border-2 ${winner === 'scenario2' ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'}">
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💰 Scenario 2</h4>
+                    ${winner === 'scenario2' ? '<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-medium">Best Value</span>' : ''}
+                  </div>
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Down Payment:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2Down)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Loan Amount:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2Principal)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Rate:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${(scenario2Rate * 100).toFixed(2)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Monthly Payment:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2.monthlyPayment)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-300">Total Interest:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2.totalInterest)}</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
+                      <span class="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
+                      <span class="font-bold text-lg text-gray-900 dark:text-white">${formatCurrency(scenario2.monthlyPayment * scenario2.totalPayments)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comparison Summary -->
+              <div class="bg-white dark:bg-gray-700 rounded-lg p-6 mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Side-by-Side Comparison</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                      ${formatCurrency(Math.abs(monthlySavings))}
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                      Monthly {monthlySavings >= 0 ? 'Savings' : 'Difference'}
+                    </div>
+                  </div>
+                  <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                      ${formatCurrency(Math.abs(totalInterestSavings))}
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                      Interest {totalInterestSavings >= 0 ? 'Saved' : 'Difference'}
+                    </div>
+                  </div>
+                  <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                      ${formatCurrency(Math.abs(totalCostSavings))}
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                      Total {totalCostSavings >= 0 ? 'Saved' : 'Difference'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommendation -->
+              <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <div class="ml-4">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      💡 Recommendation: ${winnerText}
+                    </h4>
+                    <p class="text-gray-700 dark:text-gray-300">
+                      ${winnerReason}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `;
+
+            comparisonResults.classList.remove('hidden');
+          });
+        }
+
+        if (saveBtn) {
+          saveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const comparisonData = {
+              homePrice: formData.get('homePrice'),
+              loanTerm: formData.get('loanTerm'),
+              scenario1: {
+                down: formData.get('scenario1Down'),
+                rate: formData.get('scenario1Rate')
+              },
+              scenario2: {
+                down: formData.get('scenario2Down'),
+                rate: formData.get('scenario2Rate')
+              }
+            };
+
+            // Store in journey state
+            const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-home-buying`) || '{}');
+            journeyState.collectedData = journeyState.collectedData || {};
+            journeyState.collectedData['mortgage-comparison'] = comparisonData;
+            localStorage.setItem(`fanalyx-journey-state-home-buying`, JSON.stringify(journeyState));
+
+            // Show success message
+            saveBtn.textContent = '✓ Saved!';
+            saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            saveBtn.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+              saveBtn.textContent = 'Save Comparison';
+              saveBtn.classList.remove('bg-green-500');
+              saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }, 2000);
+          });
+        }
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function() {
+            form.reset();
+            comparisonResults.classList.add('hidden');
+          });
+        }
+      });
+    </script>
+  )}
 </Layout>

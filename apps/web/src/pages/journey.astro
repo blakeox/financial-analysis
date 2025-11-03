@@ -163,7 +163,7 @@ const faqSchema = {
             </div>
 
         <!-- Home Buying Journey -->
-        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="home-buying">
+        <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="home-buying" onclick="window.selectScenario && window.selectScenario('home-buying'); window.scenarioManager && window.scenarioManager.selectScenario('home-buying'); if (!window.selectScenario && !window.scenarioManager) { window.location.href = '/journey/home-buying'; }">
           <div class="flex items-center mb-4">
             <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
               <span class="text-2xl">🏠</span>
@@ -292,7 +292,7 @@ const faqSchema = {
           </div>
 
           <!-- Investment Analysis Journey -->
-          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="investment-analysis-journey">
+          <div class="scenario-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105" data-scenario="investment-analysis-journey" onclick="window.selectScenario && window.selectScenario('investment-analysis-journey'); window.scenarioManager && window.scenarioManager.selectScenario('investment-analysis-journey'); if (!window.selectScenario && !window.scenarioManager) { window.location.href = '/journey/investment-analysis-journey'; }">
             <div class="flex items-center mb-4">
               <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
                 <span class="text-2xl">📊</span>

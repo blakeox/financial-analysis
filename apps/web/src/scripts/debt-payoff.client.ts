@@ -2,6 +2,13 @@ import type { DebtPayoffResult } from '@financial-analysis/analysis';
 import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../scripts/analysis-results';
 import { registerChatButton } from './chat-actions';
+import { formatCurrency, parseNumber } from '../utils/calculator-utilities';
+
+// Currency formatter for displaying monetary values
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
 
 type Strategy = 'avalanche' | 'snowball';
 
@@ -12,22 +19,90 @@ type CollectedDebt = {
   minimumPayment: number;
 };
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-});
+// Credit Score Impact Calculator
+interface CreditScoreImpact {
+  currentEstimate: number;
+  projectedImprovement: number;
+  finalEstimate: number;
+  factors: {
+    paymentHistory: { current: number; projected: number; impact: string };
+    creditUtilization: { current: number; projected: number; impact: string };
+    debtToIncome: { current: number; projected: number; impact: string };
+  };
+  timeline: Array<{ month: number; score: number }>;
+}
+
+function estimateCreditScoreImpact(
+  totalDebt: number,
+  monthsToPayoff: number,
+  totalCreditLimit: number = totalDebt * 3, // Assume credit limit is 3x debt
+  currentPaymentHistory: number = 100, // % of on-time payments
+  monthlyIncome: number = 0
+): CreditScoreImpact {
+  // Current credit utilization (30% of score)
+  const currentUtilization = (totalDebt / totalCreditLimit) * 100;
+  
+  // Estimate current score based on utilization
+  let currentScore = 580; // Start with fair credit
+  if (currentUtilization < 10) currentScore = 750;
+  else if (currentUtilization < 30) currentScore = 700;
+  else if (currentUtilization < 50) currentScore = 650;
+  else if (currentUtilization < 75) currentScore = 600;
+  
+  // Adjust for payment history (35% of score)
+  if (currentPaymentHistory >= 100) currentScore += 50;
+  else if (currentPaymentHistory >= 95) currentScore += 30;
+  else if (currentPaymentHistory >= 90) currentScore += 10;
+  else currentScore -= 20;
+  
+  // Projected improvement
+  const projectedUtilization = 0; // Debt-free
+  let projectedScore = 750; // Excellent credit after payoff
+  
+  // Calculate improvement trajectory
+  const scoreImprovement = projectedScore - currentScore;
+  const monthlyImprovement = scoreImprovement / monthsToPayoff;
+  
+  // Generate timeline
+  const timeline: Array<{ month: number; score: number }> = [];
+  for (let month = 0; month <= monthsToPayoff; month += Math.max(1, Math.floor(monthsToPayoff / 10))) {
+    const score = Math.min(850, Math.round(currentScore + (monthlyImprovement * month)));
+    timeline.push({ month, score });
+  }
+  
+  // Debt-to-income ratio
+  const currentDTI = monthlyIncome > 0 ? ((totalDebt * 0.03) / monthlyIncome) * 100 : 0; // Assume 3% monthly payment
+  const projectedDTI = 0;
+  
+  return {
+    currentEstimate: Math.round(currentScore),
+    projectedImprovement: Math.round(scoreImprovement),
+    finalEstimate: Math.round(projectedScore),
+    factors: {
+      paymentHistory: {
+        current: currentPaymentHistory,
+        projected: 100,
+        impact: currentPaymentHistory < 100 ? 'Maintaining on-time payments will boost your score' : 'Keep up the great payment history!',
+      },
+      creditUtilization: {
+        current: Math.round(currentUtilization),
+        projected: Math.round(projectedUtilization),
+        impact: currentUtilization > 30 ? 'Reducing utilization below 30% will significantly improve your score' : 'Your utilization is healthy',
+      },
+      debtToIncome: {
+        current: Math.round(currentDTI),
+        projected: Math.round(projectedDTI),
+        impact: 'Lower DTI improves loan approval odds and rates',
+      },
+    },
+    timeline,
+  };
+}
 
 const toCurrency = (value: string | undefined): string => {
   if (typeof value !== 'string') return '';
   const numeric = Number.parseFloat(value);
-  return Number.isFinite(numeric) ? currencyFormatter.format(Math.abs(numeric)) : '';
-};
-
-export const parseNumber = (value: FormDataEntryValue | null): number => {
-  if (value === null) return Number.NaN;
-  const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
-  return Number.isFinite(numericValue) ? numericValue : Number.NaN;
+  return formatCurrency(numeric);
 };
 
 const appendDebtInputs = (index: number): void => {
@@ -89,7 +164,8 @@ export const collectDebts = (formData: FormData, count: number): CollectedDebt[]
 };
 
 export const formatMonths = (months: number): string => {
-  return `${months} months (${(months / 12).toFixed(1)} years)`;
+  const years = (months / 12).toFixed(1);
+  return `${months} ${months === 1 ? 'month' : 'months'} (${years} ${years === '1.0' ? 'year' : 'years'})`;
 };
 
 export const describeSavings = (
@@ -155,7 +231,7 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
     .join('');
 };
 
-export const displayResults = (result: DebtPayoffResult): void => {
+export const displayResults = (result: DebtPayoffResult, enableCreditScore: boolean = true): void => {
   // Use the generic results structure from IndividualCalculatorPage.astro
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
@@ -171,28 +247,94 @@ export const displayResults = (result: DebtPayoffResult): void => {
   const avalancheSummary = primaryIsAvalanche ? primary : alternative;
   const snowballSummary = primaryIsAvalanche ? alternative : primary;
 
-  // Render summary cards
+  // Calculate debt-free date
+  const debtFreeDate = new Date();
+  debtFreeDate.setMonth(debtFreeDate.getMonth() + primary.totalMonthsToPayoff);
+  const debtFreeDateStr = debtFreeDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  
+  // Calculate credit score impact
+  const totalDebt = parseFloat(primary.totalDebt || '0');
+  const creditScore = enableCreditScore ? estimateCreditScoreImpact(totalDebt, primary.totalMonthsToPayoff) : null;
+
+  // Render summary cards with enhancements
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Total Debt</h5>
       <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${toCurrency(primary.totalDebt)}</p>
+      ${creditScore ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Credit Score: ${creditScore.currentEstimate} → ${creditScore.finalEstimate}</p>` : ''}
     </div>
     <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Avalanche Time</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A'}</p>
+      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Debt-Free Date</h5>
+      <p class="text-lg font-bold text-green-600 dark:text-green-400">${debtFreeDateStr}</p>
+      <p class="text-xs text-green-700 dark:text-green-300 mt-1">${primary.totalMonthsToPayoff} months from now</p>
     </div>
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Snowball Time</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A'}</p>
+      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Best Strategy</h5>
+      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${primaryIsAvalanche ? 'Avalanche' : 'Snowball'}</p>
+      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${formatMonths(primary.totalMonthsToPayoff)}</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Saved</h5>
       <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${toCurrency(primary.totalInterestSaved)}</p>
+      ${alternative ? `<p class="text-xs text-orange-700 dark:text-orange-300 mt-1">vs ${primaryIsAvalanche ? 'Snowball' : 'Avalanche'}</p>` : ''}
     </div>
   `;
 
   // Render detailed comparison
   resultsContainer.innerHTML = `
+    ${creditScore ? `
+    <!-- Credit Score Impact -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+      <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+        <span>📈</span> Credit Score Impact Projection
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Estimated improvement as you pay off debt</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Estimate</p>
+          <p class="text-3xl font-bold ${creditScore.currentEstimate < 650 ? 'text-red-600 dark:text-red-400' : creditScore.currentEstimate < 700 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">${creditScore.currentEstimate}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${creditScore.currentEstimate < 580 ? 'Poor' : creditScore.currentEstimate < 650 ? 'Fair' : creditScore.currentEstimate < 700 ? 'Good' : 'Excellent'}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center flex items-center justify-center">
+          <div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Projected Improvement</p>
+            <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">+${creditScore.projectedImprovement}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">points</p>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Debt-Free Score</p>
+          <p class="text-3xl font-bold text-green-600 dark:text-green-400">${creditScore.finalEstimate}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Excellent</p>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Key Factors</h4>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">Credit Utilization</span>
+              <span class="font-semibold">${creditScore.factors.creditUtilization.current}% → ${creditScore.factors.creditUtilization.projected}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" style="width: ${Math.min(100, creditScore.factors.creditUtilization.current)}%"></div>
+            </div>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${creditScore.factors.creditUtilization.impact}</p>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">Payment History</span>
+              <span class="font-semibold">${creditScore.factors.paymentHistory.current}% → ${creditScore.factors.paymentHistory.projected}%</span>
+            </div>
+            <p class="text-xs text-gray-600 dark:text-gray-400">${creditScore.factors.paymentHistory.impact}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    ` : ''}
+    
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Strategy Comparison</h3>
       

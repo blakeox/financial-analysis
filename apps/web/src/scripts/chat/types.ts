@@ -1,6 +1,6 @@
 import type { SerializedContext } from '@financial-analysis/tools';
 
-export type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models';
+export type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models' | 'startup-planning';
 
 export type ToolSummary = { name: string; description: string };
 

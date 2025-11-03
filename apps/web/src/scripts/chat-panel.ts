@@ -9,6 +9,12 @@ import {
   setTopOffset,
   syncChatAriaState,
 } from './chat/accessibility';
+import {
+  detectCalculatorContext,
+  parseFieldUpdate,
+  CALCULATOR_CONTEXTS,
+  type CalculatorContextKey,
+} from './chat/calculator-contexts';
 import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
 import { chatMemory } from './chat/chat-memory';
 import { MessageQueue, type QueueEvent } from './chat/message-queue';
@@ -251,66 +257,16 @@ class ChatPanel {
   }
 
   private detectContext(): ContextKey {
-    const path = window.location.pathname;
-    
-    // Check journey pages first
-    if (path.includes('/journey/')) {
-      const journeyMatch = path.match(/\/journey\/([^\/]+)/);
-      if (journeyMatch) {
-        const journeyId = journeyMatch[1];
-        // Map journey IDs to appropriate contexts
-        const journeyContextMap: Record<string, ContextKey> = {
-          'young-professional': 'general',
-          'family-planning': 'general', 
-          'home-buying': 'amortization',
-          'debt-elimination': 'general',
-          'investment-portfolio': 'general',
-          'pre-retirement': 'general'
-        };
-        return journeyContextMap[journeyId] || 'general';
-      }
-    }
-    
-    // Check specific page contexts
-    if (path.includes('/amortization')) return 'amortization';
-    if (path.includes('/ebitda')) return 'ebitda';
-    if (path.includes('/lease-analysis') || path.includes('/enhanced-lease')) return 'lease';
-    if (path === '/analysis' || path === '/analysis/') return 'lease';
-    if (path.includes('/models')) return 'models';
-    return 'general';
+    // Use the new comprehensive calculator context detection
+    return detectCalculatorContext(window.location.pathname) as ContextKey;
   }
 
   private updateContextIndicator(): void {
-    const path = window.location.pathname;
-    let label = 'General';
+    const activeContext = this.getActiveContextKey();
+    const contextDef = CALCULATOR_CONTEXTS[activeContext as CalculatorContextKey];
     
-    // Check if we're on a journey page
-    if (path.includes('/journey/')) {
-      const journeyMatch = path.match(/\/journey\/([^\/]+)/);
-      if (journeyMatch) {
-        const journeyId = journeyMatch[1];
-        const journeyLabels: Record<string, string> = {
-          'young-professional': 'Young Professional Journey',
-          'family-planning': 'Family Planning Journey',
-          'home-buying': 'Home Buying Journey', 
-          'debt-elimination': 'Debt Elimination Strategy',
-          'investment-portfolio': 'Investment Portfolio Build',
-          'pre-retirement': 'Pre-Retirement Planning'
-        };
-        label = journeyLabels[journeyId] || 'Financial Journey';
-      }
-    } else {
-      // Use existing context mapping for other pages
-      const contexts: Record<ContextKey, string> = {
-        lease: 'Lease Analysis',
-        ebitda: 'EBITDA Forecasting',
-        amortization: 'Amortization',
-        models: 'Models',
-        general: 'General',
-      };
-      const activeContext = this.getActiveContextKey();
-      label = this.customContextLabel || contexts[activeContext] || 'General';
-    }
+    // Use custom label if set, otherwise use the context definition label
+    const label = this.customContextLabel || contextDef?.label || 'General';
     
     this.contextIndicator.textContent = label;
     
@@ -321,7 +277,6 @@ class ChatPanel {
     }
 
     // Update welcome message based on context
-    const activeContext = this.getActiveContextKey();
     this.updateWelcomeMessage(activeContext);
   }
 
@@ -366,13 +321,8 @@ class ChatPanel {
   }
 
   private showContextChangeNotification(newContext: ContextKey): void {
-    const contexts: Record<ContextKey, string> = {
-      lease: 'Lease Analysis',
-      ebitda: 'EBITDA Forecasting',
-      amortization: 'Amortization',
-      models: 'Models',
-      general: 'General',
-    };
+    const contextDef = CALCULATOR_CONTEXTS[newContext as CalculatorContextKey];
+    const label = contextDef?.label || 'General';
 
     const notification = document.createElement('div');
     notification.className = 'context-change-notification';
@@ -380,7 +330,7 @@ class ChatPanel {
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 11a.75.75 0 110-1.5.75.75 0 010 1.5zm.75-3.25a.75.75 0 01-1.5 0V5a.75.75 0 011.5 0v2.75z" fill="currentColor"/>
       </svg>
-      <span>Context switched to <strong>${contexts[newContext]}</strong></span>
+      <span>Context switched to <strong>${label}</strong></span>
     `;
 
     this.messages.appendChild(notification);
@@ -397,30 +347,10 @@ class ChatPanel {
     const systemMessage = this.messages.querySelector('.system-message');
     if (!systemMessage) return;
 
-    const contextMessages: Record<ContextKey, { intro: string; examples: string[] }> = {
-      lease: {
-        intro: 'Hi — I can help with lease analysis.',
-        examples: ['"What if the interest rate was 5.5%?"', '"Show a 36-month lease"'],
-      },
-      ebitda: {
-        intro: 'Hi — I can help with EBITDA forecasting.',
-        examples: ['"Set revenue to $500,000"', '"Change growth to 15%"'],
-      },
-      amortization: {
-        intro: 'Hi — I can help with amortization schedules.',
-        examples: ['"Set interest to 4.5%"', '"Show a 20-year term"'],
-      },
-      models: {
-        intro: 'Hi — select a model or ask about available tools.',
-        examples: ['"What models are available?"', '"Tell me about lease analysis"'],
-      },
-      general: {
-        intro: 'Hi — I can help with finance tools and quick analysis.',
-        examples: ['"What tools are available?"', '"Show amortization options"'],
-      },
-    };
-
-    const messageConfig = contextMessages[context];
+    const contextDef = CALCULATOR_CONTEXTS[context as CalculatorContextKey];
+    
+    // Fallback to general context if specific one not found
+    const messageConfig = contextDef || CALCULATOR_CONTEXTS['general'];
     let toolsSection = '';
 
     // Add available MCP tools if loaded (simplified)
@@ -435,7 +365,7 @@ class ChatPanel {
     systemMessage.innerHTML = `
       <p>${messageConfig.intro}</p>
       <ul>
-        ${messageConfig.examples.map((ex) => `<li>${ex}</li>`).join('')}
+        ${messageConfig.examples.map((ex) => `<li>"${ex}"</li>`).join('')}
       </ul>
       ${toolsSection}
     `;
@@ -873,6 +803,28 @@ class ChatPanel {
       return;
     }
 
+    // Check if this is a field update request
+    const context = this.getActiveContextKey();
+    const fieldUpdate = parseFieldUpdate(message, context as CalculatorContextKey);
+    
+    if (fieldUpdate && fieldUpdate.field && fieldUpdate.value) {
+      // Apply the field update immediately
+      const success = this.updateFormField(fieldUpdate.field, fieldUpdate.value);
+      
+      if (success) {
+        this.addMessage(message, 'user');
+        this.input.value = '';
+        this.sendBtn.disabled = false;
+        this.autoResizeInput();
+        
+        // Provide immediate feedback
+        const feedbackMessage = `✓ Updated ${fieldUpdate.fieldLabel || fieldUpdate.field} to ${fieldUpdate.value}. The calculator will recalculate when you submit the form.`;
+        this.addMessage(feedbackMessage, 'assistant');
+        return;
+      }
+    }
+
+    // Normal message handling (send to AI)
     this.addMessage(message, 'user');
     this.input.value = '';
     this.sendBtn.disabled = true;
@@ -884,6 +836,50 @@ class ChatPanel {
       this.handleSuccessfulResponse(data);
     } catch (error) {
       this.handleFailedResponse(error);
+    }
+  }
+
+  /**
+   * Update a form field value
+   */
+  private updateFormField(fieldId: string, value: string): boolean {
+    try {
+      // Try to find the field by ID
+      const field = document.getElementById(fieldId) as HTMLInputElement | null;
+      
+      if (!field) {
+        debugWarn(`[ChatPanel] Field not found: ${fieldId}`);
+        return false;
+      }
+      
+      // Update the field value
+      const oldValue = field.value;
+      field.value = value;
+      
+      // Trigger change and input events
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      // Highlight the field to show it changed
+      if (typeof (window as any).highlightFieldChange === 'function') {
+        (window as any).highlightFieldChange(fieldId, value, true);
+      } else {
+        // Fallback visual feedback
+        field.style.transition = 'all 0.3s ease';
+        field.style.backgroundColor = '#fef3c7'; // yellow highlight
+        field.style.borderColor = '#f59e0b';
+        
+        setTimeout(() => {
+          field.style.backgroundColor = '';
+          field.style.borderColor = '';
+        }, 2000);
+      }
+      
+      debugLog(`[ChatPanel] Updated field ${fieldId}: "${oldValue}" → "${value}"`);
+      return true;
+    } catch (error) {
+      debugWarn('[ChatPanel] Error updating field:', error);
+      return false;
     }
   }
 

@@ -1,6 +1,6 @@
 // Minimal stub implementation for DCFAnalysisEngine
 export class DCFAnalysisEngine {
-  static analyze(input: any): any {
+  static analyze(_input: any): any {
     return {
       summary: {
         enterpriseValue: 1000000,

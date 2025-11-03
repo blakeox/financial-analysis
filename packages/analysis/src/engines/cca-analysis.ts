@@ -407,20 +407,26 @@ export class CCAValuationEngine {
     multipleType: string,
     input: CCAValuationInput
   ): MultipleAnalysis {
+    if (values.length === 0) {
+      throw new Error(`No values provided for multiple analysis: ${multipleType}`);
+    }
+
     // Sort values
     const sortedValues = [...values].sort((a, b) => a - b);
 
     // Calculate statistics
-    const min = sortedValues[0];
-    const max = sortedValues[sortedValues.length - 1];
+    const min = sortedValues[0]!;
+    const max = sortedValues[sortedValues.length - 1]!;
     const median = this.calculateMedian(sortedValues);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const p25 = sortedValues[Math.floor(sortedValues.length * 0.25)];
-    const p75 = sortedValues[Math.floor(sortedValues.length * 0.75)];
+    const p25Index = Math.min(sortedValues.length - 1, Math.floor(sortedValues.length * 0.25));
+    const p75Index = Math.min(sortedValues.length - 1, Math.floor(sortedValues.length * 0.75));
+    const p25 = sortedValues[p25Index]!;
+    const p75 = sortedValues[p75Index]!;
     const standardDeviation = Math.sqrt(
       values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length
     );
-    const coefficientOfVariation = standardDeviation / mean;
+    const coefficientOfVariation = mean === 0 ? 0 : standardDeviation / mean;
 
     // Identify outliers
     const outliers = this.identifyOutliers(values, input.analysis.outlierThreshold);
@@ -450,9 +456,13 @@ export class CCAValuationEngine {
    * Calculate median
    */
   private static calculateMedian(values: number[]): number {
+    if (values.length === 0) {
+      return 0;
+    }
+
     const sorted = [...values].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+    return sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!;
   }
 
   /**
@@ -574,14 +584,24 @@ export class CCAValuationEngine {
     const peerEvEbitda = valuation.enterpriseValue.mean / targetFinancials.ebitda;
     const peerPe = valuation.equityValue.mean / targetFinancials.netIncome;
 
+    const revenuePremium =
+      peerEvRevenue > 0 ? ((targetEvRevenue - peerEvRevenue) / peerEvRevenue) * 100 : 0;
+    const ebitdaPremium =
+      peerEvEbitda > 0 ? ((targetEvEbitda - peerEvEbitda) / peerEvEbitda) * 100 : 0;
+    const pePremium = peerPe > 0 ? ((targetPe - peerPe) / peerPe) * 100 : 0;
+
     return {
       vsMarket: {
         premium: 0, // Would need market data
         explanation: 'Market comparison requires broader market data',
       },
       vsPeers: {
-        premium: ((targetEvEbitda - peerEvEbitda) / peerEvEbitda) * 100,
-        explanation: `Target trades at ${targetEvEbitda.toFixed(1)}x EBITDA vs peer average of ${peerEvEbitda.toFixed(1)}x`,
+        premium: ebitdaPremium,
+        explanation: `Target trades at ${targetEvEbitda.toFixed(
+          1
+        )}x EBITDA vs peer average of ${peerEvEbitda.toFixed(1)}x`,
+        revenuePremium,
+        pePremium,
       },
       sizeAdjustment: {
         adjustment: valAssumptions.sizeDiscount,
@@ -709,7 +729,7 @@ export class CCAValuationEngine {
    * Generate insights
    */
   private static generateInsights(
-    input: CCAValuationInput,
+    _input: CCAValuationInput,
     tradingMultiples: any,
     valuation: any
   ): string[] {
@@ -737,7 +757,7 @@ export class CCAValuationEngine {
    * Generate warnings
    */
   private static generateWarnings(
-    input: CCAValuationInput,
+    _input: CCAValuationInput,
     tradingMultiples: any,
     peerCompanies: any[]
   ): string[] {
@@ -765,7 +785,7 @@ export class CCAValuationEngine {
   private static generateRecommendations(
     input: CCAValuationInput,
     tradingMultiples: any,
-    valuation: any
+    _valuation: any
   ): Array<{
     category: string;
     priority: 'high' | 'medium' | 'low';

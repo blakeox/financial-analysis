@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import AdSense from './AdSense.astro';
 import { CALCULATOR_CONFIGS, generateFormHTMLWithValidation } from './CalculatorTemplate.tsx';
 import ClientScriptLoader from './ClientScriptLoader.tsx';
-import EnhancedAnalysisResults from './EnhancedAnalysisResults.tsx';
+import { getJourneySuggestions } from '../utils/calculatorJourneyMapping';
 
 export interface Props {
   calculatorId: string;
@@ -12,6 +12,9 @@ export interface Props {
 }
 
 const { calculatorId, title, description } = Astro.props as Props;
+
+// Get journey suggestions for this calculator
+const journeySuggestions = getJourneySuggestions(calculatorId);
 
 const config = CALCULATOR_CONFIGS[calculatorId];
 
@@ -61,9 +64,9 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         </ol>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 gap-6">
         <!-- Main Calculator Content -->
-        <div class="lg:col-span-3">
+        <div>
           <!-- Calculator Header -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <div class="flex items-center mb-4">
@@ -136,7 +139,8 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
 
           <!-- Results Section -->
           <div id="results-section" class="mt-6 hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <!-- Analysis Results - First -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
               <h2 class="text-lg font-semibold mb-4">Analysis Results</h2>
               <div id="results-content">
                 <!-- Summary Cards -->
@@ -149,7 +153,35 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
                   <!-- Results will be populated here -->
                 </div>
               </div>
+          </div>
+          
+          <!-- Journey Suggestion - After Results -->
+          {journeySuggestions && journeySuggestions.length > 0 && (
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <span class="text-3xl">{journeySuggestions[0].journeyIcon}</span>
+                </div>
+                <div class="ml-4 flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Want a Complete Plan?
+                  </h3>
+                  <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    {config.title} is part of the <strong>{journeySuggestions[0].journeyName}</strong>. Complete the full journey to get integrated insights and a comprehensive financial plan.
+                  </p>
+                  <div class="flex flex-wrap gap-3">
+                    <a href={`/journey/${journeySuggestions[0].journeyId}`} 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                      <span class="mr-2">Start Journey</span>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
+          )}
           </div>
           
           <!-- Amortization Chart -->
@@ -161,10 +193,10 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
               </div>
             </div>
           </div>
-          
+
           <!-- Amortization Schedule Table (if applicable) -->
           <div id="amortization-table-container" class="mt-6 hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
               <h2 class="text-lg font-semibold mb-4">Amortization Schedule</h2>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -184,44 +216,6 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
                 </table>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Quick Access Sidebar -->
-        <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">Quick Access</h3>
-            <div class="space-y-4">
-              <!-- Favorites -->
-              <div>
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Favorites</h4>
-                <div id="favorites-list" class="space-y-2">
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-              <!-- Recent -->
-              <div>
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent</h4>
-                <div id="recent-list" class="space-y-2">
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-              <!-- Actions -->
-              <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button id="favorite-btn" class="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200">
-                  <span id="favorite-text">Add to Favorites</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Analysis Results -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <EnhancedAnalysisResults 
-              modelType={config.analysisType}
-              modelData={{}}
-              className="h-full"
-            />
           </div>
         </div>
       </div>
@@ -360,7 +354,20 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
     }
   </style>
 
-  <script define:vars={{ calculatorId, config }}>
+  <script define:vars={{ calculatorId, config }} is:inline>
+    // Individual calculator initialization
+    // Use is:inline to ensure this executes immediately, before any client:load components
+    (function() {
+      'use strict';
+      
+      // Initialize populateAnalysisData as a no-op placeholder to ensure it exists
+      if (typeof window !== 'undefined') {
+        window.populateAnalysisData = window.populateAnalysisData || function(data) {
+          console.warn('populateAnalysisData placeholder called - real function not yet loaded');
+        };
+      }
+    })();
+
     // Individual calculator initialization
     if (typeof window !== 'undefined') {
       // Add calculator context to window for client scripts
@@ -515,6 +522,747 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         window.highlightFieldChange(fieldName, value, isAIModified);
       });
 
+      // Comprehensive Analysis functionality
+      // Use a function to get fresh references to avoid stale NodeLists
+      function getAnalysisElements() {
+        return {
+          tabs: document.querySelectorAll('.analysis-tab'),
+          tabContents: document.querySelectorAll('.analysis-tab-content'),
+          emptyState: document.getElementById('analysis-empty-state'),
+          dataContainer: document.getElementById('analysis-data'),
+          mobileSelector: document.getElementById('mobile-tab-selector'),
+        };
+      }
+      
+      const elements = getAnalysisElements();
+      let analysisTabs = elements.tabs;
+      let analysisTabContents = elements.tabContents;
+      let analysisEmptyState = elements.emptyState;
+      let analysisData = elements.dataContainer;
+      let mobileTabSelector = elements.mobileSelector;
+      
+      // Initialize: Hide all tab contents initially
+      analysisTabContents.forEach(content => {
+        if (content) content.classList.add('hidden');
+      });
+      
+      // Refresh element references periodically to catch dynamic changes
+      function refreshElementReferences() {
+        const fresh = getAnalysisElements();
+        analysisTabs = fresh.tabs;
+        analysisTabContents = fresh.tabContents;
+        analysisEmptyState = fresh.emptyState;
+        analysisData = fresh.dataContainer;
+        mobileTabSelector = fresh.mobileSelector;
+      }
+      
+      // Function to switch tabs
+      function switchTab(targetTab) {
+        refreshElementReferences();
+        
+        console.log(`switchTab called with: ${targetTab}`);
+        console.log(`Found ${analysisTabs.length} tabs, ${analysisTabContents.length} tab contents`);
+        
+        // Update active tab
+        analysisTabs.forEach(t => {
+          t.classList.remove('active', 'bg-blue-500', 'text-white');
+          t.classList.add('text-gray-600', 'dark:text-gray-400');
+        });
+        
+        // Find and activate the correct tab
+        const activeTab = document.querySelector(`[data-tab="${targetTab}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active', 'bg-blue-500', 'text-white');
+          activeTab.classList.remove('text-gray-600', 'dark:text-gray-400');
+          console.log(`Activated tab: ${targetTab}`);
+        } else {
+          console.warn(`Tab with data-tab="${targetTab}" not found`);
+        }
+        
+        // Show corresponding content - use fresh querySelector for reliability
+        const targetContent = document.getElementById(`${targetTab}-content`);
+        analysisTabContents.forEach(content => {
+          if (content) {
+            content.classList.add('hidden');
+            if (content.id === `${targetTab}-content`) {
+              content.classList.remove('hidden');
+              console.log(`Shown content: ${content.id}`);
+            }
+          }
+        });
+        
+        // Double-check: if targetContent exists but wasn't shown, show it manually
+        if (targetContent && targetContent.classList.contains('hidden')) {
+          targetContent.classList.remove('hidden');
+          console.log(`Manually shown ${targetContent.id}`);
+        }
+      }
+      
+      // Desktop tab switching functionality
+      analysisTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetTab = tab.getAttribute('data-tab');
+          switchTab(targetTab);
+        });
+      });
+      
+      // Mobile dropdown functionality
+      if (mobileTabSelector) {
+        mobileTabSelector.addEventListener('change', (e) => {
+          switchTab(e.target.value);
+        });
+      }
+
+      // Function to populate analysis data
+      function populateAnalysisData(rawData) {
+        console.log('=== populateAnalysisData CALLED ===');
+        console.log('Raw data received:', rawData);
+        console.log('Data type:', typeof rawData);
+        console.log('Is object?', rawData && typeof rawData === 'object');
+        
+        if (!rawData || typeof rawData !== 'object') {
+          console.error('populateAnalysisData: Invalid data provided', rawData);
+          return;
+        }
+        
+        console.log('Data validation passed, proceeding...');
+
+        const summary = rawData.summary && typeof rawData.summary === 'object'
+          ? rawData.summary
+          : {
+              principal: rawData.principal ?? 0,
+              monthlyPayment: rawData.monthlyPayment ?? 0,
+              totalInterest: rawData.totalInterest ?? 0,
+              totalPayments: rawData.totalPayments ?? 0,
+              annualRate: rawData.annualRate ?? 0,
+              termMonths: rawData.termMonths ?? 0,
+            };
+
+        const formatCurrency = (value) => {
+          const numeric = typeof value === 'number' ? value : Number(value);
+          return Number.isFinite(numeric)
+            ? `$${numeric.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+            : '-';
+        };
+
+        const formatPercent = (value) => {
+          const numeric = typeof value === 'number' ? value : Number(value);
+          return Number.isFinite(numeric) ? `${(numeric * 100).toFixed(2)}%` : '-';
+        };
+
+        const formatMonths = (value) => {
+          const numeric = typeof value === 'number' ? value : Number(value);
+          return Number.isFinite(numeric) ? `${numeric} months` : '-';
+        };
+        
+        // Show the comprehensive analysis container
+        const analysisContainer = document.getElementById('comprehensive-analysis-container');
+        if (analysisContainer) {
+          console.log('Showing comprehensive analysis container');
+          analysisContainer.classList.remove('hidden');
+        } else {
+          console.error('comprehensive-analysis-container not found in DOM');
+        }
+        
+        // Hide empty state and show data
+        const emptyStateEl = document.getElementById('analysis-empty-state');
+        const dataEl = document.getElementById('analysis-data');
+        const summaryContentEl = document.getElementById('summary-content');
+        
+        if (emptyStateEl) {
+          emptyStateEl.classList.add('hidden');
+          console.log('Empty state hidden');
+        } else {
+          console.error('analysis-empty-state element not found in DOM');
+        }
+        
+        if (dataEl) {
+          dataEl.classList.remove('hidden');
+          console.log('Analysis data container shown');
+        } else {
+          console.error('analysis-data element not found in DOM');
+        }
+        
+        // Populate summary (content visibility will be handled by switchTab)
+        const monthlyPaymentEl = document.getElementById('summary-monthly-payment');
+        const totalInterestEl = document.getElementById('summary-total-interest');
+        const totalPaymentsEl = document.getElementById('summary-total-payments');
+        const interestRateEl = document.getElementById('summary-interest-rate');
+        const loanTermEl = document.getElementById('summary-loan-term');
+        const takeawaysWrapper = document.getElementById('summary-takeaways');
+        const takeawaysList = document.getElementById('analysis-key-takeaways');
+        
+        if (monthlyPaymentEl) monthlyPaymentEl.textContent = formatCurrency(summary.monthlyPayment);
+        if (totalInterestEl) totalInterestEl.textContent = formatCurrency(summary.totalInterest);
+        if (totalPaymentsEl) totalPaymentsEl.textContent = formatCurrency(summary.totalPayments);
+        if (interestRateEl) interestRateEl.textContent = formatPercent(summary.annualRate ?? rawData.annualRate);
+        if (loanTermEl) loanTermEl.textContent = formatMonths(summary.termMonths ?? rawData.termMonths);
+
+        if (takeawaysWrapper && takeawaysList) {
+          if (Array.isArray(rawData.chatHighlights) && rawData.chatHighlights.length) {
+            takeawaysWrapper.classList.remove('hidden');
+            takeawaysList.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            rawData.chatHighlights.forEach((highlight) => {
+              const li = document.createElement('li');
+              li.textContent = highlight;
+              fragment.appendChild(li);
+            });
+            takeawaysList.appendChild(fragment);
+          } else {
+            takeawaysWrapper.classList.add('hidden');
+            takeawaysList.innerHTML = '';
+          }
+        }
+        
+        // Debug: Log what data we have
+        console.log('populateAnalysisData: Data structure check:', {
+          hasInsights: Array.isArray(rawData.insights),
+          insightsCount: rawData.insights?.length ?? 0,
+          hasRecommendations: Array.isArray(rawData.recommendations),
+          recommendationsCount: rawData.recommendations?.length ?? 0,
+          hasRiskAssessment: !!rawData.riskAssessment,
+          hasOptimizationOpportunities: Array.isArray(rawData.optimizationOpportunities),
+        });
+        
+        // Generate insights
+        generateInsights(rawData, summary);
+        
+        // Generate recommendations
+        generateRecommendations(rawData, summary);
+        
+        // Generate risk assessment
+        generateRiskAssessment(rawData, summary);
+        
+        // Generate optimization opportunities
+        generateOptimizationOpportunities(rawData, summary);
+        
+        // Store data for LLM access
+        window.amortizationAnalysisData = rawData;
+        console.log('Analysis data stored for LLM access:', rawData);
+        
+        // Ensure Summary tab is shown by default
+        console.log('About to call switchTab("summary")...');
+        console.log('switchTab function exists?', typeof switchTab === 'function');
+        refreshElementReferences();
+        console.log('analysisTabs available?', analysisTabs && analysisTabs.length > 0);
+        console.log('analysisTabContents available?', analysisTabContents && analysisTabContents.length > 0);
+        
+        if (typeof switchTab === 'function') {
+          try {
+            switchTab('summary');
+            console.log('switchTab("summary") called successfully');
+          } catch (error) {
+            console.error('Error calling switchTab:', error);
+            // Fallback: manually show summary content
+            const summaryContent = document.getElementById('summary-content');
+            if (summaryContent) {
+              summaryContent.classList.remove('hidden');
+              console.log('Fallback: Manually showing summary-content');
+            }
+          }
+        } else {
+          console.error('switchTab function not available!');
+          // Fallback: manually show summary content
+          const summaryContent = document.getElementById('summary-content');
+          if (summaryContent) {
+            summaryContent.classList.remove('hidden');
+            console.log('Fallback: Manually showing summary-content');
+          }
+        }
+        
+        // Update mobile selector if it exists
+        refreshElementReferences();
+        if (mobileTabSelector) {
+          mobileTabSelector.value = 'summary';
+          console.log('Mobile selector updated to summary');
+        } else {
+          console.warn('Mobile tab selector not found');
+        }
+        
+        // Final verification: ensure summary content is visible
+        setTimeout(() => {
+          const summaryContent = document.getElementById('summary-content');
+          const dataContainer = document.getElementById('analysis-data');
+          if (dataContainer && dataContainer.classList.contains('hidden')) {
+            console.warn('analysis-data container is still hidden, showing it now');
+            dataContainer.classList.remove('hidden');
+          }
+          if (summaryContent && summaryContent.classList.contains('hidden')) {
+            console.warn('summary-content is still hidden, showing it now');
+            summaryContent.classList.remove('hidden');
+          }
+        }, 100);
+        
+        console.log('=== populateAnalysisData COMPLETE ===');
+      }
+
+      // Expose the function globally so other scripts can call it
+      window.populateAnalysisData = populateAnalysisData;
+      console.log('populateAnalysisData function exposed to window');
+      
+      // Also set a flag to indicate the function is ready
+      window.populateAnalysisDataReady = true;
+      window.dispatchEvent(new CustomEvent('populateAnalysisData-ready'));
+      
+      // Check if data already exists (e.g., from previous calculation)
+      if (window.amortizationAnalysisData) {
+        console.log('Found existing amortization analysis data on page load');
+        setTimeout(() => {
+          populateAnalysisData(window.amortizationAnalysisData);
+        }, 100);
+      }
+      
+      // Also listen for analysis events as a fallback
+      document.addEventListener('analysis-result-updated', (event) => {
+        console.log('Received analysis-result-updated event:', event.detail);
+        if (event.detail && event.detail.result) {
+          populateAnalysisData(event.detail.result);
+        }
+      });
+      
+      window.addEventListener('amortization-analysis-ready', (event) => {
+        console.log('Received amortization-analysis-ready event:', event.detail);
+        if (event.detail) {
+          populateAnalysisData(event.detail);
+        }
+      });
+
+      function generateInsights(data, summary) {
+        const insightsList = document.getElementById('insights-list');
+        if (!insightsList) return;
+        
+        if (Array.isArray(data?.insights) && data.insights.length) {
+          insightsList.innerHTML = data.insights
+            .map((insight) => `
+              <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${insight.description}</p>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-4">
+                    <span class="px-2 py-1 text-xs rounded-full ${
+                      insight.impact === 'high'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        : insight.impact === 'medium'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    }">
+                      ${insight.impact.toUpperCase()}
+                    </span>
+                    ${
+                      insight.actionable
+                        ? '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">ACTIONABLE</span>'
+                        : ''
+                    }
+                  </div>
+                </div>
+              </div>
+            `)
+            .join('');
+          return;
+        }
+        
+        const principal = summary.principal ?? data.principal ?? 0;
+        const totalPayments = summary.totalPayments ?? data.totalPayments ?? 0;
+        const totalInterest = summary.totalInterest ?? data.totalInterest ?? 0;
+        const monthlyPayment = summary.monthlyPayment ?? data.monthlyPayment ?? 0;
+        const annualRate = summary.annualRate ?? data.annualRate ?? 0;
+        const termMonths = summary.termMonths ?? data.termMonths ?? 0;
+
+        const interestToPrincipalRatio = principal > 0 ? (totalInterest / principal) * 100 : 0;
+        const monthlyIncomeNeeded = monthlyPayment / 0.28; // 28% rule
+        const yearsToPayoff = termMonths / 12;
+        const monthlyRate = annualRate / 12;
+        const firstYearInterest =
+          monthlyRate > 0
+            ? monthlyPayment * 12 * (monthlyRate * (1 + monthlyRate)) / ((1 + monthlyRate) - 1)
+            : totalInterest / Math.max(yearsToPayoff, 1);
+        
+        const insights = [
+          {
+            title: 'Interest Burden Analysis',
+            description: `You'll pay $${totalInterest?.toLocaleString()} in interest (${interestToPrincipalRatio?.toFixed(1)}% of loan amount). This means for every $1 borrowed, you'll pay back $${((totalPayments / principal)).toFixed(2)}.`,
+            impact: interestToPrincipalRatio > 50 ? 'high' : 'medium',
+            actionable: 'Consider making extra payments to reduce interest burden'
+          },
+          {
+            title: 'Income Requirements',
+            description: `Monthly payment of $${monthlyPayment?.toLocaleString()} requires annual income of $${monthlyIncomeNeeded?.toLocaleString()} (using 28% rule). Your payment-to-income ratio is ${((monthlyPayment / monthlyIncomeNeeded) * 100)?.toFixed(1)}%.`,
+            impact: monthlyPayment / monthlyIncomeNeeded > 0.3 ? 'high' : 'medium',
+            actionable: 'Ensure your income can comfortably support this payment'
+          },
+          {
+            title: 'Equity Building Timeline',
+            description: `You'll build significant equity after year ${Math.ceil(yearsToPayoff * 0.3)}. First year: ~$${firstYearInterest?.toLocaleString()} goes to interest, only ~$${(monthlyPayment * 12 - firstYearInterest)?.toLocaleString()} builds equity.`,
+            impact: 'medium',
+            actionable: 'Consider extra payments in early years for faster equity building'
+          },
+          {
+            title: 'Interest Rate Impact',
+            description: `At ${(annualRate * 100)?.toFixed(2)}%, you're paying $${(monthlyPayment * termMonths - principal)?.toLocaleString()} more than the principal. A 0.5% rate reduction would save ~$${((monthlyPayment * termMonths) * 0.05)?.toLocaleString()}.`,
+            impact: annualRate > 0.06 ? 'high' : 'medium',
+            actionable: 'Monitor rates for refinancing opportunities'
+          }
+        ];
+        
+        insightsList.innerHTML = insights.map(insight => `
+          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${insight.description}</p>
+              </div>
+              <span class="inline-block px-2 py-1 text-xs rounded-full ${insight.impact === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+                ${insight.impact} impact
+              </span>
+            </div>
+            <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">${insight.actionable}</p>
+          </div>
+        `).join('');
+      }
+
+      function generateRecommendations(data, summary) {
+        const recommendationsList = document.getElementById('recommendations-list');
+        if (!recommendationsList) return;
+        
+        if (Array.isArray(data?.recommendations) && data.recommendations.length) {
+          recommendationsList.innerHTML = data.recommendations
+            .map((rec) => `
+              <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${rec.description}</p>
+                    <div class="flex items-center justify-between">
+                      <div class="flex space-x-2">
+                        <span class="px-2 py-1 text-xs rounded-full ${
+                          rec.priority === 'high'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : rec.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }">
+                          ${rec.priority} priority
+                        </span>
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          ${rec.effort} effort
+                        </span>
+                      </div>
+                      ${
+                        typeof rec.potentialSavings === 'number'
+                          ? `<span class="text-sm font-semibold text-green-600 dark:text-green-400">$${rec.potentialSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>`
+                          : ''
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `)
+            .join('');
+          return;
+        }
+        
+        const principal = summary.principal ?? data.principal ?? 0;
+        const totalPayments = summary.totalPayments ?? data.totalPayments ?? 0;
+        const totalInterest = summary.totalInterest ?? data.totalInterest ?? 0;
+        const monthlyPayment = summary.monthlyPayment ?? data.monthlyPayment ?? 0;
+        const annualRate = summary.annualRate ?? data.annualRate ?? 0;
+        const termMonths = summary.termMonths ?? data.termMonths ?? 0;
+        const monthlyIncomeNeeded = monthlyPayment / 0.28;
+        const currentRate = annualRate * 100;
+        const refinanceThreshold = currentRate - 0.5;
+
+        const extraPayment100 = 100;
+        const extraPayment500 = 500;
+        const savings100 = calculateExtraPaymentSavings(extraPayment100);
+        const savings500 = calculateExtraPaymentSavings(extraPayment500);
+        
+        const recommendations = [
+          {
+            priority: 'high',
+            title: 'Verify Income Affordability',
+            description: `Your payment requires $${monthlyIncomeNeeded?.toLocaleString()} annual income. If your income is lower, consider a smaller loan or longer term.`,
+            effort: 'low',
+            savings: 'Prevents financial stress'
+          },
+          {
+            priority: 'high',
+            title: 'Make Extra Payments Early',
+            description: `Adding $${extraPayment100}/month saves $${savings100?.toLocaleString()} and cuts ${Math.round((termMonths - calculateNewTerm(extraPayment100)) / 12)} years off your loan.`,
+            effort: 'medium',
+            savings: `$${savings100?.toLocaleString()} saved`
+          },
+          {
+            priority: 'medium',
+            title: 'Consider Bi-weekly Payments',
+            description: `Making half-payments every 2 weeks (26 payments/year) saves ~$${Math.round(monthlyPayment * 0.5 * 12 * 0.1)} annually and reduces term by ~4 months.`,
+            effort: 'low',
+            savings: '~$1,500+ annually'
+          },
+          {
+            priority: 'medium',
+            title: 'Monitor Refinancing Opportunities',
+            description: `If rates drop below ${refinanceThreshold?.toFixed(2)}%, refinancing could save $${Math.round(monthlyPayment * termMonths * 0.05)} over the loan life.`,
+            effort: 'medium',
+            savings: 'Potential 5%+ savings'
+          },
+          {
+            priority: 'low',
+            title: 'Consider Shorter Term',
+            description: `A 15-year loan at similar rates would increase monthly payment by ~$${Math.round(monthlyPayment * 0.3)} but save $${Math.round(totalInterest * 0.4)} in interest.`,
+            effort: 'high',
+            savings: '40%+ interest savings'
+          }
+        ];
+        
+        function calculateExtraPaymentSavings(extraPayment) {
+          const monthlyRate = annualRate / 12;
+          const newPayment = monthlyPayment + extraPayment;
+          const newTerm = Math.ceil(Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate));
+          const totalPaid = newPayment * newTerm;
+          return Math.round(totalPayments - totalPaid);
+        }
+        
+        function calculateNewTerm(extraPayment) {
+          const monthlyRate = annualRate / 12;
+          const newPayment = monthlyPayment + extraPayment;
+          return Math.ceil(Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate));
+        }
+        
+        recommendationsList.innerHTML = recommendations.map(rec => `
+          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${rec.description}</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex space-x-2">
+                    <span class="px-2 py-1 text-xs rounded-full ${rec.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">
+                      ${rec.priority} priority
+                    </span>
+                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      ${rec.effort} effort
+                    </span>
+                  </div>
+                  <span class="text-sm font-semibold text-green-600 dark:text-green-400">${rec.savings}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function generateRiskAssessment(data, summary) {
+        const riskAssessment = document.getElementById('risk-assessment');
+        if (!riskAssessment) return;
+        
+        if (data?.riskAssessment && typeof data.riskAssessment === 'object') {
+          const overall = data.riskAssessment.overallRisk || 'low';
+          const factors = Array.isArray(data.riskAssessment.factors) ? data.riskAssessment.factors : [];
+          riskAssessment.innerHTML = `
+            <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Level</h4>
+                <span class="px-3 py-1 text-sm rounded-full ${
+                  overall === 'high'
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    : overall === 'medium'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                }">
+                  ${overall.toUpperCase()} RISK
+                </span>
+              </div>
+              <div class="space-y-3">
+                ${factors
+                  .map(
+                    (factor) => `
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">${factor.factor}</span>
+                        <span class="text-sm font-medium ${
+                          factor.risk === 'high'
+                            ? 'text-red-600 dark:text-red-400'
+                            : factor.risk === 'medium'
+                              ? 'text-yellow-600 dark:text-yellow-400'
+                              : 'text-green-600 dark:text-green-400'
+                        }">
+                          ${factor.description}
+                        </span>
+                      </div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            </div>
+          `;
+          return;
+        }
+        
+        const principal = summary.principal ?? data.principal ?? 0;
+        const totalInterest = summary.totalInterest ?? data.totalInterest ?? 0;
+        const monthlyPayment = summary.monthlyPayment ?? data.monthlyPayment ?? 0;
+        const annualRate = summary.annualRate ?? data.annualRate ?? 0;
+        const termMonths = summary.termMonths ?? data.termMonths ?? 0;
+        const paymentToIncomeRatio = monthlyPayment / 5000; // Assuming $5k monthly income
+        const interestToPrincipalRatio = principal > 0 ? totalInterest / principal : 0;
+        
+        let overallRisk = 'low';
+        if (paymentToIncomeRatio > 0.3) overallRisk = 'high';
+        else if (paymentToIncomeRatio > 0.2) overallRisk = 'medium';
+        
+        riskAssessment.innerHTML = `
+          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Assessment</h4>
+              <span class="px-3 py-1 text-sm rounded-full ${overallRisk === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : overallRisk === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">
+                ${overallRisk.toUpperCase()} RISK
+              </span>
+            </div>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600 dark:text-gray-400">Payment Burden</span>
+                <span class="text-sm font-medium ${paymentToIncomeRatio > 0.3 ? 'text-red-600 dark:text-red-400' : paymentToIncomeRatio > 0.2 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
+                  ${(paymentToIncomeRatio * 100).toFixed(1)}% of income
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600 dark:text-gray-400">Interest Rate Level</span>
+                <span class="text-sm font-medium ${annualRate > 0.06 ? 'text-red-600 dark:text-red-400' : annualRate < 0.04 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">
+                  ${(annualRate * 100).toFixed(2)}%
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600 dark:text-gray-400">Loan Term Risk</span>
+                <span class="text-sm font-medium ${termMonths > 300 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
+                  ${termMonths} months
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function generateOptimizationOpportunities(data, summary) {
+        const optimizationOpportunities = document.getElementById('optimization-opportunities');
+        if (!optimizationOpportunities) return;
+        
+        if (Array.isArray(data?.optimizationOpportunities) && data.optimizationOpportunities.length) {
+          optimizationOpportunities.innerHTML = data.optimizationOpportunities
+            .map((opp) => `
+              <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${opp.description}</p>
+                    <div class="flex items-center space-x-4 text-sm">
+                      <div>
+                        <span class="text-gray-500 dark:text-gray-400">Current:</span>
+                        <span class="font-medium">${renderOptimizationValue(opp.currentValue)}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500 dark:text-gray-400">Optimized:</span>
+                        <span class="font-medium text-green-600 dark:text-green-400">${renderOptimizationValue(opp.optimizedValue)}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500 dark:text-gray-400">Impact:</span>
+                        <span class="font-medium text-blue-600 dark:text-blue-400">${renderOptimizationValue(opp.potentialImprovement)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `)
+            .join('');
+          return;
+        }
+        
+        const opportunities = [
+          {
+            area: 'Extra Payments',
+            currentValue: 0,
+            optimizedValue: 100,
+            potentialImprovement: 15000,
+            description: 'Adding $100 monthly extra payment'
+          },
+          {
+            area: 'Bi-weekly Payments',
+            currentValue: data.monthlyPayment,
+            optimizedValue: data.monthlyPayment / 2,
+            potentialImprovement: 8000,
+            description: 'Switching to bi-weekly payments'
+          },
+          {
+            area: 'Refinancing',
+            currentValue: data.annualRate,
+            optimizedValue: data.annualRate - 0.005,
+            potentialImprovement: 12000,
+            description: 'Refinancing at 0.5% lower rate'
+          }
+        ];
+        
+        optimizationOpportunities.innerHTML = opportunities.map(opp => `
+          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${opp.description}</p>
+                <div class="flex items-center space-x-4">
+                  <div class="text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Current:</span>
+                    <span class="font-medium">${opp.currentValue === 0 ? '$0' : opp.currentValue < 1 ? `${(opp.currentValue * 100).toFixed(2)}%` : `$${opp.currentValue.toLocaleString()}`}</span>
+                  </div>
+                  <div class="text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Optimized:</span>
+                    <span class="font-medium text-green-600 dark:text-green-400">${opp.optimizedValue < 1 ? `${(opp.optimizedValue * 100).toFixed(2)}%` : `$${opp.optimizedValue.toLocaleString()}`}</span>
+                  </div>
+                  <div class="text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Savings:</span>
+                    <span class="font-medium text-blue-600 dark:text-blue-400">$${opp.potentialImprovement.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        function renderOptimizationValue(value) {
+          if (typeof value !== 'number' || Number.isNaN(value)) return '-';
+          if (Math.abs(value) < 1 && value !== 0) return `${(value * 100).toFixed(2)}%`;
+          return `$${Math.round(value).toLocaleString()}`;
+        }
+      }
+
+      // Debug test button for comprehensive analysis
+      const testAnalysisBtn = document.getElementById('test-analysis-btn');
+      const debugLog = document.getElementById('debug-log');
+      
+      if (testAnalysisBtn && debugLog) {
+        testAnalysisBtn.addEventListener('click', () => {
+          debugLog.innerHTML = 'Testing comprehensive analysis...<br>';
+          
+          // Create mock data
+          const mockData = {
+            principal: 300000,
+            annualRate: 0.045,
+            termMonths: 360,
+            extraPayment: 0,
+            monthlyPayment: 1520.06,
+            totalInterest: 247221.6,
+            totalPayments: 547221.6
+          };
+          
+          debugLog.innerHTML += `Mock data created: ${JSON.stringify(mockData)}<br>`;
+          
+          // Test the new analysis system
+          populateAnalysisData(mockData);
+          
+          debugLog.innerHTML += 'Analysis data populated successfully!<br>';
+          debugLog.innerHTML += '<strong>Test completed! Check if analysis populated.</strong>';
+        });
+      }
+
       // Enhanced form field monitoring
       const form = document.getElementById('calculator-form');
       if (form) {
@@ -564,4 +1312,3 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
     }
   </script>
 </Layout>
-

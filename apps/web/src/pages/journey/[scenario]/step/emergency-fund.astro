@@ -4,37 +4,38 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+  const paths: Array<{ params: { scenario: string } }> = [];
 
-  // Generate paths for each journey step
-  Object.entries(journeyData).forEach(([scenarioId, scenario]) => {
-    scenario.models.forEach((model, index) => {
-      const stepId = model.id;
-      paths.push({
-        params: {
-          scenario: scenarioId,
-          stepId: stepId
-        }
-      });
-    });
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'emergency-fund')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
   });
 
   return paths;
 }
 
-const { scenario, stepId } = Astro.params;
+const { scenario } = Astro.params;
 const journeyData = getJourneyData();
 const currentScenario = journeyData[scenario!];
-const currentModel = currentScenario.models.find(m => m.id === stepId);
-const stepNumber = currentScenario.models.findIndex(m => m.id === stepId) + 1;
-const nextStep = currentScenario.models[stepNumber];
-const previousStep = currentScenario.models[stepNumber - 2];
+
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+// Find emergency-fund step in this journey
+const currentStep = currentScenario.models.find(m => m.id === 'emergency-fund');
+const currentStepOrder = currentStep?.order || 3;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 // Journey navigation data
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: stepNumber,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -50,8 +51,8 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
-const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
@@ -77,7 +78,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
             </svg>
-            <span class="text-gray-900 dark:text-white">{currentModel?.name}</span>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
           </li>
         </ol>
       </nav>
@@ -90,11 +91,11 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center mb-4">
               <span class="text-3xl mr-3">🛡️</span>
               <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentModel?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentModel?.description}</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
                 <div class="mt-2">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {stepNumber} of {currentScenario.models.length} - {currentScenario.name}
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
                   </span>
                 </div>
               </div>
@@ -106,41 +107,55 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
               <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {stepNumber} of {currentScenario.models.length}
+                Step {currentStepOrder} of {currentScenario.models.length}
               </span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
                 class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(stepNumber / currentScenario.models.length) * 100}%`}
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
               ></div>
             </div>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((stepNumber / currentScenario.models.length) * 100)}% Complete
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
             </p>
           </div>
 
           <!-- Emergency Fund Calculator -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Emergency Fund Calculator</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              {scenario === 'home-buying' ? 'Home Ownership Buffer Calculator' : 'Emergency Fund Calculator'}
+            </h2>
             
             <form id="emergency-fund-form" class="space-y-6">
               <!-- Monthly Expenses Section -->
               <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Monthly Expenses</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  💰 {scenario === 'home-buying' ? 'Expected Home Expenses' : 'Monthly Expenses'}
+                </h3>
+                {scenario === 'home-buying' && (
+                  <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>💡 Homeownership Tip:</strong> As a homeowner, you'll have additional costs like maintenance, repairs, HOA fees, and property taxes. This emergency fund is separate from your down payment and closing costs.
+                    </p>
+                  </div>
+                )}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label for="rent-mortgage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Rent/Mortgage ($) *
+                      {scenario === 'home-buying' ? 'Expected Mortgage ($) *' : 'Rent/Mortgage ($) *'}
                     </label>
                     <input 
                       type="number" 
                       id="rent-mortgage" 
                       name="rentMortgage"
                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="1200"
+                      placeholder={scenario === 'home-buying' ? '2000' : '1200'}
                       required
                     />
+                    {scenario === 'home-buying' && (
+                      <p class="text-sm text-gray-500 mt-1">Estimated monthly mortgage payment from step 2</p>
+                    )}
                   </div>
                   <div>
                     <label for="utilities" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -151,20 +166,23 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
                       id="utilities" 
                       name="utilities"
                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="200"
+                      placeholder="250"
                       required
                     />
+                    {scenario === 'home-buying' && (
+                      <p class="text-sm text-gray-500 mt-1">Electric, water, gas, internet, etc.</p>
+                    )}
                   </div>
                   <div>
                     <label for="groceries" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Groceries ($) *
+                      Groceries & Food ($) *
                     </label>
                     <input 
                       type="number" 
                       id="groceries" 
                       name="groceries"
                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="400"
+                      placeholder="600"
                       required
                     />
                   </div>
@@ -177,35 +195,74 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
                       id="transportation" 
                       name="transportation"
                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="300"
+                      placeholder="400"
                       required
                     />
+                    {scenario === 'home-buying' && (
+                      <p class="text-sm text-gray-500 mt-1">Gas, car payment, maintenance</p>
+                    )}
                   </div>
-                  <div>
-                    <label for="insurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Insurance ($) *
-                    </label>
-                    <input 
-                      type="number" 
-                      id="insurance" 
-                      name="insurance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="150"
-                      required
-                    />
-                  </div>
+                  {scenario === 'home-buying' ? (
+                    <div>
+                      <label for="home-insurance-taxes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Home Insurance & Taxes ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="home-insurance-taxes" 
+                        name="homeInsuranceTaxes"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="400"
+                        required
+                      />
+                      <p class="text-sm text-gray-500 mt-1">Monthly property tax + insurance</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <label for="insurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Insurance ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="insurance" 
+                        name="insurance"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="150"
+                        required
+                      />
+                    </div>
+                  )}
+                  {scenario === 'home-buying' && (
+                    <div>
+                      <label for="maintenance-hoa" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Maintenance & HOA ($) *
+                      </label>
+                      <input 
+                        type="number" 
+                        id="maintenance-hoa" 
+                        name="maintenanceHOA"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="300"
+                        required
+                      />
+                      <p class="text-sm text-gray-500 mt-1">Monthly maintenance savings + HOA fees</p>
+                    </div>
+                  )}
                   <div>
                     <label for="other-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Other Essential Expenses ($) *
+                      {scenario === 'home-buying' ? 'Other Essential Expenses ($)' : 'Other Essential Expenses ($) *'}
                     </label>
                     <input 
                       type="number" 
                       id="other-expenses" 
                       name="otherExpenses"
                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="200"
-                      required
+                      placeholder={scenario === 'home-buying' ? '300' : '200'}
+                      required={scenario !== 'home-buying'}
                     />
+                    {scenario === 'home-buying' && (
+                      <p class="text-sm text-gray-500 mt-1">Healthcare, subscriptions, etc.</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -243,34 +300,64 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
 
               <!-- Emergency Fund Strategy Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Emergency Fund Strategy</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  🎯 {scenario === 'home-buying' ? 'Home Ownership Buffer Strategy' : 'Emergency Fund Strategy'}
+                </h3>
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Choose your emergency fund target:
+                      Choose your {scenario === 'home-buying' ? 'buffer target:' : 'emergency fund target:'}
                     </label>
                     <div class="space-y-2">
-                      <label class="flex items-start">
-                        <input type="radio" name="fundTarget" value="3-months" class="mt-1 mr-3">
-                        <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 Months of Expenses</span>
-                          <p class="text-xs text-gray-500">Minimum recommended for young professionals</p>
-                        </div>
-                      </label>
-                      <label class="flex items-start">
-                        <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
-                        <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
-                          <p class="text-xs text-gray-500">Recommended for most people</p>
-                        </div>
-                      </label>
-                      <label class="flex items-start">
-                        <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
-                        <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
-                          <p class="text-xs text-gray-500">Set your own target</p>
-                        </div>
-                      </label>
+                      {scenario === 'home-buying' ? (
+                        <>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
+                              <p class="text-xs text-gray-500">Recommended for homeowners</p>
+                            </div>
+                          </label>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="12-months" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">12 Months of Expenses</span>
+                              <p class="text-xs text-gray-500">Extra safety cushion</p>
+                            </div>
+                          </label>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
+                              <p class="text-xs text-gray-500">Set your own target</p>
+                            </div>
+                          </label>
+                        </>
+                      ) : (
+                        <>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="3-months" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 Months of Expenses</span>
+                              <p class="text-xs text-gray-500">Minimum recommended for young professionals</p>
+                            </div>
+                          </label>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
+                              <p class="text-xs text-gray-500">Recommended for most people</p>
+                            </div>
+                          </label>
+                          <label class="flex items-start">
+                            <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
+                            <div>
+                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
+                              <p class="text-xs text-gray-500">Set your own target</p>
+                            </div>
+                          </label>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div id="custom-amount" class="hidden">
@@ -384,30 +471,60 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">🛡️ Why Emergency Fund?</h3>
+            <h3 class="text-lg font-semibold mb-4">{scenario === 'home-buying' ? '🏠 Why Home Ownership Buffer?' : '🛡️ Why Emergency Fund?'}</h3>
             <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <p><strong>Job Loss:</strong> Covers expenses while job hunting.</p>
-              </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p><strong>Medical Emergency:</strong> Unexpected health costs.</p>
-              </div>
-              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p><strong>Car Repairs:</strong> Vehicle breakdowns happen.</p>
-              </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <p><strong>Peace of Mind:</strong> Reduces financial stress.</p>
-              </div>
+              {scenario === 'home-buying' ? (
+                <>
+                  <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <p><strong>Major Repairs:</strong> HVAC, roof, plumbing emergencies.</p>
+                  </div>
+                  <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p><strong>Job Loss:</strong> Covers mortgage during job transition.</p>
+                  </div>
+                  <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                    <p><strong>Appliance Replacement:</strong> Fridge, washer, HVAC breaks.</p>
+                  </div>
+                  <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p><strong>Peace of Mind:</strong> Sleep easy with home protection.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <p><strong>Job Loss:</strong> Covers expenses while job hunting.</p>
+                  </div>
+                  <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p><strong>Medical Emergency:</strong> Unexpected health costs.</p>
+                  </div>
+                  <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                    <p><strong>Car Repairs:</strong> Vehicle breakdowns happen.</p>
+                  </div>
+                  <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p><strong>Peace of Mind:</strong> Reduces financial stress.</p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">💡 Savings Tips</h3>
+            <h3 class="text-lg font-semibold mb-4">💡 {scenario === 'home-buying' ? 'Homeownership Savings Tips' : 'Savings Tips'}</h3>
             <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-              <p><strong>Automate:</strong> Set up automatic transfers.</p>
-              <p><strong>High-Yield:</strong> Use high-yield savings accounts.</p>
-              <p><strong>Separate:</strong> Keep emergency fund separate from other savings.</p>
-              <p><strong>Accessible:</strong> Make sure it's easily accessible.</p>
+              {scenario === 'home-buying' ? (
+                <>
+                  <p><strong>Budget 1%:</strong> Save 1% of home value annually for maintenance.</p>
+                  <p><strong>Separate Accounts:</strong> Keep buffer separate from down payment fund.</p>
+                  <p><strong>High-Yield:</strong> Use high-yield savings for accessibility.</p>
+                  <p><strong>6-12 Months:</strong> Aim for 6-12 months of mortgage coverage.</p>
+                </>
+              ) : (
+                <>
+                  <p><strong>Automate:</strong> Set up automatic transfers.</p>
+                  <p><strong>High-Yield:</strong> Use high-yield savings accounts.</p>
+                  <p><strong>Separate:</strong> Keep emergency fund separate from other savings.</p>
+                  <p><strong>Accessible:</strong> Make sure it's easily accessible.</p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -415,7 +532,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
     </div>
   </main>
 
-  <script>
+  <script define:vars={{ scenario }}>
     // Emergency Fund Calculator
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('emergency-fund-form');
@@ -444,13 +561,28 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
           
           // Collect form data
           const formData = new FormData(form);
-          const monthlyExpenses = 
-            parseFloat(formData.get('rentMortgage') || 0) +
-            parseFloat(formData.get('utilities') || 0) +
-            parseFloat(formData.get('groceries') || 0) +
-            parseFloat(formData.get('transportation') || 0) +
-            parseFloat(formData.get('insurance') || 0) +
-            parseFloat(formData.get('otherExpenses') || 0);
+          let monthlyExpenses;
+          
+          if (scenario === 'home-buying') {
+            // Home buying has different fields
+            monthlyExpenses = 
+              parseFloat(formData.get('rentMortgage') || 0) +
+              parseFloat(formData.get('utilities') || 0) +
+              parseFloat(formData.get('groceries') || 0) +
+              parseFloat(formData.get('transportation') || 0) +
+              parseFloat(formData.get('homeInsuranceTaxes') || 0) +
+              parseFloat(formData.get('maintenanceHOA') || 0) +
+              parseFloat(formData.get('otherExpenses') || 0);
+          } else {
+            // Other journeys use standard fields
+            monthlyExpenses = 
+              parseFloat(formData.get('rentMortgage') || 0) +
+              parseFloat(formData.get('utilities') || 0) +
+              parseFloat(formData.get('groceries') || 0) +
+              parseFloat(formData.get('transportation') || 0) +
+              parseFloat(formData.get('insurance') || 0) +
+              parseFloat(formData.get('otherExpenses') || 0);
+          }
 
           const currentFund = parseFloat(formData.get('currentEmergencyFund') || 0);
           const monthlySavings = parseFloat(formData.get('monthlySavings') || 0);
@@ -463,6 +595,8 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
             targetAmount = monthlyExpenses * 3;
           } else if (fundTarget === '6-months') {
             targetAmount = monthlyExpenses * 6;
+          } else if (fundTarget === '12-months') {
+            targetAmount = monthlyExpenses * 12;
           } else if (fundTarget === 'custom') {
             targetAmount = customAmount;
           }

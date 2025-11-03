@@ -4,9 +4,15 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
-  const paths = Object.keys(journeyData).map((scenarioId) => ({
-    params: { scenario: scenarioId },
-  }));
+  const paths: Array<{ params: { scenario: string } }> = [];
+
+  // Generate paths for all scenarios that have this step
+  Object.keys(journeyData).forEach(scenarioId => {
+    const scenario = journeyData[scenarioId];
+    if (scenario.models.some(model => model.id === 'startup-budget')) {
+      paths.push({ params: { scenario: scenarioId } });
+    }
+  });
 
   return paths;
 }
@@ -21,13 +27,14 @@ if (!currentScenario) {
 
 // Journey navigation data
 const currentStep = currentScenario.models.find(m => m.id === 'startup-budget');
-const nextStep = currentScenario.models.find(m => m.order === 3);
-const previousStep = currentScenario.models.find(m => m.order === 1);
+const currentStepOrder = currentStep?.order || 2;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: 2,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -43,29 +50,48 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `Startup Budget Planning - Step 2 of ${currentScenario.name}`;
-const seoDescription = `Create startup budget and cash flow projections. This is step 2 of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script>
-  // Update chatbot context for this phase
+<script define:vars={{ journeyNav }}>
+  // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
+    // Load journey state to include actual data
+    const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+    const currentPhaseData = journeyState.collectedData?.['startup-budget'] || {};
+    const previousPhaseData = journeyState.collectedData?.['initial-capital-investment'] || {};
+    
+    // Build context data with journey information
+    const contextData = {
+      phase: 2,
+      phaseName: 'Startup Budget Planning',
+      description: 'Creating startup budget and cash flow projections',
+      keyFields: ['monthlyRevenue', 'growthRate', 'salaries', 'officeRent', 'marketing', 'initialFunding', 'runwayMonths'],
+      helpTopics: [
+        'Revenue projection best practices',
+        'Burn rate calculations',
+        'Runway planning',
+        'Budget allocation strategies'
+      ],
+      // Include current phase data if available
+      currentPhaseData: Object.keys(currentPhaseData).length > 0 ? currentPhaseData : undefined,
+      // Include previous phase data for reference
+      previousPhases: previousPhaseData ? {
+        phase1: {
+          totalInvestment: previousPhaseData.investment?.total,
+          equityOffered: previousPhaseData.terms?.equityOffered,
+          valuation: previousPhaseData.terms?.valuation,
+          allocation: previousPhaseData.allocation
+        }
+      } : undefined
+    };
+
     window.dispatchEvent(new CustomEvent('chat-panel-context', {
       detail: {
-        contextKey: 'startup-budget-planning',
+        contextKey: 'startup-planning',
         label: 'Startup Budget Planning',
-        data: {
-          phase: 2,
-          phaseName: 'Startup Budget Planning',
-          description: 'Creating startup budget and cash flow projections',
-          keyFields: ['monthlyRevenue', 'growthRate', 'salaries', 'officeRent', 'marketing', 'initialFunding', 'runwayMonths'],
-          helpTopics: [
-            'Revenue projection best practices',
-            'Burn rate calculations',
-            'Runway planning',
-            'Budget allocation strategies'
-          ]
-        }
+        data: contextData
       }
     }));
   }

@@ -26,14 +26,15 @@ if (!currentScenario) {
 }
 
 const currentStep = currentScenario.models.find(m => m.id === 'initial-capital-investment');
-const nextStep = currentScenario.models.find(m => m.order === 2);
-const previousStep = null; // This is the first step
+const currentStepOrder = currentStep?.order || 1;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
 
 // Journey navigation data
 const journeyNav = {
   scenarioId: scenario!,
   scenarioName: currentScenario.name,
-  currentStep: 1,
+  currentStep: currentStepOrder,
   totalSteps: currentScenario.models.length,
   nextStep: nextStep ? {
     id: nextStep.id,
@@ -49,29 +50,38 @@ const journeyNav = {
 };
 
 // SEO-optimized content
-const seoTitle = `${currentStep?.name} - Step 1 of ${currentScenario.name}`;
-const seoDescription = `${currentStep?.description} This is step 1 of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script>
-  // Update chatbot context for this phase
+<script define:vars={{ journeyNav }}>
+  // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
+    // Load journey state to include actual data
+    const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+    const currentPhaseData = journeyState.collectedData?.['initial-capital-investment'] || {};
+    
+    // Build context data with journey information
+    const contextData = {
+      phase: 1,
+      phaseName: 'Initial Capital Investment',
+      description: 'Planning initial capital requirements and investment structure',
+      keyFields: ['totalInvestment', 'investmentTimeline', 'founderInvestment', 'angelInvestment', 'vcInvestment', 'equityOffered', 'valuation'],
+      helpTopics: [
+        'How to calculate initial capital needs',
+        'Understanding equity dilution',
+        'Valuation considerations for early stage',
+        'Investment allocation strategies'
+      ],
+      // Include current phase data if available
+      currentPhaseData: Object.keys(currentPhaseData).length > 0 ? currentPhaseData : undefined
+    };
+
     window.dispatchEvent(new CustomEvent('chat-panel-context', {
       detail: {
-        contextKey: 'initial-capital-investment',
+        contextKey: 'startup-planning',
         label: 'Initial Capital Investment Planning',
-        data: {
-          phase: 1,
-          phaseName: 'Initial Capital Investment',
-          description: 'Planning initial capital requirements and investment structure',
-          keyFields: ['totalInvestment', 'investmentTimeline', 'founderInvestment', 'angelInvestment', 'vcInvestment', 'equityOffered', 'valuation'],
-          helpTopics: [
-            'How to calculate initial capital needs',
-            'Understanding equity dilution',
-            'Valuation considerations for early stage',
-            'Investment allocation strategies'
-          ]
-        }
+        data: contextData
       }
     }));
   }

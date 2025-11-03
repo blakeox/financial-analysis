@@ -9,6 +9,7 @@ R2_SOFT_LIMIT_BYTES = 1073741824     # 1 GiB (dev)
 R2_HARD_LIMIT_BYTES = 2147483648     # 2 GiB (dev)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
 ANALYSIS_CACHE_TTL_SECONDS = 0       # 0 disables Cache API for analysis responses by default
+ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Comma-separated MIME type prefixes allowed for uploads. Tighten as needed per env.
 # Example covers PDFs and modern Office docs (docx/xlsx/pptx via vnd.openxmlformats).
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
@@ -59,6 +60,7 @@ R2_SOFT_LIMIT_BYTES = 2147483648     # 2 GiB (preview)
 R2_HARD_LIMIT_BYTES = 3221225472     # 3 GiB (preview)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
 ANALYSIS_CACHE_TTL_SECONDS = 0
+ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 
@@ -94,6 +96,7 @@ R2_SOFT_LIMIT_BYTES = 8589934592     # 8 GiB (prod)
 R2_HARD_LIMIT_BYTES = 9663676416     # 9 GiB (prod)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
 ANALYSIS_CACHE_TTL_SECONDS = 0
+ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Consider making this stricter in production if business rules require fewer types.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 

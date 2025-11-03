@@ -98,23 +98,23 @@ export default {
       });
 
       try {
-        const apiRes = await fetch(apiReq);
+      const apiRes = await fetch(apiReq);
         console.log('API response:', {
           status: apiRes.status,
           statusText: apiRes.statusText,
           headers: Object.fromEntries(apiRes.headers.entries()),
         });
 
-        const headers = new Headers(apiRes.headers);
-        headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        headers.set('Access-Control-Allow-Origin', '*');
-        if (isDev) {
-          headers.set('x-dev-proxy', 'web->api');
-        }
-        for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
-          headers.set(key, value);
-        }
-        return new Response(apiRes.body, { status: apiRes.status, headers });
+      const headers = new Headers(apiRes.headers);
+      headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      headers.set('Access-Control-Allow-Origin', '*');
+      if (isDev) {
+        headers.set('x-dev-proxy', 'web->api');
+      }
+      for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
+        headers.set(key, value);
+      }
+      return new Response(apiRes.body, { status: apiRes.status, headers });
       } catch (error) {
         console.error('API proxy error:', error);
         return new Response(JSON.stringify({ error: 'API proxy failed', details: error.message }), {

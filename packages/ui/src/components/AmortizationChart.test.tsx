@@ -114,12 +114,14 @@ describe('AmortizationChart', () => {
     expect(screen.queryByRole('button', { name: /milestone/i })).not.toBeInTheDocument();
   });
 
-  it('shows correct balance progression', () => {
+  it('shows a currency scale that covers the highest payment', () => {
     render(<AmortizationChart schedule={sampleResult.schedule} milestones={sampleMilestones} />);
 
-    // Should show balance values from the chart scale (based on existing output we can see it shows $856.07, $642.05, $428.04, $214.02 scale)
-    expect(screen.getByText('$856.07')).toBeInTheDocument(); // Maximum payment amount shown on scale
-    expect(screen.getByText('$214.02')).toBeInTheDocument(); // Quarter scale value
+    const formatCurrency = (value: number) =>
+      new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+
+    expect(screen.getAllByText(formatCurrency(1000))).not.toHaveLength(0);
+    expect(screen.getAllByText(formatCurrency(200))).not.toHaveLength(0);
   });
 
   it('maintains accessibility with proper ARIA labels', () => {

@@ -1,6 +1,6 @@
 // Minimal stub implementation for FinancialJourneyAnalyzer
 export class FinancialJourneyAnalyzer {
-  static analyze(input: any): any {
+  static analyze(_input: any): any {
     return {
       summary: {
         currentStage: 'getting-started',

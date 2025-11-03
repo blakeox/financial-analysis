@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@financial-analysis/ui';
 import AdSense from '../components/AdSense.astro';
 import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
@@ -7,27 +8,61 @@ import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 export const organizationLogo = fanalyxLogo;
 ---
 
-<Layout title="Financial Analysis" description="Advanced financial analysis tools powered by AI and deterministic calculations">
+<Layout 
+  title="Free Financial Calculators & AI Insights - 29 Professional Tools | Fanalyx" 
+  description="29 free financial calculators with AI-powered analysis. Professional tools for loans, mortgages, retirement, investments, and business planning. No signup required, instant results with expert guidance."
+  keywords="financial calculator, free calculator, loan calculator, mortgage calculator, retirement calculator, investment calculator, business calculator, AI financial advisor, financial planning tools"
+>
   <div class="min-h-screen bg-slate-950 text-white">
-    <!-- Structured Data -->
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Financial Analysis',
-        url: Astro.url.origin,
-        description: 'Advanced financial analysis tools powered by AI and deterministic calculations.'
-      })}
-    </script>
-    <script type="application/ld+json" is:inline>
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: 'Financial Analysis',
-        url: Astro.url.origin,
-  logo: new URL(organizationLogo, Astro.url).toString(),
-      })}
-    </script>
+    <!-- Structured Data for Homepage -->
+    <StructuredData 
+      type="website" 
+      website={{
+        name: 'Fanalyx - Financial Analysis Tools',
+        url: 'https://fanalyx.com',
+        description: 'Professional financial calculators and AI-powered analysis tools for personal finance, business planning, loans, investments, and retirement. 100% free with no signup required.'
+      }}
+    />
+    
+    <StructuredData 
+      type="organization" 
+      organization={{
+        name: 'Fanalyx',
+        url: 'https://fanalyx.com',
+        logo: `https://fanalyx.com${organizationLogo}`,
+        description: 'Fanalyx provides free, professional-grade financial calculators and AI-powered analysis tools to help individuals and businesses make smarter financial decisions.',
+        sameAs: [
+          'https://twitter.com/fanalyx',
+          'https://linkedin.com/company/fanalyx'
+        ]
+      }}
+    />
+    
+    <StructuredData 
+      type="faq" 
+      faqs={[
+        {
+          question: 'Are the financial calculators really free?',
+          answer: 'Yes! All 29 financial calculators are 100% free with no hidden fees, no credit card required, and no signup needed. You get full access to all features including AI-powered analysis and recommendations.'
+        },
+        {
+          question: 'Do I need to create an account?',
+          answer: 'No account required! All calculators work instantly without any signup. Your privacy is protected - we do not track or store your financial data.'
+        },
+        {
+          question: 'What types of calculators are available?',
+          answer: 'We offer 29 calculators including mortgage/loan calculators, retirement planning tools, investment analyzers, debt payoff calculators, budget planners, business valuation tools, lease analysis, and more. All with AI-powered insights.'
+        },
+        {
+          question: 'How does the AI analysis work?',
+          answer: 'Our AI analyzes your calculations and provides personalized recommendations based on your specific situation. It explains results in plain language and suggests optimization strategies to help you achieve better financial outcomes.'
+        },
+        {
+          question: 'Can I use these calculators for business planning?',
+          answer: 'Absolutely! We have specialized business calculators for EBITDA forecasting, lease analysis, commercial real estate, cash flow projections, and more. Perfect for entrepreneurs, startups, and established businesses.'
+        }
+      ]}
+    />
     <!-- Hero Section -->
     <section class="relative overflow-hidden">
   <div class="absolute inset-0 bg-linear-to-br from-blue-600/30 via-indigo-500/25 to-purple-500/20" aria-hidden="true" />
@@ -37,18 +72,18 @@ export const organizationLogo = fanalyxLogo;
         <div class="max-w-4xl mx-auto text-center space-y-12">
           <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-medium text-blue-100 shadow-lg shadow-blue-900/40">
             <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-            Real-time cloud workers • Deterministic math • Audit ready
+            Free financial calculators • AI-powered insights • No signup required
           </div>
           <div class="space-y-6">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-              Financial Analysis
+              Free Financial
               <span class="block text-transparent bg-clip-text bg-linear-to-r from-sky-300 via-blue-200 to-indigo-300">
-                Made Precise
+                Calculators & AI Insights
               </span>
             </h1>
             <p class="text-lg sm:text-xl text-slate-200/90 max-w-3xl mx-auto leading-relaxed">
-              Operate with confidence using a modern analysis stack built on Cloudflare Workers and deterministic engines.
-              We combine strict validation, reproducible math, and beautiful dashboards so your financial decisions are never a guess.
+              29 powerful calculators for mortgages, loans, savings, retirement, and business planning. 
+              Get instant calculations plus AI-powered guidance to make smarter financial decisions.
             </p>
           </div>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -56,16 +91,16 @@ export const organizationLogo = fanalyxLogo;
               href="/models"
               class="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-blue-500 to-indigo-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-transform duration-300 hover:-translate-y-0.5"
             >
-              Explore Models
+              Browse Calculators
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </a>
             <a
-              href="/analysis"
+              href="/journey"
               class="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-3 text-base font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
             >
-              Launch Analyzer
+              Start My Journey
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" />
               </svg>
@@ -73,19 +108,19 @@ export const organizationLogo = fanalyxLogo;
           </div>
           <dl class="grid grid-cols-1 gap-6 sm:grid-cols-3 text-left">
             <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">Deterministic Engines</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white">0.00% drift</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">All outputs are reproducible and audited per release.</dd>
+              <dt class="text-sm font-medium text-slate-200/70">Financial Calculators</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white">29 tools</dd>
+              <dd class="mt-2 text-xs text-slate-300/80">Covering personal finance, loans, investments, and business.</dd>
             </div>
             <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">Cloudflare footprint</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white"><span>300+</span> edges</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">Millisecond APIs running across the Workers network.</dd>
+              <dt class="text-sm font-medium text-slate-200/70">AI-Powered</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white">Instant</dd>
+              <dd class="mt-2 text-xs text-slate-300/80">Get personalized guidance with every calculation.</dd>
             </div>
             <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">Ready today</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white">2 min setup</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">Connect inputs and generate forecasts in under two minutes.</dd>
+              <dt class="text-sm font-medium text-slate-200/70">100% Free</dt>
+              <dd class="mt-3 text-3xl font-semibold text-white">No signup</dd>
+              <dd class="mt-2 text-xs text-slate-300/80">Use all calculators immediately, no account required.</dd>
             </div>
           </dl>
         </div>
@@ -96,10 +131,10 @@ export const organizationLogo = fanalyxLogo;
     <section class="py-24 bg-slate-950">
       <div class="container mx-auto px-4">
         <div class="max-w-2xl text-center mx-auto mb-16 space-y-4">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Capability Stack</p>
-          <h2 class="text-4xl font-semibold text-white">Built for finance teams that demand certainty</h2>
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Everything You Need</p>
+          <h2 class="text-4xl font-semibold text-white">Smart calculators that adapt to your goals</h2>
           <p class="text-base text-slate-300/90 leading-relaxed">
-            Every experience—from dashboards to Workers APIs—leans on the same typed, deterministic engines. No silos.
+            From buying a home to planning retirement—get accurate calculations and personalized AI advice instantly.
           </p>
         </div>
 
@@ -112,11 +147,11 @@ export const organizationLogo = fanalyxLogo;
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2a2 2 0 012 2v11a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2z" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold text-white">Deterministic Calculations</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">Accurate Calculations</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-slate-300/90">
-                Typed schemas and reproducible math guarantee that outputs never drift. Each release is snapshot-tested across load scenarios.
+                Professional-grade financial calculations with precise math. Every result is verified and reproducible.
               </CardDescription>
             </CardContent>
           </Card>
@@ -128,11 +163,11 @@ export const organizationLogo = fanalyxLogo;
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3l3 8 4-16 3 8h5" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold text-white">Edge-speed Execution</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">Instant Results</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-slate-300/90">
-                Cloudflare Workers handle every request with <span class="text-white">sub-50ms</span> budgeted latency and persistent request IDs for tracing.
+                Get your answers <span class="text-white">instantly</span>. No waiting, no loading screens. Just fast, reliable calculations.
               </CardDescription>
             </CardContent>
           </Card>
@@ -145,11 +180,11 @@ export const organizationLogo = fanalyxLogo;
                   <circle cx="12" cy="12" r="9" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-semibold text-white">Explainable AI Assist</CardTitle>
+              <CardTitle className="text-xl font-semibold text-white">AI-Powered Guidance</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-slate-300/90">
-                Surface context-aware recommendations with verifiable reasoning chains—every insight is grounded in deterministic base calculations.
+                Get personalized recommendations and insights. Our AI understands your situation and provides actionable advice.
               </CardDescription>
             </CardContent>
           </Card>
@@ -162,47 +197,47 @@ export const organizationLogo = fanalyxLogo;
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           <div class="lg:col-span-1 space-y-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Workflow</p>
-            <h2 class="text-4xl font-semibold text-white">From data import to forecast in three steps</h2>
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">How It Works</p>
+            <h2 class="text-4xl font-semibold text-white">Simple, fast, and helpful—in three steps</h2>
             <p class="text-base text-slate-300/90 leading-relaxed">
-              The same flow powers our EBITDA dashboard, API endpoints, and MCP tooling. It’s fast, typed, and observable.
+              Choose your calculator, enter your information, and get instant answers plus personalized AI guidance.
             </p>
             <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <p class="text-sm text-slate-200/80">“We shipped our first forecast in under ten minutes, and every rerun matches byte for byte.”</p>
-              <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-300">Director of Finance</p>
+              <p class="text-sm text-slate-200/80">"Finally, financial calculators that actually help me make decisions. The AI guidance is incredibly thoughtful."</p>
+              <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-300">Real User</p>
             </div>
           </div>
           <div class="lg:col-span-2 grid grid-cols-1 gap-6">
             <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
               <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/40 text-white font-semibold">1</div>
               <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Ingest & Validate</h3>
-                <p class="text-sm text-slate-300/90">Upload revenue, employee, and expense data. Zod validation ensures every field is typed and coerced once.</p>
+                <h3 class="text-xl font-semibold text-white">Pick Your Calculator</h3>
+                <p class="text-sm text-slate-300/90">Choose from 29 calculators for loans, savings, retirement, investments, or business planning.</p>
                 <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">CSV / JSON / API</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">Schema pinned</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">29 Calculators</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">All Free</span>
                 </div>
               </div>
             </div>
             <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
               <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/40 text-white font-semibold">2</div>
               <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Project & Simulate</h3>
-                <p class="text-sm text-slate-300/90">Deterministic engines project EBITDA across scenarios while tracking every assumption change with request IDs.</p>
+                <h3 class="text-xl font-semibold text-white">Enter Your Info</h3>
+                <p class="text-sm text-slate-300/90">Quick and easy forms guide you through. No confusing fields—just clear questions.</p>
                 <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">Multi-scenario</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">Milliseconds</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Simple Forms</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Safe & Private</span>
                 </div>
               </div>
             </div>
             <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
               <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/40 text-white font-semibold">3</div>
               <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Tell the Story</h3>
-                <p class="text-sm text-slate-300/90">Export crisp summaries, embed charts, or expose APIs. Every result is reproducible for audits or board decks.</p>
+                <h3 class="text-xl font-semibold text-white">Get Instant Results</h3>
+                <p class="text-sm text-slate-300/90">See your calculations immediately, then chat with AI to understand what they mean for your goals.</p>
                 <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">CSV & PDF export</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">Observability hooks</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">Instant Answers</span>
+                  <span class="rounded-full bg-white/10 px-3 py-1">AI Guidance</span>
                 </div>
               </div>
             </div>
@@ -221,25 +256,25 @@ export const organizationLogo = fanalyxLogo;
           </div>
           <div class="relative grid gap-8 lg:grid-cols-[1.25fr,1fr] items-center">
             <div class="space-y-4">
-              <h2 class="text-3xl sm:text-4xl font-semibold text-white">See it in action</h2>
+              <h2 class="text-3xl sm:text-4xl font-semibold text-white">Get started in seconds</h2>
               <p class="text-sm sm:text-base text-white/80 max-w-xl">
-                Spin up the EBITDA dashboard, hit the API, or connect via MCP. One stack, multiple entry points, zero inconsistencies.
+                Browse our calculators or start a personalized financial journey. No signup, no credit card—just helpful tools.
               </p>
               <div class="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="/ebitda-forecasting"
+                  href="/models"
                   class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-blue-600 shadow-lg shadow-blue-900/40 hover:shadow-xl hover:-translate-y-0.5 transition"
                 >
-                  Open EBITDA Dashboard
+                  View All Calculators
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fill-rule="evenodd" d="M3.172 7l5.657-5.657a4 4 0 015.657 0L18.828 6.4a4 4 0 010 5.657l-5.656 5.657A4 4 0 017.515 16.4L1.858 10.743a2 2 0 010-2.828z" clip-rule="evenodd" />
                   </svg>
                 </a>
                 <a
-                  href="/docs"
+                  href="/journey"
                   class="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 px-7 py-3 text-sm font-semibold text-white/90 backdrop-blur hover:bg-white/10 transition"
                 >
-                  View API Docs
+                  Start My Journey
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -249,20 +284,20 @@ export const organizationLogo = fanalyxLogo;
             <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
               <dl class="space-y-4">
                 <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">SLA Uptime</dt>
-                  <dd class="text-lg font-semibold text-white">99.98%</dd>
+                  <dt class="text-sm text-white/70">100% Free</dt>
+                  <dd class="text-lg font-semibold text-white">Forever</dd>
                 </div>
                 <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">Audit Trail Retention</dt>
-                  <dd class="text-lg font-semibold text-white">18 months</dd>
+                  <dt class="text-sm text-white/70">29 Calculators</dt>
+                  <dd class="text-lg font-semibold text-white">Always Growing</dd>
                 </div>
                 <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">API Throughput</dt>
-                  <dd class="text-lg font-semibold text-white">&gt; 10k/min</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">CLI / MCP Access</dt>
+                  <dt class="text-sm text-white/70">AI Guidance</dt>
                   <dd class="text-lg font-semibold text-white">Included</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-white/70">Privacy First</dt>
+                  <dd class="text-lg font-semibold text-white">No Tracking</dd>
                 </div>
               </dl>
             </div>
