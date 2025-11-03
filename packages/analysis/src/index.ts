@@ -10,6 +10,9 @@ export { DCFValuationEngine } from './engines/dcf-analysis.js';
 export { CCAValuationEngine } from './engines/cca-analysis.js';
 export { FinancialJourneyAnalysisEngine } from './engines/financial-journey.js';
 export { InsuranceNeedsCalculator } from './engines/insurance-needs.js';
+export { UnitEconomicsEngine } from './engines/unit-economics.js';
+export { BusinessValuationEngine } from './engines/business-valuation.js';
+export { RevenueForecastEngine } from './engines/revenue-forecast.js';
 
 // Export amortization functions and types
 export {
@@ -175,3 +178,12 @@ export { InvestmentPortfolioInputSchema } from './schemas/investment-portfolio.j
 // Tax optimization schemas and types (stub - need to check)
 export { TaxOptimizationPlanner } from './engines/tax-optimization-stub.js';
 export { TaxOptimizationInputSchema } from './schemas/tax-optimization.js';
+
+// Unit economics schemas and types
+export type { UnitEconomicsInput, UnitEconomicsResult, CohortAnalysis } from './engines/unit-economics.js';
+
+// Business valuation schemas and types
+export type { BusinessValuationInput, BusinessValuationResult, ValuationMethod } from './engines/business-valuation.js';
+
+// Revenue forecast schemas and types
+export type { RevenueForecastInput, RevenueForecastResult, RevenueStream, MonthlyForecast } from './engines/revenue-forecast.js';

@@ -27,6 +27,9 @@ export type CalculatorContextKey =
   | 'saas-metrics'
   | 'lease'
   | 'ebitda'
+  | 'unit-economics'
+  | 'business-valuation'
+  | 'revenue-forecast'
   | 'models'
   | 'general'
   | 'startup-planning';
@@ -352,6 +355,60 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
   },
   
   // Journey/General
+  'unit-economics': {
+    id: 'unit-economics',
+    label: 'Unit Economics',
+    intro: 'Hi — I can help analyze your customer unit economics.',
+    examples: [
+      'What is a good LTV:CAC ratio?',
+      'How can I reduce my payback period?',
+      'Is my churn rate too high?',
+    ],
+    fieldMappings: {
+      'marketing spend': 'monthlyMarketingSpend',
+      'customers': 'newCustomersPerMonth',
+      'revenue': 'averageMonthlyRevenue',
+      'churn': 'monthlyChurnRate',
+      'churn rate': 'monthlyChurnRate',
+      'cogs': 'costOfGoodsSoldPercent',
+    },
+  },
+  
+  'business-valuation': {
+    id: 'business-valuation',
+    label: 'Business Valuation',
+    intro: 'Hi — I can help estimate your business value.',
+    examples: [
+      'What is my business worth?',
+      'How do I increase business value?',
+      'What multiples apply to my industry?',
+    ],
+    fieldMappings: {
+      'revenue': 'annualRevenue',
+      'annual revenue': 'annualRevenue',
+      'ebitda': 'annualEbitda',
+      'growth': 'revenueGrowthRate',
+      'growth rate': 'revenueGrowthRate',
+    },
+  },
+  
+  'revenue-forecast': {
+    id: 'revenue-forecast',
+    label: 'Revenue Forecast',
+    intro: 'Hi — I can help forecast your future revenue.',
+    examples: [
+      'Project my revenue for next year',
+      'What if growth rate increases to 20%?',
+      'Show me seasonal impacts',
+    ],
+    fieldMappings: {
+      'forecast months': 'forecastMonths',
+      'months': 'forecastMonths',
+      'growth': 'stream-growth-0',
+      'growth rate': 'stream-growth-0',
+    },
+  },
+  
   'startup-planning': {
     id: 'startup-planning',
     label: 'Startup Planning',
@@ -439,6 +496,9 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
       'commercial-real-estate-lease': 'lease',
       'ebitda-forecasting': 'ebitda',
       'ebitda': 'ebitda',
+      'unit-economics': 'unit-economics',
+      'business-valuation': 'business-valuation',
+      'revenue-forecast': 'revenue-forecast',
       'models': 'models',
     };
     

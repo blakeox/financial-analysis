@@ -34,6 +34,9 @@ type ScriptLoaderMap = {
   'business-loan-qualifier': () => Promise<unknown>;
   'pricing-strategy': () => Promise<unknown>;
   'saas-metrics': () => Promise<unknown>;
+  'unit-economics': () => Promise<unknown>;
+  'business-valuation': () => Promise<unknown>;
+  'revenue-forecast': () => Promise<unknown>;
   'dashboard-personal': () => Promise<unknown>;
 };
 
@@ -69,6 +72,9 @@ const scriptLoaders: ScriptLoaderMap = {
   'business-loan-qualifier': () => import('../scripts/business-loan-qualifier.client.ts'),
   'pricing-strategy': () => import('../scripts/pricing-strategy.client.ts'),
   'saas-metrics': () => import('../scripts/saas-metrics.client.ts'),
+  'unit-economics': () => import('../scripts/unit-economics.client.ts'),
+  'business-valuation': () => import('../scripts/business-valuation.client.ts'),
+  'revenue-forecast': () => import('../scripts/revenue-forecast.client.ts'),
   'equipment-lease': () => import('../scripts/equipment-lease.client.ts'),
   'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning.client.ts'),
   'rent-vs-buy': () => import('../scripts/rent-vs-buy.client.ts'),

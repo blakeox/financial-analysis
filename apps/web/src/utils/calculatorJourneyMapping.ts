@@ -93,6 +93,16 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
     'cash-flow': [
       { journeyId: 'startup-planning', relevance: 'high', why: 'Critical for runway planning' },
     ],
+    'unit-economics': [
+      { journeyId: 'startup-planning', relevance: 'high', why: 'Essential for validating business model' },
+    ],
+    'business-valuation': [
+      { journeyId: 'startup-planning', relevance: 'medium', why: 'Track business value over time' },
+      { journeyId: 'ma-analysis-journey', relevance: 'high', why: 'Initial valuation estimates' },
+    ],
+    'revenue-forecast': [
+      { journeyId: 'startup-planning', relevance: 'high', why: 'Project future revenue for planning' },
+    ],
     
     // Additional business calculators
     'risk-management': [
