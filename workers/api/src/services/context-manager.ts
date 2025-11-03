@@ -278,7 +278,11 @@ export class ContextManager {
     const messageHash = message.substring(0, 100); // First 100 chars
     const dataHash = contextData ? JSON.stringify(contextData).substring(0, 50) : '';
     
-    return `${contextKey}:${messageHash}:${dataHash}`;
+    // Include prompt version to bust cache when prompts are updated
+    // Change this version number whenever system prompts are significantly updated
+    const promptVersion = 'v2'; // Updated 2025-11-03: Added all 31 calculators to chatAssistant + calculatorAssistant
+    
+    return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}`;
   }
 }
 
