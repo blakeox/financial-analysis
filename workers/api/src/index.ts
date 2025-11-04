@@ -51,7 +51,6 @@ import { LLMRetryHandler, defaultShouldRetry } from './services/llm-retry';
 import { ResponseValidator } from './services/response-validator';
 import { LLMMetricsCollector } from './services/llm-metrics';
 import { estimateTokens, estimateCost } from './utils/tokens';
-import { buildPrompt } from './prompts/prompt-templates';
 import { createLLMOrchestrator, canCreateOrchestrator } from './services/llm-service-factory';
 
 // Helper: get Cloudflare Workers default Cache if available
@@ -106,87 +105,7 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
-// Helper to retrieve website context via AutoRAG (reusable across contexts)
-async function retrieveWebsiteContext(
-  env: Env,
-  sanitizedMessage: string,
-  requestContext: RequestContext
-): Promise<string> {
-  if (!env.AI) {
-    return '';
-  }
-
-  try {
-    const aiAutorag = env.AI.autorag('ai-search-gentle-tree-ce67-d9b958');
-    
-    const websiteResponse = await aiAutorag.aiSearch({
-      query: sanitizedMessage
-    });
-    
-    // Log raw response structure for debugging
-    logInfo(requestContext, 'AutoRAG raw response debug', {
-      responseType: typeof websiteResponse,
-      isResponseInstance: websiteResponse instanceof Response,
-      hasKeys: websiteResponse && typeof websiteResponse === 'object' ? Object.keys(websiteResponse).join(',') : 'not object'
-    });
-    
-    // Handle response - could be Response object or direct data
-    let websiteResults: any[] = [];
-    
-    if (websiteResponse instanceof Response) {
-      // Streaming response, skip for now
-      logInfo(requestContext, 'AutoRAG returned streaming Response, skipping');
-      websiteResults = [];
-    } else if (websiteResponse && typeof websiteResponse === 'object') {
-      // Try to extract results from various possible structures
-      const responseAny = websiteResponse as any;
-      
-      // Try different possible response structures
-      if (Array.isArray(responseAny.results)) {
-        websiteResults = responseAny.results;
-      } else if (Array.isArray(responseAny.data)) {
-        websiteResults = responseAny.data;
-      } else if (Array.isArray(responseAny)) {
-        websiteResults = responseAny;
-      } else if (responseAny.items && Array.isArray(responseAny.items)) {
-        websiteResults = responseAny.items;
-      } else {
-        logWarn(requestContext, 'AutoRAG response structure unknown', {
-          keys: Object.keys(responseAny).join(', ')
-        });
-      }
-    }
-    
-    if (websiteResults.length > 0) {
-      // Format results for LLM
-      const formattedResults = websiteResults
-        .map((result: any, idx: number) => {
-          const url = result.url || 'Unknown URL';
-          const content = result.content || result.text || '';
-          const title = result.metadata?.title || 'Page Content';
-          
-          return `${idx + 1}. **${title}** (${url})\n   ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}`;
-        })
-        .join('\n\n');
-      
-      logInfo(requestContext, 'Retrieved website content from AutoRAG', {
-        results: websiteResults.length
-      });
-      
-      return `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
-    } else {
-      logInfo(requestContext, 'AutoRAG returned no results');
-    }
-  } catch (error) {
-    logWarn(requestContext, 'AutoRAG search failed', {
-      error: error instanceof Error ? error.message : String(error)
-    });
-    // Continue without website context - graceful degradation
-  }
-  
-  return '';
-}
-
+// LEGACY: retrieveWebsiteContext removed - AutoRAG handled in ContextManager now
 // Export helper for use in orchestrator
 export function analyzeParameterChanges(
   modelType: string,
@@ -2839,7 +2758,7 @@ router.post(
         availableTools = [],
         toolOutputs = {},
         contextData = {},
-        contextLabel = null,
+        contextLabel: _contextLabel = null,
         memoryContext = {},
       } = body;
 
@@ -2877,6 +2796,13 @@ router.post(
         // Continue processing but log the threat for monitoring
       }
 
+      // ==========================================================================
+      // PURE AI-FIRST ARCHITECTURE
+      // ==========================================================================
+      // All queries handled by AI orchestrator with dynamic MCP tool discovery
+      // No keyword matching, no hardcoded responses, no legacy fallbacks
+      // ==========================================================================
+
       // Log available tools for debugging
       if (availableTools.length > 0) {
         logInfo(requestContext, 'Chat has access to MCP tools', {
@@ -2884,291 +2810,7 @@ router.post(
         });
       }
 
-      // Check if user is requesting analysis that matches an MCP tool
-      const lowerMessage = sanitizedMessage.toLowerCase();
-      const toolKeywords: Record<string, string[]> = {
-        analyze_savings_goal: ['savings', 'goal', 'save', 'emergency fund', 'down payment'],
-        analyze_student_loans: [
-          'student loan',
-          'loan payoff',
-          'idr',
-          'refinanc',
-          'avalanche',
-          'snowball',
-        ],
-        analyze_retirement_savings: ['retirement', '401k', 'ira', 'roth', 'employer match'],
-        optimize_budget: ['budget', '50/30/20', 'spending', 'expense', 'financial health'],
-        analyze_debt_payoff: ['debt', 'payoff', 'credit card', 'balance transfer'],
-        analyze_auto_loan: ['auto loan', 'car loan', 'vehicle'],
-        analyze_lease: ['lease', 'leasing'],
-        analyze_amortization: ['amortization', 'mortgage', 'loan schedule'],
-        analyze_mortgage_scenario: ['mortgage scenario', 'compare mortgage', 'mortgage comparison', 'mortgage options', 'rate comparison', 'refinance scenario'],
-        // Startup planning specific tools
-        analyze_cash_flow: ['cash flow', 'burn rate', 'runway', 'cash projection', 'liquidity'],
-        ebitda_forecasting: ['ebitda', 'revenue projection', 'forecast', 'projection', 'financial forecast'],
-        analyze_financial_journey: ['journey', 'multi-stage', 'comprehensive planning', 'capital investment', 'seed round', 'series a'],
-      };
-
-      // Try to match user intent to an MCP tool
-      let matchedTool: string | null = null;
-      for (const [toolName, keywords] of Object.entries(toolKeywords)) {
-        if (keywords.some((keyword) => lowerMessage.includes(keyword))) {
-          // Verify this tool is actually available
-          if (availableTools.some((t) => t.name === toolName)) {
-            matchedTool = toolName;
-            break;
-          }
-        }
-      }
-
-      // If tool match found, use existing output or call the MCP tool
-      if (matchedTool) {
-        // Check if we already have output from a previous analysis
-        const existingOutput = toolOutputs[matchedTool];
-
-        if (existingOutput) {
-          // Use existing output for analysis
-          logInfo(requestContext, 'Using existing tool output for analysis', {
-            tool: matchedTool,
-            context,
-          });
-
-          const analysisResponse = formatMCPToolAnalysis(matchedTool, existingOutput, currentModel);
-
-          return new Response(
-            JSON.stringify({
-              response: analysisResponse,
-              context,
-              toolUsed: matchedTool,
-              fromCache: true,
-              requestId: requestContext.requestId,
-            }),
-            {
-              status: 200,
-              headers: buildChatHeaders(
-                env,
-                requestContext.requestId,
-                requestContext.correlationId
-              ),
-            }
-          );
-        } else if (Object.keys(currentModel).length > 0) {
-          // Call the tool with current model data
-          try {
-            logInfo(requestContext, 'Calling MCP tool based on user intent', {
-              tool: matchedTool,
-              context,
-            });
-
-            const mcpResult = await handleMCPRequest(
-              'tools/call',
-              {
-                name: matchedTool,
-                arguments: currentModel,
-              },
-              env
-            );
-
-            // Get previous model state for comparison
-            const previousState = getPreviousModelState(matchedTool, memoryContext);
-
-            // Parse and analyze the MCP tool result
-            const analysisResponse = formatMCPToolAnalysis(
-              matchedTool,
-              mcpResult,
-              currentModel,
-              previousState
-            );
-
-            return new Response(
-              JSON.stringify({
-                response: analysisResponse,
-                context,
-                toolUsed: matchedTool,
-                requestId: requestContext.requestId,
-              }),
-              {
-                status: 200,
-                headers: buildChatHeaders(
-                  env,
-                  requestContext.requestId,
-                  requestContext.correlationId
-                ),
-              }
-            );
-          } catch (toolError) {
-            logWarn(requestContext, 'MCP tool call failed, falling back to pattern matching', {
-              tool: matchedTool,
-              error: toolError instanceof Error ? toolError.message : String(toolError),
-            });
-            // Fall through to pattern matching logic
-          }
-        }
-      }
-
-      // Context-aware response based on current model page
-      let contextualResponse = '';
-      let modelChanges: Record<string, string | number> = {};
-      let explanation = '';
-
-      // Field name mappings for different contexts
-      const fieldMappings: Record<string, Record<string, string>> = {
-        lease: {
-          interestRate: 'annualRate',
-          leasePrincipal: 'principal',
-          leaseTerm: 'termMonths',
-          residual: 'residualValue',
-        },
-        amortization: {
-          interestRate: 'annualRate',
-          loanAmount: 'principal',
-          term: 'termMonths',
-        },
-        ebitda: {
-          initialRevenue: 'revenue',
-          revenueGrowthRate: 'growthRate',
-          expenses: 'expenses',
-        },
-      };
-
-      // Detect intent and extract parameters from user message (using sanitized message)
-      // (lowerMessage already declared above for tool matching)
-
-      if (context === 'lease') {
-        // Handle lease analysis modifications
-        if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-          const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-          const rateStr = rateMatch?.[1];
-          if (rateStr) {
-            const newRate = parseFloat(rateStr);
-            const fieldName = fieldMappings.lease?.interestRate || 'annualRate';
-            // Convert percentage to decimal for annualRate field
-            modelChanges[fieldName] = newRate / 100;
-            contextualResponse = `I've updated the interest rate to ${newRate}%. This will affect your monthly payments and total interest paid over the lease term.`;
-            const prevRate =
-              Number((currentModel as Record<string, unknown>).annualRate ?? 0) * 100;
-            explanation = `**Analysis**: Changing the interest rate from ${prevRate || 'current'}% to ${newRate}% will:\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} monthly payments\n• ${newRate > prevRate ? 'Increase' : 'Decrease'} total cost of the lease\n• Impact your cash flow projections`;
-          }
-        } else if (lowerMessage.includes('amount') || lowerMessage.includes('principal')) {
-          const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-          const amtStr = amountMatch?.[1];
-          if (amtStr) {
-            const newAmount = parseFloat(amtStr.replace(/,/g, ''));
-            const fieldName = fieldMappings.lease?.leasePrincipal || 'principal';
-            modelChanges[fieldName] = newAmount;
-            contextualResponse = `I've updated the lease amount to $${newAmount.toLocaleString()}. Let me recalculate the payment schedule for you.`;
-            explanation = `**Analysis**: Increasing the lease principal will proportionally increase your monthly payments while keeping the same interest rate and term length.`;
-          }
-        } else if (
-          lowerMessage.includes('term') ||
-          lowerMessage.includes('month') ||
-          lowerMessage.includes('year')
-        ) {
-          const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
-          const termValueStr = termMatch?.[1];
-          const termUnit = termMatch?.[2];
-          if (termValueStr && termUnit) {
-            const termValue = parseInt(termValueStr);
-            const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-            const fieldName = fieldMappings.lease?.leaseTerm || 'termMonths';
-            modelChanges[fieldName] = termInMonths;
-            contextualResponse = `I've updated the lease term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This changes your payment structure significantly.`;
-            const prevLeaseTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
-            explanation = `**Analysis**: ${termInMonths > prevLeaseTerm ? 'Extending' : 'Shortening'} the lease term will ${termInMonths > prevLeaseTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
-          }
-        }
-      } else if (context === 'ebitda') {
-        // Handle EBITDA forecasting modifications
-        if (lowerMessage.includes('revenue') || lowerMessage.includes('sales')) {
-          const revenueMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-          const revStr = revenueMatch?.[1];
-          if (revStr) {
-            const newRevenue = parseFloat(revStr.replace(/,/g, ''));
-            modelChanges = { ...currentModel, initialRevenue: newRevenue };
-            contextualResponse = `I've updated the initial revenue to $${newRevenue.toLocaleString()}. This will impact your EBITDA projections across all forecast periods.`;
-            explanation = `**Analysis**: Revenue changes directly impact EBITDA calculations. Higher revenue typically leads to better margins if costs scale appropriately.`;
-          }
-        } else if (lowerMessage.includes('growth') || lowerMessage.includes('rate')) {
-          const growthMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-          const growthStr = growthMatch?.[1];
-          if (growthStr) {
-            const newGrowth = parseFloat(growthStr);
-            modelChanges = { ...currentModel, revenueGrowthRate: newGrowth };
-            contextualResponse = `I've updated the revenue growth rate to ${newGrowth}% annually. This will compound over your forecast period.`;
-            const prevGrowth = Number(
-              (currentModel as Record<string, unknown>).revenueGrowthRate ?? 0
-            );
-            explanation = `**Analysis**: A ${newGrowth}% growth rate will ${newGrowth > prevGrowth ? 'accelerate' : 'decelerate'} your revenue trajectory and impact long-term EBITDA.`;
-          }
-        }
-      } else if (context === 'amortization') {
-        // Handle amortization modifications
-        if (lowerMessage.includes('interest') || lowerMessage.includes('rate')) {
-          const rateMatch = sanitizedMessage.match(/(\d+(?:\.\d+)?)%?/);
-          const rateStr2 = rateMatch?.[1];
-          if (rateStr2) {
-            const newRate = parseFloat(rateStr2);
-
-            // Validate the interest rate
-            if (newRate < 0 || newRate > 100) {
-              contextualResponse = `❌ **Invalid Interest Rate**\n\nI can't set the interest rate to ${newRate}%. Interest rates must be between 0% and 100%. Please provide a valid rate.`;
-              explanation = `**Validation Error**: Interest rates outside the 0-100% range are not realistic for financial calculations.`;
-            } else {
-              const fieldName = fieldMappings.amortization?.interestRate || 'annualRate';
-              // Convert percentage to decimal for annualRate field
-              modelChanges[fieldName] = newRate / 100;
-              contextualResponse = `I've updated the interest rate to ${newRate}%. This affects the interest portion of each payment in your amortization schedule.`;
-              const prevLoanRate =
-                Number((currentModel as Record<string, unknown>).annualRate ?? 0) * 100;
-              explanation = `**Analysis**: Rate changes impact the interest/principal split in each payment. ${newRate > prevLoanRate ? 'Higher rates mean more interest, less principal early on' : 'Lower rates mean less interest, more principal goes toward the balance'}.`;
-            }
-          }
-        } else if (
-          lowerMessage.includes('amount') ||
-          lowerMessage.includes('principal') ||
-          lowerMessage.includes('loan')
-        ) {
-          const amountMatch = sanitizedMessage.match(/\$?(\d+(?:,\d+)*(?:\.\d+)?)/);
-          const amt2 = amountMatch?.[1];
-          if (amt2) {
-            const newAmount = parseFloat(amt2.replace(/,/g, ''));
-
-            // Validate the loan amount
-            if (newAmount <= 0) {
-              contextualResponse = `❌ **Invalid Loan Amount**\n\nI can't set the loan amount to $${newAmount.toLocaleString()}. Loan amounts must be greater than $0. Please provide a valid amount.`;
-              explanation = `**Validation Error**: Loan amounts must be positive values for meaningful calculations.`;
-            } else if (newAmount > 10000000) {
-              contextualResponse = `❌ **Loan Amount Too Large**\n\nI can't set the loan amount to $${newAmount.toLocaleString()}. Loan amounts over $10 million are not supported. Please provide a smaller amount.`;
-              explanation = `**Validation Error**: Very large loan amounts may cause calculation issues.`;
-            } else {
-              const fieldName = fieldMappings.amortization?.loanAmount || 'principal';
-              modelChanges[fieldName] = newAmount;
-              contextualResponse = `I've updated the loan amount to $${newAmount.toLocaleString()}. This will recalculate your entire amortization schedule.`;
-              explanation = `**Analysis**: Loan amount changes proportionally affect monthly payments while maintaining the same interest rate and term structure.`;
-            }
-          }
-        } else if (
-          lowerMessage.includes('term') ||
-          lowerMessage.includes('month') ||
-          lowerMessage.includes('year')
-        ) {
-          const termMatch = sanitizedMessage.match(/(\d+)\s*(month|year)/);
-          const termValueStr = termMatch?.[1];
-          const termUnit = termMatch?.[2];
-          if (termValueStr && termUnit) {
-            const termValue = parseInt(termValueStr);
-            const termInMonths = termUnit === 'year' ? termValue * 12 : termValue;
-            const fieldName = fieldMappings.amortization?.term || 'termMonths';
-            modelChanges[fieldName] = termInMonths;
-            contextualResponse = `I've updated the term to ${termValue} ${termUnit}${termValue > 1 ? 's' : ''}. This recalculates your amortization schedule.`;
-            const prevTerm = Number((currentModel as Record<string, unknown>).termMonths ?? 0);
-            explanation = `**Analysis**: ${termInMonths > prevTerm ? 'Extending' : 'Shortening'} the term will ${termInMonths > prevTerm ? 'reduce monthly payments but increase total interest' : 'increase monthly payments but reduce total interest'}.`;
-          }
-        }
-      }
-
-      // AI-FIRST: Always use orchestrator for intelligent responses
-      // Let LLM handle tool selection, field updates, and conversational queries
+      // Use AI orchestrator for ALL queries
       if (canCreateOrchestrator(env)) {
         try {
           const orchestrator = createLLMOrchestrator(env);
@@ -3186,353 +2828,54 @@ router.post(
           
           const result = await orchestrator.handle(orchestratorRequest);
           
-          // Use orchestrator response
-          contextualResponse = result.response;
-          
-          if (result.modelChanges && Object.keys(result.modelChanges).length > 0) {
-            modelChanges = result.modelChanges as Record<string, string | number>;
-          }
-          
-          if (result.explanation) {
-            explanation = result.explanation;
-          }
-          
-          logInfo(requestContext, 'LLM orchestrator completed', {
+          logInfo(requestContext, 'AI orchestrator completed', {
             intent: result.metadata?.intent || 'unknown',
             fromCache: result.fromCache || false,
           });
           
-          // Return orchestrator response if successful
-          const response = {
-            response: contextualResponse,
-            modelChanges,
+          // Return AI response
+          return new Response(JSON.stringify({
+            response: result.response,
+            modelChanges: result.modelChanges || {},
             context,
             fromCache: result.fromCache || false,
-            thinking: [`Orchestrator handled: ${result.metadata?.intent || 'unknown'}`],
-          };
-          
-          return new Response(JSON.stringify(response), {
+            thinking: [`AI: ${result.metadata?.intent || 'general query'}`],
+            requestId: requestContext.requestId,
+          }), {
             status: 200,
             headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
           });
         } catch (orchestratorError) {
-          logWarn(requestContext, 'Orchestrator failed, falling back to legacy handler', {
-            error: orchestratorError instanceof Error ? orchestratorError.message : String(orchestratorError),
+          logError(requestContext, orchestratorError instanceof Error ? orchestratorError : new Error(String(orchestratorError)));
+          
+          return new Response(JSON.stringify({
+            error: 'AI service error',
+            response: 'I apologize, but I encountered an error. Please try again.',
+            requestId: requestContext.requestId,
+          }), {
+            status: 500,
+            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
           });
-          // Fall through to legacy handlers below
         }
       }
-      
-      // Legacy handler for startup-planning (fallback)
-      if (context === 'startup-planning' && Object.keys(modelChanges).length === 0) {
-        if (!env.AI) {
-          contextualResponse = 'AI model is not configured in this environment.';
-          explanation = 'Please contact support if this issue persists.';
-        } else {
-          try {
-            // Extract phase information from contextData
-            const phaseData = contextData as {
-              phase?: number;
-              phaseName?: string;
-              description?: string;
-              keyFields?: string[];
-              helpTopics?: string[];
-              currentPhaseData?: Record<string, unknown>;
-              previousPhases?: {
-                phase1?: Record<string, unknown>;
-                phase2?: Record<string, unknown>;
-                phase3?: Record<string, unknown>;
-              };
-            };
 
-            // Filter relevant tools for startup planning
-            const relevantTools = availableTools.filter(tool => {
-              const toolName = tool.name.toLowerCase();
-              return toolName.includes('cash') || 
-                     toolName.includes('ebitda') || 
-                     toolName.includes('budget') ||
-                     toolName.includes('journey') ||
-                     toolName.includes('forecast');
-            });
-
-            // Build context for the prompt
-            const promptContext: Record<string, unknown> = {
-              phase: phaseData.phase || 1,
-              phaseName: phaseData.phaseName || 'Startup Planning',
-              userMessage: sanitizedMessage,
-              availableFields: phaseData.keyFields || [],
-              helpTopics: phaseData.helpTopics || [],
-              // Include relevant tools information
-              relevantTools: relevantTools.length > 0 ? relevantTools.map(t => ({
-                name: t.name,
-                description: t.description
-              })) : undefined,
-            };
-
-            // Add conversation history if available
-            if (memoryContext.conversationHistory && memoryContext.conversationHistory.length > 0) {
-              promptContext.conversationHistory = memoryContext.conversationHistory;
-            }
-
-            // Add current phase data if available
-            if (phaseData.currentPhaseData) {
-              promptContext.currentPhaseData = phaseData.currentPhaseData;
-            } else if (Object.keys(currentModel).length > 0) {
-              promptContext.currentPhaseData = currentModel;
-            }
-
-            // Add previous phases data for cross-phase analysis
-            if (phaseData.previousPhases) {
-              promptContext.previousPhases = phaseData.previousPhases;
-              // Build a summary of previous phases for the LLM
-              const previousPhasesSummary: string[] = [];
-              if (phaseData.previousPhases.phase1) {
-                const p1 = phaseData.previousPhases.phase1;
-                previousPhasesSummary.push(
-                  `Phase 1 (Initial Capital Investment): Investment of $${p1.totalInvestment?.toLocaleString() || 'N/A'}, ${p1.equityOffered || 'N/A'}% equity offered, Valuation: $${p1.valuation?.toLocaleString() || 'N/A'}`
-                );
-              }
-              if (phaseData.previousPhases.phase2) {
-                const p2 = phaseData.previousPhases.phase2;
-                previousPhasesSummary.push(
-                  `Phase 2 (Budget Planning): Monthly revenue of $${p2.monthlyRevenue?.toLocaleString() || 'N/A'}, Growth rate: ${p2.growthRate || 'N/A'}%`
-                );
-              }
-              if (phaseData.previousPhases.phase3) {
-                const p3 = phaseData.previousPhases.phase3;
-                previousPhasesSummary.push(
-                  `Phase 3 (Funding Strategy): Next round target: $${p3.nextFundingRound?.toLocaleString() || 'N/A'}, Current burn rate: $${p3.currentBurnRate?.toLocaleString() || 'N/A'}/month`
-                );
-              }
-            if (previousPhasesSummary.length > 0) {
-              promptContext.previousPhasesSummary = previousPhasesSummary.join('\n');
-            }
-          }
-
-          // Retrieve website context via AutoRAG
-          const websiteContext = await retrieveWebsiteContext(env, sanitizedMessage, requestContext);
-          if (websiteContext) {
-            promptContext.websiteContent = websiteContext;
-          }
-
-          // Build prompt from template
-          const prompt = buildPrompt('startupPlanningAssistant', promptContext);
-
-            // Check cache first (for common questions)
-            const startTime = Date.now();
-            const requestId = crypto.randomUUID();
-            const cache = env.KV ? new IntelligentCache(env.KV) : null;
-            const retry = new LLMRetryHandler();
-            const metrics = env.KV ? new LLMMetricsCollector(env.KV) : null;
-
-            // Create cache key from user message and phase (common questions get cached)
-            const cacheKey = `startup-planning:phase-${phaseData.phase || 1}:${sanitizedMessage.substring(0, 100)}`;
-            
-            if (cache) {
-              try {
-                const cached = await cache.get(cacheKey);
-                if (cached && cached.value) {
-                  const latency = Date.now() - startTime;
-                  await metrics?.recordRequest({
-                    requestId,
-                    timestamp: startTime,
-                    model: 'cache',
-                    promptTokens: 0,
-                    responseTokens: 0,
-                    totalTokens: 0,
-                    latency,
-                    cacheHit: true,
-                    success: true,
-                    retryCount: 0,
-                  });
-
-                  contextualResponse = String(cached.value);
-                  explanation = `Phase ${phaseData.phase || 1} guidance (from cache).`;
-                  
-                  logInfo(requestContext, 'Startup planning response served from cache', {
-                    phase: phaseData.phase,
-                  });
-                  
-                  // Skip LLM call since we have cached response
-                  // But we still need to add tool suggestions
-                  const phaseNumber = phaseData.phase || 1;
-                  const toolSuggestions: string[] = [];
-                  if (relevantTools.length > 0) {
-                    const cashFlowTool = relevantTools.find(t => t.name.includes('cash'));
-                    const ebitdaTool = relevantTools.find(t => t.name.includes('ebitda'));
-                    
-                    if (phaseNumber === 2 && cashFlowTool) {
-                      toolSuggestions.push(`💡 Tip: You can use the cash flow analysis tool to calculate your runway and burn rate.`);
-                    }
-                    if ((phaseNumber === 2 || phaseNumber === 4) && ebitdaTool) {
-                      toolSuggestions.push(`💡 Tip: Use the EBITDA forecasting tool for detailed revenue projections.`);
-                    }
-                  }
-                  
-                  if (toolSuggestions.length > 0) {
-                    contextualResponse += '\n\n' + toolSuggestions.join('\n');
-                  }
-                  
-                  // Return early with cached response
-                  const response = {
-                    response: `${contextualResponse}\n\n${explanation}`,
-                    modelChanges,
-                    context,
-                    fromCache: true,
-                    thinking: [`Served cached response for phase ${phaseNumber}`],
-                  };
-                  
-                  return new Response(JSON.stringify(response), {
-                    status: 200,
+      // If no AI available (shouldn't happen in production)
+      return new Response(JSON.stringify({
+        error: 'AI not configured',
+        response: 'AI assistant is not available. Please contact support.',
+        requestId: requestContext.requestId,
+      }), {
+        status: 503,
                     headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
                   });
-                }
-              } catch (error) {
-                logWarn(requestContext, 'Cache check failed for startup planning', { error });
-              }
-            }
 
-            const model = env.WORKERS_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct';
-            
-            // Configure AI Gateway if available
-            const aiOptions = env.AI_GATEWAY_ID
-              ? {
-                  gateway: {
-                    id: env.AI_GATEWAY_ID,
-                    skipCache: false,
-                    cacheTtl: 3600,
-                  },
-                }
-              : {};
-
-            const ai = env.AI as any;
-            let aiRes: any;
-            let retryCount = 0;
-
-            aiRes = await retry.callWithRetry(
-              async () => {
-                retryCount++;
-                return await ai.run(model, { prompt }, aiOptions);
-              },
-              {
-                maxRetries: 3,
-                shouldRetry: defaultShouldRetry,
-                onRetry: (attempt, error) => {
-                  logWarn(requestContext, `LLM retry attempt ${attempt} for startup planning`, {
-                    error: error.message,
-                  });
-                },
-              }
-            );
-
-            const finalText = aiRes?.response || aiRes?.text || JSON.stringify(aiRes);
-
-            // Validate response
-            const validation = ResponseValidator.validateLLMResponse(finalText);
-            if (!validation.valid) {
-              logWarn(requestContext, 'Startup planning response validation failed', {
-                issues: validation.issues,
-              });
-            }
-
-            // Cache successful responses (for common questions)
-            if (cache && validation.valid) {
-              try {
-                await cache.set(cacheKey, finalText, 3600); // Cache for 1 hour
-              } catch (error) {
-                logWarn(requestContext, 'Failed to cache startup planning response', { error });
-              }
-            }
-
-            // Record metrics
-            const latency = Date.now() - startTime;
-            const promptTokens = estimateTokens(prompt);
-            const responseTokens = estimateTokens(finalText);
-            await metrics?.recordRequest({
-              requestId,
-              timestamp: startTime,
-              model,
-              promptTokens,
-              responseTokens,
-              totalTokens: promptTokens + responseTokens,
-              latency,
-              cacheHit: false,
-              success: true,
-              retryCount,
-              cost: estimateCost(model, promptTokens, responseTokens),
-            });
-
-            contextualResponse = String(finalText || '').slice(0, 8000);
-            const phaseNumber = phaseData.phase || 1;
-            
-            // Add tool suggestions if relevant tools are available
-            const toolSuggestions: string[] = [];
-            if (relevantTools.length > 0) {
-              const cashFlowTool = relevantTools.find(t => t.name.includes('cash'));
-              const ebitdaTool = relevantTools.find(t => t.name.includes('ebitda'));
-              
-              if (phaseNumber === 2 && cashFlowTool) {
-                toolSuggestions.push(`💡 Tip: You can use the cash flow analysis tool to calculate your runway and burn rate.`);
-              }
-              if ((phaseNumber === 2 || phaseNumber === 4) && ebitdaTool) {
-                toolSuggestions.push(`💡 Tip: Use the EBITDA forecasting tool for detailed revenue projections.`);
-              }
-            }
-            
-            if (toolSuggestions.length > 0) {
-              contextualResponse += '\n\n' + toolSuggestions.join('\n');
-            }
-            
-            explanation = `Phase ${phaseNumber} guidance provided based on your startup planning context${toolSuggestions.length > 0 ? ' with tool suggestions' : ''}.`;
-
-            logInfo(requestContext, 'Startup planning LLM response generated', {
-              phase: phaseData.phase,
-              toolsSuggested: toolSuggestions.length,
-            });
-          } catch (error) {
-            logWarn(requestContext, 'LLM call failed for startup planning', {
-              error: error instanceof Error ? error.message : String(error),
-            });
-            // Fall back to general assistance
-            contextualResponse = `I can help with ${contextLabel || 'startup planning'}.`;
-            explanation = 'I can assist with capital investment, budget planning, funding strategy, and growth planning. What specific question can I help you with?';
-          }
-        }
-      }
-
-      // LEGACY FALLBACK REMOVED - All queries now handled by AI orchestrator
-      // Old hardcoded response: "I can help update the general model..."
-      // This defeated the purpose of AI-first architecture
-
-      const response = {
-        response: `${contextualResponse}\n\n${explanation}`,
-        modelChanges,
-        context,
-        thinking: [
-          `Analyzing ${context} model context...`,
-          `Extracting parameters from: "${sanitizedMessage}"`,
-          `Identified changes: ${Object.keys(modelChanges).join(', ') || 'none detected'}`,
-          `Preparing response with actionable modifications...`,
-        ],
-      };
-
-      logInfo(requestContext, 'Chat response generated successfully', {
-        context,
-        changesDetected: Object.keys(modelChanges).length,
-      });
-
-      return new Response(JSON.stringify(response), {
-        status: 200,
-        headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
-      });
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error(String(error));
       logError(requestContext, errorObj);
       return new Response(
         JSON.stringify({
           error: 'Internal server error',
-          response:
-            'I apologize, but I encountered an error processing your request. Please try again.',
+          response: 'I apologize, but I encountered an error processing your request. Please try again.',
           requestId: requestContext.requestId,
         }),
         {
@@ -3543,6 +2886,20 @@ router.post(
     }
   })
 );
+
+// ===============================================================================
+// ALL LEGACY CODE REMOVED (700+ lines)
+// ===============================================================================
+// Removed:
+// - toolKeywords: keyword matching for MCP tools
+// - matchedTool: keyword-based tool selection
+// - fieldMappings: context-specific regex matching
+// - Context-specific handlers (lease, ebitda, amortization)
+// - Legacy startup-planning handler
+// - Hardcoded fallback: "I can help update the general model..."
+//
+// Replaced with: Pure AI orchestrator for all queries
+// ===============================================================================
 
 // Document upload endpoint (simplified - stores in R2 if available)
 router.post(
