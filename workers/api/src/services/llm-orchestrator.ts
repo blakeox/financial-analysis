@@ -84,7 +84,7 @@ export class LLMOrchestrator {
       contextData,
       currentModel = {},
       availableTools = [],
-      toolOutputs = {},
+      toolOutputs: _toolOutputs = {},
       memoryContext,
       requestId,
     } = request;
@@ -122,8 +122,9 @@ export class LLMOrchestrator {
 
   /**
    * Handle tool call intent
+   * Note: Currently unused as we let LLM handle tool selection, kept for future use
    */
-  private async handleToolCall(
+  private async _handleToolCall(
     intent: IntentDetection,
     currentModel: Record<string, unknown>,
     toolOutputs: Record<string, unknown>,

@@ -3167,8 +3167,9 @@ router.post(
         }
       }
 
-      // Try orchestrator first for startup-planning and other contexts
-      if (canCreateOrchestrator(env) && Object.keys(modelChanges).length === 0) {
+      // AI-FIRST: Always use orchestrator for intelligent responses
+      // Let LLM handle tool selection, field updates, and conversational queries
+      if (canCreateOrchestrator(env)) {
         try {
           const orchestrator = createLLMOrchestrator(env);
           
@@ -3497,11 +3498,11 @@ router.post(
             explanation = 'I can assist with capital investment, budget planning, funding strategy, and growth planning. What specific question can I help you with?';
           }
         }
-      } else if (Object.keys(modelChanges).length === 0) {
-        // Short, help-on-demand response: keeps startup concise but points users to ask for help
-        contextualResponse = `I can help update the ${context} model. Try: "Set interest to 4.5%" or "Show a 20-year term". Say "help" for more examples.`;
-        explanation = `I can change interest rates, amounts, and terms. Ask for a specific value or say "help" to see example requests.`;
       }
+
+      // LEGACY FALLBACK REMOVED - All queries now handled by AI orchestrator
+      // Old hardcoded response: "I can help update the general model..."
+      // This defeated the purpose of AI-first architecture
 
       const response = {
         response: `${contextualResponse}\n\n${explanation}`,

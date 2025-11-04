@@ -282,7 +282,7 @@ export class ContextManager {
     
     // Include prompt version to bust cache when prompts are updated
     // Change this version number whenever system prompts are significantly updated
-    const promptVersion = 'v5'; // Updated 2025-11-03: Readable tool formatting - tools presented as markdown list instead of JSON
+    const promptVersion = 'v6'; // Updated 2025-11-03: Removed legacy hardcoded fallbacks, pure AI orchestrator
     
     return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}`;
   }
