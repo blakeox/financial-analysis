@@ -282,7 +282,7 @@ export class ContextManager {
     
     // Include prompt version to bust cache when prompts are updated
     // Change this version number whenever system prompts are significantly updated
-    const promptVersion = 'v4'; // Updated 2025-11-03: True semantic matching - removed keyword detection, LLM does intent understanding
+    const promptVersion = 'v5'; // Updated 2025-11-03: Readable tool formatting - tools presented as markdown list instead of JSON
     
     return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}`;
   }

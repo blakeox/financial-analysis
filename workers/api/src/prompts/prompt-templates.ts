@@ -569,14 +569,28 @@ export function buildPrompt(
     prompt += `\n\nOutput Format: ${template.outputFormat}`;
   }
 
-  // Add context
-  if (Object.keys(context).length > 0) {
-    prompt += `\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+  // Format available tools in a readable way (not raw JSON)
+  if (context.availableTools && Array.isArray(context.availableTools) && context.availableTools.length > 0) {
+    prompt += '\n\n**Available MCP Tools:**\n';
+    for (const tool of context.availableTools) {
+      prompt += `- ${tool.name}: ${tool.description}\n`;
+    }
   }
 
-  // Add conversation history if present (before context JSON)
+  // Add user message
+  if (context.userMessage) {
+    prompt += `\n\n**User Question:** ${context.userMessage}`;
+  }
+
+  // Add conversation history if present
   if (context.conversationHistory && context.conversationHistory.length > 0) {
-    prompt += `\n\nPrevious conversation context:\n${context.conversationHistory}`;
+    prompt += `\n\n**Previous Conversation:**\n${context.conversationHistory}`;
+  }
+
+  // Add other context data (excluding what we've already formatted)
+  const { availableTools, userMessage, conversationHistory, ...otherContext } = context;
+  if (Object.keys(otherContext).length > 0) {
+    prompt += `\n\n**Additional Context:**\n${JSON.stringify(otherContext, null, 2)}`;
   }
 
   return prompt;
