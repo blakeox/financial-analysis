@@ -41,17 +41,16 @@ import {
   validateChatMessage,
   validateRequestSize,
   type RateLimitInfo,
-  type RequestContext,
 } from './lib';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerHealthRoute } from './routes/health';
 // LLM optimization services
 import { IntelligentCache } from './services/llm-cache';
-import { LLMRetryHandler, defaultShouldRetry } from './services/llm-retry';
-import { ResponseValidator } from './services/response-validator';
 import { LLMMetricsCollector } from './services/llm-metrics';
-import { estimateTokens, estimateCost } from './utils/tokens';
-import { createLLMOrchestrator, canCreateOrchestrator } from './services/llm-service-factory';
+import { LLMRetryHandler, defaultShouldRetry } from './services/llm-retry';
+import { canCreateOrchestrator, createLLMOrchestrator } from './services/llm-service-factory';
+import { ResponseValidator } from './services/response-validator';
+import { estimateCost, estimateTokens } from './utils/tokens';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -1330,9 +1329,9 @@ router.post(
             content: String(cached.value),
             model,
           };
-          return new Response(JSON.stringify(reply), { 
-            status: 200, 
-            headers: buildDefaultHeaders(env) 
+          return new Response(JSON.stringify(reply), {
+            status: 200,
+            headers: buildDefaultHeaders(env),
           });
         }
       } catch (error) {
@@ -1369,7 +1368,9 @@ router.post(
           maxRetries: 3,
           shouldRetry: defaultShouldRetry,
           onRetry: (attempt, error) => {
-            logWarn(buildRequestContext(request, env.ENVIRONMENT), `LLM retry attempt ${attempt}`, { error: error.message });
+            logWarn(buildRequestContext(request, env.ENVIRONMENT), `LLM retry attempt ${attempt}`, {
+              error: error.message,
+            });
           },
         }
       );
@@ -1379,7 +1380,9 @@ router.post(
       // Validate response quality
       const validation = ResponseValidator.validateLLMResponse(finalText);
       if (!validation.valid) {
-        logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Response validation failed', { issues: validation.issues });
+        logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Response validation failed', {
+          issues: validation.issues,
+        });
       }
 
       // Cache successful responses
@@ -1387,10 +1390,11 @@ router.post(
         try {
           await cache.set(prompt, finalText, 3600);
         } catch (error) {
-          logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Failed to cache response', { error });
+          logWarn(buildRequestContext(request, env.ENVIRONMENT), 'Failed to cache response', {
+            error,
+          });
         }
       }
-
     } catch (error) {
       const latency = Date.now() - startTime;
       const promptTokenEstimate = estimateTokens(prompt);
@@ -2131,17 +2135,23 @@ router.post(
       );
     }
 
-    const body = await request.clone().json().catch(() => ({}));
-    
+    const body = await request
+      .clone()
+      .json()
+      .catch(() => ({}));
+
     // If this has fileData, it should go to the other handler - skip this one
     if ((body as any)?.fileData) {
-      return new Response(JSON.stringify({ 
-        success: false,
-        error: 'Use the fileData endpoint' 
-      }), {
-        status: 400,
-        headers: buildDefaultHeaders(env),
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Use the fileData endpoint',
+        }),
+        {
+          status: 400,
+          headers: buildDefaultHeaders(env),
+        }
+      );
     }
 
     const { extractLeaseFromDocument } = await import('./services/lease-extraction');
@@ -2814,7 +2824,7 @@ router.post(
       if (canCreateOrchestrator(env)) {
         try {
           const orchestrator = createLLMOrchestrator(env);
-          
+
           const orchestratorRequest = {
             message: sanitizedMessage,
             context,
@@ -2825,57 +2835,79 @@ router.post(
             memoryContext,
             requestId: requestContext.requestId,
           };
-          
+
           const result = await orchestrator.handle(orchestratorRequest);
-          
+
           logInfo(requestContext, 'AI orchestrator completed', {
             intent: result.metadata?.intent || 'unknown',
             fromCache: result.fromCache || false,
           });
-          
+
           // Return AI response
-          return new Response(JSON.stringify({
-            response: result.response,
-            modelChanges: result.modelChanges || {},
-            context,
-            fromCache: result.fromCache || false,
-            thinking: [`AI: ${result.metadata?.intent || 'general query'}`],
-            requestId: requestContext.requestId,
-          }), {
-            status: 200,
-            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
-          });
+          return new Response(
+            JSON.stringify({
+              response: result.response,
+              modelChanges: result.modelChanges || {},
+              context,
+              fromCache: result.fromCache || false,
+              thinking: [`AI: ${result.metadata?.intent || 'general query'}`],
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 200,
+              headers: buildChatHeaders(
+                env,
+                requestContext.requestId,
+                requestContext.correlationId
+              ),
+            }
+          );
         } catch (orchestratorError) {
-          logError(requestContext, orchestratorError instanceof Error ? orchestratorError : new Error(String(orchestratorError)));
-          
-          return new Response(JSON.stringify({
-            error: 'AI service error',
-            response: 'I apologize, but I encountered an error. Please try again.',
-            requestId: requestContext.requestId,
-          }), {
-            status: 500,
-            headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
-          });
+          logError(
+            requestContext,
+            orchestratorError instanceof Error
+              ? orchestratorError
+              : new Error(String(orchestratorError))
+          );
+
+          return new Response(
+            JSON.stringify({
+              error: 'AI service error',
+              response: 'I apologize, but I encountered an error. Please try again.',
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 500,
+              headers: buildChatHeaders(
+                env,
+                requestContext.requestId,
+                requestContext.correlationId
+              ),
+            }
+          );
         }
       }
 
       // If no AI available (shouldn't happen in production)
-      return new Response(JSON.stringify({
-        error: 'AI not configured',
-        response: 'AI assistant is not available. Please contact support.',
-        requestId: requestContext.requestId,
-      }), {
-        status: 503,
-                    headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
-                  });
-
+      return new Response(
+        JSON.stringify({
+          error: 'AI not configured',
+          response: 'AI assistant is not available. Please contact support.',
+          requestId: requestContext.requestId,
+        }),
+        {
+          status: 503,
+          headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+        }
+      );
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error(String(error));
       logError(requestContext, errorObj);
       return new Response(
         JSON.stringify({
           error: 'Internal server error',
-          response: 'I apologize, but I encountered an error processing your request. Please try again.',
+          response:
+            'I apologize, but I encountered an error processing your request. Please try again.',
           requestId: requestContext.requestId,
         }),
         {
@@ -3023,16 +3055,16 @@ router.post(
         documentKey?: string; // Legacy support
         extractionOptions?: Record<string, boolean>;
       };
-      
+
       const { fileData, fileName, fileType, documentType = 'lease' } = body;
 
       // If we have fileData, process it directly
       let extractedText = '';
       if (fileData) {
         console.log('Processing file from base64:', fileName, fileType);
-        const fileBuffer = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
+        const fileBuffer = Uint8Array.from(atob(fileData), (c) => c.charCodeAt(0));
         const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'txt';
-        
+
         if (fileExtension === 'txt') {
           extractedText = new TextDecoder().decode(fileBuffer);
         } else if (fileExtension === 'pdf') {
@@ -3086,7 +3118,7 @@ router.post(
           // Fall through to sample data below
         }
       }
-      
+
       // Fallback to sample data if AI extraction didn't work
       if (!extractedData) {
         extractedData = {
@@ -3110,7 +3142,9 @@ router.post(
           landlord: 'Property Management LLC',
           tenant: 'Acme Corporation',
           propertyAddress: '123 Business Park Dr, Suite 200',
-          leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0],
           leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000)
             .toISOString()
             .split('T')[0],
@@ -3174,7 +3208,7 @@ router.post(
         text: string;
         extractionOptions?: Record<string, boolean>;
       };
-      
+
       const { text } = body;
 
       if (!text) {
@@ -3189,7 +3223,7 @@ router.post(
       if (env.AI && text.length > 100) {
         const { extractLeaseDataWithAI } = await import('./services/lease-extraction');
         const extractedData = await extractLeaseDataWithAI(text, env, {});
-        
+
         return new Response(
           JSON.stringify({
             success: true,
