@@ -50,7 +50,7 @@
     "@astrojs/check": "^0.9.5",
     "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.56.1",
-    "@tailwindcss/postcss": "^4.1.16",
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
