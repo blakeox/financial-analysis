@@ -575,6 +575,11 @@ export function buildPrompt(
     for (const tool of context.availableTools) {
       prompt += `- ${tool.name}: ${tool.description}\n`;
     }
+    prompt += '\n**MCP Usage Requirements:**\n';
+    prompt += '- Always review this list before responding.\n';
+    prompt += '- Prefer invoking an MCP tool when the user request aligns with its capabilities.\n';
+    prompt += '- When citing numeric results, reference the tool name (e.g., "According to analyze_cash_flow...").\n';
+    prompt += '- If no tool applies, explain why and proceed with transparent reasoning.\n';
   }
 
   // Add user message
@@ -602,5 +607,4 @@ export function buildPrompt(
 export function getPromptTemplate(name: string): PromptTemplate | null {
   return PromptTemplates[name] || null;
 }
-
 

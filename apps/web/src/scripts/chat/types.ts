@@ -1,10 +1,26 @@
 import type { SerializedContext } from '@financial-analysis/tools';
+import type { CalculatorContextKey } from './chat/calculator-contexts';
 
-export type ContextKey = 'lease' | 'ebitda' | 'amortization' | 'general' | 'models' | 'startup-planning';
+export type ContextKey = CalculatorContextKey;
 
 export type ToolSummary = { name: string; description: string };
 
-export type ModelChanges = Record<string, string | number>;
+export type ModelChanges = Record<string, unknown>;
+
+export type ChatMetadata = {
+  intent?: string;
+  latency?: number;
+  attempt?: number;
+};
+
+export type ToolingMetadata = {
+  availableTools: string[];
+  toolOutputsIncluded: number;
+  contextKey: ContextKey;
+  hasWebsiteContent?: boolean;
+  hasConversationHistory?: boolean;
+  cacheKey?: string;
+};
 
 export type ChatRequestPayload = {
   message: string;
@@ -24,5 +40,10 @@ export type ChatResponsePayload = {
   response: string;
   modelChanges?: ModelChanges;
   toolUsed?: string;
-  context?: string;
+  context?: ContextKey;
+  fromCache?: boolean;
+  requestId?: string;
+  thinking?: string[];
+  metadata?: ChatMetadata;
+  tooling?: ToolingMetadata;
 };

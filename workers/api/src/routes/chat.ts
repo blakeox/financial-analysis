@@ -144,18 +144,30 @@ export function registerChatRoutes(router: RouterType) {
             logInfo(requestContext, 'AI orchestrator completed', {
               intent: result.metadata?.intent || 'unknown',
               fromCache: result.fromCache || false,
+              availableTools: result.tooling?.availableTools?.length || 0,
+              toolOutputs: result.tooling?.toolOutputsIncluded || 0,
             });
+
+            const responseBody: Record<string, unknown> = {
+              response: result.response,
+              context,
+              fromCache: result.fromCache || false,
+              thinking: [`AI: ${result.metadata?.intent || 'general query'}`],
+              requestId: requestContext.requestId,
+              metadata: result.metadata,
+              tooling: result.tooling,
+            };
+
+            if (result.toolUsed) {
+              responseBody.toolUsed = result.toolUsed;
+            }
+            if (result.modelChanges && Object.keys(result.modelChanges).length > 0) {
+              responseBody.modelChanges = result.modelChanges;
+            }
 
             // Return AI response
             return new Response(
-              JSON.stringify({
-                response: result.response,
-                modelChanges: result.modelChanges || {},
-                context,
-                fromCache: result.fromCache || false,
-                thinking: [`AI: ${result.metadata?.intent || 'general query'}`],
-                requestId: requestContext.requestId,
-              }),
+              JSON.stringify(responseBody),
               {
                 status: 200,
                 headers: buildChatHeaders(
@@ -222,4 +234,3 @@ export function registerChatRoutes(router: RouterType) {
     })
   );
 }
-

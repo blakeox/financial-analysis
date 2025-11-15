@@ -764,7 +764,7 @@ class ChatPanel {
     syncChatAriaState(this.toggle, this.panel, this.isOpen);
   }
 
-  private addMessage(content: string, type: 'user' | 'assistant' = 'user'): void {
+  private addMessage(content: string, type: 'user' | 'assistant' = 'user'): HTMLDivElement {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
 
@@ -781,6 +781,7 @@ class ChatPanel {
     messageDiv.appendChild(contentDiv);
     this.messages.appendChild(messageDiv);
     this.messages.scrollTop = this.messages.scrollHeight;
+    return messageDiv;
   }
 
   private showThinking(): void {
@@ -931,7 +932,24 @@ class ChatPanel {
   }
 
   private handleSuccessfulResponse(data: ChatResponsePayload): void {
-    this.addMessage(data.response, 'assistant');
+    const assistantMessage = this.addMessage(data.response, 'assistant');
+    this.renderAssistantMetadata(assistantMessage, data);
+
+    if (import.meta.env.DEV) {
+      if (data.requestId) {
+        debugLog('[ChatPanel] Chat response requestId', data.requestId);
+      }
+      if (data.tooling) {
+        debugLog('[ChatPanel] MCP tooling metadata', data.tooling);
+      }
+      if (data.metadata?.intent) {
+        debugLog('[ChatPanel] LLM intent', data.metadata.intent, {
+          latencyMs: data.metadata.latency,
+          attempt: data.metadata.attempt,
+          fromCache: data.fromCache,
+        });
+      }
+    }
 
     // Store conversation in memory
     const userMessage = this.getLastUserMessage();
@@ -975,6 +993,63 @@ class ChatPanel {
       this.updateContext(data.context as ContextKey);
       chatMemory.updateContext(data.context);
     }
+  }
+
+  private renderAssistantMetadata(
+    messageElement: HTMLDivElement | null,
+    data: ChatResponsePayload
+  ): void {
+    if (!messageElement) {
+      return;
+    }
+
+    const metaParts: string[] = [];
+
+    if (data.toolUsed) {
+      metaParts.push(`Tool: ${data.toolUsed}`);
+    } else if (data.tooling?.availableTools?.length) {
+      metaParts.push(`Tools considered: ${data.tooling.availableTools.length}`);
+    }
+
+    if (data.tooling?.toolOutputsIncluded) {
+      metaParts.push(`MCP outputs: ${data.tooling.toolOutputsIncluded}`);
+    }
+
+    if (data.metadata?.intent) {
+      metaParts.push(`Intent: ${data.metadata.intent}`);
+    }
+
+    if (data.fromCache) {
+      metaParts.push('Served from cache');
+    }
+
+    if (data.tooling?.hasWebsiteContent) {
+      metaParts.push('Website context included');
+    }
+
+    if (data.requestId && import.meta.env.DEV) {
+      metaParts.push(`Request ID: ${data.requestId}`);
+    }
+
+    if (metaParts.length === 0 && (!data.thinking || data.thinking.length === 0)) {
+      return;
+    }
+
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'message-meta';
+    if (metaParts.length > 0) {
+      metaDiv.textContent = metaParts.join(' · ');
+    }
+
+    if (data.tooling?.availableTools?.length) {
+      metaDiv.dataset.tools = data.tooling.availableTools.join(',');
+    }
+
+    if (data.thinking && data.thinking.length > 0) {
+      metaDiv.title = data.thinking.join('\n');
+    }
+
+    messageElement.appendChild(metaDiv);
   }
 
   private handleFailedResponse(error: unknown): void {
@@ -1082,7 +1157,12 @@ class ChatPanel {
           HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
         >(`[name="${field}"]`);
         if (input) {
-          const stringValue = typeof value === 'number' ? String(value) : value;
+          const stringValue =
+            typeof value === 'number' || typeof value === 'boolean'
+              ? String(value)
+              : typeof value === 'string'
+                ? value
+                : JSON.stringify(value);
           input.value = stringValue;
           input.dispatchEvent(new Event('change', { bubbles: true }));
           input.dispatchEvent(new Event('input', { bubbles: true }));

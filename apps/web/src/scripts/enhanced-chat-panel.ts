@@ -744,6 +744,22 @@ interface ChatResponsePayload {
   context?: string;
   toolUsed?: string;
   fromCache?: boolean;
+  requestId?: string;
+  thinking?: string[];
+  metadata?: {
+    intent?: string;
+    latency?: number;
+    attempt?: number;
+  };
+  tooling?: {
+    availableTools: string[];
+    toolOutputsIncluded: number;
+    contextKey: string;
+    hasWebsiteContent?: boolean;
+    hasConversationHistory?: boolean;
+    cacheKey?: string;
+  };
+  modelChanges?: Record<string, unknown>;
 }
 
 interface ChatTransport {

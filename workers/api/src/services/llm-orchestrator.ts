@@ -44,6 +44,14 @@ export interface OrchestrationResponse {
     latency?: number | undefined;
     attempt?: number | undefined;
   } | undefined;
+  tooling?: {
+    availableTools: string[];
+    toolOutputsIncluded: number;
+    contextKey: string;
+    hasWebsiteContent?: boolean;
+    hasConversationHistory?: boolean;
+    cacheKey?: string;
+  };
 }
 
 export interface OrchestratorConfig {
@@ -84,7 +92,7 @@ export class LLMOrchestrator {
       contextData,
       currentModel = {},
       availableTools = [],
-      toolOutputs: _toolOutputs = {},
+      toolOutputs = {},
       memoryContext,
       requestId,
     } = request;
@@ -115,6 +123,7 @@ export class LLMOrchestrator {
       context,
       contextData,
       availableTools,
+      toolOutputs,
       memoryContext,
       requestId
     );
@@ -162,6 +171,7 @@ export class LLMOrchestrator {
     context: string,
     contextData: Record<string, unknown> | undefined,
     availableTools: ToolSummary[],
+    toolOutputs: Record<string, unknown>,
     memoryContext: { conversationHistory?: string; modelStates?: string } | undefined,
     requestId: string | undefined
   ): Promise<OrchestrationResponse> {
@@ -172,6 +182,7 @@ export class LLMOrchestrator {
       contextData,
       memoryContext,
       availableTools,
+      toolOutputs,
       enableAutoRAG: true,
       requestId,
     });
@@ -190,9 +201,19 @@ export class LLMOrchestrator {
     const llmResponse = await this.llm.chat(llmRequest);
 
     // Return response
+    const toolingMetadata = {
+      availableTools: availableTools.map((tool) => tool.name),
+      toolOutputsIncluded: builtContext.metadata?.toolOutputsIncluded || 0,
+      contextKey: context,
+      hasWebsiteContent: builtContext.metadata?.hasWebsiteContent || false,
+      hasConversationHistory: builtContext.metadata?.hasConversationHistory || false,
+      cacheKey: builtContext.cacheKey,
+    };
+
     const response: OrchestrationResponse = {
       response: llmResponse.content,
       fromCache: llmResponse.fromCache,
+      tooling: toolingMetadata,
     };
     
     if (llmResponse.latency !== undefined || llmResponse.metadata?.attempt !== undefined) {
@@ -295,4 +316,3 @@ export class LLMOrchestrator {
     }
   }
 }
-

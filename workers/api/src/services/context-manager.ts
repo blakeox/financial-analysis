@@ -8,6 +8,8 @@ import type { Ai } from '@cloudflare/workers-types';
 import { buildPrompt } from '../prompts/prompt-templates';
 import type { ToolSummary } from './intent-detector';
 
+const MAX_TOOL_SUMMARIES = 8;
+
 export interface ContextBuilder {
   message: string;
   contextKey: string;
@@ -17,6 +19,7 @@ export interface ContextBuilder {
     modelStates?: string;
   } | undefined;
   availableTools?: ToolSummary[] | undefined;
+  toolOutputs?: Record<string, unknown> | undefined;
   enableAutoRAG?: boolean | undefined;
   requestId?: string | undefined;
 }
@@ -26,12 +29,13 @@ export interface BuiltContext {
   systemPrompt?: string | undefined;
   cacheKey?: string | undefined;
   websiteContent?: string | undefined;
-  metadata?: {
-    contextKey: string;
-    hasWebsiteContent: boolean;
-    hasConversationHistory: boolean;
-    toolsAvailable: number;
-  } | undefined;
+    metadata?: {
+      contextKey: string;
+      hasWebsiteContent: boolean;
+      hasConversationHistory: boolean;
+      toolsAvailable: number;
+      toolOutputsIncluded: number;
+    } | undefined;
 }
 
 export class ContextManager {
@@ -44,7 +48,14 @@ export class ContextManager {
    * Build enriched context for LLM
    */
   async build(builder: ContextBuilder): Promise<BuiltContext> {
-    const { message, contextKey, contextData, memoryContext, availableTools } = builder;
+    const {
+      message,
+      contextKey,
+      contextData,
+      memoryContext,
+      availableTools,
+      toolOutputs,
+    } = builder;
 
     // Start with base prompt
     let basePrompt = '';
@@ -86,24 +97,9 @@ export class ContextManager {
       }
 
       // Filter and add relevant tools
-      if (availableTools && availableTools.length > 0) {
-        const relevantTools = availableTools
-          .filter(tool => {
-            const toolName = tool.name.toLowerCase();
-            return toolName.includes('cash') || 
-                   toolName.includes('ebitda') || 
-                   toolName.includes('budget') ||
-                   toolName.includes('journey') ||
-                   toolName.includes('forecast');
-          })
-          .map(t => ({
-            name: t.name,
-            description: t.description
-          }));
-
-        if (relevantTools.length > 0) {
-          promptContext.relevantTools = relevantTools;
-        }
+      const relevantTools = this.prepareToolList('startup-planning', availableTools);
+      if (relevantTools.length > 0) {
+        promptContext.availableTools = relevantTools;
       }
 
       // Build prompt from template
@@ -135,6 +131,11 @@ export class ContextManager {
         promptContext.currentFormData = mortgageData.currentFormData;
       }
 
+      const mortgageTools = this.prepareToolList('mortgage', availableTools);
+      if (mortgageTools.length > 0) {
+        promptContext.availableTools = mortgageTools;
+      }
+
       // Add results if available
       if (mortgageData.results) {
         promptContext.results = mortgageData.results;
@@ -156,7 +157,7 @@ export class ContextManager {
       // Include available tools so AI can intelligently decide when to use them
       const fullPrompt = buildPrompt('chatAssistant', {
         userMessage: message,
-        availableTools: availableTools || [],
+        availableTools: this.prepareToolList('general', availableTools),
       });
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
@@ -168,6 +169,7 @@ export class ContextManager {
       const fullPrompt = buildPrompt('calculatorAssistant', {
         userMessage: message,
         calculatorContext: contextKey,
+        availableTools: this.prepareToolList(contextKey, availableTools),
       });
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
@@ -219,8 +221,14 @@ export class ContextManager {
       basePrompt += websiteContent;
     }
 
+    const { sectionText: toolOutputsSection, entryCount: toolOutputsCount } =
+      this.buildToolOutputsSection(toolOutputs);
+    if (toolOutputsSection) {
+      basePrompt += toolOutputsSection;
+    }
+
     // Generate cache key
-    const cacheKey = this.generateCacheKey(contextKey, message, contextData);
+    const cacheKey = this.generateCacheKey(contextKey, message, contextData, toolOutputs);
 
     return {
       prompt: basePrompt,
@@ -232,6 +240,7 @@ export class ContextManager {
         hasWebsiteContent: !!websiteContent,
         hasConversationHistory: !!memoryContext?.conversationHistory,
         toolsAvailable: availableTools?.length || 0,
+        toolOutputsIncluded: toolOutputsCount,
       },
     };
   }
@@ -274,17 +283,134 @@ export class ContextManager {
   private generateCacheKey(
     contextKey: string,
     message: string,
-    contextData?: Record<string, unknown>
+    contextData?: Record<string, unknown>,
+    toolOutputs?: Record<string, unknown>
   ): string {
     // Create deterministic cache key
     const messageHash = message.substring(0, 100); // First 100 chars
     const dataHash = contextData ? JSON.stringify(contextData).substring(0, 50) : '';
+    const toolOutputsHash = toolOutputs ? JSON.stringify(toolOutputs).substring(0, 50) : '';
     
     // Include prompt version to bust cache when prompts are updated
     // Change this version number whenever system prompts are significantly updated
-    const promptVersion = 'v6'; // Updated 2025-11-03: Removed legacy hardcoded fallbacks, pure AI orchestrator
+    const promptVersion = 'v7'; // Updated 2026-02-14: Tool outputs included and prompt context enriched
     
-    return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}`;
+    return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}:${toolOutputsHash}`;
+  }
+
+  /**
+   * Build a readable summary of recent tool outputs for the prompt
+   */
+  private buildToolOutputsSection(
+    toolOutputs?: Record<string, unknown>
+  ): { sectionText?: string; entryCount: number } {
+    if (!toolOutputs || typeof toolOutputs !== 'object') {
+      return { entryCount: 0 };
+    }
+
+    const entries = Object.entries(toolOutputs).filter(
+      ([, value]) => value !== undefined && value !== null
+    );
+
+    if (entries.length === 0) {
+      return { entryCount: 0 };
+    }
+
+    const formattedEntries = entries.map(([toolName, value]) => {
+      const safeName = toolName || 'Unnamed Tool';
+      const { payload, metadata } = this.formatToolOutputValue(value);
+      return `- ${safeName}${metadata}: ${payload}`;
+    });
+
+    return {
+      entryCount: entries.length,
+      sectionText: `\n\n**Recent MCP Tool Outputs:**\n${formattedEntries.join(
+        '\n'
+      )}\n\nUse these validated results to ground your response.`,
+    };
+  }
+
+  /**
+   * Format tool output payloads in a compact, readable way
+   */
+  private formatToolOutputValue(value: unknown): { payload: string; metadata: string } {
+    if (value === null) {
+      return {
+        payload: 'No data returned.',
+        metadata: ' (MCP verified result)',
+      };
+    }
+
+    if (typeof value === 'string') {
+      return {
+        payload: this.truncate(value.trim(), 500),
+        metadata: ' (MCP verified result)',
+      };
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return {
+        payload: String(value),
+        metadata: ' (MCP verified result)',
+      };
+    }
+
+    try {
+      const serialized = JSON.stringify(value, null, 2);
+      const metadata = this.buildToolOutputMetadata(value);
+      return {
+        payload: this.truncate(serialized, 500),
+        metadata,
+      };
+    } catch {
+      return {
+        payload: '[Unserializable tool output]',
+        metadata: ' (MCP verified result)',
+      };
+    }
+  }
+
+  private buildToolOutputMetadata(value: unknown): string {
+    if (!value || typeof value !== 'object') {
+      return ' (MCP verified result)';
+    }
+
+    const record = value as Record<string, unknown>;
+    const generatedAt = record.generatedAt;
+    if (typeof generatedAt === 'string') {
+      return ` (MCP verified result • generated ${generatedAt})`;
+    }
+
+    return ' (MCP verified result)';
+  }
+
+  private truncate(value: string, maxLength: number): string {
+    if (value.length <= maxLength) {
+      return value;
+    }
+    return `${value.substring(0, maxLength)}…`;
+  }
+
+  private prepareToolList(contextKey: string, availableTools?: ToolSummary[]): ToolSummary[] {
+    if (!availableTools || availableTools.length === 0) {
+      return [];
+    }
+
+    const normalizedKey = contextKey.toLowerCase();
+    const tokens = normalizedKey.split(/[\s_-]+/).filter(Boolean);
+
+    const candidates = availableTools.filter((tool) => {
+      if (normalizedKey === 'general') {
+        return true;
+      }
+      const toolName = tool.name.toLowerCase();
+      const toolDescription = tool.description.toLowerCase();
+      return tokens.some(
+        (token) => toolName.includes(token) || toolDescription.includes(token)
+      );
+    });
+
+    const list = candidates.length > 0 ? candidates : availableTools;
+    return list.slice(0, MAX_TOOL_SUMMARIES);
   }
 }
-
