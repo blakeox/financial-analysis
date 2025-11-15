@@ -1,0 +1,493 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+const journeyData = getJourneyData();
+const currentScenario = journeyData['invest-vs-payoff-debt'];
+
+if (!currentScenario) {
+  throw new Error('Journey not found: invest-vs-payoff-debt');
+}
+
+const currentStep = currentScenario.models.find(m => m.id === 'understand-debt');
+const currentStepOrder = currentStep?.order || 2;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
+
+const journeyNav = {
+  scenarioId: 'invest-vs-payoff-debt',
+  scenarioName: currentScenario.name,
+  currentStep: currentStepOrder,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/invest-vs-payoff-debt/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/invest-vs-payoff-debt/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: '/journey/invest-vs-payoff-debt'
+};
+
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey/invest-vs-payoff-debt" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">💳</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {currentStepOrder} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Debt Documentation Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Document Your Debts</h2>
+            
+            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-blue-700 dark:text-blue-300">
+                    <strong>Key Information:</strong> To make the best decision, we need to know your debt balances, interest rates, and minimum payments. Higher interest rates (typically above 7-8%) usually favor paying off debt first.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <form id="debt-form" class="space-y-6">
+              <!-- Primary Debt -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💳 Primary Debt</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="debt-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Total Debt Balance ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="debt-balance" 
+                      name="debtBalance"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="10000"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="debt-interest-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Interest Rate (%) *
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      id="debt-interest-rate" 
+                      name="debtInterestRate"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="18"
+                      required
+                    />
+                    <p class="text-xs text-gray-500 mt-1">APR (Annual Percentage Rate)</p>
+                  </div>
+                  <div>
+                    <label for="minimum-payment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Minimum Monthly Payment ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="minimum-payment" 
+                      name="minimumPayment"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="200"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="debt-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Debt Type *
+                    </label>
+                    <select 
+                      id="debt-type" 
+                      name="debtType"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    >
+                      <option value="">Select type</option>
+                      <option value="credit-card">Credit Card</option>
+                      <option value="student-loan">Student Loan</option>
+                      <option value="auto-loan">Auto Loan</option>
+                      <option value="mortgage">Mortgage</option>
+                      <option value="personal-loan">Personal Loan</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Context -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Additional Context</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Is this debt tax-deductible?
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-start">
+                        <input type="radio" name="taxDeductible" value="yes" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes (e.g., mortgage, student loans)</span>
+                          <p class="text-xs text-gray-500">May reduce effective interest rate</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="taxDeductible" value="no" class="mt-1 mr-3" checked>
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No (e.g., credit cards, auto loans)</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="time-horizon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Time Horizon for This Decision *
+                    </label>
+                    <select 
+                      id="time-horizon" 
+                      name="timeHorizon"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      required
+                    >
+                      <option value="">Select timeline</option>
+                      <option value="1">1 year</option>
+                      <option value="3">3 years</option>
+                      <option value="5" selected>5 years</option>
+                      <option value="10">10 years</option>
+                      <option value="20">20+ years</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">How long will you follow this strategy?</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="save-debt-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Save & Continue
+                </button>
+                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="debt-results" class="hidden mt-8 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Debt Summary</h3>
+              <div id="debt-results-content" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Navigation -->
+          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a 
+                    href={journeyNav.journeyOverviewUrl}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h3 class="text-lg font-semibold mb-4">💡 Interest Rate Guide</h3>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p><strong>High (8%+):</strong> Usually better to pay off debt first. Credit cards, personal loans.</p>
+              </div>
+              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p><strong>Medium (4-8%):</strong> Depends on investment returns. Student loans, some auto loans.</p>
+              </div>
+              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p><strong>Low (&lt;4%):</strong> Often better to invest. Mortgages, some student loans.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-4">📋 Debt Types</h3>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <p><strong>Credit Cards:</strong> Usually highest interest (15-25%)</p>
+              <p><strong>Student Loans:</strong> Often 3-7%, may be tax-deductible</p>
+              <p><strong>Auto Loans:</strong> Typically 3-8%</p>
+              <p><strong>Mortgages:</strong> Usually lowest (2-5%), tax-deductible</p>
+              <p><strong>Personal Loans:</strong> Varies widely (6-36%)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('debt-form');
+      const saveBtn = document.getElementById('save-debt-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const debtResults = document.getElementById('debt-results');
+      const debtResultsContent = document.getElementById('debt-results-content');
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(form as HTMLFormElement);
+          const debtBalance = parseFloat(formData.get('debtBalance') as string || '0');
+          const debtInterestRate = parseFloat(formData.get('debtInterestRate') as string || '0');
+          const minimumPayment = parseFloat(formData.get('minimumPayment') as string || '0');
+          const debtType = formData.get('debtType') as string;
+          const taxDeductible = formData.get('taxDeductible') as string || 'no';
+          const timeHorizon = formData.get('timeHorizon') as string;
+
+          if (!debtBalance || !debtInterestRate || !minimumPayment || !debtType || !timeHorizon) {
+            alert('Please fill in all required fields.');
+            return;
+          }
+
+          // Calculate effective interest rate if tax-deductible
+          const effectiveRate = taxDeductible === 'yes' ? debtInterestRate * 0.75 : debtInterestRate; // Assuming 25% tax bracket
+
+          // Store in journey state
+          const debtData = {
+            debtBalance,
+            debtInterestRate,
+            effectiveRate: effectiveRate.toFixed(2),
+            minimumPayment,
+            debtType,
+            taxDeductible,
+            timeHorizon: parseInt(timeHorizon),
+            completedAt: new Date().toISOString()
+          };
+
+          const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
+          journeyState.collectedData = journeyState.collectedData || {};
+          journeyState.collectedData['understand-debt'] = debtData;
+          localStorage.setItem('fanalyx-journey-state-invest-vs-payoff-debt', JSON.stringify(journeyState));
+
+          // Show results
+          const rateCategory = debtInterestRate >= 8 ? 'High' : debtInterestRate >= 4 ? 'Medium' : 'Low';
+          const rateColor = debtInterestRate >= 8 ? 'red' : debtInterestRate >= 4 ? 'yellow' : 'green';
+
+          debtResultsContent!.innerHTML = `
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Debt Balance:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">$${debtBalance.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Interest Rate:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">${debtInterestRate}%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Rate Category:</span>
+                  <span class="font-semibold text-${rateColor}-600 dark:text-${rateColor}-400">${rateCategory}</span>
+                </div>
+                ${taxDeductible === 'yes' ? `
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Effective Rate (after tax):</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${effectiveRate}%</span>
+                  </div>
+                ` : ''}
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Minimum Payment:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">$${minimumPayment.toLocaleString()}/month</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Debt Type:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">${debtType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Time Horizon:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">${timeHorizon} years</span>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <p class="text-sm text-purple-800 dark:text-purple-200">
+                  ${debtInterestRate >= 8 ? '💡 High interest rate suggests paying off debt first may be better.' : debtInterestRate >= 4 ? '💡 Medium interest rate - compare with investment returns.' : '💡 Low interest rate - investing may be more beneficial.'}
+                </p>
+              </div>
+            </div>
+          `;
+
+          debtResults?.classList.remove('hidden');
+
+          // Show success message
+          saveBtn.textContent = '✓ Saved!';
+          saveBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+          saveBtn.classList.add('bg-purple-500');
+          
+          setTimeout(() => {
+            saveBtn.textContent = 'Save & Continue';
+            saveBtn.classList.remove('bg-purple-500');
+            saveBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+          }, 2000);
+
+          // Dispatch completion event
+          window.dispatchEvent(new CustomEvent('calculator-completed', {
+            detail: {
+              calculatorId: 'understand-debt',
+              result: debtData,
+              formData: debtData
+            }
+          }));
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          form?.reset();
+          debtResults?.classList.add('hidden');
+        });
+      }
+
+      // Load saved data if exists
+      const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
+      if (journeyState.collectedData?.['understand-debt']) {
+        const saved = journeyState.collectedData['understand-debt'];
+        const form = document.getElementById('debt-form') as HTMLFormElement;
+        if (saved.debtBalance) {
+          (document.getElementById('debt-balance') as HTMLInputElement).value = saved.debtBalance;
+        }
+        if (saved.debtInterestRate) {
+          (document.getElementById('debt-interest-rate') as HTMLInputElement).value = saved.debtInterestRate;
+        }
+        if (saved.minimumPayment) {
+          (document.getElementById('minimum-payment') as HTMLInputElement).value = saved.minimumPayment;
+        }
+        if (saved.debtType) {
+          (document.getElementById('debt-type') as HTMLSelectElement).value = saved.debtType;
+        }
+        if (saved.taxDeductible) {
+          const radio = form.querySelector(`input[value="${saved.taxDeductible}"]`) as HTMLInputElement;
+          if (radio) radio.checked = true;
+        }
+        if (saved.timeHorizon) {
+          (document.getElementById('time-horizon') as HTMLSelectElement).value = saved.timeHorizon.toString();
+        }
+      }
+    });
+  </script>
+</Layout>
+

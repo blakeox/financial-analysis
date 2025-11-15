@@ -1,0 +1,487 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+const journeyData = getJourneyData();
+const currentScenario = journeyData['invest-vs-payoff-debt'];
+
+if (!currentScenario) {
+  throw new Error('Journey not found: invest-vs-payoff-debt');
+}
+
+const currentStep = currentScenario.models.find(m => m.id === 'financial-foundation');
+const currentStepOrder = currentStep?.order || 1;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
+
+const journeyNav = {
+  scenarioId: 'invest-vs-payoff-debt',
+  scenarioName: currentScenario.name,
+  currentStep: currentStepOrder,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep ? {
+    id: nextStep.id,
+    name: nextStep.name,
+    url: `/journey/invest-vs-payoff-debt/step/${nextStep.id}`
+  } : null,
+  previousStep: previousStep ? {
+    id: previousStep.id,
+    name: previousStep.name,
+    url: `/journey/invest-vs-payoff-debt/step/${previousStep.id}`
+  } : null,
+  journeyOverviewUrl: '/journey/invest-vs-payoff-debt'
+};
+
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey/invest-vs-payoff-debt" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🛡️</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {currentStepOrder} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Financial Foundation Assessment -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Assess Your Financial Foundation</h2>
+            
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                    <strong>Critical First Step:</strong> Before deciding between investing and paying off debt, you need a solid financial foundation. Without an emergency fund, unexpected expenses could force you into more debt.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <form id="financial-foundation-form" class="space-y-6">
+              <!-- Emergency Fund Section -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🛡️ Emergency Fund Status</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Do you have an emergency fund? *
+                    </label>
+                    <div class="space-y-2">
+                      <label class="flex items-start">
+                        <input type="radio" name="hasEmergencyFund" value="yes" class="mt-1 mr-3" required>
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, I have 3-6 months saved</span>
+                          <p class="text-xs text-gray-500">Great! You can proceed with the invest vs debt decision.</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="hasEmergencyFund" value="partial" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Partial (less than 3 months)</span>
+                          <p class="text-xs text-gray-500">Consider building emergency fund first before extra debt payments or investing.</p>
+                        </div>
+                      </label>
+                      <label class="flex items-start">
+                        <input type="radio" name="hasEmergencyFund" value="no" class="mt-1 mr-3">
+                        <div>
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No emergency fund</span>
+                          <p class="text-xs text-gray-500">Priority #1: Build emergency fund before making this decision.</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div id="emergency-fund-details" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label for="emergency-fund-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Current Emergency Fund Amount ($)
+                        </label>
+                        <input 
+                          type="number" 
+                          id="emergency-fund-amount" 
+                          name="emergencyFundAmount"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          placeholder="5000"
+                        />
+                      </div>
+                      <div>
+                        <label for="monthly-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Monthly Expenses ($)
+                        </label>
+                        <input 
+                          type="number" 
+                          id="monthly-expenses" 
+                          name="monthlyExpenses"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          placeholder="3000"
+                        />
+                        <p class="text-xs text-gray-500 mt-1">Used to calculate months of expenses covered</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Current Financial Situation -->
+              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Current Financial Situation</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="monthly-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Monthly Income (After Tax) ($)
+                    </label>
+                    <input 
+                      type="number" 
+                      id="monthly-income" 
+                      name="monthlyIncome"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="5000"
+                    />
+                  </div>
+                  <div>
+                    <label for="extra-money" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Extra Money Available Per Month ($) *
+                    </label>
+                    <input 
+                      type="number" 
+                      id="extra-money" 
+                      name="extraMoney"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      placeholder="500"
+                      required
+                    />
+                    <p class="text-xs text-gray-500 mt-1">Money available after all expenses and minimum debt payments</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="save-foundation-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Save & Continue
+                </button>
+                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="foundation-results" class="hidden mt-8 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Financial Foundation Assessment</h3>
+              <div id="foundation-results-content" class="space-y-4">
+                <!-- Results will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Journey Navigation -->
+          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a 
+                    href={journeyNav.previousStep.url}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a 
+                    href={journeyNav.journeyOverviewUrl}
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a 
+                    href={journeyNav.nextStep.url}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`/journey-analysis/${journeyNav.scenarioId}`}
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h3 class="text-lg font-semibold mb-4">💡 Why This Matters</h3>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p><strong>No Emergency Fund:</strong> Build 3-6 months of expenses before investing or paying extra on debt.</p>
+              </div>
+              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p><strong>Emergency Fund Ready:</strong> You can safely make the invest vs debt decision.</p>
+              </div>
+              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p><strong>Extra Money:</strong> This is what you'll allocate between investing and debt payoff.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-4">📋 Emergency Fund Guidelines</h3>
+            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+              <p><strong>3-6 Months:</strong> Standard recommendation for most people</p>
+              <p><strong>6-12 Months:</strong> If self-employed or in volatile industry</p>
+              <p><strong>High-Interest Debt:</strong> Consider 1 month minimum, then tackle debt</p>
+              <p><strong>Low-Interest Debt:</strong> Build full emergency fund first</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('financial-foundation-form');
+      const saveBtn = document.getElementById('save-foundation-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const emergencyFundDetails = document.getElementById('emergency-fund-details');
+      const emergencyFundRadios = document.querySelectorAll('input[name="hasEmergencyFund"]');
+      const foundationResults = document.getElementById('foundation-results');
+      const foundationResultsContent = document.getElementById('foundation-results-content');
+
+      // Show/hide emergency fund details
+      emergencyFundRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'yes' || this.value === 'partial') {
+            emergencyFundDetails?.classList.remove('hidden');
+          } else {
+            emergencyFundDetails?.classList.add('hidden');
+          }
+        });
+      });
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(form as HTMLFormElement);
+          const hasEmergencyFund = formData.get('hasEmergencyFund');
+          const emergencyFundAmount = parseFloat(formData.get('emergencyFundAmount') as string || '0');
+          const monthlyExpenses = parseFloat(formData.get('monthlyExpenses') as string || '0');
+          const monthlyIncome = parseFloat(formData.get('monthlyIncome') as string || '0');
+          const extraMoney = parseFloat(formData.get('extraMoney') as string || '0');
+
+          if (!hasEmergencyFund || !extraMoney) {
+            alert('Please fill in all required fields.');
+            return;
+          }
+
+          // Calculate months of expenses covered
+          const monthsCovered = monthlyExpenses > 0 ? emergencyFundAmount / monthlyExpenses : 0;
+          
+          // Store in journey state
+          const foundationData = {
+            hasEmergencyFund,
+            emergencyFundAmount,
+            monthlyExpenses,
+            monthlyIncome,
+            extraMoney,
+            monthsCovered: monthsCovered.toFixed(1),
+            completedAt: new Date().toISOString()
+          };
+
+          const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
+          journeyState.collectedData = journeyState.collectedData || {};
+          journeyState.collectedData['financial-foundation'] = foundationData;
+          localStorage.setItem('fanalyx-journey-state-invest-vs-payoff-debt', JSON.stringify(journeyState));
+
+          // Show results
+          const recommendation = hasEmergencyFund === 'yes' 
+            ? '✅ You have a solid emergency fund! You can proceed with the invest vs debt decision.'
+            : hasEmergencyFund === 'partial'
+            ? '⚠️ Consider building your emergency fund to 3-6 months before making extra debt payments or investments.'
+            : '🚨 Priority #1: Build an emergency fund before deciding between investing and paying off debt.';
+
+          foundationResultsContent!.innerHTML = `
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Emergency Fund Status:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">${hasEmergencyFund === 'yes' ? '✅ Ready' : hasEmergencyFund === 'partial' ? '⚠️ Partial' : '❌ Not Ready'}</span>
+                </div>
+                ${emergencyFundAmount > 0 ? `
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Emergency Fund Amount:</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">$${emergencyFundAmount.toLocaleString()}</span>
+                  </div>
+                  ${monthsCovered > 0 ? `
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Months Covered:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">${monthsCovered.toFixed(1)} months</span>
+                    </div>
+                  ` : ''}
+                ` : ''}
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Extra Money Available:</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">$${extraMoney.toLocaleString()}/month</span>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <p class="text-sm text-purple-800 dark:text-purple-200">${recommendation}</p>
+              </div>
+            </div>
+          `;
+
+          foundationResults?.classList.remove('hidden');
+
+          // Show success message
+          saveBtn.textContent = '✓ Saved!';
+          saveBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+          saveBtn.classList.add('bg-purple-500');
+          
+          setTimeout(() => {
+            saveBtn.textContent = 'Save & Continue';
+            saveBtn.classList.remove('bg-purple-500');
+            saveBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+          }, 2000);
+
+          // Dispatch completion event
+          window.dispatchEvent(new CustomEvent('calculator-completed', {
+            detail: {
+              calculatorId: 'financial-foundation',
+              result: foundationData,
+              formData: foundationData
+            }
+          }));
+
+          // Auto-advance after 2 seconds if emergency fund is ready
+          if (hasEmergencyFund === 'yes' && journeyNav.nextStep) {
+            setTimeout(() => {
+              window.location.href = journeyNav.nextStep!.url;
+            }, 2000);
+          }
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          form?.reset();
+          foundationResults?.classList.add('hidden');
+          emergencyFundDetails?.classList.add('hidden');
+        });
+      }
+
+      // Load saved data if exists
+      const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
+      if (journeyState.collectedData?.['financial-foundation']) {
+        const saved = journeyState.collectedData['financial-foundation'];
+        const form = document.getElementById('financial-foundation-form') as HTMLFormElement;
+        if (saved.hasEmergencyFund) {
+          const radio = form.querySelector(`input[value="${saved.hasEmergencyFund}"]`) as HTMLInputElement;
+          if (radio) radio.checked = true;
+          if (saved.hasEmergencyFund === 'yes' || saved.hasEmergencyFund === 'partial') {
+            emergencyFundDetails?.classList.remove('hidden');
+          }
+        }
+        if (saved.emergencyFundAmount) {
+          (document.getElementById('emergency-fund-amount') as HTMLInputElement).value = saved.emergencyFundAmount;
+        }
+        if (saved.monthlyExpenses) {
+          (document.getElementById('monthly-expenses') as HTMLInputElement).value = saved.monthlyExpenses;
+        }
+        if (saved.monthlyIncome) {
+          (document.getElementById('monthly-income') as HTMLInputElement).value = saved.monthlyIncome;
+        }
+        if (saved.extraMoney) {
+          (document.getElementById('extra-money') as HTMLInputElement).value = saved.extraMoney;
+        }
+      }
+    });
+  </script>
+</Layout>
+
