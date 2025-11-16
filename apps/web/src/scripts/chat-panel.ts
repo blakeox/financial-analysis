@@ -17,6 +17,7 @@ import {
 } from './chat/calculator-contexts';
 import { installChatContextBridge, subscribeChatContext } from './chat/chat-context';
 import { chatMemory } from './chat/chat-memory';
+import { FieldUpdateManager, type FieldUpdateInstruction } from './chat/field-update-manager';
 import { MessageQueue, type QueueEvent } from './chat/message-queue';
 import { ChatStateStore } from './chat/state-store';
 import { toolCatalog } from './chat/tool-catalog';
@@ -38,6 +39,17 @@ const RATE_LIMIT_DELAY_MS = 1000; // 1 second between messages
 const API_TIMEOUT_MS = 30000; // 30 second timeout
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1000; // Initial backoff time
+const GENERIC_RESPONSE_PATTERNS = [
+  /i can help update the /i,
+  /try:\s*\"set interest to/i,
+  /say \"help\"/i,
+  /ask for a specific value/i,
+  /i can change interest rates/i,
+  /i can help update the general model/i,
+  /^hi — i can help/i,
+  /^what (tools|calculators)/i,
+  /i can help update the models model/i,
+];
 
 const debugLog = (...args: unknown[]): void => {
   if (import.meta.env.DEV) {
@@ -110,6 +122,7 @@ class ChatPanel {
   private beforeUnloadHandler: (() => void) | null;
   private analysisResultsHandler: ((event: Event) => void) | null;
   private chatStateSubscription: (() => void) | null;
+  private fieldUpdates: FieldUpdateManager;
 
   private updateLayoutOffsets = (): void => {
     const header = document.getElementById('site-header');
@@ -210,6 +223,11 @@ class ChatPanel {
     this.beforeUnloadHandler = () => this.destroy();
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
     this.analysisResultsHandler = null;
+    this.fieldUpdates = new FieldUpdateManager({
+      updateField: (fieldId, value) => this.updateFormField(fieldId, value),
+      captureOutputs: () => this.capturePageOutputs(),
+      getFieldDisplayName: (fieldId) => this.getFieldDisplayName(fieldId),
+    });
     const existingSnapshot = toolCatalog.getSnapshot();
     if (existingSnapshot) {
       this.handleToolCatalogUpdate({
@@ -278,6 +296,7 @@ class ChatPanel {
 
     // Update welcome message based on context
     this.updateWelcomeMessage(activeContext);
+    this.fieldUpdates.clearRememberedField();
   }
 
   private handleQueueEvent(event: QueueEvent<ChatRequestPayload>): void {
@@ -448,6 +467,7 @@ class ChatPanel {
     this.customContextLabel = label;
     this.customContextData = data;
     this.updateContextIndicator();
+    this.fieldUpdates.clearRememberedField();
   }
 
   private clearExternalContext(): void {
@@ -455,6 +475,7 @@ class ChatPanel {
     this.customContextLabel = null;
     this.customContextData = null;
     this.updateContextIndicator();
+    this.fieldUpdates.clearRememberedField();
   }
 
   private getContextData(): SerializedContext {
@@ -546,10 +567,11 @@ class ChatPanel {
   private setupNavigationListener(): void {
     const handleContextChange = () => {
       const newContext = this.detectContext();
-      if (newContext !== this.lastContext) {
+      if (newContext !== this.currentContext) {
         this.lastContext = this.currentContext;
         this.currentContext = newContext;
         this.updateContextIndicator();
+        this.fieldUpdates.clearRememberedField();
 
         // Show notification if chat is open
         if (this.isOpen) {
@@ -808,21 +830,26 @@ class ChatPanel {
     const context = this.getActiveContextKey();
     const fieldUpdate = parseFieldUpdate(message, context as CalculatorContextKey);
     
-    if (fieldUpdate && fieldUpdate.field && fieldUpdate.value) {
-      // Apply the field update immediately
-      const success = this.updateFormField(fieldUpdate.field, fieldUpdate.value);
-      
-      if (success) {
-        this.addMessage(message, 'user');
-        this.input.value = '';
-        this.sendBtn.disabled = false;
-        this.autoResizeInput();
-        
-        // Provide immediate feedback
-        const feedbackMessage = `✓ Updated ${fieldUpdate.fieldLabel || fieldUpdate.field} to ${fieldUpdate.value}. The calculator will recalculate when you submit the form.`;
-        this.addMessage(feedbackMessage, 'assistant');
-        return;
-      }
+    if (
+      fieldUpdate &&
+      fieldUpdate.field &&
+      fieldUpdate.value &&
+      this.handleResolvedFieldUpdate(
+        message,
+        {
+          field: fieldUpdate.field,
+          value: fieldUpdate.value,
+          fieldLabel: fieldUpdate.fieldLabel,
+        },
+        context
+      )
+    ) {
+      return;
+    }
+
+    const implicitUpdate = this.fieldUpdates.detectImplicitInstruction(message, context);
+    if (implicitUpdate && this.handleResolvedFieldUpdate(message, implicitUpdate, context)) {
+      return;
     }
 
     // Normal message handling (send to AI)
@@ -843,14 +870,14 @@ class ChatPanel {
   /**
    * Update a form field value
    */
-  private updateFormField(fieldId: string, value: string): boolean {
+  private updateFormField(fieldId: string, value: string): { success: boolean; previousValue?: string } {
     try {
       // Try to find the field by ID
       const field = document.getElementById(fieldId) as HTMLInputElement | null;
       
       if (!field) {
         debugWarn(`[ChatPanel] Field not found: ${fieldId}`);
-        return false;
+        return { success: false };
       }
       
       // Update the field value
@@ -877,11 +904,90 @@ class ChatPanel {
       }
       
       debugLog(`[ChatPanel] Updated field ${fieldId}: "${oldValue}" → "${value}"`);
-      return true;
+      return { success: true, previousValue: oldValue };
     } catch (error) {
       debugWarn('[ChatPanel] Error updating field:', error);
+      return { success: false };
+    }
+  }
+
+
+
+  private handleResolvedFieldUpdate(
+    userMessage: string,
+    instruction: FieldUpdateInstruction,
+    context: ContextKey
+  ): boolean {
+    const assistantResponse = this.fieldUpdates.tryApply(instruction, context);
+    if (!assistantResponse) {
       return false;
     }
+
+    this.addMessage(userMessage, 'user');
+    this.resetInputAfterLocalAction();
+    this.addMessage(assistantResponse, 'assistant');
+    return true;
+  }
+
+  private resetInputAfterLocalAction(): void {
+    this.input.value = '';
+    this.sendBtn.disabled = false;
+    this.autoResizeInput();
+  }
+
+  private getNonGenericResponse(raw: string, context: ContextKey): string {
+    const isGeneric = GENERIC_RESPONSE_PATTERNS.some((pattern) => pattern.test(raw));
+    if (!isGeneric) {
+      return raw;
+    }
+
+    const lastUser = this.getLastUserMessage();
+    const contextDef = CALCULATOR_CONTEXTS[context as CalculatorContextKey];
+    const label = contextDef?.label || 'financial analysis';
+
+    const toolCount = this.mcpTools?.length ?? 0;
+    const toolsList =
+      this.mcpTools && this.mcpTools.length > 0
+        ? this.mcpTools
+            .map((tool) => tool.name)
+            .slice(0, 5)
+            .join(', ')
+        : null;
+
+    const lead = lastUser ? `Got your question: "${lastUser}".` : `Happy to help with ${label}.`;
+    const prompt =
+      context === 'general'
+        ? 'Tell me what you want to analyze (e.g., loan amount, rate, term, budget, savings).'
+        : `Tell me the inputs you want to change for ${label} (amounts, rates, terms, or timeframes).`;
+
+    const toolsLine =
+      toolCount > 0
+        ? `I can run calculations with ${toolCount} tools${toolsList ? `, for example: ${toolsList}` : ''}.`
+        : 'I can run mortgage, lease, budgeting, EBITDA, and other calculations.';
+
+    const examples =
+      context === 'general'
+        ? 'Examples: "Compare a 30-year vs 15-year mortgage", "Forecast monthly savings to reach $50k", "Project EBITDA if revenue grows 8%".'
+        : '';
+
+    return [lead, prompt, toolsLine, examples].filter(Boolean).join(' ');
+  }
+
+  private detectIntentLabel(userMessage: string | null, fallback: string): string {
+    if (!userMessage) {
+      return fallback;
+    }
+    const text = userMessage.toLowerCase();
+
+    if (/(mortgage|home loan|loan)/i.test(text)) return 'Mortgage/Loan';
+    if (/(lease|rent vs buy|renting)/i.test(text)) return 'Lease/Rent';
+    if (/(retirement|401k|ira)/i.test(text)) return 'Retirement';
+    if (/(savings goal|save|target|goal)/i.test(text)) return 'Savings';
+    if (/(budget|spending|expenses)/i.test(text)) return 'Budgeting';
+    if (/(student loan)/i.test(text)) return 'Student Loans';
+    if (/(ebitda|revenue|forecast|business|cash flow)/i.test(text)) return 'Business forecast';
+
+    return fallback;
   }
 
   private buildRequestPayload(message: string): ChatRequestPayload {
@@ -932,7 +1038,9 @@ class ChatPanel {
   }
 
   private handleSuccessfulResponse(data: ChatResponsePayload): void {
-    const assistantMessage = this.addMessage(data.response, 'assistant');
+    const activeContext = this.getActiveContextKey();
+    const resolvedResponse = this.getNonGenericResponse(data.response, activeContext);
+    const assistantMessage = this.addMessage(resolvedResponse, 'assistant');
     this.renderAssistantMetadata(assistantMessage, data);
 
     if (import.meta.env.DEV) {

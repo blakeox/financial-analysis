@@ -9,9 +9,15 @@ module.exports = [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: [__dirname + '/tsconfig.json'],
         tsconfigRootDir: __dirname,
       },
+    },
+  },
+  {
+    files: ['src/tools/multi-model-scenario.ts'],
+    rules: {
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
 ];

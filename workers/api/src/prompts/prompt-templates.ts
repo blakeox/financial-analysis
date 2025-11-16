@@ -593,7 +593,12 @@ export function buildPrompt(
   }
 
   // Add other context data (excluding what we've already formatted)
-  const { availableTools, userMessage, conversationHistory, ...otherContext } = context;
+  const {
+    availableTools: _availableTools,
+    userMessage: _userMessage,
+    conversationHistory: _conversationHistory,
+    ...otherContext
+  } = context;
   if (Object.keys(otherContext).length > 0) {
     prompt += `\n\n**Additional Context:**\n${JSON.stringify(otherContext, null, 2)}`;
   }

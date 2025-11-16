@@ -6,7 +6,6 @@
 import type { RouterType } from 'itty-router';
 import type { Env } from '../types';
 import {
-  buildDefaultHeaders,
   buildChatHeaders,
   buildRequestContext,
   validateChatMessage,
@@ -160,9 +159,6 @@ export function registerChatRoutes(router: RouterType) {
 
             if (result.toolUsed) {
               responseBody.toolUsed = result.toolUsed;
-            }
-            if (result.modelChanges && Object.keys(result.modelChanges).length > 0) {
-              responseBody.modelChanges = result.modelChanges;
             }
 
             // Return AI response

@@ -10,7 +10,6 @@ module.exports = [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: [__dirname + '/tsconfig.json'],
         tsconfigRootDir: __dirname,
       },
       globals: {

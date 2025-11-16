@@ -22,7 +22,7 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
 
       // Test the logic that would be in hasToolErrors
       const hasErrors = (toolOutputs: Record<string, unknown>): boolean => {
-        for (const [toolName, output] of Object.entries(toolOutputs)) {
+        for (const [, output] of Object.entries(toolOutputs)) {
           if (!output || typeof output !== 'object') {
             continue;
           }
@@ -46,7 +46,7 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
       };
 
       const hasErrors = (toolOutputs: Record<string, unknown>): boolean => {
-        for (const [toolName, output] of Object.entries(toolOutputs)) {
+        for (const [, output] of Object.entries(toolOutputs)) {
           if (!output || typeof output !== 'object') {
             continue;
           }

@@ -3,10 +3,10 @@
  * Builds enriched context for LLM calls from multiple sources
  */
 
-// @ts-ignore - Cloudflare Workers types
+// @ts-expect-error - Cloudflare Workers types
 import type { Ai } from '@cloudflare/workers-types';
 import { buildPrompt } from '../prompts/prompt-templates';
-import type { ToolSummary } from './intent-detector';
+import type { ToolSummary } from './types';
 
 const MAX_TOOL_SUMMARIES = 8;
 
