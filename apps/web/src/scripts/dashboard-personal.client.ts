@@ -3,21 +3,6 @@
  * Manages dashboard state and updates
  */
 
-interface JourneyState {
-  progress: {
-    completed: string[];
-    total: number;
-  };
-  lastUpdated: string;
-}
-
-interface RecentCalculation {
-  title: string;
-  icon: string;
-  url: string;
-  timestamp: string;
-}
-
 class PersonalDashboard {
   private updateInterval: number = 5000; // Update every 5 seconds
   private intervalId: NodeJS.Timeout | null = null;

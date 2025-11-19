@@ -64,7 +64,6 @@ class SimpleMACalculator {
 
     // Calculate accretion/dilution
     const acquirerEPS = (acquirerEBITDA * 0.7) / acquirerShares; // Assume 30% tax rate
-    const targetEPS = (targetEBITDA * 0.7) / targetShares;
 
     const cashRequired = transactionValue * (cashPercentage / 100);
     const sharesIssued = (transactionValue - cashRequired) / acquirerSharePrice;

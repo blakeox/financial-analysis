@@ -17,6 +17,23 @@ export interface SecurityConfig {
   blockDurationMs: number;
 }
 
+export interface SecurityRequest {
+  url: string;
+  method: string;
+  headers: Record<string, string>;
+  body?: string;
+  userAgent?: string;
+  ipAddress?: string;
+  userId?: string;
+  [key: string]: unknown;
+}
+
+type PrimitiveValue = string | number | boolean | null;
+type ConditionValue = PrimitiveValue | PrimitiveValue[] | RegExp;
+
+const isPrimitiveValue = (value: unknown): value is PrimitiveValue =>
+  value === null || ['string', 'number', 'boolean'].includes(typeof value);
+
 export interface SecurityEvent {
   id: string;
   timestamp: Date;
@@ -48,7 +65,7 @@ export interface RateLimitRule {
   name: string;
   windowMs: number;
   maxRequests: number;
-  keyGenerator: (request: any) => string;
+  keyGenerator: (request: SecurityRequest) => string;
   enabled: boolean;
 }
 
@@ -60,7 +77,7 @@ export interface AccessControlRule {
   conditions: Array<{
     field: string;
     operator: 'equals' | 'contains' | 'matches' | 'in' | 'not_in';
-    value: any;
+    value: ConditionValue;
   }>;
   effect: 'allow' | 'deny';
   enabled: boolean;
@@ -100,15 +117,7 @@ export class AdvancedSecurityManager {
   /**
    * Analyze request for security threats
    */
-  analyzeRequest(request: {
-    url: string;
-    method: string;
-    headers: Record<string, string>;
-    body?: string;
-    userAgent?: string;
-    ipAddress?: string;
-    userId?: string;
-  }): {
+  analyzeRequest(request: SecurityRequest): {
     isSafe: boolean;
     threats: Array<{ pattern: ThreatPattern; match: string }>;
     sanitizedBody?: string;
@@ -283,7 +292,7 @@ export class AdvancedSecurityManager {
   /**
    * Check rate limiting rules
    */
-  checkRateLimit(request: any): {
+  checkRateLimit(request: SecurityRequest): {
     allowed: boolean;
     ruleId?: string;
     currentCount: number;
@@ -324,7 +333,7 @@ export class AdvancedSecurityManager {
   /**
    * Check access control rules
    */
-  checkAccessControl(request: any): {
+  checkAccessControl(request: SecurityRequest): {
     allowed: boolean;
     ruleId?: string;
     reason?: string;
@@ -356,7 +365,7 @@ export class AdvancedSecurityManager {
   /**
    * Check for suspicious activity patterns
    */
-  checkSuspiciousActivity(request: any): number {
+  checkSuspiciousActivity(request: SecurityRequest): number {
     const key = request.ipAddress || request.userId || 'unknown';
     const now = Date.now();
 
@@ -460,7 +469,8 @@ export class AdvancedSecurityManager {
       }
 
       if (filters.since) {
-        filteredEvents = filteredEvents.filter((e) => e.timestamp >= filters.since!);
+        const sinceTime = filters.since.getTime();
+        filteredEvents = filteredEvents.filter((e) => e.timestamp.getTime() >= sinceTime);
       }
 
       if (filters.limit) {
@@ -648,7 +658,7 @@ export class AdvancedSecurityManager {
   /**
    * Get field value from request
    */
-  private getFieldValue(request: any, field: string): any {
+  private getFieldValue(request: SecurityRequest, field: string): unknown {
     const parts = field.split('.');
     let value = request;
 
@@ -666,18 +676,41 @@ export class AdvancedSecurityManager {
   /**
    * Evaluate condition
    */
-  private evaluateCondition(fieldValue: any, operator: string, expectedValue: any): boolean {
+  private evaluateCondition(
+    fieldValue: unknown,
+    operator: AccessControlRule['conditions'][number]['operator'],
+    expectedValue: ConditionValue
+  ): boolean {
     switch (operator) {
       case 'equals':
         return fieldValue === expectedValue;
       case 'contains':
-        return typeof fieldValue === 'string' && fieldValue.includes(expectedValue);
+        return typeof fieldValue === 'string' && typeof expectedValue === 'string'
+          ? fieldValue.includes(expectedValue)
+          : false;
       case 'matches':
-        return typeof fieldValue === 'string' && new RegExp(expectedValue).test(fieldValue);
+        if (typeof fieldValue !== 'string') {
+          return false;
+        }
+        if (expectedValue instanceof RegExp) {
+          return expectedValue.test(fieldValue);
+        }
+        if (typeof expectedValue === 'string') {
+          try {
+            return new RegExp(expectedValue).test(fieldValue);
+          } catch {
+            return false;
+          }
+        }
+        return false;
       case 'in':
-        return Array.isArray(expectedValue) && expectedValue.includes(fieldValue);
+        return Array.isArray(expectedValue) && isPrimitiveValue(fieldValue)
+          ? expectedValue.includes(fieldValue)
+          : false;
       case 'not_in':
-        return Array.isArray(expectedValue) && !expectedValue.includes(fieldValue);
+        return Array.isArray(expectedValue) && isPrimitiveValue(fieldValue)
+          ? !expectedValue.includes(fieldValue)
+          : false;
       default:
         return false;
     }

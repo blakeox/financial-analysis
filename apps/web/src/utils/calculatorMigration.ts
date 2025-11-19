@@ -37,8 +37,12 @@ export function generateRedirectRules(): Array<{ from: string; to: string }> {
 }
 
 // Function to validate calculator configuration
-export function validateCalculatorConfig(config: any): boolean {
-  const requiredFields = [
+export function validateCalculatorConfig(config: unknown): config is CalculatorConfig {
+  if (typeof config !== 'object' || config === null) {
+    return false;
+  }
+
+  const requiredFields: Array<keyof CalculatorConfig> = [
     'id',
     'title',
     'description',

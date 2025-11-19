@@ -77,6 +77,10 @@ class ChatMemoryManager {
     return this.memory;
   }
 
+  private ensureMemory(): ConversationMemory {
+    return this.memory && this.isSessionValid() ? this.memory : this.initializeSession();
+  }
+
   /**
    * Update current model state
    */
@@ -86,9 +90,7 @@ class ChatMemoryManager {
     results?: Record<string, unknown>,
     analysis?: string
   ): void {
-    if (!this.memory) {
-      this.initializeSession();
-    }
+    const memory = this.ensureMemory();
 
     const newState: ModelState = {
       modelType,
@@ -99,13 +101,11 @@ class ChatMemoryManager {
     };
 
     // Remove old states of the same type
-    this.memory!.modelStates = this.memory!.modelStates.filter(
-      (state) => state.modelType !== modelType
-    );
+    memory.modelStates = memory.modelStates.filter((state) => state.modelType !== modelType);
 
     // Add new state
-    this.memory!.modelStates.push(newState);
-    this.memory!.lastActivity = Date.now();
+    memory.modelStates.push(newState);
+    memory.lastActivity = Date.now();
 
     this.saveToStorage();
   }
@@ -145,11 +145,9 @@ class ChatMemoryManager {
     context: string,
     modelChanges?: Record<string, unknown>
   ): void {
-    if (!this.memory) {
-      this.initializeSession();
-    }
+    const memory = this.ensureMemory();
 
-    this.memory!.conversationHistory.push({
+    memory.conversationHistory.push({
       timestamp: Date.now(),
       userMessage,
       assistantResponse,
@@ -158,13 +156,11 @@ class ChatMemoryManager {
     });
 
     // Keep only recent history
-    if (this.memory!.conversationHistory.length > this.MAX_HISTORY_ITEMS) {
-      this.memory!.conversationHistory = this.memory!.conversationHistory.slice(
-        -this.MAX_HISTORY_ITEMS
-      );
+    if (memory.conversationHistory.length > this.MAX_HISTORY_ITEMS) {
+      memory.conversationHistory = memory.conversationHistory.slice(-this.MAX_HISTORY_ITEMS);
     }
 
-    this.memory!.lastActivity = Date.now();
+    memory.lastActivity = Date.now();
     this.saveToStorage();
   }
 
@@ -172,12 +168,10 @@ class ChatMemoryManager {
    * Update current context
    */
   updateContext(context: string): void {
-    if (!this.memory) {
-      this.initializeSession();
-    }
+    const memory = this.ensureMemory();
 
-    this.memory!.currentContext = context;
-    this.memory!.lastActivity = Date.now();
+    memory.currentContext = context;
+    memory.lastActivity = Date.now();
     this.saveToStorage();
   }
 

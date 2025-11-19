@@ -10,8 +10,8 @@ module.exports = {
     {
       files: ['playwright.config.ts', 'tests/**/*.*'],
       parserOptions: {
-        // Avoid "ESLint was configured to run using parserOptions.project but the file is not included"
-        project: null,
+        // Allow these utility files to lint without type-aware project services
+        projectService: false,
       },
     },
     {
@@ -20,7 +20,7 @@ module.exports = {
       parser: 'astro-eslint-parser',
       parserOptions: {
         parser: '@typescript-eslint/parser',
-        project: null,
+        projectService: false,
         extraFileExtensions: ['.astro'],
       },
     },

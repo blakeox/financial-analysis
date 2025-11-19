@@ -138,7 +138,7 @@ function organizeToolsByCategory(
  */
 function generateToolsListResponse(
   toolsByCategory: Record<string, ToolSummary[]>,
-  context: string
+  _context: string
 ): string {
   const totalTools = Object.values(toolsByCategory).reduce(
     (sum, tools) => sum + tools.length,
@@ -186,7 +186,7 @@ function generateToolsListResponse(
  */
 function generateCapabilitiesResponse(
   toolsByCategory: Record<string, ToolSummary[]>,
-  context: string
+  _context: string
 ): string {
   const totalTools = Object.values(toolsByCategory).reduce(
     (sum, tools) => sum + tools.length,

@@ -105,36 +105,6 @@ const toCurrency = (value: string | undefined): string => {
   return formatCurrency(numeric);
 };
 
-const appendDebtInputs = (index: number): void => {
-  const container = document.getElementById('debts-container');
-  if (!container) return;
-
-  const debtHtml = `
-    <div class="debt-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-      <div class="grid grid-cols-2 gap-3">
-        <div class="col-span-2">
-          <label for="debt-name-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Debt Name</label>
-          <input id="debt-name-${index}" type="text" name="debt-name-${index}" placeholder="Debt name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        </div>
-        <div>
-          <label for="debt-balance-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Balance ($)</label>
-          <input id="debt-balance-${index}" type="number" name="debt-balance-${index}" placeholder="Balance" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        </div>
-        <div>
-          <label for="debt-rate-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Interest Rate (% APR)</label>
-          <input id="debt-rate-${index}" type="number" name="debt-rate-${index}" placeholder="APR %" min="0" max="100" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        </div>
-        <div class="col-span-2">
-          <label for="debt-minimum-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Minimum Payment ($)</label>
-          <input id="debt-minimum-${index}" type="number" name="debt-minimum-${index}" placeholder="Minimum payment" min="0" step="10" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-        </div>
-      </div>
-    </div>
-  `;
-
-  container.insertAdjacentHTML('beforeend', debtHtml);
-};
-
 export const collectDebts = (formData: FormData, count: number): CollectedDebt[] => {
   const debts: CollectedDebt[] = [];
 
@@ -284,7 +254,7 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
   resultsContainer.innerHTML = `
     ${creditScore ? `
     <!-- Credit Score Impact -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Credit Score Impact Projection
       </h3>

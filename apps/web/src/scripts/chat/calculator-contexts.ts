@@ -461,7 +461,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
 export function detectCalculatorContext(pathname: string): CalculatorContextKey {
   // Check journey pages first
   if (pathname.includes('/journey/')) {
-    const journeyMatch = pathname.match(/\/journey\/([^\/]+)/);
+    const journeyMatch = pathname.match(/\/journey\/([^/]+)/);
     if (journeyMatch) {
       const journeyId = journeyMatch[1];
       const journeyContextMap: Record<string, CalculatorContextKey> = {
@@ -479,7 +479,7 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
   }
   
   // Check calculator pages - handle both /calculator/[id] and direct paths
-  const calculatorMatch = pathname.match(/\/(calculator\/)?([^\/]+)/);
+  const calculatorMatch = pathname.match(/\/(calculator\/)?([^/]+)/);
   if (calculatorMatch) {
     const path = calculatorMatch[2];
     

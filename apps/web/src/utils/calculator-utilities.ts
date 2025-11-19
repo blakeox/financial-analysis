@@ -1,3 +1,5 @@
+import { storeAnalysisResult } from '../scripts/analysis-results';
+
 /**
  * Shared Calculator Utilities
  * 
@@ -312,22 +314,22 @@ export function resetForm(form: HTMLFormElement): void {
 /**
  * Standard calculator result storage and event dispatch
  */
-export interface CalculatorResultPayload {
+export interface CalculatorResultPayload<ResultType = unknown, FormDataType = unknown> {
   calculatorId: string;
-  result: any;
-  formData: any;
+  result: ResultType;
+  formData: FormDataType;
 }
 
 /**
  * Store result and dispatch calculator completion event
  */
-export function handleCalculatorResult(payload: CalculatorResultPayload): void {
+export function handleCalculatorResult<ResultType = unknown, FormDataType = unknown>(
+  payload: CalculatorResultPayload<ResultType, FormDataType>
+): void {
   const { calculatorId, result, formData } = payload;
   
   // Store result for chatbot integration
-  if (typeof window !== 'undefined' && (window as any).storeAnalysisResult) {
-    (window as any).storeAnalysisResult(`analyze_${calculatorId}`, result);
-  }
+  storeAnalysisResult(`analyze_${calculatorId}`, result);
   
   // Dispatch calculator completion event for journey integration
   window.dispatchEvent(

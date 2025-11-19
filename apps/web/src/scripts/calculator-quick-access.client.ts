@@ -102,7 +102,7 @@ class CalculatorQuickAccess {
     // Track calculator usage when form is submitted
     const form = document.getElementById('calculator-form');
     if (form) {
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', () => {
         this.saveCalculation();
       });
     }
@@ -120,6 +120,8 @@ class CalculatorQuickAccess {
   private updateFavoriteButton(): void {
     if (!this.favoriteBtn || !this.favoriteText) return;
 
+    const favoriteText = this.favoriteText;
+
     const isFavorite = CalculatorFavorites.isFavorite(this.currentCalculatorId);
 
     if (isFavorite) {
@@ -135,7 +137,7 @@ class CalculatorQuickAccess {
         'dark:bg-yellow-900',
         'dark:hover:bg-yellow-800'
       );
-      this.favoriteText!.textContent = 'Remove from Favorites';
+      favoriteText.textContent = 'Remove from Favorites';
     } else {
       this.favoriteBtn.classList.remove(
         'bg-yellow-100',
@@ -149,7 +151,7 @@ class CalculatorQuickAccess {
         'dark:bg-gray-700',
         'dark:hover:bg-gray-600'
       );
-      this.favoriteText!.textContent = 'Add to Favorites';
+      favoriteText.textContent = 'Add to Favorites';
     }
   }
 

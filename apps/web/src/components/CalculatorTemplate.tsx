@@ -38,7 +38,7 @@ export interface CalculatorConfig {
 export interface FormFieldConfig {
   id: string;
   name: string;
-  type: 'number' | 'text' | 'select' | 'checkbox';
+  type: 'number' | 'text' | 'select' | 'checkbox' | 'radio';
   label: string;
   placeholder?: string;
   min?: number;
@@ -2240,7 +2240,7 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
 
   let html = '<form id="calculator-form" class="space-y-6" novalidate>';
 
-  Object.entries(groupedFields).forEach(([groupName, groupFields], index) => {
+  Object.entries(groupedFields).forEach(([groupName, groupFields], _index) => {
     if (groupName !== 'default') {
       const isOptional = groupName.includes('Optional');
       const sectionClass = isOptional 

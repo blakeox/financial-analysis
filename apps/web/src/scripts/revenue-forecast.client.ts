@@ -118,7 +118,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
             </tr>
           </thead>
           <tbody>
-            ${result.monthlyForecasts.map((month, idx) => `
+            ${result.monthlyForecasts.map((month) => `
               <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="py-2 px-3 text-gray-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
                 ${Object.values(month.revenueByStream).map(rev => `

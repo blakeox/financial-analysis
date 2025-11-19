@@ -161,6 +161,12 @@ function evaluateSBA7a(input: LoanQualifierInput, dscr: number, ltv: number): Lo
       issues.push('⚠️ Credit score below 680 - may need compensating factors');
     }
   }
+
+  if (ltv > 90 && input.collateralValue > 0) {
+    approvalOdds = approvalOdds === 'excellent' ? 'good' : approvalOdds;
+    approvalOddsPercent = Math.min(approvalOddsPercent, 70);
+    issues.push('⚠️ LTV above 90% - consider increasing collateral or a larger down payment.');
+  }
   
   if (!input.personalGuaranteeAvailable) {
     eligible = false;
@@ -471,7 +477,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
     </div>
     
     <!-- Key Ratios -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Key Financial Ratios
       </h2>
@@ -512,7 +518,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
     </div>
     
     <!-- Recommendations -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
+    <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
       <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
         <span>💡</span> Recommendations
       </h2>

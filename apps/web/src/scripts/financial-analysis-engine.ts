@@ -568,13 +568,39 @@ export class FinancialAnalysisEngine {
     extraPayment: number
   ): number {
     const monthlyRate = annualRate / 12;
-    const originalTotal =
-      ((principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
-        (Math.pow(1 + monthlyRate, termMonths) - 1)) *
-      termMonths;
+    const originalMonthlyPayment =
+      monthlyRate === 0
+        ? principal / termMonths
+        : (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+          (Math.pow(1 + monthlyRate, termMonths) - 1);
+    const originalTotal = originalMonthlyPayment * termMonths;
 
-    // Simplified calculation - in reality this would require iterative calculation
-    return originalTotal * 0.15; // Estimate 15% savings
+    if (extraPayment <= 0) {
+      return 0;
+    }
+
+    const acceleratedPayment = originalMonthlyPayment + extraPayment;
+    let remainingBalance = principal;
+    let acceleratedMonths = 0;
+
+    while (remainingBalance > 0 && acceleratedMonths < termMonths * 2) {
+      const interestPortion = monthlyRate === 0 ? 0 : remainingBalance * monthlyRate;
+      const principalPortion = Math.min(
+        remainingBalance,
+        Math.max(acceleratedPayment - interestPortion, 0)
+      );
+
+      if (principalPortion <= 0) {
+        // Extra payment is not enough to reduce principal
+        return 0;
+      }
+
+      remainingBalance -= principalPortion;
+      acceleratedMonths += 1;
+    }
+
+    const acceleratedTotal = acceleratedPayment * acceleratedMonths;
+    return Math.max(0, originalTotal - acceleratedTotal);
   }
 
   private static calculateTermReductionSavings(

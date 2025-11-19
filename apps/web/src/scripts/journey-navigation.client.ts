@@ -15,7 +15,7 @@ interface JourneyState {
   scenarioId: string;
   currentStep: number;
   completedSteps: string[];
-  collectedData: Record<string, any>;
+  collectedData: Record<string, Record<string, unknown>>;
   startTime: Date;
   lastActivity: Date;
 }
@@ -126,12 +126,12 @@ class JourneyNavigationManager {
 
   private addJourneyProgressIndicators(): void {
     if (!this.state) return;
+    const state = this.state;
 
     // Add step completion indicators
     const progressBar = document.querySelector('.bg-gradient-to-r.from-blue-500.to-indigo-600');
     if (progressBar) {
-      const completionPercentage =
-        (this.state.completedSteps.length / this.state.currentStep) * 100;
+      const completionPercentage = (state.completedSteps.length / state.currentStep) * 100;
       progressBar.style.width = `${Math.min(completionPercentage, 100)}%`;
     }
 
@@ -139,10 +139,10 @@ class JourneyNavigationManager {
     const stepIndicators = document.querySelectorAll('[data-step-indicator]');
     stepIndicators.forEach((indicator, index) => {
       const stepNumber = index + 1;
-      if (this.state!.completedSteps.includes(stepNumber.toString())) {
+      if (state.completedSteps.includes(stepNumber.toString())) {
         indicator.classList.add('bg-green-500', 'text-white');
         indicator.classList.remove('bg-gray-300', 'text-gray-600');
-      } else if (stepNumber === this.state!.currentStep) {
+      } else if (stepNumber === state.currentStep) {
         indicator.classList.add('bg-blue-500', 'text-white');
         indicator.classList.remove('bg-gray-300', 'text-gray-600');
       }
@@ -328,7 +328,7 @@ class JourneyNavigationManager {
     localStorage.removeItem(`${this.storageKey}-${this.state.scenarioId}`);
   }
 
-  private trackEvent(eventName: string, properties: Record<string, any>): void {
+  private trackEvent(eventName: string, properties: Record<string, unknown>): void {
     // Dispatch custom event for analytics
     window.dispatchEvent(
       new CustomEvent('journey-analytics', {
@@ -346,7 +346,7 @@ class JourneyNavigationManager {
     }
   }
 
-  private handleCalculatorCompletion(data: any): void {
+  private handleCalculatorCompletion(data: Record<string, unknown>): void {
     if (!this.state || !this.context?.isJourneySpecific) return;
 
     // Store calculator results in journey state
@@ -365,7 +365,8 @@ class JourneyNavigationManager {
   private showJourneyProgressFeedback(): void {
     if (!this.state) return;
 
-    const progressPercentage = (this.state.completedSteps.length / this.context?.totalSteps!) * 100;
+    const totalSteps = this.context?.totalSteps ?? Math.max(this.state.completedSteps.length, 1);
+    const progressPercentage = (this.state.completedSteps.length / totalSteps) * 100;
 
     // Create progress feedback
     const feedbackDiv = document.createElement('div');
@@ -405,8 +406,14 @@ class JourneyNavigationManager {
 // Initialize journey navigation manager
 const journeyNavigationManager = new JourneyNavigationManager();
 
+declare global {
+  interface Window {
+    journeyNavigationManager?: JourneyNavigationManager;
+  }
+}
+
 // Export for external access
-(window as any).journeyNavigationManager = journeyNavigationManager;
+window.journeyNavigationManager = journeyNavigationManager;
 
 // Export types for TypeScript
 export { JourneyNavigationManager };

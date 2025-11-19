@@ -171,14 +171,13 @@ class MACalculator {
 
     // Calculate transaction metrics
     const transactionValue = offerPrice * targetShares;
-    const enterpriseValue = transactionValue + debtAssumed - targetCash;
+    const enterpriseValue = transactionValue + targetDebt + debtAssumed - targetCash;
     const equityValue = transactionValue;
     const premium = offerPrice - targetSharePrice;
     const premiumPercentage = (premium / targetSharePrice) * 100;
 
     // Calculate accretion/dilution
     const acquirerEPS = (acquirerEBITDA * 0.7) / acquirerShares; // Assume 30% tax rate
-    const targetEPS = (targetEBITDA * 0.7) / targetShares;
 
     const cashRequired = transactionValue * (cashPercentage / 100);
     const sharesIssued = (transactionValue - cashRequired) / acquirerSharePrice;
@@ -197,7 +196,7 @@ class MACalculator {
 
     // Combined company metrics
     const combinedRevenue = acquirerRevenue + targetRevenue + revenueSynergies;
-    const combinedDebt = acquirerDebt + debtAssumed;
+    const combinedDebt = acquirerDebt + targetDebt + debtAssumed;
     const combinedCash = acquirerCash + targetCash - cashRequired - transactionCosts;
     const leverageRatio = combinedDebt / combinedEBITDA;
 

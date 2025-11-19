@@ -492,7 +492,7 @@ export class MultiModelScenarioManager {
   private updateChatbotContext(scenario: FinancialScenario): void {
     // Update global context for chatbot
     if (typeof window !== 'undefined') {
-      (window as any).currentScenario = {
+      window.currentScenario = {
         id: scenario.id,
         name: scenario.name,
         description: scenario.description,
@@ -567,7 +567,7 @@ export class MultiModelScenarioManager {
 
     // Clear chatbot context
     if (typeof window !== 'undefined') {
-      (window as any).currentScenario = null;
+      window.currentScenario = null;
     }
   }
 
@@ -620,6 +620,13 @@ declare global {
     selectScenario: (scenarioId: string) => void;
     clearScenarioSelection: () => void;
     scenarioManager: MultiModelScenarioManager;
+    currentScenario?: {
+      id: string;
+      name: string;
+      description: string;
+      models: Array<{ id: string; name: string; url: string }>;
+      workflow: string[];
+    } | null;
   }
 }
 

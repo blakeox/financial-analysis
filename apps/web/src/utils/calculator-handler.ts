@@ -15,7 +15,6 @@ import {
   handleCalculatorResult,
   handleCalculatorError,
   setupResetButton,
-  type CalculatorResultPayload,
 } from './calculator-utilities';
 
 /**
@@ -103,7 +102,7 @@ export function createCalculatorHandler<InputType, ResultType>(
         calculatorId: config.calculatorId,
         result,
         formData: input,
-      } as CalculatorResultPayload);
+      });
 
       // Custom success handler
       if (config.onSuccess) {
@@ -187,7 +186,7 @@ export function createAsyncCalculatorHandler<InputType, ResultType>(
         calculatorId: config.calculatorId,
         result,
         formData: input,
-      } as CalculatorResultPayload);
+      });
 
       // Custom success handler
       if (config.onSuccess) {

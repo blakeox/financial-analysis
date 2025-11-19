@@ -25,6 +25,12 @@ import {
 } from '../utils/calculator-utilities';
 import { postAnalysisRequest } from './analysis-api';
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -59,6 +65,34 @@ export interface MortgageScenarioPlanningInput {
   scenario2Extra: number;
   refinanceRate?: number;
   grossMonthlyIncome?: number;
+}
+
+type SavedScenarioRecord = {
+  id: number;
+  name: string;
+  input: MortgageScenarioPlanningInput;
+  savedAt: string;
+};
+
+type ScenarioFormSlice = {
+  downPayment: number | null;
+  rate: number | null;
+  extraPayment: number | null;
+};
+
+interface MortgageScenarioChatFormData {
+  homePrice: number | null;
+  loanTerm: number | null;
+  scenario1: ScenarioFormSlice;
+  scenario2: ScenarioFormSlice;
+  refinanceRate: number | null;
+}
+
+interface MortgageScenarioChatContext {
+  calculatorType: string;
+  calculatorName: string;
+  capabilities: string[];
+  currentFormData: MortgageScenarioChatFormData | null;
 }
 
 // ============================================================================
@@ -400,10 +434,26 @@ async function calculateScenario(
   };
 }
 
+type InterestFields = {
+  totalInterest?: unknown;
+  interestPaid?: unknown;
+  totalInterestPaid?: unknown;
+};
+
 function getTotalInterest(result: AmortizationAnalysisResult): number {
-  if (isFiniteNumber((result as any).totalInterest)) return Number((result as any).totalInterest);
-  if (isFiniteNumber((result as any).interestPaid)) return Number((result as any).interestPaid);
-  if (isFiniteNumber((result as any).totalInterestPaid)) return Number((result as any).totalInterestPaid);
+  const interestResult = result as AmortizationAnalysisResult & InterestFields;
+  const candidates: unknown[] = [
+    interestResult.totalInterest,
+    interestResult.interestPaid,
+    interestResult.totalInterestPaid,
+  ];
+
+  for (const value of candidates) {
+    if (isFiniteNumber(value)) {
+      return Number(value);
+    }
+  }
+
   return 0;
 }
 
@@ -505,7 +555,7 @@ function displayResults(scenarios: Scenario[]): void {
   resultsContent.innerHTML = `
     ${hasIncome && formData ? `
       <!-- Affordability Analysis -->
-      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+      <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
         <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
           <span>💵</span> Affordability Analysis
         </h2>
@@ -513,7 +563,10 @@ function displayResults(scenarios: Scenario[]): void {
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           ${baseScenarios.map(scenario => {
-            const dtiRatio = (scenario.monthlyPaymentWithPMI / formData.grossMonthlyIncome!) * 100;
+            const grossMonthlyIncome = formData?.grossMonthlyIncome ?? 0;
+            const dtiRatio = grossMonthlyIncome > 0
+              ? (scenario.monthlyPaymentWithPMI / grossMonthlyIncome) * 100
+              : 0;
             const isAffordable = dtiRatio <= 28;
             const comfortLevel = dtiRatio <= 20 ? 'Excellent' : dtiRatio <= 28 ? 'Good' : dtiRatio <= 35 ? 'Tight' : 'Risky';
             const colorClass = dtiRatio <= 28 ? 'text-green-600 dark:text-green-400' : dtiRatio <= 35 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400';
@@ -622,7 +675,7 @@ function displayResults(scenarios: Scenario[]): void {
     <!-- Comprehensive Analysis Section -->
     <div class="space-y-6">
       <!-- Key Insights -->
-      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+      <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
         <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
           <span>📊</span> Key Insights & Analysis
         </h3>
@@ -636,7 +689,7 @@ function displayResults(scenarios: Scenario[]): void {
               </h4>
               
               <!-- Cost Difference Summary -->
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-5 mb-4">
+              <div class="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
                   <h5 class="font-semibold text-gray-900 dark:text-white">Total Cost Over Loan Life</h5>
                   <span class="text-2xl font-bold ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'text-green-600' : 'text-red-600'}">
@@ -683,12 +736,15 @@ function displayResults(scenarios: Scenario[]): void {
               </div>
               
               <!-- Detailed Comparison Write-up -->
-              <div class="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div class="bg-linear-to-r from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <h5 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <span>📝</span> Understanding the Tradeoffs
                 </h5>
                 <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   ${generateDetailedComparison(baseScenarios[0], baseScenarios[1])}
+                  <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    ${generateComparisonInsight(baseScenarios[0], baseScenarios[1])}
+                  </p>
                 </div>
               </div>
             </div>
@@ -747,7 +803,7 @@ function displayResults(scenarios: Scenario[]): void {
       </div>
       
       <!-- Financial Recommendations -->
-      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
+      <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
         <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
           <span>💡</span> Financial Recommendations
         </h3>
@@ -758,7 +814,7 @@ function displayResults(scenarios: Scenario[]): void {
       </div>
       
       <!-- Important Considerations -->
-      <div class="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-700">
+      <div class="bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-700">
         <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
           <span>⚠️</span> Important Considerations
         </h3>
@@ -1131,7 +1187,7 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         </div>
         
         <!-- Timeline -->
-        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4">
+        <div class="bg-linear-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Payoff Timeline</p>
@@ -1193,11 +1249,21 @@ function generateDetailedComparison(optionA: Scenario, optionB: Scenario): strin
   
   // Long-term cost analysis
   if (totalDiff >= 10000) {
-    const yearsOfPayments = Math.round(totalDiff / monthlyDiff);
+    const monthsToBreakEven = monthlyDiff > 0 ? Math.round(totalDiff / monthlyDiff) : 0;
+    const yearsOfPayments = monthsToBreakEven > 0 ? (monthsToBreakEven / 12).toFixed(1) : '0';
     analysis += `
       <li><strong>Long-term Cost:</strong> While ${lowerTotal} costs ${formatCurrency(totalDiff)} less overall, 
       the ${lowerTotal === lowerMonthly ? 'lower monthly payment' : 'higher monthly payment'} means 
-      ${lowerTotal === lowerMonthly ? 'more affordable near-term' : 'you\'re paying more upfront for long-term savings'}.</li>
+      ${lowerTotal === lowerMonthly ? 'more affordable near-term' : 'you\'re paying more upfront for long-term savings'}. 
+      Expect roughly ${yearsOfPayments} years of payments for the higher-cost option to break even.</li>
+    `;
+  }
+  
+  if (timeDiff >= 6) {
+    const yearsSaved = (timeDiff / 12).toFixed(1);
+    analysis += `
+      <li><strong>Payoff Speed:</strong> ${fasterPayoff} finishes about ${yearsSaved} years ${fasterPayoff === 'Option A' ? 'ahead' : 'behind'}, 
+      which affects how quickly you build equity.</li>
     `;
   }
   
@@ -1316,6 +1382,23 @@ function generateRecommendations(baseScenarios: Scenario[], refinanceScenarios: 
     }
   }
   
+  if (bestScenario) {
+    const bestYears = Math.floor(bestScenario.payoffMonths / 12);
+    const remainingMonths = bestScenario.payoffMonths % 12;
+    recommendations.push(`
+      <div class="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-700">
+        <div class="text-2xl">✅</div>
+        <div>
+          <p class="font-semibold text-sm text-gray-900 dark:text-white mb-1">Lean Into ${bestScenario.name}</p>
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            This option pairs a ${formatCurrency(bestScenario.monthlyPayment)} monthly payment with a total cost of ${formatCurrency(bestScenario.totalCost)}
+            and pays off in about ${bestYears} years${remainingMonths ? ` ${remainingMonths} months` : ''}. Build your plan around these numbers.
+          </p>
+        </div>
+      </div>
+    `);
+  }
+  
   return recommendations.join('');
 }
 
@@ -1407,7 +1490,9 @@ function saveScenario(form: HTMLFormElement): void {
     
     if (!name) return;
     
-    const saved = JSON.parse(localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]');
+    const saved: SavedScenarioRecord[] = JSON.parse(
+      localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]'
+    );
     saved.push({
       id: Date.now(),
       name,
@@ -1430,8 +1515,10 @@ function loadSavedScenario(form: HTMLFormElement): void {
     
     if (!scenarioId) return;
     
-    const saved = JSON.parse(localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]');
-    const scenario = saved.find((s: any) => s.id === parseInt(scenarioId));
+    const saved: SavedScenarioRecord[] = JSON.parse(
+      localStorage.getItem(SAVED_SCENARIOS_KEY) || '[]'
+    );
+    const scenario = saved.find((savedScenario) => savedScenario.id === parseInt(scenarioId, 10));
     
     if (!scenario) return;
     
@@ -1459,7 +1546,7 @@ function loadSavedScenario(form: HTMLFormElement): void {
 
 function setupChatbotContext(form: HTMLFormElement): void {
   // Set calculator-specific context for the chatbot
-  const contextData = {
+  const contextData: MortgageScenarioChatContext = {
     calculatorType: 'mortgage-scenario-planning',
     calculatorName: 'Mortgage Scenario Planner',
     capabilities: [
@@ -1469,7 +1556,7 @@ function setupChatbotContext(form: HTMLFormElement): void {
       'Calculate total interest savings and payoff timelines',
       'Provide CFP-level analysis and recommendations',
     ],
-    currentFormData: null as any,
+    currentFormData: null,
   };
   
   // Update context data when form changes
@@ -1511,7 +1598,10 @@ function setupChatbotContext(form: HTMLFormElement): void {
   }));
 }
 
-function updateChatbotWithResults(scenarios: Scenario[], formData: any): void {
+function updateChatbotWithResults(
+  scenarios: Scenario[],
+  formData: MortgageScenarioPlanningInput
+): void {
   const bestScenario = scenarios.reduce((best, current) => 
     current.totalCost < best.totalCost ? current : best
   );
@@ -1635,8 +1725,8 @@ function dispatchCalculatorCompletedEvent(input: MortgageScenarioPlanningInput, 
   );
   
   // Track analytics if available
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', 'mortgage_scenario_calculated', {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'mortgage_scenario_calculated', {
       event_category: 'calculator',
       event_label: 'mortgage_scenario_planning',
       value: Math.round(bestScenario.totalCost),

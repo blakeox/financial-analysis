@@ -40,12 +40,45 @@ export interface DashboardConfig {
   enableAlerts: boolean;
 }
 
+export interface PerformanceStats {
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  averageResponseTime: number;
+  p95ResponseTime: number;
+  p99ResponseTime: number;
+  errorRate: number;
+  throughput: number;
+  topErrors: Array<{ errorCode: string; count: number }>;
+  topOperations: Array<{ operation: string; count: number; avgDuration: number }>;
+}
+
+export type DashboardEvent =
+  | {
+      type: 'update';
+      data: {
+        health: SystemHealth;
+        stats: PerformanceStats;
+        metrics: PerformanceMetrics[];
+      };
+    }
+  | {
+      type: 'alert';
+      data: {
+        id: string;
+        name: string;
+        severity: AlertRule['severity'];
+        timestamp: Date;
+        metrics: PerformanceMetrics[];
+      };
+    };
+
 export class PerformanceDashboard {
   private metrics: PerformanceMetrics[] = [];
   private alerts: AlertRule[] = [];
   private config: DashboardConfig;
   private refreshInterval?: number;
-  private subscribers: Set<(data: any) => void> = new Set();
+  private subscribers: Set<(data: DashboardEvent) => void> = new Set();
   private startTime: number;
 
   constructor(config: Partial<DashboardConfig> = {}) {
@@ -124,18 +157,7 @@ export class PerformanceDashboard {
   /**
    * Get performance statistics
    */
-  getPerformanceStats(timeRangeMs: number = 300000): {
-    totalRequests: number;
-    successfulRequests: number;
-    failedRequests: number;
-    averageResponseTime: number;
-    p95ResponseTime: number;
-    p99ResponseTime: number;
-    errorRate: number;
-    throughput: number;
-    topErrors: Array<{ errorCode: string; count: number }>;
-    topOperations: Array<{ operation: string; count: number; avgDuration: number }>;
-  } {
+  getPerformanceStats(timeRangeMs: number = 300000): PerformanceStats {
     const recentMetrics = this.getRecentMetrics(timeRangeMs);
 
     const totalRequests = recentMetrics.length;
@@ -159,8 +181,13 @@ export class PerformanceDashboard {
     recentMetrics
       .filter((m) => !m.success && m.errorCode)
       .forEach((m) => {
-        const count = errorCounts.get(m.errorCode!) || 0;
-        errorCounts.set(m.errorCode!, count + 1);
+        const errorCode = m.errorCode;
+        if (!errorCode) {
+          return;
+        }
+
+        const count = errorCounts.get(errorCode) ?? 0;
+        errorCounts.set(errorCode, count + 1);
       });
 
     const topErrors = Array.from(errorCounts.entries())
@@ -217,7 +244,7 @@ export class PerformanceDashboard {
   /**
    * Subscribe to real-time updates
    */
-  subscribe(callback: (data: any) => void): () => void {
+  subscribe(callback: (data: DashboardEvent) => void): () => void {
     this.subscribers.add(callback);
 
     // Return unsubscribe function
@@ -323,8 +350,9 @@ export class PerformanceDashboard {
   /**
    * Notify all subscribers
    */
-  private notifySubscribers(data?: any): void {
-    const updateData = data || {
+  private notifySubscribers(data?: DashboardEvent): void {
+    const updateData: DashboardEvent =
+      data || {
       type: 'update',
       data: {
         health: this.getSystemHealth(),

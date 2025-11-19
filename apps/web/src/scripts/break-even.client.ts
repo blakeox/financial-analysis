@@ -156,6 +156,21 @@ function calculateBreakEven(input: BreakEvenInput): BreakEvenResult {
     const profitPerUnit = contributionMargin;
     recommendations.push(`💰 Each unit sold above break-even adds $${profitPerUnit.toFixed(2)} in profit.`);
   }
+
+  if (
+    typeof expectedGrowthRate === 'number' &&
+    Number.isFinite(expectedGrowthRate) &&
+    currentSalesUnits &&
+    currentSalesUnits > 0
+  ) {
+    const growthMultiplier = 1 + expectedGrowthRate / 100;
+    const projectedUnits = Math.round(currentSalesUnits * growthMultiplier);
+    const projectedMarginPercent = ((projectedUnits - breakEvenUnits) / projectedUnits) * 100;
+    const direction = projectedMarginPercent >= marginOfSafety.percentage ? 'improves to' : 'slips to';
+    recommendations.push(
+      `📈 With ${expectedGrowthRate.toFixed(1)}% growth you would sell ~${projectedUnits.toLocaleString()} units and margin of safety ${direction} ${projectedMarginPercent.toFixed(1)}%.`
+    );
+  }
   
   return {
     breakEven: {
@@ -269,7 +284,7 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     
     ${input.currentSalesUnits && input.currentSalesUnits > 0 ? `
     <!-- Margin of Safety -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+    <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🛡️</span> Margin of Safety
       </h2>
@@ -309,7 +324,7 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     
     ${result.targetProfit ? `
     <!-- Target Profit Analysis -->
-    <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Target Profit: ${formatCurrency(input.targetProfit || 0)}
       </h2>
@@ -399,7 +414,7 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     </div>
     
     <!-- Recommendations -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
       <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
         <span>💡</span> Key Insights & Recommendations
       </h2>

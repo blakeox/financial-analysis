@@ -13,12 +13,9 @@ interface RiskInputs {
   volatility: number;
   confidenceLevel: number;
   timeHorizon: number;
-  correlationMatrix: number[][];
-  stressScenarios: {
-    recession: number;
-    inflation: number;
-    marketCrash: number;
-  };
+  recessionScenario: number;
+  inflationScenario: number;
+  marketCrashScenario: number;
 }
 
 interface RiskResults {
@@ -33,6 +30,11 @@ interface RiskResults {
     weekly: number;
     monthly: number;
     annual: number;
+  };
+  customTimeHorizon: {
+    days: number;
+    valueAtRisk: number;
+    expectedShortfall: number;
   };
   stressTest: {
     recession: number;
@@ -122,10 +124,9 @@ class RiskCalculator {
       volatility,
       confidenceLevel,
       timeHorizon,
-      // Remove the missing properties for now
-      // recessionScenario,
-      // inflationScenario,
-      // marketCrashScenario,
+      recessionScenario,
+      inflationScenario,
+      marketCrashScenario,
     } = inputs;
 
     // Calculate VaR for different time horizons
@@ -134,12 +135,15 @@ class RiskCalculator {
     const weeklyVaR = dailyVaR * Math.sqrt(5);
     const monthlyVaR = dailyVaR * Math.sqrt(21);
     const annualVaR = dailyVaR * Math.sqrt(252);
+    const customHorizonDays = Math.max(timeHorizon, 1);
+    const customHorizonVaR = dailyVaR * Math.sqrt(customHorizonDays);
 
     // Calculate Expected Shortfall (Conditional VaR)
     const dailyES = dailyVaR * 1.3; // Approximation
     const weeklyES = weeklyVaR * 1.3;
     const monthlyES = monthlyVaR * 1.3;
     const annualES = annualVaR * 1.3;
+    const customHorizonES = customHorizonVaR * 1.3;
 
     // Stress testing
     const stressTest = {
@@ -175,6 +179,11 @@ class RiskCalculator {
         weekly: weeklyES,
         monthly: monthlyES,
         annual: annualES,
+      },
+      customTimeHorizon: {
+        days: customHorizonDays,
+        valueAtRisk: customHorizonVaR,
+        expectedShortfall: customHorizonES,
       },
       stressTest,
       riskMetrics: {
@@ -266,6 +275,12 @@ class RiskCalculator {
             <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-300 mb-2">Annual VaR</h3>
             <p class="text-2xl font-bold text-purple-900 dark:text-purple-300">${formatter.format(results.valueAtRisk.annual)}</p>
           </div>
+          
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">Custom ${results.customTimeHorizon.days}-Day VaR</h3>
+            <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">${formatter.format(results.customTimeHorizon.valueAtRisk)}</p>
+            <p class="text-sm text-blue-700 dark:text-blue-200">ES: ${formatter.format(results.customTimeHorizon.expectedShortfall)}</p>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -287,6 +302,20 @@ class RiskCalculator {
               <div class="flex justify-between">
                 <span class="text-gray-600 dark:text-gray-400">Annual ES:</span>
                 <span class="font-medium text-red-600 dark:text-red-400">${formatter.format(results.expectedShortfall.annual)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">Custom ${results.customTimeHorizon.days}-Day Horizon</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">VaR (${results.customTimeHorizon.days} days):</span>
+                <span class="font-medium text-blue-700 dark:text-blue-300">${formatter.format(results.customTimeHorizon.valueAtRisk)}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Expected Shortfall:</span>
+                <span class="font-medium text-blue-700 dark:text-blue-300">${formatter.format(results.customTimeHorizon.expectedShortfall)}</span>
               </div>
             </div>
           </div>

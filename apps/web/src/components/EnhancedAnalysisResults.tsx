@@ -2,6 +2,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@fina
 import React, { useEffect, useState } from 'react';
 import { FinancialAnalysisEngine } from '../scripts/financial-analysis-engine';
 
+declare global {
+  interface Window {
+    injectAnalysisData?: (data: Record<string, unknown>) => void;
+  }
+}
+
 // Define DetailedAnalysis interface locally since it's not exported
 interface DetailedAnalysis {
   summary: Record<string, unknown>;
@@ -63,7 +69,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   // Add a direct data injection method for debugging
   useEffect(() => {
     // Expose a global method for direct data injection
-    (window as any).injectAnalysisData = (data: Record<string, unknown>) => {
+    window.injectAnalysisData = (data: Record<string, unknown>) => {
       console.log('EnhancedAnalysisResults: Direct data injection called with:', data);
       setCurrentModelData(data);
       generateAnalysis();
@@ -101,7 +107,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         document.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
         window.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
       });
-      delete (window as any).injectAnalysisData;
+      delete window.injectAnalysisData;
     };
   }, []);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -311,7 +317,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         {summaryEntries.map(([key, value]) => (
           <Card
             key={key}
-            className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
+            className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -519,7 +525,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           {analysis.optimizationOpportunities.map((opportunity, index) => (
             <div
               key={index}
-              className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700"
+              className="p-4 bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700"
             >
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                 {opportunity.area}
@@ -595,6 +601,8 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                 </CardDescription>
               </div>
               <button
+                type="button"
+                aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
@@ -621,6 +629,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
                 {tabs.map((tab) => (
                   <button
+                    type="button"
                     key={tab.id}
                     onClick={(e) => {
                       e.preventDefault();
@@ -628,18 +637,11 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                       console.log('Tab clicked:', tab.id);
                       setActiveTab(tab.id);
                     }}
-                    className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-10 ${
+                    className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
                       activeTab === tab.id
                         ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
                     }`}
-                    style={{
-                      pointerEvents: 'auto',
-                      zIndex: 9999,
-                      position: 'relative',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                    }}
                   >
                     <span className="mr-1">{tab.icon}</span>
                     {tab.label}
@@ -683,6 +685,8 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               </CardDescription>
             </div>
             <button
+              type="button"
+              aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
@@ -707,8 +711,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           <CardContent className="pt-0">
             {/* Tab Navigation */}
             <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
-              {tabs.map((tab) => (
+                {tabs.map((tab) => (
                 <button
+                  type="button"
                   key={tab.id}
                   onClick={(e) => {
                     e.preventDefault();
@@ -716,18 +721,11 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     console.log('Tab clicked:', tab.id);
                     setActiveTab(tab.id);
                   }}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-10 ${
+                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
                     activeTab === tab.id
                       ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
                   }`}
-                  style={{
-                    pointerEvents: 'auto',
-                    zIndex: 9999,
-                    position: 'relative',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                  }}
                 >
                   <span className="mr-1">{tab.icon}</span>
                   {tab.label}

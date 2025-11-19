@@ -29,12 +29,16 @@ interface RetirementInputs {
 interface RetirementResults {
   yearsToRetirement: number;
   projectedBalanceAtRetirement: number;
+  inflationAdjustedBalance: number;
   totalContributions: number;
   totalGrowth: number;
   monthlyRetirementIncome: number;
+  realMonthlyIncome: number;
   replacementRatio: number;
+  realReplacementRatio: number;
   savingsRate: number;
   annualContribution: number;
+  inflationAdjustmentFactor: number;
   // Enhanced fields
   catchUpContributionsTotal?: number;
   employerMatchTotal?: number;
@@ -115,12 +119,19 @@ class SimpleRetirementCalculator {
     const projectedBalanceAtRetirement = futureValueOfCurrentSavings + futureValueOfContributions + employerMatchTotal;
     const totalGrowth = projectedBalanceAtRetirement - currentSavings - totalContributions - employerMatchTotal;
 
+    // Inflation adjustment to keep figures in today's dollars
+    const inflationAdjustmentFactor = Math.pow(1 + inflationRate / 100, Math.max(yearsToRetirement, 0));
+    const inflationAdjustedBalance = projectedBalanceAtRetirement / inflationAdjustmentFactor;
+
     // Calculate retirement income using 4% rule
     const monthlyRetirementIncome = (projectedBalanceAtRetirement * 0.04) / 12;
+    const realMonthlyIncome = (inflationAdjustedBalance * 0.04) / 12;
 
     // Calculate replacement ratio
     const finalSalary = currentIncome * Math.pow(1 + incomeIncreaseRate / 100, yearsToRetirement);
     const replacementRatio = (monthlyRetirementIncome * 12) / finalSalary;
+    const finalSalaryReal = finalSalary / inflationAdjustmentFactor;
+    const realReplacementRatio = finalSalaryReal > 0 ? (realMonthlyIncome * 12) / finalSalaryReal : 0;
 
     // Calculate savings rate
     const savingsRate = (annualContribution / currentIncome) * 100;
@@ -180,12 +191,16 @@ class SimpleRetirementCalculator {
     return {
       yearsToRetirement,
       projectedBalanceAtRetirement,
+      inflationAdjustedBalance,
       totalContributions,
       totalGrowth,
       monthlyRetirementIncome,
+      realMonthlyIncome,
       replacementRatio,
+      realReplacementRatio,
       savingsRate,
       annualContribution,
+      inflationAdjustmentFactor,
       catchUpContributionsTotal,
       employerMatchTotal,
       taxSavingsNow,
@@ -205,21 +220,30 @@ const displayResults = (result: RetirementResults): void => {
     return;
   }
 
+  const cumulativeInflationPercent = (result.inflationAdjustmentFactor - 1) * 100;
+  const formattedInflationImpact =
+    cumulativeInflationPercent >= 0
+      ? formatPercent(cumulativeInflationPercent)
+      : `-${formatPercent(Math.abs(cumulativeInflationPercent))}`;
+
   // Render summary cards with enhanced data
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Retirement Balance</h5>
       <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.projectedBalanceAtRetirement)}</p>
+      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Real (today): ${formatCurrency(result.inflationAdjustedBalance)}</p>
       ${result.afterTaxBalance ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">After-tax: ${formatCurrency(result.afterTaxBalance)}</p>` : ''}
     </div>
     <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Monthly Income</h5>
       <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.monthlyRetirementIncome)}</p>
+      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Real (today): ${formatCurrency(result.realMonthlyIncome)}</p>
       ${result.afterTaxMonthlyIncome ? `<p class="text-xs text-green-700 dark:text-green-300 mt-1">After-tax: ${formatCurrency(result.afterTaxMonthlyIncome)}</p>` : ''}
     </div>
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Replacement Ratio</h5>
       <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatPercent(result.replacementRatio * 100)}</p>
+      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Real (today): ${formatPercent(result.realReplacementRatio * 100)}</p>
       ${result.employerMatchTotal ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">+${formatCurrency(result.employerMatchTotal)} match</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
@@ -233,7 +257,7 @@ const displayResults = (result: RetirementResults): void => {
   resultsContainer.innerHTML = `
     ${result.rothVsTraditional ? `
     <!-- Roth vs Traditional Comparison -->
-    <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🔄</span> Roth vs Traditional IRA/401(k) Comparison
       </h3>
@@ -308,6 +332,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.projectedBalanceAtRetirement)}</span>
+            <p class="text-xs text-blue-700 dark:text-blue-300">Inflation-adjusted: ${formatCurrency(result.inflationAdjustedBalance)}</p>
           </div>
         </div>
         
@@ -379,6 +404,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
           <div class="text-right">
             <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.monthlyRetirementIncome)}</span>
+            <p class="text-xs text-green-700 dark:text-green-300">Real dollars: ${formatCurrency(result.realMonthlyIncome)}</p>
           </div>
         </div>
         
@@ -389,6 +415,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
           <div class="text-right">
             <span class="font-semibold text-purple-600 dark:text-purple-400">${formatPercent(result.replacementRatio * 100)}</span>
+            <p class="text-xs text-purple-700 dark:text-purple-300">Real dollars: ${formatPercent(result.realReplacementRatio * 100)}</p>
           </div>
         </div>
         
@@ -431,6 +458,23 @@ const displayResults = (result: RetirementResults): void => {
         <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">Time Advantage</h4>
           <p class="text-purple-800 dark:text-purple-200">${result.yearsToRetirement >= 20 ? 'You have plenty of time to benefit from compound growth.' : result.yearsToRetirement >= 10 ? 'Time is still on your side for building wealth.' : 'Consider maximizing contributions and potentially adjusting retirement timeline.'}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg shadow-lg p-6 mb-8 border border-blue-200 dark:border-blue-800">
+      <h3 class="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4">Inflation Impact</h3>
+      <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">
+        Figures adjusted using a ${formattedInflationImpact} cumulative inflation factor over ${result.yearsToRetirement} years.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nominal vs Real Balance</h4>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${formatCurrency(result.projectedBalanceAtRetirement)} → ${formatCurrency(result.inflationAdjustedBalance)}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+          <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nominal vs Real Monthly Income</h4>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${formatCurrency(result.monthlyRetirementIncome)} → ${formatCurrency(result.realMonthlyIncome)}</p>
         </div>
       </div>
     </div>

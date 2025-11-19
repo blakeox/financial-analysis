@@ -141,7 +141,6 @@ function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
   const futureHomeValue = input.homePrice * Math.pow(1 + (input.appreciationRate / 100), input.yearsToAnalyze);
   
   // Equity = home value - remaining loan + down payment (already paid)
-  const equityBuilt = principal - remainingPrincipal;
   const homeEquity = futureHomeValue - remainingPrincipal;
   
   // Selling costs
@@ -315,7 +314,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>

@@ -35,6 +35,11 @@ interface RiskResults {
     monthly: number;
     annual: number;
   };
+  customTimeHorizon: {
+    days: number;
+    valueAtRisk: number;
+    expectedShortfall: number;
+  };
   stressTest: {
     recession: number;
     inflation: number;
@@ -76,12 +81,15 @@ class SimpleRiskCalculator {
     const weeklyVaR = dailyVaR * Math.sqrt(5);
     const monthlyVaR = dailyVaR * Math.sqrt(21);
     const annualVaR = dailyVaR * Math.sqrt(252);
+    const customHorizonDays = Math.max(timeHorizon, 1);
+    const customHorizonVaR = dailyVaR * Math.sqrt(customHorizonDays);
 
     // Calculate Expected Shortfall (Conditional VaR)
     const dailyES = dailyVaR * 1.3; // Approximation
     const weeklyES = weeklyVaR * 1.3;
     const monthlyES = monthlyVaR * 1.3;
     const annualES = annualVaR * 1.3;
+    const customHorizonES = customHorizonVaR * 1.3;
 
     // Stress testing
     const stressTest = {
@@ -117,6 +125,11 @@ class SimpleRiskCalculator {
         weekly: weeklyES,
         monthly: monthlyES,
         annual: annualES,
+      },
+      customTimeHorizon: {
+        days: customHorizonDays,
+        valueAtRisk: customHorizonVaR,
+        expectedShortfall: customHorizonES,
       },
       stressTest,
       riskMetrics: {
@@ -196,12 +209,15 @@ const displayResults = (result: RiskResults): void => {
       <h5 class="text-sm font-medium text-yellow-900 dark:text-yellow-100">Monthly VaR</h5>
       <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">${formatCurrency(result.valueAtRisk.monthly)}</p>
     </div>
+    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Custom ${result.customTimeHorizon.days}-Day VaR</h5>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</p>
+    </div>
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Sharpe Ratio</h5>
       <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.riskMetrics.sharpeRatio.toFixed(2)}</p>
     </div>
   `;
-
   // Render detailed breakdown
   resultsContainer.innerHTML = `
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
@@ -235,6 +251,17 @@ const displayResults = (result: RiskResults): void => {
           </div>
           <div class="text-right">
             <span class="font-semibold text-yellow-600 dark:text-yellow-400">${formatCurrency(result.valueAtRisk.monthly)}</span>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Custom ${result.customTimeHorizon.days}-Day VaR</span>
+            <p class="text-sm text-gray-500 dark:text-gray-400">User-selected horizon</p>
+          </div>
+          <div class="text-right">
+            <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</span>
+            <p class="text-xs text-blue-700 dark:text-blue-300">ES: ${formatCurrency(result.customTimeHorizon.expectedShortfall)}</p>
           </div>
         </div>
         

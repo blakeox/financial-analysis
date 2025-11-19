@@ -1,6 +1,8 @@
 const tsParser = require('@typescript-eslint/parser');
+const baseConfig = require('../../eslint.config.cjs');
 
 module.exports = [
+  ...baseConfig,
   // Use the Playwright tsconfig for tests and Playwright config file
   {
     files: ['playwright.config.ts', 'tests/**/*.ts'],
@@ -10,6 +12,7 @@ module.exports = [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: ['./tsconfig.playwright.json'],
+        projectService: false,
       },
     },
   },
@@ -21,8 +24,8 @@ module.exports = [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: ['./tsconfig.json'],
+        projectService: false,
       },
     },
   },
-  ...require('../../eslint.config.cjs'),
 ];

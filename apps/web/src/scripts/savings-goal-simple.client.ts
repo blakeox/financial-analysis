@@ -35,6 +35,9 @@ interface SavingsGoalResults {
   realValue?: number;
   milestones?: Array<{ percent: number; amount: number; months: number; date: string }>;
   progressPercent?: number;
+  goalType?: string;
+  goalTypeLabel?: string;
+  goalStrategy?: string;
 }
 
 // Calculate inflation-adjusted goal and milestones
@@ -156,6 +159,34 @@ class SimpleSavingsGoalCalculator {
       monthlyContribution,
     } = inputs;
 
+    const goalProfiles: Record<string, { label: string; strategy: string }> = {
+      emergency: {
+        label: 'Emergency Fund',
+        strategy: 'Favor liquidity and low-risk accounts—automate transfers after paydays until you reach 3-6 months of expenses.',
+      },
+      education: {
+        label: 'Education Savings',
+        strategy: 'Use tax-advantaged accounts (529, ESA) and escalate contributions each semester to stay ahead of tuition needs.',
+      },
+      home: {
+        label: 'Home Purchase',
+        strategy: 'Pair disciplined contributions with debt payoff and keep savings in safe accounts until you are within 12 months of closing.',
+      },
+      retirement: {
+        label: 'Retirement Bridge Goal',
+        strategy: 'Maximize employer matches, automate annual contribution increases, and stay diversified to protect long-term purchasing power.',
+      },
+      general: {
+        label: 'General Savings',
+        strategy: 'Maintain steady monthly contributions and revisit the goal quarterly to align with lifestyle changes.',
+      },
+    };
+
+    const goalProfile = goalProfiles[goalType] ?? {
+      label: 'Custom Goal',
+      strategy: 'Set automated transfers, keep a short-term buffer, and adjust contributions when income rises.',
+    };
+
     // Calculate effective annual return (nominal - inflation)
     const effectiveAnnualReturn = annualReturnRate - inflationRate;
     const monthlyRate = effectiveAnnualReturn / 12;
@@ -199,6 +230,9 @@ class SimpleSavingsGoalCalculator {
       realValue: inflationImpact.realValue,
       milestones: inflationImpact.milestones,
       progressPercent: inflationImpact.progressPercent,
+      goalType,
+      goalTypeLabel: goalProfile.label,
+      goalStrategy: goalProfile.strategy,
     };
   }
 }
@@ -228,6 +262,7 @@ const displayResults = (result: SavingsGoalResults): void => {
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Progress</h5>
       <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.progressPercent?.toFixed(0) || 0}%</p>
       <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">of goal achieved</p>
+      ${result.goalTypeLabel ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Goal: ${result.goalTypeLabel}</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Earned</h5>
@@ -284,6 +319,19 @@ const displayResults = (result: SavingsGoalResults): void => {
       </div>
     </div>
     ` : ''}
+
+      ${result.goalStrategy ? `
+      <div class="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-2xl">🧠</span>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Strategy Guidance</h3>
+            ${result.goalTypeLabel ? `<p class="text-sm text-gray-500 dark:text-gray-400">Optimized for ${result.goalTypeLabel}</p>` : ''}
+          </div>
+        </div>
+        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${result.goalStrategy}</p>
+      </div>
+      ` : ''}
     
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Savings Goal Timeline</h3>

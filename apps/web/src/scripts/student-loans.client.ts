@@ -31,6 +31,7 @@ function checkForgivenessEligibility(
   yearsEmployed: number = 0
 ): ForgivenessEligibility {
   const isFederal = loanType.startsWith('federal');
+  const normalizedYearsEmployed = Math.max(0, yearsEmployed);
   
   // PSLF (Public Service Loan Forgiveness)
   const pslf = {
@@ -41,7 +42,10 @@ function checkForgivenessEligibility(
       'Be enrolled in income-driven repayment plan',
       'Have Direct Loans (or consolidate first)',
     ],
-    timeline: '10 years',
+    timeline:
+      normalizedYearsEmployed >= 10
+        ? 'All PSLF service years completed'
+        : `${Math.max(0, 10 - normalizedYearsEmployed)} years remaining`,
   };
   
   // IDR Forgiveness (Income-Driven Repayment)
@@ -53,7 +57,10 @@ function checkForgivenessEligibility(
       'Remaining balance forgiven (may be taxable)',
       'Federal loans only',
     ],
-    timeline: '20-25 years',
+    timeline:
+      normalizedYearsEmployed >= 25
+        ? 'Eligible for review now'
+        : `${Math.max(0, 25 - normalizedYearsEmployed)} years remaining`,
   };
   
   // Teacher Loan Forgiveness
@@ -65,7 +72,10 @@ function checkForgivenessEligibility(
       'Up to $17,500 forgiveness',
       'Cannot combine with PSLF',
     ],
-    timeline: '5 years',
+    timeline:
+      normalizedYearsEmployed >= 5
+        ? 'All five years satisfied'
+        : `${Math.max(0, 5 - normalizedYearsEmployed)} years remaining`,
   };
   
   // Estimate savings
@@ -173,6 +183,11 @@ type ScreenRefs = {
   results: HTMLElement | null;
 };
 
+type ExtendedInsights = {
+  forgiveness?: ForgivenessEligibility;
+  refinance?: RefinanceComparison;
+};
+
 export const parseNumber = (value: FormDataEntryValue | null): number => {
   if (value === null) return Number.NaN;
   const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
@@ -239,7 +254,10 @@ const calculateMinimumPayment = (
 
 // Modern student loan calculator - streamlined for single loan analysis
 
-export const displayResults = (result: StudentLoanResult): void => {
+export const displayResults = (
+  result: StudentLoanResult,
+  insights?: ExtendedInsights
+): void => {
   // Use the generic results structure from IndividualCalculatorPage.astro
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
@@ -248,6 +266,9 @@ export const displayResults = (result: StudentLoanResult): void => {
     console.error('Required DOM elements not found for student-loans results');
     return;
   }
+
+  const forgiveness = insights?.forgiveness;
+  const refinance = insights?.refinance;
 
   // Render summary cards
   summaryCards.innerHTML = `
@@ -350,18 +371,74 @@ export const displayResults = (result: StudentLoanResult): void => {
         </div>
       </div>
     </div>
+    ${
+      forgiveness
+        ? `
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Forgiveness Programs</h3>
+      <div class="grid gap-4 sm:grid-cols-3">
+        ${['pslf', 'idrForgiveness', 'teacherLoan']
+          .map((key) => {
+            const program = forgiveness[key as keyof ForgivenessEligibility];
+            const label =
+              key === 'pslf' ? 'PSLF' : key === 'idrForgiveness' ? 'IDR Forgiveness' : 'Teacher Loan';
+            const savingsKey = key === 'pslf' ? 'pslf' : key === 'idrForgiveness' ? 'idr' : 'teacher';
+            const savingsAmount = forgiveness.savings[savingsKey as keyof ForgivenessEligibility['savings']];
+            return `
+          <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="font-semibold text-gray-900 dark:text-white">${label}</h4>
+              <span class="text-sm ${program.eligible ? 'text-green-600' : 'text-gray-500'}">
+                ${program.eligible ? 'Eligible' : 'Not Eligible'}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">Timeline: ${program.timeline}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Potential Savings: ${formatCurrency(savingsAmount)}</p>
+          </div>`;
+          })
+          .join('')}
+      </div>
+    </div>`
+        : ''
+    }
+    ${
+      refinance
+        ? `
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Refinance Analysis</h3>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Current Loan</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Rate: ${refinance.current.rate.toFixed(2)}%</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Payment: ${formatCurrency(refinance.current.payment)}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Total Cost: ${formatCurrency(refinance.current.totalCost)}</p>
+        </div>
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Refinanced Loan</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Rate: ${refinance.refinanced.rate.toFixed(2)}%</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Payment: ${formatCurrency(refinance.refinanced.payment)}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Total Cost: ${formatCurrency(refinance.refinanced.totalCost)}</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-base font-semibold text-gray-900 dark:text-white">${refinance.recommendation}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Monthly Savings: ${formatCurrency(refinance.costDifference)}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Total Savings: ${formatCurrency(refinance.savings)}</p>
+        ${
+          refinance.warnings.length > 0
+            ? `<ul class="mt-3 space-y-1 text-sm text-orange-600 dark:text-orange-300">
+            ${refinance.warnings.map((warning) => `<li>${warning}</li>`).join('')}
+          </ul>`
+            : ''
+        }
+      </div>
+    </div>`
+        : ''
+    }
   `;
 };
 
-export const handleSubmit = async (
-  form: HTMLFormElement,
-  refs?: {
-    results?: HTMLElement | null;
-    error?: HTMLElement | null;
-    errorMessage?: HTMLElement | null;
-    loading?: HTMLElement | null;
-  }
-): Promise<void> => {
+export const handleSubmit = async (form: HTMLFormElement, refs?: ScreenRefs): Promise<void> => {
   // Show loading state
   const calculateBtn = document.getElementById('calculate-btn');
   if (calculateBtn) {
@@ -386,6 +463,12 @@ export const handleSubmit = async (
     const annualIncome = parseNumber(formData.get('annualIncome'));
     const familySize = parseNumber(formData.get('familySize'));
     const repaymentPlan = formData.get('repaymentPlan') as string;
+    const employmentStatus = (formData.get('employmentStatus') as string) || 'private';
+    const isTeacher = formData.get('isTeacher') === 'true' || formData.get('isTeacher') === 'on';
+    const yearsEmployedInput = parseNumber(formData.get('yearsEmployed'));
+    const yearsEmployed = Number.isFinite(yearsEmployedInput) ? Math.max(0, yearsEmployedInput) : 0;
+    const creditScoreInput = parseNumber(formData.get('creditScore'));
+    const creditScore = Number.isFinite(creditScoreInput) ? creditScoreInput : 700;
 
     // Validate required fields
     if (Number.isNaN(loanBalance) || loanBalance <= 0) {
@@ -456,11 +539,34 @@ export const handleSubmit = async (
       forgivenessEligible,
     });
 
+    const forgivenessInsights = checkForgivenessEligibility(
+      loanBalance,
+      loans[0].loanType,
+      employmentStatus,
+      isTeacher,
+      yearsEmployed
+    );
+    const refinanceInsights = compareRefinance(
+      loanBalance,
+      interestRate / 100,
+      loans[0].loanType,
+      creditScore
+    );
+
+    const enhancedResult = {
+      result,
+      forgivenessInsights,
+      refinanceInsights,
+    };
+
     // Store result for chatbot integration
-    storeAnalysisResult('analyze_student_loans', result);
+    storeAnalysisResult('analyze_student_loans', enhancedResult);
 
     // Display results
-    displayResults(result);
+    displayResults(result, {
+      forgiveness: forgivenessInsights,
+      refinance: refinanceInsights,
+    });
 
     // Show results
     resultsSection?.classList.remove('hidden');
@@ -473,12 +579,18 @@ export const handleSubmit = async (
         detail: {
           calculatorId: 'student-loans',
           result: result,
+          forgivenessInsights,
+          refinanceInsights,
           formData: {
             loanBalance,
             interestRate,
             annualIncome,
             familySize,
             repaymentPlan,
+            employmentStatus,
+            isTeacher,
+            yearsEmployed,
+            creditScore,
           },
         },
       })
@@ -530,14 +642,14 @@ const initStudentLoansPage = (): void => {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    void handleSubmit(form);
+    void handleSubmit(form, refs);
   });
 
   // Fallback: also listen for direct button clicks
   if (calculateBtn instanceof HTMLButtonElement) {
     calculateBtn.addEventListener('click', (event) => {
       event.preventDefault();
-      void handleSubmit(form);
+      void handleSubmit(form, refs);
     });
   }
 

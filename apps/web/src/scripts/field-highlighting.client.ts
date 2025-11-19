@@ -15,13 +15,76 @@ interface HighlightOptions {
   maxRetries?: number;
 }
 
+type HighlightValue = string | number | boolean;
+type HighlightableField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+type HighlightFieldChangeFn = (
+  fieldName: string,
+  newValue: HighlightValue,
+  isAIModified?: boolean,
+  options?: HighlightOptions
+) => boolean;
+
+declare global {
+  interface Window {
+    highlightFieldChange?: HighlightFieldChangeFn;
+  }
+}
+
+const isHighlightableField = (element: Element | null): element is HighlightableField => {
+  return (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLSelectElement ||
+    element instanceof HTMLTextAreaElement
+  );
+};
+
+const findFieldElement = (fieldName: string): HighlightableField | null => {
+  const selectors = [
+    document.querySelector(`[name="${fieldName}"]`),
+    document.getElementById(fieldName),
+    document.querySelector(`[data-field-id="${fieldName}"]`),
+  ];
+
+  for (const candidate of selectors) {
+    if (isHighlightableField(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+};
+
+const getFieldValue = (field: HighlightableField): HighlightValue => {
+  if (field instanceof HTMLInputElement) {
+    if (field.type === 'checkbox' || field.type === 'radio') {
+      return field.checked;
+    }
+    return field.value;
+  }
+  return field.value;
+};
+
+const setFieldValue = (field: HighlightableField, value: HighlightValue): void => {
+  if (field instanceof HTMLInputElement) {
+    if (field.type === 'checkbox' || field.type === 'radio') {
+      field.checked = Boolean(value);
+      return;
+    }
+    field.value = typeof value === 'string' ? value : String(value ?? '');
+    return;
+  }
+
+  field.value = typeof value === 'string' ? value : String(value ?? '');
+};
+
 /**
  * Highlight a field change, typically from AI modification
  */
 export function highlightFieldChange(
   fieldName: string,
-  newValue: any,
-  isAIModified: boolean = true,
+  newValue: HighlightValue,
+  _isAIModified: boolean = true,
   options: HighlightOptions = {}
 ): boolean {
   const {
@@ -29,12 +92,10 @@ export function highlightFieldChange(
     badgeText = 'AI',
     duration = 2000,
     retryOnError = true,
-    maxRetries = 3
+    maxRetries = 3,
   } = options;
 
-  const field = document.querySelector(`[name="${fieldName}"]`) ||
-    document.querySelector(`#${fieldName}`) ||
-    document.querySelector(`[data-field-id="${fieldName}"]`);
+  const field = findFieldElement(fieldName);
 
   if (!field) {
     console.warn(`Field not found: ${fieldName}`);
@@ -42,22 +103,24 @@ export function highlightFieldChange(
   }
 
   // Store original value for potential rollback
-  const originalValue = (field as HTMLInputElement).value || (field as HTMLInputElement).checked;
+  const originalValue = getFieldValue(field);
 
   // Normalize the value based on field type and constraints
-  let normalizedValue = newValue;
+  let normalizedValue: HighlightValue = newValue;
 
   // Handle percentage fields (convert decimal to percentage)
-  if (fieldName.toLowerCase().includes('rate') || fieldName.toLowerCase().includes('percent')) {
-    if (typeof newValue === 'number' && newValue < 1) {
-      normalizedValue = newValue * 100; // Convert decimal to percentage
-      console.log(`Converted decimal ${newValue} to percentage ${normalizedValue}`);
-    }
+  if (
+    (fieldName.toLowerCase().includes('rate') || fieldName.toLowerCase().includes('percent')) &&
+    typeof newValue === 'number' &&
+    newValue < 1
+  ) {
+    normalizedValue = newValue * 100; // Convert decimal to percentage
+    console.log(`Converted decimal ${newValue} to percentage ${normalizedValue}`);
   }
 
   // Handle step constraints
-  if ((field as HTMLInputElement).step && (field as HTMLInputElement).step !== 'any') {
-    const step = parseFloat((field as HTMLInputElement).step);
+  if (field instanceof HTMLInputElement && field.step && field.step !== 'any' && typeof normalizedValue === 'number') {
+    const step = parseFloat(field.step);
     if (step > 0) {
       normalizedValue = Math.round(normalizedValue / step) * step;
       normalizedValue = parseFloat(normalizedValue.toFixed(step.toString().split('.')[1]?.length || 0));
@@ -65,50 +128,61 @@ export function highlightFieldChange(
   }
 
   // Validate min/max constraints
-  if ((field as HTMLInputElement).min && normalizedValue < parseFloat((field as HTMLInputElement).min)) {
-    normalizedValue = parseFloat((field as HTMLInputElement).min);
-  }
-  if ((field as HTMLInputElement).max && normalizedValue > parseFloat((field as HTMLInputElement).max)) {
-    normalizedValue = parseFloat((field as HTMLInputElement).max);
+  if (field instanceof HTMLInputElement && typeof normalizedValue === 'number') {
+    if (field.min && normalizedValue < parseFloat(field.min)) {
+      normalizedValue = parseFloat(field.min);
+    }
+    if (field.max && normalizedValue > parseFloat(field.max)) {
+      normalizedValue = parseFloat(field.max);
+    }
   }
 
   // Set the new value
-  if ((field as HTMLInputElement).type === 'checkbox' || (field as HTMLInputElement).type === 'radio') {
-    (field as HTMLInputElement).checked = Boolean(normalizedValue);
-  } else {
-    (field as HTMLInputElement).value = normalizedValue;
-  }
+  setFieldValue(field, normalizedValue);
 
   // Validate the field after setting the value
-  const isValid = (field as HTMLInputElement).checkValidity();
+  let isValid = field.checkValidity();
 
   if (!isValid && retryOnError) {
     console.warn(`Validation failed for field ${fieldName}, attempting error recovery`);
 
-    // Try to fix common validation issues
-    let fixedValue = normalizedValue;
+    let attempts = 0;
+    let fixedValue: HighlightValue = normalizedValue;
 
-    // Handle step validation errors
-    if ((field as HTMLInputElement).step && (field as HTMLInputElement).step !== 'any') {
-      const step = parseFloat((field as HTMLInputElement).step);
-      const remainder = fixedValue % step;
-      if (remainder !== 0) {
-        fixedValue = Math.round(fixedValue / step) * step;
-        fixedValue = parseFloat(fixedValue.toFixed(step.toString().split('.')[1]?.length || 0));
+    while (!isValid && attempts < maxRetries) {
+      attempts += 1;
+
+      // Handle step validation errors first, as these are the most common.
+      if (
+        field instanceof HTMLInputElement &&
+        field.step &&
+        field.step !== 'any' &&
+        typeof fixedValue === 'number'
+      ) {
+        const step = parseFloat(field.step);
+        const remainder = fixedValue % step;
+        if (remainder !== 0) {
+          fixedValue = Math.round(fixedValue / step) * step;
+          fixedValue = parseFloat(fixedValue.toFixed(step.toString().split('.')[1]?.length || 0));
+        }
+      }
+
+      setFieldValue(field, fixedValue);
+      isValid = field.checkValidity();
+
+      if (isValid) {
+        normalizedValue = fixedValue;
+        console.log(
+          `Successfully fixed validation error for ${fieldName} after ${attempts} attempt(s): ${originalValue} → ${normalizedValue}`
+        );
       }
     }
 
-    // Try the fixed value
-    (field as HTMLInputElement).value = fixedValue;
-    const isFixedValid = (field as HTMLInputElement).checkValidity();
-
-    if (isFixedValid) {
-      console.log(`Successfully fixed validation error for ${fieldName}: ${normalizedValue} → ${fixedValue}`);
-      normalizedValue = fixedValue;
-    } else {
-      // Rollback to original value if we can't fix it
-      console.error(`Could not fix validation error for ${fieldName}, rolling back to original value`);
-      (field as HTMLInputElement).value = originalValue as any;
+    if (!isValid) {
+      console.error(`Could not fix validation error for ${fieldName} after ${maxRetries} retry attempts, rolling back.`);
+      if (typeof originalValue !== 'undefined') {
+        setFieldValue(field, originalValue);
+      }
       return false;
     }
   }
@@ -150,14 +224,16 @@ export function highlightFieldChange(
   field.dispatchEvent(new Event('input', { bubbles: true }));
 
   // Log the change for debugging
-  console.log(`Field ${fieldName} updated by AI to: ${normalizedValue}${!isValid ? ' (with validation warning)' : ''}`);
+  console.log(
+    `Field ${fieldName} updated by AI to: ${normalizedValue}${!isValid ? ' (with validation warning)' : ''}`
+  );
 
   return isValid;
 }
 
 // Expose to window
 if (typeof window !== 'undefined') {
-  (window as any).highlightFieldChange = highlightFieldChange;
+  window.highlightFieldChange = highlightFieldChange;
 }
 
 

@@ -76,22 +76,6 @@ function calculateEmergencyFundProgress(
   };
 }
 
-// Spending Insights
-interface SpendingInsights {
-  topCategories: Array<{ category: string; amount: number; percent: number }>;
-  savings: {
-    actual: number;
-    potential: number;
-    opportunities: string[];
-  };
-  comparisons: {
-    housingToIncome: number;
-    transportationToIncome: number;
-    foodToIncome: number;
-  };
-  recommendations: string[];
-}
-
 export const parseNumber = (value: FormDataEntryValue | null): number => {
   if (value === null) return Number.NaN;
   const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value);
@@ -148,7 +132,7 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
 
   resultsContainer.innerHTML = `
     <!-- Emergency Fund Progress Tracker -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+    <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🛡️</span> Emergency Fund Progress
       </h3>
@@ -178,7 +162,7 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
           <span class="font-semibold text-gray-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
         </div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-          <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
+          <div class="bg-linear-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
         </div>
         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
           <span>$0</span>
@@ -299,61 +283,6 @@ export const collectExpenses = (formData: FormData, expenseCount: number) => {
   }
 
   return expenses;
-};
-
-const addIncomeRow = (incomeCount: number): void => {
-  const incomeContainer = document.getElementById('income-container');
-  if (!incomeContainer) return;
-
-  const html = `
-    <div class="income-item grid grid-cols-3 gap-3">
-      <div>
-        <label for="income-name-${incomeCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Income Source</label>
-        <input id="income-name-${incomeCount}" type="text" name="income-name-${incomeCount}" placeholder="Source" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-      </div>
-      <div>
-        <label for="income-amount-${incomeCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Monthly Amount</label>
-        <input id="income-amount-${incomeCount}" type="number" name="income-amount-${incomeCount}" placeholder="Amount" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-      </div>
-      <div>
-        <label for="income-type-${incomeCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Income Type</label>
-        <select id="income-type-${incomeCount}" name="income-type-${incomeCount}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="salary">Salary</option><option value="business">Business</option><option value="investment">Investment</option><option value="rental">Rental</option><option value="other">Other</option></select>
-      </div>
-    </div>
-  `;
-
-  incomeContainer.insertAdjacentHTML('beforeend', html);
-};
-
-const addExpenseRow = (expenseCount: number): void => {
-  const expensesContainer = document.getElementById('expenses-container');
-  if (!expensesContainer) return;
-
-  const html = `
-    <div class="expense-item grid grid-cols-4 gap-3">
-      <div>
-        <label for="expense-name-${expenseCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Expense Category</label>
-        <input id="expense-name-${expenseCount}" type="text" name="expense-name-${expenseCount}" placeholder="Category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-      </div>
-      <div>
-        <label for="expense-amount-${expenseCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Monthly Amount</label>
-        <input id="expense-amount-${expenseCount}" type="number" name="expense-amount-${expenseCount}" placeholder="Amount" min="0" step="50" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
-      </div>
-      <div>
-        <label for="expense-type-${expenseCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Expense Type</label>
-        <select id="expense-type-${expenseCount}" name="expense-type-${expenseCount}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"><option value="housing">Housing</option><option value="food">Food</option><option value="transportation">Transportation</option><option value="utilities">Utilities</option><option value="insurance">Insurance</option><option value="entertainment">Entertainment</option><option value="other">Other</option></select>
-      </div>
-      <div class="flex flex-col justify-end">
-        <label for="expense-essential-${expenseCount}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Essential Expense</label>
-        <div class="flex items-center gap-2 text-sm">
-          <input id="expense-essential-${expenseCount}" type="checkbox" name="expense-essential-${expenseCount}" checked class="rounded" />
-          <span class="text-gray-600 dark:text-gray-400">Yes</span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  expensesContainer.insertAdjacentHTML('beforeend', html);
 };
 
 const initBudgetPage = () => {

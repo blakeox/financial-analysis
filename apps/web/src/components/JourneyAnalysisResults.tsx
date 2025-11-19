@@ -3,7 +3,10 @@
  * Provides AI-powered analysis of completed financial journeys
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+type JourneyCollectedData = Record<string, unknown>;
+type TabId = 'summary' | 'insights' | 'recommendations' | 'risks' | 'next-steps';
 
 interface JourneyModel {
   id: string;
@@ -51,10 +54,9 @@ export default function JourneyAnalysisResults({
   const [analysisData, setAnalysisData] = useState<JourneyAnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    'summary' | 'insights' | 'recommendations' | 'risks' | 'next-steps'
-  >('summary');
+  const [activeTab, setActiveTab] = useState<TabId>('summary');
   const [aiChatOpen, setAiChatOpen] = useState(false);
+  const progressFillRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     generateJourneyAnalysis();
@@ -84,7 +86,7 @@ export default function JourneyAnalysisResults({
   const generateAIAnalysis = async (
     scenarioId: string,
     journey: JourneyData,
-    collectedData: Record<string, any>
+    collectedData: JourneyCollectedData
   ): Promise<JourneyAnalysisData> => {
     // This would integrate with your AI service
     // For now, we'll generate contextual analysis based on the journey type
@@ -115,7 +117,7 @@ export default function JourneyAnalysisResults({
     return analysis;
   };
 
-  const generateYoungProfessionalAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateYoungProfessionalAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 85,
     dataQuality: 'good',
     completionTime: '12 minutes',
@@ -217,7 +219,7 @@ export default function JourneyAnalysisResults({
     ],
   });
 
-  const generateFamilyPlanningAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateFamilyPlanningAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 78,
     dataQuality: 'good',
     completionTime: '15 minutes',
@@ -279,7 +281,7 @@ export default function JourneyAnalysisResults({
     ],
   });
 
-  const generateRetirementAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateRetirementAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 82,
     dataQuality: 'excellent',
     completionTime: '18 minutes',
@@ -340,7 +342,7 @@ export default function JourneyAnalysisResults({
     ],
   });
 
-  const generateStartupAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateStartupAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 75,
     dataQuality: 'good',
     completionTime: '20 minutes',
@@ -402,7 +404,7 @@ export default function JourneyAnalysisResults({
     ],
   });
 
-  const generateMAAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateMAAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 88,
     dataQuality: 'excellent',
     completionTime: '25 minutes',
@@ -464,7 +466,7 @@ export default function JourneyAnalysisResults({
     ],
   });
 
-  const generateGenericAnalysis = (data: Record<string, any>): JourneyAnalysisData => ({
+  const generateGenericAnalysis = (_data: JourneyCollectedData): JourneyAnalysisData => ({
     overallScore: 80,
     dataQuality: 'good',
     completionTime: '15 minutes',
@@ -517,7 +519,7 @@ export default function JourneyAnalysisResults({
     return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: AnalysisInsight['priority']) => {
     switch (priority) {
       case 'high':
         return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
@@ -597,9 +599,16 @@ export default function JourneyAnalysisResults({
     );
   }
 
+  useEffect(() => {
+    if (!analysisData || !progressFillRef.current) return;
+
+    const nextWidth = Math.max(0, Math.min(100, analysisData.overallScore));
+    progressFillRef.current.style.width = `${nextWidth}%`;
+  }, [analysisData]);
+
   if (!analysisData) return null;
 
-  const tabs = [
+  const tabs: Array<{ id: TabId; label: string; icon: string }> = [
     { id: 'summary', label: '📊 Summary', icon: '📊' },
     { id: 'insights', label: '💡 Insights', icon: '💡' },
     { id: 'recommendations', label: '🎯 Recommendations', icon: '🎯' },
@@ -613,7 +622,7 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-6">
             {/* Overall Score */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Overall Journey Score
@@ -626,8 +635,8 @@ export default function JourneyAnalysisResults({
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${analysisData.overallScore}%` }}
+                  ref={progressFillRef}
+                  className="bg-linear-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
                 ></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -807,7 +816,7 @@ export default function JourneyAnalysisResults({
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
@@ -834,6 +843,7 @@ export default function JourneyAnalysisResults({
                 </h3>
                 <button
                   onClick={() => setAiChatOpen(false)}
+                  aria-label="Close AI chat panel"
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -708,10 +708,10 @@ class SEOTestRunner {
   }
 
   private testResourceOptimization(): SEOTestResult {
-    const resources = performance.getEntriesByType('resource');
-    const unoptimizedResources = resources.filter(
-      (resource: any) => resource.duration > 1000 || resource.transferSize > 100000
-    );
+    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+    const unoptimizedResources = resources.filter((resource) => {
+      return resource.duration > 1000 || resource.transferSize > 100000;
+    });
 
     if (unoptimizedResources.length > 0) {
       return {
@@ -958,6 +958,17 @@ class SEOTestRunner {
         message: 'Page is not mobile friendly',
         impact: 'high',
         fix: 'Add viewport meta tag and responsive design',
+      };
+    }
+
+    if (!hasResponsiveImages) {
+      return {
+        testName: 'Mobile Friendly',
+        category: 'mobile',
+        status: 'warning',
+        message: 'Add responsive images so mobile users see properly sized assets',
+        impact: 'medium',
+        fix: 'Provide srcset/sizes for hero and product imagery to match device widths',
       };
     }
 

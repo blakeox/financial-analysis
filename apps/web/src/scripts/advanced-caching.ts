@@ -3,7 +3,7 @@
  * Implements multi-layer caching with intelligent invalidation and optimization
  */
 
-export interface CacheEntry<T = any> {
+export interface CacheEntry<T = unknown> {
   key: string;
   value: T;
   timestamp: number;
@@ -43,7 +43,14 @@ export interface CacheLayer {
   enabled: boolean;
 }
 
-export class AdvancedCache<T = any> {
+export interface CacheSetOptions<T> {
+  ttl?: number;
+  tags?: string[];
+  priority?: CacheEntry<T>['priority'];
+  layer?: string;
+}
+
+export class AdvancedCache<T = unknown> {
   private cache: Map<string, CacheEntry<T>> = new Map();
   private config: CacheConfig;
   private metrics: CacheMetrics;
@@ -128,16 +135,7 @@ export class AdvancedCache<T = any> {
   /**
    * Set value in cache
    */
-  set(
-    key: string,
-    value: T,
-    options: {
-      ttl?: number;
-      tags?: string[];
-      priority?: CacheEntry<T>['priority'];
-      layer?: string;
-    } = {}
-  ): void {
+  set(key: string, value: T, options: CacheSetOptions<T> = {}): void {
     try {
       const compressedValue = this.compressValue(value);
       const size = this.calculateSize(key, compressedValue);
@@ -241,7 +239,7 @@ export class AdvancedCache<T = any> {
   /**
    * Warm up cache with data
    */
-  warmUp(data: Array<{ key: string; value: T; options?: any }>): void {
+  warmUp(data: Array<{ key: string; value: T; options?: CacheSetOptions<T> }>): void {
     for (const item of data) {
       this.set(item.key, item.value, item.options);
     }
@@ -250,7 +248,11 @@ export class AdvancedCache<T = any> {
   /**
    * Preload cache with async data
    */
-  async preload(keys: string[], loader: (key: string) => Promise<T>, options?: any): Promise<void> {
+  async preload(
+    keys: string[],
+    loader: (key: string) => Promise<T>,
+    options?: CacheSetOptions<T>
+  ): Promise<void> {
     const promises = keys.map(async (key) => {
       if (!this.has(key)) {
         try {
@@ -373,7 +375,7 @@ export class AdvancedCache<T = any> {
    */
   private getLayerSize(layerName: string): number {
     let size = 0;
-    for (const [key, entry] of this.cache.entries()) {
+    for (const key of this.cache.keys()) {
       if (key.startsWith(`${layerName}:`)) {
         size++;
       }
@@ -397,7 +399,8 @@ export class AdvancedCache<T = any> {
     entries.sort((a, b) => this.getEvictionScore(a[1]) - this.getEvictionScore(b[1]));
 
     // Evict oldest/lowest priority entries
-    const toEvict = Math.max(1, Math.floor(entries.length * 0.1));
+    const evictionRatio = layer.priority === 1 ? 0.05 : layer.priority === 2 ? 0.1 : 0.2;
+    const toEvict = Math.max(1, Math.floor(entries.length * evictionRatio));
     for (let i = 0; i < toEvict; i++) {
       this.cache.delete(entries[i][0]);
       this.metrics.evictions++;
@@ -468,8 +471,12 @@ export class AdvancedCache<T = any> {
   /**
    * Calculate entry size
    */
-  private calculateSize(key: string, value: any): number {
-    return JSON.stringify({ key, value }).length * 2; // Rough estimate
+  private calculateSize(key: string, value: unknown): number {
+    try {
+      return JSON.stringify({ key, value }).length * 2; // Rough estimate
+    } catch {
+      return key.length * 2;
+    }
   }
 
   /**
@@ -589,7 +596,7 @@ export class AdvancedCache<T = any> {
  * Cache manager for coordinating multiple caches
  */
 export class CacheManager {
-  private caches: Map<string, AdvancedCache> = new Map();
+  private caches: Map<string, AdvancedCache<unknown>> = new Map();
   private globalConfig: Partial<CacheConfig>;
 
   constructor(globalConfig: Partial<CacheConfig> = {}) {
@@ -599,13 +606,16 @@ export class CacheManager {
   /**
    * Get or create cache instance
    */
-  getCache(name: string, config?: Partial<CacheConfig>): AdvancedCache {
-    if (!this.caches.has(name)) {
-      const cacheConfig = { ...this.globalConfig, ...config };
-      this.caches.set(name, new AdvancedCache(cacheConfig));
+  getCache<T = unknown>(name: string, config?: Partial<CacheConfig>): AdvancedCache<T> {
+    const existing = this.caches.get(name);
+    if (existing) {
+      return existing as AdvancedCache<T>;
     }
 
-    return this.caches.get(name)!;
+    const cacheConfig = { ...this.globalConfig, ...config };
+    const newCache = new AdvancedCache<T>(cacheConfig);
+    this.caches.set(name, newCache as AdvancedCache<unknown>);
+    return newCache;
   }
 
   /**

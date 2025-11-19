@@ -4,44 +4,52 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import type { PerformanceDashboard, SystemHealth } from '../scripts/performance-dashboard';
+import type {
+  AlertRule,
+  PerformanceDashboard,
+  PerformanceMetrics,
+  SystemHealth,
+} from '../scripts/performance-dashboard';
 
 interface PerformanceDashboardProps {
   dashboard: PerformanceDashboard;
   className?: string;
 }
 
-interface ChartData {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: number[];
-    borderColor: string;
-    backgroundColor: string;
-    fill?: boolean;
-  }>;
+type TimeRange = '5m' | '15m' | '1h' | '24h';
+type PerformanceStats = ReturnType<PerformanceDashboard['getPerformanceStats']>;
+
+interface AlertUpdate {
+  id: string;
+  name: string;
+  severity: AlertRule['severity'];
+  timestamp: Date;
+  metrics: PerformanceMetrics[];
 }
+
+type DashboardUpdate =
+  | { type: 'update'; data: { health: SystemHealth; stats: PerformanceStats } }
+  | { type: 'alert'; data: AlertUpdate };
 
 export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> = ({
   dashboard,
   className = '',
 }) => {
   const [health, setHealth] = useState<SystemHealth | null>(null);
-  const [stats, setStats] = useState<any>(null);
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [stats, setStats] = useState<PerformanceStats | null>(null);
+  const [alerts, setAlerts] = useState<AlertUpdate[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<'5m' | '15m' | '1h' | '24h'>('15m');
+  const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('15m');
 
-  const chartRef = useRef<HTMLCanvasElement>(null);
+  const selectedRangeRef = useRef<TimeRange>(selectedTimeRange);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     // Subscribe to dashboard updates
-    unsubscribeRef.current = dashboard.subscribe((update: { type: string; data?: unknown }) => {
+    unsubscribeRef.current = dashboard.subscribe((update: DashboardUpdate) => {
       if (update.type === 'update') {
-        const data = update.data as { health: SystemHealth; stats: any };
-        setHealth(data.health);
-        setStats(data.stats);
+        setHealth(update.data.health);
+        setStats(dashboard.getPerformanceStats(getTimeRangeMs(selectedRangeRef.current)));
       } else if (update.type === 'alert') {
         setAlerts((prev) => [update.data, ...prev.slice(0, 9)]); // Keep last 10 alerts
       }
@@ -49,7 +57,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
 
     // Initial data load
     setHealth(dashboard.getSystemHealth());
-    setStats(dashboard.getPerformanceStats());
+    setStats(dashboard.getPerformanceStats(getTimeRangeMs(selectedRangeRef.current)));
 
     return () => {
       if (unsubscribeRef.current) {
@@ -57,6 +65,11 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
       }
     };
   }, [dashboard]);
+
+  useEffect(() => {
+    selectedRangeRef.current = selectedTimeRange;
+    setStats(dashboard.getPerformanceStats(getTimeRangeMs(selectedTimeRange)));
+  }, [dashboard, selectedTimeRange]);
 
   const getStatusColor = (status: SystemHealth['status']) => {
     switch (status) {
@@ -71,7 +84,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: AlertRule['severity']) => {
     switch (severity) {
       case 'low':
         return 'text-blue-600 bg-blue-100';
@@ -98,7 +111,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
     return `${hours}h ${minutes}m`;
   };
 
-  const getTimeRangeMs = (range: string) => {
+  const getTimeRangeMs = (range: TimeRange) => {
     switch (range) {
       case '5m':
         return 300000;
@@ -139,7 +152,8 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
         <div className="flex items-center space-x-2">
           <select
             value={selectedTimeRange}
-            onChange={(e) => setSelectedTimeRange(e.target.value as any)}
+            onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
+            aria-label="Select time range"
             className="text-sm border border-gray-300 rounded px-2 py-1"
           >
             <option value="5m">Last 5 minutes</option>
@@ -279,7 +293,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                       </tr>
                     </thead>
                     <tbody>
-                      {stats.topOperations.map((op: any, index: number) => (
+                      {stats.topOperations.map((op, index) => (
                         <tr key={index} className="border-t border-gray-200">
                           <td className="px-4 py-2 font-medium">{op.operation}</td>
                           <td className="px-4 py-2 text-right">{op.count}</td>
@@ -307,7 +321,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                       </tr>
                     </thead>
                     <tbody>
-                      {stats.topErrors.map((error: any, index: number) => (
+                      {stats.topErrors.map((error, index) => (
                         <tr key={index} className="border-t border-gray-200">
                           <td className="px-4 py-2 font-medium text-red-600">{error.errorCode}</td>
                           <td className="px-4 py-2 text-right">{error.count}</td>

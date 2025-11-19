@@ -6,7 +6,7 @@
 interface JourneyAnalysisData {
   scenarioId: string;
   scenarioName: string;
-  journeyData: Record<string, any>;
+  journeyData: Record<string, unknown>;
   completedSteps: string[];
 }
 
@@ -72,11 +72,12 @@ class JourneyAnalysisManager {
 
     const completedSteps = this.analysisData.completedSteps.length;
     const totalSteps = Object.keys(this.analysisData.journeyData).length;
+    const completionPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
     summaryContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${completedSteps}</div>
+          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${completedSteps}/${totalSteps}</div>
           <div class="text-sm text-blue-800 dark:text-blue-200">Steps Completed</div>
         </div>
         <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -84,7 +85,7 @@ class JourneyAnalysisManager {
           <div class="text-sm text-green-800 dark:text-green-200">Journey Type</div>
         </div>
         <div class="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">100%</div>
+          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">${completionPercentage}%</div>
           <div class="text-sm text-purple-800 dark:text-purple-200">Complete</div>
         </div>
       </div>

@@ -206,7 +206,7 @@ export const renderAutoLoanResults = (
     </div>
     <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Cost</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(summary.totalCost)}</p>
+      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrencyWhole(summary.totalCost)}</p>
       ${tco ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
@@ -353,6 +353,10 @@ const initAutoLoanPage = (): void => {
       calculateBtn.disabled = true;
       calculateBtn.textContent = 'Calculating...';
     }
+    loading?.classList.remove('hidden');
+    results?.classList.add('hidden');
+    error?.classList.add('hidden');
+    if (errorMessage) errorMessage.textContent = '';
 
     // Hide previous results
     const resultsSection = document.getElementById('results-section');
@@ -373,6 +377,7 @@ const initAutoLoanPage = (): void => {
       resultsSection?.classList.remove('hidden');
       resultsContainer?.classList.remove('hidden');
       summaryCards?.classList.remove('hidden');
+      results?.classList.remove('hidden');
 
       // Dispatch calculator completion event for journey integration
       window.dispatchEvent(
@@ -386,13 +391,19 @@ const initAutoLoanPage = (): void => {
       );
     } catch (err) {
       console.error('Auto loan calculation error:', err);
-      alert(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      if (errorMessage instanceof HTMLElement) {
+        errorMessage.textContent = message;
+      }
+      error?.classList.remove('hidden');
+      alert(message);
     } finally {
       // Reset button state
       if (calculateBtn) {
         calculateBtn.disabled = false;
         calculateBtn.textContent = 'Calculate';
       }
+      loading?.classList.add('hidden');
     }
   });
 

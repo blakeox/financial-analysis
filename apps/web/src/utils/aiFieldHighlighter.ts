@@ -22,9 +22,12 @@ export interface HighlightOptions {
   maxRetries?: number;
 }
 
+type HighlightValue = string | number | boolean;
+type HighlightableField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
 class AIFieldHighlighter {
   private static instance: AIFieldHighlighter;
-  private originalValues: Map<string, any> = new Map();
+  private originalValues: Map<string, HighlightValue> = new Map();
   private isInitialized = false;
 
   static getInstance(): AIFieldHighlighter {
@@ -56,7 +59,7 @@ class AIFieldHighlighter {
   /**
    * Highlight a field change with animation and validation
    */
-  highlightFieldChange(fieldName: string, newValue: any, options: HighlightOptions = {}): boolean {
+  highlightFieldChange(fieldName: string, newValue: HighlightValue, options: HighlightOptions = {}): boolean {
     const {
       duration = 2000,
       showBadge = true,
@@ -73,10 +76,10 @@ class AIFieldHighlighter {
     }
 
     // Store original value for potential rollback
-    const originalValue = field.value || (field as HTMLInputElement).checked;
+    const originalValue = this.getFieldValue(field);
 
     // Normalize the value based on field type and constraints
-    let normalizedValue = newValue;
+    let normalizedValue: HighlightValue = newValue;
 
     // Handle percentage fields (convert decimal to percentage)
     if (fieldName.toLowerCase().includes('rate') || fieldName.toLowerCase().includes('percent')) {
@@ -87,7 +90,7 @@ class AIFieldHighlighter {
     }
 
     // Handle step constraints
-    if (field instanceof HTMLInputElement && field.step && field.step !== 'any') {
+    if (field instanceof HTMLInputElement && field.step && field.step !== 'any' && typeof normalizedValue === 'number') {
       const step = parseFloat(field.step);
       if (step > 0) {
         normalizedValue = Math.round(normalizedValue / step) * step;
@@ -98,7 +101,7 @@ class AIFieldHighlighter {
     }
 
     // Validate min/max constraints
-    if (field instanceof HTMLInputElement) {
+    if (field instanceof HTMLInputElement && typeof normalizedValue === 'number') {
       if (field.min && normalizedValue < parseFloat(field.min)) {
         normalizedValue = parseFloat(field.min);
       }
@@ -111,37 +114,47 @@ class AIFieldHighlighter {
     this.setFieldValue(field, normalizedValue);
 
     // Validate the field after setting the value
-    const isValid = field.checkValidity();
+    let isValid = field.checkValidity();
 
     if (!isValid && retryOnError) {
       console.warn(`Validation failed for field ${fieldName}, attempting error recovery`);
 
-      // Try to fix common validation issues
-      let fixedValue = normalizedValue;
+      let attempts = 0;
+      let fixedValue: HighlightValue = normalizedValue;
 
-      // Handle step validation errors
-      if (field instanceof HTMLInputElement && field.step && field.step !== 'any') {
-        const step = parseFloat(field.step);
-        const remainder = fixedValue % step;
-        if (remainder !== 0) {
-          fixedValue = Math.round(fixedValue / step) * step;
-          fixedValue = parseFloat(fixedValue.toFixed(step.toString().split('.')[1]?.length || 0));
+      while (!isValid && attempts < maxRetries) {
+        attempts += 1;
+
+        if (
+          field instanceof HTMLInputElement &&
+          field.step &&
+          field.step !== 'any' &&
+          typeof fixedValue === 'number'
+        ) {
+          const step = parseFloat(field.step);
+          const remainder = fixedValue % step;
+          if (remainder !== 0) {
+            fixedValue = Math.round(fixedValue / step) * step;
+            fixedValue = parseFloat(
+              fixedValue.toFixed(step.toString().split('.')[1]?.length || 0)
+            );
+          }
+        }
+
+        this.setFieldValue(field, fixedValue);
+        isValid = field.checkValidity();
+
+        if (isValid) {
+          normalizedValue = fixedValue;
+          console.log(
+            `Successfully fixed validation error for ${fieldName} after ${attempts} attempt(s): ${originalValue} → ${normalizedValue}`
+          );
         }
       }
 
-      // Try the fixed value
-      this.setFieldValue(field, fixedValue);
-      const isFixedValid = field.checkValidity();
-
-      if (isFixedValid) {
-        console.log(
-          `Successfully fixed validation error for ${fieldName}: ${normalizedValue} → ${fixedValue}`
-        );
-        normalizedValue = fixedValue;
-      } else {
-        // Rollback to original value if we can't fix it
+      if (!isValid) {
         console.error(
-          `Could not fix validation error for ${fieldName}, rolling back to original value`
+          `Could not fix validation error for ${fieldName} after ${maxRetries} retry attempts, rolling back to original value`
         );
         this.setFieldValue(field, originalValue);
         return false;
@@ -218,30 +231,51 @@ class AIFieldHighlighter {
     return modifiedFields;
   }
 
-  private findField(fieldName: string): HTMLElement | null {
-    return (
-      document.querySelector(`[name="${fieldName}"]`) ||
-      document.querySelector(`#${fieldName}`) ||
-      document.querySelector(`[data-field-id="${fieldName}"]`)
-    );
+  private findField(fieldName: string): HighlightableField | null {
+    const selectors: (Element | null)[] = [
+      document.querySelector(`[name="${fieldName}"]`),
+      document.querySelector(`#${fieldName}`),
+      document.querySelector(`[data-field-id="${fieldName}"]`),
+    ];
+
+    for (const candidate of selectors) {
+      if (
+        candidate instanceof HTMLInputElement ||
+        candidate instanceof HTMLSelectElement ||
+        candidate instanceof HTMLTextAreaElement
+      ) {
+        return candidate;
+      }
+    }
+
+    return null;
   }
 
-  private setFieldValue(field: HTMLElement, value: any): void {
+  private getFieldValue(field: HighlightableField): HighlightValue {
+    if (field instanceof HTMLInputElement) {
+      if (field.type === 'checkbox' || field.type === 'radio') {
+        return field.checked;
+      }
+      return field.value;
+    }
+    return field.value;
+  }
+
+  private setFieldValue(field: HighlightableField, value: HighlightValue): void {
     if (field instanceof HTMLInputElement) {
       if (field.type === 'checkbox' || field.type === 'radio') {
         field.checked = Boolean(value);
       } else {
-        field.value = String(value);
+        field.value = typeof value === 'string' ? value : String(value ?? '');
       }
-    } else if (field instanceof HTMLSelectElement) {
-      field.value = String(value);
-    } else if (field instanceof HTMLTextAreaElement) {
-      field.value = String(value);
+      return;
     }
+
+    field.value = typeof value === 'string' ? value : String(value ?? '');
   }
 
   private applyHighlight(
-    field: HTMLElement,
+    field: HighlightableField,
     duration: number,
     showBadge: boolean,
     badgeText: string,
@@ -263,7 +297,7 @@ class AIFieldHighlighter {
   }
 
   private createAIBadge(
-    field: HTMLElement,
+    field: HighlightableField,
     badgeText: string,
     duration: number,
     isValid: boolean = true
@@ -295,7 +329,7 @@ class AIFieldHighlighter {
     }
   }
 
-  private dispatchFieldEvents(field: HTMLElement): void {
+  private dispatchFieldEvents(field: HighlightableField): void {
     field.dispatchEvent(new Event('change', { bubbles: true }));
     field.dispatchEvent(new Event('input', { bubbles: true }));
   }
@@ -377,7 +411,7 @@ class AIFieldHighlighter {
 // Global functions for easy access
 export const highlightFieldChange = (
   fieldName: string,
-  value: any,
+  value: HighlightValue,
   options?: HighlightOptions
 ): boolean => {
   return AIFieldHighlighter.getInstance().highlightFieldChange(fieldName, value, options);

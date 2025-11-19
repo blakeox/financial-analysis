@@ -79,7 +79,7 @@ async function handleSubmit(e: Event) {
     console.log('Equipment lease result:', result);
 
     // Display results
-    displayResults(result, formData);
+    displayResults(result);
 
     // Hide loading state
     hideLoading();
@@ -90,19 +90,45 @@ async function handleSubmit(e: Event) {
   }
 }
 
-function parseEquipmentLeaseInput(form: HTMLFormElement): EquipmentLeaseInput {
-  const formatNumber = (value: string | null): number => {
-    if (!value) return 0;
-    const parsed = parseFloat(value);
-    return Number.isFinite(parsed) ? parsed : 0;
-  };
+const getFormValue = (form: HTMLFormElement, fieldName: string): string | null => {
+  const element = form.elements.namedItem(fieldName);
+  if (!element) {
+    return null;
+  }
 
+  if (element instanceof RadioNodeList) {
+    return element.value || null;
+  }
+
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLSelectElement ||
+    element instanceof HTMLTextAreaElement
+  ) {
+    return element.value || null;
+  }
+
+  return null;
+};
+
+const parseNumericField = (form: HTMLFormElement, fieldName: string): number => {
+  const rawValue = getFormValue(form, fieldName);
+  if (!rawValue) {
+    return 0;
+  }
+
+  const sanitizedValue = rawValue.replace(/,/g, '').trim();
+  const parsed = Number.parseFloat(sanitizedValue);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+function parseEquipmentLeaseInput(form: HTMLFormElement): EquipmentLeaseInput {
   return {
-    equipmentCost: formatNumber(form.elements.namedItem('equipmentCost') as any)?.value || 0,
-    downPayment: formatNumber(form.elements.namedItem('downPayment') as any)?.value || 0,
-    leaseTerm: formatNumber(form.elements.namedItem('leaseTerm') as any)?.value || 0,
-    interestRate: formatNumber(form.elements.namedItem('interestRate') as any)?.value || 0,
-    residualValue: formatNumber(form.elements.namedItem('residualValue') as any)?.value || 0,
+    equipmentCost: parseNumericField(form, 'equipmentCost'),
+    downPayment: parseNumericField(form, 'downPayment'),
+    leaseTerm: parseNumericField(form, 'leaseTerm'),
+    interestRate: parseNumericField(form, 'interestRate'),
+    residualValue: parseNumericField(form, 'residualValue'),
   };
 }
 
@@ -126,7 +152,7 @@ function validateInput(input: EquipmentLeaseInput): boolean {
   return true;
 }
 
-function displayResults(result: EquipmentLeaseResult, inputs: EquipmentLeaseInput) {
+function displayResults(result: EquipmentLeaseResult) {
   // Show results section
   const resultsSection = document.getElementById('results-section');
   if (resultsSection) {

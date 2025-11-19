@@ -155,15 +155,17 @@ export class AdvancedErrorRecovery {
    * Get circuit breaker state for context
    */
   private getCircuitBreaker(context: string): CircuitBreakerState {
-    if (!this.circuitBreakers.has(context)) {
-      this.circuitBreakers.set(context, {
+    let circuitBreaker = this.circuitBreakers.get(context);
+    if (!circuitBreaker) {
+      circuitBreaker = {
         state: 'CLOSED',
         failureCount: 0,
         lastFailureTime: 0,
         nextAttemptTime: 0,
-      });
+      };
+      this.circuitBreakers.set(context, circuitBreaker);
     }
-    return this.circuitBreakers.get(context)!;
+    return circuitBreaker;
   }
 
   /**
@@ -405,11 +407,11 @@ export class ChatErrorRecovery {
   /**
    * Send message with error recovery
    */
-  async sendMessageWithRecovery(
-    sendFn: () => Promise<any>,
+  async sendMessageWithRecovery<T>(
+    sendFn: () => Promise<T>,
     messageId: string,
     message: string
-  ): Promise<any> {
+  ): Promise<T> {
     // Store message for potential retry
     this.messageQueue.set(messageId, {
       message,
@@ -436,7 +438,7 @@ export class ChatErrorRecovery {
    * Retry failed messages
    */
   async retryFailedMessages(
-    sendFn: (messageId: string, message: string) => Promise<any>
+    sendFn: (messageId: string, message: string) => Promise<unknown>
   ): Promise<void> {
     const failedMessages = Array.from(this.messageQueue.entries());
 

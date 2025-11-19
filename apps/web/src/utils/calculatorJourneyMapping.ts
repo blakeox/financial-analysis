@@ -20,7 +20,7 @@ export interface CalculatorJourneySuggestion {
  */
 export function getJourneySuggestions(calculatorId: string): CalculatorJourneySuggestion[] {
   const suggestions: CalculatorJourneySuggestion[] = [];
-  const journeyData = getJourneyData();
+  const journeyData: Record<string, JourneyScenario> = getJourneyData();
 
   // Map calculators to journeys based on their purpose
   const mappings: Record<string, Array<{

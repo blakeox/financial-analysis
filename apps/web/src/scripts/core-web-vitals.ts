@@ -39,6 +39,16 @@ export interface PerformanceReport {
   recommendations: string[];
 }
 
+type LayoutShiftEntry = PerformanceEntry & {
+  value: number;
+  hadRecentInput: boolean;
+};
+
+type NavigatorWithPerformance = Navigator & {
+  connection?: { effectiveType?: string };
+  deviceMemory?: number;
+};
+
 class CoreWebVitalsMonitor {
   private metrics: Partial<WebVitalsMetrics> = {};
   private observers: PerformanceObserver[] = [];
@@ -126,8 +136,8 @@ class CoreWebVitalsMonitor {
 
     let clsValue = 0;
     const observer = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      entries.forEach((entry: any) => {
+      const entries = list.getEntries() as LayoutShiftEntry[];
+      entries.forEach((entry) => {
         if (!entry.hadRecentInput) {
           clsValue += entry.value;
         }
@@ -157,8 +167,8 @@ class CoreWebVitalsMonitor {
     if (!('PerformanceObserver' in window)) return;
 
     const observer = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      entries.forEach((entry: any) => {
+      const entries = list.getEntries() as PerformanceNavigationTiming[];
+      entries.forEach((entry) => {
         if (entry.responseStart > 0) {
           this.metrics.ttfb = entry.responseStart - entry.requestStart;
         }
@@ -177,7 +187,7 @@ class CoreWebVitalsMonitor {
       const entries = list.getEntries();
       let totalBlockingTime = 0;
 
-      entries.forEach((entry: any) => {
+      entries.forEach((entry) => {
         if (entry.duration > 50) {
           totalBlockingTime += entry.duration - 50;
         }
@@ -191,10 +201,10 @@ class CoreWebVitalsMonitor {
 
     // Monitor resource loading
     const resourceObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
+      const entries = list.getEntries() as PerformanceResourceTiming[];
       let totalResourceTime = 0;
 
-      entries.forEach((entry: any) => {
+      entries.forEach((entry) => {
         totalResourceTime += entry.duration;
       });
 
@@ -208,12 +218,14 @@ class CoreWebVitalsMonitor {
   private generateReport(): void {
     if (!this.isMonitoring) return;
 
+    const navigatorWithPerformance = navigator as NavigatorWithPerformance;
+
     const report: PerformanceReport = {
       timestamp: new Date(),
       url: window.location.href,
       userAgent: navigator.userAgent,
-      connectionType: (navigator as any).connection?.effectiveType,
-      deviceMemory: (navigator as any).deviceMemory,
+      connectionType: navigatorWithPerformance.connection?.effectiveType,
+      deviceMemory: navigatorWithPerformance.deviceMemory,
       metrics: this.metrics as WebVitalsMetrics,
       score: this.calculateScores(),
       recommendations: this.generateRecommendations(),

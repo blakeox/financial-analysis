@@ -31,6 +31,19 @@ import type {
   ToolSummary,
 } from './chat/types';
 
+type HighlightFieldChangeFn = (
+  fieldName: string,
+  newValue: string | number | boolean,
+  isAIModified?: boolean,
+  options?: Record<string, unknown>
+) => boolean;
+
+declare global {
+  interface Window {
+    highlightFieldChange?: HighlightFieldChangeFn;
+  }
+}
+
 installChatContextBridge();
 
 // Security and validation constants
@@ -41,8 +54,8 @@ const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1000; // Initial backoff time
 const GENERIC_RESPONSE_PATTERNS = [
   /i can help update the /i,
-  /try:\s*\"set interest to/i,
-  /say \"help\"/i,
+  /try:\s*"set interest to/i,
+  /say "help"/i,
   /ask for a specific value/i,
   /i can change interest rates/i,
   /i can help update the general model/i,
@@ -889,8 +902,8 @@ class ChatPanel {
       field.dispatchEvent(new Event('change', { bubbles: true }));
       
       // Highlight the field to show it changed
-      if (typeof (window as any).highlightFieldChange === 'function') {
-        (window as any).highlightFieldChange(fieldId, value, true);
+      if (typeof window.highlightFieldChange === 'function') {
+        window.highlightFieldChange(fieldId, value, true);
       } else {
         // Fallback visual feedback
         field.style.transition = 'all 0.3s ease';

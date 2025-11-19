@@ -10,31 +10,66 @@ import {
   generateInsights,
   generateRecommendations,
   generateRiskAssessment,
-  generateOptimizationOpportunities
+  generateOptimizationOpportunities,
 } from './analysis-content-generators.client';
+import type { AnalysisContentData, AnalysisSummaryData } from './analysis-content-generators.client';
 import {
   formatCurrency,
   formatPercent as formatPercentDecimal,
-  formatMonths
+  formatMonths,
 } from '../utils/calculator-utilities';
+
+type AnalysisTimelineEntry = {
+  label: string;
+  value?: string;
+  description?: string;
+};
+
+type AnalysisChatContext = {
+  summary?: string;
+  highlights?: string[];
+  [key: string]: unknown;
+};
+
+interface ComprehensiveAnalysisData extends AnalysisContentData {
+  chatHighlights?: string[];
+  chatSummary?: string;
+  timeline?: AnalysisTimelineEntry[];
+  chatContext?: AnalysisChatContext;
+  rawResult?: unknown;
+}
+
+type AnalysisResultEventDetail = {
+  result?: ComprehensiveAnalysisData;
+};
+
+type AnalysisElements = {
+  tabs: NodeListOf<HTMLElement>;
+  tabContents: NodeListOf<HTMLElement>;
+  emptyState: HTMLElement | null;
+  dataContainer: HTMLElement | null;
+  mobileSelector: HTMLSelectElement | null;
+};
 
 // Initialize a placeholder function immediately to ensure it exists
 if (typeof window !== 'undefined') {
-  (window as any).populateAnalysisData = (window as any).populateAnalysisData || function(data: any) {
-    console.warn('populateAnalysisData placeholder called - real function not yet loaded');
-  };
+  window.populateAnalysisData =
+    window.populateAnalysisData ||
+    ((_data: AnalysisContentData) => {
+      console.warn('populateAnalysisData placeholder called - real function not yet loaded');
+    });
 }
 
 /**
  * Get fresh references to analysis UI elements
  */
-function getAnalysisElements() {
+function getAnalysisElements(): AnalysisElements {
   return {
-    tabs: document.querySelectorAll('.analysis-tab'),
-    tabContents: document.querySelectorAll('.analysis-tab-content'),
+    tabs: document.querySelectorAll<HTMLElement>('.analysis-tab'),
+    tabContents: document.querySelectorAll<HTMLElement>('.analysis-tab-content'),
     emptyState: document.getElementById('analysis-empty-state'),
     dataContainer: document.getElementById('analysis-data'),
-    mobileSelector: document.getElementById('mobile-tab-selector'),
+    mobileSelector: document.getElementById('mobile-tab-selector') as HTMLSelectElement | null,
   };
 }
 
@@ -47,8 +82,6 @@ export function initComprehensiveAnalysis() {
   const elements = getAnalysisElements();
   let analysisTabs = elements.tabs;
   let analysisTabContents = elements.tabContents;
-  let analysisEmptyState = elements.emptyState;
-  let analysisData = elements.dataContainer;
   let mobileTabSelector = elements.mobileSelector;
 
   // Initialize: Hide all tab contents initially
@@ -61,8 +94,6 @@ export function initComprehensiveAnalysis() {
     const fresh = getAnalysisElements();
     analysisTabs = fresh.tabs;
     analysisTabContents = fresh.tabContents;
-    analysisEmptyState = fresh.emptyState;
-    analysisData = fresh.dataContainer;
     mobileTabSelector = fresh.mobileSelector;
   }
 
@@ -132,7 +163,7 @@ export function initComprehensiveAnalysis() {
 /**
  * Populate analysis data into the UI
  */
-export function populateAnalysisData(rawData: any) {
+export function populateAnalysisData(rawData: ComprehensiveAnalysisData) {
   console.log('=== populateAnalysisData CALLED ===');
   console.log('Raw data received:', rawData);
   console.log('Data type:', typeof rawData);
@@ -145,7 +176,7 @@ export function populateAnalysisData(rawData: any) {
 
   console.log('Data validation passed, proceeding...');
 
-  const summary =
+  const summary: AnalysisSummaryData =
     rawData.summary && typeof rawData.summary === 'object'
       ? rawData.summary
       : {
@@ -240,7 +271,7 @@ export function populateAnalysisData(rawData: any) {
 
   // Store data for LLM access
   if (typeof window !== 'undefined') {
-    (window as any).amortizationAnalysisData = rawData;
+    window.amortizationAnalysisData = rawData;
     console.log('Analysis data stored for LLM access:', rawData);
   }
 
@@ -264,7 +295,7 @@ export function populateAnalysisData(rawData: any) {
 
   // Update mobile selector
   refreshElementReferences();
-  const mobileSelector = document.getElementById('mobile-tab-selector') as HTMLSelectElement;
+  const mobileSelector = document.getElementById('mobile-tab-selector') as HTMLSelectElement | null;
   if (mobileSelector) {
     mobileSelector.value = 'summary';
     console.log('Mobile selector updated to summary');
@@ -291,35 +322,52 @@ export function populateAnalysisData(rawData: any) {
 
 // Expose functions to window
 if (typeof window !== 'undefined') {
-  (window as any).populateAnalysisData = populateAnalysisData;
-  (window as any).initComprehensiveAnalysis = initComprehensiveAnalysis;
+  window.populateAnalysisData = populateAnalysisData;
+  window.initComprehensiveAnalysis = initComprehensiveAnalysis;
   console.log('Comprehensive analysis functions exposed to window');
 
   // Dispatch ready event
-  (window as any).populateAnalysisDataReady = true;
+  window.populateAnalysisDataReady = true;
   window.dispatchEvent(new CustomEvent('populateAnalysisData-ready'));
 
   // Check if data already exists (e.g., from previous calculation)
-  if ((window as any).amortizationAnalysisData) {
+  const storedAnalysis = window.amortizationAnalysisData;
+  if (storedAnalysis) {
     console.log('Found existing amortization analysis data on page load');
     setTimeout(() => {
-      populateAnalysisData((window as any).amortizationAnalysisData);
+      populateAnalysisData(storedAnalysis);
     }, 100);
   }
 
   // Listen for analysis events as a fallback
-  document.addEventListener('analysis-result-updated', ((event: CustomEvent) => {
-    console.log('Received analysis-result-updated event:', event.detail);
-    if (event.detail && event.detail.result) {
-      populateAnalysisData(event.detail.result);
+  const handleAnalysisResultUpdated = (event: Event): void => {
+    if (!(event instanceof CustomEvent)) return;
+    const detail = event.detail as AnalysisResultEventDetail;
+    console.log('Received analysis-result-updated event:', detail);
+    if (detail?.result) {
+      populateAnalysisData(detail.result);
     }
-  }) as EventListener);
+  };
 
-  window.addEventListener('amortization-analysis-ready', ((event: CustomEvent) => {
-    console.log('Received amortization-analysis-ready event:', event.detail);
-    if (event.detail) {
-      populateAnalysisData(event.detail);
+  const handleAmortizationReady = (event: Event): void => {
+    if (!(event instanceof CustomEvent)) return;
+    const detail = event.detail as ComprehensiveAnalysisData;
+    console.log('Received amortization-analysis-ready event:', detail);
+    if (detail) {
+      populateAnalysisData(detail);
     }
-  }) as EventListener);
+  };
+
+  document.addEventListener('analysis-result-updated', handleAnalysisResultUpdated);
+  window.addEventListener('amortization-analysis-ready', handleAmortizationReady);
+}
+
+declare global {
+  interface Window {
+    populateAnalysisData?: (data: ComprehensiveAnalysisData) => void;
+    initComprehensiveAnalysis?: typeof initComprehensiveAnalysis;
+    populateAnalysisDataReady?: boolean;
+    amortizationAnalysisData?: ComprehensiveAnalysisData;
+  }
 }
 

@@ -8,25 +8,38 @@
  * - Optimization Opportunities
  */
 
+type PriorityLevel = 'high' | 'medium' | 'low';
+type EffortLevel = 'low' | 'medium' | 'high';
+type RiskLevel = 'high' | 'medium' | 'low';
+
 interface Insight {
   title: string;
   description: string;
-  impact: 'high' | 'medium' | 'low';
-  actionable: string;
+  impact: PriorityLevel;
+  actionable?: string | boolean;
 }
 
-interface Recommendation {
-  priority: 'high' | 'medium' | 'low';
+interface RecommendationData {
+  priority: PriorityLevel;
   title: string;
   description: string;
-  effort: 'low' | 'medium' | 'high';
+  effort: EffortLevel;
+  potentialSavings?: number;
+}
+
+interface GeneratedRecommendation extends RecommendationData {
   savings: string;
 }
 
 interface RiskFactor {
   factor: string;
-  risk: 'high' | 'medium' | 'low';
+  risk: RiskLevel;
   description: string;
+}
+
+interface RiskAssessmentData {
+  overallRisk?: RiskLevel;
+  factors?: RiskFactor[];
 }
 
 interface Optimization {
@@ -37,16 +50,45 @@ interface Optimization {
   description: string;
 }
 
+export interface AnalysisSummaryData {
+  principal?: number;
+  totalPayments?: number;
+  totalInterest?: number;
+  monthlyPayment?: number;
+  annualRate?: number;
+  termMonths?: number;
+}
+
+export interface AnalysisContentData extends AnalysisSummaryData {
+  summary?: AnalysisSummaryData;
+  chatHighlights?: string[];
+  chatSummary?: string;
+  timeline?: unknown;
+  insights?: Insight[];
+  recommendations?: RecommendationData[];
+  riskAssessment?: RiskAssessmentData;
+  optimizationOpportunities?: Optimization[];
+}
+
+declare global {
+  interface Window {
+    generateAnalysisContent?: (data: AnalysisContentData, summary?: AnalysisSummaryData) => void;
+  }
+}
+
 /**
  * Generate insights based on loan data
  */
-export function generateInsights(data: any, summary: any) {
+export function generateInsights(
+  data: AnalysisContentData,
+  summary: AnalysisSummaryData = {}
+): void {
   const insightsList = document.getElementById('insights-list');
   if (!insightsList) return;
 
   if (Array.isArray(data?.insights) && data.insights.length) {
     insightsList.innerHTML = data.insights
-      .map((insight: any) => `
+      .map((insight: Insight) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -138,13 +180,16 @@ export function generateInsights(data: any, summary: any) {
 /**
  * Generate recommendations based on loan data
  */
-export function generateRecommendations(data: any, summary: any) {
+export function generateRecommendations(
+  data: AnalysisContentData,
+  summary: AnalysisSummaryData = {}
+): void {
   const recommendationsList = document.getElementById('recommendations-list');
   if (!recommendationsList) return;
 
   if (Array.isArray(data?.recommendations) && data.recommendations.length) {
     recommendationsList.innerHTML = data.recommendations
-      .map((rec: any) => `
+      .map((rec: RecommendationData) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -206,7 +251,7 @@ export function generateRecommendations(data: any, summary: any) {
 
   const savings100 = calculateExtraPaymentSavings(extraPayment100);
 
-  const recommendations: Recommendation[] = [
+  const recommendations: GeneratedRecommendation[] = [
     {
       priority: 'high',
       title: 'Verify Income Affordability',
@@ -270,13 +315,18 @@ export function generateRecommendations(data: any, summary: any) {
 /**
  * Generate risk assessment based on loan data
  */
-export function generateRiskAssessment(data: any, summary: any) {
+export function generateRiskAssessment(
+  data: AnalysisContentData,
+  summary: AnalysisSummaryData = {}
+): void {
   const riskAssessment = document.getElementById('risk-assessment');
   if (!riskAssessment) return;
 
   if (data?.riskAssessment && typeof data.riskAssessment === 'object') {
     const overall = data.riskAssessment.overallRisk || 'low';
-    const factors = Array.isArray(data.riskAssessment.factors) ? data.riskAssessment.factors : [];
+    const factors = Array.isArray(data.riskAssessment.factors)
+      ? data.riskAssessment.factors
+      : [];
     riskAssessment.innerHTML = `
       <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
         <div class="flex items-center justify-between mb-4">
@@ -294,7 +344,7 @@ export function generateRiskAssessment(data: any, summary: any) {
         <div class="space-y-3">
           ${factors
             .map(
-              (factor: any) => `
+              (factor: RiskFactor) => `
                 <div class="flex justify-between items-center">
                   <span class="text-sm text-gray-600 dark:text-gray-400">${factor.factor}</span>
                   <span class="text-sm font-medium ${
@@ -322,10 +372,43 @@ export function generateRiskAssessment(data: any, summary: any) {
   const annualRate = summary.annualRate ?? data.annualRate ?? 0;
   const termMonths = summary.termMonths ?? data.termMonths ?? 0;
   const paymentToIncomeRatio = monthlyPayment / 5000; // Assuming $5k monthly income
+  const interestLoadRatio = principal > 0 ? totalInterest / principal : 0;
+  const totalRepayment = principal + totalInterest;
 
-  let overallRisk: 'high' | 'medium' | 'low' = 'low';
-  if (paymentToIncomeRatio > 0.3) overallRisk = 'high';
-  else if (paymentToIncomeRatio > 0.2) overallRisk = 'medium';
+  const fallbackFactors: RiskFactor[] = [
+    {
+      factor: 'Payment Burden',
+      risk: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
+      description: `${(paymentToIncomeRatio * 100).toFixed(1)}% of income`
+    },
+    {
+      factor: 'Interest Cost Exposure',
+      risk: interestLoadRatio > 0.8 ? 'high' : interestLoadRatio > 0.5 ? 'medium' : 'low',
+      description: `${(interestLoadRatio * 100).toFixed(1)}% of principal`
+    },
+    {
+      factor: 'Interest Rate Level',
+      risk: annualRate > 0.06 ? 'high' : annualRate < 0.04 ? 'low' : 'medium',
+      description: `${(annualRate * 100).toFixed(2)}% current rate`
+    },
+    {
+      factor: 'Loan Term Length',
+      risk: termMonths > 360 ? 'high' : termMonths > 300 ? 'medium' : 'low',
+      description: `${termMonths} months remaining`
+    },
+    {
+      factor: 'Lifetime Repayment',
+      risk: totalRepayment > principal * 1.5 ? 'medium' : 'low',
+      description: `$${totalRepayment.toLocaleString()} total`
+    }
+  ];
+
+  const riskRanking = fallbackFactors.map((factor) => factor.risk);
+  const overallRisk: 'high' | 'medium' | 'low' = riskRanking.includes('high')
+    ? 'high'
+    : riskRanking.includes('medium')
+      ? 'medium'
+      : 'low';
 
   riskAssessment.innerHTML = `
     <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -336,24 +419,18 @@ export function generateRiskAssessment(data: any, summary: any) {
         </span>
       </div>
       <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600 dark:text-gray-400">Payment Burden</span>
-          <span class="text-sm font-medium ${paymentToIncomeRatio > 0.3 ? 'text-red-600 dark:text-red-400' : paymentToIncomeRatio > 0.2 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
-            ${(paymentToIncomeRatio * 100).toFixed(1)}% of income
-          </span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600 dark:text-gray-400">Interest Rate Level</span>
-          <span class="text-sm font-medium ${annualRate > 0.06 ? 'text-red-600 dark:text-red-400' : annualRate < 0.04 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">
-            ${(annualRate * 100).toFixed(2)}%
-          </span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600 dark:text-gray-400">Loan Term Risk</span>
-          <span class="text-sm font-medium ${termMonths > 300 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
-            ${termMonths} months
-          </span>
-        </div>
+        ${fallbackFactors
+          .map(
+            (factor) => `
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600 dark:text-gray-400">${factor.factor}</span>
+                <span class="text-sm font-medium ${factor.risk === 'high' ? 'text-red-600 dark:text-red-400' : factor.risk === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
+                  ${factor.description}
+                </span>
+              </div>
+            `
+          )
+          .join('')}
       </div>
     </div>
   `;
@@ -362,7 +439,10 @@ export function generateRiskAssessment(data: any, summary: any) {
 /**
  * Generate optimization opportunities based on loan data
  */
-export function generateOptimizationOpportunities(data: any, summary: any) {
+export function generateOptimizationOpportunities(
+  data: AnalysisContentData,
+  summary: AnalysisSummaryData = {}
+): void {
   const optimizationOpportunities = document.getElementById('optimization-opportunities');
   if (!optimizationOpportunities) return;
 
@@ -372,9 +452,15 @@ export function generateOptimizationOpportunities(data: any, summary: any) {
     return `$${Math.round(value).toLocaleString()}`;
   };
 
+  const baselinePayment = summary?.monthlyPayment ?? data.monthlyPayment ?? 0;
+  const baselineRate = summary?.annualRate ?? data.annualRate ?? 0;
+  const baselineTermMonths = summary?.termMonths ?? data.termMonths ?? 360;
+  const targetExtraPayment = Math.max(Math.round(baselinePayment * 0.1), 100);
+  const estimatedExtraSavings = Math.round(targetExtraPayment * (baselineTermMonths / 12));
+
   if (Array.isArray(data?.optimizationOpportunities) && data.optimizationOpportunities.length) {
     optimizationOpportunities.innerHTML = data.optimizationOpportunities
-      .map((opp: any) => `
+      .map((opp: Optimization) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -406,21 +492,21 @@ export function generateOptimizationOpportunities(data: any, summary: any) {
     {
       area: 'Extra Payments',
       currentValue: 0,
-      optimizedValue: 100,
-      potentialImprovement: 15000,
+      optimizedValue: targetExtraPayment,
+      potentialImprovement: estimatedExtraSavings,
       description: 'Adding $100 monthly extra payment'
     },
     {
       area: 'Bi-weekly Payments',
-      currentValue: data.monthlyPayment,
-      optimizedValue: data.monthlyPayment / 2,
+      currentValue: baselinePayment,
+      optimizedValue: baselinePayment / 2,
       potentialImprovement: 8000,
       description: 'Switching to bi-weekly payments'
     },
     {
       area: 'Refinancing',
-      currentValue: data.annualRate,
-      optimizedValue: data.annualRate - 0.005,
+      currentValue: baselineRate,
+      optimizedValue: Math.max(baselineRate - 0.005, 0),
       potentialImprovement: 12000,
       description: 'Refinancing at 0.5% lower rate'
     }
@@ -454,13 +540,18 @@ export function generateOptimizationOpportunities(data: any, summary: any) {
 
 // Expose to window for compatibility
 if (typeof window !== 'undefined') {
-  (window as any).generateAnalysisContent = (data: any, summary: any) => {
+  window.generateAnalysisContent = (data: AnalysisContentData, summary: AnalysisSummaryData = {}) => {
     generateInsights(data, summary);
     generateRecommendations(data, summary);
     generateRiskAssessment(data, summary);
     generateOptimizationOpportunities(data, summary);
   };
 }
+
+export {};
+
+
+
 
 
 

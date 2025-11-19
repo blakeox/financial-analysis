@@ -3,7 +3,6 @@ import JourneyCalculatorPage from '../../../../components/JourneyCalculatorPage.
 import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
-  const journeyData = getJourneyData();
   const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
 
   // All journeys now use the new descriptive step format with dedicated pages

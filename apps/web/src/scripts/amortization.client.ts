@@ -13,17 +13,28 @@ import { AnalysisRequestError, postAnalysisRequest } from './analysis-api';
 import { storeAnalysisResult } from './analysis-results';
 import { publishChatContext } from './chat/chat-context';
 
+type AmortizationResultExtras = Partial<{
+  totalPayments: number;
+  totalAmount: number;
+  totalInterest: number;
+  interestPaid: number;
+  interestSaved: number;
+  timeReduced: number;
+}>;
+
+type AmortizationResultExtended = AmortizationAnalysisResult & AmortizationResultExtras;
+
 // Helper to safely extract total paid amount from API result
-const getTotalPaid = (result: AmortizationAnalysisResult): number => {
-  if (isFiniteNumber((result as any).totalPayments)) return Number((result as any).totalPayments);
-  if (isFiniteNumber((result as any).totalAmount)) return Number((result as any).totalAmount);
+const getTotalPaid = (result: AmortizationResultExtended): number => {
+  if (isFiniteNumber(result.totalPayments)) return Number(result.totalPayments);
+  if (isFiniteNumber(result.totalAmount)) return Number(result.totalAmount);
   return 0;
 };
 
 // Helper to safely extract total interest from API result
-const getTotalInterest = (result: AmortizationAnalysisResult): number => {
-  if (isFiniteNumber((result as any).totalInterest)) return Number((result as any).totalInterest);
-  if (isFiniteNumber((result as any).interestPaid)) return Number((result as any).interestPaid);
+const getTotalInterest = (result: AmortizationResultExtended): number => {
+  if (isFiniteNumber(result.totalInterest)) return Number(result.totalInterest);
+  if (isFiniteNumber(result.interestPaid)) return Number(result.interestPaid);
   return 0;
 };
 
@@ -143,6 +154,13 @@ interface AmortizationComprehensiveAnalysis {
 }
 
 const ASSUMED_MONTHLY_INCOME = 5000;
+
+declare global {
+  interface Window {
+    amortizationAnalysisData?: AmortizationComprehensiveAnalysis;
+    populateAnalysisData?: (data: AmortizationComprehensiveAnalysis) => void;
+  }
+}
 
 const clampNumber = (value: number, fallback = 0): number =>
   Number.isFinite(value) ? value : fallback;
@@ -284,8 +302,8 @@ const buildClientComprehensiveAnalysis = (
     paymentToIncomeRatio,
     firstYearInterest,
     lastYearInterest,
-    interestSaved: clampNumber((result as any).interestSaved ?? 0),
-    timeReduced: clampNumber((result as any).timeReduced ?? 0),
+    interestSaved: clampNumber(result.interestSaved ?? 0),
+    timeReduced: clampNumber(result.timeReduced ?? 0),
   };
 
   const milestones: AmortizationMilestone[] = [
@@ -755,7 +773,7 @@ export const renderChart = (
       </div>
       
       <!-- Enhanced Chart Container -->
-      <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
+      <div class="bg-linear-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
         <div class="min-w-full">
           <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full h-auto" style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));">
             <!-- Subtle background gradient -->
@@ -998,7 +1016,7 @@ const updateEnhancedAnalysis = (
   };
 
   // Store data globally first
-  (window as any).amortizationAnalysisData = analysisData;
+  window.amortizationAnalysisData = analysisData;
 
   // Function to attempt population with retry logic
   const attemptPopulation = (retryCount = 0) => {
@@ -1018,10 +1036,10 @@ const updateEnhancedAnalysis = (
       hasOptimizationOpportunities: Array.isArray(analysisData.optimizationOpportunities),
     });
 
-    if (typeof (window as any).populateAnalysisData === 'function') {
+    if (typeof window.populateAnalysisData === 'function') {
       console.log('updateEnhancedAnalysis: populateAnalysisData function found, calling...');
       try {
-        (window as any).populateAnalysisData(analysisData);
+        window.populateAnalysisData(analysisData);
         console.log('updateEnhancedAnalysis: populateAnalysisData called successfully');
         fireAnalysisEvents();
         return; // Success, no need to retry
@@ -1305,8 +1323,8 @@ function initializeAmortization() {
         rawResult: {} as AmortizationAnalysisResult,
       };
 
-      (window as any).populateAnalysisData?.(mockAnalysis);
-      (window as any).amortizationAnalysisData = mockAnalysis;
+      window.populateAnalysisData?.(mockAnalysis);
+      window.amortizationAnalysisData = mockAnalysis;
 
       debugLog.innerHTML += 'Mock analysis populated.<br>';
     });

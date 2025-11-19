@@ -221,10 +221,10 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Benchmark Comparison</h4>
       <div class="space-y-4">
-        ${this.renderBenchmark('LTV:CAC Ratio', result.benchmarks.ltvCacRatio)}
-        ${this.renderBenchmark('Payback Period (months)', result.benchmarks.payback)}
-        ${this.renderBenchmark('Monthly Churn %', result.benchmarks.churn)}
-        ${this.renderBenchmark('Gross Margin %', result.benchmarks.grossMargin)}
+        ${renderBenchmark('LTV:CAC Ratio', result.benchmarks.ltvCacRatio)}
+        ${renderBenchmark('Payback Period (months)', result.benchmarks.payback)}
+        ${renderBenchmark('Monthly Churn %', result.benchmarks.churn)}
+        ${renderBenchmark('Gross Margin %', result.benchmarks.grossMargin)}
       </div>
     </div>
     
@@ -244,7 +244,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
             </tr>
           </thead>
           <tbody>
-            ${result.cohortAnalysis.slice(0, 24).map((cohort, idx) => `
+            ${result.cohortAnalysis.slice(0, 24).map((cohort) => `
               <tr class="border-b border-gray-100 dark:border-gray-800 ${cohort.cumulativeProfit >= 0 ? 'bg-green-50 dark:bg-green-900/10' : ''}">
                 <td class="py-2 px-3 text-gray-900 dark:text-white">${cohort.month}</td>
                 <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${cohort.customersRemaining.toFixed(1)}</td>

@@ -13,6 +13,20 @@ interface JourneyProgress {
   totalSteps: number;
 }
 
+interface JourneyModel {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  order: number;
+  required: boolean;
+}
+
+interface JourneyScenario {
+  name: string;
+  models: JourneyModel[];
+}
+
 class JourneyPageManager {
   private scenarioId: string;
   private progress: JourneyProgress;
@@ -28,7 +42,7 @@ class JourneyPageManager {
 
   private getScenarioId(): string {
     const path = window.location.pathname;
-    const match = path.match(/\/journey\/([^\/]+)/);
+    const match = path.match(/\/journey\/([^/]+)/);
     return match ? match[1] : '';
   }
 
@@ -57,10 +71,10 @@ class JourneyPageManager {
   /**
    * Get scenario data from the page
    */
-  private getScenarioData(): any {
+  private getScenarioData(): JourneyScenario | undefined {
     // This would typically come from the server-side rendered data
     // For now, we'll use a simple mapping
-    const scenarioMap: Record<string, any> = {
+    const scenarioMap: Record<string, JourneyScenario> = {
       'young-professional': {
         name: 'Young Professional Journey',
         models: [
@@ -241,7 +255,6 @@ class JourneyPageManager {
   private handleJourneyStart(button: HTMLElement): void {
     const scenarioId = button.getAttribute('data-scenario');
     const modelId = button.getAttribute('data-model-id');
-    const modelOrder = button.getAttribute('data-model-order');
 
     if (!scenarioId || !modelId) {
       console.error('Missing journey data attributes');
@@ -348,7 +361,7 @@ class JourneyPageManager {
 
     // Update global context for chatbot
     if (typeof window !== 'undefined') {
-      (window as any).currentJourney = {
+      window.currentJourney = {
         id: this.scenarioId,
         title: journeyTitle,
         description: journeyDescription,
@@ -392,9 +405,20 @@ if (document.readyState === 'loading') {
 }
 
 // Global functions
+interface JourneyContext {
+  id: string;
+  title: string;
+  description: string;
+  models: string[];
+  workflowSteps: string[];
+  progress: JourneyProgress;
+  completedModels: string[];
+}
+
 declare global {
   interface Window {
     journeyManager: JourneyPageManager;
+    currentJourney?: JourneyContext;
   }
 }
 
