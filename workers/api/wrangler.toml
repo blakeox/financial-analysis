@@ -45,6 +45,11 @@ script_name = "fanalyx-api"
 [[analytics_engine_datasets]]
 binding = "ANALYTICS"
 
+# Vectorize index for AutoRAG semantic search
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "financial-analysis-autorag"
+
 # Development configuration
 [dev]
 port = 8787
@@ -88,6 +93,10 @@ script_name = "fanalyx-api"
 [[env.preview.analytics_engine_datasets]]
 binding = "ANALYTICS"
 
+[[env.preview.vectorize]]
+binding = "VECTORIZE"
+index_name = "financial-analysis-autorag"
+
 # Production environment
 [env.production]
 [env.production.vars]
@@ -123,6 +132,10 @@ script_name = "fanalyx-api-production"
 
 [[env.production.analytics_engine_datasets]]
 binding = "ANALYTICS"
+
+[[env.production.vectorize]]
+binding = "VECTORIZE"
+index_name = "financial-analysis-autorag"
 
 # Stripe configuration (secrets - set via: wrangler secret put STRIPE_SECRET_KEY --env production)
 # STRIPE_SECRET_KEY = "sk_live_..."

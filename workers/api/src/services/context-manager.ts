@@ -7,6 +7,7 @@
 import type { Ai } from '@cloudflare/workers-types';
 import { buildPrompt } from '../prompts/prompt-templates';
 import type { ToolSummary } from './types';
+import { DocumentCache } from './document-cache';
 
 const MAX_TOOL_SUMMARIES = 8;
 
@@ -35,14 +36,22 @@ export interface BuiltContext {
       hasConversationHistory: boolean;
       toolsAvailable: number;
       toolOutputsIncluded: number;
+      autoragSource?: 'cache' | 'live' | 'none';
     } | undefined;
 }
 
 export class ContextManager {
+  private documentCache?: DocumentCache;
+
   constructor(
     private ai?: Ai,
-    private autoRAGInstanceId?: string
-  ) {}
+    private autoRAGInstanceId?: string,
+    documentCacheConfig?: { r2Bucket?: R2Bucket; vectorize?: any; kv?: KVNamespace }
+  ) {
+    if (documentCacheConfig) {
+      this.documentCache = new DocumentCache(documentCacheConfig);
+    }
+  }
 
   /**
    * Build enriched context for LLM
@@ -178,41 +187,29 @@ export class ContextManager {
 
     // Retrieve website content via AutoRAG if enabled
     let websiteContent: string | undefined;
-    if (builder.enableAutoRAG && this.ai && this.autoRAGInstanceId) {
+    let autoragSource: 'cache' | 'live' | 'none' = 'none';
+    
+    if (builder.enableAutoRAG && this.documentCache) {
       try {
-        const aiAutorag = this.ai.autorag(this.autoRAGInstanceId);
-        const websiteResponse = await aiAutorag.aiSearch({ query: message });
+        // Use semantic search to find relevant cached documents
+        const searchResults = await this.documentCache.search(message, 3);
         
-        // Parse AutoRAG results
-        if (websiteResponse && typeof websiteResponse === 'object' && !(websiteResponse instanceof Response)) {
-          const responseAny = websiteResponse as any;
-          let websiteResults: any[] = [];
+        if (searchResults.length > 0) {
+          // Format cached results
+          const formattedResults = searchResults
+            .map((doc, idx) => {
+              const title = doc.metadata?.title || 'Cached Content';
+              const preview = doc.content.substring(0, 500);
+              return `${idx + 1}. **${title}** (${doc.url})\n   ${preview}${doc.content.length > 500 ? '...' : ''}`;
+            })
+            .join('\n\n');
           
-          if (Array.isArray(responseAny.results)) {
-            websiteResults = responseAny.results;
-          } else if (Array.isArray(responseAny.data)) {
-            websiteResults = responseAny.data;
-          } else if (Array.isArray(responseAny)) {
-            websiteResults = responseAny;
-          }
-
-          if (websiteResults.length > 0) {
-            const formattedResults = websiteResults
-              .map((result: any, idx: number) => {
-                const url = result.url || 'Unknown URL';
-                const content = result.content || result.text || '';
-                const title = result.metadata?.title || 'Page Content';
-                
-                return `${idx + 1}. **${title}** (${url})\n   ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}`;
-              })
-              .join('\n\n');
-            
-            websiteContent = `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
-          }
+          websiteContent = `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
+          autoragSource = 'cache';
         }
       } catch (error) {
         // AutoRAG failed, continue without website content
-        console.warn('AutoRAG failed:', error);
+        console.warn('AutoRAG document search failed:', error);
       }
     }
 
@@ -241,6 +238,7 @@ export class ContextManager {
         hasConversationHistory: !!memoryContext?.conversationHistory,
         toolsAvailable: availableTools?.length || 0,
         toolOutputsIncluded: toolOutputsCount,
+        autoragSource,
       },
     };
   }

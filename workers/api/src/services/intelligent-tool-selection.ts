@@ -45,7 +45,7 @@ export class IntelligentToolSelector {
 
       return parsed;
     } catch (error) {
-      // Fallback to pattern matching
+      console.warn('Intelligent tool selector falling back to keyword map:', error);
       return this.fallbackSelection(userQuery, availableTools);
     }
   }

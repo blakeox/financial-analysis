@@ -599,6 +599,9 @@ export function buildPrompt(
     conversationHistory: _conversationHistory,
     ...otherContext
   } = context;
+  void _availableTools;
+  void _userMessage;
+  void _conversationHistory;
   if (Object.keys(otherContext).length > 0) {
     prompt += `\n\n**Additional Context:**\n${JSON.stringify(otherContext, null, 2)}`;
   }

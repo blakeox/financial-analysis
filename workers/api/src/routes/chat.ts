@@ -70,7 +70,7 @@ export function registerChatRoutes(router: RouterType) {
           availableTools = [],
           toolOutputs = {},
           contextData = {},
-          contextLabel: _contextLabel = null,
+          contextLabel = null,
           memoryContext = {},
         } = body;
 
@@ -135,6 +135,7 @@ export function registerChatRoutes(router: RouterType) {
               availableTools,
               toolOutputs,
               memoryContext,
+              contextLabel,
               requestId: requestContext.requestId,
             };
 

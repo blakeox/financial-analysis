@@ -26,6 +26,12 @@ import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
 import { TaxOptimizationTool } from '../tools/tax-optimization.js';
+import {
+  CacheDocumentTool,
+  SearchDocumentsTool,
+  GetDocumentTool,
+  ClearExpiredDocumentsTool,
+} from '../tools/autorag-documents.js';
 
 export interface MCPTool {
   name: string;
@@ -193,6 +199,31 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: CCAAnalysisTool.inputSchema,
       execute: CCAAnalysisTool.execute.bind(CCAAnalysisTool),
     },
+    // AutoRAG Document Management Tools
+    {
+      name: CacheDocumentTool.toolName,
+      description: CacheDocumentTool.description,
+      inputSchema: CacheDocumentTool.inputSchema,
+      execute: CacheDocumentTool.execute.bind(CacheDocumentTool),
+    },
+    {
+      name: SearchDocumentsTool.toolName,
+      description: SearchDocumentsTool.description,
+      inputSchema: SearchDocumentsTool.inputSchema,
+      execute: SearchDocumentsTool.execute.bind(SearchDocumentsTool),
+    },
+    {
+      name: GetDocumentTool.toolName,
+      description: GetDocumentTool.description,
+      inputSchema: GetDocumentTool.inputSchema,
+      execute: GetDocumentTool.execute.bind(GetDocumentTool),
+    },
+    {
+      name: ClearExpiredDocumentsTool.toolName,
+      description: ClearExpiredDocumentsTool.description,
+      inputSchema: ClearExpiredDocumentsTool.inputSchema,
+      execute: ClearExpiredDocumentsTool.execute.bind(ClearExpiredDocumentsTool),
+    },
   ];
 }
 
@@ -227,6 +258,10 @@ function getConciseDescription(toolName: string): string {
     analyze_ma_deal: 'Comprehensive M&A deal analysis including synergies, accretion/dilution, and integration planning',
     analyze_dcf_valuation: 'DCF valuation with WACC, cash flow projections, terminal value, and sensitivity analysis',
     analyze_cca_valuation: 'Comparable company analysis with trading multiples and peer group valuation',
+    cache_document: 'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
+    search_documents: 'Search cached documents using semantic similarity',
+    get_document: 'Get a specific cached document by URL (cache or live fetch)',
+    clear_expired_documents: 'Clear all documents older than 7 days (admin operation)',
   };
 
   return descriptions[toolName] || 'Financial analysis tool';

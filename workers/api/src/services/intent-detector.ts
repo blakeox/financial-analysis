@@ -1,7 +1,19 @@
 /**
  * Intent Detector Service
- * Detects user intent from natural language and routes to appropriate handler
-// Intent detection logic removed during MCP-only refactor.
+ * Stub maintained for backward compatibility while the orchestrator handles
+ * real intent classification.
+ */
 
+export interface IntentAnalysis {
+  intent: string;
+  confidence: number;
+}
 
-export interface ToolSummary {
+export class IntentDetector {
+  analyze(_: { message: string }): IntentAnalysis {
+    return {
+      intent: 'general',
+      confidence: 0.51,
+    };
+  }
+}

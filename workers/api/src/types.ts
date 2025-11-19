@@ -26,4 +26,6 @@ export interface Env {
   STRIPE_PRICE_PRO?: string;
   STRIPE_PRICE_ENTERPRISE?: string;
   BASE_URL?: string;
+  // AutoRAG
+  VECTORIZE?: VectorizeIndex;
 }

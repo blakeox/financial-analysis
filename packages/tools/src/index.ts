@@ -24,6 +24,12 @@ export { DCFAnalysisTool } from './tools/dcf-analysis';
 export { CCAAnalysisTool } from './tools/cca-analysis';
 export { PopulateLeaseFormTool } from './tools/populate-lease-form';
 export { AutoLoanTool } from './tools/auto-loan';
+export { 
+  CacheDocumentTool, 
+  SearchDocumentsTool, 
+  GetDocumentTool, 
+  ClearExpiredDocumentsTool 
+} from './tools/autorag-documents';
 
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';

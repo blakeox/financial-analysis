@@ -113,6 +113,7 @@ export class ResponseValidator {
       JSON.parse(str);
       return { valid: true, issues: [], canRetry: false };
     } catch (error) {
+      console.warn('ResponseValidator JSON parse failed:', error);
       return { 
         valid: false, 
         issues: ['Invalid JSON format'],

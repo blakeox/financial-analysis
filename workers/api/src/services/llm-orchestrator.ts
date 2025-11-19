@@ -3,7 +3,7 @@
  * Coordinates LLM services and handles request routing
  */
 
-// @ts-ignore - Cloudflare Workers types
+// @ts-expect-error - Cloudflare Workers types
 import type { Ai } from '@cloudflare/workers-types';
 import type { ContextManager } from './context-manager';
 import { ContextManager as ContextManagerImpl } from './context-manager';
@@ -26,6 +26,7 @@ export interface OrchestrationRequest {
     modelStates?: string;
   };
   requestId?: string;
+  contextLabel?: string | null;
 }
 
 export interface OrchestrationResponse {
@@ -61,7 +62,11 @@ export class LLMOrchestrator {
 
   constructor(
     ai: Ai,
-    private env: { KV?: any },
+    private env: { 
+      KV?: any; 
+      DOCUMENTS?: R2Bucket;
+      VECTORIZE?: any;
+    },
     config?: OrchestratorConfig
   ) {
     // Initialize services
@@ -70,7 +75,17 @@ export class LLMOrchestrator {
     const metrics = env.KV ? new LLMMetricsCollectorImpl(env.KV) : undefined;
 
     this.llm = new LLMServiceImpl(ai, cache, retry, metrics);
-    this.contextManager = new ContextManagerImpl(ai, config?.autoRAGInstanceId);
+    
+    // Initialize context manager with document cache
+    this.contextManager = new ContextManagerImpl(
+      ai, 
+      config?.autoRAGInstanceId,
+      {
+        r2Bucket: env.DOCUMENTS,
+        vectorize: env.VECTORIZE,
+        kv: env.KV,
+      }
+    );
   }
 
   /**
@@ -86,6 +101,7 @@ export class LLMOrchestrator {
       toolOutputs = {},
       memoryContext,
       requestId,
+      contextLabel,
     } = request;
 
     // NEW: Skip keyword-based intent detection, let LLM do semantic matching
@@ -102,7 +118,9 @@ export class LLMOrchestrator {
       availableTools,
       toolOutputs,
       memoryContext,
-      requestId
+      requestId,
+      currentModel,
+      contextLabel
     );
   }
 
@@ -116,13 +134,27 @@ export class LLMOrchestrator {
     availableTools: ToolSummary[],
     toolOutputs: Record<string, unknown>,
     memoryContext: { conversationHistory?: string; modelStates?: string } | undefined,
-    requestId: string | undefined
+    requestId: string | undefined,
+    currentModel: Record<string, unknown>,
+    contextLabel: string | null | undefined
   ): Promise<OrchestrationResponse> {
+    const mergedContextData: Record<string, unknown> = {
+      ...(contextData || {}),
+    };
+    if (Object.keys(currentModel).length > 0) {
+      mergedContextData.currentModel = currentModel;
+    }
+    if (contextLabel) {
+      mergedContextData.contextLabel = contextLabel;
+    }
+    const effectiveContextData =
+      Object.keys(mergedContextData).length > 0 ? mergedContextData : undefined;
+
     // Build context
     const builtContext = await this.contextManager.build({
       message,
       contextKey: context,
-      contextData,
+      contextData: effectiveContextData,
       memoryContext,
       availableTools,
       toolOutputs,
