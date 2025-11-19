@@ -1,5 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { detectCalculatorContext, CALCULATOR_CONTEXTS } from '../chat/calculator-contexts';
+import { describe, it, expect } from 'vitest';
+import {
+  detectCalculatorContext,
+  CALCULATOR_CONTEXTS,
+  type CalculatorContext,
+} from '../chat/calculator-contexts';
+
+const getFieldMappings = (context: CalculatorContext): Record<string, string> => {
+  expect(context.fieldMappings).toBeDefined();
+  if (!context.fieldMappings) {
+    throw new Error(`Expected field mappings for ${context.id}`);
+  }
+
+  return context.fieldMappings;
+};
 
 describe('Chat Panel Integration Tests', () => {
   describe('Context Detection Integration', () => {
@@ -91,7 +104,8 @@ describe('Chat Panel Integration Tests', () => {
 
         if (context.fieldMappings) {
           it('should have valid field mappings structure', () => {
-            Object.entries(context.fieldMappings!).forEach(([friendlyName, fieldId]) => {
+            const fieldMappings = getFieldMappings(context);
+            Object.entries(fieldMappings).forEach(([friendlyName, fieldId]) => {
               // Friendly names should be human-readable
               expect(friendlyName).toBeTruthy();
               expect(friendlyName.length).toBeGreaterThan(0);
@@ -104,7 +118,7 @@ describe('Chat Panel Integration Tests', () => {
           });
 
           it('should have at least 3 field mappings', () => {
-            expect(Object.keys(context.fieldMappings!).length).toBeGreaterThanOrEqual(3);
+            expect(Object.keys(getFieldMappings(context)).length).toBeGreaterThanOrEqual(3);
           });
         }
       });
@@ -164,7 +178,7 @@ describe('Chat Panel Integration Tests', () => {
     calculatorsWithFieldMappings.forEach((context) => {
       describe(`${context.id} field mappings`, () => {
         it('should have consistent field ID naming (camelCase or kebab-case)', () => {
-          Object.values(context.fieldMappings!).forEach((fieldId) => {
+          Object.values(getFieldMappings(context)).forEach((fieldId) => {
             expect(fieldId).toMatch(/^[a-z][a-zA-Z0-9-]*$/);
             expect(fieldId).not.toMatch(/_{2,}/); // No double underscores
             expect(fieldId).not.toMatch(/-{2,}/); // No double hyphens
@@ -172,7 +186,7 @@ describe('Chat Panel Integration Tests', () => {
         });
 
         it('should have valid field IDs', () => {
-          const fieldIds = Object.values(context.fieldMappings!);
+          const fieldIds = Object.values(getFieldMappings(context));
           // Field IDs can map to same target (multiple aliases allowed)
           expect(fieldIds.length).toBeGreaterThan(0);
           fieldIds.forEach((fieldId) => {
@@ -182,7 +196,7 @@ describe('Chat Panel Integration Tests', () => {
         });
 
         it('should have lowercase friendly names for matching', () => {
-          Object.keys(context.fieldMappings!).forEach((friendlyName) => {
+          Object.keys(getFieldMappings(context)).forEach((friendlyName) => {
             // Should be lowercase for case-insensitive matching
             expect(friendlyName).toBe(friendlyName.toLowerCase());
           });
@@ -265,7 +279,7 @@ describe('Chat Panel Integration Tests', () => {
         investment: ['dcf-valuation', 'ma-analysis', 'risk-management'],
       };
 
-      Object.entries(categories).forEach(([category, calculators]) => {
+      Object.values(categories).forEach((calculators) => {
         calculators.forEach((calcId) => {
           expect(CALCULATOR_CONTEXTS[calcId]).toBeDefined();
         });
@@ -289,8 +303,8 @@ describe('Chat Panel Integration Tests', () => {
       highTrafficCalculators.forEach((calcId) => {
         const context = CALCULATOR_CONTEXTS[calcId];
         expect(context).toBeDefined();
-        expect(context.fieldMappings).toBeDefined();
-        expect(Object.keys(context.fieldMappings!).length).toBeGreaterThan(0);
+        const fieldMappings = getFieldMappings(context);
+        expect(Object.keys(fieldMappings).length).toBeGreaterThan(0);
       });
     });
   });

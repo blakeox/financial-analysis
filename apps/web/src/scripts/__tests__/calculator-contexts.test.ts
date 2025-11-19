@@ -4,7 +4,17 @@ import {
   parseFieldUpdate,
   CALCULATOR_CONTEXTS,
   type CalculatorContextKey,
+  type CalculatorContext,
 } from '../chat/calculator-contexts';
+
+const getFieldMappings = (context: CalculatorContext): Record<string, string> => {
+  expect(context.fieldMappings).toBeDefined();
+  if (!context.fieldMappings) {
+    throw new Error(`Missing field mappings for ${context.id}`);
+  }
+
+  return context.fieldMappings;
+};
 
 describe('Calculator Context Detection', () => {
   describe('detectCalculatorContext', () => {
@@ -523,18 +533,18 @@ describe('Calculator Context Completeness', () => {
 
     it('should have pricing-strategy with complete field mappings', () => {
       const pricingStrategy = CALCULATOR_CONTEXTS['pricing-strategy'];
-      expect(pricingStrategy.fieldMappings).toBeDefined();
-      expect(Object.keys(pricingStrategy.fieldMappings!).length).toBeGreaterThanOrEqual(5);
-      expect(pricingStrategy.fieldMappings!['margin']).toBe('targetMargin');
-      expect(pricingStrategy.fieldMappings!['cost per unit']).toBe('costPerUnit');
+      const fieldMappings = getFieldMappings(pricingStrategy);
+      expect(Object.keys(fieldMappings).length).toBeGreaterThanOrEqual(5);
+      expect(fieldMappings['margin']).toBe('targetMargin');
+      expect(fieldMappings['cost per unit']).toBe('costPerUnit');
     });
 
     it('should have amortization with complete field mappings', () => {
       const amortization = CALCULATOR_CONTEXTS['amortization'];
-      expect(amortization.fieldMappings).toBeDefined();
-      expect(Object.keys(amortization.fieldMappings!).length).toBeGreaterThanOrEqual(4);
-      expect(amortization.fieldMappings!['interest rate']).toBe('interest-rate');
-      expect(amortization.fieldMappings!['loan amount']).toBe('loan-amount');
+      const fieldMappings = getFieldMappings(amortization);
+      expect(Object.keys(fieldMappings).length).toBeGreaterThanOrEqual(4);
+      expect(fieldMappings['interest rate']).toBe('interest-rate');
+      expect(fieldMappings['loan amount']).toBe('loan-amount');
     });
   });
 });

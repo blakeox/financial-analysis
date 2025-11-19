@@ -294,9 +294,12 @@ describe('Credit Card Payoff Calculator', () => {
       const minimum = 100; // 2%
       const current = 200;
       const aggressive = 400;
+      const monthsAggressive = Math.ceil(balance / aggressive);
+      const monthsMinimum = Math.ceil(balance / minimum);
       
       expect(aggressive).toBeGreaterThan(current);
       expect(current).toBeGreaterThan(minimum);
+      expect(monthsAggressive).toBeLessThan(monthsMinimum);
     });
 
     it('should identify best strategy by total interest paid', () => {

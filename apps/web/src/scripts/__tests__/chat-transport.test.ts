@@ -3,7 +3,8 @@ import { createChatTransport } from '../chat/transport';
 import type { ChatRequestPayload, ChatResponsePayload } from '../chat/types';
 
 describe('createChatTransport', () => {
-  const originalFetch = global.fetch;
+  const globalWithMutableFetch = globalThis as typeof globalThis & { fetch?: typeof fetch };
+  const originalFetch = globalWithMutableFetch.fetch;
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -11,10 +12,9 @@ describe('createChatTransport', () => {
 
   afterEach(() => {
     if (originalFetch) {
-      global.fetch = originalFetch;
-    } else {
-      // @ts-ignore
-      delete global.fetch;
+      globalWithMutableFetch.fetch = originalFetch;
+    } else if ('fetch' in globalWithMutableFetch) {
+      delete globalWithMutableFetch.fetch;
     }
   });
 
@@ -22,9 +22,9 @@ describe('createChatTransport', () => {
     const payload: ChatRequestPayload = {
       message: 'Review my lease terms',
       context: 'lease',
-      currentModel: {} as any,
+      currentModel: {} as ChatRequestPayload['currentModel'],
       availableTools: [{ name: 'analyze_lease', description: 'Lease analyzer' }],
-      toolOutputs: {} as any,
+      toolOutputs: null,
       memoryContext: {
         conversationHistory: 'user: hi',
         modelStates: '{}',

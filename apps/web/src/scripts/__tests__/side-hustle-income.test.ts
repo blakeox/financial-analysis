@@ -100,7 +100,7 @@ describe('Side Hustle Income Calculator', () => {
     it('should calculate true hourly rate after ALL taxes', () => {
       const annualRevenue = 60000;
       const annualExpenses = 6000;
-      const netIncome = 54000;
+      const netIncome = annualRevenue - annualExpenses;
       const totalTaxes = 15000; // SE tax + federal + state
       const afterTaxIncome = netIncome - totalTaxes;
       const annualHours = 1040;
@@ -134,12 +134,11 @@ describe('Side Hustle Income Calculator', () => {
       // 2024 brackets (simplified)
       const taxableIncome = 50000;
       
-      // 10% on first $11,000 = $1,100
-      // 12% on next $33,725 = $4,047
-      // 22% on remaining $5,275 = $1,160.50
-      // Total: ~$6,307
-      
-      const expectedTax = 1100 + 4047 + 1160.50;
+      const firstBracket = Math.min(taxableIncome, 11000) * 0.10;
+      const secondBracket = Math.min(Math.max(taxableIncome - 11000, 0), 33725) * 0.12;
+      const remainingIncome = Math.max(taxableIncome - 11000 - 33725, 0);
+      const thirdBracket = remainingIncome * 0.22;
+      const expectedTax = firstBracket + secondBracket + thirdBracket;
       expect(expectedTax).toBeCloseTo(6307.50, 0);
     });
 
@@ -147,12 +146,11 @@ describe('Side Hustle Income Calculator', () => {
       // Married brackets are roughly 2x single brackets
       const taxableIncome = 100000;
       
-      // First $22,000 at 10% = $2,200
-      // Next $67,050 at 12% = $8,046
-      // Remaining $10,950 at 22% = $2,409
-      // Total: ~$12,655
-      
-      const expectedTax = 2200 + 8046 + 2409;
+      const firstBracket = Math.min(taxableIncome, 22000) * 0.10;
+      const secondBracket = Math.min(Math.max(taxableIncome - 22000, 0), 67050) * 0.12;
+      const remainingIncome = Math.max(taxableIncome - 22000 - 67050, 0);
+      const thirdBracket = remainingIncome * 0.22;
+      const expectedTax = firstBracket + secondBracket + thirdBracket;
       expect(expectedTax).toBeCloseTo(12655, 0);
     });
   });
@@ -202,8 +200,10 @@ describe('Side Hustle Income Calculator', () => {
 
     it('should handle states with no income tax', () => {
       const noStateTax = { ...defaultInput, stateTaxRate: 0 };
-      const stateTax = 0 * 0;
+      const netIncome = noStateTax.monthlyRevenue * 12 - noStateTax.businessExpenses * 12;
+      const stateTax = netIncome * (noStateTax.stateTaxRate / 100);
       
+      expect(netIncome).toBeGreaterThan(0);
       expect(stateTax).toBe(0);
     });
 
@@ -236,6 +236,18 @@ describe('Side Hustle Income Calculator', () => {
       const takeHomePercent = (afterTaxIncome / grossRevenue) * 100;
       
       expect(takeHomePercent).toBeCloseTo(65, 0);
+    });
+  });
+
+  describe('Input Validation', () => {
+    it('should reject zero revenue scenarios', () => {
+      const invalidInput = { ...defaultInput, monthlyRevenue: 0 };
+      expect(() => validateInput(invalidInput)).toThrow('monthly revenue');
+    });
+
+    it('should reject zero hours worked', () => {
+      const invalidInput = { ...defaultInput, hoursPerWeek: 0 };
+      expect(() => validateInput(invalidInput)).toThrow('hours per week');
     });
   });
 });

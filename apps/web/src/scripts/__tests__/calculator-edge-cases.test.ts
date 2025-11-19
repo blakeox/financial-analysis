@@ -71,7 +71,8 @@ describe('Extreme Value Edge Cases', () => {
       const months = 60;
       const monthlyPayment = principal / months;
       
-      expect(monthlyPayment).toBe(500);
+      const expectedMonthlyPayment = (principal * (1 + rate)) / months;
+      expect(monthlyPayment).toBe(expectedMonthlyPayment);
       expect(isNaN(monthlyPayment)).toBe(false);
     });
 
@@ -89,7 +90,9 @@ describe('Extreme Value Edge Cases', () => {
       const rate = 0;
       const futureValue = homePrice * Math.pow(1 + rate, years);
       
+      const percentChange = (futureValue - homePrice) / homePrice;
       expect(futureValue).toBe(homePrice);
+      expect(percentChange).toBe(rate);
     });
 
     it('should handle $0 business expenses', () => {
@@ -397,9 +400,11 @@ describe('User Journey Edge Cases', () => {
       const homePrice = 500000;
       const downPayment = 0; // VA allows 0% down
       const pmiRequired = false; // VA loans don't require PMI
+      const financedAmount = homePrice - downPayment;
       
       expect(downPayment).toBe(0);
       expect(pmiRequired).toBe(false);
+      expect(financedAmount).toBe(homePrice);
     });
 
     it('should handle FHA loan (3.5% down, MIP required)', () => {
@@ -633,7 +638,10 @@ describe('Calculation Limit Edge Cases', () => {
       const maxUnder50 = 23000;
       const maxOver50 = 23000 + 7500;
       
-      expect(maxOver50).toBe(30500);
+      const computedMaxOver50 = contribution2024 + catchUpContribution;
+      
+      expect(maxUnder50).toBe(contribution2024);
+      expect(maxOver50).toBe(computedMaxOver50);
     });
 
     it('should enforce Roth IRA income limits', () => {
@@ -838,10 +846,12 @@ describe('Concurrent Usage Edge Cases', () => {
 
   describe('Browser Compatibility', () => {
     it('should handle Number.isFinite correctly', () => {
-      expect(Number.isFinite(100)).toBe(true);
-      expect(Number.isFinite(Infinity)).toBe(false);
-      expect(Number.isFinite(NaN)).toBe(false);
-      expect(Number.isFinite('100' as any)).toBe(false);
+      const checkFinite = (value: unknown): boolean => Number.isFinite(value as number);
+
+      expect(checkFinite(100)).toBe(true);
+      expect(checkFinite(Infinity)).toBe(false);
+      expect(checkFinite(NaN)).toBe(false);
+      expect(checkFinite('100')).toBe(false);
     });
 
     it('should handle Math.pow vs ** operator', () => {
@@ -870,7 +880,9 @@ describe('Accessibility Edge Cases', () => {
       const visualIndicator = '✅';
       const textAlternative = 'Achieved';
       const ariaLabel = `Milestone ${textAlternative}`;
+      const combinedIndicator = `${visualIndicator} ${textAlternative}`;
       
+      expect(combinedIndicator).toContain(visualIndicator);
       expect(ariaLabel).toContain(textAlternative);
     });
 

@@ -140,6 +140,7 @@ describe('Financial Calculators', () => {
 
       const yearsToRetirement = retirementAge - currentAge;
       const realReturn = (1 + annualReturn) / (1 + inflationRate) - 1;
+      const inflationAdjustedGrowth = Math.pow(1 + realReturn, yearsToRetirement);
 
       // Future value of current savings
       const futureValueCurrentSavings =
@@ -154,6 +155,8 @@ describe('Financial Calculators', () => {
       // Required savings for retirement (25x annual expenses rule)
       const requiredSavings = annualExpenses * 25;
 
+      expect(realReturn).toBeGreaterThan(0);
+      expect(inflationAdjustedGrowth).toBeGreaterThan(1);
       expect(totalRetirementSavings).toBeGreaterThan(requiredSavings);
     });
 
@@ -278,8 +281,11 @@ describe('Financial Calculators', () => {
       const povertyGuideline = 12760 + (familySize - 1) * 4480;
       const discretionaryIncomeAmount = Math.max(0, discretionaryIncome - 1.5 * povertyGuideline);
       const monthlyPayment = (discretionaryIncomeAmount * 0.1) / 12;
+      const monthlyInterestOnly = principal * (annualRate / 12);
 
       expect(monthlyPayment).toBeGreaterThan(0);
+      expect(monthlyInterestOnly).toBeCloseTo(187.5, 1);
+      expect(monthlyPayment).toBeLessThan(monthlyInterestOnly);
     });
   });
 
@@ -361,10 +367,18 @@ describe('Financial Calculators', () => {
       const timeHorizon = 1; // 1 day
 
       // VaR calculation using normal distribution
-      const zScore = 1.645; // 95% confidence level
+      const zScoreLookup: Record<number, number> = {
+        0.9: 1.281,
+        0.95: 1.645,
+        0.99: 2.326,
+      };
+      const zScore = zScoreLookup[confidenceLevel] ?? 1.645;
+      const tailProbability = 1 - confidenceLevel;
       const varAmount = portfolioValue * volatility * Math.sqrt(timeHorizon) * zScore;
 
       expect(varAmount).toBeCloseTo(329000, 0);
+      expect(tailProbability).toBeCloseTo(0.05, 2);
+      expect(zScore).toBeGreaterThan(1);
     });
 
     it('should calculate portfolio beta', () => {

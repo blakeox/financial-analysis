@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 describe('Calculator Validation Tests', () => {
   describe('Required Field Validation', () => {
     it('should reject missing required fields', () => {
-      const validateRequired = (value: any, fieldName: string) => {
+      const validateRequired = (value: unknown, fieldName: string) => {
         if (value === null || value === undefined || value === '') {
           throw new Error(`${fieldName} is required`);
         }
@@ -22,7 +22,7 @@ describe('Calculator Validation Tests', () => {
     });
 
     it('should accept valid required field values', () => {
-      const validateRequired = (value: any, fieldName: string) => {
+      const validateRequired = (value: unknown, fieldName: string) => {
         if (value === null || value === undefined || value === '') {
           throw new Error(`${fieldName} is required`);
         }
@@ -109,7 +109,7 @@ describe('Calculator Validation Tests', () => {
 
   describe('Type Validation', () => {
     it('should coerce string numbers to numeric', () => {
-      const coerceNumber = (val: any, defaultVal: number) => {
+      const coerceNumber = (val: unknown, defaultVal: number) => {
         const num = typeof val === 'string' ? parseFloat(val) : Number(val);
         return isNaN(num) ? defaultVal : num;
       };
@@ -120,7 +120,7 @@ describe('Calculator Validation Tests', () => {
     });
 
     it('should handle null and undefined gracefully', () => {
-      const coerceNumber = (val: any, defaultVal: number) => {
+      const coerceNumber = (val: unknown, defaultVal: number) => {
         if (val === null || val === undefined) return defaultVal;
         const num = typeof val === 'string' ? parseFloat(val) : Number(val);
         return isNaN(num) ? defaultVal : num;
@@ -160,10 +160,13 @@ describe('Calculator Validation Tests', () => {
     it('should validate emergency fund prerequisite for investing', () => {
       const hasEmergencyFund = false;
       const extraMoney = 500;
+      const monthlyExpenses = 2500;
       
       if (!hasEmergencyFund) {
         const recommendation = 'Build emergency fund first';
         expect(recommendation).toContain('emergency fund');
+        const monthsOfCoverage = extraMoney / monthlyExpenses;
+        expect(monthsOfCoverage).toBeLessThan(1); // Not even one month saved
       }
     });
 
@@ -341,7 +344,7 @@ describe('Calculator Validation Tests', () => {
       const largeNumber = 999999999;
       expect(Number.isSafeInteger(largeNumber)).toBe(true);
       
-      const tooLarge = 9999999999999999999;
+      const tooLarge = Number.MAX_SAFE_INTEGER + 1;
       expect(Number.isSafeInteger(tooLarge)).toBe(false);
     });
 
@@ -628,6 +631,7 @@ describe('Calculator Validation Tests', () => {
       const ariaDescribedBy = errorId;
       
       expect(ariaDescribedBy).toBe(errorId);
+      expect(errorId).toContain(inputId);
     });
   });
 });
@@ -697,6 +701,7 @@ describe('Performance and Limits', () => {
     }
     
     const duration = Date.now() - startTime;
+    expect(result).toBeGreaterThan(1000); // Sum should exceed count of iterations
     
     expect(duration).toBeLessThan(100); // Should complete in <100ms
   });

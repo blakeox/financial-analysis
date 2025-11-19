@@ -10,6 +10,16 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+
+const getElementById = <T extends HTMLElement>(id: string): T => {
+  const element = document.getElementById(id);
+  expect(element).not.toBeNull();
+  if (!element) {
+    throw new Error(`Expected element with id "${id}" to exist in the DOM`);
+  }
+
+  return element as T;
+};
 // Using happy-dom environment (configured in vitest.config.ts)
 
 // Skip this test file - requires jsdom which isn't installed
@@ -48,9 +58,18 @@ describe.skip('Calculator Integration Tests', () => {
     });
 
     it('should coerce empty strings to default values', () => {
-      const coerceNumber = (val: any, defaultVal: number) => {
-        const num = typeof val === 'string' ? parseFloat(val) : Number(val);
-        return isNaN(num) ? defaultVal : num;
+      const coerceNumber = (val: unknown, defaultVal: number) => {
+        if (typeof val === 'number') {
+          return Number.isNaN(val) ? defaultVal : val;
+        }
+
+        if (typeof val === 'string') {
+          const parsed = parseFloat(val);
+          return Number.isNaN(parsed) ? defaultVal : parsed;
+        }
+
+        const coerced = Number(val ?? Number.NaN);
+        return Number.isNaN(coerced) ? defaultVal : coerced;
       };
       
       expect(coerceNumber('', 0)).toBe(0);
@@ -100,9 +119,9 @@ describe.skip('Calculator Integration Tests', () => {
     });
 
     it('should populate summary cards with results', () => {
-      const summaryCards = document.getElementById('summary-cards');
-      
-      summaryCards!.innerHTML = `
+      const summaryCards = getElementById<HTMLDivElement>('summary-cards');
+
+      summaryCards.innerHTML = `
         <div class="card">
           <h5>Result</h5>
           <p>$100,000</p>
@@ -114,9 +133,9 @@ describe.skip('Calculator Integration Tests', () => {
     });
 
     it('should populate detailed results container', () => {
-      const resultsContainer = document.getElementById('results-container');
-      
-      resultsContainer!.innerHTML = `
+      const resultsContainer = getElementById<HTMLDivElement>('results-container');
+
+      resultsContainer.innerHTML = `
         <div class="breakdown">
           <h3>Detailed Analysis</h3>
           <div>Interest: $5,000</div>
@@ -131,13 +150,13 @@ describe.skip('Calculator Integration Tests', () => {
   describe('Error State Management', () => {
     it('should show error message when validation fails', () => {
       const errorState = document.getElementById('error-state');
-      const errorMessage = document.getElementById('error-message');
+      const errorMessage = getElementById<HTMLSpanElement>('error-message');
       
       errorState?.classList.remove('hidden');
-      errorMessage!.textContent = 'Please enter a valid amount';
+      errorMessage.textContent = 'Please enter a valid amount';
       
       expect(errorState?.classList.contains('hidden')).toBe(false);
-      expect(errorMessage?.textContent).toBe('Please enter a valid amount');
+      expect(errorMessage.textContent).toBe('Please enter a valid amount');
     });
 
     it('should hide error message when calculation succeeds', () => {
@@ -151,13 +170,13 @@ describe.skip('Calculator Integration Tests', () => {
     });
 
     it('should clear previous errors before new calculation', () => {
-      const errorMessage = document.getElementById('error-message');
-      errorMessage!.textContent = 'Previous error';
+      const errorMessage = getElementById<HTMLSpanElement>('error-message');
+      errorMessage.textContent = 'Previous error';
       
       // Clear before new calc
-      errorMessage!.textContent = '';
+      errorMessage.textContent = '';
       
-      expect(errorMessage?.textContent).toBe('');
+      expect(errorMessage.textContent).toBe('');
     });
   });
 
@@ -279,7 +298,8 @@ describe.skip('Calculator Integration Tests', () => {
   describe('Analytics Integration', () => {
     it('should track calculator usage with gtag', () => {
       const mockGtag = vi.fn();
-      (global as any).gtag = mockGtag;
+      const globalWithGtag = globalThis as typeof globalThis & { gtag?: typeof mockGtag };
+      globalWithGtag.gtag = mockGtag;
       
       // Simulate analytics call
       mockGtag('event', 'rent_vs_buy_calculated', {
@@ -312,18 +332,27 @@ describe.skip('Calculator Integration Tests', () => {
   });
 });
 
+interface AnalysisResult {
+  netPosition: number;
+}
+
 describe.skip('Cross-Calculator Data Flow', () => {
   it('should store results for chatbot access', () => {
-    const mockStore: Record<string, any> = {};
+    const mockStore: Record<string, AnalysisResult> = {};
     
-    const storeAnalysisResult = (tool: string, result: any) => {
+    const storeAnalysisResult = (tool: string, result: AnalysisResult) => {
       mockStore[tool] = result;
     };
     
     storeAnalysisResult('analyze_rent_vs_buy', { netPosition: 50000 });
     
-    expect(mockStore['analyze_rent_vs_buy']).toBeDefined();
-    expect(mockStore['analyze_rent_vs_buy'].netPosition).toBe(50000);
+    const storedResult = mockStore['analyze_rent_vs_buy'];
+    expect(storedResult).toBeDefined();
+    if (!storedResult) {
+      throw new Error('Expected stored analysis result');
+    }
+
+    expect(storedResult.netPosition).toBe(50000);
   });
 
   it('should dispatch events for journey integration', () => {
@@ -403,11 +432,15 @@ describe.skip('Enhanced Calculator Features', () => {
     it('should not add catch-up for age < 50', () => {
       const currentAge = 45;
       const retirementAge = 65;
+      const yearsUntilRetirement = retirementAge - currentAge;
       
       if (currentAge < 50) {
         const catchUp = 0;
         expect(catchUp).toBe(0);
       }
+      
+      expect(yearsUntilRetirement).toBe(20);
+      expect(yearsUntilRetirement).toBeGreaterThan(0);
     });
 
     it('should calculate employer match up to 6% cap', () => {

@@ -176,6 +176,8 @@ describe('Journey State Management', () => {
       // Should navigate to analysis page
       const analysisUrl = `/journey-analysis/young-professional`;
       expect(analysisUrl).toBe('/journey-analysis/young-professional');
+      expect(finalStep.url).toContain('savings-goal');
+      expect(finalStep.required).toBe(false);
     });
 
     it('should handle step skipping', () => {
@@ -305,6 +307,12 @@ describe('Journey Analysis', () => {
       expect(analysis.recommendations).toHaveLength(3);
       expect(analysis.keyMetrics).toHaveLength(3);
       expect(analysis.actionItems).toHaveLength(3);
+      const debtToIncome = (
+        (journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome) * 100
+      ).toFixed(1);
+      const savingsRatePercent = (journeyData.budget.savingsRate * 100).toFixed(0);
+      expect(analysis.keyMetrics[0].value).toBe(`${debtToIncome}%`);
+      expect(analysis.keyMetrics[1].value).toBe(`${savingsRatePercent}%`);
     });
 
     it('should identify financial opportunities', () => {
@@ -328,6 +336,9 @@ describe('Journey Analysis', () => {
 
       expect(opportunities).toHaveLength(3);
       expect(opportunities[0]).toContain('High savings rate');
+      const netCashFlow = journeyData.budget.monthlyIncome - journeyData.budget.monthlyExpenses;
+      expect(netCashFlow).toBe(3500);
+      expect(netCashFlow).toBeGreaterThan(journeyData.retirement.monthlyContribution);
     });
 
     it('should identify financial risks', () => {
@@ -351,6 +362,9 @@ describe('Journey Analysis', () => {
 
       expect(risks).toHaveLength(3);
       expect(risks[0]).toContain('Low savings rate');
+      const debtToIncome = journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome;
+      expect(debtToIncome).toBeGreaterThan(0.1);
+      expect(journeyData.budget.savingsRate).toBeLessThan(0.1);
     });
   });
 
@@ -383,6 +397,9 @@ describe('Journey Analysis', () => {
 
       expect(pdfData.title).toContain('Young Professional Journey');
       expect(pdfData.sections).toHaveLength(3);
+      const monthlySavings =
+        analysisData.journeyData.budget.monthlyIncome * analysisData.journeyData.budget.savingsRate;
+      expect(monthlySavings).toBeCloseTo(1500, 5);
     });
 
     it('should generate shareable summary', () => {
@@ -448,6 +465,7 @@ describe('Journey Error Handling', () => {
 
     expect(analysis.summary).toContain('Partial analysis');
     expect(analysis.insights).toHaveLength(2);
+    expect(Object.keys(journeyData)).toEqual(['student-loan']);
   });
 
   it('should handle analysis generation errors', () => {
@@ -460,6 +478,7 @@ describe('Journey Error Handling', () => {
     };
 
     expect(fallbackAnalysis.summary).toBe('Analysis temporarily unavailable');
+    expect(error.message).toContain('AI analysis');
   });
 });
 

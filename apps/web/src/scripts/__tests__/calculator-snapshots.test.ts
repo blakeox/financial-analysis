@@ -55,7 +55,13 @@ describe('Calculator Results Snapshots', () => {
 
   describe('Comparison Table Generation', () => {
     it('should generate strategy comparison table consistently', () => {
-      const generateComparisonTable = (strategies: any[]) => {
+      type Strategy = {
+        name: string;
+        payment: string;
+        total: string;
+      };
+
+      const generateComparisonTable = (strategies: Strategy[]) => {
         return `
           <div class="grid grid-cols-1 md:grid-cols-${strategies.length} gap-4">
             ${strategies.map(s => `

@@ -6,6 +6,18 @@
 
 import { describe, it, expect } from 'vitest';
 
+interface PerformanceWithOptionalMemory extends Performance {
+  memory?: {
+    usedJSHeapSize?: number;
+  };
+}
+
+const getUsedHeapSize = (): number | null => {
+  const perf = performance as PerformanceWithOptionalMemory;
+  const heapSize = perf.memory?.usedJSHeapSize;
+  return typeof heapSize === 'number' ? heapSize : null;
+};
+
 describe('Calculator Performance Tests', () => {
   describe('Calculation Speed', () => {
     it('should calculate mortgage payment in <10ms', () => {
@@ -106,7 +118,7 @@ describe('Calculator Performance Tests', () => {
 
   describe('Memory Efficiency', () => {
     it('should not create excessive objects in loops', () => {
-      const startMem = (performance as any).memory?.usedJSHeapSize || 0;
+      const startMem = getUsedHeapSize();
       
       // Calculate without creating unnecessary objects
       let sum = 0;
@@ -114,12 +126,12 @@ describe('Calculator Performance Tests', () => {
         sum += i * 1.07; // Primitive arithmetic only
       }
       
-      const endMem = (performance as any).memory?.usedJSHeapSize || 0;
-      const memIncrease = endMem - startMem;
+      const endMem = getUsedHeapSize();
+      const memIncrease = startMem !== null && endMem !== null ? endMem - startMem : null;
       
       expect(sum).toBeGreaterThan(0);
       // Memory increase should be minimal
-      if (startMem > 0) {
+      if (startMem !== null && memIncrease !== null) {
         expect(memIncrease).toBeLessThan(1000000); // <1MB
       }
     });
@@ -389,7 +401,11 @@ describe('Stress Tests', () => {
 
   describe('Memory Management', () => {
     it('should not leak memory with repeated calculations', () => {
-      const results: any[] = [];
+      type CalculationResult = {
+        iteration: number;
+        value: number;
+      };
+      const results: CalculationResult[] = [];
       
       for (let i = 0; i < 1000; i++) {
         const result = {
@@ -450,20 +466,20 @@ describe('Stress Tests', () => {
     });
 
     it('should optimize repeated chart renders', () => {
-      let cachedPath: string | null = null;
+      const pathCache: Record<string, string> = {};
       const cacheKey = 'chart_data_v1';
       
       const renderChart = (useCache: boolean) => {
-        if (useCache && cachedPath) {
-          return cachedPath;
+        if (useCache && pathCache[cacheKey]) {
+          return pathCache[cacheKey];
         }
         
         const path = Array.from({ length: 360 }, (_, i) => 
           `${i * 2},${Math.sin(i / 10) * 100}`
         ).join(' L ');
         
-        cachedPath = `M ${path}`;
-        return cachedPath;
+        pathCache[cacheKey] = `M ${path}`;
+        return pathCache[cacheKey];
       };
       
       const firstRender = performance.now();
@@ -471,11 +487,12 @@ describe('Stress Tests', () => {
       const firstDuration = performance.now() - firstRender;
       
       const secondRender = performance.now();
-      renderChart(true); // Should use cache
+      const cachedRender = renderChart(true); // Should use cache
       const secondDuration = performance.now() - secondRender;
       
       expect(secondDuration).toBeLessThan(firstDuration);
       expect(secondDuration).toBeLessThan(1);
+      expect(pathCache[cacheKey]).toBe(cachedRender);
     });
   });
 });
@@ -496,6 +513,7 @@ describe('Algorithmic Complexity Tests', () => {
         
         const duration = performance.now() - startTime;
         durations.push(duration);
+        expect(sum).toBe(size * (size - 1) / 2);
       });
       
       // Each doubling should roughly double time (linear)
@@ -532,6 +550,7 @@ describe('Algorithmic Complexity Tests', () => {
       const breakEven = findBreakEven(years);
       const duration = performance.now() - startTime;
       
+      expect(breakEven).toBe(5);
       expect(duration).toBeLessThan(1); // Should be nearly instant
     });
   });
@@ -552,6 +571,7 @@ describe('Algorithmic Complexity Tests', () => {
         
         const duration = performance.now() - startTime;
         durations.push(duration);
+        expect(payment).toBeGreaterThan(0);
       }
       
       const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
@@ -613,7 +633,6 @@ describe('Worst-Case Scenarios', () => {
     it('should handle alternating rate scenarios', () => {
       // Simulate variable rate loan
       let balance = 100000;
-      const baseRate = 0.05 / 12;
       const payment = 1000;
       
       for (let month = 0; month < 120; month++) {
@@ -697,6 +716,8 @@ describe('Concurrent Calculation Tests', () => {
 describe('Error Recovery Performance', () => {
   it('should recover from errors quickly', () => {
     let errorCount = 0;
+    let totalResult = 0;
+    let lastErrorMessage = '';
     
     for (let i = 0; i < 100; i++) {
       try {
@@ -705,13 +726,17 @@ describe('Error Recovery Performance', () => {
         }
         // Normal calculation
         const result = i * 100;
+        totalResult += result;
       } catch (error) {
         errorCount++;
+        lastErrorMessage = (error as Error).message;
         // Error handling should be fast
       }
     }
     
     expect(errorCount).toBe(10);
+    expect(totalResult).toBeGreaterThan(0);
+    expect(lastErrorMessage).toBe('Test error');
   });
 
   it('should not accumulate error state across calculations', () => {

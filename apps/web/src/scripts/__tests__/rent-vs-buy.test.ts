@@ -4,9 +4,9 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-// Mock the utilities
+// Mock the utilities (mirrors real helpers for deterministic math checks)
 const mockUtilities = {
-  coerceNumber: (val: any, defaultVal: number) => {
+  coerceNumber: (val: unknown, defaultVal: number) => {
     const num = typeof val === 'string' ? parseFloat(val) : Number(val);
     return isNaN(num) ? defaultVal : num;
   },
@@ -61,6 +61,18 @@ describe('Rent vs Buy Calculator', () => {
       marginalTaxRate: 22,
       investmentReturnRate: 7,
     };
+  });
+
+  describe('Utility Helpers', () => {
+    it('should coerce strings to numbers safely', () => {
+      const result = mockUtilities.coerceNumber('42.5', 0);
+      expect(result).toBeCloseTo(42.5);
+    });
+
+    it('should format currency with commas', () => {
+      const formatted = mockUtilities.formatCurrency(123456.78);
+      expect(formatted).toBe('$123,456.78');
+    });
   });
 
   describe('Input Validation', () => {
@@ -140,6 +152,7 @@ describe('Rent vs Buy Calculator', () => {
       const year2 = 2500 * 1.03;
       const year5 = 2500 * Math.pow(1.03, 4); // Year 5 is after 4 increases
       
+      expect(year1).toBe(2500);
       expect(year2).toBeCloseTo(2575, -1);
       expect(year5).toBeCloseTo(2813, -1);
     });
@@ -164,8 +177,6 @@ describe('Rent vs Buy Calculator', () => {
     it('should find break-even point when buying becomes cheaper', () => {
       // In most markets, break-even occurs between 3-7 years
       // This is when (total buy costs - equity) < total rent costs
-      const input = defaultInput;
-      
       // Mock calculation: if buying costs $300k and equity is $150k, net cost is $150k
       // If renting costs $180k over same period, buying wins
       const buyNetCost = 300000 - 150000;
@@ -193,9 +204,11 @@ describe('Rent vs Buy Calculator', () => {
 
     it('should handle negative home appreciation (market downturn)', () => {
       const depreciation = { ...defaultInput, appreciationRate: -2 };
-      const futureValue = 500000 * Math.pow(0.98, 5);
+      const depreciationRate = 1 + depreciation.appreciationRate / 100;
+      const futureValue = depreciation.homePrice * Math.pow(depreciationRate, depreciation.yearsToAnalyze);
       
-      expect(futureValue).toBeLessThan(500000);
+      expect(depreciation.appreciationRate).toBeLessThan(0);
+      expect(futureValue).toBeLessThan(depreciation.homePrice);
       expect(futureValue).toBeCloseTo(451960, -2); // Allow tolerance of 100
     });
 
@@ -204,6 +217,7 @@ describe('Rent vs Buy Calculator', () => {
       
       // Buying almost never makes sense for 1 year due to transaction costs
       const transactionCosts = 500000 * (0.03 + 0.06); // Closing + selling
+      expect(shortTerm.yearsToAnalyze).toBe(1);
       expect(transactionCosts).toBe(45000);
     });
 

@@ -171,7 +171,7 @@ describe('Pricing Strategy Calculator', () => {
       const highProfit = (highPrice - cost) * Math.max(highPriceUnits, 0);
       
       // Revenue higher at high price
-      expect(highRevenue).toBeGreaterThan(0);
+      expect(highRevenue).toBeGreaterThan(lowRevenue);
       // But profit depends on elasticity
       expect(lowProfit + highProfit).toBeGreaterThan(0);
     });
@@ -252,6 +252,7 @@ describe('Pricing Strategy Calculator', () => {
       
       // Lower price but much higher volume = more profit
       expect(lowPriceUnits).toBeGreaterThan(highPriceUnits);
+      expect(lowProfit).toBeGreaterThan(highProfit);
     });
   });
 });

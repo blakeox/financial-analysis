@@ -98,7 +98,7 @@ describe('debt-payoff.client', () => {
   });
 
   it('parseNumber returns null on invalid values', () => {
-    expect(parseNumber('foo' as any)).toBe(null);
+    expect(parseNumber('foo')).toBe(null);
     expect(parseNumber(null)).toBe(null);
   });
 });

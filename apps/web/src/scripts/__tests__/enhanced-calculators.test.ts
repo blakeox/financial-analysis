@@ -26,6 +26,7 @@ describe('Mortgage Scenario Planner Enhancements', () => {
         const homePrice = 500000;
         const downPayment = homePrice * (downPercent / 100);
         const principal = homePrice - downPayment;
+        const loanToValue = principal / homePrice;
         
         let pmiRate = 0.01;
         if (downPercent >= 15) pmiRate = 0.005;
@@ -34,6 +35,7 @@ describe('Mortgage Scenario Planner Enhancements', () => {
         else pmiRate = 0.012;
         
         expect(pmiRate).toBe(expectedRate);
+        expect(loanToValue).toBeCloseTo(1 - downPercent / 100, 5);
       });
     });
 
@@ -186,9 +188,11 @@ describe('Auto Loan Calculator Enhancements', () => {
       
       const resaleValue = vehiclePrice * (1 - depreciationRate);
       const depreciation = vehiclePrice - resaleValue;
+      const annualDepreciation = depreciation / years;
       
       expect(resaleValue).toBe(16000);
       expect(depreciation).toBe(24000);
+      expect(annualDepreciation).toBe(4800);
     });
 
     it('should calculate cost per mile', () => {
@@ -370,8 +374,10 @@ describe('Edge Cases and Boundary Conditions', () => {
       const rate = 0;
       const months = 60;
       const monthlyPayment = principal / months;
+      const interestPortion = principal * rate;
       
       expect(monthlyPayment).toBe(500);
+      expect(interestPortion).toBe(0);
     });
 
     it('should handle negative home appreciation (recession)', () => {
@@ -390,9 +396,11 @@ describe('Edge Cases and Boundary Conditions', () => {
       const debt = 500000; // Large mortgage
       const rate = 0.065 / 12;
       const payment = 5000;
+      const interestOnlyPayment = debt * rate;
       
       expect(debt).toBeGreaterThan(100000);
       expect(payment / debt).toBeLessThan(0.02); // Less than 2% per month
+      expect(interestOnlyPayment).toBeGreaterThan(payment); // Payment would need to rise to reduce balance
     });
 
     it('should handle very high interest rates', () => {

@@ -1,5 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { detectCalculatorContext, CALCULATOR_CONTEXTS } from '../calculator-contexts';
+import { describe, it, expect } from 'vitest';
+import {
+  detectCalculatorContext,
+  CALCULATOR_CONTEXTS,
+  type CalculatorContext,
+} from '../calculator-contexts';
+
+const getFieldMappings = (context: CalculatorContext): Record<string, string> => {
+  expect(context.fieldMappings).toBeDefined();
+  if (!context.fieldMappings) {
+    throw new Error(`Expected field mappings for ${context.id}`);
+  }
+
+  return context.fieldMappings;
+};
 
 describe('Chat Panel Integration Tests', () => {
   describe('Context Detection Integration', () => {
@@ -74,7 +87,7 @@ describe('Chat Panel Integration Tests', () => {
         });
 
         it('should have relevant example commands', () => {
-          context.examples.forEach((example, index) => {
+          context.examples.forEach((example) => {
             expect(typeof example).toBe('string');
             expect(example.length).toBeGreaterThan(5);
             expect(example).not.toBe('');
@@ -86,12 +99,13 @@ describe('Chat Panel Integration Tests', () => {
               example.toLowerCase().includes('help');
             
             expect(looksLikeCommand).toBeTruthy();
-          }, `Example ${index + 1} doesn't look like a command: "${example}"`);
+          });
         });
 
         if (context.fieldMappings) {
           it('should have valid field mappings structure', () => {
-            Object.entries(context.fieldMappings!).forEach(([friendlyName, fieldId]) => {
+            const fieldMappings = getFieldMappings(context);
+            Object.entries(fieldMappings).forEach(([friendlyName, fieldId]) => {
               // Friendly names should be human-readable
               expect(friendlyName).toBeTruthy();
               expect(friendlyName.length).toBeGreaterThan(0);
@@ -104,7 +118,7 @@ describe('Chat Panel Integration Tests', () => {
           });
 
           it('should have at least 3 field mappings', () => {
-            expect(Object.keys(context.fieldMappings!).length).toBeGreaterThanOrEqual(3);
+            expect(Object.keys(getFieldMappings(context)).length).toBeGreaterThanOrEqual(3);
           });
         }
       });
@@ -164,7 +178,7 @@ describe('Chat Panel Integration Tests', () => {
     calculatorsWithFieldMappings.forEach((context) => {
       describe(`${context.id} field mappings`, () => {
         it('should have consistent field ID naming (kebab-case)', () => {
-          Object.values(context.fieldMappings!).forEach((fieldId) => {
+          Object.values(getFieldMappings(context)).forEach((fieldId) => {
             expect(fieldId).toMatch(/^[a-z][a-z0-9-]*$/);
             expect(fieldId).not.toMatch(/_{2,}/); // No double underscores
             expect(fieldId).not.toMatch(/-{2,}/); // No double hyphens
@@ -172,13 +186,13 @@ describe('Chat Panel Integration Tests', () => {
         });
 
         it('should have unique field IDs', () => {
-          const fieldIds = Object.values(context.fieldMappings!);
+          const fieldIds = Object.values(getFieldMappings(context));
           const uniqueFieldIds = new Set(fieldIds);
           expect(uniqueFieldIds.size).toBe(fieldIds.length);
         });
 
         it('should have lowercase friendly names for matching', () => {
-          Object.keys(context.fieldMappings!).forEach((friendlyName) => {
+          Object.keys(getFieldMappings(context)).forEach((friendlyName) => {
             // Should be lowercase for case-insensitive matching
             expect(friendlyName).toBe(friendlyName.toLowerCase());
           });
@@ -285,8 +299,8 @@ describe('Chat Panel Integration Tests', () => {
       highTrafficCalculators.forEach((calcId) => {
         const context = CALCULATOR_CONTEXTS[calcId];
         expect(context).toBeDefined();
-        expect(context.fieldMappings).toBeDefined();
-        expect(Object.keys(context.fieldMappings!).length).toBeGreaterThan(0);
+        const fieldMappings = getFieldMappings(context);
+        expect(Object.keys(fieldMappings).length).toBeGreaterThan(0);
       }, `Calculator ${calcId} should have field mappings`);
     });
   });

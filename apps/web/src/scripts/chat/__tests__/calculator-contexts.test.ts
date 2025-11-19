@@ -3,8 +3,18 @@ import {
   detectCalculatorContext,
   parseFieldUpdate,
   CALCULATOR_CONTEXTS,
+  type CalculatorContext,
   type CalculatorContextKey,
 } from '../calculator-contexts';
+
+const getFieldMappings = (context: CalculatorContext): Record<string, string> => {
+  expect(context.fieldMappings).toBeDefined();
+  if (!context.fieldMappings) {
+    throw new Error(`Expected field mappings for ${context.id}`);
+  }
+
+  return context.fieldMappings;
+};
 
 describe('Calculator Context Detection', () => {
   describe('detectCalculatorContext', () => {
@@ -528,17 +538,19 @@ describe('Calculator Context Completeness', () => {
     it('should have pricing-strategy with complete field mappings', () => {
       const pricingStrategy = CALCULATOR_CONTEXTS['pricing-strategy'];
       expect(pricingStrategy.fieldMappings).toBeDefined();
-      expect(Object.keys(pricingStrategy.fieldMappings!).length).toBeGreaterThanOrEqual(5);
-      expect(pricingStrategy.fieldMappings!['margin']).toBe('target-margin');
-      expect(pricingStrategy.fieldMappings!['cost per unit']).toBe('cost-per-unit');
+      const fieldMappings = getFieldMappings(pricingStrategy);
+      expect(Object.keys(fieldMappings).length).toBeGreaterThanOrEqual(5);
+      expect(fieldMappings['margin']).toBe('target-margin');
+      expect(fieldMappings['cost per unit']).toBe('cost-per-unit');
     });
 
     it('should have amortization with complete field mappings', () => {
       const amortization = CALCULATOR_CONTEXTS['amortization'];
       expect(amortization.fieldMappings).toBeDefined();
-      expect(Object.keys(amortization.fieldMappings!).length).toBeGreaterThanOrEqual(4);
-      expect(amortization.fieldMappings!['interest rate']).toBe('interest-rate');
-      expect(amortization.fieldMappings!['loan amount']).toBe('loan-amount');
+      const fieldMappings = getFieldMappings(amortization);
+      expect(Object.keys(fieldMappings).length).toBeGreaterThanOrEqual(4);
+      expect(fieldMappings['interest rate']).toBe('interest-rate');
+      expect(fieldMappings['loan amount']).toBe('loan-amount');
     });
   });
 });

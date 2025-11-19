@@ -3,7 +3,7 @@
  * Comprehensive test suite for break-even calculations
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // Mock types based on the calculator implementation
 interface BreakEvenInput {

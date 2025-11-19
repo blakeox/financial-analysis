@@ -314,10 +314,10 @@ describe('Student Loans Calculator', () => {
         insights: [],
       };
 
-      vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
+      const analyzeSpy = vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
       return handleSubmit(mockForm, mockRefs).then(() => {
-        const callArgs = (StudentLoanEngine.analyze as any).mock.calls[0][0];
+        const [callArgs] = analyzeSpy.mock.calls[0] || [];
         expect(callArgs.loans[0].minimumPayment).toBeCloseTo(575.4, 0);
       });
     });
@@ -347,10 +347,10 @@ describe('Student Loans Calculator', () => {
         insights: [],
       };
 
-      vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
+      const analyzeSpy = vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
       return handleSubmit(mockForm, mockRefs).then(() => {
-        const callArgs = (StudentLoanEngine.analyze as any).mock.calls[0][0];
+        const [callArgs] = analyzeSpy.mock.calls[0] || [];
         // Income-driven payment should be calculated based on discretionary income
         expect(callArgs.loans[0].minimumPayment).toBeGreaterThan(50);
         expect(callArgs.loans[0].minimumPayment).toBeLessThanOrEqual(600); // Allow higher values for income-driven

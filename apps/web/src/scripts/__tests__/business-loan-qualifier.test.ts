@@ -186,11 +186,13 @@ describe('Business Loan Qualifier Calculator', () => {
       const proposedDebt = (loanAmount * 0.08) / 12;
       const dscr = monthlyIncome / (existingDebt + proposedDebt);
       const ltv = (loanAmount / collateralValue) * 100;
+      const revenueCoverage = loanAmount / revenue;
       
       expect(dscr).toBeGreaterThan(1.25);
       expect(ltv).toBeLessThan(90);
       expect(creditScore).toBeGreaterThan(680);
       expect(businessAge).toBeGreaterThan(2);
+      expect(revenueCoverage).toBeLessThan(0.5);
     });
     
     it('should handle struggling startup', () => {
