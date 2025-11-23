@@ -50,6 +50,10 @@ binding = "ANALYTICS"
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
 
+# Workers AI binding
+[ai]
+binding = "AI"
+
 # Development configuration
 [dev]
 port = 8787
@@ -97,6 +101,9 @@ binding = "ANALYTICS"
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
 
+[env.preview.ai]
+binding = "AI"
+
 # Production environment
 [env.production]
 [env.production.vars]
@@ -136,6 +143,9 @@ binding = "ANALYTICS"
 [[env.production.vectorize]]
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
+
+[env.production.ai]
+binding = "AI"
 
 # Stripe configuration (secrets - set via: wrangler secret put STRIPE_SECRET_KEY --env production)
 # STRIPE_SECRET_KEY = "sk_live_..."

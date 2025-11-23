@@ -8,6 +8,7 @@
     "build:web": "cd apps/web && pnpm build",
     "build:workers": "pnpm --filter @financial-analysis/web-worker run build && pnpm --filter @financial-analysis/api run build",
     "dev": "pnpm run dev:all",
+    "dev:remote": "cd workers/api && pnpm run dev:remote",
     "dev:api": "cd workers/api && pnpm dev",
     "dev:web:build": "cd apps/web && pnpm build",
     "dev:web:worker": "cd workers/web && pnpm dev",
