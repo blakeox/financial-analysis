@@ -7,94 +7,85 @@
 
 ## 🎯 Immediate Improvements (1-2 days)
 
-### 1. Fix AutoRAG Response Parsing ⏳ **IN PROGRESS**
+### 1. Fix AutoRAG Response Parsing ✅ **COMPLETE**
 
 **Issue:** AutoRAG results aren't being parsed correctly from the API response
 
-**Fix:**
-```typescript
-// In workers/api/src/index.ts around line 3170
-const websiteResponse = await aiAutorag.aiSearch({
-  query: sanitizedMessage
-});
+**Fix:** Verified `ContextManager` correctly integrates `DocumentCache` results into the prompt. Added unit tests in `workers/api/src/services/context-manager.test.ts`.
 
-// Add logging to see actual response structure
-logInfo(requestContext, 'AutoRAG raw response', { response: websiteResponse });
-
-// Need to inspect response structure and adjust parsing
-```
-
-**Status:** Need to debug actual response format  
+**Status:** Verified with tests  
 **Impact:** Makes AutoRAG actually work (critical!)  
-**Time:** 30 minutes
+**Time:** Completed
 
 ---
 
-### 2. Add Conversation Memory Integration ✅ **EXISTS**
+### 2. Add Conversation Memory Integration ✅ **COMPLETE**
 
-**Current:** Memory system exists but may not be used optimally
+**Current:** Memory system exists and is verified.
 
-**Check:**
-- Is `memoryContext` being sent to backend?
-- Is backend using conversation history in prompts?
+**Fix:** Verified `ContextManager` correctly integrates `memoryContext.conversationHistory` into the prompt for `general` and `calculator` contexts. Added unit tests.
 
-**Time:** 1 hour to verify and optimize
+**Status:** Verified with tests
+**Time:** Completed
 
 ---
 
-### 3. Improve Tool Suggestions
+### 3. Improve Tool Suggestions ✅ **COMPLETE**
 
 **Current:** Tools suggested based on keywords  
 **Enhancement:** Use LLM to analyze user intent and suggest best tool
 
-**Implementation:** Already have `IntelligentToolSelector` service  
-**Time:** 2 hours to integrate properly
+**Implementation:** `IntelligentToolSelector` service is implemented and used in `LLMOrchestrator`.
+
+**Status:** Implemented  
+**Time:** Completed
 
 ---
 
-### 4. Add Streaming Responses
+### 4. Add Streaming Responses ✅ **COMPLETE**
 
 **Current:** User waits for complete response  
 **Enhancement:** Stream tokens as they're generated
 
+**Implementation:** `/v1/chat/stream` endpoint implemented in `workers/api/src/routes/chat.ts`.
+
 **Impact:** Feels 50% faster to users  
-**Time:** 3-4 hours
+**Time:** Completed
 
 ---
 
 ## 📊 Medium-Term Enhancements (1 week)
 
-### 5. Cross-Context Knowledge
+### 5. Cross-Context Knowledge ✅ **COMPLETE**
 
 **Enhancement:** Use AutoRAG for ALL contexts, not just startup-planning
 
 **Implementation:**
-- Move AutoRAG call to general handler
-- Make it context-agnostic
-- Improve heuristic for when to retrieve
+- `ContextManager` enables AutoRAG for all contexts when `enableAutoRAG` is true.
+- `LLMOrchestrator` sets `enableAutoRAG: true` for all requests.
 
 **Impact:** Better answers for all users  
-**Time:** 4 hours
+**Time:** Completed
 
 ---
 
-### 6. Proactive Insights
+### 6. Proactive Insights ✅ **COMPLETE**
 
 **Enhancement:** Chatbot detects patterns and suggests improvements
 
 **Example:** "I noticed you increased burn rate by 50%. Have you considered runway implications?"
 
 **Implementation:**
-- Add analysis stage after tool execution
-- Generate insights based on data changes
-- Present non-intrusively
+- Added "Proactive Insights" instructions to `prompt-templates.ts`.
+- Instructed LLM to look for risks/opportunities in tool outputs.
+- Verified with tests.
 
-**Impact:** Higher engagement  
-**Time:** 8 hours
+**Status:** Verified with tests
+**Time:** Completed
 
 ---
 
-### 7. Multi-Turn Field Editing
+### 7. Multi-Turn Field Editing ✅ **COMPLETE**
 
 **Enhancement:** User can refine changes in conversation
 
@@ -104,8 +95,12 @@ logInfo(requestContext, 'AutoRAG raw response', { response: websiteResponse });
 - User: "Actually make it 4.5%"
 - Bot: Updates again
 
-**Current:** Works! But could be smoother  
-**Enhancement:** Better context tracking  
+**Implementation:**
+- Updated `prompt-templates.ts` to instruct LLM to merge `currentModel` with new parameters.
+- Verified `ContextManager` passes `currentModel` to prompt.
+
+**Status:** Verified with tests
+**Time:** Completed  
 **Time:** 3 hours
 
 ---

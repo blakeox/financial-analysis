@@ -34,6 +34,7 @@ export type ChatRequestPayload = {
     conversationHistory?: string;
     modelStates?: string;
   };
+  negative_constraints?: string[];
 };
 
 export type ChatResponsePayload = {

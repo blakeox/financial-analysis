@@ -40,7 +40,7 @@ type HighlightFieldChangeFn = (
 
 declare global {
   interface Window {
-    highlightFieldChange?: HighlightFieldChangeFn;
+    highlightFieldChange: HighlightFieldChangeFn;
   }
 }
 
@@ -62,6 +62,20 @@ const GENERIC_RESPONSE_PATTERNS = [
   /^hi — i can help/i,
   /^what (tools|calculators)/i,
   /i can help update the models model/i,
+];
+
+const NEGATIVE_CONSTRAINTS = [
+  "Do not say 'I can help update the model'",
+  "Do not say 'Try: set interest to'",
+  "Do not say 'Say help'",
+  "Do not say 'Ask for a specific value'",
+  "Do not say 'I can change interest rates'",
+  "Do not say 'I can help update the general model'",
+  "Do not start with 'Hi — I can help'",
+  "Do not ask 'What tools/calculators'",
+  "Do not say 'I can help update the models model'",
+  "Do not provide generic filler responses",
+  "Do not ask the user what they want to do if the intent is clear",
 ];
 
 const debugLog = (...args: unknown[]): void => {
@@ -1074,6 +1088,7 @@ class ChatPanel {
         conversationHistory: chatMemory.getConversationContext(),
         modelStates: chatMemory.getModelStateSummary(),
       },
+      negative_constraints: NEGATIVE_CONSTRAINTS,
     };
 
     if (import.meta.env.DEV) {

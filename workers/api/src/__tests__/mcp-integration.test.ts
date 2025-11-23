@@ -1,6 +1,11 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { unstable_dev } from 'wrangler';
 import type { Unstable_DevWorker } from 'wrangler';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface MCPTool {
   name: string;
@@ -21,7 +26,7 @@ describe('MCP Integration Tests', () => {
   let worker: Unstable_DevWorker;
 
   beforeAll(async () => {
-    worker = await unstable_dev('src/index.ts', {
+    worker = await unstable_dev(path.resolve(__dirname, '../index.ts'), {
       experimental: { disableExperimentalWarning: true },
       local: true,
     });

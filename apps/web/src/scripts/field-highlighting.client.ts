@@ -27,7 +27,7 @@ type HighlightFieldChangeFn = (
 
 declare global {
   interface Window {
-    highlightFieldChange?: HighlightFieldChangeFn;
+    highlightFieldChange: HighlightFieldChangeFn;
   }
 }
 

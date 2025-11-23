@@ -32,6 +32,7 @@ import {
   setQuotaLocked,
   sha256Hex,
   stableStringify,
+  withErrorHandler,
   type RateLimitInfo,
 } from './lib';
 import { registerAnalyticsRoutes } from './routes/analytics';
@@ -403,79 +404,6 @@ export function formatMCPToolAnalysis(
 }
 
 // Quota helpers moved to ./lib/quota
-
-// ---- Error handling wrapper ----
-type RouteHandler = (request: Request, env: Env) => Response | Promise<Response>;
-
-function withErrorHandler(handler: RouteHandler) {
-  return async (request: Request, env: Env): Promise<Response> => {
-    try {
-      return await handler(request, env);
-    } catch (error) {
-      console.error('API Error:', error);
-
-      const isDevelopment = env.ENVIRONMENT === 'development';
-
-      // Handle Zod validation errors with 400 status
-      if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
-        return new Response(
-          JSON.stringify({
-            error: {
-              message: 'Validation error',
-              code: 'VALIDATION_ERROR',
-              ...(isDevelopment && { details: error }),
-            },
-          }),
-          { status: 400, headers: buildDefaultHeaders(env) }
-        );
-      }
-
-      // Handle generic errors and explicit Error instances
-      if (error instanceof Error) {
-        // Check for specific error messages that should return 400
-        if (error.message.includes('Content-Type must be application/json')) {
-          return new Response(
-            JSON.stringify({
-              error: {
-                message: error.message,
-                code: 'INVALID_CONTENT_TYPE',
-              },
-            }),
-            { status: 400, headers: buildDefaultHeaders(env) }
-          );
-        }
-
-        // Check for JSON parsing errors
-        if (
-          error.message.includes('Unexpected token') ||
-          error.message.includes('is not valid JSON')
-        ) {
-          return new Response(
-            JSON.stringify({
-              error: {
-                message: 'Invalid JSON format',
-                code: 'INVALID_JSON',
-              },
-            }),
-            { status: 400, headers: buildDefaultHeaders(env) }
-          );
-        }
-      }
-
-      return new Response(
-        JSON.stringify({
-          error: {
-            message:
-              isDevelopment && error instanceof Error ? error.message : 'Internal server error',
-            code: 'INTERNAL_ERROR',
-            ...(isDevelopment && error instanceof Error && { stack: error.stack }),
-          },
-        }),
-        { status: 500, headers: buildDefaultHeaders(env) }
-      );
-    }
-  };
-}
 
 // ---- Logging ----
 function logRequest(request: Request, env: Env, startTime?: number, requestId?: string) {

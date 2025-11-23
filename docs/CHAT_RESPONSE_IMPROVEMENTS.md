@@ -110,7 +110,19 @@ if (!validation.valid && validation.issues.some(issue => issue.includes('generic
 }
 ```
 
-### 5. **Updated Welcome Messages** (`apps/web/src/scripts/chat-panel.ts`)
+### 5. **Dynamic Negative Constraints**
+
+Implemented a system to pass negative constraints (forbidden phrases) from the client to the API, ensuring the LLM is explicitly instructed to avoid specific generic patterns detected on the client side.
+
+- **Client (`apps/web/src/scripts/chat-panel.ts`)**: Defines `NEGATIVE_CONSTRAINTS` based on known generic patterns and sends them in the chat request payload.
+- **API (`workers/api/src/routes/chat.ts`)**: Extracts `negative_constraints` from the request body.
+- **Orchestrator (`workers/api/src/services/llm-orchestrator.ts`)**: Passes constraints to the context manager.
+- **Context Manager (`workers/api/src/services/context-manager.ts`)**: Includes constraints in the prompt context.
+- **Prompt Templates (`workers/api/src/prompts/prompt-templates.ts`)**: Formats the constraints as a "CRITICAL: NEGATIVE CONSTRAINTS" section in the system prompt, explicitly forbidding the LLM from using those phrases.
+
+This multi-layered approach ensures that even if the LLM tends towards generic responses, the explicit negative constraints in the system prompt will override that tendency.
+
+### 6. **Updated Welcome Messages** (`apps/web/src/scripts/chat-panel.ts`)
 
 Changed generic welcome message:
 

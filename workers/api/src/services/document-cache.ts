@@ -4,8 +4,7 @@
  * Uses R2 for storage and Vectorize for semantic search
  */
 
-// @ts-expect-error - Cloudflare Workers types
-import type { VectorizeIndex } from '@cloudflare/workers-types';
+import type { VectorizeIndex, Ai } from '@cloudflare/workers-types';
 
 const FRESHNESS_DAYS = 7;
 const FRESHNESS_MS = FRESHNESS_DAYS * 24 * 60 * 60 * 1000;
@@ -28,6 +27,7 @@ export interface DocumentCacheConfig {
   r2Bucket?: R2Bucket;
   vectorize?: VectorizeIndex;
   kv?: KVNamespace;
+  ai?: Ai;
 }
 
 export interface FetchResult {
@@ -39,14 +39,16 @@ export interface FetchResult {
 }
 
 export class DocumentCache {
-  private r2?: R2Bucket;
-  private vectorize?: VectorizeIndex;
-  private kv?: KVNamespace;
+  private r2: R2Bucket | undefined;
+  private vectorize: VectorizeIndex | undefined;
+  private kv: KVNamespace | undefined;
+  private ai: Ai | undefined;
 
   constructor(config: DocumentCacheConfig) {
     this.r2 = config.r2Bucket;
     this.vectorize = config.vectorize;
     this.kv = config.kv;
+    this.ai = config.ai;
   }
 
   /**
@@ -94,7 +96,7 @@ export class DocumentCache {
       contentHash: await this.hashContent(content),
       fetchedAt: now,
       expiresAt: now + FRESHNESS_MS,
-      metadata,
+      ...(metadata ? { metadata } : {}),
     };
 
     // Store in R2
@@ -247,16 +249,22 @@ export class DocumentCache {
       
       // Create vector record
       const vectorId = await this.hashContent(doc.url);
-      await this.vectorize.insert([{
-        id: vectorId,
-        values: embedding,
-        metadata: {
-          url: doc.url,
-          fetchedAt: doc.fetchedAt,
-          expiresAt: doc.expiresAt,
-          title: doc.metadata?.title,
+      const metadata: Record<string, string | number | boolean> = {
+        url: doc.url,
+        fetchedAt: doc.fetchedAt,
+        expiresAt: doc.expiresAt,
+      };
+      if (doc.metadata?.title) {
+        metadata.title = doc.metadata.title;
+      }
+
+      await this.vectorize.insert([
+        {
+          id: vectorId,
+          values: embedding,
+          metadata,
         },
-      }]);
+      ]);
     } catch (error) {
       console.error('Failed to index document:', error);
       // Don't throw - indexing is optional
@@ -264,14 +272,29 @@ export class DocumentCache {
   }
 
   /**
-   * Generate embedding for text (stub - would use Workers AI)
+   * Generate embedding for text using Workers AI
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     // Truncate to reasonable length for embedding
     const truncated = text.slice(0, 8000);
     
-    // TODO: Use Workers AI text embedding model
-    // For now, return a simple hash-based vector (not semantic)
+    if (this.ai) {
+      try {
+        // Use bge-small-en-v1.5 for 384 dimensions to match existing index/stub
+        const response = await this.ai.run('@cf/baai/bge-small-en-v1.5', {
+          text: [truncated]
+        }) as { data: number[][] };
+        
+        if (response.data && response.data[0]) {
+          return response.data[0];
+        }
+      } catch (error) {
+        console.error('AI embedding generation failed:', error);
+        // Fallback to hash-based embedding below
+      }
+    }
+    
+    // Fallback: return a simple hash-based vector (not semantic)
     const hash = await this.hashContent(truncated);
     const vector = new Array(384).fill(0);
     for (let i = 0; i < hash.length && i < 384; i++) {

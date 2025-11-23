@@ -110,3 +110,42 @@ CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at
 CREATE INDEX IF NOT EXISTS idx_calculation_audit_session ON calculation_audit(session_id);
 CREATE INDEX IF NOT EXISTS idx_api_metrics_endpoint ON api_metrics(endpoint);
 CREATE INDEX IF NOT EXISTS idx_api_metrics_created ON api_metrics(created_at);
+
+-- Conversations table
+CREATE TABLE IF NOT EXISTS conversations (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    metadata TEXT -- JSON string for extra info
+);
+
+-- Messages table
+CREATE TABLE IF NOT EXISTS messages (
+    id TEXT PRIMARY KEY,
+    conversation_id TEXT NOT NULL,
+    role TEXT NOT NULL, -- 'user', 'assistant', 'system'
+    content TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    metadata TEXT, -- JSON string for token usage, tool calls, etc.
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+
+-- User Preferences table
+CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id TEXT PRIMARY KEY,
+    preferences TEXT NOT NULL, -- JSON string
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Long-term Memory table (for "Persistent Memory")
+CREATE TABLE IF NOT EXISTS memories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    content TEXT NOT NULL,
+    category TEXT, -- 'fact', 'preference', 'project_detail'
+    confidence REAL DEFAULT 1.0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

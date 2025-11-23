@@ -3,11 +3,9 @@
  * Builds enriched context for LLM calls from multiple sources
  */
 
-// @ts-expect-error - Cloudflare Workers types
-import type { Ai } from '@cloudflare/workers-types';
 import { buildPrompt } from '../prompts/prompt-templates';
 import type { ToolSummary } from './types';
-import { DocumentCache } from './document-cache';
+import { DocumentCache, type DocumentCacheConfig } from './document-cache';
 
 const MAX_TOOL_SUMMARIES = 8;
 
@@ -23,6 +21,7 @@ export interface ContextBuilder {
   toolOutputs?: Record<string, unknown> | undefined;
   enableAutoRAG?: boolean | undefined;
   requestId?: string | undefined;
+  negative_constraints?: string[] | undefined;
 }
 
 export interface BuiltContext {
@@ -43,11 +42,7 @@ export interface BuiltContext {
 export class ContextManager {
   private documentCache?: DocumentCache;
 
-  constructor(
-    private ai?: Ai,
-    private autoRAGInstanceId?: string,
-    documentCacheConfig?: { r2Bucket?: R2Bucket; vectorize?: any; kv?: KVNamespace }
-  ) {
+  constructor(documentCacheConfig?: DocumentCacheConfig) {
     if (documentCacheConfig) {
       this.documentCache = new DocumentCache(documentCacheConfig);
     }
@@ -64,6 +59,7 @@ export class ContextManager {
       memoryContext,
       availableTools,
       toolOutputs,
+      negative_constraints,
     } = builder;
 
     // Start with base prompt
@@ -88,6 +84,7 @@ export class ContextManager {
         userMessage: message,
         availableFields: phaseData.keyFields || [],
         helpTopics: phaseData.helpTopics || [],
+        negative_constraints,
       };
 
       // Add conversation history
@@ -133,6 +130,7 @@ export class ContextManager {
       const promptContext: Record<string, unknown> = {
         userMessage: message,
         calculatorName: mortgageData.calculatorName || 'Mortgage Scenario Planner',
+        negative_constraints,
       };
 
       // Add form data if available
@@ -164,10 +162,18 @@ export class ContextManager {
     } else if (contextKey === 'general' || !contextKey) {
       // General context - use chat assistant template
       // Include available tools so AI can intelligently decide when to use them
-      const fullPrompt = buildPrompt('chatAssistant', {
+      const promptContext: Record<string, unknown> = {
         userMessage: message,
         availableTools: this.prepareToolList('general', availableTools),
-      });
+        negative_constraints,
+        ...contextData, // Include contextData (e.g. currentModel)
+      };
+
+      if (memoryContext?.conversationHistory) {
+        promptContext.conversationHistory = memoryContext.conversationHistory;
+      }
+
+      const fullPrompt = buildPrompt('chatAssistant', promptContext);
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
@@ -175,11 +181,19 @@ export class ContextManager {
     } else {
       // Calculator-specific contexts - use calculator assistant template
       // This gives AI context about calculator families and how to help
-      const fullPrompt = buildPrompt('calculatorAssistant', {
+      const promptContext: Record<string, unknown> = {
         userMessage: message,
         calculatorContext: contextKey,
         availableTools: this.prepareToolList(contextKey, availableTools),
-      });
+        negative_constraints,
+        ...contextData, // Include contextData (e.g. currentModel)
+      };
+
+      if (memoryContext?.conversationHistory) {
+        promptContext.conversationHistory = memoryContext.conversationHistory;
+      }
+
+      const fullPrompt = buildPrompt('calculatorAssistant', promptContext);
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
@@ -259,7 +273,7 @@ export class ContextManager {
       }
     }
 
-    if (systemEndIndex > 0 && systemEndIndex < lines.length - 1) {
+    if (systemEndIndex > 0) {
       const systemLines = lines.slice(0, systemEndIndex);
       const userLines = lines.slice(systemEndIndex);
       const systemPrompt = systemLines.join('\n').trim();

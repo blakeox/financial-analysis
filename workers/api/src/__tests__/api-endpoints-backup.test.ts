@@ -1,6 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Unstable_DevWorker } from 'wrangler';
 import { unstable_dev } from 'wrangler';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface EbitdaForecastRequest {
   name: string;
@@ -147,7 +152,7 @@ describe('API Endpoint Integration Tests', () => {
   let worker: Unstable_DevWorker;
 
   beforeAll(async () => {
-    worker = await unstable_dev('src/index.ts', {
+    worker = await unstable_dev(path.resolve(__dirname, '../index.ts'), {
       experimental: { disableExperimentalWarning: true },
     });
   });

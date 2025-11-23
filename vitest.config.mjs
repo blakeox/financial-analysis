@@ -7,5 +7,6 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'dist/', '**/*.d.ts'],
     },
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.{git,cache,output,wrangler}/**'],
   },
 });

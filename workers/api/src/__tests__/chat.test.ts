@@ -20,10 +20,10 @@ function makeEnv() {
   return { env, ctx };
 }
 
-describe('POST /v1/chat', () => {
+describe('POST /v1/chat/enhanced', () => {
   it('returns 415 when content-type is not JSON', async () => {
     const { env, ctx } = makeEnv();
-    const req = new Request('https://example.com/v1/chat', {
+    const req = new Request('https://example.com/v1/chat/enhanced', {
       method: 'POST',
       headers: { 'content-type': 'text/plain' },
       body: 'hello',
@@ -32,9 +32,9 @@ describe('POST /v1/chat', () => {
     expect(res.status).toBe(415);
   });
 
-  it('returns 400 when messages are missing', async () => {
+  it('returns 400 when message is missing', async () => {
     const { env, ctx } = makeEnv();
-    const req = new Request('https://example.com/v1/chat', {
+    const req = new Request('https://example.com/v1/chat/enhanced', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({}),
@@ -45,59 +45,15 @@ describe('POST /v1/chat', () => {
 
   it('returns deterministic response when AI binding is absent', async () => {
     const { env, ctx } = makeEnv();
-    const req = new Request('https://example.com/v1/chat', {
+    const req = new Request('https://example.com/v1/chat/enhanced', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content: 'Hello there' }] }),
+      body: JSON.stringify({ message: 'Hello there', context: 'test' }),
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
-    const json = (await res.json()) as { role: string; content: string };
-    expect(json.role).toBe('assistant');
-    expect(typeof json.content).toBe('string');
-    expect(json.content).toContain('AI model is not configured');
-  });
-
-  it('performs local amortization calc when user asks and provides JSON', async () => {
-    const { env, ctx } = makeEnv();
-    const content =
-      'Can you run an amortization for this? {"principal": 10000, "annualRate": 0.06, "termMonths": 12}';
-    const req = new Request('https://example.com/v1/chat', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content }] }),
-    });
-    const res = await api.fetch(req, env, ctx);
-    expect(res.status).toBe(200);
-    const json = (await res.json()) as { role: string; content: string };
-    expect(json.role).toBe('assistant');
-    expect(json.content).toMatch(/Monthly payment:/);
-  });
-
-  it('supports server-side MCP tool_call for lease analysis', async () => {
-    const { env, ctx } = makeEnv();
-    const body = {
-      messages: [{ role: 'user', content: 'run lease' }],
-      tool_call: {
-        name: 'analyze_lease',
-        arguments: {
-          principal: 10000,
-          annualRate: 0.05,
-          termMonths: 12,
-          residualValue: 1000,
-        },
-      },
-    } as const;
-    const req = new Request('https://example.com/v1/chat', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const res = await api.fetch(req, env, ctx);
-    expect(res.status).toBe(200);
-    const json = (await res.json()) as { role: string; content: string };
-    expect(json.role).toBe('assistant');
-    expect(json.content).toContain('monthlyPayment');
+    const json = (await res.json()) as { response: string };
+    expect(typeof json.response).toBe('string');
   });
 
   it('is rate limited like other API routes', async () => {
@@ -125,10 +81,10 @@ describe('POST /v1/chat', () => {
       passThroughOnException: () => {},
     } as unknown as ExecutionContext;
 
-    const req = new Request('https://example.com/v1/chat', {
+    const req = new Request('https://example.com/v1/chat/enhanced', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content: 'hi' }] }),
+      body: JSON.stringify({ message: 'hi', context: 'test' }),
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(429);

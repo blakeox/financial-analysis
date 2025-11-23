@@ -14,13 +14,7 @@ export function createLLMOrchestrator(env: Env): LLMOrchestrator {
     throw new Error('AI binding not configured');
   }
 
-  return new LLMOrchestrator(env.AI, env, {
-    enableAutoRAG: true,
-    autoRAGInstanceId: 'ai-search-gentle-tree-ce67-d9b958',
-    enableCaching: !!env.KV,
-    enableRetry: true,
-    enableMetrics: !!env.KV,
-  });
+  return new LLMOrchestrator(env.AI, env);
 }
 
 /**

@@ -21,6 +21,56 @@ const AnalyticsPayloadSchema = z.object({
   events: z.array(PageInteractionEventSchema),
 });
 
+const ChatAnalyticsSchema = z.object({
+  sessionId: z.string(),
+  userId: z.string().optional(),
+  startTime: z.string().or(z.date()), // Client sends ISO string
+  endTime: z.string().or(z.date()).optional(),
+  messageCount: z.number(),
+  toolUsage: z.record(z.string(), z.number()),
+  errorCount: z.number(),
+  averageResponseTime: z.number(),
+  userSatisfaction: z.number().optional(),
+  contextSwitches: z.number(),
+  offlineTime: z.number(),
+});
+
+const UserBehaviorMetricsSchema = z.object({
+  sessionId: z.string(),
+  pageContext: z.string(),
+  messageLength: z.number(),
+  timeToFirstMessage: z.number(),
+  messagesPerMinute: z.number(),
+  toolRequestsPerSession: z.number(),
+  errorRate: z.number(),
+  satisfactionScore: z.number().optional(),
+});
+
+const PerformanceMetricsSchema = z.object({
+  messageId: z.string(),
+  requestTime: z.string().or(z.date()),
+  responseTime: z.string().or(z.date()).optional(),
+  duration: z.number().optional(),
+  toolName: z.string().optional(),
+  fromCache: z.boolean().optional(),
+  success: z.boolean(),
+  errorCode: z.string().optional(),
+  retryCount: z.number(),
+});
+
+const ChatMetricsSchema = z.object({
+  timestamp: z.string().or(z.date()),
+  type: z.string(),
+  data: z.record(z.string(), z.unknown()),
+});
+
+const ChatAnalyticsPayloadSchema = z.object({
+  analytics: ChatAnalyticsSchema,
+  behaviorMetrics: UserBehaviorMetricsSchema,
+  performanceMetrics: z.array(PerformanceMetricsSchema),
+  recentMetrics: z.array(ChatMetricsSchema),
+});
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerAnalyticsRoutes(router: any) {
   /**
@@ -92,6 +142,75 @@ export function registerAnalyticsRoutes(router: any) {
         return new Response(
           JSON.stringify({
             error: 'Failed to process analytics events',
+            message: error instanceof Error ? error.message : 'Unknown error',
+          }),
+          { status: 500, headers: buildDefaultHeaders(env) }
+        );
+      }
+    }
+  );
+
+  /**
+   * POST /v1/api/analytics/chat
+   * Receive chat session analytics
+   */
+  router.post(
+    '/v1/api/analytics/chat',
+    async (request: Request, env: Env) => {
+      try {
+        const body = await request.json();
+        const result = ChatAnalyticsPayloadSchema.safeParse(body);
+
+        if (!result.success) {
+          return new Response(
+            JSON.stringify({
+              error: 'Invalid chat analytics payload',
+              details: result.error.issues,
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const { analytics, behaviorMetrics } = result.data;
+
+        if (env.ANALYTICS) {
+          try {
+            // Write session summary
+            env.ANALYTICS.writeDataPoint({
+              indexes: [
+                'chat_session_summary', // index1: event type
+                behaviorMetrics.pageContext, // index2: page path
+                analytics.sessionId, // index3: session ID
+                analytics.userId || 'anonymous', // index4: user ID
+                '', // index5: unused
+              ],
+              doubles: [
+                Date.now(), // double1: timestamp
+                analytics.messageCount, // double2: message count
+                analytics.averageResponseTime, // double3: avg response time
+                analytics.errorCount, // double4: error count
+                analytics.userSatisfaction || 0, // double5: satisfaction
+              ],
+              blobs: [
+                JSON.stringify({
+                  toolUsage: analytics.toolUsage,
+                  behavior: behaviorMetrics,
+                }), // blob1: detailed metrics
+              ],
+            });
+          } catch (error) {
+            console.error('Failed to write chat analytics:', error);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: buildDefaultHeaders(env) }
+        );
+      } catch (error) {
+        return new Response(
+          JSON.stringify({
+            error: 'Failed to process chat analytics',
             message: error instanceof Error ? error.message : 'Unknown error',
           }),
           { status: 500, headers: buildDefaultHeaders(env) }

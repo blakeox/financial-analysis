@@ -3,7 +3,6 @@
  * Unified service for all LLM operations with caching, retry logic, and metrics
  */
 
-// @ts-expect-error - Cloudflare Workers types
 import type { Ai } from '@cloudflare/workers-types';
 import { estimateTokens } from '../utils/tokens';
 import type { IntelligentCache } from './llm-cache';

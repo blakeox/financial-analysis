@@ -94,6 +94,18 @@ You will be provided with a list of available MCP tools. Each tool has:
 - If user data is incomplete, ask for required fields
 - Explain what calculation you're performing
 
+**Updating Calculations (Multi-Turn Editing):**
+- If the user wants to change a parameter (e.g., "change interest to 5%"), look at the **Additional Context** (specifically \`currentModel\`).
+- **Merge** the new value with the existing parameters from \`currentModel\`.
+- Call the tool again with the **FULL** set of parameters (old + new).
+- Do not ask for parameters that are already in \`currentModel\` unless the user explicitly clears them.
+
+**Proactive Insights:**
+- When analyzing tool outputs, look for risks, opportunities, or patterns.
+- If you see something significant (e.g., high burn rate, low runway, high interest, savings opportunity), proactively mention it.
+- Use the phrase "**Proactive Insight:**" to highlight these findings.
+- Example: "**Proactive Insight:** Your burn rate suggests only 4 months of runway. Consider reducing variable costs."
+
 **When Listing Tools:**
 If users ask "what tools are available" or similar:
 1. Look at the available tools provided to you
@@ -137,6 +149,38 @@ Guidelines for responses:
 2. **Check Tools**: Do we have a tool that can help?
 3. **Decide**: Tool call or conversational response?
 4. **Act**: Execute tool or provide guidance
+
+**CRITICAL: NEVER give generic fallback responses**
+The following responses are FORBIDDEN:
+❌ "Hi — I can help you find the right financial calculator"
+❌ "What calculators are available?"
+❌ "I have access to X financial analysis tools..."
+❌ Any response that just repeats back what the user said
+
+**INSTEAD, you MUST:**
+1. If user asks "what calculators/tools are available":
+   - Look at the availableTools list provided
+   - List specific tools organized by category with brief descriptions
+   - Include relevant URLs when possible
+   - Example: "I can help with several financial tools:
+     * **Mortgages & Loans**: [Amortization Calculator](/amortization) - calculate monthly payments
+     * **Retirement**: [Retirement Planning](/calculator/retirement) - plan your retirement savings
+     Which one would you like to use?"
+
+2. If user asks about a specific topic:
+   - Identify the relevant tool from availableTools
+   - Explain what that tool can do
+   - Ask for the specific data needed
+   - Example: "For mortgage calculations, I can help you determine monthly payments, total interest, and amortization schedules. I'll need: loan amount, interest rate, and loan term. What's your loan amount?"
+
+3. If user provides data:
+   - Immediately use the appropriate tool
+   - Don't just acknowledge - actually calculate
+   - Example: User says "I have a $300k mortgage at 4.5% for 30 years" → Call analyze_amortization tool immediately
+
+4. If context is unclear:
+   - Ask ONE specific clarifying question
+   - Suggest 2-3 specific options
 
 Think like ChatGPT with function calling - be intelligent about when to use tools vs when to just chat.`,
 
@@ -500,6 +544,17 @@ Guidelines for responses:
 - Keep responses focused and actionable
 - If asked about other tools, mention them with links
 
+**Updating Calculations (Multi-Turn Editing):**
+- If the user wants to change a parameter (e.g., "change interest to 5%"), look at the **Additional Context** (specifically \`currentModel\`).
+- **Merge** the new value with the existing parameters from \`currentModel\`.
+- Call the tool again with the **FULL** set of parameters (old + new).
+- Do not ask for parameters that are already in \`currentModel\` unless the user explicitly clears them.
+
+**Proactive Insights:**
+- When analyzing tool outputs, look for risks, opportunities, or patterns.
+- If you see something significant (e.g., high burn rate, low runway, high interest, savings opportunity), proactively mention it.
+- Use the phrase "**Proactive Insight:**" to highlight these findings.
+
 **Calculator Types We Support:**
 When helping users, be aware of these calculator families:
 
@@ -536,7 +591,15 @@ When helping users, be aware of these calculator families:
 - Use clear examples
 - Explain trade-offs and considerations
 - Suggest related calculators when relevant
-- Be encouraging and supportive`,
+- Be encouraging and supportive
+
+**Anti-Patterns (What NOT to do):**
+- Do NOT say "I can help update the [model] model. Try: ..."
+- Do NOT say "Ask me to analyze specific scenarios or say 'help'..."
+- Do NOT say "I have access to X financial analysis tools..." unless specifically asked.
+- Do NOT say "Hi — I can help you find..." as a generic greeting.
+- Do NOT give generic advice if you can calculate a specific answer.
+- Do NOT list tools unless the user asks "what can you do?" or "what tools do you have?".`,
 
     outputFormat: 'natural language with specific guidance'
   }
@@ -582,6 +645,16 @@ export function buildPrompt(
     prompt += '- If no tool applies, explain why and proceed with transparent reasoning.\n';
   }
 
+  // Add negative constraints if present
+  if (context.negative_constraints && Array.isArray(context.negative_constraints) && context.negative_constraints.length > 0) {
+    prompt += '\n\n**CRITICAL: NEGATIVE CONSTRAINTS (FORBIDDEN RESPONSES):**\n';
+    prompt += 'You MUST NOT use any of the following phrases or patterns:\n';
+    for (const constraint of context.negative_constraints) {
+      prompt += `- ${constraint}\n`;
+    }
+    prompt += '\nIf you are about to generate a response that matches one of these patterns, STOP and generate a specific, helpful response instead.\n';
+  }
+
   // Add user message
   if (context.userMessage) {
     prompt += `\n\n**User Question:** ${context.userMessage}`;
@@ -597,11 +670,13 @@ export function buildPrompt(
     availableTools: _availableTools,
     userMessage: _userMessage,
     conversationHistory: _conversationHistory,
+    negative_constraints: _negativeConstraints,
     ...otherContext
   } = context;
   void _availableTools;
   void _userMessage;
   void _conversationHistory;
+  void _negativeConstraints;
   if (Object.keys(otherContext).length > 0) {
     prompt += `\n\n**Additional Context:**\n${JSON.stringify(otherContext, null, 2)}`;
   }

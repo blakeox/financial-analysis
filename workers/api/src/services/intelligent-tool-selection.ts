@@ -96,15 +96,11 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
           suggestedParameters: parsed.suggestedParameters || {},
         };
       }
+      throw new Error('No JSON found in response');
     } catch (error) {
       console.error('Failed to parse tool recommendation:', error);
+      throw error;
     }
-
-    // Return low-confidence default
-    return {
-      confidence: 0.3,
-      secondaryTools: [],
-    };
   }
 
   /**

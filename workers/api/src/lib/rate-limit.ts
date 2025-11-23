@@ -1,12 +1,17 @@
 import type { Env } from '../types';
 
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100; // requests per window
+const LIMITS = {
+  CHAT: { window: 60 * 1000, max: 20 },
+  ANALYSIS: { window: 60 * 1000, max: 50 },
+  MCP: { window: 60 * 1000, max: 100 },
+  DEFAULT: { window: 60 * 1000, max: 100 },
+};
 
 export type RateLimitInfo = {
   allowed: boolean;
   remaining: number;
   resetTime: number; // epoch ms
+  limit: number;
 };
 
 /**
@@ -42,15 +47,31 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
   const clientIP =
     request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
 
-  const key = `ratelimit:${clientIP}`;
+  const url = new URL(request.url);
+  let limitConfig = LIMITS.DEFAULT;
+  let keyPrefix = 'default';
+
+  if (url.pathname.includes('/v1/chat')) {
+    limitConfig = LIMITS.CHAT;
+    keyPrefix = 'chat';
+  } else if (url.pathname.includes('/api/analysis')) {
+    limitConfig = LIMITS.ANALYSIS;
+    keyPrefix = 'analysis';
+  } else if (url.pathname.includes('/mcp')) {
+    limitConfig = LIMITS.MCP;
+    keyPrefix = 'mcp';
+  }
+
+  const key = `ratelimit:${keyPrefix}:${clientIP}`;
   const now = Date.now();
 
   try {
     if (!env.SESSIONS) {
       return {
         allowed: true,
-        remaining: RATE_LIMIT_MAX_REQUESTS,
-        resetTime: now + RATE_LIMIT_WINDOW,
+        remaining: limitConfig.max,
+        resetTime: now + limitConfig.window,
+        limit: limitConfig.max,
       };
     }
 
@@ -60,17 +81,17 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
     const data = await retryKVOperation(() => sessions.get(key));
     const rateLimitData: { count: number; resetTime: number } = data
       ? JSON.parse(data)
-      : { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
+      : { count: 0, resetTime: now + limitConfig.window };
 
     if (now > rateLimitData.resetTime) {
       rateLimitData.count = 1;
-      rateLimitData.resetTime = now + RATE_LIMIT_WINDOW;
+      rateLimitData.resetTime = now + limitConfig.window;
     } else {
       rateLimitData.count++;
     }
 
-    const remaining = Math.max(0, RATE_LIMIT_MAX_REQUESTS - rateLimitData.count);
-    const allowed = rateLimitData.count <= RATE_LIMIT_MAX_REQUESTS;
+    const remaining = Math.max(0, limitConfig.max - rateLimitData.count);
+    const allowed = rateLimitData.count <= limitConfig.max;
 
     await retryKVOperation(() =>
       sessions.put(key, JSON.stringify(rateLimitData), {
@@ -78,21 +99,22 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
       })
     );
 
-    return { allowed, remaining, resetTime: rateLimitData.resetTime };
+    return { allowed, remaining, resetTime: rateLimitData.resetTime, limit: limitConfig.max };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`Rate limiting check failed after retries: ${errorMessage}`);
     // Graceful degradation: allow request but with reduced rate limit
     return {
       allowed: true,
-      remaining: RATE_LIMIT_MAX_REQUESTS,
-      resetTime: now + RATE_LIMIT_WINDOW,
+      remaining: limitConfig.max,
+      resetTime: now + limitConfig.window,
+      limit: limitConfig.max,
     };
   }
 }
 
 export function attachRateLimitHeaders(headers: Headers, info: RateLimitInfo) {
-  headers.set('X-RateLimit-Limit', String(RATE_LIMIT_MAX_REQUESTS));
+  headers.set('X-RateLimit-Limit', String(info.limit));
   headers.set('X-RateLimit-Remaining', String(info.remaining));
   headers.set('X-RateLimit-Reset', String(Math.ceil(info.resetTime / 1000)));
 }
