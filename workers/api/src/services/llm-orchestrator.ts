@@ -202,4 +202,64 @@ export class LLMOrchestrator {
     return response;
   }
 
+  /**
+   * Stream orchestration response
+   */
+  async *stream(request: OrchestrationRequest): AsyncIterable<string> {
+    const {
+      message,
+      context,
+      contextData,
+      currentModel = {},
+      availableTools = [],
+      toolOutputs = {},
+      memoryContext,
+      requestId,
+      contextLabel,
+    } = request;
+
+    const mergedContextData: Record<string, unknown> = {
+      ...(contextData || {}),
+    };
+    if (Object.keys(currentModel).length > 0) {
+      mergedContextData.currentModel = currentModel;
+    }
+    if (contextLabel) {
+      mergedContextData.contextLabel = contextLabel;
+    }
+    const effectiveContextData =
+      Object.keys(mergedContextData).length > 0 ? mergedContextData : undefined;
+
+    // Build context
+    const builtContext = await this.contextManager.build({
+      message,
+      contextKey: context,
+      contextData: effectiveContextData,
+      memoryContext,
+      availableTools,
+      toolOutputs,
+      enableAutoRAG: true,
+      requestId,
+    });
+
+    // Call LLM Streaming
+    const llmRequest: LLMRequest = {
+      prompt: builtContext.prompt,
+      systemPrompt: builtContext.systemPrompt,
+      metadata: {
+        requestId: requestId || undefined,
+        context,
+        cacheKey: builtContext.cacheKey,
+      },
+    };
+
+    const stream = this.llm.chatStreaming(llmRequest);
+
+    for await (const chunk of stream) {
+      if (chunk.content) {
+        yield chunk.content;
+      }
+    }
+  }
+
 }

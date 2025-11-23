@@ -206,7 +206,7 @@ export class LLMService {
   }
 
   /**
-   * Streaming chat (placeholder for future implementation)
+   * Streaming chat
    */
   async *chatStreaming(request: LLMRequest): AsyncIterable<LLMStreamChunk> {
     const requestId = request.metadata?.requestId || crypto.randomUUID();
@@ -216,15 +216,39 @@ export class LLMService {
 
     const fullPrompt = this.buildPrompt(request);
 
-    // For now, return non-streaming result
-    // TODO: Implement actual streaming
-    const response = await this.callAI(model, fullPrompt, temperature, maxTokens);
-    
-    yield {
-      content: response,
-      done: true,
-      metadata: { model, requestId },
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ai = this.ai as any;
+
+    try {
+      const stream = await ai.run(model, {
+        prompt: fullPrompt,
+        temperature,
+        max_tokens: maxTokens,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        // Cloudflare AI stream chunks usually have a 'response' property
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const text = (chunk as any).response;
+        if (text) {
+          yield {
+            content: text,
+            done: false,
+            metadata: { model, requestId },
+          };
+        }
+      }
+
+      yield {
+        content: '',
+        done: true,
+        metadata: { model, requestId },
+      };
+    } catch (error) {
+      console.error('Streaming error:', error);
+      throw error;
+    }
   }
 
   /**

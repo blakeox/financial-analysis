@@ -53,7 +53,7 @@ describe('web worker dev proxy', () => {
       status: 200,
       headers: { 'content-type': 'application/json' },
     });
-    const globalFetch = vi.spyOn(globalThis, 'fetch' as never).mockResolvedValue(apiResponse as never);
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(apiResponse);
 
     const res = await web.fetch(req, env as never, ctx);
 
@@ -95,7 +95,7 @@ describe('web worker dev proxy', () => {
       status: 200,
       headers: { 'content-type': 'application/json' },
     });
-    const globalFetch = vi.spyOn(globalThis, 'fetch' as never).mockResolvedValue(apiResponse as never);
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(apiResponse);
 
     const res = await web.fetch(req, env as never, ctx);
 
@@ -135,7 +135,7 @@ describe('web worker dev proxy', () => {
       status: 200,
       headers: { 'content-type': 'application/json' },
     });
-    const globalFetch = vi.spyOn(globalThis, 'fetch' as never).mockResolvedValue(apiResponse as never);
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(apiResponse);
 
     const res = await web.fetch(req, env as never, ctx);
 

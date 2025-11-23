@@ -211,7 +211,7 @@ class ChatPanel {
     this.outsideClickHandler = null;
     this.stateStore = new ChatStateStore();
     this.transport = createChatTransport({
-      endpoint: '/api/v1/chat/enhanced',
+      endpoint: '/v1/chat/enhanced',
       timeoutMs: API_TIMEOUT_MS,
       maxAttempts: MAX_RETRY_ATTEMPTS,
       backoffMs: RETRY_BACKOFF_MS,
@@ -290,6 +290,15 @@ class ChatPanel {
   private detectContext(): ContextKey {
     // Use the new comprehensive calculator context detection
     return detectCalculatorContext(window.location.pathname) as ContextKey;
+  }
+
+  private updateContext(newContext: ContextKey): void {
+    if (newContext !== this.currentContext) {
+      this.lastContext = this.currentContext;
+      this.currentContext = newContext;
+      this.updateContextIndicator();
+      this.fieldUpdates.clearRememberedField();
+    }
   }
 
   private updateContextIndicator(): void {
@@ -827,6 +836,18 @@ class ChatPanel {
     this.thinkingIndicator.classList.add('hidden');
   }
 
+  private updateLastAssistantMessage(content: string): void {
+    const lastMessage = this.messages.lastElementChild;
+    if (lastMessage && lastMessage.classList.contains('assistant')) {
+      const contentDiv = lastMessage.querySelector('.message-content');
+      if (contentDiv) {
+        // Simple formatting for streaming text
+        contentDiv.innerHTML = content.replace(/\n/g, '<br>');
+        this.messages.scrollTop = this.messages.scrollHeight;
+      }
+    }
+  }
+
   private async sendMessage(): Promise<void> {
     const message = this.input.value.trim();
 
@@ -873,8 +894,34 @@ class ChatPanel {
     const payload = this.buildRequestPayload(message);
 
     try {
-      const data = await this.messageQueue.enqueue(payload);
-      this.handleSuccessfulResponse(data);
+      // Create placeholder for assistant response
+      this.addMessage('', 'assistant');
+      this.showThinking();
+
+      let fullResponse = '';
+      
+      // Use streaming transport
+      await this.transport.stream(payload, (chunk) => {
+        if (fullResponse.length === 0) {
+          this.hideThinking();
+        }
+        fullResponse += chunk;
+        this.updateLastAssistantMessage(fullResponse);
+      });
+
+      // Ensure thinking is hidden if it wasn't already
+      this.hideThinking();
+
+      // Update memory with the full response
+      chatMemory.addConversationEntry(
+        message,
+        fullResponse,
+        this.getActiveContextKey(),
+        undefined
+      );
+
+      this.sendBtn.disabled = false;
+
     } catch (error) {
       this.handleFailedResponse(error);
     }

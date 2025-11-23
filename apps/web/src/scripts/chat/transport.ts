@@ -9,6 +9,7 @@ export type ChatTransportConfig = {
 
 export type ChatTransport = {
   send(payload: ChatRequestPayload): Promise<ChatResponsePayload>;
+  stream(payload: ChatRequestPayload, onChunk: (chunk: string) => void): Promise<void>;
 };
 
 const delay = (ms: number): Promise<void> =>
@@ -68,9 +69,56 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
     }
   };
 
+  const streamWithRetry = async (
+    payload: ChatRequestPayload,
+    onChunk: (chunk: string) => void,
+    attempt = 1
+  ): Promise<void> => {
+    try {
+      const response = await fetch('/v1/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429 && attempt < maxAttempts) {
+          const backoffTime = backoffMs * Math.pow(2, attempt - 1);
+          await delay(backoffTime);
+          return streamWithRetry(payload, onChunk, attempt + 1);
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error('No response body');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        onChunk(chunk);
+      }
+    } catch (error) {
+      if (attempt < maxAttempts) {
+        const backoffTime = backoffMs * Math.pow(2, attempt - 1);
+        await delay(backoffTime);
+        return streamWithRetry(payload, onChunk, attempt + 1);
+      }
+      throw error;
+    }
+  };
+
   return {
     send(payload) {
       return fetchWithRetry(payload);
+    },
+    stream(payload, onChunk) {
+      return streamWithRetry(payload, onChunk);
     },
   };
 }

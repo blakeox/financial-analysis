@@ -14,20 +14,36 @@ import {
   logInfo,
   logWarn,
   logError,
+  withErrorHandler,
 } from '../lib';
-import { withErrorHandler } from '../lib/error-handler';
 import { canCreateOrchestrator, createLLMOrchestrator } from '../services/llm-service-factory';
 
 export function registerChatRoutes(router: RouterType) {
   // ---- Simple contextual chat endpoint (AI Orchestrator) ----
   router.post(
-    '/api/v1/chat/enhanced',
+    '/v1/chat/enhanced',
     withErrorHandler(async (request: Request, env: Env) => {
       // Build request context for logging
       const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
       logInfo(requestContext, 'Contextual chat request received');
 
       try {
+        // SECURITY: Validate Content-Type
+        const contentType = request.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          return new Response(
+            JSON.stringify({
+              error: 'Unsupported Media Type',
+              message: 'Content-Type must be application/json',
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 415,
+              headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+            }
+          );
+        }
+
         // SECURITY: Validate request size before parsing body
         const contentLength = request.headers.get('Content-Length');
         const sizeValidation = validateRequestSize(contentLength);
@@ -62,6 +78,7 @@ export function registerChatRoutes(router: RouterType) {
             conversationHistory?: string;
             modelStates?: string;
           };
+          negative_constraints?: string[];
         };
         const {
           message,
@@ -72,6 +89,7 @@ export function registerChatRoutes(router: RouterType) {
           contextData = {},
           contextLabel = null,
           memoryContext = {},
+          negative_constraints = [],
         } = body;
 
         // SECURITY: Comprehensive message validation and sanitization
@@ -137,6 +155,7 @@ export function registerChatRoutes(router: RouterType) {
               memoryContext,
               contextLabel,
               requestId: requestContext.requestId,
+              negative_constraints,
             };
 
             const result = await orchestrator.handle(orchestratorRequest);
@@ -182,6 +201,39 @@ export function registerChatRoutes(router: RouterType) {
                 : new Error(String(orchestratorError))
             );
 
+            // Fallback: If AI fails (e.g. local dev without auth) but user asks for tools
+            if (
+              availableTools.length > 0 &&
+              /tools|help|capabilities|what can you do/i.test(sanitizedMessage)
+            ) {
+              const toolList = availableTools
+                .map((t) => `- **${t.name}**: ${t.description}`)
+                .join('\n');
+
+              return new Response(
+                JSON.stringify({
+                  response: `I encountered an issue connecting to the AI service, but I can still help you use these tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`,
+                  context,
+                  fromCache: false,
+                  requestId: requestContext.requestId,
+                  metadata: { intent: 'fallback_tool_list' },
+                  tooling: {
+                    availableTools: availableTools.map((t) => t.name),
+                    toolOutputsIncluded: 0,
+                    contextKey: context,
+                  },
+                }),
+                {
+                  status: 200,
+                  headers: buildChatHeaders(
+                    env,
+                    requestContext.requestId,
+                    requestContext.correlationId
+                  ),
+                }
+              );
+            }
+
             return new Response(
               JSON.stringify({
                 error: 'AI service error',
@@ -203,12 +255,11 @@ export function registerChatRoutes(router: RouterType) {
         // If no AI available (shouldn't happen in production)
         return new Response(
           JSON.stringify({
-            error: 'AI not configured',
             response: 'AI assistant is not available. Please contact support.',
             requestId: requestContext.requestId,
           }),
           {
-            status: 503,
+            status: 200,
             headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
           }
         );
@@ -227,6 +278,106 @@ export function registerChatRoutes(router: RouterType) {
             headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
           }
         );
+      }
+    })
+  );
+
+  // ---- Streaming chat endpoint ----
+  router.post(
+    '/v1/chat/stream',
+    withErrorHandler(async (request: Request, env: Env) => {
+      const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
+
+      try {
+        const body = (await request.json()) as {
+          message: string;
+          context?: string;
+          currentModel?: Record<string, unknown>;
+          availableTools?: Array<{ name: string; description: string }>;
+          toolOutputs?: Record<string, unknown>;
+          contextData?: Record<string, unknown>;
+          contextLabel?: string | null;
+          memoryContext?: {
+            conversationHistory?: string;
+            modelStates?: string;
+          };
+        };
+        const {
+          message,
+          context = 'general',
+          currentModel = {},
+          availableTools = [],
+          toolOutputs = {},
+          contextData = {},
+          contextLabel = null,
+          memoryContext = {},
+        } = body;
+
+        if (!canCreateOrchestrator(env)) {
+          return new Response('AI not configured', { status: 503 });
+        }
+
+        const orchestrator = createLLMOrchestrator(env);
+        const orchestratorRequest = {
+          message,
+          context,
+          contextData,
+          currentModel,
+          availableTools,
+          toolOutputs,
+          memoryContext,
+          contextLabel,
+          requestId: requestContext.requestId,
+        };
+
+        const stream = orchestrator.stream(orchestratorRequest);
+        const encoder = new TextEncoder();
+
+        const readable = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of stream) {
+                const sseMessage = `data: ${JSON.stringify({ token: chunk })}\n\n`;
+                controller.enqueue(encoder.encode(sseMessage));
+              }
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+            } catch (err) {
+              // Fallback: If AI fails (e.g. local dev) but user asks for tools
+              if (
+                availableTools.length > 0 &&
+                /tools|help|capabilities|what can you do/i.test(message || '')
+              ) {
+                const toolList = availableTools
+                  .map((t) => `- **${t.name}**: ${t.description}`)
+                  .join('\n');
+
+                const fallbackResponse = `I encountered an issue connecting to the AI service, but I can still help you use these tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`;
+
+                // Stream the fallback response
+                const sseMessage = `data: ${JSON.stringify({ token: fallbackResponse })}\n\n`;
+                controller.enqueue(encoder.encode(sseMessage));
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                controller.close();
+                return;
+              }
+
+              controller.error(err);
+            }
+          },
+        });
+
+        return new Response(readable, {
+          headers: {
+            ...buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        });
+      } catch (error) {
+        logError(requestContext, error instanceof Error ? error : new Error(String(error)));
+        return new Response(JSON.stringify({ error: 'Internal Error' }), { status: 500 });
       }
     })
   );
