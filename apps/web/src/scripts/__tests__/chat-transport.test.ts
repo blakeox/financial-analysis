@@ -59,7 +59,7 @@ describe('createChatTransport', () => {
     global.fetch = fetchMock as typeof fetch;
 
     const transport = createChatTransport({
-      endpoint: '/api/v1/chat/enhanced',
+      endpoint: '/v1/chat/enhanced',
       timeoutMs: 5000,
       maxAttempts: 1,
       backoffMs: 50,
@@ -68,7 +68,7 @@ describe('createChatTransport', () => {
     const result = await transport.send(payload);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/v1/chat/enhanced',
+      '/v1/chat/enhanced',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify(payload),

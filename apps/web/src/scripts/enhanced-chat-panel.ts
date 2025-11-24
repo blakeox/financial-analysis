@@ -112,7 +112,7 @@ export class EnhancedChatPanel {
     this.state = this.createInitialState();
     this.elements = this.initializeElements();
     this.transport = createChatTransport({
-      endpoint: '/api/v1/chat/enhanced',
+      endpoint: '/v1/chat/enhanced',
       timeoutMs: this.config.messageTimeoutMs,
       maxAttempts: this.config.maxRetries,
       backoffMs: this.config.retryDelayMs,

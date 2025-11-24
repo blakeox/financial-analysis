@@ -174,7 +174,7 @@ describe('Chatbot Integration Tests', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/v1/chat/enhanced', expect.any(Object));
+      expect(mockFetch).toHaveBeenCalledWith('/v1/chat/enhanced', expect.any(Object));
     });
 
     it('should handle API errors gracefully', async () => {
@@ -616,7 +616,7 @@ describe('End-to-End Integration Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify API call
-      expect(mockFetch).toHaveBeenCalledWith('/api/v1/chat/enhanced', expect.any(Object));
+      expect(mockFetch).toHaveBeenCalledWith('/v1/chat/enhanced', expect.any(Object));
 
       // Verify performance metrics
       const health = dashboard.getSystemHealth();

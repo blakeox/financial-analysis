@@ -22,7 +22,7 @@ test.describe('ChatPanel send flow', () => {
     });
 
     // Intercept the enhanced chat endpoint (actual endpoint used)
-    await page.route('**/api/v1/chat/enhanced', async (route) => {
+    await page.route('**/v1/chat/enhanced', async (route) => {
       const requestBody = route.request().postDataJSON() as { message?: string; context?: string };
       
       await route.fulfill({
