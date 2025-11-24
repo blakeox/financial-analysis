@@ -318,6 +318,61 @@ export class LLMService {
       max_tokens: maxTokens,
     });
 
+    // Handle ReadableStream response (Cloudflare AI sometimes streams even without stream: true)
+    if (response instanceof ReadableStream) {
+      const reader = response.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let buffer = '';
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+          
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data: ')) continue;
+            
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') continue;
+            
+            try {
+              const parsed = JSON.parse(data);
+              const text = parsed.response || parsed.token || parsed.text;
+              if (text) fullText += text;
+            } catch {
+              // ignore parse error
+            }
+          }
+        }
+        
+        // Process remaining buffer
+        if (buffer.trim().startsWith('data: ')) {
+          const data = buffer.trim().slice(6);
+          if (data !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(data);
+              const text = parsed.response || parsed.token || parsed.text;
+              if (text) fullText += text;
+            } catch {
+              // ignore
+            }
+          }
+        }
+        
+        return fullText;
+      } finally {
+        reader.releaseLock();
+      }
+    }
+
     // Extract text response
     // Handle both text and JSON response formats
     if (typeof response === 'string') {
