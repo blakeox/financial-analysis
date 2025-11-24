@@ -206,13 +206,12 @@ export function registerChatRoutes(router: RouterType) {
               availableTools.length > 0 &&
               /tools|help|capabilities|what can you do/i.test(sanitizedMessage)
             ) {
-              const toolList = availableTools
-                .map((t) => `- **${t.name}**: ${t.description}`)
-                .join('\n');
+              const toolList = formatToolList(availableTools);
+              const errorMessage = orchestratorError instanceof Error ? orchestratorError.message : String(orchestratorError);
 
               return new Response(
                 JSON.stringify({
-                  response: `I encountered an issue connecting to the AI service, but I can still help you use these tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`,
+                  response: `I'm currently running in offline mode (Error: ${errorMessage}), but I can still help you with the following tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`,
                   context,
                   fromCache: false,
                   requestId: requestContext.requestId,
@@ -348,11 +347,10 @@ export function registerChatRoutes(router: RouterType) {
                 availableTools.length > 0 &&
                 /tools|help|capabilities|what can you do/i.test(message || '')
               ) {
-                const toolList = availableTools
-                  .map((t) => `- **${t.name}**: ${t.description}`)
-                  .join('\n');
+                const toolList = formatToolList(availableTools);
+                const errorMessage = err instanceof Error ? err.message : String(err);
 
-                const fallbackResponse = `I encountered an issue connecting to the AI service, but I can still help you use these tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`;
+                const fallbackResponse = `I'm currently running in offline mode (Error: ${errorMessage}), but I can still help you with the following tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`;
 
                 // Stream the fallback response
                 const sseMessage = `data: ${JSON.stringify({ token: fallbackResponse })}\n\n`;
@@ -381,4 +379,32 @@ export function registerChatRoutes(router: RouterType) {
       }
     })
   );
+}
+
+function formatToolList(tools: Array<{ name: string; description: string }>): string {
+  const groups: Record<string, Array<{ name: string; description: string }>> = {};
+
+  for (const tool of tools) {
+    const prefix = tool.name.split('_')[0] || 'Other';
+    const category = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category]?.push(tool);
+  }
+
+  const sortedCategories = Object.keys(groups).sort();
+
+  let output = '';
+  for (const category of sortedCategories) {
+    output += `### ${category}\n`;
+    const categoryTools = groups[category];
+    if (categoryTools) {
+      for (const tool of categoryTools) {
+        output += `- **${tool.name}**: ${tool.description}\n`;
+      }
+    }
+    output += '\n';
+  }
+  return output.trim();
 }

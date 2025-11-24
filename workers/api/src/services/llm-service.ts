@@ -226,16 +226,56 @@ export class LLMService {
         stream: true,
       });
 
+      const decoder = new TextDecoder();
+      let buffer = '';
+
       for await (const chunk of stream) {
-        // Cloudflare AI stream chunks usually have a 'response' property
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const text = (chunk as any).response;
-        if (text) {
-          yield {
-            content: text,
-            done: false,
-            metadata: { model, requestId },
-          };
+        const decoded = decoder.decode(chunk, { stream: true });
+        buffer += decoded;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data: ')) continue;
+
+          const data = trimmed.slice(6);
+          if (data === '[DONE]') continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            const text = parsed.response || parsed.token || parsed.text;
+
+            if (text) {
+              yield {
+                content: text,
+                done: false,
+                metadata: { model, requestId },
+              };
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+
+      // Process any remaining buffer
+      if (buffer.trim().startsWith('data: ')) {
+        const data = buffer.trim().slice(6);
+        if (data !== '[DONE]') {
+          try {
+            const parsed = JSON.parse(data);
+            const text = parsed.response || parsed.token || parsed.text;
+            if (text) {
+              yield {
+                content: text,
+                done: false,
+                metadata: { model, requestId },
+              };
+            }
+          } catch {
+            // ignore
+          }
         }
       }
 
