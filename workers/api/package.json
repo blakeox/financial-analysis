@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
-    "@cloudflare/workers-types": "^4.20251113.0",
+    "@cloudflare/workers-types": "^4.20251125.0",
     "@financial-analysis/analysis": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
     "itty-router": "^5.0.22",
@@ -38,6 +38,6 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "vitest": "4.0.9",
-    "wrangler": "^4.47.0"
+    "wrangler": "^4.50.0"
   }
 }
