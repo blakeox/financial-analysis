@@ -41,7 +41,7 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
-    "@typescript-eslint/parser": "^8.46.4",
+    "@typescript-eslint/parser": "^8.48.0",
     "@vitest/coverage-v8": "4.0.9",
     "astro-eslint-parser": "^1.2.2",
     "chokidar": "^4.0.3",
