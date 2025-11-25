@@ -1,5 +1,5 @@
 import type { SerializedContext } from '@financial-analysis/tools';
-import type { CalculatorContextKey } from './chat/calculator-contexts';
+import type { CalculatorContextKey } from './calculator-contexts';
 
 export type ContextKey = CalculatorContextKey;
 

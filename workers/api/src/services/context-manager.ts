@@ -121,9 +121,9 @@ export class ContextManager {
       const mortgageData = contextData as {
         calculatorType?: string;
         calculatorName?: string;
-        currentFormData?: any;
-        results?: any;
-        formData?: any;
+        currentFormData?: Record<string, unknown>;
+        results?: Record<string, unknown>;
+        formData?: Record<string, unknown>;
         cfpGuidance?: string[];
       };
 

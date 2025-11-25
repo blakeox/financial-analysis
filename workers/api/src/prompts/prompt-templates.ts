@@ -617,7 +617,7 @@ When helping users, be aware of these calculator families:
  */
 export function buildPrompt(
   templateName: string,
-  context: Record<string, any>
+  context: Record<string, unknown>
 ): string {
   const template = PromptTemplates[templateName];
   if (!template) {
@@ -668,8 +668,9 @@ export function buildPrompt(
   }
 
   // Add conversation history if present
-  if (context.conversationHistory && context.conversationHistory.length > 0) {
-    prompt += `\n\n**Previous Conversation:**\n${context.conversationHistory}`;
+  const conversationHistory = context.conversationHistory;
+  if (conversationHistory && typeof conversationHistory === 'string' && conversationHistory.length > 0) {
+    prompt += `\n\n**Previous Conversation:**\n${conversationHistory}`;
   }
 
   // Add other context data (excluding what we've already formatted)
