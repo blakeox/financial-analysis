@@ -103,6 +103,7 @@ export default {
           status: apiRes.status,
           statusText: apiRes.statusText,
           headers: Object.fromEntries(apiRes.headers.entries()),
+          bodyUsed: apiRes.bodyUsed,
         });
 
       const headers = new Headers(apiRes.headers);
@@ -111,6 +112,18 @@ export default {
       if (isDev) {
         headers.set('x-dev-proxy', 'web->api');
       }
+      
+      // For streaming endpoints, preserve the streaming response
+      const isStreamingEndpoint = pathname.includes('/stream');
+      if (isStreamingEndpoint) {
+        // Don't set CSP/security headers that might interfere with streaming
+        headers.set('Content-Type', 'text/event-stream');
+        headers.set('Cache-Control', 'no-cache');
+        headers.set('Connection', 'keep-alive');
+        // Pass through the body directly
+        return new Response(apiRes.body, { status: apiRes.status, headers });
+      }
+      
       for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
         headers.set(key, value);
       }

@@ -71,7 +71,7 @@ export function registerChatRoutes(router: RouterType) {
           context?: string;
           currentModel?: Record<string, unknown>;
           availableTools?: Array<{ name: string; description: string }>;
-          toolOutputs?: Record<string, unknown>;
+          toolOutputs?: Record<string, unknown> | null;
           contextData?: Record<string, unknown>;
           contextLabel?: string | null;
           memoryContext?: {
@@ -85,12 +85,14 @@ export function registerChatRoutes(router: RouterType) {
           context = 'general',
           currentModel = {},
           availableTools = [],
-          toolOutputs = {},
+          toolOutputs: rawToolOutputs,
           contextData = {},
           contextLabel = null,
           memoryContext = {},
           negative_constraints = [],
         } = body;
+        // Handle explicit null values (JS destructuring defaults don't apply to null)
+        const toolOutputs = rawToolOutputs ?? {};
 
         // SECURITY: Comprehensive message validation and sanitization
         const validation = validateChatMessage(message);
@@ -288,29 +290,105 @@ export function registerChatRoutes(router: RouterType) {
       const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
 
       try {
+        // SECURITY: Validate Content-Type
+        const contentType = request.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          return new Response(
+            JSON.stringify({
+              error: 'Unsupported Media Type',
+              message: 'Content-Type must be application/json',
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 415,
+              headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+            }
+          );
+        }
+
+        // SECURITY: Validate request size before parsing body
+        const contentLength = request.headers.get('Content-Length');
+        const sizeValidation = validateRequestSize(contentLength);
+        if (!sizeValidation.valid) {
+          logWarn(requestContext, 'Request size validation failed', {
+            error: sizeValidation.error,
+            code: sizeValidation.code,
+            contentLength,
+          });
+          return new Response(
+            JSON.stringify({
+              error: sizeValidation.error,
+              code: sizeValidation.code,
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 413,
+              headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+            }
+          );
+        }
+
         const body = (await request.json()) as {
           message: string;
           context?: string;
           currentModel?: Record<string, unknown>;
           availableTools?: Array<{ name: string; description: string }>;
-          toolOutputs?: Record<string, unknown>;
+          toolOutputs?: Record<string, unknown> | null;
           contextData?: Record<string, unknown>;
           contextLabel?: string | null;
           memoryContext?: {
             conversationHistory?: string;
             modelStates?: string;
           };
+          negative_constraints?: string[];
         };
         const {
           message,
           context = 'general',
           currentModel = {},
           availableTools = [],
-          toolOutputs = {},
+          toolOutputs: rawToolOutputs,
           contextData = {},
           contextLabel = null,
           memoryContext = {},
+          negative_constraints = [],
         } = body;
+        // Handle explicit null values (JS destructuring defaults don't apply to null)
+        const toolOutputs = rawToolOutputs ?? {};
+
+        // SECURITY: Comprehensive message validation and sanitization
+        const validation = validateChatMessage(message);
+        if (!validation.valid) {
+          logWarn(requestContext, 'Message validation failed', {
+            error: validation.error,
+            code: validation.code,
+            messageLength: message?.length || 0,
+          });
+          return new Response(
+            JSON.stringify({
+              error: validation.error,
+              code: validation.code,
+              requestId: requestContext.requestId,
+            }),
+            {
+              status: 400,
+              headers: buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
+            }
+          );
+        }
+
+        // Use sanitized message for processing
+        const sanitizedMessage = validation.sanitizedValue || '';
+
+        // SECURITY: Detect and log potential threats
+        const threats = detectThreats(sanitizedMessage);
+        if (threats.length > 0) {
+          logWarn(requestContext, 'Potential security threats detected in message', {
+            threats,
+            sanitizedMessage: sanitizedMessage.substring(0, 100),
+          });
+          // Continue processing but log the threat for monitoring
+        }
 
         if (!canCreateOrchestrator(env)) {
           return new Response('AI not configured', { status: 503 });
@@ -318,7 +396,7 @@ export function registerChatRoutes(router: RouterType) {
 
         const orchestrator = createLLMOrchestrator(env);
         const orchestratorRequest = {
-          message,
+          message: sanitizedMessage,
           context,
           contextData,
           currentModel,
@@ -327,6 +405,7 @@ export function registerChatRoutes(router: RouterType) {
           memoryContext,
           contextLabel,
           requestId: requestContext.requestId,
+          negative_constraints,
         };
 
         const stream = orchestrator.stream(orchestratorRequest);

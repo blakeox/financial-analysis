@@ -102,12 +102,14 @@ export class LLMOrchestrator {
       contextData,
       currentModel = {},
       availableTools = [],
-      toolOutputs = {},
+      toolOutputs: rawToolOutputs,
       memoryContext,
       requestId,
       contextLabel,
       negative_constraints,
     } = request;
+    // Handle explicit null values (JS destructuring defaults don't apply to null)
+    const toolOutputs = rawToolOutputs ?? {};
 
     // PII Redaction (Phase 2.2)
     const sanitizedMessage = PIIRedactor.redact(message);
@@ -247,11 +249,13 @@ export class LLMOrchestrator {
       contextData,
       currentModel = {},
       availableTools = [],
-      toolOutputs = {},
+      toolOutputs: rawToolOutputs,
       memoryContext,
       requestId,
       contextLabel,
     } = request;
+    // Handle explicit null values (JS destructuring defaults don't apply to null)
+    const toolOutputs = rawToolOutputs ?? {};
 
     // PII Redaction (Phase 2.2)
     const sanitizedMessage = PIIRedactor.redact(message);
