@@ -34,7 +34,7 @@
     "@typescript-eslint/parser": "^8.46.4",
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
-    "miniflare": "^4.20251109.1",
+    "miniflare": "^4.20251118.1",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "vitest": "4.0.9",
