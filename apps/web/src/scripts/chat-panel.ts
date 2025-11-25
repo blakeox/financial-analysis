@@ -226,6 +226,7 @@ class ChatPanel {
     this.stateStore = new ChatStateStore();
     this.transport = createChatTransport({
       endpoint: '/v1/chat/enhanced',
+      streamEndpoint: '/v1/chat/stream',
       timeoutMs: API_TIMEOUT_MS,
       maxAttempts: MAX_RETRY_ATTEMPTS,
       backoffMs: RETRY_BACKOFF_MS,

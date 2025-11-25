@@ -332,6 +332,56 @@ export function getJourneyData(): JourneyData {
         'Build emergency fund for home ownership',
       ],
     },
+    'auto-lease-decision': {
+      name: 'Auto Lease Decision Journey',
+      description:
+        'Compare staying in your current lease, buying out the vehicle, signing a new lease, or switching to a new/used car purchase with clear total cost and cash flow impacts.',
+      ageRange: 'Drivers evaluating lease vs buy',
+      complexity: 'Intermediate',
+      duration: '60-90 minutes',
+      icon: '🚙',
+      color: 'teal',
+      models: [
+        {
+          id: 'lease-profile',
+          name: 'Lease Snapshot & Goals',
+          description: 'Capture current lease terms, mileage position, and decision goals',
+          url: '/journey/auto-lease-decision/step/lease-profile',
+          order: 1,
+          required: true,
+        },
+        {
+          id: 'lease-vs-buyout',
+          name: 'Lease vs Buyout Math',
+          description: 'Compare finishing the lease vs buying out now or at lease-end',
+          url: '/journey/auto-lease-decision/step/lease-vs-buyout',
+          order: 2,
+          required: true,
+        },
+        {
+          id: 'replacement-options',
+          name: 'New Lease vs New Car vs Used Car',
+          description: 'Stack-rank replacement options with total cost and reliability factors',
+          url: '/journey/auto-lease-decision/step/replacement-options',
+          order: 3,
+          required: true,
+        },
+        {
+          id: 'decision-review',
+          name: 'Decision Scorecard & Next Steps',
+          description: 'Summarize tradeoffs, cash needs, risk factors, and action plan',
+          url: '/journey/auto-lease-decision/step/decision-review',
+          order: 4,
+          required: true,
+        },
+      ],
+      workflow: [
+        'Capture lease terms, mileage position, and goals',
+        'Model lease vs buyout cash flows and total cost',
+        'Compare replacement options (new lease vs new/used purchase)',
+        'Create decision scorecard with risks and next steps',
+      ],
+    },
     'business-growth': {
       name: 'Business Growth Journey',
       description:

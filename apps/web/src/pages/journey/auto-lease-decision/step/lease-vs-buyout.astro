@@ -1,0 +1,401 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+const journeyData = getJourneyData();
+const currentScenario = journeyData['auto-lease-decision'];
+
+if (!currentScenario) {
+  throw new Error('Journey not found: auto-lease-decision');
+}
+
+const currentStep = currentScenario.models.find(m => m.id === 'lease-vs-buyout');
+const currentStepOrder = currentStep?.order || 2;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
+
+const journeyNav = {
+  scenarioId: 'auto-lease-decision',
+  scenarioName: currentScenario.name,
+  currentStep: currentStepOrder,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep
+    ? {
+        id: nextStep.id,
+        name: nextStep.name,
+        url: `/journey/auto-lease-decision/step/${nextStep.id}`,
+      }
+    : null,
+  previousStep: previousStep
+    ? {
+        id: previousStep.id,
+        name: previousStep.name,
+        url: `/journey/auto-lease-decision/step/${previousStep.id}`,
+      }
+    : null,
+  journeyOverviewUrl: '/journey/auto-lease-decision',
+};
+
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey/auto-lease-decision" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3 space-y-6">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">📊</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300">
+              Stack the hard dollars: total cost to finish the lease vs buying the car with financing (now or at lease-end) and compare to the vehicle’s market value. This frames your equity position and exit strategy.
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {currentStepOrder} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div
+                class="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Lease vs Buyout Calculator -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Model the tradeoffs</h2>
+              <span id="lease-buyout-status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+            </div>
+            <form id="lease-buyout-form" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                  <div>
+                    <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Finish the lease</h3>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="remainingPayments">Payments remaining ($ total)</label>
+                    <input id="remainingPayments" name="remainingPayments" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="3150" />
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="monthsRemaining">Months remaining</label>
+                    <input id="monthsRemaining" name="monthsRemaining" type="number" min="0" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="9" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="dispositionFee">Disposition fee ($)</label>
+                      <input id="dispositionFee" name="dispositionFee" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="395" />
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="mileagePenalty">Mileage/condition charges ($)</label>
+                      <input id="mileagePenalty" name="mileagePenalty" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div>
+                    <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Buyout path</h3>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="buyoutAmount">Buyout amount ($)</label>
+                    <input id="buyoutAmount" name="buyoutAmount" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19500" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="salesTaxRate">Sales tax (%)</label>
+                      <input id="salesTaxRate" name="salesTaxRate" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="8.5" />
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="fees">Title/DMV fees ($)</label>
+                      <input id="fees" name="fees" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="450" />
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="loanTermMonths">Loan term (months)</label>
+                      <input id="loanTermMonths" name="loanTermMonths" type="number" min="6" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="apr">APR (%)</label>
+                      <input id="apr" name="apr" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5.5" />
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="expectedValueNow">Market value today ($)</label>
+                      <input id="expectedValueNow" name="expectedValueNow" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="21000" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="expectedValueFuture">Estimated value at lease-end ($)</label>
+                    <input id="expectedValueFuture" name="expectedValueFuture" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18500" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="calculate-lease-buyout" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Run Comparison
+                </button>
+                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Save Numbers
+                </button>
+              </div>
+            </form>
+
+            <div id="lease-buyout-results" class="hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Quick take</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">Finish the lease</p>
+                  <p id="leaseCostSummary" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">Buyout financing</p>
+                  <p id="buyoutSummary" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">Equity check</p>
+                  <p id="equitySummary" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+              </div>
+              <p id="recommendation" class="mt-4 text-gray-800 dark:text-gray-200 font-medium"></p>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="bg-gradient-to-r from-gray-50 to-teal-50 dark:from-gray-900/20 dark:to-teal-900/20 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a href={journeyNav.journeyOverviewUrl} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a href={journeyNav.nextStep.url} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Guardrails</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li>• Check if lender restricts third-party buyouts.</li>
+              <li>• Ask about taxes in your state on lease buyouts.</li>
+              <li>• Compare insurance/registration costs between options.</li>
+              <li>• Consider warranty coverage if you keep the car.</li>
+            </ul>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Helpful links</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li><a href="/calculator/auto-loan" class="text-teal-700 dark:text-teal-300 hover:underline">Auto loan calculator</a> for buyout financing.</li>
+              <li><a href="/calculator/risk-management" class="text-teal-700 dark:text-teal-300 hover:underline">Risk review</a> for emergency fund and payment safety.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
+
+  const parseNumber = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
+  };
+
+  const formatCurrency = (value) =>
+    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
+
+  const formatPerMonth = (value) =>
+    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }) || '$0';
+
+  const calculatePayment = (principal, apr, months) => {
+    const monthlyRate = apr / 100 / 12;
+    if (!months || months <= 0) return 0;
+    if (monthlyRate === 0) return principal / months;
+    const pow = Math.pow(1 + monthlyRate, months);
+    return (principal * monthlyRate * pow) / (pow - 1);
+  };
+
+  const renderResults = (data) => {
+    const {
+      leaseCost,
+      buyoutPayment,
+      buyoutTotal,
+      equityNow,
+      equityFuture,
+      monthsRemaining,
+    } = data;
+
+    const leaseCostSummary = document.getElementById('leaseCostSummary');
+    const buyoutSummary = document.getElementById('buyoutSummary');
+    const equitySummary = document.getElementById('equitySummary');
+    const recommendation = document.getElementById('recommendation');
+    const resultsWrapper = document.getElementById('lease-buyout-results');
+
+    if (!leaseCostSummary || !buyoutSummary || !equitySummary || !recommendation || !resultsWrapper) return;
+
+    leaseCostSummary.textContent = `${formatCurrency(leaseCost)} total (${monthsRemaining} months)`;
+    buyoutSummary.textContent = `${formatPerMonth(buyoutPayment)}/mo, ${formatCurrency(buyoutTotal)} total`;
+    equitySummary.textContent = `Equity now: ${formatCurrency(equityNow)} | At lease-end: ${formatCurrency(equityFuture)}`;
+
+    const leaning =
+      equityNow > 0
+        ? 'Buyout is compelling because you have positive equity now.'
+        : equityFuture > 0
+          ? 'Running the lease to the end then buying keeps equity positive.'
+          : 'Watch total cost and negative equity risk—shop other options in the next step.';
+
+    recommendation.textContent = leaning;
+    resultsWrapper.classList.remove('hidden');
+  };
+
+  const hydrateForm = () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    const details = data.collectedData?.['lease-vs-buyout'];
+    if (!details) return;
+
+    Object.entries(details).forEach(([key, value]) => {
+      const input = document.querySelector(`[name="${key}"]`);
+      if (input && 'value' in input) {
+        input.value = String(value ?? '');
+      }
+    });
+    const statusEl = document.getElementById('lease-buyout-status');
+    if (statusEl) statusEl.textContent = 'Loaded from last session';
+  };
+
+  const runComparison = () => {
+    const form = document.getElementById('lease-buyout-form');
+    if (!form) return;
+    const formData = new FormData(form);
+
+    const monthsRemaining = parseNumber(formData.get('monthsRemaining'));
+    const leaseCost =
+      parseNumber(formData.get('remainingPayments')) +
+      parseNumber(formData.get('dispositionFee')) +
+      parseNumber(formData.get('mileagePenalty'));
+
+    const buyoutBase = parseNumber(formData.get('buyoutAmount'));
+    const buyoutTax = buyoutBase * (parseNumber(formData.get('salesTaxRate')) / 100);
+    const buyoutPrincipal = buyoutBase + buyoutTax + parseNumber(formData.get('fees'));
+    const loanTermMonths = parseNumber(formData.get('loanTermMonths'));
+    const apr = parseNumber(formData.get('apr'));
+
+    const payment = calculatePayment(buyoutPrincipal, apr, loanTermMonths);
+    const buyoutTotal = payment * loanTermMonths;
+
+    const equityNow = parseNumber(formData.get('expectedValueNow')) - buyoutPrincipal;
+    const equityFuture = parseNumber(formData.get('expectedValueFuture')) - buyoutPrincipal;
+
+    renderResults({
+      leaseCost,
+      buyoutPayment: payment,
+      buyoutTotal,
+      equityNow,
+      equityFuture,
+      monthsRemaining,
+    });
+  };
+
+  const saveForm = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const details = Object.fromEntries(formData.entries());
+
+    const rawState = localStorage.getItem(STORAGE_KEY);
+    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
+    journeyState.collectedData = journeyState.collectedData || {};
+    journeyState.collectedData['lease-vs-buyout'] = details;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
+
+    const statusEl = document.getElementById('lease-buyout-status');
+    if (statusEl) {
+      statusEl.textContent = 'Saved ✓';
+      statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+    }
+
+    runComparison();
+  };
+
+  document.getElementById('calculate-lease-buyout')?.addEventListener('click', runComparison);
+  document.getElementById('lease-buyout-form')?.addEventListener('submit', saveForm);
+  hydrateForm();
+</script>

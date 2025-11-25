@@ -1,0 +1,336 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+const journeyData = getJourneyData();
+const currentScenario = journeyData['auto-lease-decision'];
+
+if (!currentScenario) {
+  throw new Error('Journey not found: auto-lease-decision');
+}
+
+const currentStep = currentScenario.models.find(m => m.id === 'lease-profile');
+const currentStepOrder = currentStep?.order || 1;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
+
+const journeyNav = {
+  scenarioId: 'auto-lease-decision',
+  scenarioName: currentScenario.name,
+  currentStep: currentStepOrder,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep
+    ? {
+        id: nextStep.id,
+        name: nextStep.name,
+        url: `/journey/auto-lease-decision/step/${nextStep.id}`,
+      }
+    : null,
+  previousStep: previousStep
+    ? {
+        id: previousStep.id,
+        name: previousStep.name,
+        url: `/journey/auto-lease-decision/step/${previousStep.id}`,
+      }
+    : null,
+  journeyOverviewUrl: '/journey/auto-lease-decision',
+};
+
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey/auto-lease-decision" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3 space-y-6">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🚙</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300">
+              Capture the basics of your current lease so we can benchmark options. These numbers feed the buyout math, new lease comparisons, and cost-per-mile targets later in the journey.
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {currentStepOrder} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div
+                class="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Lease Snapshot Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Your Lease Snapshot</h2>
+              <span id="lease-profile-status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+            </div>
+            <form id="lease-profile-form" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="monthlyPayment">Monthly Payment ($)</label>
+                  <input id="monthlyPayment" name="monthlyPayment" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="350" required />
+                  <p class="text-xs text-gray-500 mt-1">Include taxes if rolled in.</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="monthsRemaining">Months Remaining</label>
+                  <input id="monthsRemaining" name="monthsRemaining" type="number" min="0" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="9" required />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="residualValue">Residual / Buyout ($)</label>
+                  <input id="residualValue" name="residualValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19500" required />
+                  <p class="text-xs text-gray-500 mt-1">Purchase option price at lease end.</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="moneyFactor">Money Factor / APR</label>
+                  <input id="moneyFactor" name="moneyFactor" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="0.00125 (≈3.0% APR)" />
+                  <p class="text-xs text-gray-500 mt-1">Optional, for context on current lease cost.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="currentMileage">Current Mileage</label>
+                  <input id="currentMileage" name="currentMileage" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="28000" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="allowedMileage">Allowed Miles (total)</label>
+                  <input id="allowedMileage" name="allowedMileage" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="30000" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="overageFee">Mileage Overage Fee ($/mile)</label>
+                  <input id="overageFee" name="overageFee" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="0.25" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="dispositionFee">Disposition Fee ($)</label>
+                  <input id="dispositionFee" name="dispositionFee" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="395" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="purchaseOptionFee">Purchase Option Fee ($)</label>
+                  <input id="purchaseOptionFee" name="purchaseOptionFee" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="250" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="creditBand">Credit / Rate Expectation</label>
+                  <select id="creditBand" name="creditBand" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    <option value="">Select</option>
+                    <option value="excellent">Excellent (720+)</option>
+                    <option value="good">Good (680-719)</option>
+                    <option value="fair">Fair (640-679)</option>
+                    <option value="rebuilding">Rebuilding (&lt;640)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="goals">What matters most?</label>
+                  <select id="goals" name="goals" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    <option value="">Select priority</option>
+                    <option value="payment">Lowest monthly payment</option>
+                    <option value="total-cost">Lowest total cost</option>
+                    <option value="equity">Building equity</option>
+                    <option value="reliability">Reliability / warranty</option>
+                    <option value="flexibility">Flexibility (short horizon)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="notes">Constraints or preferences</label>
+                  <textarea id="notes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., need AWD, avoid large upfront cash, considering EV incentives"></textarea>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Save Lease Profile
+                </button>
+                <a href={journeyNav.nextStep?.url || '#'} class="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                  Skip to {journeyNav.nextStep?.name}
+                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              </div>
+            </form>
+          </div>
+
+          <!-- Navigation -->
+          <div class="bg-gradient-to-r from-gray-50 to-teal-50 dark:from-gray-900/20 dark:to-teal-900/20 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a href={journeyNav.journeyOverviewUrl} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a href={journeyNav.nextStep.url} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">What to collect</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li>• Lease contract (payment, term, residual, fees)</li>
+              <li>• Current odometer and allowance to date</li>
+              <li>• Buyout quote with taxes/fees</li>
+              <li>• Any equity offers from dealers/CarMax/Vroom</li>
+            </ul>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Pro tips</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li>• Ask your lender for a written buyout that includes taxes and fees.</li>
+              <li>• Check market value from 2-3 sources (KBB/Edmunds/CarGurus) to see equity.</li>
+              <li>• Note end-of-lease inspection items; fixes now can beat turn-in charges.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
+
+  const parseNumber = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const hydrateForm = () => {
+    if (typeof window === 'undefined') return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    const profile = data.collectedData?.['lease-profile'];
+    if (!profile) return;
+
+    Object.entries(profile).forEach(([key, value]) => {
+      const input = document.querySelector(`[name="${key}"]`);
+      if (input && 'value' in input) {
+        input.value = String(value ?? '');
+      }
+    });
+
+    const statusEl = document.getElementById('lease-profile-status');
+    if (statusEl) statusEl.textContent = 'Loaded from last session';
+  };
+
+  const saveProfile = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const profile = {
+      monthlyPayment: parseNumber(formData.get('monthlyPayment')),
+      monthsRemaining: parseNumber(formData.get('monthsRemaining')),
+      residualValue: parseNumber(formData.get('residualValue')),
+      moneyFactor: formData.get('moneyFactor') || '',
+      currentMileage: parseNumber(formData.get('currentMileage')),
+      allowedMileage: parseNumber(formData.get('allowedMileage')),
+      overageFee: parseNumber(formData.get('overageFee')),
+      dispositionFee: parseNumber(formData.get('dispositionFee')),
+      purchaseOptionFee: parseNumber(formData.get('purchaseOptionFee')),
+      creditBand: formData.get('creditBand'),
+      goals: formData.get('goals'),
+      notes: formData.get('notes'),
+    };
+
+    const rawState = localStorage.getItem(STORAGE_KEY);
+    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
+    journeyState.collectedData = journeyState.collectedData || {};
+    journeyState.collectedData['lease-profile'] = profile;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
+
+    const statusEl = document.getElementById('lease-profile-status');
+    if (statusEl) {
+      statusEl.textContent = 'Saved ✓';
+      statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+    }
+  };
+
+  document.getElementById('lease-profile-form')?.addEventListener('submit', saveProfile);
+  hydrateForm();
+</script>

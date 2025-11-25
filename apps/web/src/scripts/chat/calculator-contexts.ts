@@ -473,6 +473,7 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
         'home-buying': 'amortization',
         'debt-freedom': 'general',
         'investment-analysis-journey': 'general',
+        'auto-lease-decision': 'auto-loan',
       };
       return journeyContextMap[journeyId] || 'general';
     }
@@ -566,4 +567,3 @@ export function parseFieldUpdate(message: string, context: CalculatorContextKey)
   
   return null;
 }
-

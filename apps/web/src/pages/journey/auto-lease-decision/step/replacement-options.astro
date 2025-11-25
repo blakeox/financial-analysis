@@ -1,0 +1,418 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getJourneyData } from '../../../../utils/journeyData';
+
+const journeyData = getJourneyData();
+const currentScenario = journeyData['auto-lease-decision'];
+
+if (!currentScenario) {
+  throw new Error('Journey not found: auto-lease-decision');
+}
+
+const currentStep = currentScenario.models.find(m => m.id === 'replacement-options');
+const currentStepOrder = currentStep?.order || 3;
+const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
+const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
+
+const journeyNav = {
+  scenarioId: 'auto-lease-decision',
+  scenarioName: currentScenario.name,
+  currentStep: currentStepOrder,
+  totalSteps: currentScenario.models.length,
+  nextStep: nextStep
+    ? {
+        id: nextStep.id,
+        name: nextStep.name,
+        url: `/journey/auto-lease-decision/step/${nextStep.id}`,
+      }
+    : null,
+  previousStep: previousStep
+    ? {
+        id: previousStep.id,
+        name: previousStep.name,
+        url: `/journey/auto-lease-decision/step/${previousStep.id}`,
+      }
+    : null,
+  journeyOverviewUrl: '/journey/auto-lease-decision',
+};
+
+const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
+const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+---
+
+<Layout title={seoTitle} description={seoDescription}>
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <a href="/journey/auto-lease-decision" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3 space-y-6">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">⚖️</span>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300">
+              Compare a new lease, a new car purchase, and a used car purchase on total cost and cash timing. Use realistic maintenance, insurance, and resale estimates so the cheapest monthly payment does not hide higher lifetime costs.
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Step {currentStepOrder} of {currentScenario.models.length}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div
+                class="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
+            </p>
+          </div>
+
+          <!-- Comparison Form -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scenario inputs</h2>
+              <span id="replacement-status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+            </div>
+            <form id="replacement-form" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="horizonMonths">Comparison horizon (months)</label>
+                  <input id="horizonMonths" name="horizonMonths" type="number" min="12" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="36" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="annualMiles">Annual miles</label>
+                  <input id="annualMiles" name="annualMiles" type="number" min="5000" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="12000" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Lease</h3>
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="leaseMonthly">Monthly payment ($)</label>
+                  <input id="leaseMonthly" name="leaseMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="430" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseUpfront">Drive-off / upfront ($)</label>
+                  <input id="leaseUpfront" name="leaseUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="1500" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseFees">Disposition/fees ($)</label>
+                  <input id="leaseFees" name="leaseFees" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="495" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseInsurance">Insurance ($/mo)</label>
+                  <input id="leaseInsurance" name="leaseInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="150" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseMaintenance">Maintenance ($/mo)</label>
+                  <input id="leaseMaintenance" name="leaseMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseFuel">Fuel/charging ($/mo)</label>
+                  <input id="leaseFuel" name="leaseFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                </div>
+
+                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Car Purchase</h3>
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="newMonthly">Monthly payment ($)</label>
+                  <input id="newMonthly" name="newMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="520" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newUpfront">Down payment / drive-off ($)</label>
+                  <input id="newUpfront" name="newUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="4000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newResale">Resale value at horizon ($)</label>
+                  <input id="newResale" name="newResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newInsurance">Insurance ($/mo)</label>
+                  <input id="newInsurance" name="newInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="165" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newMaintenance">Maintenance ($/mo)</label>
+                  <input id="newMaintenance" name="newMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="95" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newFuel">Fuel/charging ($/mo)</label>
+                  <input id="newFuel" name="newFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                </div>
+
+                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Used Car Purchase</h3>
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="usedMonthly">Monthly payment ($)</label>
+                  <input id="usedMonthly" name="usedMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="360" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedUpfront">Down payment ($)</label>
+                  <input id="usedUpfront" name="usedUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="3000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedResale">Resale value at horizon ($)</label>
+                  <input id="usedResale" name="usedResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="10000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedInsurance">Insurance ($/mo)</label>
+                  <input id="usedInsurance" name="usedInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="140" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedMaintenance">Maintenance ($/mo)</label>
+                  <input id="usedMaintenance" name="usedMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="130" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedFuel">Fuel/charging ($/mo)</label>
+                  <input id="usedFuel" name="usedFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="190" />
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="calculate-options" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Compare Options
+                </button>
+                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Save Scenario Inputs
+                </button>
+              </div>
+            </form>
+
+            <div id="replacement-results" class="hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">3-year cost snapshot</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">New Lease</p>
+                  <p id="leaseResult" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">New Car</p>
+                  <p id="newResult" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                  <p class="font-semibold mb-1">Used Car</p>
+                  <p id="usedResult" class="text-gray-700 dark:text-gray-300">–</p>
+                </div>
+              </div>
+              <p id="optionsRecommendation" class="mt-4 text-gray-800 dark:text-gray-200 font-medium"></p>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="bg-gradient-to-r from-gray-50 to-teal-50 dark:from-gray-900/20 dark:to-teal-900/20 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                {journeyNav.previousStep ? (
+                  <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous: {journeyNav.previousStep.name}
+                  </a>
+                ) : (
+                  <a href={journeyNav.journeyOverviewUrl} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Journey
+                  </a>
+                )}
+              </div>
+              <div class="flex items-center space-x-4">
+                {journeyNav.nextStep ? (
+                  <a href={journeyNav.nextStep.url} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Next: {journeyNav.nextStep.name}
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                ) : (
+                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    Complete Journey
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Add qualitative filters</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li>• Warranty coverage and roadside assistance</li>
+              <li>• Safety/tech upgrades and fuel efficiency</li>
+              <li>• EV incentives or HOV perks (if applicable)</li>
+              <li>• Insurance differences by vehicle and trim</li>
+            </ul>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
+            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Shortcuts</h3>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li><a href="/calculator/auto-loan" class="text-teal-700 dark:text-teal-300 hover:underline">Auto loan calculator</a> for new/used purchase payments.</li>
+              <li>Ask dealers for “drive-off” quotes to capture all fees up front.</li>
+              <li>Use fuel/energy calculators if switching to EV or PHEV.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
+
+  const parseNumber = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
+  };
+
+  const formatCurrency = (value) =>
+    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
+
+  const formatPerMile = (value) =>
+    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }) || '$0';
+
+  const computeOption = (inputs) => {
+    const {
+      monthly,
+      upfront,
+      insurance,
+      maintenance,
+      fuel,
+      fees = 0,
+      resale = 0,
+      horizonMonths,
+      annualMiles,
+      subtractResale = false,
+    } = inputs;
+
+    const horizon = horizonMonths || 36;
+    const miles = annualMiles || 12000;
+    const base = monthly * horizon + upfront + insurance * horizon + maintenance * horizon + fuel * horizon + fees;
+    const total = subtractResale ? base - resale : base;
+    const milesDriven = (miles / 12) * horizon || 1;
+    const costPerMile = total / milesDriven;
+    return { total, costPerMile };
+  };
+
+  const renderResults = (results) => {
+    const leaseResult = document.getElementById('leaseResult');
+    const newResult = document.getElementById('newResult');
+    const usedResult = document.getElementById('usedResult');
+    const recommendation = document.getElementById('optionsRecommendation');
+    const wrapper = document.getElementById('replacement-results');
+    if (!leaseResult || !newResult || !usedResult || !recommendation || !wrapper) return;
+
+    leaseResult.textContent = `${formatCurrency(results.lease.total)} total (${formatPerMile(results.lease.costPerMile)}/mile)`;
+    newResult.textContent = `${formatCurrency(results.newCar.total)} total (${formatPerMile(results.newCar.costPerMile)}/mile)`;
+    usedResult.textContent = `${formatCurrency(results.usedCar.total)} total (${formatPerMile(results.usedCar.costPerMile)}/mile)`;
+
+    const cheapest = Object.entries(results).sort((a, b) => a[1].total - b[1].total)[0];
+    recommendation.textContent = `${cheapest[0] === 'lease' ? 'New lease' : cheapest[0] === 'newCar' ? 'New car' : 'Used car'} is currently the lowest total cost. Check if higher maintenance or insurance could change the order.`;
+
+    wrapper.classList.remove('hidden');
+  };
+
+  const hydrateForm = () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    const details = data.collectedData?.['replacement-options'];
+    if (!details) return;
+
+    Object.entries(details).forEach(([key, value]) => {
+      const input = document.querySelector(`[name="${key}"]`);
+      if (input && 'value' in input) {
+        input.value = String(value ?? '');
+      }
+    });
+    const statusEl = document.getElementById('replacement-status');
+    if (statusEl) statusEl.textContent = 'Loaded from last session';
+  };
+
+  const runComparison = () => {
+    const form = document.getElementById('replacement-form');
+    if (!form) return;
+    const formData = new FormData(form);
+    const horizonMonths = parseNumber(formData.get('horizonMonths')) || 36;
+    const annualMiles = parseNumber(formData.get('annualMiles')) || 12000;
+
+    const lease = computeOption({
+      monthly: parseNumber(formData.get('leaseMonthly')),
+      upfront: parseNumber(formData.get('leaseUpfront')),
+      insurance: parseNumber(formData.get('leaseInsurance')),
+      maintenance: parseNumber(formData.get('leaseMaintenance')),
+      fuel: parseNumber(formData.get('leaseFuel')),
+      fees: parseNumber(formData.get('leaseFees')),
+      horizonMonths,
+      annualMiles,
+      subtractResale: false,
+    });
+
+    const newCar = computeOption({
+      monthly: parseNumber(formData.get('newMonthly')),
+      upfront: parseNumber(formData.get('newUpfront')),
+      insurance: parseNumber(formData.get('newInsurance')),
+      maintenance: parseNumber(formData.get('newMaintenance')),
+      fuel: parseNumber(formData.get('newFuel')),
+      resale: parseNumber(formData.get('newResale')),
+      horizonMonths,
+      annualMiles,
+      subtractResale: true,
+    });
+
+    const usedCar = computeOption({
+      monthly: parseNumber(formData.get('usedMonthly')),
+      upfront: parseNumber(formData.get('usedUpfront')),
+      insurance: parseNumber(formData.get('usedInsurance')),
+      maintenance: parseNumber(formData.get('usedMaintenance')),
+      fuel: parseNumber(formData.get('usedFuel')),
+      resale: parseNumber(formData.get('usedResale')),
+      horizonMonths,
+      annualMiles,
+      subtractResale: true,
+    });
+
+    renderResults({ lease, newCar, usedCar });
+  };
+
+  const saveForm = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const details = Object.fromEntries(formData.entries());
+
+    const rawState = localStorage.getItem(STORAGE_KEY);
+    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
+    journeyState.collectedData = journeyState.collectedData || {};
+    journeyState.collectedData['replacement-options'] = details;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
+
+    const statusEl = document.getElementById('replacement-status');
+    if (statusEl) {
+      statusEl.textContent = 'Saved ✓';
+      statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+    }
+
+    runComparison();
+  };
+
+  document.getElementById('calculate-options')?.addEventListener('click', runComparison);
+  document.getElementById('replacement-form')?.addEventListener('submit', saveForm);
+  hydrateForm();
+</script>

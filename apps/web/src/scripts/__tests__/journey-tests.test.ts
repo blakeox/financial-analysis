@@ -131,6 +131,25 @@ describe('Journey State Management', () => {
       expect(journeyState.isComplete).toBe(true);
       expect(journeyState.completedSteps.size).toBe(4);
     });
+
+    it('should model auto lease decision steps with correct ordering', () => {
+      const autoLeaseJourney = {
+        scenarioId: 'auto-lease-decision',
+        name: 'Auto Lease Decision Journey',
+        steps: [
+          { id: 'lease-profile', order: 1, required: true },
+          { id: 'lease-vs-buyout', order: 2, required: true },
+          { id: 'replacement-options', order: 3, required: true },
+          { id: 'decision-review', order: 4, required: true },
+        ],
+      };
+
+      expect(autoLeaseJourney.steps).toHaveLength(4);
+      expect(autoLeaseJourney.steps[0].id).toBe('lease-profile');
+      expect(autoLeaseJourney.steps[3].id).toBe('decision-review');
+      expect(autoLeaseJourney.steps.every((s) => s.required)).toBe(true);
+      expect(autoLeaseJourney.steps.map((s) => s.order)).toEqual([1, 2, 3, 4]);
+    });
   });
 
   describe('Journey Navigation', () => {
@@ -540,7 +559,6 @@ describe('Journey Integration Tests', () => {
     expect(resumedJourney.completedSteps).toContain('amortization');
   });
 });
-
 
 
 

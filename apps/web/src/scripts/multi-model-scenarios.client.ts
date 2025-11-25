@@ -194,6 +194,55 @@ export class MultiModelScenarioManager {
         complexity: 'intermediate',
       },
       {
+        id: 'auto-lease-decision',
+        name: 'Auto Lease Decision Journey',
+        description:
+          'Compare finishing your lease, buying out, or switching to a new/used vehicle with clear total cost, cash needs, and risk checks.',
+        category: 'major-purchase',
+        models: [
+          {
+            id: 'lease-profile',
+            name: 'Lease Snapshot & Goals',
+            description: 'Capture lease terms, mileage, and priorities',
+            url: '/journey/auto-lease-decision/step/lease-profile',
+            order: 1,
+            required: true,
+          },
+          {
+            id: 'lease-vs-buyout',
+            name: 'Lease vs Buyout Math',
+            description: 'Compare finishing the lease vs buying out now or later',
+            url: '/journey/auto-lease-decision/step/lease-vs-buyout',
+            order: 2,
+            required: true,
+          },
+          {
+            id: 'replacement-options',
+            name: 'New Lease vs New/Used Car',
+            description: 'Stack-rank replacement options on cost-per-mile',
+            url: '/journey/auto-lease-decision/step/replacement-options',
+            order: 3,
+            required: true,
+          },
+          {
+            id: 'decision-review',
+            name: 'Decision Scorecard & Next Steps',
+            description: 'Summarize tradeoffs, risks, and action plan',
+            url: '/journey/auto-lease-decision/step/decision-review',
+            order: 4,
+            required: true,
+          },
+        ],
+        workflow: [
+          'Capture lease details and goals',
+          'Model lease vs buyout cash flows and equity',
+          'Compare replacement options (new lease vs new/used purchase)',
+          'Create decision scorecard with risks and next steps',
+        ],
+        estimatedDuration: '60-90 minutes',
+        complexity: 'intermediate',
+      },
+      {
         id: 'debt-elimination',
         name: 'Debt Elimination Strategy',
         description:

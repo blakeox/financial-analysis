@@ -255,6 +255,7 @@ describe('Chat Panel Integration Tests', () => {
       { path: '/journey/home-buying', expected: 'amortization' },
       { path: '/journey/young-professional', expected: 'general' },
       { path: '/journey/family-planning', expected: 'general' },
+      { path: '/journey/auto-lease-decision', expected: 'auto-loan' },
     ];
 
     journeyTests.forEach(({ path, expected }) => {
@@ -336,4 +337,3 @@ describe('Chat Panel Integration Tests', () => {
     });
   });
 });
-
