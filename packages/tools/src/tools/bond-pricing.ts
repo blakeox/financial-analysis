@@ -11,15 +11,16 @@ export class BondPricingTool {
       bondType: {
         type: 'string',
         enum: [
-          'government',
           'corporate',
           'municipal',
+          'treasury',
+          'agency',
           'convertible',
           'zero-coupon',
           'floating-rate',
           'inflation-linked',
         ],
-        description: 'Type of bond to analyze',
+        description: 'Type of bond to analyze. Use "treasury" for government/US Treasury bonds.',
       },
       principal: {
         type: 'number',
@@ -51,6 +52,10 @@ export class BondPricingTool {
       maturityDate: {
         type: 'string',
         description: 'Maturity date in ISO 8601 format (YYYY-MM-DD)',
+      },
+      issueDate: {
+        type: 'string',
+        description: 'Issue date in ISO 8601 format (YYYY-MM-DD). If not provided, default to 1 year before settlement date.',
       },
       callProvision: {
         type: 'object',
@@ -139,9 +144,9 @@ export class BondPricingTool {
       },
       dayCountConvention: {
         type: 'string',
-        enum: ['30/360', 'actual/actual', 'actual/360', 'actual/365'],
+        enum: ['actual-actual', 'actual-360', 'actual-365', '30-360', '30-360-european'],
         description: 'Day count convention for accrued interest',
-        default: 'actual/actual',
+        default: 'actual-actual',
       },
       priceQuoteConvention: {
         type: 'string',
@@ -151,18 +156,35 @@ export class BondPricingTool {
       },
     },
     required: [
-      'bondType',
-      'principal',
       'couponRate',
       'yieldToMaturity',
-      'settlementDate',
       'maturityDate',
+      'issueDate',
     ],
   };
 
   static async execute(args: unknown): Promise<string> {
     try {
-      const result = await BondPricingAnalyzer.analyze(args as BondPricingInput);
+      // Map tool schema fields to engine schema
+      const toolArgs = args as Record<string, unknown>;
+      const input: BondPricingInput = {
+        bondType: (toolArgs.bondType as BondPricingInput['bondType']) || 'treasury',
+        faceValue: (toolArgs.principal as number) || (toolArgs.faceValue as number) || 1000,
+        couponRate: toolArgs.couponRate as number,
+        couponFrequency: (toolArgs.couponFrequency as BondPricingInput['couponFrequency']) || 'semi-annual',
+        yieldToMaturity: toolArgs.yieldToMaturity as number,
+        issueDate: toolArgs.issueDate as string,
+        maturityDate: toolArgs.maturityDate as string,
+        settlementDate: toolArgs.settlementDate as string | undefined,
+        dayCountConvention: (toolArgs.dayCountConvention as BondPricingInput['dayCountConvention']) || 'actual-actual',
+        creditRating: toolArgs.creditRating as BondPricingInput['creditRating'] | undefined,
+        // Tax-related fields with defaults
+        taxRate: (toolArgs.taxRate as number) || 0,
+        stateTaxRate: (toolArgs.stateTaxRate as number) || 0,
+        isTaxExempt: (toolArgs.isTaxExempt as boolean) || false,
+      };
+      
+      const result = await BondPricingAnalyzer.analyze(input);
       return JSON.stringify(result, null, 2);
     } catch (error) {
       if (error instanceof Error) {

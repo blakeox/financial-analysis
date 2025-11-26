@@ -33,7 +33,7 @@ export {
 
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';
-export type { MCPRequestMethod } from './mcp/tools';
+export type { MCPRequestMethod, MCPTool } from './mcp/tools';
 
 // Event Bus
 export {
