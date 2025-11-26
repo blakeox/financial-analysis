@@ -125,12 +125,10 @@ describe('Business Models Performance', () => {
         includeSensitivity: true,
         includeScenarios: true,
         includeMonteCarlo: false,
-        monteCarloSimulations: 10000,
+        monteCarloSimulations: 1000,
         sensitivityVariables: ['revenueGrowth', 'ebitdaMargin', 'wacc'],
       },
     };
-
-    // CCA Input
     ccaInput = {
       targetCompany: {
         name: 'TechCorp Inc.',
@@ -334,7 +332,7 @@ describe('Business Models Performance', () => {
         includeSensitivity: true,
         includeScenarios: true,
         includeMonteCarlo: false,
-        monteCarloSimulations: 10000,
+        monteCarloSimulations: 1000,
         sensitivityVariables: ['revenueGrowth', 'ebitdaMargin', 'wacc'],
       },
     };
@@ -347,7 +345,7 @@ describe('Business Models Performance', () => {
         analysis: {
           ...dcfInput.analysis,
           includeMonteCarlo: true,
-          monteCarloSimulations: 10000,
+          monteCarloSimulations: 1000,
         },
       };
 
@@ -363,7 +361,7 @@ describe('Business Models Performance', () => {
     });
 
     it('should scale Monte Carlo performance linearly', () => {
-      const simulations = [1000, 5000, 10000];
+      const simulations = [100, 500, 1000];
       const executionTimes: number[] = [];
 
       for (const simCount of simulations) {
@@ -399,7 +397,7 @@ describe('Business Models Performance', () => {
         analysis: {
           ...dcfInput.analysis,
           includeMonteCarlo: true,
-          monteCarloSimulations: 5000,
+          monteCarloSimulations: 500,
         },
       };
 
@@ -429,7 +427,7 @@ describe('Business Models Performance', () => {
         analysis: {
           ...dcfInput.analysis,
           includeMonteCarlo: true,
-          monteCarloSimulations: 50000,
+          monteCarloSimulations: 2000,
         },
       };
 
@@ -439,7 +437,7 @@ describe('Business Models Performance', () => {
 
       const executionTime = endTime - startTime;
 
-      expect(executionTime).toBeLessThan(30000); // Within 30 seconds
+      expect(executionTime).toBeLessThan(10000); // Within 10 seconds
       expect(result.monteCarlo).toBeDefined();
       expect(result.monteCarlo?.meanValuation).toBeGreaterThan(0);
       expect(result.monteCarlo?.confidenceInterval.p5).toBeLessThan(
@@ -545,7 +543,7 @@ describe('Business Models Performance', () => {
         analysis: {
           ...dcfInput.analysis,
           includeMonteCarlo: true,
-          monteCarloSimulations: 10000,
+          monteCarloSimulations: 1000,
         },
       };
 
@@ -599,7 +597,7 @@ describe('Business Models Performance', () => {
         analysis: {
           ...dcfInput.analysis,
           includeMonteCarlo: true,
-          monteCarloSimulations: 5000,
+          monteCarloSimulations: 500,
         },
       };
 

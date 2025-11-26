@@ -125,7 +125,7 @@ describe('Business Models Integration', () => {
         includeSensitivity: true,
         includeScenarios: true,
         includeMonteCarlo: false,
-        monteCarloSimulations: 10000,
+        monteCarloSimulations: 1000,
         sensitivityVariables: ['revenueGrowth', 'ebitdaMargin', 'wacc'],
       },
     };

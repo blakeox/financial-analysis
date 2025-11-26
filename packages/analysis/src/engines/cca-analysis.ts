@@ -294,6 +294,16 @@ export class CCAValuationEngine {
   static analyze(input: CCAValuationInput): CCAValuationResult {
     const validated = CCAValuationInputSchema.parse(input);
 
+    // Validate peer companies
+    if (!validated.peerCompanies || validated.peerCompanies.length === 0) {
+      throw new Error('CCA analysis requires at least one peer company');
+    }
+
+    // Validate target financials
+    if (validated.targetFinancials.revenue <= 0) {
+      throw new Error('Target company must have positive revenue for CCA analysis');
+    }
+
     // Set precision for financial calculations
     Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
 
@@ -380,6 +390,13 @@ export class CCAValuationEngine {
   }
 
   /**
+   * Convert hyphenated multiple type to camelCase property name
+   */
+  private static toCamelCase(str: string): string {
+    return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  /**
    * Analyze trading multiples
    */
   private static analyzeTradingMultiples(input: CCAValuationInput, peerCompanies: any[]) {
@@ -387,12 +404,16 @@ export class CCAValuationEngine {
 
     // Calculate each multiple
     for (const multipleType of input.analysis.multiplesToCalculate) {
+      // Convert hyphenated key to camelCase to match peer multiples property names
+      const camelCaseKey = this.toCamelCase(multipleType);
+      
       const values = peerCompanies
-        .map((company) => company.multiples[multipleType])
+        .map((company) => company.multiples[camelCaseKey])
         .filter((value) => value !== undefined && !isNaN(value) && isFinite(value));
 
       if (values.length > 0) {
-        multiples[multipleType] = this.analyzeMultiple(values, multipleType, input);
+        // Store with camelCase key to match output type
+        multiples[camelCaseKey] = this.analyzeMultiple(values, multipleType, input);
       }
     }
 

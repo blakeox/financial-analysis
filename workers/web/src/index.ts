@@ -95,7 +95,9 @@ export default {
           origin: 'https://fanalyx.com',
         },
         body: request.body,
-      });
+        // Required for Node.js environments (tests) when body is present
+        duplex: 'half',
+      } as RequestInit);
 
       try {
       const apiRes = await fetch(apiReq);
