@@ -105,8 +105,8 @@ importers:
         specifier: ^4.1.17
         version: 4.1.17
       zod:
-        specifier: ^4.1.12
-        version: 4.1.12
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.5
@@ -163,8 +163,8 @@ importers:
         specifier: ^10.6.0
         version: 10.6.0
       zod:
-        specifier: ^4.1.12
-        version: 4.1.12
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@financial-analysis/config':
         specifier: workspace:*
@@ -227,8 +227,8 @@ importers:
         specifier: workspace:*
         version: link:../analysis
       zod:
-        specifier: ^4.1.12
-        version: 4.1.12
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.46.4
@@ -338,7 +338,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.1.0
-        version: 8.1.0(zod@4.1.12)
+        version: 8.1.0(zod@4.1.13)
       '@cloudflare/ai-utils':
         specifier: ^1.0.1
         version: 1.0.1
@@ -355,8 +355,8 @@ importers:
         specifier: ^5.0.22
         version: 5.0.22
       zod:
-        specifier: ^4.1.12
-        version: 4.1.12
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       '@types/node':
         specifier: ^24.10.1
@@ -4990,8 +4990,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.1.12:
-    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -5022,10 +5022,10 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.12)':
+  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.13)':
     dependencies:
       openapi3-ts: 4.5.0
-      zod: 4.1.12
+      zod: 4.1.13
 
   '@astrojs/check@0.9.5(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(typescript@5.9.3)':
     dependencies:
@@ -9750,6 +9750,6 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.1.12: {}
+  zod@4.1.13: {}
 
   zwitch@2.0.4: {}
