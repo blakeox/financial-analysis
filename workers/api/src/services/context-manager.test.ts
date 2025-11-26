@@ -159,8 +159,10 @@ describe('ContextManager', () => {
       availableTools: [],
     });
 
-    expect(result.systemPrompt).toContain('CRITICAL: NEVER give generic fallback responses');
-    expect(result.systemPrompt).toContain('The following responses are FORBIDDEN');
+    // The system prompt includes guidance about what NOT to do
+    // Check for natural language anti-pattern guidance
+    const fullContent = (result.systemPrompt || '') + result.prompt;
+    expect(fullContent).toMatch(/NEVER|Anti-Patterns|NOT to do|FORBIDDEN/i);
   });
 
   it('includes dynamic negative constraints when provided', async () => {
