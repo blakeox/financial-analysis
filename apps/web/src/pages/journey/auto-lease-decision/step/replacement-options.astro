@@ -86,7 +86,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
             </div>
             <p class="text-gray-700 dark:text-gray-300">
-              Compare a new lease, a new car purchase, and a used car purchase on total cost and cash timing. Use realistic maintenance, insurance, and resale estimates so the cheapest monthly payment does not hide higher lifetime costs.
+              Compare a new lease against financing a new car or buying one with cash. Enter each path once, avoid repeating the same numbers across steps, and mark the cash route as “not an option” if savings are short.
             </p>
           </div>
 
@@ -129,7 +129,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Lease</h3>
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Lease Terms</h3>
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="leaseMonthly">Monthly payment ($)</label>
                   <input id="leaseMonthly" name="leaseMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="430" />
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseUpfront">Drive-off / upfront ($)</label>
@@ -145,35 +145,42 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </div>
 
                 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Car Purchase</h3>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="newMonthly">Monthly payment ($)</label>
-                  <input id="newMonthly" name="newMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="520" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newUpfront">Down payment / drive-off ($)</label>
-                  <input id="newUpfront" name="newUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="4000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newResale">Resale value at horizon ($)</label>
-                  <input id="newResale" name="newResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newInsurance">Insurance ($/mo)</label>
-                  <input id="newInsurance" name="newInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="165" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newMaintenance">Maintenance ($/mo)</label>
-                  <input id="newMaintenance" name="newMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="95" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="newFuel">Fuel/charging ($/mo)</label>
-                  <input id="newFuel" name="newFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Finance a New Car</h3>
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="financeMonthly">Monthly payment ($)</label>
+                  <input id="financeMonthly" name="financeMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="520" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeUpfront">Down payment / drive-off ($)</label>
+                  <input id="financeUpfront" name="financeUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="4000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeResale">Resale value at horizon ($)</label>
+                  <input id="financeResale" name="financeResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeInsurance">Insurance ($/mo)</label>
+                  <input id="financeInsurance" name="financeInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="165" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeMaintenance">Maintenance ($/mo)</label>
+                  <input id="financeMaintenance" name="financeMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="95" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeFuel">Fuel/charging ($/mo)</label>
+                  <input id="financeFuel" name="financeFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
                 </div>
 
                 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Used Car Purchase</h3>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="usedMonthly">Monthly payment ($)</label>
-                  <input id="usedMonthly" name="usedMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="360" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedUpfront">Down payment ($)</label>
-                  <input id="usedUpfront" name="usedUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="3000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedResale">Resale value at horizon ($)</label>
-                  <input id="usedResale" name="usedResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="10000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedInsurance">Insurance ($/mo)</label>
-                  <input id="usedInsurance" name="usedInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="140" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedMaintenance">Maintenance ($/mo)</label>
-                  <input id="usedMaintenance" name="usedMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="130" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="usedFuel">Fuel/charging ($/mo)</label>
-                  <input id="usedFuel" name="usedFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="190" />
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-md font-semibold text-gray-900 dark:text-white">Buy with Cash (New Car)</h3>
+                    <label class="flex items-center space-x-2 text-xs text-gray-700 dark:text-gray-300">
+                      <input id="cashNotOption" name="cashNotOption" type="checkbox" class="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600" />
+                      <span>Not an option</span>
+                    </label>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Skip this if you do not have enough cash on hand.</p>
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="cashPrice">Purchase price (cash outlay)</label>
+                  <input id="cashPrice" name="cashPrice" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="28000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashTaxesFees">Taxes & fees ($)</label>
+                  <input id="cashTaxesFees" name="cashTaxesFees" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="1800" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashResale">Resale value at horizon ($)</label>
+                  <input id="cashResale" name="cashResale" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19500" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashInsurance">Insurance ($/mo)</label>
+                  <input id="cashInsurance" name="cashInsurance" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="145" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashMaintenance">Maintenance ($/mo)</label>
+                  <input id="cashMaintenance" name="cashMaintenance" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="90" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashFuel">Fuel/charging ($/mo)</label>
+                  <input id="cashFuel" name="cashFuel" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
                 </div>
               </div>
 
@@ -195,12 +202,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   <p id="leaseResult" class="text-gray-700 dark:text-gray-300">–</p>
                 </div>
                 <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
-                  <p class="font-semibold mb-1">New Car</p>
-                  <p id="newResult" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p class="font-semibold mb-1">Finance a New Car</p>
+                  <p id="financeResult" class="text-gray-700 dark:text-gray-300">–</p>
                 </div>
                 <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
-                  <p class="font-semibold mb-1">Used Car</p>
-                  <p id="usedResult" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p class="font-semibold mb-1">Buy with Cash</p>
+                  <p id="cashResult" class="text-gray-700 dark:text-gray-300">–</p>
                 </div>
               </div>
               <p id="optionsRecommendation" class="mt-4 text-gray-800 dark:text-gray-200 font-medium"></p>
@@ -310,20 +317,46 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     return { total, costPerMile };
   };
 
-  const renderResults = (results) => {
+  const toggleCashFields = () => {
+    const cashToggle = document.getElementById('cashNotOption');
+    const disabled = cashToggle instanceof HTMLInputElement ? cashToggle.checked : false;
+    document.querySelectorAll('.cash-input').forEach((el) => {
+      if (el instanceof HTMLInputElement) {
+        el.disabled = disabled;
+      }
+    });
+  };
+
+  const renderResults = (results, cashNotOption) => {
     const leaseResult = document.getElementById('leaseResult');
-    const newResult = document.getElementById('newResult');
-    const usedResult = document.getElementById('usedResult');
+    const financeResult = document.getElementById('financeResult');
+    const cashResult = document.getElementById('cashResult');
     const recommendation = document.getElementById('optionsRecommendation');
     const wrapper = document.getElementById('replacement-results');
-    if (!leaseResult || !newResult || !usedResult || !recommendation || !wrapper) return;
+    if (!leaseResult || !financeResult || !cashResult || !recommendation || !wrapper) return;
 
     leaseResult.textContent = `${formatCurrency(results.lease.total)} total (${formatPerMile(results.lease.costPerMile)}/mile)`;
-    newResult.textContent = `${formatCurrency(results.newCar.total)} total (${formatPerMile(results.newCar.costPerMile)}/mile)`;
-    usedResult.textContent = `${formatCurrency(results.usedCar.total)} total (${formatPerMile(results.usedCar.costPerMile)}/mile)`;
+    financeResult.textContent = `${formatCurrency(results.finance.total)} total (${formatPerMile(results.finance.costPerMile)}/mile)`;
+    if (cashNotOption || !results.cash) {
+      cashResult.textContent = cashNotOption ? 'Skipped — marked not an option' : 'Enter purchase price to compare';
+    } else {
+      cashResult.textContent = `${formatCurrency(results.cash.total)} total (${formatPerMile(results.cash.costPerMile)}/mile)`;
+    }
 
-    const cheapest = Object.entries(results).sort((a, b) => a[1].total - b[1].total)[0];
-    recommendation.textContent = `${cheapest[0] === 'lease' ? 'New lease' : cheapest[0] === 'newCar' ? 'New car' : 'Used car'} is currently the lowest total cost. Check if higher maintenance or insurance could change the order.`;
+    const comparisons = [
+      ['lease', results.lease],
+      ['finance', results.finance],
+      ...(!cashNotOption && results.cash ? [['cash', results.cash]] : []),
+    ];
+    const cheapest = comparisons.sort((a, b) => a[1].total - b[1].total)[0];
+    const labelMap = {
+      lease: 'New lease',
+      finance: 'Finance a new car',
+      cash: 'Buy with cash',
+    };
+    recommendation.textContent = `${labelMap[cheapest[0]]} is currently the lowest total cost. ${
+      cashNotOption ? 'Cash path skipped due to limited savings.' : 'Check maintenance/insurance swings that could change the ranking.'
+    }`;
 
     wrapper.classList.remove('hidden');
   };
@@ -337,10 +370,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
     Object.entries(details).forEach(([key, value]) => {
       const input = document.querySelector(`[name="${key}"]`);
-      if (input && 'value' in input) {
+      if (input instanceof HTMLInputElement && input.type === 'checkbox') {
+        input.checked = value === 'on' || value === true || value === 'true';
+      } else if (input && 'value' in input) {
         input.value = String(value ?? '');
       }
     });
+    toggleCashFields();
     const statusEl = document.getElementById('replacement-status');
     if (statusEl) statusEl.textContent = 'Loaded from last session';
   };
@@ -351,6 +387,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const formData = new FormData(form);
     const horizonMonths = parseNumber(formData.get('horizonMonths')) || 36;
     const annualMiles = parseNumber(formData.get('annualMiles')) || 12000;
+    const cashNotOption = formData.get('cashNotOption') === 'on';
 
     const lease = computeOption({
       monthly: parseNumber(formData.get('leaseMonthly')),
@@ -364,31 +401,33 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       subtractResale: false,
     });
 
-    const newCar = computeOption({
-      monthly: parseNumber(formData.get('newMonthly')),
-      upfront: parseNumber(formData.get('newUpfront')),
-      insurance: parseNumber(formData.get('newInsurance')),
-      maintenance: parseNumber(formData.get('newMaintenance')),
-      fuel: parseNumber(formData.get('newFuel')),
-      resale: parseNumber(formData.get('newResale')),
+    const finance = computeOption({
+      monthly: parseNumber(formData.get('financeMonthly')),
+      upfront: parseNumber(formData.get('financeUpfront')),
+      insurance: parseNumber(formData.get('financeInsurance')),
+      maintenance: parseNumber(formData.get('financeMaintenance')),
+      fuel: parseNumber(formData.get('financeFuel')),
+      resale: parseNumber(formData.get('financeResale')),
       horizonMonths,
       annualMiles,
       subtractResale: true,
     });
 
-    const usedCar = computeOption({
-      monthly: parseNumber(formData.get('usedMonthly')),
-      upfront: parseNumber(formData.get('usedUpfront')),
-      insurance: parseNumber(formData.get('usedInsurance')),
-      maintenance: parseNumber(formData.get('usedMaintenance')),
-      fuel: parseNumber(formData.get('usedFuel')),
-      resale: parseNumber(formData.get('usedResale')),
-      horizonMonths,
-      annualMiles,
-      subtractResale: true,
-    });
+    const cashPurchase = cashNotOption
+      ? null
+      : computeOption({
+          monthly: 0,
+          upfront: (parseNumber(formData.get('cashPrice')) || 0) + (parseNumber(formData.get('cashTaxesFees')) || 0),
+          insurance: parseNumber(formData.get('cashInsurance')),
+          maintenance: parseNumber(formData.get('cashMaintenance')),
+          fuel: parseNumber(formData.get('cashFuel')),
+          resale: parseNumber(formData.get('cashResale')),
+          horizonMonths,
+          annualMiles,
+          subtractResale: true,
+        });
 
-    renderResults({ lease, newCar, usedCar });
+    renderResults({ lease, finance, cash: cashPurchase }, cashNotOption);
   };
 
   const saveForm = (event) => {
@@ -396,6 +435,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const form = event.currentTarget;
     const formData = new FormData(form);
     const details = Object.fromEntries(formData.entries());
+    if (!details.cashNotOption) {
+      details.cashNotOption = '';
+    }
 
     const rawState = localStorage.getItem(STORAGE_KEY);
     const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
@@ -414,5 +456,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
   document.getElementById('calculate-options')?.addEventListener('click', runComparison);
   document.getElementById('replacement-form')?.addEventListener('submit', saveForm);
+  document.getElementById('cashNotOption')?.addEventListener('change', () => {
+    toggleCashFields();
+    runComparison();
+  });
   hydrateForm();
 </script>
