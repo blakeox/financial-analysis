@@ -339,6 +339,9 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.1.0
         version: 8.1.0(zod@4.1.12)
+      '@cloudflare/ai-utils':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@cloudflare/workers-types':
         specifier: ^4.20251125.0
         version: 4.20251125.0
@@ -649,6 +652,9 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@cloudflare/ai-utils@1.0.1':
+    resolution: {integrity: sha512-gmn16AvVqtMLcaBYvPkwEWui39E4hlcFPqXuVamKbGleIDO6hVpvAy3KCvbnoPVT7KqRcfdLLpHRIBQDwI9tWQ==}
 
   '@cloudflare/kv-asset-handler@0.4.0':
     resolution: {integrity: sha512-+tv3z+SPp+gqTIcImN9o0hqE9xyfQjI1XD9pL6NuKjua9B1y7mNYv0S9cP+QEbA4ppVgGZEmKOvHX5G5Ei1CVA==}
@@ -5405,6 +5411,11 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.1.2
       prettier: 2.8.8
+
+  '@cloudflare/ai-utils@1.0.1':
+    dependencies:
+      yaml: 2.8.1
+      zod: 3.25.76
 
   '@cloudflare/kv-asset-handler@0.4.0':
     dependencies:

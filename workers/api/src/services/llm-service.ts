@@ -60,7 +60,7 @@ export interface LLMConfig {
 }
 
 const DEFAULT_CONFIG: LLMConfig = {
-  defaultModel: '@cf/meta/llama-3.1-8b-instruct',
+  defaultModel: '@cf/meta/llama-4-scout-17b-16e-instruct',
   defaultTemperature: 0.7,
   defaultMaxTokens: 2048,
   cacheEnabled: true,

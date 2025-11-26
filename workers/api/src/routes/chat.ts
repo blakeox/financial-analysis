@@ -79,6 +79,8 @@ export function registerChatRoutes(router: RouterType) {
             modelStates?: string;
           };
           negative_constraints?: string[];
+          /** Enable function calling for tool execution */
+          enableFunctionCalling?: boolean;
         };
         const {
           message,
@@ -90,7 +92,13 @@ export function registerChatRoutes(router: RouterType) {
           contextLabel = null,
           memoryContext = {},
           negative_constraints = [],
+          enableFunctionCalling = false,
         } = body;
+
+        // Debug logging for function calling
+        console.log('[chat.ts] body.enableFunctionCalling:', body.enableFunctionCalling);
+        console.log('[chat.ts] enableFunctionCalling:', enableFunctionCalling);
+
         // Handle explicit null values (JS destructuring defaults don't apply to null)
         const toolOutputs = rawToolOutputs ?? {};
 
@@ -158,6 +166,7 @@ export function registerChatRoutes(router: RouterType) {
               contextLabel,
               requestId: requestContext.requestId,
               negative_constraints,
+              enableFunctionCalling,
             };
 
             const result = await orchestrator.handle(orchestratorRequest);
@@ -167,6 +176,7 @@ export function registerChatRoutes(router: RouterType) {
               fromCache: result.fromCache || false,
               availableTools: result.tooling?.availableTools?.length || 0,
               toolOutputs: result.tooling?.toolOutputsIncluded || 0,
+              functionCallingUsed: !!result.functionCallingResults,
             });
 
             const responseBody: Record<string, unknown> = {
@@ -177,10 +187,28 @@ export function registerChatRoutes(router: RouterType) {
               requestId: requestContext.requestId,
               metadata: result.metadata,
               tooling: result.tooling,
+              // Debug info - remove after testing
+              _debug: {
+                bodyEnableFunctionCalling: body.enableFunctionCalling,
+                enableFunctionCalling,
+                orchestratorRequestEnableFunctionCalling: orchestratorRequest.enableFunctionCalling,
+                // Pass orchestrator debug info
+                orchestratorDebug: (result as unknown as Record<string, unknown>)._orchestratorDebug,
+                functionCallingError: (result as unknown as Record<string, unknown>)._functionCallingError,
+              },
             };
 
             if (result.toolUsed) {
               responseBody.toolUsed = result.toolUsed;
+            }
+
+            // Include function calling results for GUI updates
+            if (result.functionCallingResults) {
+              responseBody.functionCallingResults = result.functionCallingResults;
+              // Extract modelChanges for easy frontend access
+              if (result.functionCallingResults.modelChanges) {
+                responseBody.modelChanges = result.functionCallingResults.modelChanges;
+              }
             }
 
             // Return AI response
