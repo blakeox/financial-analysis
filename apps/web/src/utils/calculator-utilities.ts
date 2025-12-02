@@ -284,18 +284,26 @@ export function setLoadingState(
 
 /**
  * Show loading state
+ * @param button - Optional button to disable during loading
  */
-export function showLoading(): void {
+export function showLoading(button?: HTMLButtonElement | null): void {
   const loadingState = document.getElementById(DOM_IDS.LOADING_STATE);
   loadingState?.classList.remove('hidden');
+  if (button) {
+    setLoadingState(button, true);
+  }
 }
 
 /**
  * Hide loading state
+ * @param button - Optional button to re-enable after loading
  */
-export function hideLoading(): void {
+export function hideLoading(button?: HTMLButtonElement | null): void {
   const loadingState = document.getElementById(DOM_IDS.LOADING_STATE);
   loadingState?.classList.add('hidden');
+  if (button) {
+    setLoadingState(button, false);
+  }
 }
 
 /**

@@ -4,26 +4,14 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import type { JourneyScenario } from '../utils/journeyData';
 
 type JourneyCollectedData = Record<string, unknown>;
 type TabId = 'summary' | 'insights' | 'recommendations' | 'risks' | 'next-steps';
 
-interface JourneyModel {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-}
-
-interface JourneyData {
-  name: string;
-  description: string;
-  models: JourneyModel[];
-}
-
 interface JourneyAnalysisResultsProps {
   scenarioId: string;
-  journeyData: JourneyData;
+  journeyData: JourneyScenario;
   className?: string;
 }
 
@@ -74,7 +62,7 @@ export default function JourneyAnalysisResults({
       const collectedData = journeyState ? JSON.parse(journeyState).collectedData : {};
 
       // Generate AI-powered analysis
-      const analysis = await generateAIAnalysis(scenarioId, journeyData, collectedData);
+      const analysis = await generateAIAnalysis(scenarioId, collectedData);
       setAnalysisData(analysis);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate analysis');
@@ -85,7 +73,6 @@ export default function JourneyAnalysisResults({
 
   const generateAIAnalysis = async (
     scenarioId: string,
-    journey: JourneyData,
     collectedData: JourneyCollectedData
   ): Promise<JourneyAnalysisData> => {
     // This would integrate with your AI service

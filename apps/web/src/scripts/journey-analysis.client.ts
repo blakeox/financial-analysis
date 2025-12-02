@@ -20,11 +20,11 @@ interface AIAnalysisResponse {
 
 class JourneyAnalysisManager {
   private analysisData: JourneyAnalysisData | null = null;
-  private aiAnalysis: AIAnalysisResponse | null = null;
 
   constructor() {
     this.loadJourneyData();
     this.initializeUI();
+    this.setupEventListeners();
     this.generateAnalysis();
   }
 
@@ -146,7 +146,6 @@ class JourneyAnalysisManager {
 
       // Generate AI analysis
       const analysis = await this.callAIAnalysis();
-      this.aiAnalysis = analysis;
 
       // Display analysis
       this.displayAnalysis(analysis);

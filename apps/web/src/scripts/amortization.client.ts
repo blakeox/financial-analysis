@@ -138,7 +138,7 @@ interface AmortizationOptimizationOpportunity {
   description: string;
 }
 
-interface AmortizationComprehensiveAnalysis {
+export interface AmortizationComprehensiveAnalysis {
   summary: AmortizationSummary;
   timeline: AmortizationTimeline;
   insights: AmortizationInsight[];

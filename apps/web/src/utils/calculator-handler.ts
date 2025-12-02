@@ -17,6 +17,8 @@ import {
   setupResetButton,
 } from './calculator-utilities';
 
+type MaybePromise<T> = T | Promise<T>;
+
 /**
  * Configuration for calculator initialization
  */
@@ -28,7 +30,7 @@ export interface CalculatorConfig<InputType, ResultType> {
   parseInput: (form: HTMLFormElement) => InputType;
   
   /** Run calculator analysis */
-  analyze: (input: InputType) => ResultType;
+  analyze: (input: InputType) => MaybePromise<ResultType>;
   
   /** Display results in the UI */
   displayResults: (result: ResultType, input: InputType) => void;
@@ -88,8 +90,8 @@ export function createCalculatorHandler<InputType, ResultType>(
         config.validateInput(input);
       }
 
-      // Run analysis
-      const result = config.analyze(input);
+      // Run analysis (sync or async)
+      const result = await config.analyze(input);
 
       // Display results
       config.displayResults(result, input);
@@ -133,80 +135,7 @@ export function createAsyncCalculatorHandler<InputType, ResultType>(
     analyze: (input: InputType) => Promise<ResultType>;
   }
 ): void {
-  const form = document.getElementById(DOM_IDS.FORM);
-  const calculateBtn = document.getElementById(DOM_IDS.CALCULATE_BUTTON);
-  const submitBtn = document.getElementById('submit-btn');
-
-  if (!(form instanceof HTMLFormElement)) {
-    console.warn(`[${config.calculatorId}] Calculator form not found`);
-    return;
-  }
-
-  const activeCalculateBtn = calculateBtn instanceof HTMLButtonElement
-    ? calculateBtn
-    : submitBtn instanceof HTMLButtonElement
-      ? submitBtn
-      : null;
-
-  // Setup form submission handler
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    
-    if (!activeCalculateBtn) {
-      console.error(`[${config.calculatorId}] Calculate button not found`);
-      return;
-    }
-
-    hideError();
-
-    try {
-      // Set loading state
-      setLoadingState(activeCalculateBtn, true);
-      hideResults();
-
-      // Parse input
-      const input = config.parseInput(form);
-
-      // Validate input if validator provided
-      if (config.validateInput) {
-        config.validateInput(input);
-      }
-
-      // Run analysis (async)
-      const result = await config.analyze(input);
-
-      // Display results
-      config.displayResults(result, input);
-
-      // Show results
-      showResults();
-
-      // Handle result storage and events
-      handleCalculatorResult({
-        calculatorId: config.calculatorId,
-        result,
-        formData: input,
-      });
-
-      // Custom success handler
-      if (config.onSuccess) {
-        config.onSuccess(result, input);
-      }
-    } catch (error) {
-      const errorMessage = handleCalculatorError(error);
-      showError(errorMessage);
-      
-      // Custom error handler
-      if (config.onError) {
-        config.onError(error);
-      }
-    } finally {
-      setLoadingState(activeCalculateBtn, false);
-    }
-  });
-
-  // Setup reset button
-  setupResetButton(form);
+  createCalculatorHandler(config);
 }
 
 /**

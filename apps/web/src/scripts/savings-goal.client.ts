@@ -175,7 +175,10 @@ export const displayResults = (result: SavingsGoalResult): void => {
 
   const recommendationsEl = document.getElementById('recommendations-list');
   if (recommendationsEl) {
-    const recommendationHtml = (result.recommendations.recommendations ?? [])
+    const rawRecommendations: unknown[] = Array.isArray(result.recommendations.recommendations)
+      ? result.recommendations.recommendations
+      : [];
+    const recommendationHtml = rawRecommendations
       .map(toRecommendationText)
       .filter((entry): entry is string => Boolean(entry))
       .map(

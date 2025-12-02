@@ -188,10 +188,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
       typeof currentModelData === 'object' &&
       'summary' in currentModelData &&
       'insights' in currentModelData &&
-      Array.isArray((currentModelData as DetailedAnalysis).insights)
+      Array.isArray((currentModelData as unknown as DetailedAnalysis).insights)
     ) {
       console.log('EnhancedAnalysisResults: Using provided comprehensive analysis payload');
-      setAnalysis(currentModelData as DetailedAnalysis);
+      setAnalysis(currentModelData as unknown as DetailedAnalysis);
       setIsLoading(false);
       return;
     }

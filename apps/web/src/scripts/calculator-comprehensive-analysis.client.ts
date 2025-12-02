@@ -18,12 +18,7 @@ import {
   formatPercent as formatPercentDecimal,
   formatMonths,
 } from '../utils/calculator-utilities';
-
-type AnalysisTimelineEntry = {
-  label: string;
-  value?: string;
-  description?: string;
-};
+import type { AmortizationComprehensiveAnalysis } from './amortization.client';
 
 type AnalysisChatContext = {
   summary?: string;
@@ -31,13 +26,11 @@ type AnalysisChatContext = {
   [key: string]: unknown;
 };
 
-interface ComprehensiveAnalysisData extends AnalysisContentData {
-  chatHighlights?: string[];
-  chatSummary?: string;
-  timeline?: AnalysisTimelineEntry[];
+type ComprehensiveAnalysisData = AmortizationComprehensiveAnalysis &
+  AnalysisContentData & {
   chatContext?: AnalysisChatContext;
   rawResult?: unknown;
-}
+  };
 
 type AnalysisResultEventDetail = {
   result?: ComprehensiveAnalysisData;
@@ -55,7 +48,7 @@ type AnalysisElements = {
 if (typeof window !== 'undefined') {
   window.populateAnalysisData =
     window.populateAnalysisData ||
-    ((_data: AnalysisContentData) => {
+    ((_data: AmortizationComprehensiveAnalysis) => {
       console.warn('populateAnalysisData placeholder called - real function not yet loaded');
     });
 }
@@ -261,10 +254,11 @@ export function populateAnalysisData(rawData: ComprehensiveAnalysisData) {
 
   // Generate insights, recommendations, risk assessment, and optimization opportunities
   try {
-    generateInsights(rawData, summary);
-    generateRecommendations(rawData, summary);
-    generateRiskAssessment(rawData, summary);
-    generateOptimizationOpportunities(rawData, summary);
+    const analysisContentData = rawData as AnalysisContentData;
+    generateInsights(analysisContentData, summary);
+    generateRecommendations(analysisContentData, summary);
+    generateRiskAssessment(analysisContentData, summary);
+    generateOptimizationOpportunities(analysisContentData, summary);
   } catch (error) {
     console.error('Error generating analysis content:', error);
   }
@@ -276,7 +270,13 @@ export function populateAnalysisData(rawData: ComprehensiveAnalysisData) {
   }
 
   // Switch to Summary tab
-  const { switchTab, refreshElementReferences } = initComprehensiveAnalysis();
+  const initResult = initComprehensiveAnalysis();
+  if (!initResult) {
+    console.warn('Unable to initialize comprehensive analysis tabs');
+    return;
+  }
+
+  const { switchTab, refreshElementReferences } = initResult;
   refreshElementReferences();
 
   console.log('About to call switchTab("summary")...');
@@ -364,10 +364,10 @@ if (typeof window !== 'undefined') {
 
 declare global {
   interface Window {
-    populateAnalysisData?: (data: ComprehensiveAnalysisData) => void;
+    populateAnalysisData?: (data: AmortizationComprehensiveAnalysis) => void;
     initComprehensiveAnalysis?: typeof initComprehensiveAnalysis;
     populateAnalysisDataReady?: boolean;
-    amortizationAnalysisData?: ComprehensiveAnalysisData;
+    amortizationAnalysisData?: AmortizationComprehensiveAnalysis;
   }
 }
 
