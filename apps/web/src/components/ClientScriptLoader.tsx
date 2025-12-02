@@ -38,6 +38,11 @@ type ScriptLoaderMap = {
   'business-valuation': () => Promise<unknown>;
   'revenue-forecast': () => Promise<unknown>;
   'dashboard-personal': () => Promise<unknown>;
+  // Personal finance calculators
+  'rent-vs-buy': () => Promise<unknown>;
+  'invest-vs-payoff-debt': () => Promise<unknown>;
+  'side-hustle-income': () => Promise<unknown>;
+  'credit-card-payoff': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {

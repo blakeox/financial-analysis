@@ -40,16 +40,7 @@ function createChatTransport(config: {
 
 // Simple message queue interface
 class MessageQueue<T, R> {
-  constructor(
-    private sendFn: (payload: T) => Promise<R>,
-    private options: {
-      maxAttempts: number;
-      initialBackoffMs: number;
-      maxBackoffMs: number;
-      minIntervalMs: number;
-      jitterRatio: number;
-    }
-  ) {}
+  constructor(private sendFn: (payload: T) => Promise<R>) {}
 
   async enqueue(payload: T): Promise<R> {
     return this.sendFn(payload);
@@ -117,15 +108,8 @@ export class EnhancedChatPanel {
       maxAttempts: this.config.maxRetries,
       backoffMs: this.config.retryDelayMs,
     });
-    this.messageQueue = new MessageQueue<ChatRequestPayload, ChatResponsePayload>(
-      (payload: ChatRequestPayload) => this.transport.send(payload),
-      {
-        maxAttempts: this.config.maxRetries,
-        initialBackoffMs: this.config.retryDelayMs,
-        maxBackoffMs: this.config.retryDelayMs * 8,
-        minIntervalMs: 1000,
-        jitterRatio: 0.3,
-      }
+    this.messageQueue = new MessageQueue<ChatRequestPayload, ChatResponsePayload>((payload) =>
+      this.transport.send(payload)
     );
 
     this.setupEventListeners();

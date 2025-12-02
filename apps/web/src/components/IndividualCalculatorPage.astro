@@ -230,6 +230,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
   <!-- Client Scripts -->
   <ClientScriptLoader client:load slot="pageScripts" name={config.clientScript as any} />
   <ClientScriptLoader client:load slot="pageScripts" name="calculator-quick-access" />
+  <ClientScriptLoader client:load slot="pageScripts" name="field-highlighting" />
 
   <style>
     /* Field highlight animation styles */
@@ -363,7 +364,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
       // Initialize populateAnalysisData as a no-op placeholder to ensure it exists
       if (typeof window !== 'undefined') {
         window.populateAnalysisData = window.populateAnalysisData || function(data) {
-          console.warn('populateAnalysisData placeholder called - real function not yet loaded');
+          console.warn('populateAnalysisData placeholder called - real function not yet loaded', data);
         };
       }
     })();
@@ -383,143 +384,13 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         detail: window.calculatorContext
       }));
 
-      // Field highlighting system for LLM changes with validation and error recovery
-      window.highlightFieldChange = function(fieldName, newValue, isAIModified = true, options = {}) {
-        const {
-          showBadge = true,
-          badgeText = 'AI',
-          duration = 2000,
-          retryOnError = true,
-          maxRetries = 3
-        } = options;
-
-        const field = document.querySelector(`[name="${fieldName}"]`) || 
-                     document.querySelector(`#${fieldName}`) ||
-                     document.querySelector(`[data-field-id="${fieldName}"]`);
-        
-        if (!field) {
-          console.warn(`Field not found: ${fieldName}`);
-          return false;
-        }
-
-        // Store original value for potential rollback
-        const originalValue = field.value || field.checked;
-
-        // Normalize the value based on field type and constraints
-        let normalizedValue = newValue;
-        
-        // Handle percentage fields (convert decimal to percentage)
-        if (fieldName.toLowerCase().includes('rate') || fieldName.toLowerCase().includes('percent')) {
-          if (typeof newValue === 'number' && newValue < 1) {
-            normalizedValue = newValue * 100; // Convert decimal to percentage
-            console.log(`Converted decimal ${newValue} to percentage ${normalizedValue}`);
-          }
-        }
-
-        // Handle step constraints
-        if (field.step && field.step !== 'any') {
-          const step = parseFloat(field.step);
-          if (step > 0) {
-            normalizedValue = Math.round(normalizedValue / step) * step;
-            normalizedValue = parseFloat(normalizedValue.toFixed(step.toString().split('.')[1]?.length || 0));
-          }
-        }
-
-        // Validate min/max constraints
-        if (field.min && normalizedValue < parseFloat(field.min)) {
-          normalizedValue = parseFloat(field.min);
-        }
-        if (field.max && normalizedValue > parseFloat(field.max)) {
-          normalizedValue = parseFloat(field.max);
-        }
-
-        // Set the new value
-        if (field.type === 'checkbox' || field.type === 'radio') {
-          field.checked = Boolean(normalizedValue);
-        } else {
-          field.value = normalizedValue;
-        }
-
-        // Validate the field after setting the value
-        const isValid = field.checkValidity();
-        
-        if (!isValid && retryOnError) {
-          console.warn(`Validation failed for field ${fieldName}, attempting error recovery`);
-          
-          // Try to fix common validation issues
-          let fixedValue = normalizedValue;
-          
-          // Handle step validation errors
-          if (field.step && field.step !== 'any') {
-            const step = parseFloat(field.step);
-            const remainder = fixedValue % step;
-            if (remainder !== 0) {
-              fixedValue = Math.round(fixedValue / step) * step;
-              fixedValue = parseFloat(fixedValue.toFixed(step.toString().split('.')[1]?.length || 0));
-            }
-          }
-          
-          // Try the fixed value
-          field.value = fixedValue;
-          const isFixedValid = field.checkValidity();
-          
-          if (isFixedValid) {
-            console.log(`Successfully fixed validation error for ${fieldName}: ${normalizedValue} → ${fixedValue}`);
-            normalizedValue = fixedValue;
-          } else {
-            // Rollback to original value if we can't fix it
-            console.error(`Could not fix validation error for ${fieldName}, rolling back to original value`);
-            field.value = originalValue;
-            return false;
-          }
-        }
-
-        // Add highlighting classes
-        field.classList.add('field-highlight');
-        field.classList.add('ai-modified-field');
-
-        // Create AI indicator badge with error state if validation failed
-        const container = field.closest('.field-container') || field.parentElement;
-        if (container && showBadge && !container.querySelector('.ai-indicator')) {
-          const badge = document.createElement('div');
-          badge.className = 'ai-indicator';
-          badge.textContent = isValid ? badgeText : 'AI ⚠️';
-          badge.title = isValid ? 'This field was modified by AI' : 'This field was modified by AI (validation warning)';
-          
-          if (!isValid) {
-            badge.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
-          }
-          
-          container.style.position = 'relative';
-          container.appendChild(badge);
-
-          // Remove badge after animation
-          setTimeout(() => {
-            if (badge.parentElement) {
-              badge.parentElement.removeChild(badge);
-            }
-          }, duration);
-        }
-
-        // Remove highlight class after animation
-        setTimeout(() => {
-          field.classList.remove('field-highlight');
-        }, duration);
-
-        // Dispatch change event to trigger any form validation
-        field.dispatchEvent(new Event('change', { bubbles: true }));
-        field.dispatchEvent(new Event('input', { bubbles: true }));
-
-        // Log the change for debugging
-        console.log(`Field ${fieldName} updated by AI to: ${normalizedValue}${!isValid ? ' (with validation warning)' : ''}`);
-        
-        return isValid;
-      };
-
       // Listen for AI field updates from external sources
       window.addEventListener('ai-field-update', (event) => {
-        const { fieldName, value, isAIModified = true } = event.detail;
-        window.highlightFieldChange(fieldName, value, isAIModified);
+        const detail = event.detail || {};
+        const { fieldName, value, isAIModified = true } = detail;
+        if (typeof window.highlightFieldChange === 'function' && fieldName) {
+          window.highlightFieldChange(fieldName, value, isAIModified);
+        }
       });
 
       // Comprehensive Analysis functionality
@@ -537,8 +408,6 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
       const elements = getAnalysisElements();
       let analysisTabs = elements.tabs;
       let analysisTabContents = elements.tabContents;
-      let analysisEmptyState = elements.emptyState;
-      let analysisData = elements.dataContainer;
       let mobileTabSelector = elements.mobileSelector;
       
       // Initialize: Hide all tab contents initially
@@ -551,8 +420,6 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         const fresh = getAnalysisElements();
         analysisTabs = fresh.tabs;
         analysisTabContents = fresh.tabContents;
-        analysisEmptyState = fresh.emptyState;
-        analysisData = fresh.dataContainer;
         mobileTabSelector = fresh.mobileSelector;
       }
       
@@ -667,8 +534,6 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         // Hide empty state and show data
         const emptyStateEl = document.getElementById('analysis-empty-state');
         const dataEl = document.getElementById('analysis-data');
-        const summaryContentEl = document.getElementById('summary-content');
-        
         if (emptyStateEl) {
           emptyStateEl.classList.add('hidden');
           console.log('Empty state hidden');
@@ -735,7 +600,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         generateRiskAssessment(rawData, summary);
         
         // Generate optimization opportunities
-        generateOptimizationOpportunities(rawData, summary);
+        generateOptimizationOpportunities(rawData);
         
         // Store data for LLM access
         window.amortizationAnalysisData = rawData;
@@ -975,9 +840,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         const refinanceThreshold = currentRate - 0.5;
 
         const extraPayment100 = 100;
-        const extraPayment500 = 500;
         const savings100 = calculateExtraPaymentSavings(extraPayment100);
-        const savings500 = calculateExtraPaymentSavings(extraPayment500);
         
         const recommendations = [
           {
@@ -1139,12 +1002,24 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
                   ${termMonths} months
                 </span>
               </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600 dark:text-gray-400">Interest Cost Ratio</span>
+                <span class="text-sm font-medium ${
+                  interestToPrincipalRatio > 0.6
+                    ? 'text-red-600 dark:text-red-400'
+                    : interestToPrincipalRatio > 0.4
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-green-600 dark:text-green-400'
+                }">
+                  ${(interestToPrincipalRatio * 100).toFixed(1)}% of principal
+                </span>
+              </div>
             </div>
           </div>
         `;
       }
 
-      function generateOptimizationOpportunities(data, summary) {
+      function generateOptimizationOpportunities(data) {
         const optimizationOpportunities = document.getElementById('optimization-opportunities');
         if (!optimizationOpportunities) return;
         

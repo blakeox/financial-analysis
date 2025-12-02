@@ -66,13 +66,11 @@ class ChatAnalyticsCollector {
   private contextSwitches = 0;
   private offlineTime = 0;
   private offlineStartTime: Date | null = null;
-  private lastActivity: Date;
   private messageCount = 0;
 
   constructor(sessionId?: string) {
     this.sessionId = sessionId || this.generateSessionId();
     this.startTime = new Date();
-    this.lastActivity = new Date();
 
     this.setupEventListeners();
     this.trackSessionStart();
@@ -112,7 +110,6 @@ class ChatAnalyticsCollector {
 
   public trackMessageSent(message: string, context: string): void {
     this.messageCount++;
-    this.lastActivity = new Date();
 
     this.trackMetric('message_sent', {
       messageLength: message.length,
@@ -123,7 +120,6 @@ class ChatAnalyticsCollector {
   }
 
   public trackMessageReceived(response: string, toolUsed?: string, fromCache?: boolean): void {
-    this.lastActivity = new Date();
 
     if (toolUsed) {
       this.toolUsage[toolUsed] = (this.toolUsage[toolUsed] || 0) + 1;
@@ -402,11 +398,13 @@ export class PerformanceMonitor {
     return duration;
   }
 
-  static measureAsync<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+  static async measureAsync<T>(operation: string, fn: () => Promise<T>): Promise<T> {
     this.startTimer(operation);
-    return fn().finally(() => {
+    try {
+      return await fn();
+    } finally {
       this.endTimer(operation);
-    });
+    }
   }
 }
 

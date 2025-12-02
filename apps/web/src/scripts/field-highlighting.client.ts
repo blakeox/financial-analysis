@@ -1,13 +1,13 @@
 /**
  * Field Highlighting System for AI-Modified Fields
- * 
+ *
  * Provides visual feedback when fields are modified by AI, including:
  * - Animation effects
  * - AI badge indicators
  * - Validation with error recovery
  */
 
-interface HighlightOptions {
+export interface HighlightOptions {
   showBadge?: boolean;
   badgeText?: string;
   duration?: number;
@@ -18,7 +18,7 @@ interface HighlightOptions {
 type HighlightValue = string | number | boolean;
 type HighlightableField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
-type HighlightFieldChangeFn = (
+export type HighlightFieldChangeFn = (
   fieldName: string,
   newValue: HighlightValue,
   isAIModified?: boolean,
@@ -119,11 +119,18 @@ export function highlightFieldChange(
   }
 
   // Handle step constraints
-  if (field instanceof HTMLInputElement && field.step && field.step !== 'any' && typeof normalizedValue === 'number') {
+  if (
+    field instanceof HTMLInputElement &&
+    field.step &&
+    field.step !== 'any' &&
+    typeof normalizedValue === 'number'
+  ) {
     const step = parseFloat(field.step);
     if (step > 0) {
       normalizedValue = Math.round(normalizedValue / step) * step;
-      normalizedValue = parseFloat(normalizedValue.toFixed(step.toString().split('.')[1]?.length || 0));
+      normalizedValue = parseFloat(
+        normalizedValue.toFixed(step.toString().split('.')[1]?.length || 0)
+      );
     }
   }
 
@@ -179,7 +186,9 @@ export function highlightFieldChange(
     }
 
     if (!isValid) {
-      console.error(`Could not fix validation error for ${fieldName} after ${maxRetries} retry attempts, rolling back.`);
+      console.error(
+        `Could not fix validation error for ${fieldName} after ${maxRetries} retry attempts, rolling back.`
+      );
       if (typeof originalValue !== 'undefined') {
         setFieldValue(field, originalValue);
       }
@@ -192,12 +201,14 @@ export function highlightFieldChange(
   field.classList.add('ai-modified-field');
 
   // Create AI indicator badge with error state if validation failed
-  const container = field.closest('.field-container') || field.parentElement;
+  const container = (field.closest('.field-container') as HTMLElement | null) || field.parentElement;
   if (container && showBadge && !container.querySelector('.ai-indicator')) {
     const badge = document.createElement('div');
     badge.className = 'ai-indicator';
     badge.textContent = isValid ? badgeText : 'AI ⚠️';
-    badge.title = isValid ? 'This field was modified by AI' : 'This field was modified by AI (validation warning)';
+    badge.title = isValid
+      ? 'This field was modified by AI'
+      : 'This field was modified by AI (validation warning)';
 
     if (!isValid) {
       badge.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
@@ -235,9 +246,4 @@ export function highlightFieldChange(
 if (typeof window !== 'undefined') {
   window.highlightFieldChange = highlightFieldChange;
 }
-
-
-
-
-
 

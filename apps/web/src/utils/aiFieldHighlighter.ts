@@ -17,7 +17,6 @@ export interface HighlightOptions {
   duration?: number;
   showBadge?: boolean;
   badgeText?: string;
-  animationType?: 'pulse' | 'glow' | 'scale';
   retryOnError?: boolean;
   maxRetries?: number;
 }
@@ -64,7 +63,6 @@ class AIFieldHighlighter {
       duration = 2000,
       showBadge = true,
       badgeText = 'AI',
-      animationType = 'pulse',
       retryOnError = true,
       maxRetries = 3,
     } = options;
@@ -162,7 +160,7 @@ class AIFieldHighlighter {
     }
 
     // Apply highlighting
-    this.applyHighlight(field, duration, showBadge, badgeText, animationType, isValid);
+    this.applyHighlight(field, duration, showBadge, badgeText, isValid);
 
     // Dispatch events
     this.dispatchFieldEvents(field);
@@ -207,7 +205,7 @@ class AIFieldHighlighter {
    * Reset all fields to their original values
    */
   resetAllFields(): void {
-    this.originalValues.forEach((value, fieldName) => {
+    this.originalValues.forEach((_, fieldName) => {
       this.resetField(fieldName);
     });
   }
@@ -220,7 +218,7 @@ class AIFieldHighlighter {
     const form = document.getElementById('calculator-form');
 
     if (form) {
-      const inputs = form.querySelectorAll('input, select, textarea');
+      const inputs = form.querySelectorAll<HighlightableField>('input, select, textarea');
       inputs.forEach((input) => {
         if (input.classList.contains('ai-modified-field')) {
           modifiedFields.push(input.name || input.id);
@@ -279,7 +277,6 @@ class AIFieldHighlighter {
     duration: number,
     showBadge: boolean,
     badgeText: string,
-    animationType: string,
     isValid: boolean = true
   ): void {
     // Add highlight classes
@@ -338,7 +335,7 @@ class AIFieldHighlighter {
     const form = document.getElementById('calculator-form');
     if (!form) return;
 
-    const inputs = form.querySelectorAll('input, select, textarea');
+    const inputs = form.querySelectorAll<HighlightableField>('input, select, textarea');
     inputs.forEach((input) => {
       if (input instanceof HTMLInputElement) {
         if (input.type === 'checkbox' || input.type === 'radio') {

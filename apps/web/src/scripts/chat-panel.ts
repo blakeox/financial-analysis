@@ -23,20 +23,13 @@ import { ChatStateStore } from './chat/state-store';
 import { toolCatalog } from './chat/tool-catalog';
 import type { ChatTransport } from './chat/transport';
 import { createChatTransport } from './chat/transport';
+import type { HighlightFieldChangeFn } from './field-highlighting.client';
 import type {
   ChatRequestPayload,
   ChatResponsePayload,
   ContextKey,
-  ModelChanges,
   ToolSummary,
 } from './chat/types';
-
-type HighlightFieldChangeFn = (
-  fieldName: string,
-  newValue: string | number | boolean,
-  isAIModified?: boolean,
-  options?: Record<string, unknown>
-) => boolean;
 
 declare global {
   interface Window {
@@ -52,17 +45,6 @@ const RATE_LIMIT_DELAY_MS = 1000; // 1 second between messages
 const API_TIMEOUT_MS = 30000; // 30 second timeout
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1000; // Initial backoff time
-const GENERIC_RESPONSE_PATTERNS = [
-  /i can help update the /i,
-  /try:\s*"set interest to/i,
-  /say "help"/i,
-  /ask for a specific value/i,
-  /i can change interest rates/i,
-  /i can help update the general model/i,
-  /^hi — i can help/i,
-  /^what (tools|calculators)/i,
-  /i can help update the models model/i,
-];
 
 const NEGATIVE_CONSTRAINTS = [
   "Do not say 'I can help update the model'",
@@ -137,7 +119,6 @@ class ChatPanel {
   private customContextData: SerializedContext | null;
   private unsubscribeChatContext: (() => void) | null;
   private headerObserver: ResizeObserver | null;
-  private lastContext: ContextKey;
   private mcpTools: ToolSummary[] | null;
   private mcpToolOutputs: SerializedContext | null;
   private outsideClickHandler: ((event: MouseEvent | TouchEvent) => void) | null;
@@ -215,7 +196,6 @@ class ChatPanel {
 
     this.isOpen = false;
     this.currentContext = this.detectContext();
-    this.lastContext = this.currentContext;
     this.customContextKey = null;
     this.customContextLabel = null;
     this.customContextData = null;
@@ -305,15 +285,6 @@ class ChatPanel {
   private detectContext(): ContextKey {
     // Use the new comprehensive calculator context detection
     return detectCalculatorContext(window.location.pathname) as ContextKey;
-  }
-
-  private updateContext(newContext: ContextKey): void {
-    if (newContext !== this.currentContext) {
-      this.lastContext = this.currentContext;
-      this.currentContext = newContext;
-      this.updateContextIndicator();
-      this.fieldUpdates.clearRememberedField();
-    }
   }
 
   private updateContextIndicator(): void {
@@ -444,53 +415,6 @@ class ChatPanel {
     }
   }
 
-  private getLastUserMessage(): string | null {
-    // Find the last user message from the messages container
-    const messages = this.messages?.querySelectorAll('.message.user');
-    if (messages && messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      const contentDiv = lastMessage.querySelector('.message-content');
-      return contentDiv?.textContent?.trim() || null;
-    }
-    return null;
-  }
-
-  private dispatchToolAnalysisEvent(
-    toolName: string,
-    response: string,
-    modelChanges?: Record<string, unknown>
-  ): void {
-    // Extract insights from the response
-    const insights: string[] = [];
-
-    // Look for insight patterns in the response
-    const insightMatches = response.match(/💡 \*\*Insight\*\*: ([^\n]+)/g);
-    if (insightMatches) {
-      insights.push(...insightMatches.map((match) => match.replace(/💡 \*\*Insight\*\*: /, '')));
-    }
-
-    // Look for recommendation patterns
-    const recommendationMatches = response.match(/💡 \*\*Recommendation\*\*: ([^\n]+)/g);
-    if (recommendationMatches) {
-      insights.push(
-        ...recommendationMatches.map((match) => match.replace(/💡 \*\*Recommendation\*\*: /, ''))
-      );
-    }
-
-    // Create tool analysis event
-    const toolAnalysisEvent = new CustomEvent('tool-analysis-completed', {
-      detail: {
-        toolName,
-        input: this.getContextData(),
-        output: modelChanges || {},
-        analysis: response,
-        insights,
-      },
-    });
-
-    document.dispatchEvent(toolAnalysisEvent);
-  }
-
   private setExternalContext(
     contextKey: ContextKey | null,
     label: string | null,
@@ -605,7 +529,6 @@ class ChatPanel {
     const handleContextChange = () => {
       const newContext = this.detectContext();
       if (newContext !== this.currentContext) {
-        this.lastContext = this.currentContext;
         this.currentContext = newContext;
         this.updateContextIndicator();
         this.fieldUpdates.clearRememberedField();
@@ -1010,60 +933,6 @@ class ChatPanel {
     this.autoResizeInput();
   }
 
-  private getNonGenericResponse(raw: string, context: ContextKey): string {
-    const isGeneric = GENERIC_RESPONSE_PATTERNS.some((pattern) => pattern.test(raw));
-    if (!isGeneric) {
-      return raw;
-    }
-
-    const lastUser = this.getLastUserMessage();
-    const contextDef = CALCULATOR_CONTEXTS[context as CalculatorContextKey];
-    const label = contextDef?.label || 'financial analysis';
-
-    const toolCount = this.mcpTools?.length ?? 0;
-    const toolsList =
-      this.mcpTools && this.mcpTools.length > 0
-        ? this.mcpTools
-            .map((tool) => tool.name)
-            .slice(0, 5)
-            .join(', ')
-        : null;
-
-    const lead = lastUser ? `Got your question: "${lastUser}".` : `Happy to help with ${label}.`;
-    const prompt =
-      context === 'general'
-        ? 'Tell me what you want to analyze (e.g., loan amount, rate, term, budget, savings).'
-        : `Tell me the inputs you want to change for ${label} (amounts, rates, terms, or timeframes).`;
-
-    const toolsLine =
-      toolCount > 0
-        ? `I can run calculations with ${toolCount} tools${toolsList ? `, for example: ${toolsList}` : ''}.`
-        : 'I can run mortgage, lease, budgeting, EBITDA, and other calculations.';
-
-    const examples =
-      context === 'general'
-        ? 'Examples: "Compare a 30-year vs 15-year mortgage", "Forecast monthly savings to reach $50k", "Project EBITDA if revenue grows 8%".'
-        : '';
-
-    return [lead, prompt, toolsLine, examples].filter(Boolean).join(' ');
-  }
-
-  private detectIntentLabel(userMessage: string | null, fallback: string): string {
-    if (!userMessage) {
-      return fallback;
-    }
-    const text = userMessage.toLowerCase();
-
-    if (/(mortgage|home loan|loan)/i.test(text)) return 'Mortgage/Loan';
-    if (/(lease|rent vs buy|renting)/i.test(text)) return 'Lease/Rent';
-    if (/(retirement|401k|ira)/i.test(text)) return 'Retirement';
-    if (/(savings goal|save|target|goal)/i.test(text)) return 'Savings';
-    if (/(budget|spending|expenses)/i.test(text)) return 'Budgeting';
-    if (/(student loan)/i.test(text)) return 'Student Loans';
-    if (/(ebitda|revenue|forecast|business|cash flow)/i.test(text)) return 'Business forecast';
-
-    return fallback;
-  }
 
   private buildRequestPayload(message: string): ChatRequestPayload {
     const contextKey = this.getActiveContextKey();
@@ -1113,128 +982,6 @@ class ChatPanel {
     return payload;
   }
 
-  private handleSuccessfulResponse(data: ChatResponsePayload): void {
-    const activeContext = this.getActiveContextKey();
-    const resolvedResponse = this.getNonGenericResponse(data.response, activeContext);
-    const assistantMessage = this.addMessage(resolvedResponse, 'assistant');
-    this.renderAssistantMetadata(assistantMessage, data);
-
-    if (import.meta.env.DEV) {
-      if (data.requestId) {
-        debugLog('[ChatPanel] Chat response requestId', data.requestId);
-      }
-      if (data.tooling) {
-        debugLog('[ChatPanel] MCP tooling metadata', data.tooling);
-      }
-      if (data.metadata?.intent) {
-        debugLog('[ChatPanel] LLM intent', data.metadata.intent, {
-          latencyMs: data.metadata.latency,
-          attempt: data.metadata.attempt,
-          fromCache: data.fromCache,
-        });
-      }
-    }
-
-    // Store conversation in memory
-    const userMessage = this.getLastUserMessage();
-    if (userMessage) {
-      chatMemory.addConversationEntry(
-        userMessage,
-        data.response,
-        this.getActiveContextKey(),
-        data.modelChanges
-      );
-    }
-
-    // Dispatch tool analysis event if this was a tool-based response
-    if (data.toolUsed) {
-      this.dispatchToolAnalysisEvent(data.toolUsed, data.response, data.modelChanges);
-    }
-
-    if (this.stateStore.getState().pendingCount === 0) {
-      this.hideThinking();
-      this.sendBtn.disabled = false;
-    }
-
-    if (data.modelChanges) {
-      try {
-        this.applyModelChanges(data.modelChanges);
-      } catch (error) {
-        console.warn('Error applying model changes:', error);
-        // Continue processing even if model changes fail
-      }
-
-      // Update memory with new model state
-      const modelType = this.getModelTypeFromContext(this.getActiveContextKey());
-      if (modelType) {
-        const currentModel = this.getContextData();
-        const updatedModel = { ...currentModel, ...data.modelChanges };
-        chatMemory.updateModelState(modelType, updatedModel);
-      }
-    }
-
-    if (data.context && data.context !== this.getActiveContextKey()) {
-      this.updateContext(data.context as ContextKey);
-      chatMemory.updateContext(data.context);
-    }
-  }
-
-  private renderAssistantMetadata(
-    messageElement: HTMLDivElement | null,
-    data: ChatResponsePayload
-  ): void {
-    if (!messageElement) {
-      return;
-    }
-
-    const metaParts: string[] = [];
-
-    if (data.toolUsed) {
-      metaParts.push(`Tool: ${data.toolUsed}`);
-    } else if (data.tooling?.availableTools?.length) {
-      metaParts.push(`Tools considered: ${data.tooling.availableTools.length}`);
-    }
-
-    if (data.tooling?.toolOutputsIncluded) {
-      metaParts.push(`MCP outputs: ${data.tooling.toolOutputsIncluded}`);
-    }
-
-    if (data.metadata?.intent) {
-      metaParts.push(`Intent: ${data.metadata.intent}`);
-    }
-
-    if (data.fromCache) {
-      metaParts.push('Served from cache');
-    }
-
-    if (data.tooling?.hasWebsiteContent) {
-      metaParts.push('Website context included');
-    }
-
-    if (data.requestId && import.meta.env.DEV) {
-      metaParts.push(`Request ID: ${data.requestId}`);
-    }
-
-    if (metaParts.length === 0 && (!data.thinking || data.thinking.length === 0)) {
-      return;
-    }
-
-    const metaDiv = document.createElement('div');
-    metaDiv.className = 'message-meta';
-    if (metaParts.length > 0) {
-      metaDiv.textContent = metaParts.join(' · ');
-    }
-
-    if (data.tooling?.availableTools?.length) {
-      metaDiv.dataset.tools = data.tooling.availableTools.join(',');
-    }
-
-    if (data.thinking && data.thinking.length > 0) {
-      metaDiv.title = data.thinking.join('\n');
-    }
-
-    messageElement.appendChild(metaDiv);
-  }
 
   private handleFailedResponse(error: unknown): void {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -1316,178 +1063,6 @@ class ChatPanel {
 
     this.headerObserver?.disconnect();
     this.headerObserver = null;
-  }
-
-  private applyModelChanges(changes: ModelChanges): void {
-    const validationResults: Array<{
-      field: string;
-      value: unknown;
-      isValid: boolean;
-      error?: string;
-    }> = [];
-
-    // Validate each change before applying
-    Object.entries(changes).forEach(([field, value]) => {
-      const validation = this.validateFieldValue(field, value);
-      validationResults.push({
-        field,
-        value,
-        isValid: validation.isValid,
-        error: validation.error,
-      });
-
-      if (validation.isValid) {
-        const input = document.querySelector<
-          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >(`[name="${field}"]`);
-        if (input) {
-          const stringValue =
-            typeof value === 'number' || typeof value === 'boolean'
-              ? String(value)
-              : typeof value === 'string'
-                ? value
-                : JSON.stringify(value);
-          input.value = stringValue;
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      }
-    });
-
-    // Check if any validations failed
-    const failedValidations = validationResults.filter((result) => !result.isValid);
-    if (failedValidations.length > 0) {
-      this.showValidationFeedback(failedValidations);
-      return; // Don't trigger analysis if there are validation errors
-    }
-
-    // Only trigger analysis if all validations passed
-    const analyzeCandidates = Array.from(
-      document.querySelectorAll<HTMLButtonElement | HTMLElement>(
-        'button[type="submit"], .analyze-btn, #analyze'
-      )
-    );
-    const analyzeBtn = analyzeCandidates.find((element) => {
-      if (!(element instanceof HTMLElement)) {
-        return false;
-      }
-      return !this.panel.contains(element);
-    });
-
-    if (analyzeBtn instanceof HTMLButtonElement) {
-      const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
-      analyzeBtn.dispatchEvent(clickEvent);
-    } else if (analyzeBtn instanceof HTMLElement) {
-      const clickEvent = new MouseEvent('click', { bubbles: false, cancelable: false });
-      analyzeBtn.dispatchEvent(clickEvent);
-    }
-
-    // Refetch MCP tools to capture any new outputs from the analysis
-    setTimeout(() => {
-      toolCatalog
-        .load({
-          forceRefresh: true,
-          source: 'analysis-update',
-          captureOutputs: () => this.capturePageOutputs(),
-        })
-        .catch((err) => {
-          debugWarn('Failed to refresh MCP tools after model change:', err);
-        });
-    }, 500); // Wait for analysis to complete
-  }
-
-  private validateFieldValue(field: string, value: unknown): { isValid: boolean; error?: string } {
-    // Get the input element to check its constraints
-    const input = document.querySelector<HTMLInputElement>(`[name="${field}"]`);
-    if (!input) {
-      return { isValid: false, error: `Field "${field}" not found on page` };
-    }
-
-    // Check if value is a valid number for numeric fields
-    if (typeof value === 'number') {
-      if (isNaN(value) || !isFinite(value)) {
-        return { isValid: false, error: `Invalid number: ${value}` };
-      }
-
-      // Check min/max constraints
-      const min = parseFloat(input.min);
-      const max = parseFloat(input.max);
-
-      if (!isNaN(min) && value < min) {
-        return { isValid: false, error: `Value ${value} is below minimum ${min}` };
-      }
-
-      if (!isNaN(max) && value > max) {
-        return { isValid: false, error: `Value ${value} is above maximum ${max}` };
-      }
-
-      // Check step constraints for decimal values
-      const step = parseFloat(input.step);
-      if (!isNaN(step) && step > 0) {
-        const remainder = value % step;
-        if (Math.abs(remainder) > 0.0001 && Math.abs(remainder - step) > 0.0001) {
-          return { isValid: false, error: `Value ${value} doesn't match step size ${step}` };
-        }
-      }
-    }
-
-    // Check required fields
-    if (input.required && (value === null || value === undefined || value === '')) {
-      return { isValid: false, error: `Field "${field}" is required` };
-    }
-
-    // Check pattern constraints
-    if (input.pattern && typeof value === 'string') {
-      const regex = new RegExp(input.pattern);
-      if (!regex.test(value)) {
-        return { isValid: false, error: `Value "${value}" doesn't match required pattern` };
-      }
-    }
-
-    // Field-specific validations
-    switch (field) {
-      case 'annualRate':
-        if (typeof value === 'number' && (value < 0 || value > 1)) {
-          return { isValid: false, error: `Interest rate must be between 0 and 1 (0% to 100%)` };
-        }
-        break;
-
-      case 'principal':
-      case 'loanAmount':
-        if (typeof value === 'number' && value <= 0) {
-          return { isValid: false, error: `Loan amount must be greater than 0` };
-        }
-        break;
-
-      case 'termMonths':
-        if (typeof value === 'number' && (value <= 0 || value > 600)) {
-          return { isValid: false, error: `Loan term must be between 1 and 600 months` };
-        }
-        break;
-
-      case 'monthlyPayment':
-        if (typeof value === 'number' && value <= 0) {
-          return { isValid: false, error: `Monthly payment must be greater than 0` };
-        }
-        break;
-    }
-
-    return { isValid: true };
-  }
-
-  private showValidationFeedback(
-    failedValidations: Array<{ field: string; value: unknown; error?: string }>
-  ): void {
-    const errorMessages = failedValidations
-      .map((validation) => {
-        const fieldName = this.getFieldDisplayName(validation.field);
-        return `• **${fieldName}**: ${validation.error}`;
-      })
-      .join('\n');
-
-    const feedbackMessage = `❌ **Validation Error**\n\nI couldn't apply some of your requested changes:\n\n${errorMessages}\n\nPlease provide valid values and try again.`;
-
-    this.addMessage(feedbackMessage, 'assistant');
   }
 
   private getFieldDisplayName(field: string): string {

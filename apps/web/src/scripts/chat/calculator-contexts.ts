@@ -398,7 +398,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     label: 'Revenue Forecast',
     intro: 'Hi — I can help forecast your future revenue.',
     examples: [
-      'Project my revenue for next year',
+      'Project my revenue for next year?',
       'What if growth rate increases to 20%?',
       'Show me seasonal impacts',
     ],
@@ -417,7 +417,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     examples: [
       'How do I increase my business value?',
       'What are my unit economics?',
-      'Project my revenue for next year',
+      'Project my revenue for next year?',
     ],
   },
   

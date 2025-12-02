@@ -216,7 +216,7 @@ import Layout from '../layouts/Layout.astro';
       let dataIndex = 0;
       
       // Helper function to get next sample value
-      const getNextValue = (fieldName) => {
+      const getNextValue = (fieldName: keyof typeof sampleData) => {
         const values = sampleData[fieldName];
         const value = values[dataIndex % values.length];
         dataIndex++;
@@ -315,15 +315,16 @@ import Layout from '../layouts/Layout.astro';
         };
         
         Object.entries(originalValues).forEach(([fieldName, value]) => {
-          const field = document.querySelector(`[name="${fieldName}"]`);
+          const field = document.querySelector<HTMLInputElement>(`[name="${fieldName}"]`);
           if (field) {
-            field.value = value;
+            field.value = String(value);
             field.classList.remove('ai-modified-field');
           }
         });
         
         // Show reset confirmation
         const button = document.getElementById('reset-fields');
+        if (!button) return;
         const originalText = button.textContent;
         button.textContent = 'Reset Complete!';
         button.classList.add('bg-green-600', 'hover:bg-green-700');
