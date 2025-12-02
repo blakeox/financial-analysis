@@ -3,6 +3,7 @@ import {
   detectCalculatorContext,
   CALCULATOR_CONTEXTS,
   type CalculatorContext,
+  type CalculatorContextKey,
 } from '../chat/calculator-contexts';
 
 const getFieldMappings = (context: CalculatorContext): Record<string, string> => {
@@ -16,7 +17,7 @@ const getFieldMappings = (context: CalculatorContext): Record<string, string> =>
 
 describe('Chat Panel Integration Tests', () => {
   describe('Context Detection Integration', () => {
-    const testCases = [
+    const testCases: Array<{ path: string; expected: CalculatorContextKey; label: string }> = [
       { path: '/calculator/pricing-strategy', expected: 'pricing-strategy', label: 'Pricing Strategy' },
       { path: '/calculator/amortization', expected: 'amortization', label: 'Mortgage/Loan Calculator' },
       { path: '/calculator/auto-loan', expected: 'auto-loan', label: 'Auto Loan Calculator' },
@@ -254,7 +255,7 @@ describe('Chat Panel Integration Tests', () => {
   });
 
   describe('Journey Page Context Detection', () => {
-    const journeyTests = [
+    const journeyTests: Array<{ path: string; expected: CalculatorContextKey }> = [
       { path: '/journey/startup-planning', expected: 'startup-planning' },
       { path: '/journey/home-buying', expected: 'amortization' },
       { path: '/journey/young-professional', expected: 'general' },
@@ -277,7 +278,7 @@ describe('Chat Panel Integration Tests', () => {
         business: ['pricing-strategy', 'ebitda', 'break-even', 'saas-metrics'],
         realEstate: ['lease', 'rent-vs-buy', 'equipment-lease'],
         investment: ['dcf-valuation', 'ma-analysis', 'risk-management'],
-      };
+      } satisfies Record<string, CalculatorContextKey[]>;
 
       Object.values(categories).forEach((calculators) => {
         calculators.forEach((calcId) => {
@@ -291,7 +292,7 @@ describe('Chat Panel Integration Tests', () => {
     });
 
     it('should have field mappings for high-traffic calculators', () => {
-      const highTrafficCalculators = [
+      const highTrafficCalculators: CalculatorContextKey[] = [
         'pricing-strategy',
         'amortization',
         'auto-loan',

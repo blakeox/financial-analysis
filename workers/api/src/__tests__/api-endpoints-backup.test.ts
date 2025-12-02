@@ -148,7 +148,10 @@ interface AmortizationResponse {
   }>;
 }
 
-describe('API Endpoint Integration Tests', () => {
+// These integration tests spin up wrangler dev with remote-only bindings, so guard them behind an opt-in flag.
+const runBackupApiTests = process.env.RUN_BACKUP_API_TESTS === 'true';
+
+describe.runIf(runBackupApiTests)('API Endpoint Integration Tests', () => {
   let worker: Unstable_DevWorker;
 
   beforeAll(async () => {

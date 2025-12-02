@@ -4,6 +4,8 @@
 
 import { describe, it, expect } from 'vitest';
 
+type LoanPurpose = 'real-estate' | 'equipment' | 'working-capital';
+
 describe('Business Loan Qualifier Calculator', () => {
   describe('DSCR Calculations', () => {
     it('should calculate DSCR correctly', () => {
@@ -116,9 +118,8 @@ describe('Business Loan Qualifier Calculator', () => {
     });
     
     it('should not qualify for working capital', () => {
-      const loanPurpose = 'working-capital';
-      
-      const eligible = loanPurpose === 'real-estate' || loanPurpose === 'equipment';
+      const loanPurpose: LoanPurpose = 'working-capital';
+      const eligible = (['real-estate', 'equipment'] as LoanPurpose[]).includes(loanPurpose);
       
       expect(eligible).toBe(false);
     });

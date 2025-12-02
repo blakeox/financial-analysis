@@ -12,6 +12,8 @@ type ModelMetadata = {
   features: string[];
 };
 
+type ScrollIntoViewMock = ReturnType<typeof vi.fn<(options?: ScrollIntoViewOptions) => void>>;
+
 declare global {
   interface Window {
     selectModel?: (element: HTMLElement, modelId?: string, interactionType?: InteractionType) => void;
@@ -37,7 +39,7 @@ declare global {
 }
 
 describe('models.client selection behavior', () => {
-  let scrollSpy: ReturnType<typeof vi.fn>;
+  let scrollSpy: ScrollIntoViewMock;
   let reduceMotionMatches = false;
   let mediaListeners: Array<(event: MediaQueryListEvent) => void> = [];
   const originalMatchMedia = window.matchMedia;
@@ -104,8 +106,8 @@ describe('models.client selection behavior', () => {
     const infoSection = document.createElement('div');
     infoSection.id = 'selected-model-info';
     infoSection.classList.add('hidden');
-    scrollSpy = vi.fn();
-  (infoSection as unknown as { scrollIntoView: (options?: ScrollIntoViewOptions) => void }).scrollIntoView = scrollSpy;
+    scrollSpy = vi.fn<(options?: ScrollIntoViewOptions) => void>();
+    (infoSection as unknown as { scrollIntoView: (options?: ScrollIntoViewOptions) => void }).scrollIntoView = scrollSpy;
 
     const header = document.createElement('div');
     const titleElement = document.createElement('h2');

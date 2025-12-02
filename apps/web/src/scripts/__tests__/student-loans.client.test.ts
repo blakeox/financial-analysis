@@ -17,6 +17,85 @@ vi.mock('./chat-actions', () => ({
 // Import the functions we want to test
 import { displayResults, handleSubmit } from '../student-loans.client';
 
+type StudentLoanResultOverrides = {
+  input?: Partial<StudentLoanResult['input']>;
+  summary?: Partial<StudentLoanResult['summary']> & {
+    loanSummaries?: Array<
+      Partial<StudentLoanResult['summary']['loanSummaries'][number]>
+    >;
+  };
+  payoffSchedule?: StudentLoanResult['payoffSchedule'];
+  incomeDrivenAnalysis?: StudentLoanResult['incomeDrivenAnalysis'];
+  refinancingAnalysis?: StudentLoanResult['refinancingAnalysis'];
+  recommendations?: StudentLoanResult['recommendations'];
+  metadata?: Partial<StudentLoanResult['metadata']>;
+};
+
+const createMockStudentLoanResult = (
+  overrides?: StudentLoanResultOverrides
+): StudentLoanResult => {
+  const baseInput: StudentLoanResult['input'] = {
+    totalLoans: 1,
+    totalBalance: '50000.00',
+    weightedAverageRate: '6.80',
+    extraMonthlyPayment: '0.00',
+    paymentStrategy: 'standard',
+  };
+
+  const baseSummary: StudentLoanResult['summary'] = {
+    strategy: 'standard',
+    totalMonthsToPayoff: 120,
+    totalInterestPaid: '19077.60',
+    totalAmountPaid: '69077.60',
+    averageMonthlyPayment: '575.73',
+    loanSummaries: [
+      {
+        name: 'Student Loan',
+        loanType: 'federal_unsubsidized',
+        originalBalance: '50000.00',
+        totalPaid: '69077.60',
+        totalInterest: '19077.60',
+        monthsToPayoff: 120,
+      },
+    ],
+  };
+
+  const summaryOverrides = overrides?.summary ? { ...overrides.summary } : undefined;
+  const overrideLoanSummaries = summaryOverrides?.loanSummaries;
+
+  if (summaryOverrides) {
+    delete summaryOverrides.loanSummaries;
+  }
+
+  return {
+    input: { ...baseInput, ...overrides?.input },
+    payoffSchedule: overrides?.payoffSchedule ?? [],
+    summary: {
+      ...baseSummary,
+      ...summaryOverrides,
+      loanSummaries: overrideLoanSummaries
+        ? overrideLoanSummaries.map((loan, index) => ({
+            name: loan.name ?? `Student Loan ${index + 1}`,
+            loanType: loan.loanType ?? 'federal_unsubsidized',
+            originalBalance: loan.originalBalance ?? '50000.00',
+            totalPaid: loan.totalPaid ?? baseSummary.loanSummaries[0]?.totalPaid ?? '69077.60',
+            totalInterest:
+              loan.totalInterest ?? baseSummary.loanSummaries[0]?.totalInterest ?? '19077.60',
+            monthsToPayoff: loan.monthsToPayoff ?? baseSummary.loanSummaries[0]?.monthsToPayoff ?? 120,
+          }))
+        : baseSummary.loanSummaries,
+    },
+    incomeDrivenAnalysis: overrides?.incomeDrivenAnalysis,
+    refinancingAnalysis: overrides?.refinancingAnalysis,
+    recommendations: overrides?.recommendations ?? [],
+    metadata: {
+      calculatedAt: '2024-01-01T00:00:00.000Z',
+      version: '1.0.0',
+      ...overrides?.metadata,
+    },
+  };
+};
+
 describe('Student Loans Calculator', () => {
   let mockForm: HTMLFormElement;
   let mockRefs: {
@@ -74,39 +153,7 @@ describe('Student Loans Calculator', () => {
   describe('handleSubmit', () => {
     it('should calculate student loan analysis with valid inputs', async () => {
       // Mock the StudentLoanEngine.analyze method
-      const mockResult: StudentLoanResult = {
-        input: {
-          loans: [
-            {
-              name: 'Student Loan',
-              balance: 50000,
-              interestRate: 0.068,
-              minimumPayment: 575.73,
-              loanType: 'federal_unsubsidized',
-            },
-          ],
-          extraMonthlyPayment: 0,
-          paymentStrategy: 'standard',
-          forgivenessEligible: false,
-          totalBalance: 50000,
-        },
-        summary: {
-          totalInterestPaid: 19077.6,
-          averageMonthlyPayment: 575.73,
-          totalMonthsToPayoff: 120,
-          loanSummaries: [
-            {
-              name: 'Student Loan',
-              monthsToPayoff: 120,
-              totalInterest: 19077.6,
-              monthlyPayment: 575.73,
-            },
-          ],
-        },
-        monthlyBreakdown: [],
-        recommendations: [],
-        insights: [],
-      };
+      const mockResult = createMockStudentLoanResult();
 
       vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
@@ -134,39 +181,26 @@ describe('Student Loans Calculator', () => {
       ) as HTMLInputElement;
       repaymentPlanInput.value = 'income-driven';
 
-      const mockResult: StudentLoanResult = {
+      const mockResult = createMockStudentLoanResult({
         input: {
-          loans: [
-            {
-              name: 'Student Loan',
-              balance: 50000,
-              interestRate: 0.068,
-              minimumPayment: 200,
-              loanType: 'federal_unsubsidized',
-            },
-          ],
-          extraMonthlyPayment: 0,
           paymentStrategy: 'standard',
-          forgivenessEligible: true,
-          totalBalance: 50000,
         },
         summary: {
-          totalInterestPaid: 15000,
-          averageMonthlyPayment: 200,
+          totalInterestPaid: '15000.00',
+          averageMonthlyPayment: '200.00',
           totalMonthsToPayoff: 300,
           loanSummaries: [
             {
               name: 'Student Loan',
+              loanType: 'federal_unsubsidized',
+              originalBalance: '50000.00',
+              totalPaid: '75000.00',
+              totalInterest: '15000.00',
               monthsToPayoff: 300,
-              totalInterest: 15000,
-              monthlyPayment: 200,
             },
           ],
         },
-        monthlyBreakdown: [],
-        recommendations: [],
-        insights: [],
-      };
+      });
 
       vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
@@ -243,31 +277,7 @@ describe('Student Loans Calculator', () => {
 
   describe('displayResults', () => {
     it('should display student loan analysis results', () => {
-      const mockResult: StudentLoanResult = {
-        input: {
-          loans: [],
-          extraMonthlyPayment: 0,
-          paymentStrategy: 'standard',
-          forgivenessEligible: false,
-          totalBalance: 50000,
-        },
-        summary: {
-          totalInterestPaid: 19077.6,
-          averageMonthlyPayment: 575.73,
-          totalMonthsToPayoff: 120,
-          loanSummaries: [
-            {
-              name: 'Student Loan',
-              monthsToPayoff: 120,
-              totalInterest: 19077.6,
-              monthlyPayment: 575.73,
-            },
-          ],
-        },
-        monthlyBreakdown: [],
-        recommendations: [],
-        insights: [],
-      };
+      const mockResult = createMockStudentLoanResult();
 
       // Mock DOM elements with correct structure
       const resultsContainer = document.createElement('div');
@@ -293,68 +303,39 @@ describe('Student Loans Calculator', () => {
   });
 
   describe('Minimum Payment Calculation', () => {
-    it('should calculate standard repayment minimum payment', () => {
+    it('should calculate standard repayment minimum payment', async () => {
       // Test the calculateMinimumPayment function indirectly through handleSubmit
-      const mockResult: StudentLoanResult = {
-        input: {
-          loans: [],
-          extraMonthlyPayment: 0,
-          paymentStrategy: 'standard',
-          forgivenessEligible: false,
-          totalBalance: 50000,
-        },
-        summary: {
-          totalInterestPaid: 19077.6,
-          averageMonthlyPayment: 575.73,
-          totalMonthsToPayoff: 120,
-          loanSummaries: [],
-        },
-        monthlyBreakdown: [],
-        recommendations: [],
-        insights: [],
-      };
+      const mockResult = createMockStudentLoanResult({ summary: { loanSummaries: [] } });
 
       const analyzeSpy = vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
-      return handleSubmit(mockForm, mockRefs).then(() => {
-        const [callArgs] = analyzeSpy.mock.calls[0] || [];
-        expect(callArgs.loans[0].minimumPayment).toBeCloseTo(575.4, 0);
-      });
+      await handleSubmit(mockForm, mockRefs);
+      const [callArgs] = analyzeSpy.mock.calls[0] || [];
+      expect(callArgs.loans[0].minimumPayment).toBeCloseTo(575.4, 0);
     });
 
-    it('should calculate income-driven repayment minimum payment', () => {
+    it('should calculate income-driven repayment minimum payment', async () => {
       const repaymentPlanInput = mockForm.querySelector(
         'input[name="repaymentPlan"]'
       ) as HTMLInputElement;
       repaymentPlanInput.value = 'income-driven';
 
-      const mockResult: StudentLoanResult = {
-        input: {
-          loans: [],
-          extraMonthlyPayment: 0,
-          paymentStrategy: 'standard',
-          forgivenessEligible: true,
-          totalBalance: 50000,
-        },
+      const mockResult = createMockStudentLoanResult({
         summary: {
-          totalInterestPaid: 15000,
-          averageMonthlyPayment: 200,
+          totalInterestPaid: '15000.00',
+          averageMonthlyPayment: '200.00',
           totalMonthsToPayoff: 300,
           loanSummaries: [],
         },
-        monthlyBreakdown: [],
-        recommendations: [],
-        insights: [],
-      };
+      });
 
       const analyzeSpy = vi.spyOn(StudentLoanEngine, 'analyze').mockReturnValue(mockResult);
 
-      return handleSubmit(mockForm, mockRefs).then(() => {
-        const [callArgs] = analyzeSpy.mock.calls[0] || [];
-        // Income-driven payment should be calculated based on discretionary income
-        expect(callArgs.loans[0].minimumPayment).toBeGreaterThan(50);
-        expect(callArgs.loans[0].minimumPayment).toBeLessThanOrEqual(600); // Allow higher values for income-driven
-      });
+      await handleSubmit(mockForm, mockRefs);
+      const [callArgs] = analyzeSpy.mock.calls[0] || [];
+      // Income-driven payment should be calculated based on discretionary income
+      expect(callArgs.loans[0].minimumPayment).toBeGreaterThan(50);
+      expect(callArgs.loans[0].minimumPayment).toBeLessThanOrEqual(600); // Allow higher values for income-driven
     });
   });
 });

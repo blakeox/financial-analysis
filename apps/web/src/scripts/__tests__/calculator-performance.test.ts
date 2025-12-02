@@ -683,7 +683,7 @@ describe('Concurrent Calculation Tests', () => {
     expect(duration).toBeLessThan(100);
   });
 
-  it('should handle race conditions in form submission', () => {
+  it('should handle race conditions in form submission', async () => {
     let calculationInProgress = false;
     let calculationCount = 0;
     
@@ -705,11 +705,10 @@ describe('Concurrent Calculation Tests', () => {
     // Rapid-fire submissions
     const promise1 = calculate();
     const promise2 = calculate(); // Should be rejected
-    
-    return Promise.all([promise1, promise2]).then(results => {
-      expect(calculationCount).toBe(1); // Only one calculation executed
-      expect(results[1]).toHaveProperty('error');
-    });
+
+    const results = await Promise.all([promise1, promise2]);
+    expect(calculationCount).toBe(1); // Only one calculation executed
+    expect(results[1]).toHaveProperty('error');
   });
 });
 

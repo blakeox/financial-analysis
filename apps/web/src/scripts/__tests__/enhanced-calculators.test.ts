@@ -395,7 +395,7 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle very large debts', () => {
       const debt = 500000; // Large mortgage
       const rate = 0.065 / 12;
-      const payment = 5000;
+      const payment = 2000; // Deliberately below interest-only amount
       const interestOnlyPayment = debt * rate;
       
       expect(debt).toBeGreaterThan(100000);

@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createChatTransport } from '../chat/transport';
 import type { ChatRequestPayload, ChatResponsePayload } from '../chat/types';
 
+type MutableFetchGlobal = Omit<typeof globalThis, 'fetch'> & { fetch?: typeof fetch };
+
 describe('createChatTransport', () => {
-  const globalWithMutableFetch = globalThis as typeof globalThis & { fetch?: typeof fetch };
+  const globalWithMutableFetch = globalThis as MutableFetchGlobal;
   const originalFetch = globalWithMutableFetch.fetch;
 
   beforeEach(() => {
@@ -14,7 +16,7 @@ describe('createChatTransport', () => {
     if (originalFetch) {
       globalWithMutableFetch.fetch = originalFetch;
     } else if ('fetch' in globalWithMutableFetch) {
-      delete globalWithMutableFetch.fetch;
+      Reflect.deleteProperty(globalWithMutableFetch, 'fetch');
     }
   });
 
