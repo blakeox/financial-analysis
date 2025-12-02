@@ -110,9 +110,9 @@ export const collectDebts = (formData: FormData, count: number): CollectedDebt[]
 
   for (let i = 0; i < count; i += 1) {
     const name = formData.get(`debt-name-${i}`);
-    const balance = parseNumber(formData.get(`debt-balance-${i}`));
-    const rate = parseNumber(formData.get(`debt-rate-${i}`));
-    const minimum = parseNumber(formData.get(`debt-minimum-${i}`));
+    const balance = parseNumber(formData.get(`debt-balance-${i}`)) ?? Number.NaN;
+    const rate = parseNumber(formData.get(`debt-rate-${i}`)) ?? Number.NaN;
+    const minimum = parseNumber(formData.get(`debt-minimum-${i}`)) ?? Number.NaN;
 
     if (
       typeof name === 'string' &&
@@ -217,20 +217,24 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
   const avalancheSummary = primaryIsAvalanche ? primary : alternative;
   const snowballSummary = primaryIsAvalanche ? alternative : primary;
 
+  const totalDebtBalance = Number.parseFloat(result.input.totalDebtBalance);
+  const creditScore =
+    enableCreditScore && Number.isFinite(totalDebtBalance)
+      ? estimateCreditScoreImpact(totalDebtBalance, primary.totalMonthsToPayoff)
+      : null;
+  const interestSavingsDisplay = toCurrency(result.comparisonSavings);
+
   // Calculate debt-free date
   const debtFreeDate = new Date();
   debtFreeDate.setMonth(debtFreeDate.getMonth() + primary.totalMonthsToPayoff);
   const debtFreeDateStr = debtFreeDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
   
   // Calculate credit score impact
-  const totalDebt = parseFloat(primary.totalDebt || '0');
-  const creditScore = enableCreditScore ? estimateCreditScoreImpact(totalDebt, primary.totalMonthsToPayoff) : null;
-
   // Render summary cards with enhancements
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Total Debt</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${toCurrency(primary.totalDebt)}</p>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${toCurrency(result.input.totalDebtBalance)}</p>
       ${creditScore ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Credit Score: ${creditScore.currentEstimate} → ${creditScore.finalEstimate}</p>` : ''}
     </div>
     <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
@@ -245,7 +249,7 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Saved</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${toCurrency(primary.totalInterestSaved)}</p>
+      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${interestSavingsDisplay}</p>
       ${alternative ? `<p class="text-xs text-orange-700 dark:text-orange-300 mt-1">vs ${primaryIsAvalanche ? 'Snowball' : 'Avalanche'}</p>` : ''}
     </div>
   `;
@@ -400,7 +404,7 @@ const initDebtPayoffPage = () => {
     event.preventDefault();
 
     // Show loading state
-    const calculateBtn = document.getElementById('calculate-btn');
+    const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
     if (calculateBtn) {
       calculateBtn.disabled = true;
       calculateBtn.textContent = 'Calculating...';
@@ -436,9 +440,9 @@ const initDebtPayoffPage = () => {
       debtLines.forEach((line, index) => {
         const parts = line.split(',').map((part) => part.trim());
         if (parts.length >= 3) {
-          const balance = parseNumber(parts[0]);
-          const interestRate = parseNumber(parts[1]);
-          const minimumPayment = parseNumber(parts[2]);
+          const balance = parseNumber(parts[0]) ?? Number.NaN;
+          const interestRate = parseNumber(parts[1]) ?? Number.NaN;
+          const minimumPayment = parseNumber(parts[2]) ?? Number.NaN;
 
           if (
             !Number.isNaN(balance) &&

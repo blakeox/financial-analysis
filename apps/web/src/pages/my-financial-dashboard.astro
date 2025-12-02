@@ -180,23 +180,31 @@ const journeyData = getJourneyData();
 
 <ClientScriptLoader client:load slot="pageScripts" name="dashboard-personal" />
 
-<script define:vars={{ journeyData }}>
+<script type="application/json" id="journey-data" is:inline>
+  {JSON.stringify(journeyData)}
+</script>
+
+<script is:inline>
   // Dashboard personalization logic
   // NOTE: This dashboard is READ-ONLY. It only displays data from localStorage.
   // No new data is stored here. All storage happens on individual calculator/journey pages.
   if (typeof window !== 'undefined') {
+    const journeyDataEl = document.getElementById('journey-data');
+    const journeyMap = journeyDataEl ? JSON.parse(journeyDataEl.textContent || '{}') : {};
+
     function updateDashboard() {
       // Load active journeys from existing localStorage (read-only)
       const activeJourneys = {};
-      const allJourneyIds = Object.keys(journeyData);
+      const allJourneyIds = Object.keys(journeyMap);
       
       allJourneyIds.forEach(journeyId => {
         const journeyState = localStorage.getItem(`fanalyx-journey-state-${journeyId}`);
         if (journeyState) {
           const state = JSON.parse(journeyState);
           if (state.progress && state.progress.completed && state.progress.completed.length > 0) {
+            const totalSteps = journeyMap[journeyId]?.models.length || 1;
             activeJourneys[journeyId] = {
-              progress: (state.progress.completed.length / journeyData[journeyId].models.length) * 100,
+              progress: (state.progress.completed.length / totalSteps) * 100,
               lastUpdated: state.lastUpdated
             };
           }
@@ -247,7 +255,8 @@ const journeyData = getJourneyData();
       
       if (incompleteJourneys.length > 0) {
         incompleteJourneys.slice(0, 2).forEach(([journeyId, data]) => {
-          const journey = journeyData[journeyId];
+          const journey = journeyMap[journeyId];
+          if (!journey) return;
           recommendations.push({
             type: 'journey',
             text: `Complete your ${journey.name} (${Math.round(100 - data.progress)}% remaining)`,

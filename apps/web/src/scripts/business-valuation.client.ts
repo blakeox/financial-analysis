@@ -290,7 +290,7 @@ export const initBusinessValuationCalculator = (): void => {
   });
   
   // Register chat button for AI analysis
-  registerChatButton('business-valuation');
+  registerChatButton('#business-valuation-chat-button', 'Business Valuation Calculator');
 };
 
 // Auto-initialize if on business valuation page

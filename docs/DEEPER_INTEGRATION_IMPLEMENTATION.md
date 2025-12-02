@@ -296,3 +296,5 @@ const formatted = formatter.formatToolResponse('analyze_amortization', rawResult
 
 
 
+
+

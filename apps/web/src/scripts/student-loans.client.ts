@@ -2,7 +2,7 @@ import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from './analysis-results';
 import { registerChatButton } from './chat-actions';
-import { formatCurrency } from '../utils/calculator-utilities';
+import { formatCurrency, formatPercent } from '../utils/calculator-utilities';
 
 type PaymentStrategy = 'avalanche' | 'snowball' | 'standard';
 type LoanType = 'federal_unsubsidized' | 'federal_subsidized' | 'private';
@@ -22,6 +22,19 @@ interface ForgivenessEligibility {
   teacherLoan: { eligible: boolean; requirements: string[]; timeline: string };
   savings: { pslf: number; idr: number; teacher: number };
 }
+
+type ForgivenessProgramKey = 'pslf' | 'idrForgiveness' | 'teacherLoan';
+
+const FORGIVENESS_PROGRAM_CONFIG: Record<
+  ForgivenessProgramKey,
+  { label: string; savingsKey: keyof ForgivenessEligibility['savings'] }
+> = {
+  pslf: { label: 'PSLF', savingsKey: 'pslf' },
+  idrForgiveness: { label: 'IDR Forgiveness', savingsKey: 'idr' },
+  teacherLoan: { label: 'Teacher Loan', savingsKey: 'teacher' },
+};
+
+const FORGIVENESS_PROGRAM_KEYS: ForgivenessProgramKey[] = ['pslf', 'idrForgiveness', 'teacherLoan'];
 
 function checkForgivenessEligibility(
   balance: number,
@@ -269,6 +282,7 @@ export const displayResults = (
 
   const forgiveness = insights?.forgiveness;
   const refinance = insights?.refinance;
+  const weightedAverageRate = formatPercent(result.input.weightedAverageRate);
 
   // Render summary cards
   summaryCards.innerHTML = `
@@ -312,7 +326,7 @@ export const displayResults = (
             <p class="text-sm text-gray-500 dark:text-gray-400">Annual percentage rate</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.input.loans && result.input.loans.length > 0 ? (result.input.loans[0].interestRate * 100).toFixed(2) : 'N/A'}%</span>
+            <span class="font-semibold text-gray-900 dark:text-white">${weightedAverageRate}</span>
           </div>
         </div>
         
@@ -377,26 +391,22 @@ export const displayResults = (
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Forgiveness Programs</h3>
       <div class="grid gap-4 sm:grid-cols-3">
-        ${['pslf', 'idrForgiveness', 'teacherLoan']
-          .map((key) => {
-            const program = forgiveness[key as keyof ForgivenessEligibility];
-            const label =
-              key === 'pslf' ? 'PSLF' : key === 'idrForgiveness' ? 'IDR Forgiveness' : 'Teacher Loan';
-            const savingsKey = key === 'pslf' ? 'pslf' : key === 'idrForgiveness' ? 'idr' : 'teacher';
-            const savingsAmount = forgiveness.savings[savingsKey as keyof ForgivenessEligibility['savings']];
-            return `
-          <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-2">
-              <h4 class="font-semibold text-gray-900 dark:text-white">${label}</h4>
-              <span class="text-sm ${program.eligible ? 'text-green-600' : 'text-gray-500'}">
-                ${program.eligible ? 'Eligible' : 'Not Eligible'}
-              </span>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">Timeline: ${program.timeline}</p>
-            <p class="text-sm text-gray-600 dark:text-gray-300">Potential Savings: ${formatCurrency(savingsAmount)}</p>
-          </div>`;
-          })
-          .join('')}
+        ${FORGIVENESS_PROGRAM_KEYS.map((key) => {
+          const program = forgiveness[key];
+          const { label, savingsKey } = FORGIVENESS_PROGRAM_CONFIG[key];
+          const savingsAmount = forgiveness.savings[savingsKey];
+          return `
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-gray-900 dark:text-white">${label}</h4>
+            <span class="text-sm ${program.eligible ? 'text-green-600' : 'text-gray-500'}">
+              ${program.eligible ? 'Eligible' : 'Not Eligible'}
+            </span>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">Timeline: ${program.timeline}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Potential Savings: ${formatCurrency(savingsAmount)}</p>
+        </div>`;
+        }).join('')}
       </div>
     </div>`
         : ''
@@ -440,7 +450,7 @@ export const displayResults = (
 
 export const handleSubmit = async (form: HTMLFormElement, refs?: ScreenRefs): Promise<void> => {
   // Show loading state
-  const calculateBtn = document.getElementById('calculate-btn');
+  const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
   if (calculateBtn) {
     calculateBtn.disabled = true;
     calculateBtn.textContent = 'Calculating...';

@@ -240,7 +240,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <script>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const formatCurrency = (value) =>
+  const formatCurrency = (value: number | string | undefined | null) =>
     value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
   const loadSummaries = () => {

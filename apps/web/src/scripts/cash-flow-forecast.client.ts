@@ -204,9 +204,10 @@ function calculateCashFlow(input: CashFlowInput): CashFlowResult {
   if (input.averageCollectionDays > input.averagePaymentDays + 15) {
     recommendations.push('💡 You collect slower than you pay. Negotiate faster payment terms with customers or slower terms with vendors.');
   }
-  
-  if (lowestCash.amount > input.fixedCosts * 3) {
-    recommendations.push('✓ Strong cash position. You have over 3 months of fixed costs in reserves.');
+
+  const reserveTarget = input.monthlyExpenses * 3;
+  if (lowestCash.amount > reserveTarget) {
+    recommendations.push('✓ Strong cash position. You have over 3 months of operating expenses in reserves.');
   }
   
   if (averageBurnRate > 0) {

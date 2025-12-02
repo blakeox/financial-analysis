@@ -1,4 +1,3 @@
-import React from 'react';
 import { Target } from 'lucide-react';
 import type { ModelCardProps } from './types';
 
@@ -8,7 +7,7 @@ export function SavingsGoalCard({ className = '' }: ModelCardProps) {
       href="/models/personal-finance/savings-goal"
       className={`block group ${className}`}
     >
-      <div className="h-full rounded-lg border border-teal-200 bg-gradient-to-br from-teal-50 to-white p-6 shadow-sm transition-all hover:border-teal-400 hover:shadow-md dark:border-teal-800 dark:from-teal-950/50 dark:to-gray-900 dark:hover:border-teal-600">
+      <div className="h-full rounded-lg border border-teal-200 bg-linear-to-br from-teal-50 to-white p-6 shadow-sm transition-all hover:border-teal-400 hover:shadow-md dark:border-teal-800 dark:from-teal-950/50 dark:to-gray-900 dark:hover:border-teal-600">
         <div className="mb-4 flex items-center gap-3">
           <div className="rounded-lg bg-teal-100 p-2.5 dark:bg-teal-900/50">
             <Target className="h-6 w-6 text-teal-600 dark:text-teal-400" />

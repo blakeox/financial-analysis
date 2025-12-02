@@ -2,6 +2,22 @@
 import Layout from '../../layouts/Layout.astro';
 import { getJourneyData } from '../../utils/journeyData';
 import JourneyAnalysisResults from '../../components/JourneyAnalysisResults.tsx';
+import type { JourneyData, JourneyScenario } from '../../utils/journeyData';
+
+type JourneyAnalysisContext = {
+  scenarioId: string;
+  journeyName: string;
+  completedSteps: number;
+  isJourneyAnalysis: boolean;
+};
+
+/* eslint-disable no-unused-vars */
+declare global {
+  interface Window {
+    journeyAnalysisContext?: JourneyAnalysisContext;
+  }
+}
+/* eslint-enable no-unused-vars */
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -19,8 +35,8 @@ export interface Props {
 const { scenario } = Astro.params as Props;
 
 // Get journey data
-const journeyData = getJourneyData();
-const journey = journeyData[scenario];
+const journeyData: JourneyData = getJourneyData();
+const journey: JourneyScenario | undefined = journeyData[scenario];
 
 if (!journey) {
   throw new Error(`Journey not found: ${scenario}`);
@@ -29,6 +45,40 @@ if (!journey) {
 // SEO-optimized content
 const seoTitle = `${journey.name} - Complete Financial Analysis`;
 const seoDescription = `Complete analysis of your ${journey.name.toLowerCase()} journey with AI-powered insights and recommendations.`;
+const journeyName = journey.name;
+const totalSteps = journey.models.length;
+const journeyScript = `
+  if (typeof window !== 'undefined') {
+    const context = {
+      scenarioId: ${JSON.stringify(scenario)},
+      journeyName: ${JSON.stringify(journeyName)},
+      completedSteps: ${totalSteps},
+      isJourneyAnalysis: true
+    };
+
+    window.journeyAnalysisContext = context;
+
+    window.dispatchEvent(
+      new CustomEvent('journey-analysis-context-loaded', {
+        detail: context
+      })
+    );
+
+    window.dispatchEvent(
+      new CustomEvent('journey-analytics', {
+        detail: {
+          event: 'journey_analysis_viewed',
+          properties: {
+            scenario_id: ${JSON.stringify(scenario)},
+            journey_name: ${JSON.stringify(journeyName)},
+            total_steps: ${totalSteps},
+            timestamp: new Date().toISOString()
+          }
+        }
+      })
+    );
+  }
+`;
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
@@ -60,7 +110,7 @@ const seoDescription = `Complete analysis of your ${journey.name.toLowerCase()} 
       </nav>
 
       <!-- Journey Completion Header -->
-      <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-8 mb-8">
+      <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-8 mb-8">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
             <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,10 +138,7 @@ const seoDescription = `Complete analysis of your ${journey.name.toLowerCase()} 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {journey.models.map((model, index) => (
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <div class="flex items-center mb-2">
-                <span class="text-lg mr-2">{model.icon}</span>
-                <h3 class="font-medium text-gray-900 dark:text-white">{model.name}</h3>
-              </div>
+              <h3 class="font-medium text-gray-900 dark:text-white mb-2">{model.name}</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{model.description}</p>
               <div class="flex items-center text-sm text-green-600 dark:text-green-400">
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -139,34 +186,5 @@ const seoDescription = `Complete analysis of your ${journey.name.toLowerCase()} 
   </main>
 
   <!-- Client Scripts -->
-  <script>
-    // Journey analysis initialization
-    if (typeof window !== 'undefined') {
-      // Add journey analysis context to window
-      window.journeyAnalysisContext = {
-        scenarioId: scenario,
-        journeyName: journey.name,
-        completedSteps: journey.models.length,
-        isJourneyAnalysis: true
-      };
-
-      // Dispatch journey analysis context event
-      window.dispatchEvent(new CustomEvent('journey-analysis-context-loaded', {
-        detail: window.journeyAnalysisContext
-      }));
-
-      // Track journey completion
-      window.dispatchEvent(new CustomEvent('journey-analytics', {
-        detail: {
-          event: 'journey_analysis_viewed',
-          properties: {
-            scenario_id: scenario,
-            journey_name: journey.name,
-            total_steps: journey.models.length,
-            timestamp: new Date().toISOString()
-          }
-        }
-      }));
-    }
-  </script>
+  <script is:inline set:html={journeyScript}></script>
 </Layout>

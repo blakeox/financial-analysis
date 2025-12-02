@@ -297,7 +297,7 @@ export const initRevenueForecastCalculator = (): void => {
   });
   
   // Register chat button for AI analysis
-  registerChatButton('revenue-forecast');
+  registerChatButton('#revenue-forecast-chat-button', 'Revenue Forecast Calculator');
 };
 
 /**

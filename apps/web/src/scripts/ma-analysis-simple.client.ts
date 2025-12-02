@@ -266,7 +266,7 @@ const initMAPage = (): void => {
     event.preventDefault();
 
     // Show loading state
-    const calculateBtn = document.getElementById('calculate-btn');
+    const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
     if (calculateBtn) {
       calculateBtn.disabled = true;
       calculateBtn.textContent = 'Calculating...';

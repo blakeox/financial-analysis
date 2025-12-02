@@ -470,7 +470,7 @@ const initSavingsGoalPage = (): void => {
     event.preventDefault();
 
     // Show loading state
-    const calculateBtn = document.getElementById('calculate-btn');
+    const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
     if (calculateBtn) {
       calculateBtn.disabled = true;
       calculateBtn.textContent = 'Calculating...';
@@ -495,8 +495,10 @@ const initSavingsGoalPage = (): void => {
       const inflationRate = parseNumber(formData.get('inflationRate'));
       const goalType = String(formData.get('goalType') || 'general');
 
+      const calculator = new SimpleSavingsGoalCalculator();
+
       // Calculate monthly contribution needed to reach goal in target time
-      const monthlyContribution = this.calculateMonthlyContribution(
+      const monthlyContribution = calculator.calculateMonthlyContribution(
         goalAmount,
         currentSavings,
         targetDateYears,
@@ -528,7 +530,6 @@ const initSavingsGoalPage = (): void => {
         monthlyContribution,
       };
 
-      const calculator = new SimpleSavingsGoalCalculator();
       const result = calculator.calculate(inputs);
 
       // Store result for chatbot integration

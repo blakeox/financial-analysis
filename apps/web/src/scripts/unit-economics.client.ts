@@ -388,7 +388,7 @@ export const initUnitEconomicsCalculator = (): void => {
   });
   
   // Register chat button for AI analysis
-  registerChatButton('unit-economics');
+  registerChatButton('#unit-economics-chat-button', 'Unit Economics Calculator');
 };
 
 // Auto-initialize if on unit economics page

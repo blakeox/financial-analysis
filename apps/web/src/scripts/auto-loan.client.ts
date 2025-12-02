@@ -32,6 +32,15 @@ interface TCOCalculation {
   };
 }
 
+const toNumber = (value: number | string): number => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 function calculateTCO(
   result: AutoLoanResult,
   vehiclePrice: number,
@@ -45,9 +54,9 @@ function calculateTCO(
   const loanYears = loanTermMonths / 12;
   
   // Loan costs (already calculated)
-  const monthlyPayment = result.summary.monthlyPayment;
-  const totalLoanCost = result.summary.totalCost;
-  const totalInterest = result.summary.totalInterest;
+  const monthlyPayment = toNumber(result.summary.monthlyPayment);
+  const totalLoanCost = toNumber(result.summary.totalCost);
+  const totalInterest = toNumber(result.summary.totalInterest);
   
   // Insurance (typically $100-$200/month depending on age, location, vehicle)
   const insuranceTotal = insuranceMonthly * loanTermMonths;
@@ -97,17 +106,19 @@ function calculateTCO(
 }
 
 const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
-  const checkbox = document.getElementById(checkboxId) as HTMLInputElement | null;
-  const input = document.getElementById(inputId) as HTMLInputElement | null;
+  const checkboxElement = document.getElementById(checkboxId);
+  const inputElement = document.getElementById(inputId);
 
-  if (!checkbox || !input) return;
+  if (!(checkboxElement instanceof HTMLInputElement) || !(inputElement instanceof HTMLInputElement)) {
+    return;
+  }
 
   const applyState = () => {
-    input.disabled = !checkbox.checked;
+    inputElement.disabled = !checkboxElement.checked;
   };
 
   applyState();
-  checkbox.addEventListener('change', applyState);
+  checkboxElement.addEventListener('change', applyState);
 };
 
 export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
@@ -190,7 +201,16 @@ export const renderAutoLoanResults = (
 
   // Calculate TCO if enabled
   const tco = enableTCO && vehiclePrice > 0
-    ? calculateTCO(result, vehiclePrice, termMonths, annualMileage, insuranceMonthly, maintenanceYearly, fuelMpg, gasPrice)
+    ? calculateTCO(
+        result,
+        vehiclePrice,
+        termMonths,
+        annualMileage ?? 12000,
+        insuranceMonthly ?? 150,
+        maintenanceYearly ?? 1200,
+        fuelMpg ?? 25,
+        gasPrice ?? 3.5
+      )
     : null;
 
   // Render summary cards with TCO
@@ -290,7 +310,7 @@ export const renderAutoLoanResults = (
           
           <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
             <span class="text-gray-700 dark:text-gray-300">Cost per Mile</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(Number.parseFloat(summary.costPerMile), false)}</span>
+            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
           </div>
         </div>
       </div>
@@ -316,8 +336,8 @@ export const renderAutoLoanResults = (
                 return `
                 <tr>
                   <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${yearsLabel}</td>
-                  <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-white">${formatCurrency(scenario.remainingBalance, true)}</td>
-                  <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">${formatCurrency(scenario.interestSaved, true)}</td>
+                  <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-white">${formatCurrency(scenario.remainingBalance)}</td>
+                  <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">${formatCurrency(scenario.interestSaved)}</td>
                 </tr>
               `;
               })
@@ -349,7 +369,7 @@ const initAutoLoanPage = (): void => {
 
     // Show loading state
     const calculateBtn = document.getElementById('calculate-btn');
-    if (calculateBtn) {
+    if (calculateBtn instanceof HTMLButtonElement) {
       calculateBtn.disabled = true;
       calculateBtn.textContent = 'Calculating...';
     }
@@ -399,7 +419,7 @@ const initAutoLoanPage = (): void => {
       alert(message);
     } finally {
       // Reset button state
-      if (calculateBtn) {
+      if (calculateBtn instanceof HTMLButtonElement) {
         calculateBtn.disabled = false;
         calculateBtn.textContent = 'Calculate';
       }

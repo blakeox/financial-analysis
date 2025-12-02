@@ -412,20 +412,41 @@ export class AdvancedCache<T = unknown> {
    */
   private getEvictionScore(entry: CacheEntry<T>): number {
     const now = Date.now();
-    const age = now - entry.timestamp;
-    const accessFrequency = entry.accessCount / Math.max(1, age / 1000);
 
     switch (this.config.evictionPolicy) {
       case 'lru':
+        // Older lastAccessed timestamps should be evicted first
         return entry.lastAccessed;
       case 'lfu':
-        return -entry.accessCount;
-      case 'ttl':
-        return entry.timestamp + entry.ttl;
-      case 'hybrid':
-        return age / 1000 - accessFrequency * 10 - (entry.priority === 'critical' ? 1000 : 0);
+        // Lower access counts should be evicted first
+        return entry.accessCount;
+      case 'ttl': {
+        const remainingTtl = entry.ttl - (now - entry.timestamp);
+        // Entries closest to expiry (or already expired) should be removed first
+        return remainingTtl;
+      }
+      case 'hybrid': {
+        const age = now - entry.lastAccessed;
+        const frequencyBoost = entry.accessCount * 1000;
+        const priorityBoost = this.getPriorityBoost(entry.priority);
+        // Older, low-frequency, low-priority entries yield smaller scores and get evicted first
+        return -age + frequencyBoost + priorityBoost;
+      }
       default:
         return entry.lastAccessed;
+    }
+  }
+
+  private getPriorityBoost(priority: CacheEntry<T>['priority']): number {
+    switch (priority) {
+      case 'critical':
+        return 4000;
+      case 'high':
+        return 2000;
+      case 'medium':
+        return 500;
+      default:
+        return 0;
     }
   }
 

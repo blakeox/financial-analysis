@@ -281,20 +281,51 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 </Layout>
 
 <script>
+  type OptionKey = 'lease' | 'finance' | 'cash';
+
+  interface OptionResult {
+    total: number;
+    costPerMile: number;
+  }
+
+  interface OptionInputs {
+    monthly: number;
+    upfront: number;
+    insurance: number;
+    maintenance: number;
+    fuel: number;
+    fees?: number;
+    resale?: number;
+    horizonMonths: number;
+    annualMiles: number;
+    subtractResale?: boolean;
+  }
+
+  type ReplacementOptionsDetails = Record<string, string | number | boolean | null | undefined>;
+
+  interface JourneyStorage {
+    collectedData?: Record<string, unknown>;
+  }
+
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const parseNumber = (value) => {
-    const num = Number(value);
+  const parseNumber = (value: FormDataEntryValue | string | number | null | undefined): number => {
+    if (value === null || value === undefined) return 0;
+    const num = typeof value === 'string' ? Number(value) : Number(value.valueOf?.() ?? value);
     return Number.isFinite(num) ? num : 0;
   };
 
-  const formatCurrency = (value) =>
-    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
+  const formatCurrency = (value: number | null | undefined): string =>
+    typeof value === 'number' && Number.isFinite(value)
+      ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+      : '$0';
 
-  const formatPerMile = (value) =>
-    value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }) || '$0';
+  const formatPerMile = (value: number | null | undefined): string =>
+    typeof value === 'number' && Number.isFinite(value)
+      ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 })
+      : '$0';
 
-  const computeOption = (inputs) => {
+  const computeOption = (inputs: OptionInputs): OptionResult => {
     const {
       monthly,
       upfront,
@@ -317,17 +348,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     return { total, costPerMile };
   };
 
-  const toggleCashFields = () => {
+  const toggleCashFields = (): void => {
     const cashToggle = document.getElementById('cashNotOption');
     const disabled = cashToggle instanceof HTMLInputElement ? cashToggle.checked : false;
-    document.querySelectorAll('.cash-input').forEach((el) => {
-      if (el instanceof HTMLInputElement) {
-        el.disabled = disabled;
-      }
+    document.querySelectorAll<HTMLInputElement>('.cash-input').forEach((el) => {
+      el.disabled = disabled;
     });
   };
 
-  const renderResults = (results, cashNotOption) => {
+  const renderResults = (results: { lease: OptionResult; finance: OptionResult; cash: OptionResult | null }, cashNotOption: boolean): void => {
     const leaseResult = document.getElementById('leaseResult');
     const financeResult = document.getElementById('financeResult');
     const cashResult = document.getElementById('cashResult');
@@ -343,13 +372,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       cashResult.textContent = `${formatCurrency(results.cash.total)} total (${formatPerMile(results.cash.costPerMile)}/mile)`;
     }
 
-    const comparisons = [
+    const comparisons: Array<[OptionKey, OptionResult]> = [
       ['lease', results.lease],
       ['finance', results.finance],
-      ...(!cashNotOption && results.cash ? [['cash', results.cash]] : []),
     ];
+    if (!cashNotOption && results.cash) {
+      comparisons.push(['cash', results.cash]);
+    }
     const cheapest = comparisons.sort((a, b) => a[1].total - b[1].total)[0];
-    const labelMap = {
+    const labelMap: Record<OptionKey, string> = {
       lease: 'New lease',
       finance: 'Finance a new car',
       cash: 'Buy with cash',
@@ -361,19 +392,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     wrapper.classList.remove('hidden');
   };
 
-  const hydrateForm = () => {
+  const hydrateForm = (): void => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const data = JSON.parse(saved);
-    const details = data.collectedData?.['replacement-options'];
+    let data: JourneyStorage;
+    try {
+      data = JSON.parse(saved);
+    } catch {
+      return;
+    }
+    const details = data.collectedData?.['replacement-options'] as ReplacementOptionsDetails | undefined;
     if (!details) return;
 
     Object.entries(details).forEach(([key, value]) => {
-      const input = document.querySelector(`[name="${key}"]`);
+      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[name="${key}"]`);
       if (input instanceof HTMLInputElement && input.type === 'checkbox') {
         input.checked = value === 'on' || value === true || value === 'true';
-      } else if (input && 'value' in input) {
-        input.value = String(value ?? '');
+      } else if (input) {
+        input.value = value === undefined || value === null ? '' : String(value);
       }
     });
     toggleCashFields();
@@ -381,10 +417,10 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     if (statusEl) statusEl.textContent = 'Loaded from last session';
   };
 
-  const runComparison = () => {
-    const form = document.getElementById('replacement-form');
-    if (!form) return;
-    const formData = new FormData(form);
+  const runComparison = (): void => {
+    const formEl = document.getElementById('replacement-form');
+    if (!(formEl instanceof HTMLFormElement)) return;
+    const formData = new FormData(formEl);
     const horizonMonths = parseNumber(formData.get('horizonMonths')) || 36;
     const annualMiles = parseNumber(formData.get('annualMiles')) || 12000;
     const cashNotOption = formData.get('cashNotOption') === 'on';
@@ -430,17 +466,28 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     renderResults({ lease, finance, cash: cashPurchase }, cashNotOption);
   };
 
-  const saveForm = (event) => {
+  const saveForm = (event: SubmitEvent): void => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (!(form instanceof HTMLFormElement)) return;
     const formData = new FormData(form);
-    const details = Object.fromEntries(formData.entries());
+    const details: ReplacementOptionsDetails = {};
+    formData.forEach((value, key) => {
+      details[key] = typeof value === 'string' ? value : value.name;
+    });
     if (!details.cashNotOption) {
       details.cashNotOption = '';
     }
 
     const rawState = localStorage.getItem(STORAGE_KEY);
-    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
+    let journeyState: JourneyStorage = { collectedData: {} };
+    if (rawState) {
+      try {
+        journeyState = JSON.parse(rawState);
+      } catch {
+        journeyState = { collectedData: {} };
+      }
+    }
     journeyState.collectedData = journeyState.collectedData || {};
     journeyState.collectedData['replacement-options'] = details;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
@@ -454,11 +501,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     runComparison();
   };
 
-  document.getElementById('calculate-options')?.addEventListener('click', runComparison);
-  document.getElementById('replacement-form')?.addEventListener('submit', saveForm);
-  document.getElementById('cashNotOption')?.addEventListener('change', () => {
-    toggleCashFields();
-    runComparison();
-  });
+  const calculateButton = document.getElementById('calculate-options');
+  if (calculateButton) {
+    calculateButton.addEventListener('click', runComparison);
+  }
+
+  const formEl = document.getElementById('replacement-form');
+  if (formEl instanceof HTMLFormElement) {
+    formEl.addEventListener('submit', saveForm);
+  }
+
+  const cashToggle = document.getElementById('cashNotOption');
+  if (cashToggle instanceof HTMLInputElement) {
+    cashToggle.addEventListener('change', () => {
+      toggleCashFields();
+      runComparison();
+    });
+  }
   hydrateForm();
 </script>

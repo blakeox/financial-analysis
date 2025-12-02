@@ -172,8 +172,8 @@ const faqSchema = {
 ---
 
 <Layout title="Advanced Business Financial Models" description={enhancedDescription} canonical={Astro.url.href} keywords={keywords}>
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
   
   <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb Navigation -->
@@ -603,5 +603,5 @@ const faqSchema = {
   </div>
 
   <!-- Load client-side scripts -->
-  <ClientScriptLoader />
+  <ClientScriptLoader client:load slot="pageScripts" name="models" />
 </Layout>

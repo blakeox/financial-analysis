@@ -361,18 +361,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('investment-form');
+      const form = document.getElementById('investment-form') as HTMLFormElement | null;
       const saveBtn = document.getElementById('save-investment-btn');
       const resetBtn = document.getElementById('reset-btn');
       const investmentResults = document.getElementById('investment-results');
       const investmentResultsContent = document.getElementById('investment-results-content');
       const employerMatchDetails = document.getElementById('employer-match-details');
-      const hasMatchRadios = document.querySelectorAll('input[name="hasEmployerMatch"]');
+      const hasMatchRadios = document.querySelectorAll<HTMLInputElement>('input[name="hasEmployerMatch"]');
+
+      if (!form) {
+        console.error('Investment form not found');
+        return;
+      }
 
       // Show/hide employer match details
       hasMatchRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-          if (this.value === 'yes') {
+        radio.addEventListener('change', (event) => {
+          const target = event.target as HTMLInputElement;
+          if (target.value === 'yes') {
             employerMatchDetails?.classList.remove('hidden');
           } else {
             employerMatchDetails?.classList.add('hidden');
@@ -384,7 +390,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         saveBtn.addEventListener('click', function(e) {
           e.preventDefault();
           
-          const formData = new FormData(form as HTMLFormElement);
+          const formData = new FormData(form);
           const expectedReturn = parseFloat(formData.get('expectedReturn') as string || '0');
           const investmentType = formData.get('investmentType') as string;
           const hasEmployerMatch = formData.get('hasEmployerMatch') as string;
@@ -482,7 +488,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
-          form?.reset();
+          form.reset();
           investmentResults?.classList.add('hidden');
           employerMatchDetails?.classList.add('hidden');
         });
@@ -492,7 +498,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
       if (journeyState.collectedData?.['evaluate-investments']) {
         const saved = journeyState.collectedData['evaluate-investments'];
-        const form = document.getElementById('investment-form') as HTMLFormElement;
         if (saved.expectedReturn) {
           (document.getElementById('expected-return') as HTMLInputElement).value = saved.expectedReturn;
         }

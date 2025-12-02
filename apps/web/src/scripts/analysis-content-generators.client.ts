@@ -1,6 +1,6 @@
 /**
  * Analysis Content Generators
- * 
+ *
  * Functions to generate dynamic content for the comprehensive analysis tabs:
  * - Insights
  * - Recommendations
@@ -88,7 +88,8 @@ export function generateInsights(
 
   if (Array.isArray(data?.insights) && data.insights.length) {
     insightsList.innerHTML = data.insights
-      .map((insight: Insight) => `
+      .map(
+        (insight: Insight) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -113,7 +114,8 @@ export function generateInsights(
             </div>
           </div>
         </div>
-      `)
+      `
+      )
       .join('');
     return;
   }
@@ -131,37 +133,39 @@ export function generateInsights(
   const monthlyRate = annualRate / 12;
   const firstYearInterest =
     monthlyRate > 0
-      ? monthlyPayment * 12 * (monthlyRate * (1 + monthlyRate)) / ((1 + monthlyRate) - 1)
+      ? (monthlyPayment * 12 * (monthlyRate * (1 + monthlyRate))) / (1 + monthlyRate - 1)
       : totalInterest / Math.max(yearsToPayoff, 1);
 
   const insights: Insight[] = [
     {
       title: 'Interest Burden Analysis',
-      description: `You'll pay $${totalInterest?.toLocaleString()} in interest (${interestToPrincipalRatio?.toFixed(1)}% of loan amount). This means for every $1 borrowed, you'll pay back $${((totalPayments / principal)).toFixed(2)}.`,
+      description: `You'll pay $${totalInterest?.toLocaleString()} in interest (${interestToPrincipalRatio?.toFixed(1)}% of loan amount). This means for every $1 borrowed, you'll pay back $${(totalPayments / principal).toFixed(2)}.`,
       impact: interestToPrincipalRatio > 50 ? 'high' : 'medium',
-      actionable: 'Consider making extra payments to reduce interest burden'
+      actionable: 'Consider making extra payments to reduce interest burden',
     },
     {
       title: 'Income Requirements',
       description: `Monthly payment of $${monthlyPayment?.toLocaleString()} requires annual income of $${monthlyIncomeNeeded?.toLocaleString()} (using 28% rule). Your payment-to-income ratio is ${((monthlyPayment / monthlyIncomeNeeded) * 100)?.toFixed(1)}%.`,
       impact: monthlyPayment / monthlyIncomeNeeded > 0.3 ? 'high' : 'medium',
-      actionable: 'Ensure your income can comfortably support this payment'
+      actionable: 'Ensure your income can comfortably support this payment',
     },
     {
       title: 'Equity Building Timeline',
       description: `You'll build significant equity after year ${Math.ceil(yearsToPayoff * 0.3)}. First year: ~$${firstYearInterest?.toLocaleString()} goes to interest, only ~$${(monthlyPayment * 12 - firstYearInterest)?.toLocaleString()} builds equity.`,
       impact: 'medium',
-      actionable: 'Consider extra payments in early years for faster equity building'
+      actionable: 'Consider extra payments in early years for faster equity building',
     },
     {
       title: 'Interest Rate Impact',
-      description: `At ${(annualRate * 100)?.toFixed(2)}%, you're paying $${(monthlyPayment * termMonths - principal)?.toLocaleString()} more than the principal. A 0.5% rate reduction would save ~$${((monthlyPayment * termMonths) * 0.05)?.toLocaleString()}.`,
+      description: `At ${(annualRate * 100)?.toFixed(2)}%, you're paying $${(monthlyPayment * termMonths - principal)?.toLocaleString()} more than the principal. A 0.5% rate reduction would save ~$${(monthlyPayment * termMonths * 0.05)?.toLocaleString()}.`,
       impact: annualRate > 0.06 ? 'high' : 'medium',
-      actionable: 'Monitor rates for refinancing opportunities'
-    }
+      actionable: 'Monitor rates for refinancing opportunities',
+    },
   ];
 
-  insightsList.innerHTML = insights.map(insight => `
+  insightsList.innerHTML = insights
+    .map(
+      (insight) => `
     <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
       <div class="flex items-start justify-between">
         <div class="flex-1">
@@ -174,7 +178,9 @@ export function generateInsights(
       </div>
       <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">${insight.actionable}</p>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 /**
@@ -189,7 +195,8 @@ export function generateRecommendations(
 
   if (Array.isArray(data?.recommendations) && data.recommendations.length) {
     recommendationsList.innerHTML = data.recommendations
-      .map((rec: RecommendationData) => `
+      .map(
+        (rec: RecommendationData) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -219,7 +226,8 @@ export function generateRecommendations(
             </div>
           </div>
         </div>
-      `)
+      `
+      )
       .join('');
     return;
   }
@@ -238,7 +246,9 @@ export function generateRecommendations(
   const calculateExtraPaymentSavings = (extraPayment: number) => {
     const monthlyRate = annualRate / 12;
     const newPayment = monthlyPayment + extraPayment;
-    const newTerm = Math.ceil(Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate));
+    const newTerm = Math.ceil(
+      Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate)
+    );
     const totalPaid = newPayment * newTerm;
     return Math.round(totalPayments - totalPaid);
   };
@@ -246,7 +256,9 @@ export function generateRecommendations(
   const calculateNewTerm = (extraPayment: number) => {
     const monthlyRate = annualRate / 12;
     const newPayment = monthlyPayment + extraPayment;
-    return Math.ceil(Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate));
+    return Math.ceil(
+      Math.log(1 + (principal * monthlyRate) / newPayment) / Math.log(1 + monthlyRate)
+    );
   };
 
   const savings100 = calculateExtraPaymentSavings(extraPayment100);
@@ -257,39 +269,41 @@ export function generateRecommendations(
       title: 'Verify Income Affordability',
       description: `Your payment requires $${monthlyIncomeNeeded?.toLocaleString()} annual income. If your income is lower, consider a smaller loan or longer term.`,
       effort: 'low',
-      savings: 'Prevents financial stress'
+      savings: 'Prevents financial stress',
     },
     {
       priority: 'high',
       title: 'Make Extra Payments Early',
       description: `Adding $${extraPayment100}/month saves $${savings100?.toLocaleString()} and cuts ${Math.round((termMonths - calculateNewTerm(extraPayment100)) / 12)} years off your loan.`,
       effort: 'medium',
-      savings: `$${savings100?.toLocaleString()} saved`
+      savings: `$${savings100?.toLocaleString()} saved`,
     },
     {
       priority: 'medium',
       title: 'Consider Bi-weekly Payments',
       description: `Making half-payments every 2 weeks (26 payments/year) saves ~$${Math.round(monthlyPayment * 0.5 * 12 * 0.1)} annually and reduces term by ~4 months.`,
       effort: 'low',
-      savings: '~$1,500+ annually'
+      savings: '~$1,500+ annually',
     },
     {
       priority: 'medium',
       title: 'Monitor Refinancing Opportunities',
       description: `If rates drop below ${refinanceThreshold?.toFixed(2)}%, refinancing could save $${Math.round(monthlyPayment * termMonths * 0.05)} over the loan life.`,
       effort: 'medium',
-      savings: 'Potential 5%+ savings'
+      savings: 'Potential 5%+ savings',
     },
     {
       priority: 'low',
       title: 'Consider Shorter Term',
       description: `A 15-year loan at similar rates would increase monthly payment by ~$${Math.round(monthlyPayment * 0.3)} but save $${Math.round(totalInterest * 0.4)} in interest.`,
       effort: 'high',
-      savings: '40%+ interest savings'
-    }
+      savings: '40%+ interest savings',
+    },
   ];
 
-  recommendationsList.innerHTML = recommendations.map(rec => `
+  recommendationsList.innerHTML = recommendations
+    .map(
+      (rec) => `
     <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
       <div class="flex items-start justify-between">
         <div class="flex-1">
@@ -309,7 +323,9 @@ export function generateRecommendations(
         </div>
       </div>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 /**
@@ -324,9 +340,7 @@ export function generateRiskAssessment(
 
   if (data?.riskAssessment && typeof data.riskAssessment === 'object') {
     const overall = data.riskAssessment.overallRisk || 'low';
-    const factors = Array.isArray(data.riskAssessment.factors)
-      ? data.riskAssessment.factors
-      : [];
+    const factors = Array.isArray(data.riskAssessment.factors) ? data.riskAssessment.factors : [];
     riskAssessment.innerHTML = `
       <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
         <div class="flex items-center justify-between mb-4">
@@ -379,28 +393,28 @@ export function generateRiskAssessment(
     {
       factor: 'Payment Burden',
       risk: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
-      description: `${(paymentToIncomeRatio * 100).toFixed(1)}% of income`
+      description: `${(paymentToIncomeRatio * 100).toFixed(1)}% of income`,
     },
     {
       factor: 'Interest Cost Exposure',
       risk: interestLoadRatio > 0.8 ? 'high' : interestLoadRatio > 0.5 ? 'medium' : 'low',
-      description: `${(interestLoadRatio * 100).toFixed(1)}% of principal`
+      description: `${(interestLoadRatio * 100).toFixed(1)}% of principal`,
     },
     {
       factor: 'Interest Rate Level',
       risk: annualRate > 0.06 ? 'high' : annualRate < 0.04 ? 'low' : 'medium',
-      description: `${(annualRate * 100).toFixed(2)}% current rate`
+      description: `${(annualRate * 100).toFixed(2)}% current rate`,
     },
     {
       factor: 'Loan Term Length',
       risk: termMonths > 360 ? 'high' : termMonths > 300 ? 'medium' : 'low',
-      description: `${termMonths} months remaining`
+      description: `${termMonths} months remaining`,
     },
     {
       factor: 'Lifetime Repayment',
       risk: totalRepayment > principal * 1.5 ? 'medium' : 'low',
-      description: `$${totalRepayment.toLocaleString()} total`
-    }
+      description: `$${totalRepayment.toLocaleString()} total`,
+    },
   ];
 
   const riskRanking = fallbackFactors.map((factor) => factor.risk);
@@ -460,7 +474,8 @@ export function generateOptimizationOpportunities(
 
   if (Array.isArray(data?.optimizationOpportunities) && data.optimizationOpportunities.length) {
     optimizationOpportunities.innerHTML = data.optimizationOpportunities
-      .map((opp: Optimization) => `
+      .map(
+        (opp: Optimization) => `
         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
           <div class="flex items-start justify-between">
             <div class="flex-1">
@@ -483,7 +498,8 @@ export function generateOptimizationOpportunities(
             </div>
           </div>
         </div>
-      `)
+      `
+      )
       .join('');
     return;
   }
@@ -494,25 +510,27 @@ export function generateOptimizationOpportunities(
       currentValue: 0,
       optimizedValue: targetExtraPayment,
       potentialImprovement: estimatedExtraSavings,
-      description: 'Adding $100 monthly extra payment'
+      description: 'Adding $100 monthly extra payment',
     },
     {
       area: 'Bi-weekly Payments',
       currentValue: baselinePayment,
       optimizedValue: baselinePayment / 2,
       potentialImprovement: 8000,
-      description: 'Switching to bi-weekly payments'
+      description: 'Switching to bi-weekly payments',
     },
     {
       area: 'Refinancing',
       currentValue: baselineRate,
       optimizedValue: Math.max(baselineRate - 0.005, 0),
       potentialImprovement: 12000,
-      description: 'Refinancing at 0.5% lower rate'
-    }
+      description: 'Refinancing at 0.5% lower rate',
+    },
   ];
 
-  optimizationOpportunities.innerHTML = opportunities.map(opp => `
+  optimizationOpportunities.innerHTML = opportunities
+    .map(
+      (opp) => `
     <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
       <div class="flex items-start justify-between">
         <div class="flex-1">
@@ -535,12 +553,17 @@ export function generateOptimizationOpportunities(
         </div>
       </div>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 // Expose to window for compatibility
 if (typeof window !== 'undefined') {
-  window.generateAnalysisContent = (data: AnalysisContentData, summary: AnalysisSummaryData = {}) => {
+  window.generateAnalysisContent = (
+    data: AnalysisContentData,
+    summary: AnalysisSummaryData = {}
+  ) => {
     generateInsights(data, summary);
     generateRecommendations(data, summary);
     generateRiskAssessment(data, summary);
@@ -549,12 +572,4 @@ if (typeof window !== 'undefined') {
 }
 
 export {};
-
-
-
-
-
-
-
-
 

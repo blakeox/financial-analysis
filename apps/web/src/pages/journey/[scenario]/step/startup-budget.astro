@@ -54,7 +54,7 @@ const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentSc
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
     // Load journey state to include actual data
@@ -412,7 +412,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Startup Budget Form Handler
   document.addEventListener('DOMContentLoaded', function() {
     // Load and integrate capital investment data
@@ -478,7 +478,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       const marketing = parseFloat(formData.get('marketing')) || 0;
       const otherExpenses = parseFloat(formData.get('otherExpenses')) || 0;
       const initialFunding = parseFloat(formData.get('initialFunding')) || 0;
-      const runwayMonths = parseInt(formData.get('runwayMonths')) || 18;
 
       const totalMonthlyExpenses = salaries + officeRent + marketing + otherExpenses;
       const projections = [];

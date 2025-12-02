@@ -140,9 +140,9 @@ const faqSchema = {
 
 <Layout title="Personal Finance Models | Fanalyx" description={enhancedDescription} canonical={Astro.url.href} keywords={keywords}>
   <!-- JSON-LD Structured Data -->
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <!-- FAQ Schema -->
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Breadcrumb Navigation -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">

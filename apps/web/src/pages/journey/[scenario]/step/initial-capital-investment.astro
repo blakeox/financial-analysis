@@ -54,7 +54,7 @@ const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentSc
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
     // Load journey state to include actual data
@@ -353,7 +353,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Initial Capital Investment Form Handler
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('initial-capital-form');

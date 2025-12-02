@@ -505,11 +505,17 @@ export function initializeModelSelection(
     if (typeof reducedMotionQuery.addEventListener === 'function') {
       reducedMotionQuery.addEventListener('change', handleReduceMotionChange);
       cleanupFns.push(() =>
-        reducedMotionQuery.removeEventListener('change', handleReduceMotionChange)
+        reducedMotionQuery.removeEventListener?.('change', handleReduceMotionChange)
       );
-    } else if (typeof reducedMotionQuery.addListener === 'function') {
-      reducedMotionQuery.addListener(handleReduceMotionChange);
-      cleanupFns.push(() => reducedMotionQuery.removeListener(handleReduceMotionChange));
+    } else {
+      const previousHandler = reducedMotionQuery.onchange;
+      const boundHandler = (event: MediaQueryListEvent) => handleReduceMotionChange(event);
+      reducedMotionQuery.onchange = boundHandler;
+      cleanupFns.push(() => {
+        if (reducedMotionQuery.onchange === boundHandler) {
+          reducedMotionQuery.onchange = previousHandler ?? null;
+        }
+      });
     }
   }
 

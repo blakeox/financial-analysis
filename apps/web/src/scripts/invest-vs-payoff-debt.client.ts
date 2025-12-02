@@ -554,3 +554,5 @@ if (document.readyState === 'loading') {
   initializeInvestVsDebt();
 }
 
+export { initializeInvestVsDebt as initializeInvestVsPayoffCalculator };
+

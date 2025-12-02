@@ -275,22 +275,47 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <script>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const parseNumber = (value) => {
+  type LeaseProfile = {
+    monthlyPayment: number | null;
+    monthsRemaining: number | null;
+    residualValue: number | null;
+    moneyFactor: string;
+    currentMileage: number | null;
+    allowedMileage: number | null;
+    overageFee: number | null;
+    dispositionFee: number | null;
+    purchaseOptionFee: number | null;
+    creditBand: string;
+    goals: string;
+    notes: string;
+  };
+
+  type JourneyStorage = {
+    collectedData?: Record<string, unknown>;
+  };
+
+  const parseNumber = (value: FormDataEntryValue | null): number | null => {
+    if (typeof value !== 'string') return null;
     const num = Number(value);
     return Number.isFinite(num) ? num : null;
   };
+
+  const getString = (value: FormDataEntryValue | null): string =>
+    typeof value === 'string' ? value : '';
 
   const hydrateForm = () => {
     if (typeof window === 'undefined') return;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const data = JSON.parse(saved);
-    const profile = data.collectedData?.['lease-profile'];
+    const data = JSON.parse(saved) as JourneyStorage;
+    const profile = data.collectedData?.['lease-profile'] as Partial<LeaseProfile> | undefined;
     if (!profile) return;
 
     Object.entries(profile).forEach(([key, value]) => {
-      const input = document.querySelector(`[name="${key}"]`);
-      if (input && 'value' in input) {
+      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        `[name="${key}"]`
+      );
+      if (input) {
         input.value = String(value ?? '');
       }
     });
@@ -299,28 +324,30 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     if (statusEl) statusEl.textContent = 'Loaded from last session';
   };
 
-  const saveProfile = (event) => {
+  const saveProfile = (event: SubmitEvent) => {
     event.preventDefault();
-    const form = event.currentTarget;
+    const form = event.currentTarget as HTMLFormElement | null;
+    if (!form) return;
     const formData = new FormData(form);
-    const profile = {
+    const profile: LeaseProfile = {
       monthlyPayment: parseNumber(formData.get('monthlyPayment')),
       monthsRemaining: parseNumber(formData.get('monthsRemaining')),
       residualValue: parseNumber(formData.get('residualValue')),
-      moneyFactor: formData.get('moneyFactor') || '',
+      moneyFactor: getString(formData.get('moneyFactor')),
       currentMileage: parseNumber(formData.get('currentMileage')),
       allowedMileage: parseNumber(formData.get('allowedMileage')),
       overageFee: parseNumber(formData.get('overageFee')),
       dispositionFee: parseNumber(formData.get('dispositionFee')),
       purchaseOptionFee: parseNumber(formData.get('purchaseOptionFee')),
-      creditBand: formData.get('creditBand'),
-      goals: formData.get('goals'),
-      notes: formData.get('notes'),
+      creditBand: getString(formData.get('creditBand')),
+      goals: getString(formData.get('goals')),
+      notes: getString(formData.get('notes')),
     };
 
     const rawState = localStorage.getItem(STORAGE_KEY);
-    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
-    journeyState.collectedData = journeyState.collectedData || {};
+    const journeyState = (rawState ? JSON.parse(rawState) : { collectedData: {} }) as JourneyStorage & {
+      collectedData: Record<string, unknown>;
+    };
     journeyState.collectedData['lease-profile'] = profile;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
 
@@ -331,6 +358,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     }
   };
 
-  document.getElementById('lease-profile-form')?.addEventListener('submit', saveProfile);
+  const leaseProfileForm = document.getElementById('lease-profile-form') as HTMLFormElement | null;
+  leaseProfileForm?.addEventListener('submit', saveProfile);
   hydrateForm();
 </script>

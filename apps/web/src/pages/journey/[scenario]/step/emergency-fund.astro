@@ -532,7 +532,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     </div>
   </main>
 
-  <script define:vars={{ scenario }}>
+  <script define:vars={{ scenario }} is:inline>
     // Emergency Fund Calculator
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('emergency-fund-form');

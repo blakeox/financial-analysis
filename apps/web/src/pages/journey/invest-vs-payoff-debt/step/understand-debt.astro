@@ -342,17 +342,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('debt-form');
+      const form = document.getElementById('debt-form') as HTMLFormElement | null;
       const saveBtn = document.getElementById('save-debt-btn');
       const resetBtn = document.getElementById('reset-btn');
       const debtResults = document.getElementById('debt-results');
       const debtResultsContent = document.getElementById('debt-results-content');
 
+      if (!form) {
+        console.error('Debt form not found');
+        return;
+      }
+
       if (saveBtn) {
         saveBtn.addEventListener('click', function(e) {
           e.preventDefault();
           
-          const formData = new FormData(form as HTMLFormElement);
+          const formData = new FormData(form);
           const debtBalance = parseFloat(formData.get('debtBalance') as string || '0');
           const debtInterestRate = parseFloat(formData.get('debtInterestRate') as string || '0');
           const minimumPayment = parseFloat(formData.get('minimumPayment') as string || '0');
@@ -457,7 +462,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
-          form?.reset();
+          form.reset();
           debtResults?.classList.add('hidden');
         });
       }
@@ -466,7 +471,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       const journeyState = JSON.parse(localStorage.getItem('fanalyx-journey-state-invest-vs-payoff-debt') || '{}');
       if (journeyState.collectedData?.['understand-debt']) {
         const saved = journeyState.collectedData['understand-debt'];
-        const form = document.getElementById('debt-form') as HTMLFormElement;
         if (saved.debtBalance) {
           (document.getElementById('debt-balance') as HTMLInputElement).value = saved.debtBalance;
         }

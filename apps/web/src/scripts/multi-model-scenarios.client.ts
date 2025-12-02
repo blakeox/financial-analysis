@@ -26,7 +26,15 @@ export interface FinancialScenario {
   complexity: 'beginner' | 'intermediate' | 'advanced';
 }
 
+type ScenarioTabCategory = 'personal' | 'business';
+
 export class MultiModelScenarioManager {
+  private static readonly TAB_CATEGORIES: readonly ScenarioTabCategory[] = ['personal', 'business'];
+
+  private static isSupportedTabCategory(value: string): value is ScenarioTabCategory {
+    return (MultiModelScenarioManager.TAB_CATEGORIES as readonly string[]).includes(value);
+  }
+
   private scenarios: Map<string, FinancialScenario> = new Map();
   private selectedScenario: FinancialScenario | null = null;
   private completedModels: Set<string> = new Set();
@@ -619,7 +627,7 @@ export class MultiModelScenarioManager {
 
       if (tabButton) {
         const category = tabButton.getAttribute('data-category');
-        if (category) {
+        if (category && MultiModelScenarioManager.isSupportedTabCategory(category)) {
           this.switchCategory(category);
         }
       }
@@ -659,7 +667,7 @@ export class MultiModelScenarioManager {
   /**
    * Switch between personal and business categories
    */
-  private switchCategory(category: 'personal' | 'business'): void {
+  private switchCategory(category: ScenarioTabCategory): void {
     console.log('Switching to category:', category);
 
     // Update tab buttons
@@ -782,32 +790,6 @@ export class MultiModelScenarioManager {
         </div>
       </div>
     `;
-  }
-
-  /**
-   * Update chatbot context with selected scenario
-   */
-  private updateChatbotContext(scenario: FinancialScenario): void {
-    // Update global context for chatbot
-    if (typeof window !== 'undefined') {
-      window.currentScenario = {
-        id: scenario.id,
-        name: scenario.name,
-        description: scenario.description,
-        models: scenario.models.map((m) => ({
-          id: m.id,
-          name: m.name,
-          url: m.url,
-        })),
-        workflow: scenario.workflow,
-      };
-
-      // Notify chatbot of context change
-      const event = new CustomEvent('scenario-selected', {
-        detail: { scenario },
-      });
-      document.dispatchEvent(event);
-    }
   }
 
   /**

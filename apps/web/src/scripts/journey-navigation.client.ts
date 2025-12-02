@@ -129,14 +129,16 @@ class JourneyNavigationManager {
     const state = this.state;
 
     // Add step completion indicators
-    const progressBar = document.querySelector('.bg-gradient-to-r.from-blue-500.to-indigo-600');
+    const progressBar = document.querySelector<HTMLElement>(
+      '.bg-gradient-to-r.from-blue-500.to-indigo-600'
+    );
     if (progressBar) {
       const completionPercentage = (state.completedSteps.length / state.currentStep) * 100;
       progressBar.style.width = `${Math.min(completionPercentage, 100)}%`;
     }
 
     // Add step status indicators
-    const stepIndicators = document.querySelectorAll('[data-step-indicator]');
+    const stepIndicators = document.querySelectorAll<HTMLElement>('[data-step-indicator]');
     stepIndicators.forEach((indicator, index) => {
       const stepNumber = index + 1;
       if (state.completedSteps.includes(stepNumber.toString())) {
@@ -153,7 +155,7 @@ class JourneyNavigationManager {
     if (!this.state) return;
 
     // Enhance next button with validation
-    const nextButton = document.querySelector('a[href*="next"]') as HTMLAnchorElement;
+    const nextButton = document.querySelector<HTMLAnchorElement>('a[href*="next"]');
     if (nextButton) {
       nextButton.addEventListener('click', (event) => {
         if (!this.validateCurrentStep()) {
@@ -171,7 +173,7 @@ class JourneyNavigationManager {
     }
 
     // Enhance previous button
-    const previousButton = document.querySelector('a[href*="previous"]') as HTMLAnchorElement;
+    const previousButton = document.querySelector<HTMLAnchorElement>('a[href*="previous"]');
     if (previousButton) {
       previousButton.addEventListener('click', () => {
         this.trackNavigation('previous');
@@ -179,9 +181,7 @@ class JourneyNavigationManager {
     }
 
     // Enhance complete journey button
-    const completeButton = document.querySelector(
-      'a[href*="journey-analysis"]'
-    ) as HTMLAnchorElement;
+    const completeButton = document.querySelector<HTMLAnchorElement>('a[href*="journey-analysis"]');
     if (completeButton) {
       completeButton.addEventListener('click', () => {
         this.trackNavigation('complete');
@@ -196,7 +196,15 @@ class JourneyNavigationManager {
       'input[required], select[required], textarea[required]'
     );
     for (const field of requiredFields) {
-      if (!(field as HTMLInputElement).value.trim()) {
+      if (
+        field instanceof HTMLInputElement ||
+        field instanceof HTMLTextAreaElement ||
+        field instanceof HTMLSelectElement
+      ) {
+        if (!field.value.trim()) {
+          return false;
+        }
+      } else {
         return false;
       }
     }

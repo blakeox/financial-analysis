@@ -80,6 +80,15 @@ const config: Config = {
         '.safe-right': {
           right: 'calc(env(safe-area-inset-right, 0px) + 1rem)',
         },
+        '.bg-linear-to-r': {
+          backgroundImage: 'linear-gradient(to right, var(--tw-gradient-stops))',
+        },
+        '.bg-linear-to-b': {
+          backgroundImage: 'linear-gradient(to bottom, var(--tw-gradient-stops))',
+        },
+        '.bg-linear-to-br': {
+          backgroundImage: 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
+        },
       });
     }),
   ],

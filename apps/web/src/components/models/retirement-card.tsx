@@ -1,4 +1,3 @@
-import React from 'react';
 import { PiggyBank } from 'lucide-react';
 import type { ModelCardProps } from './types';
 
@@ -8,7 +7,7 @@ export function RetirementCard({ className = '' }: ModelCardProps) {
       href="/models/personal-finance/retirement"
       className={`block group ${className}`}
     >
-      <div className="h-full rounded-lg border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-6 shadow-sm transition-all hover:border-purple-400 hover:shadow-md dark:border-purple-800 dark:from-purple-950/50 dark:to-gray-900 dark:hover:border-purple-600">
+      <div className="h-full rounded-lg border border-purple-200 bg-linear-to-br from-purple-50 to-white p-6 shadow-sm transition-all hover:border-purple-400 hover:shadow-md dark:border-purple-800 dark:from-purple-950/50 dark:to-gray-900 dark:hover:border-purple-600">
         <div className="mb-4 flex items-center gap-3">
           <div className="rounded-lg bg-purple-100 p-2.5 dark:bg-purple-900/50">
             <PiggyBank className="h-6 w-6 text-purple-600 dark:text-purple-400" />

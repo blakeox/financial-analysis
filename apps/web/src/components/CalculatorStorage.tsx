@@ -154,7 +154,8 @@ export class CalculationHistoryManager {
   }
 
   private static generateId(): string {
-    return `calc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const randomSuffix = Math.random().toString(36).slice(2, 11);
+    return `calc_${Date.now()}_${randomSuffix}`;
   }
 
   private static updateRecentCalculators(calculatorId: string): void {

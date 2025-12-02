@@ -121,9 +121,14 @@ class CoreWebVitalsMonitor {
     if (!('PerformanceObserver' in window)) return;
 
     const observer = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
+      const entries = list.getEntries() as PerformanceEventTiming[];
       entries.forEach((entry) => {
-        this.metrics.fid = entry.processingStart - entry.startTime;
+        if (typeof entry.processingStart === 'number') {
+          this.metrics.fid = entry.processingStart - entry.startTime;
+        } else if (typeof entry.duration === 'number') {
+          // Fallback for browsers that only provide duration
+          this.metrics.fid = entry.duration;
+        }
       });
     });
 

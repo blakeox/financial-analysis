@@ -272,18 +272,37 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <script>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const parseNumber = (value) => {
-    const num = Number(value);
-    return Number.isFinite(num) ? num : 0;
+  type StoredDetails = Record<string, string | number | File | null>;
+
+  type ComparisonResult = {
+    leaseCost: number;
+    buyoutPayment: number;
+    buyoutTotal: number;
+    equityNow: number;
+    equityFuture: number;
+    monthsRemaining: number;
   };
 
-  const formatCurrency = (value) =>
+  type JourneyStorage = {
+    collectedData?: Record<string, unknown>;
+  };
+
+  const parseNumber = (value: FormDataEntryValue | number | null | undefined): number => {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    if (typeof value === 'string') {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : 0;
+    }
+    return 0;
+  };
+
+  const formatCurrency = (value: number | string | null | undefined) =>
     value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
-  const formatPerMonth = (value) =>
+  const formatPerMonth = (value: number | string | null | undefined) =>
     value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }) || '$0';
 
-  const calculatePayment = (principal, apr, months) => {
+  const calculatePayment = (principal: number, apr: number, months: number): number => {
     const monthlyRate = apr / 100 / 12;
     if (!months || months <= 0) return 0;
     if (monthlyRate === 0) return principal / months;
@@ -291,16 +310,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     return (principal * monthlyRate * pow) / (pow - 1);
   };
 
-  const renderResults = (data) => {
-    const {
-      leaseCost,
-      buyoutPayment,
-      buyoutTotal,
-      equityNow,
-      equityFuture,
-      monthsRemaining,
-    } = data;
-
+  const renderResults = ({
+    leaseCost,
+    buyoutPayment,
+    buyoutTotal,
+    equityNow,
+    equityFuture,
+    monthsRemaining,
+  }: ComparisonResult) => {
     const leaseCostSummary = document.getElementById('leaseCostSummary');
     const buyoutSummary = document.getElementById('buyoutSummary');
     const equitySummary = document.getElementById('equitySummary');
@@ -327,13 +344,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   const hydrateForm = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const data = JSON.parse(saved);
-    const details = data.collectedData?.['lease-vs-buyout'];
+    const data = JSON.parse(saved) as JourneyStorage;
+    const details = data.collectedData?.['lease-vs-buyout'] as StoredDetails | undefined;
     if (!details) return;
 
     Object.entries(details).forEach(([key, value]) => {
-      const input = document.querySelector(`[name="${key}"]`);
-      if (input && 'value' in input) {
+      const input = document.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        `[name="${key}"]`
+      );
+      if (input) {
         input.value = String(value ?? '');
       }
     });
@@ -342,7 +361,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   };
 
   const runComparison = () => {
-    const form = document.getElementById('lease-buyout-form');
+    const form = document.getElementById('lease-buyout-form') as HTMLFormElement | null;
     if (!form) return;
     const formData = new FormData(form);
 
@@ -374,15 +393,17 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     });
   };
 
-  const saveForm = (event) => {
+  const saveForm = (event: SubmitEvent) => {
     event.preventDefault();
-    const form = event.currentTarget;
+    const form = event.currentTarget as HTMLFormElement | null;
+    if (!form) return;
     const formData = new FormData(form);
-    const details = Object.fromEntries(formData.entries());
+    const details = Object.fromEntries(formData.entries()) as Record<string, FormDataEntryValue>;
 
     const rawState = localStorage.getItem(STORAGE_KEY);
-    const journeyState = rawState ? JSON.parse(rawState) : { collectedData: {} };
-    journeyState.collectedData = journeyState.collectedData || {};
+    const journeyState = (rawState ? JSON.parse(rawState) : { collectedData: {} }) as JourneyStorage & {
+      collectedData: Record<string, unknown>;
+    };
     journeyState.collectedData['lease-vs-buyout'] = details;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
 
@@ -396,6 +417,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   };
 
   document.getElementById('calculate-lease-buyout')?.addEventListener('click', runComparison);
-  document.getElementById('lease-buyout-form')?.addEventListener('submit', saveForm);
+  const leaseBuyoutForm = document.getElementById('lease-buyout-form') as HTMLFormElement | null;
+  leaseBuyoutForm?.addEventListener('submit', saveForm);
   hydrateForm();
 </script>

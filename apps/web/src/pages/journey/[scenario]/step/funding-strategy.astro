@@ -54,7 +54,7 @@ const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentSc
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Update chatbot context for this phase with journey data
   if (typeof window !== 'undefined') {
     // Load journey state to include actual data
@@ -157,7 +157,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       </div>
 
       <!-- Previous Steps Integration -->
-      <div id="previous-steps-integration" class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 hidden">
+      <div id="previous-steps-integration" class="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 hidden">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Data from Previous Phases</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div id="capital-integration-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
@@ -381,17 +381,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script define:vars={{ journeyNav }}>
+<script define:vars={{ journeyNav }} is:inline>
   // Funding Strategy Form Handler
   document.addEventListener('DOMContentLoaded', function() {
     // Load and integrate previous phase data
     loadPreviousPhaseData();
     
     const form = document.getElementById('funding-strategy-form');
-    const calculateBtn = document.getElementById('calculate-btn');
     const saveBtn = document.getElementById('save-funding-btn');
     const resetBtn = document.getElementById('reset-btn');
-    const resultsSection = document.getElementById('funding-results');
     
     // Load data from previous phases
     function loadPreviousPhaseData() {

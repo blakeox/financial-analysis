@@ -50,7 +50,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
   keywords={config.keywords.join(', ')}
 >
   <!-- FAQ Schema -->
-  <script type="application/ld+json" set:html={JSON.stringify(config.faqSchema)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(config.faqSchema)} />
   
   <!-- Breadcrumb Schema -->
   <script type="application/ld+json" is:inline>

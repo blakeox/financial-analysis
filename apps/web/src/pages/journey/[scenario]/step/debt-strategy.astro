@@ -420,7 +420,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     </div>
   </main>
 
-  <script>
+  <script define:vars={{ scenarioId: scenario }} is:inline>
     // Debt Strategy Form Handler
     document.addEventListener('DOMContentLoaded', async function() {
       // Dynamically import debt payoff engine
@@ -432,6 +432,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         console.error('Failed to import DebtPayoffEngine:', error);
       }
 
+      /** @type {HTMLFormElement|null} */
       const form = document.getElementById('debt-strategy-form');
       const calculateBtn = document.getElementById('calculate-strategy-btn');
       const saveBtn = document.getElementById('save-strategy-btn');
@@ -439,15 +440,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       const resultsSection = document.getElementById('results-section');
       const strategyResults = document.getElementById('strategy-results');
 
-      if (calculateBtn && DebtPayoffEngine) {
+      if (calculateBtn && DebtPayoffEngine && form) {
         calculateBtn.addEventListener('click', function(e) {
           e.preventDefault();
           
           // Collect form data
           const formData = new FormData(form);
-          const studentLoanBalance = parseFloat(formData.get('studentLoanBalance') || '0');
-          const creditCardBalance = parseFloat(formData.get('creditCardBalance') || '0');
-          const carLoanBalance = parseFloat(formData.get('carLoanBalance') || '0');
+          const studentLoanBalance = parseFloat(formData.get('studentLoanBalance')?.toString() || '0');
+          const creditCardBalance = parseFloat(formData.get('creditCardBalance')?.toString() || '0');
+          const carLoanBalance = parseFloat(formData.get('carLoanBalance')?.toString() || '0');
           
           if (studentLoanBalance === 0 && creditCardBalance === 0 && carLoanBalance === 0) {
             alert('Please enter at least one debt balance to calculate a strategy.');
@@ -624,10 +625,10 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           };
 
           // Store in journey state
-          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
+          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${scenarioId}`) || '{}');
           journeyState.collectedData = journeyState.collectedData || {};
           journeyState.collectedData['debt-strategy'] = strategyData;
-          localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
+          localStorage.setItem(`fanalyx-journey-state-${scenarioId}`, JSON.stringify(journeyState));
 
           // Show success message
           saveBtn.textContent = '✓ Saved!';

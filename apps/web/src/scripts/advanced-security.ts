@@ -34,6 +34,9 @@ type ConditionValue = PrimitiveValue | PrimitiveValue[] | RegExp;
 const isPrimitiveValue = (value: unknown): value is PrimitiveValue =>
   value === null || ['string', 'number', 'boolean'].includes(typeof value);
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
 export interface SecurityEvent {
   id: string;
   timestamp: Date;
@@ -660,10 +663,10 @@ export class AdvancedSecurityManager {
    */
   private getFieldValue(request: SecurityRequest, field: string): unknown {
     const parts = field.split('.');
-    let value = request;
+    let value: unknown = request;
 
     for (const part of parts) {
-      if (value && typeof value === 'object') {
+      if (isRecord(value)) {
         value = value[part];
       } else {
         return undefined;

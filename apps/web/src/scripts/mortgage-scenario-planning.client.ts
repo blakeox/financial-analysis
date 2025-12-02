@@ -513,6 +513,11 @@ async function calculateRefinanceScenario(
     totalInterest,
     totalCost,
     payoffMonths: refiMonth + refiResult.totalPayments,
+    hasPMI: false,
+    pmiMonthly: 0,
+    pmiTotalCost: 0,
+    pmiDropMonth: 0,
+    monthlyPaymentWithPMI: afterRefiMonthly,
   };
 }
 
@@ -1038,7 +1043,7 @@ function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
     const legendY = 20;
     ctx.textAlign = 'left';
     
-    chartData.forEach((data, idx) => {
+    chartData.forEach((_, idx) => {
       const startX = padding.left + idx * (width / 2 - padding.left);
       
       // Principal box

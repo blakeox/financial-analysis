@@ -13,9 +13,20 @@ export interface Props {
   image?: string;
   showNav?: boolean;
   keywords?: string;
+  noindex?: boolean;
+  type?: 'website' | 'article' | 'product';
 }
 
-const { title, description = "Fanalyx - Professional Financial Analysis Tools", canonical, image, showNav = true, keywords } = Astro.props as Props;
+const {
+  title,
+  description = "Fanalyx - Professional Financial Analysis Tools",
+  canonical,
+  image,
+  showNav = true,
+  keywords,
+  noindex,
+  type,
+} = Astro.props as Props;
 
   const navLinks = [
     { label: 'Home', href: '/' },
@@ -88,10 +99,19 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <meta name="generator" content={Astro.generator} />
     
     <!-- SEO Meta Tags -->
-    <SEO title={title} description={description} url={Astro.url.href} canonical={canonical} image={image} keywords={keywords} />
+    <SEO
+      title={title}
+      description={description}
+      url={Astro.url.href}
+      canonical={canonical}
+      image={image}
+      keywords={keywords}
+      noindex={noindex}
+      type={type}
+    />
 
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
      crossorigin="anonymous"></script>
 
     <!-- Tailwind CSS -->
