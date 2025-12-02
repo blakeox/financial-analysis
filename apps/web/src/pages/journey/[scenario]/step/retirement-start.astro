@@ -125,7 +125,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Start Your Retirement Journey</h2>
             
-            <form id="retirement-start-form" class="space-y-6">
+            <form
+              id="retirement-start-form"
+              data-journey-scenario-id={journeyNav.scenarioId}
+              class="space-y-6"
+            >
               <!-- Current Situation Section -->
               <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Current Situation</h3>
@@ -327,7 +331,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             </form>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+            <div id="results-section" class="hidden mt-8 p-6 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Retirement Plan</h3>
               <div id="retirement-results" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
@@ -336,7 +340,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
@@ -366,7 +370,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,7 +380,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,169 +427,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     </div>
   </main>
 
-  <script>
-    // Retirement Planning Calculator
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('retirement-start-form');
-      const calculateBtn = document.getElementById('calculate-retirement-btn');
-      const saveBtn = document.getElementById('save-plan-btn');
-      const resetBtn = document.getElementById('reset-btn');
-      const resultsSection = document.getElementById('results-section');
-      const retirementResults = document.getElementById('retirement-results');
-
-      if (calculateBtn) {
-        calculateBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          // Collect form data
-          const formData = new FormData(form);
-          const age = parseInt(formData.get('age') || '0');
-          const retirementAge = parseInt(formData.get('retirementAge') || '0');
-          const currentSalary = parseFloat(formData.get('currentSalary') || '0');
-          const currentBalance = parseFloat(formData.get('currentRetirementBalance') || '0');
-          const employerMatch = parseFloat(formData.get('employerMatch') || '0');
-          const matchLimit = parseFloat(formData.get('matchLimit') || '0');
-          const retirementIncomePercent = parseFloat(formData.get('retirementIncome') || '80');
-          const monthlyContribution = parseFloat(formData.get('monthlyContribution') || '0');
-
-          // Calculate years to retirement
-          const yearsToRetirement = retirementAge - age;
-          
-          // Calculate target retirement income
-          const targetAnnualIncome = currentSalary * (retirementIncomePercent / 100);
-          const targetMonthlyIncome = targetAnnualIncome / 12;
-          
-          // Calculate employer match benefit
-          const annualMatch = currentSalary * (employerMatch / 100);
-          const monthlyMatch = annualMatch / 12;
-          
-          // Calculate total monthly contribution (including match)
-          const totalMonthlyContribution = monthlyContribution + monthlyMatch;
-          
-          // Simple compound interest calculation (7% annual return)
-          const annualReturn = 0.07;
-          const monthlyReturn = annualReturn / 12;
-          const totalMonths = yearsToRetirement * 12;
-          
-          // Future value calculation
-          const futureValue = currentBalance * Math.pow(1 + annualReturn, yearsToRetirement) +
-            totalMonthlyContribution * ((Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn);
-          
-          // Calculate if this meets the 4% rule
-          const annualWithdrawal = futureValue * 0.04;
-          const monthlyWithdrawal = annualWithdrawal / 12;
-          const meetsGoal = monthlyWithdrawal >= targetMonthlyIncome;
-
-          // Display results
-          retirementResults.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Years to Retirement</h4>
-                <p class="text-2xl font-bold text-blue-600">${yearsToRetirement} years</p>
-              </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Target Monthly Income</h4>
-                <p class="text-2xl font-bold text-green-600">$${targetMonthlyIncome.toLocaleString()}</p>
-              </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Projected Savings</h4>
-                <p class="text-2xl font-bold text-purple-600">$${futureValue.toLocaleString()}</p>
-              </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Monthly Withdrawal</h4>
-                <p class="text-2xl font-bold ${meetsGoal ? 'text-green-600' : 'text-red-600'}">$${monthlyWithdrawal.toLocaleString()}</p>
-              </div>
-            </div>
-            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Goal Status</h4>
-              <p class="text-lg">
-                ${meetsGoal ? 
-                  '<span class="text-green-600 font-semibold">✅ You\'re on track!</span>' : 
-                  '<span class="text-red-600 font-semibold">⚠️ Consider increasing contributions</span>'
-                }
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                ${meetsGoal ? 
-                  'Your projected savings will provide your target retirement income.' :
-                  'You may need to save more or work longer to meet your retirement goals.'
-                }
-              </p>
-            </div>
-            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Employer Match Benefit</h4>
-              <p class="text-lg">
-                Your employer match adds <strong>$${monthlyMatch.toLocaleString()}</strong> per month 
-                ($${annualMatch.toLocaleString()} annually) - that's free money!
-              </p>
-            </div>
-          `;
-
-          resultsSection.classList.remove('hidden');
-        });
-      }
-
-      if (saveBtn) {
-        saveBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          // Collect form data
-          const formData = new FormData(form);
-          const planData = {
-            currentSituation: {
-              age: formData.get('age'),
-              retirementAge: formData.get('retirementAge'),
-              currentSalary: formData.get('currentSalary'),
-              currentBalance: formData.get('currentRetirementBalance')
-            },
-            employerBenefits: {
-              match: formData.get('employerMatch'),
-              matchLimit: formData.get('matchLimit')
-            },
-            goals: {
-              retirementIncome: formData.get('retirementIncome'),
-              monthlyContribution: formData.get('monthlyContribution')
-            },
-            strategy: {
-              riskTolerance: formData.get('riskTolerance'),
-              preferences: formData.getAll('investmentPrefs')
-            },
-            completedAt: new Date().toISOString()
-          };
-
-          // Store in journey state
-          const journeyState = JSON.parse(localStorage.getItem(`fanalyx-journey-state-${journeyNav.scenarioId}`) || '{}');
-          journeyState.collectedData = journeyState.collectedData || {};
-          journeyState.collectedData['retirement-start'] = planData;
-          localStorage.setItem(`fanalyx-journey-state-${journeyNav.scenarioId}`, JSON.stringify(journeyState));
-
-          // Show success message
-          saveBtn.textContent = '✓ Saved!';
-          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-          saveBtn.classList.add('bg-green-500');
-          
-          setTimeout(() => {
-            saveBtn.textContent = 'Save Plan';
-            saveBtn.classList.remove('bg-green-500');
-            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-          }, 2000);
-
-          // Dispatch completion event
-          window.dispatchEvent(new CustomEvent('calculator-completed', {
-            detail: {
-              calculatorId: 'retirement-start',
-              result: planData,
-              formData: planData
-            }
-          }));
-        });
-      }
-
-      if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-          form.reset();
-          resultsSection.classList.add('hidden');
-        });
-      }
-    });
+  <script type="module" is:inline>
+    import '/src/scripts/journey/retirement-start.client.ts';
   </script>
 </Layout>
