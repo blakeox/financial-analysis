@@ -349,8 +349,8 @@ export class EnhancedLeaseTool {
     required: ['termMonths'],
   };
 
-  static execute(input: unknown): Promise<EnhancedLeaseAnalysisResult> {
+  static async execute(input: unknown): Promise<EnhancedLeaseAnalysisResult> {
     const validated = EnhancedLeaseToolInputSchema.parse(input);
-    return Promise.resolve(EnhancedLeaseAnalyzer.analyze(validated));
+    return EnhancedLeaseAnalyzer.analyze(validated);
   }
 }
