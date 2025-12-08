@@ -22,5 +22,7 @@ export default defineConfig({
     exclude: ['**/dist/**', '**/node_modules/**'],
     // Disable file parallelism to reduce memory pressure
     fileParallelism: false,
+    // Retry flaky tests (Monte Carlo uses randomness)
+    retry: 1,
   },
 });

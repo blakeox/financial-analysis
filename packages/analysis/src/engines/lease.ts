@@ -27,19 +27,28 @@ export class LeaseAnalyzer {
     const { principal, annualRate, termMonths, residualValue } = validated;
     const monthlyRate = annualRate / 12;
 
-    // Standard present value annuity formula for lease payments
-    // PV = principal, FV = residualValue
-    // PMT = (PV - FV / (1 + r)^n) * r / (1 - (1 + r)^-n)
-    // where r = monthlyRate, n = termMonths
-    const pv = new Decimal(principal);
-    const fv = new Decimal(residualValue);
-    const r = new Decimal(monthlyRate);
-    const n = new Decimal(termMonths);
-    const one = new Decimal(1);
-    const denom = one.minus(one.plus(r).pow(n.neg()));
-    const discountedFV = fv.div(one.plus(r).pow(n));
-    const pmt = pv.minus(discountedFV).times(r).div(denom);
-    const monthlyPayment = Number(pmt.toFixed(2));
+    let monthlyPayment: number;
+
+    if (monthlyRate === 0) {
+      // Zero interest rate: simple division
+      monthlyPayment = Number(
+        new Decimal(principal - residualValue).div(termMonths).toFixed(2)
+      );
+    } else {
+      // Standard present value annuity formula for lease payments
+      // PV = principal, FV = residualValue
+      // PMT = (PV - FV / (1 + r)^n) * r / (1 - (1 + r)^-n)
+      // where r = monthlyRate, n = termMonths
+      const pv = new Decimal(principal);
+      const fv = new Decimal(residualValue);
+      const r = new Decimal(monthlyRate);
+      const n = new Decimal(termMonths);
+      const one = new Decimal(1);
+      const denom = one.minus(one.plus(r).pow(n.neg()));
+      const discountedFV = fv.div(one.plus(r).pow(n));
+      const pmt = pv.minus(discountedFV).times(r).div(denom);
+      monthlyPayment = Number(pmt.toFixed(2));
+    }
 
     const schedule: LeaseAnalysisResult['schedule'] = [];
     let balance = principal;

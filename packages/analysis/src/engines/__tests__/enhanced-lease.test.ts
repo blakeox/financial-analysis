@@ -1,6 +1,67 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { EnhancedLeaseAnalyzer } from '../enhanced-lease';
-import type { EnhancedLeaseInput } from '../../schemas/enhanced-lease';
+import { EnhancedLeaseInputSchema, type EnhancedLeaseInput } from '../../schemas/enhanced-lease';
+import type {
+  FinancialMetrics,
+  LeaseVsBuyAnalysis,
+  PurchaseOptionAnalysis,
+  RiskAnalysis,
+} from '../../types/enhanced-lease-result';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+const helpers = EnhancedLeaseAnalyzer as unknown as {
+  calculateEquipmentPayment: (input: EnhancedLeaseInput) => { basePayment: number; interestRate: number };
+  applyEscalation: (
+    basePayment: number,
+    month: number,
+    escalation?: NonNullable<EnhancedLeaseInput['escalation']>
+  ) => number;
+  calculatePercentageRent: (
+    percentageRent?: NonNullable<EnhancedLeaseInput['percentageRent']>
+  ) => number;
+  calculateAdditionalCosts: (
+    additionalCosts?: EnhancedLeaseInput['additionalCosts']
+  ) => { total: number; camCharges: number } & Record<string, number>;
+  analyzePurchaseOption: (input: EnhancedLeaseInput) => PurchaseOptionAnalysis | undefined;
+  analyzeLeaseVsBuy: (
+    input: EnhancedLeaseInput,
+    metrics: FinancialMetrics
+  ) => LeaseVsBuyAnalysis | undefined;
+  analyzeRisk: (input: EnhancedLeaseInput, metrics: FinancialMetrics) => RiskAnalysis;
+  generateInsights: (
+    input: EnhancedLeaseInput,
+    metrics: FinancialMetrics,
+    risk: RiskAnalysis
+  ) => ReturnType<typeof EnhancedLeaseAnalyzer.analyze>['insights'];
+};
+
+const createBaseInput = (overrides: Partial<EnhancedLeaseInput> = {}): EnhancedLeaseInput => ({
+  leaseType: 'equipment',
+  principal: 120000,
+  termMonths: 24,
+  annualRate: 0.05,
+  residualValue: 10000,
+  discountRate: 0.05,
+  renewalOptions: [],
+  ...overrides,
+});
+
+const createMetrics = (overrides: Partial<FinancialMetrics> = {}): FinancialMetrics => ({
+  totalCost: 100000,
+  presentValue: 95000,
+  futureValue: 0,
+  effectiveAnnualRate: 0.05,
+  internalRateOfReturn: 0.04,
+  paybackPeriod: 24,
+  totalInterestPaid: 5000,
+  averageMonthlyPayment: 3500,
+  costPerMonth: 3500,
+  costPerYear: 42000,
+  ...overrides,
+});
 
 describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
   describe('Warehouse NNN Lease Analysis', () => {
@@ -418,6 +479,363 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
       // Term extension sensitivity should show increased costs
       expect(result.sensitivity!.termExtension6Months.totalCostChange).toBeGreaterThan(0);
     });
+  });
+});
+
+describe('EnhancedLeaseAnalyzer helper coverage', () => {
+  it('calculates zero-interest equipment payments using straight-line math', () => {
+    const input: EnhancedLeaseInput = {
+      leaseType: 'equipment',
+      principal: 120000,
+      residualValue: 20000,
+      termMonths: 40,
+      annualRate: 0,
+      discountRate: 0.05,
+      renewalOptions: [],
+    };
+
+    const { basePayment, interestRate } = helpers.calculateEquipmentPayment(input);
+    expect(basePayment).toBeCloseTo((120000 - 20000) / 40, 6);
+    expect(interestRate).toBe(0);
+  });
+
+  it('applies stepped escalation rates when start months are met', () => {
+    const payment = helpers.applyEscalation(1000, 15, {
+      type: 'stepped',
+      rate: 0,
+      schedule: [
+        { startMonth: 6, rate: 0.02 },
+        { startMonth: 13, rate: 0.04 },
+      ],
+      cpiBase: 0,
+    });
+
+    expect(payment).toBeCloseTo(1000 * 1.04, 6);
+  });
+
+  it('keeps stepped escalation flat before the first step begins', () => {
+    const payment = helpers.applyEscalation(1200, 3, {
+      type: 'stepped',
+      rate: 0,
+      schedule: [{ startMonth: 6, rate: 0.05 }],
+      cpiBase: 0,
+    });
+
+    expect(payment).toBe(1200);
+  });
+
+  it('applies market escalation only after the first year', () => {
+    const escalation = {
+      type: 'market' as const,
+      rate: 0.05,
+      schedule: [],
+      cpiBase: 0,
+    };
+
+    const firstYear = helpers.applyEscalation(2000, 12, escalation);
+    const secondYear = helpers.applyEscalation(2000, 13, escalation);
+
+    expect(firstYear).toBe(2000);
+    expect(secondYear).toBeCloseTo(2000 * 1.05, 6);
+  });
+
+  it('falls back to base payment for unknown escalation types', () => {
+    const payment = helpers.applyEscalation(1500, 5, {
+      type: 'unknown' as any,
+      rate: 0.1,
+      schedule: [],
+      cpiBase: 0,
+    });
+
+    expect(payment).toBe(1500);
+  });
+
+  it('applies CPI escalation compounded by years passed', () => {
+    const paymentYearTwo = helpers.applyEscalation(2200, 13, {
+      type: 'cpi',
+      rate: 0.03,
+      schedule: [],
+      cpiBase: 0,
+    });
+
+    expect(paymentYearTwo).toBeCloseTo(2200 * Math.pow(1.03, 1), 6);
+  });
+
+  it('defaults CPI escalation to the 2.5% fallback when rate is missing', () => {
+    const paymentYearThree = helpers.applyEscalation(1800, 25, {
+      type: 'cpi',
+      rate: 0,
+      schedule: [],
+      cpiBase: 0,
+    });
+
+    expect(paymentYearThree).toBeCloseTo(1800 * Math.pow(1.025, 2), 6);
+  });
+
+  it('defaults additional costs to zeros when omitted', () => {
+    const defaults = helpers.calculateAdditionalCosts();
+    expect(defaults.total).toBe(0);
+    expect(defaults.camCharges).toBe(0);
+    expect(defaults.propertyTaxes).toBe(0);
+  });
+
+  it('returns zero percentage rent when sales do not exceed the breakpoint', () => {
+    const percentageRent = helpers.calculatePercentageRent({
+      enabled: true,
+      percentage: 0.07,
+      breakpoint: 1_200_000,
+      annualSalesEstimate: 1_100_000,
+    });
+
+    expect(percentageRent).toBe(0);
+  });
+
+  it('skips purchase option analysis when the option is disabled', () => {
+    const result = helpers.analyzePurchaseOption(createBaseInput({
+      purchaseOption: { enabled: false },
+    }));
+
+    expect(result).toBeUndefined();
+  });
+
+  it('falls back to residual value when purchase option fixed amount is missing', () => {
+    const result = helpers.analyzePurchaseOption(createBaseInput({
+      residualValue: 18000,
+      purchaseOption: { enabled: true },
+    }));
+
+    expect(result?.purchasePrice).toBe(18000);
+  });
+
+  it('returns undefined for lease-vs-buy comparisons without purchase price', () => {
+    const metrics = createMetrics();
+    const result = helpers.analyzeLeaseVsBuy(createBaseInput({
+      compareAlternatives: {
+        loanRate: 0.05,
+      },
+    }), metrics);
+
+    expect(result).toBeUndefined();
+  });
+
+  it('uses default loan rate and term when compare alternatives omit them', () => {
+    const purchasePrice = 90000;
+    const termMonths = 36;
+    const metrics = createMetrics();
+    const analysis = helpers.analyzeLeaseVsBuy(createBaseInput({
+      termMonths,
+      compareAlternatives: {
+        purchasePrice,
+      },
+    }), metrics);
+
+    expect(analysis).toBeDefined();
+
+    const fallbackRate = 0.06;
+    const monthlyRate = fallbackRate / 12;
+    const expectedPayment = purchasePrice * (
+      (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+      (Math.pow(1 + monthlyRate, termMonths) - 1)
+    );
+
+    expect(analysis!.buyOption.loanPayment).toBeCloseTo(expectedPayment, 2);
+    expect(analysis!.buyOption.totalLoanCost).toBeCloseTo(expectedPayment * termMonths, 2);
+  });
+});
+
+describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
+  it('derives early termination penalties from average payments when no fixed amount is provided', () => {
+    const metrics = createMetrics({
+      averageMonthlyPayment: 4200,
+      costPerMonth: 4200,
+      costPerYear: 50400,
+      totalCost: 210000,
+      presentValue: 190000,
+    });
+
+    const risk = helpers.analyzeRisk(createBaseInput({
+      earlyTermination: {
+        allowed: true,
+        penaltyMonths: 2,
+      },
+      escalation: {
+        type: 'none',
+        rate: 0,
+        schedule: [],
+        cpiBase: 0,
+      },
+    }), metrics);
+
+    expect(risk.earlyTerminationCost).toBeCloseTo(4200 * 2, 2);
+    expect(risk.rateEscalationRisk).toBe('low');
+  });
+
+  it('prefers an explicit early termination penalty amount when provided', () => {
+    const metrics = createMetrics({ averageMonthlyPayment: 3000 });
+
+    const risk = helpers.analyzeRisk(createBaseInput({
+      earlyTermination: {
+        allowed: true,
+        penaltyAmount: 10000,
+        penaltyMonths: 12,
+      },
+    }), metrics);
+
+    expect(risk.earlyTerminationCost).toBe(10000);
+  });
+
+  it('defaults penalty months to three when not specified', () => {
+    const metrics = createMetrics({ averageMonthlyPayment: 2500 });
+
+    const risk = helpers.analyzeRisk(createBaseInput({
+      earlyTermination: {
+        allowed: true,
+      },
+    }), metrics);
+
+    expect(risk.earlyTerminationCost).toBeCloseTo(2500 * 3, 2);
+  });
+
+  it('treats early termination as full commitment when the clause is not allowed', () => {
+    const metrics = createMetrics({
+      totalCost: 250000,
+      costPerMonth: 5000,
+      costPerYear: 60000,
+    });
+
+    const risk = helpers.analyzeRisk(createBaseInput({
+      earlyTermination: {
+        allowed: false,
+      },
+    }), metrics);
+
+    expect(risk.earlyTerminationCost).toBe(metrics.totalCost);
+    expect(risk.flexibilityScore).toBe(25);
+  });
+
+  it('omits flexibility recommendations when the risk score is healthy and no escalation exists', () => {
+    const metrics = createMetrics({ totalCost: 180000, costPerMonth: 4000, costPerYear: 48000 });
+    const risk: RiskAnalysis = {
+      earlyTerminationCost: 5000,
+      totalCommitment: metrics.totalCost,
+      flexibilityScore: 80,
+      renewalRisk: 'low',
+      rateEscalationRisk: 'low',
+    };
+
+    const insights = helpers.generateInsights(createBaseInput({
+      escalation: {
+        type: 'none',
+        rate: 0,
+        schedule: [],
+        cpiBase: 0,
+      },
+    }), metrics, risk);
+
+    expect(insights.recommendations).toHaveLength(0);
+    expect(insights.flexibilityRating).toBe('High');
+  });
+
+  it('labels flexibility as Medium when the score is above 50 but below the High threshold', () => {
+    const metrics = createMetrics({ totalCost: 175000 });
+    const risk: RiskAnalysis = {
+      earlyTerminationCost: 7000,
+      totalCommitment: metrics.totalCost,
+      flexibilityScore: 70,
+      renewalRisk: 'medium',
+      rateEscalationRisk: 'medium',
+    };
+
+    const insights = helpers.generateInsights(createBaseInput({
+      escalation: {
+        type: 'fixed',
+        rate: 0.03,
+        schedule: [],
+        cpiBase: 0,
+      },
+    }), metrics, risk);
+
+    expect(insights.flexibilityRating).toBe('Medium');
+    expect(insights.recommendations).toContain('Monitor escalation clauses to ensure they align with market conditions');
+  });
+});
+
+describe('EnhancedLeaseAnalyzer validation fallbacks', () => {
+  it('falls back to zero base payment when a building lease is parsed without base rent', () => {
+    const parsedLease = {
+      leaseType: 'retail-base',
+      principal: 0,
+      baseRent: undefined,
+      annualRate: 0,
+      termMonths: 6,
+      residualValue: 0,
+      discountRate: 0.05,
+      renewalOptions: [],
+    } as unknown as EnhancedLeaseInput;
+
+    const parseSpy = vi.spyOn(EnhancedLeaseInputSchema, 'parse').mockReturnValueOnce(parsedLease);
+
+    const result = EnhancedLeaseAnalyzer.analyze({
+      leaseType: 'retail-base',
+      principal: 0,
+      baseRent: 25000,
+      annualRate: 0.01,
+      termMonths: 6,
+      residualValue: 0,
+      discountRate: 0.05,
+      renewalOptions: [],
+    } as EnhancedLeaseInput);
+
+    expect(parseSpy).toHaveBeenCalled();
+    expect(result.schedule[0]!.basePayment).toBe(0);
+  });
+});
+
+describe('EnhancedLeaseAnalyzer equipment scenario coverage', () => {
+  it('handles equipment leases with CPI escalation and alternative analysis', () => {
+    const input: EnhancedLeaseInput = {
+      leaseType: 'equipment',
+      principal: 150000,
+      residualValue: 15000,
+      annualRate: 0.06,
+      termMonths: 48,
+      discountRate: 0.05,
+      escalation: {
+        type: 'cpi',
+        rate: 0.025,
+        schedule: [],
+        cpiBase: 0,
+      },
+      purchaseOption: {
+        enabled: true,
+        fixedAmount: 14000,
+      },
+      compareAlternatives: {
+        purchasePrice: 160000,
+        loanRate: 0.055,
+        loanTermMonths: 48,
+      },
+      renewalOptions: [],
+    };
+
+    const result = EnhancedLeaseAnalyzer.analyze(input);
+
+    expect(result.leaseType).toBe('equipment');
+    expect(result.schedule).toHaveLength(48);
+    const base = result.schedule[0]!.basePayment;
+    expect(result.schedule[0]!.additionalCosts.total).toBe(0);
+    expect(result.schedule[0]!.escalatedPayment).toBeCloseTo(base, 2);
+    expect(result.schedule[13]!.escalatedPayment).toBeCloseTo(base * 1.025, 2);
+
+    expect(result.purchaseOption?.available).toBe(true);
+    expect(result.purchaseOption?.purchasePrice).toBe(14000);
+
+    expect(result.leaseVsBuy?.buyOption.purchasePrice).toBe(160000);
+    expect(result.leaseVsBuy?.recommendation).toMatch(/lease|buy/);
+
+    const recs = result.insights.recommendations;
+    expect(recs).toContain('Consider negotiating early termination options for flexibility');
+    expect(recs).toContain('Monitor escalation clauses to ensure they align with market conditions');
   });
 });
 

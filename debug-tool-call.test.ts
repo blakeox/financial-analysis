@@ -1,7 +1,8 @@
-// Quick test to see what the tool call is returning
+// Quick debug test to see what the tool call is returning
+// This test requires a running server on localhost:8787 - skip in automated tests
 import { test } from 'vitest';
 
-test('debug tool call response', async () => {
+test.skip('debug tool call response (requires running server)', async () => {
   const body = {
     messages: [
       {

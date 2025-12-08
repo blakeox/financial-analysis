@@ -344,12 +344,14 @@ export class AmortizationAnalyzer {
       let paymentDate: string | undefined;
       if (startDate) {
         const date = new Date(startDate);
-        if (paymentFrequency === 'monthly') {
-          date.setMonth(date.getMonth() + month - 1);
+        if (paymentFrequency === 'weekly') {
+          date.setDate(date.getDate() + (month - 1) * 7);
         } else if (paymentFrequency === 'biweekly') {
           date.setDate(date.getDate() + (month - 1) * 14);
-        } else if (paymentFrequency === 'weekly') {
-          date.setDate(date.getDate() + (month - 1) * 7);
+        } else {
+          // Default to standard monthly cadence for both explicit monthly
+          // schedules and any unexpected frequency values.
+          date.setMonth(date.getMonth() + month - 1);
         }
         paymentDate = date.toISOString().split('T')[0];
       }

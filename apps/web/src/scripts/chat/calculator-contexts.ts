@@ -459,9 +459,21 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
  * Detect calculator context from URL path
  */
 export function detectCalculatorContext(pathname: string): CalculatorContextKey {
+  // Normalize pathname: remove query params, hash, collapse multiple slashes, remove trailing slashes
+  let normalizedPath = pathname
+    .split('?')[0]        // Remove query params
+    .split('#')[0]        // Remove hash
+    .replace(/\/+/g, '/') // Collapse multiple slashes
+    .replace(/\/$/, '');  // Remove trailing slash
+  
+  // Handle empty path
+  if (!normalizedPath || normalizedPath === '/') {
+    return 'general';
+  }
+  
   // Check journey pages first
-  if (pathname.includes('/journey/')) {
-    const journeyMatch = pathname.match(/\/journey\/([^/]+)/);
+  if (normalizedPath.includes('/journey/')) {
+    const journeyMatch = normalizedPath.match(/\/journey\/([^/]+)/);
     if (journeyMatch) {
       const journeyId = journeyMatch[1];
       const journeyContextMap: Record<string, CalculatorContextKey> = {
@@ -480,7 +492,7 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
   }
   
   // Check calculator pages - handle both /calculator/[id] and direct paths
-  const calculatorMatch = pathname.match(/\/(calculator\/)?([^/]+)/);
+  const calculatorMatch = normalizedPath.match(/\/(calculator\/)?([^/]+)/);
   if (calculatorMatch) {
     const path = calculatorMatch[2];
     

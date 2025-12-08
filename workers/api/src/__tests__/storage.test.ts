@@ -137,7 +137,7 @@ describe('Storage endpoints', () => {
     const req = new Request('https://example.com/v1/storage/object/too-big.bin', {
       method: 'PUT',
       body: 'x'.repeat(4000),
-      headers: { 'Content-Type': 'application/octet-stream', 'Content-Length': '4000' },
+      headers: { 'Content-Type': 'application/octet-stream', 'X-Content-Length': '4000' },
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(413);
@@ -149,7 +149,7 @@ describe('Storage endpoints', () => {
     const req = new Request('https://example.com/v1/storage/object/near.txt', {
       method: 'PUT',
       body: 'x'.repeat(200),
-      headers: { 'Content-Type': 'text/plain', 'Content-Length': '200' },
+      headers: { 'Content-Type': 'text/plain', 'X-Content-Length': '200' },
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(403);
@@ -165,7 +165,7 @@ describe('Storage endpoints', () => {
     const req = new Request('https://example.com/v1/storage/object/any.bin', {
       method: 'PUT',
       body: 'x'.repeat(10),
-      headers: { 'Content-Type': 'application/octet-stream', 'Content-Length': '10' },
+      headers: { 'Content-Type': 'application/octet-stream', 'X-Content-Length': '10' },
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(403);
@@ -177,7 +177,7 @@ describe('Storage endpoints', () => {
     const req = new Request('https://example.com/v1/storage/object/ok.bin', {
       method: 'PUT',
       body: 'x'.repeat(1000),
-      headers: { 'Content-Type': 'application/octet-stream', 'Content-Length': '1000' },
+      headers: { 'Content-Type': 'application/octet-stream', 'X-Content-Length': '1000' },
     });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(201);

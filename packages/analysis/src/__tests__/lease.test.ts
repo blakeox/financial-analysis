@@ -11,9 +11,10 @@ describe('LeaseAnalyzer', () => {
         residualValue: 10000,
       });
 
-      expect(result.monthlyPayment).toBe(916.67);
-      expect(result.totalPayments).toBe(55000);
-      expect(result.totalInterest).toBe(15000);
+      // Using present value annuity formula with residual value
+      expect(result.monthlyPayment).toBe(796.52);
+      expect(result.totalPayments).toBeCloseTo(47791.2, 0);
+      expect(result.totalInterest).toBeCloseTo(7791.2, 0);
       expect(result.schedule).toHaveLength(60);
     });
 
@@ -25,9 +26,10 @@ describe('LeaseAnalyzer', () => {
         residualValue: 0,
       });
 
-      expect(result.monthlyPayment).toBe(933.33);
+      expect(result.monthlyPayment).toBe(885.72);
       expect(result.schedule).toHaveLength(36);
-      expect(result.schedule[35]?.balance).toBe(0);
+      // With proper amortization, final balance should be close to 0 (residual)
+      expect(result.schedule[35]?.balance).toBeCloseTo(0, 0);
     });
 
     it('should validate input parameters', () => {
@@ -71,14 +73,17 @@ describe('LeaseAnalyzer', () => {
       expect(result.schedule[0]?.month).toBe(1);
       expect(result.schedule[23]?.month).toBe(24);
 
-      // First payment
-      expect(result.schedule[0]?.payment).toBe(750);
-      expect(result.schedule[0]?.principal).toBe(650);
+      // Monthly payment is 689.81 with present value formula
+      expect(result.schedule[0]?.payment).toBe(689.81);
+      // First month interest: 20000 * 0.06/12 = 100
       expect(result.schedule[0]?.interest).toBe(100);
-      expect(result.schedule[0]?.balance).toBe(19350);
+      // Principal: payment - interest = 689.81 - 100 = 589.81
+      expect(result.schedule[0]?.principal).toBe(589.81);
+      // Balance: 20000 - 589.81 = 19410.19
+      expect(result.schedule[0]?.balance).toBeCloseTo(19410.19, 0);
 
-      // Last payment balance
-      expect(result.schedule[23]?.balance).toBeCloseTo(3469.23, 2);
+      // Last payment balance should be close to residual value
+      expect(result.schedule[23]?.balance).toBeCloseTo(5000, 0);
     });
 
     it('should handle high residual value', () => {
@@ -89,9 +94,9 @@ describe('LeaseAnalyzer', () => {
         residualValue: 40000,
       });
 
-      expect(result.monthlyPayment).toBe(433.33);
-      expect(result.totalPayments).toBeCloseTo(20800, 0);
-      expect(result.totalInterest).toBe(10800);
+      expect(result.monthlyPayment).toBe(321.34);
+      expect(result.totalPayments).toBeCloseTo(15424.32, 0);
+      expect(result.totalInterest).toBeCloseTo(5424.32, 0);
     });
   });
 });

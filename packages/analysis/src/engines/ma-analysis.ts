@@ -740,7 +740,11 @@ export class MAAnalysisEngine {
    * Perform sensitivity analysis
    */
   private static performSensitivityAnalysis(input: MAAnalysisInput) {
-    const { transactionTerms, synergies } = input;
+    // Store original values to use in loop bounds (avoid mutation issues)
+    const basePurchasePrice = input.transactionTerms.purchasePrice;
+    const baseCostSynergies = input.synergies.costSynergies.annualAmount;
+    const baseRevenueSynergies = input.synergies.revenueSynergies.annualAmount;
+    const baseSynergyAmount = baseCostSynergies + baseRevenueSynergies;
 
     const sensitivity = {
       purchasePrice: [] as Array<{ price: number; valueCreation: number }>,
@@ -748,14 +752,19 @@ export class MAAnalysisEngine {
       discountRate: [] as Array<{ rate: number; valueCreation: number }>,
     };
 
-    // Purchase price sensitivity
+    // Purchase price sensitivity - use deep clone to avoid mutating original
     for (
-      let price = transactionTerms.purchasePrice * 0.8;
-      price <= transactionTerms.purchasePrice * 1.2;
-      price += transactionTerms.purchasePrice * 0.05
+      let price = basePurchasePrice * 0.8;
+      price <= basePurchasePrice * 1.2;
+      price += basePurchasePrice * 0.05
     ) {
-      const modifiedInput = { ...input };
-      modifiedInput.transactionTerms.purchasePrice = price;
+      const modifiedInput: MAAnalysisInput = {
+        ...input,
+        transactionTerms: {
+          ...input.transactionTerms,
+          purchasePrice: price,
+        },
+      };
       const valuation = this.calculateValuation(modifiedInput);
 
       sensitivity.purchasePrice.push({
@@ -764,17 +773,26 @@ export class MAAnalysisEngine {
       });
     }
 
-    // Synergy sensitivity
-    const baseSynergyAmount =
-      synergies.costSynergies.annualAmount + synergies.revenueSynergies.annualAmount;
+    // Synergy sensitivity - use deep clone to avoid mutating original
     for (
       let amount = baseSynergyAmount * 0.5;
       amount <= baseSynergyAmount * 1.5;
       amount += baseSynergyAmount * 0.1
     ) {
-      const modifiedInput = { ...input };
-      modifiedInput.synergies.costSynergies.annualAmount = amount * 0.6;
-      modifiedInput.synergies.revenueSynergies.annualAmount = amount * 0.4;
+      const modifiedInput: MAAnalysisInput = {
+        ...input,
+        synergies: {
+          ...input.synergies,
+          costSynergies: {
+            ...input.synergies.costSynergies,
+            annualAmount: amount * 0.6,
+          },
+          revenueSynergies: {
+            ...input.synergies.revenueSynergies,
+            annualAmount: amount * 0.4,
+          },
+        },
+      };
       const valuation = this.calculateValuation(modifiedInput);
 
       sensitivity.synergies.push({
@@ -794,20 +812,54 @@ export class MAAnalysisEngine {
     const baseValuation = this.calculateValuation(input);
     const baseCase = baseValuation.valueCreation;
 
-    // Optimistic case (higher synergies, lower costs)
-    const optimisticInput = { ...input };
-    optimisticInput.synergies.costSynergies.annualAmount *= 1.2;
-    optimisticInput.synergies.revenueSynergies.annualAmount *= 1.2;
-    optimisticInput.integration.costs.oneTimeCosts *= 0.8;
+    // Optimistic case (higher synergies, lower costs) - use deep clone
+    const optimisticInput: MAAnalysisInput = {
+      ...input,
+      synergies: {
+        ...input.synergies,
+        costSynergies: {
+          ...input.synergies.costSynergies,
+          annualAmount: input.synergies.costSynergies.annualAmount * 1.2,
+        },
+        revenueSynergies: {
+          ...input.synergies.revenueSynergies,
+          annualAmount: input.synergies.revenueSynergies.annualAmount * 1.2,
+        },
+      },
+      integration: {
+        ...input.integration,
+        costs: {
+          ...input.integration.costs,
+          oneTimeCosts: input.integration.costs.oneTimeCosts * 0.8,
+        },
+      },
+    };
 
     const optimisticValuation = this.calculateValuation(optimisticInput);
     const optimisticCase = optimisticValuation.valueCreation;
 
-    // Pessimistic case (lower synergies, higher costs)
-    const pessimisticInput = { ...input };
-    pessimisticInput.synergies.costSynergies.annualAmount *= 0.8;
-    pessimisticInput.synergies.revenueSynergies.annualAmount *= 0.8;
-    pessimisticInput.integration.costs.oneTimeCosts *= 1.2;
+    // Pessimistic case (lower synergies, higher costs) - use deep clone
+    const pessimisticInput: MAAnalysisInput = {
+      ...input,
+      synergies: {
+        ...input.synergies,
+        costSynergies: {
+          ...input.synergies.costSynergies,
+          annualAmount: input.synergies.costSynergies.annualAmount * 0.8,
+        },
+        revenueSynergies: {
+          ...input.synergies.revenueSynergies,
+          annualAmount: input.synergies.revenueSynergies.annualAmount * 0.8,
+        },
+      },
+      integration: {
+        ...input.integration,
+        costs: {
+          ...input.integration.costs,
+          oneTimeCosts: input.integration.costs.oneTimeCosts * 1.2,
+        },
+      },
+    };
 
     const pessimisticValuation = this.calculateValuation(pessimisticInput);
     const pessimisticCase = pessimisticValuation.valueCreation;
