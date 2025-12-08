@@ -1816,55 +1816,42 @@ router.get(
 router.get(
   '/openapi.json',
   withErrorHandler(async (request: Request, env: Env) => {
-    const url = new URL(request.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
-    const doc = getOpenApiDocument(baseUrl);
-    const json = JSON.stringify(doc, null, 2);
-    const etagHex = await sha256Hex(json);
-    const etag = `"${etagHex}"`;
-    const inm = request.headers.get('if-none-match');
-    if (inm && inm.replace(/^W\//, '') === etag) {
-      return new Response(null, {
-        status: 304,
-        headers: {
-          ...getCorsHeaders(env),
-          ...getSecurityHeaders(env),
-          ETag: etag,
-          'Cache-Control': 'public, max-age=300',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-    return new Response(json, {
-      headers: {
-        ...buildDefaultHeaders(env),
-        'Content-Type': 'application/json',
-        ETag: etag,
-        'Cache-Control': 'public, max-age=300',
-      },
-    });
+    const payload = await buildOpenApiResponsePayload(request, env);
+    return new Response(payload.body, { status: payload.status, headers: payload.headers });
+  })
+);
+
+router.head(
+  '/openapi.json',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const payload = await buildOpenApiResponsePayload(request, env);
+    return new Response(null, { status: payload.status, headers: payload.headers });
   })
 );
 
 // API docs viewer (RapiDoc)
-router.get(
-  '/docs',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const url = new URL(request.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
-    // Tight CSP allowing only our origin and the RapiDoc CDN script
-    const docsCsp = [
-      "default-src 'self'",
-      "script-src 'self' https://unpkg.com https://cdn.tailwindcss.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data:",
-      "connect-src 'self'",
-      "object-src 'none'",
-      "base-uri 'none'",
-      "frame-ancestors 'none'",
-    ].join('; ');
+type CachedResponsePayload = {
+  status: number;
+  headers: HeadersInit;
+  body: string | null;
+};
 
-    const html = `<!doctype html>
+async function buildDocsResponsePayload(request: Request, env: Env): Promise<CachedResponsePayload> {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+  // Tight CSP allowing only our origin and the RapiDoc CDN script
+  const docsCsp = [
+    "default-src 'self'",
+    "script-src 'self' https://unpkg.com https://cdn.tailwindcss.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+
+  const html = `<!doctype html>
     <html lang="en" class="h-full bg-slate-950">
       <head>
         <meta charset="utf-8" />
@@ -1915,35 +1902,79 @@ router.get(
       </body>
     </html>`;
 
-    const etagHex = await sha256Hex(html);
-    const etag = `"${etagHex}"`;
-    const inm = request.headers.get('if-none-match');
-    if (inm && inm.replace(/^W\//, '') === etag) {
-      return new Response(null, {
-        status: 304,
-        headers: {
-          ...getCorsHeaders(env),
-          ...getSecurityHeaders(env),
-          'Content-Type': 'text/html; charset=utf-8',
-          'Content-Security-Policy': docsCsp,
-          ETag: etag,
-          'Cache-Control': 'public, max-age=300',
-        },
-      });
-    }
+  const etagHex = await sha256Hex(html);
+  const etag = `"${etagHex}"`;
+  const headers: HeadersInit = {
+    ...getCorsHeaders(env),
+    ...getSecurityHeaders(env),
+    'Content-Type': 'text/html; charset=utf-8',
+    'Content-Security-Policy': docsCsp,
+    ETag: etag,
+    'Cache-Control': 'public, max-age=300',
+  };
+  const inm = request.headers.get('if-none-match');
+  const isNotModified = Boolean(inm && inm.replace(/^W\//, '') === etag);
 
-    return new Response(html, {
+  return {
+    status: isNotModified ? 304 : 200,
+    headers,
+    body: isNotModified ? null : html,
+  };
+}
+
+router.get(
+  '/docs',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const payload = await buildDocsResponsePayload(request, env);
+    return new Response(payload.body, { status: payload.status, headers: payload.headers });
+  })
+);
+
+router.head(
+  '/docs',
+  withErrorHandler(async (request: Request, env: Env) => {
+    const payload = await buildDocsResponsePayload(request, env);
+    return new Response(null, { status: payload.status, headers: payload.headers });
+  })
+);
+
+async function buildOpenApiResponsePayload(
+  request: Request,
+  env: Env
+): Promise<CachedResponsePayload> {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+  const doc = getOpenApiDocument(baseUrl);
+  const json = JSON.stringify(doc, null, 2);
+  const etagHex = await sha256Hex(json);
+  const etag = `"${etagHex}"`;
+  const headers: HeadersInit = {
+    ...buildDefaultHeaders(env),
+    'Content-Type': 'application/json',
+    ETag: etag,
+    'Cache-Control': 'public, max-age=300',
+  };
+  const inm = request.headers.get('if-none-match');
+  const isNotModified = Boolean(inm && inm.replace(/^W\//, '') === etag);
+
+  if (isNotModified) {
+    return {
+      status: 304,
       headers: {
         ...getCorsHeaders(env),
         ...getSecurityHeaders(env),
-        'Content-Type': 'text/html; charset=utf-8',
-        'Content-Security-Policy': docsCsp,
-        ETag: etag,
-        'Cache-Control': 'public, max-age=300',
+        ...headers,
       },
-    });
-  })
-);
+      body: null,
+    };
+  }
+
+  return {
+    status: 200,
+    headers,
+    body: json,
+  };
+}
 
 
 // ===============================================================================
