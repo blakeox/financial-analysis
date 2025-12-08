@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const title = 'Dashboard - Financial Analysis API';
-const description = 'Manage your API subscription, view usage, and access billing portal.';
+const title = 'Developer Dashboard - Financial Analysis API';
+const description = 'Manage your Financial Analysis API subscription, view usage analytics, access API keys, and manage billing. Monitor your API requests in real-time.';
+const keywords = "api dashboard, developer portal, api usage, api management, financial api console, billing management";
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} noindex={true}>
   <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->

@@ -17,9 +17,40 @@ const currentScenario = journeyData[scenario!];
 if (!currentScenario) {
   throw new Error(`Journey not found: ${scenario}`);
 }
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}/journey/${scenario}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+        { "@type": "ListItem", "position": 2, "name": "Journey", "item": `${baseUrl}/journey` },
+        { "@type": "ListItem", "position": 3, "name": currentScenario.name, "item": currentUrl }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": currentScenario.name,
+      "description": currentScenario.description,
+      "totalTime": currentScenario.duration,
+      "step": currentScenario.models.map((model: { name: string; description: string }, index: number) => ({
+        "@type": "HowToStep",
+        "position": index + 1,
+        "name": model.name,
+        "text": model.description
+      }))
+    }
+  ]
+};
 ---
 
-<Layout title={`${currentScenario.name} - Financial Journey`} description={currentScenario.description}>
+<Layout title={`${currentScenario.name} - Financial Journey`} description={currentScenario.description} keywords={`financial journey, ${currentScenario.name.toLowerCase()}, financial planning, ${currentScenario.complexity.toLowerCase()} finance`}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <main id="main-content" class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto px-4 py-8">
       <!-- Breadcrumb -->
@@ -30,7 +61,7 @@ if (!currentScenario) {
             <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
           </li>
           <li class="flex items-center">
-            <img src="/fanalyx_favicon.png" alt="Journey" class="w-4 h-4 mr-2">
+            <img src="/fanalyx_favicon.png" alt="Fanalyx financial journey icon" class="w-4 h-4 mr-2">
             <a href="/journey" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
             <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
           </li>

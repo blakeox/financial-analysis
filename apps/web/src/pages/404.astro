@@ -1,5 +1,26 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const baseUrl = 'https://fanalyx.com';
+
+// Structured data for 404 page - helps search engines understand it's an error page
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Page Not Found",
+  "description": "The page you're looking for doesn't exist. Explore our 29 free financial calculators and tools.",
+  "url": `${baseUrl}/404`,
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Fanalyx",
+    "url": baseUrl
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${baseUrl}/calculators`,
+    "name": "Browse Calculators"
+  }
+};
 ---
 
 <Layout 
@@ -7,6 +28,7 @@ import Layout from '../layouts/Layout.astro';
   description="The page you're looking for doesn't exist. Explore our 29 free financial calculators and tools."
   noindex={true}
 >
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-16">
     <div class="max-w-2xl text-center">
       <!-- 404 Header -->
@@ -73,9 +95,9 @@ import Layout from '../layouts/Layout.astro';
       <!-- Additional Links -->
       <div class="mt-8 text-sm text-gray-600 dark:text-gray-400">
         Or explore our 
-        <a href="/models" class="text-blue-600 hover:underline">full calculator suite</a>
-        or 
-        <a href="/journey" class="text-blue-600 hover:underline">financial journeys</a>
+        <a href="/models" class="text-blue-600 hover:underline">full calculator suite</a>, 
+        <a href="/journey" class="text-blue-600 hover:underline">financial journeys</a>, or
+        <a href="/sitemap-index.xml" class="text-blue-600 hover:underline">browse sitemap</a>
       </div>
     </div>
   </div>

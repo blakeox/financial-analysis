@@ -1,0 +1,175 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "Site Map | Fanalyx";
+const description = "Complete directory of all Fanalyx financial calculators, tools, and resources. Find the financial calculator you need quickly.";
+const keywords = "sitemap, financial calculators directory, all calculators, fanalyx tools, financial tools list";
+const noindex = true; // Avoid duplicate content with XML sitemap
+
+// Define site sections
+const sections = [
+  {
+    title: "Financial Calculators",
+    icon: "🧮",
+    links: [
+      { name: "All Calculators", href: "/models", description: "Browse all financial calculators" },
+      { name: "Personal Finance", href: "/models/personal", description: "Mortgage, retirement, loans & more" },
+      { name: "Business Finance", href: "/models/business", description: "Commercial real estate, EBITDA, leases" },
+    ]
+  },
+  {
+    title: "Personal Finance Tools",
+    icon: "👤",
+    links: [
+      { name: "Mortgage Calculator", href: "/calculator/mortgage", description: "Calculate monthly mortgage payments" },
+      { name: "Auto Loan Calculator", href: "/calculator/auto-loan", description: "Vehicle financing calculations" },
+      { name: "Retirement Calculator", href: "/calculator/retirement", description: "Plan your retirement savings" },
+      { name: "Debt Payoff Calculator", href: "/calculator/debt-payoff", description: "Snowball & avalanche strategies" },
+      { name: "Savings Goal Calculator", href: "/calculator/savings-goal", description: "Reach your savings targets" },
+      { name: "Student Loan Calculator", href: "/calculator/student-loans", description: "Education loan planning" },
+      { name: "Budget Planner", href: "/calculator/budget", description: "50/30/20 and custom budgets" },
+      { name: "Emergency Fund Calculator", href: "/calculator/emergency-fund", description: "Calculate emergency savings needs" },
+      { name: "Net Worth Calculator", href: "/calculator/net-worth", description: "Track your total net worth" },
+      { name: "Insurance Needs Calculator", href: "/calculator/insurance-needs", description: "Life insurance coverage analysis" },
+      { name: "College Savings Calculator", href: "/calculator/college-savings", description: "529 plan projections" },
+      { name: "Tax Withholding Calculator", href: "/calculator/tax-withholding", description: "Optimize W-4 withholdings" },
+      { name: "Social Security Calculator", href: "/calculator/social-security", description: "Estimate SS benefits" },
+      { name: "Roth Conversion Calculator", href: "/calculator/roth-conversion", description: "IRA to Roth analysis" },
+    ]
+  },
+  {
+    title: "Business Finance Tools",
+    icon: "🏢",
+    links: [
+      { name: "Commercial Property Loan", href: "/calculator/commercial-property-loan", description: "Business building loans" },
+      { name: "Equipment Lease Calculator", href: "/calculator/equipment-lease", description: "Lease vs buy analysis" },
+      { name: "EBITDA Forecasting", href: "/ebitda-forecasting", description: "Business valuation projections" },
+      { name: "Lease Analysis", href: "/lease-analysis", description: "Comprehensive lease comparison" },
+      { name: "Commercial Real Estate", href: "/commercial-real-estate-lease", description: "NNN & CAM calculations" },
+      { name: "Amortization Calculator", href: "/amortization", description: "Detailed payment schedules" },
+      { name: "Cash Flow Calculator", href: "/calculator/cash-flow", description: "Business cash flow analysis" },
+      { name: "Break-Even Calculator", href: "/calculator/break-even", description: "Find your break-even point" },
+      { name: "ROI Calculator", href: "/calculator/roi", description: "Return on investment analysis" },
+      { name: "Startup Runway Calculator", href: "/calculator/startup-runway", description: "Runway & burn rate" },
+    ]
+  },
+  {
+    title: "Financial Journeys",
+    icon: "🗺️",
+    links: [
+      { name: "All Journeys", href: "/journey", description: "Multi-model financial planning scenarios" },
+      { name: "Young Professional", href: "/journey/young-professional", description: "Starting your financial journey" },
+      { name: "First Home Buyer", href: "/journey/first-home", description: "Complete home buying guide" },
+      { name: "Retirement Planning", href: "/journey/retirement", description: "Comprehensive retirement planning" },
+      { name: "Business Owner", href: "/journey/business-owner", description: "Business financial planning" },
+      { name: "Debt Freedom", href: "/journey/debt-freedom", description: "Path to becoming debt-free" },
+    ]
+  },
+  {
+    title: "Resources",
+    icon: "📚",
+    links: [
+      { name: "Developer API", href: "/developers", description: "API documentation & integration" },
+      { name: "Pricing", href: "/pricing", description: "API pricing plans" },
+      { name: "API Status", href: "/status", description: "Service health & uptime" },
+    ]
+  },
+  {
+    title: "Legal & Info",
+    icon: "📋",
+    links: [
+      { name: "Privacy Policy", href: "/privacy", description: "How we protect your data" },
+      { name: "Terms of Service", href: "/terms", description: "Usage terms & conditions" },
+    ]
+  }
+];
+
+// Structured data for sitemap page
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Fanalyx Site Map",
+  "description": description,
+  "url": "https://fanalyx.com/sitemap",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": sections.flatMap((section, sectionIndex) => 
+      section.links.map((link, linkIndex) => ({
+        "@type": "ListItem",
+        "position": sectionIndex * 20 + linkIndex + 1,
+        "name": link.name,
+        "url": `https://fanalyx.com${link.href}`
+      }))
+    )
+  }
+};
+---
+
+<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} noindex={noindex}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Site Map
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Find all of Fanalyx's free financial calculators, planning tools, and resources in one place.
+        </p>
+        <div class="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <a href="/sitemap-index.xml" class="hover:text-blue-600 dark:hover:text-blue-400 underline">
+            XML Sitemap
+          </a>
+          <span aria-hidden="true">•</span>
+          <a href="/robots.txt" class="hover:text-blue-600 dark:hover:text-blue-400 underline">
+            robots.txt
+          </a>
+        </div>
+      </div>
+
+      <!-- Sitemap Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {sections.map((section) => (
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <span aria-hidden="true">{section.icon}</span>
+              {section.title}
+            </h2>
+            <ul class="space-y-3">
+              {section.links.map((link) => (
+                <li>
+                  <a 
+                    href={link.href}
+                    class="group block hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 -mx-2 transition-colors"
+                  >
+                    <span class="text-blue-600 dark:text-blue-400 font-medium group-hover:underline">
+                      {link.name}
+                    </span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      {link.description}
+                    </p>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="mt-12 text-center">
+        <div class="inline-flex items-center gap-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl px-6 py-4">
+          <span class="text-2xl" aria-hidden="true">💡</span>
+          <div class="text-left">
+            <p class="text-gray-900 dark:text-white font-medium">Can't find what you're looking for?</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Use our <a href="/journey" class="text-blue-600 dark:text-blue-400 hover:underline">Financial Journey</a> to get guided recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -12,7 +12,12 @@ export default defineConfig({
         !page.includes('/models-old') &&
         !page.includes('/models-clean') &&
         !page.includes('/test-') &&
-        !page.includes('/_'),
+        !page.includes('/_') &&
+        !page.endsWith('/sitemap') && // Exclude HTML sitemap (we have XML sitemap)
+        !page.includes('/ai-field-demo') &&
+        !page.includes('/analytics') &&
+        !page.includes('/dashboard') &&
+        !page.includes('/my-financial-dashboard'),
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),

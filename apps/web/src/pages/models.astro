@@ -3,9 +3,67 @@ import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
+const keywords = "financial models, personal finance calculator, business finance tools, mortgage calculator, retirement planning, lease analysis, EBITDA calculator, financial planning";
+const description = "Free financial models and calculators. Choose personal finance tools for mortgages, retirement, and investments or business finance for commercial real estate, lease analysis, and EBITDA forecasting.";
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}${Astro.url.pathname}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": baseUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Financial Models",
+          "item": currentUrl
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Financial Models",
+      "description": description,
+      "url": currentUrl,
+      "hasPart": [
+        {
+          "@type": "WebPage",
+          "name": "Personal Finance Models",
+          "url": `${baseUrl}/models/personal`
+        },
+        {
+          "@type": "WebPage",
+          "name": "Business Finance Models",
+          "url": `${baseUrl}/models/business`
+        }
+      ]
+    }
+  ]
+};
 ---
 
-<Layout title="Financial Models" description="Comprehensive financial analysis tools with AI-powered insights" canonical={Astro.url.href}>
+<Layout title="Financial Models" description={description} keywords={keywords} canonical={Astro.url.href}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  
+  <!-- Breadcrumb Navigation -->
+  <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+      <li><a href="/" class="hover:text-blue-600">Home</a></li>
+      <li><span aria-hidden="true">/</span></li>
+      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Financial Models</span></li>
+    </ol>
+  </nav>
+  
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Main Content Container with Chat Panel Integration -->
     <div id="main-container" class="transition-all duration-300 ease-in-out">
@@ -19,7 +77,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
             Choose between personal finance tools or business analysis models. Each is designed for precision and powered by deterministic calculations.
           </p>
           <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
             <span>Click the chat icon to get AI-powered analysis of your model results</span>
@@ -34,7 +92,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
             <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
               <div class="flex items-center mb-6">
                 <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                   </svg>
                 </div>
@@ -45,7 +103,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               </p>
               <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                 <span>Explore Personal Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
               </div>
@@ -57,7 +115,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
             <div class="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
               <div class="flex items-center mb-6">
                 <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
                   </svg>
                 </div>
@@ -68,7 +126,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               </p>
               <div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                 <span>Explore Business Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
               </div>
@@ -101,7 +159,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 </p>
                 <span class="inline-flex items-center text-blue-700 dark:text-blue-300 font-medium">
                   Explore calculator
-                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </span>
@@ -123,7 +181,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 </p>
                 <span class="inline-flex items-center text-violet-700 dark:text-violet-300 font-medium">
                   Open analysis
-                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </span>
@@ -145,7 +203,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 </p>
                 <span class="inline-flex items-center text-emerald-700 dark:text-emerald-300 font-medium">
                   Forecast EBITDA
-                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </span>
@@ -164,7 +222,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
               title="Clear selection"
               aria-label="Clear model selection"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -172,7 +230,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
           <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-500 dark:text-gray-400">Use the AI assistant to analyze this model's results and get insights</span>
-            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -194,7 +252,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
                 aria-label="Open AI assistant chat panel"
               >
                 Try AI Assistant
-                <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </button>

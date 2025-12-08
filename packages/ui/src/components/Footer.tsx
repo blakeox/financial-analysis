@@ -144,6 +144,14 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                       Ad Settings
                     </a>
                   </li>
+                  <li>
+                    <a
+                      href="/sitemap"
+                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    >
+                      Site Map
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>

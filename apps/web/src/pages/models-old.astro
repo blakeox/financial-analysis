@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@financial-analysis/ui';
 ---
 
-<Layout title="Financial Models" description="Explore available financial analysis models and tools" canonical={Astro.url.href}>
+<Layout title="Financial Models" description="Explore available financial analysis models and tools" canonical={Astro.url.href} noindex={true}>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Structured Data: Breadcrumbs + ItemList of available models -->
     <script type="application/ld+json" is:inline>

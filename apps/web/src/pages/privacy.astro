@@ -1,12 +1,49 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}${Astro.url.pathname}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+        { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": currentUrl }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "name": "Privacy Policy",
+      "description": "Learn how Fanalyx protects your privacy and handles your data.",
+      "url": currentUrl,
+      "isPartOf": { "@type": "WebSite", "name": "Fanalyx", "url": baseUrl }
+    }
+  ]
+};
 ---
 
 <Layout 
   title="Privacy Policy - Financial Analysis" 
-  description="Privacy Policy and data collection practices for Financial Analysis Tools"
+  description="Learn how Fanalyx protects your privacy. All calculator data stays in your browser - we never store your financial information. View our complete data protection and cookie policy."
   canonical={Astro.url.href}
+  keywords="privacy policy, data protection, financial data privacy, user privacy, GDPR, data collection, cookie policy, no data storage"
+  type="article"
 >
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  
+  <!-- Breadcrumb Navigation -->
+  <nav class="max-w-4xl mx-auto px-4 py-4" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+      <li><a href="/" class="hover:text-blue-600">Home</a></li>
+      <li><span aria-hidden="true">/</span></li>
+      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Privacy Policy</span></li>
+    </ol>
+  </nav>
+  
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto px-4 py-16 max-w-4xl">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Privacy Policy</h1>

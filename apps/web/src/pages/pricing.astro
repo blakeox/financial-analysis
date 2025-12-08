@@ -2,11 +2,80 @@
 import Layout from '../layouts/Layout.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
-const title = 'Pricing - Financial Analysis API';
-const description = 'Simple, transparent pricing for the Financial Analysis API. Start free, upgrade as you grow.';
+const title = 'API Pricing Plans - Financial Analysis | Free & Pro Tiers';
+const description = 'Simple, transparent pricing for the Financial Analysis API. Start free with 1,000 requests/month, upgrade to Pro or Enterprise as you grow. No hidden fees.';
+const keywords = "api pricing, financial api cost, free api tier, developer pricing, financial calculator api pricing, rest api plans";
+
+const baseUrl = 'https://fanalyx.com';
+const currentUrl = `${baseUrl}${Astro.url.pathname}`;
+
+// JSON-LD Structured Data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": baseUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Pricing",
+          "item": currentUrl
+        }
+      ]
+    },
+    {
+      "@type": "Product",
+      "name": "Fanalyx Financial Analysis API",
+      "description": description,
+      "brand": {
+        "@type": "Brand",
+        "name": "Fanalyx"
+      },
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free Tier",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "1,000 requests/month, 1 request/second rate limit"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Tier",
+          "price": "29",
+          "priceCurrency": "USD",
+          "description": "50,000 requests/month, 10 requests/second rate limit"
+        },
+        {
+          "@type": "Offer",
+          "name": "Enterprise",
+          "description": "1,000,000 requests/month, custom rate limits, dedicated support"
+        }
+      ]
+    }
+  ]
+};
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  
+  <!-- Breadcrumb Navigation -->
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+      <li><a href="/" class="hover:text-blue-600">Home</a></li>
+      <li><span aria-hidden="true">/</span></li>
+      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Pricing</span></li>
+    </ol>
+  </nav>
+  
   <div class="min-h-screen bg-linear-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
