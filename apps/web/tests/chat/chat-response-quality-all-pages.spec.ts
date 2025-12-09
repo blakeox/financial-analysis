@@ -6,7 +6,7 @@ import {
   openChatPanel,
   sendChatMessage,
   getSystemMessage,
-} from './helpers/chat-test-helpers.js';
+} from '../_shared/chat-test-helpers.js';
 
 /**
  * Comprehensive test that checks chat response quality on ALL pages

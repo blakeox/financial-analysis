@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { gotoPath, setViewportDesktop, setViewportMobile, waitForNavReady } from './utils/nav';
+import { gotoPath, setViewportDesktop, setViewportMobile, waitForNavReady } from '../_shared/nav';
 
 const OVERLAY = '[data-testid="nav-search-overlay"]';
 const SEARCH_TOGGLE = '[data-testid="nav-search-toggle"]';

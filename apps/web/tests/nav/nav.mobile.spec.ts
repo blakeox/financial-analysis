@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoPath, setViewportMobile, waitForNavReady } from './utils/nav';
+import { gotoPath, setViewportMobile, waitForNavReady } from '../_shared/nav';
 
 test.describe('Navbar mobile menu', () => {
   test('aria-expanded toggles and panel shows/hides', async ({ page }) => {

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoPath, waitForNavReady } from './utils/nav';
+import { gotoPath, waitForNavReady } from '../_shared/nav';
 
 // Extended behavioral tests to catch conditions leading to nav disappearance.
 

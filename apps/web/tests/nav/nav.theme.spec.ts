@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoPath, setViewportDesktop, waitForNavReady } from './utils/nav';
+import { gotoPath, setViewportDesktop, waitForNavReady } from '../_shared/nav';
 
 test.describe('Navbar theme persistence', () => {
   test('toggle theme persists across reload', async ({ page }) => {
