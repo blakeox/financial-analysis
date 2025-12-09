@@ -77,7 +77,8 @@ async function handleCalculate(
   form: HTMLFormElement,
   resultsDiv: HTMLElement,
   chartContainer: HTMLElement,
-  calculateButton: HTMLButtonElement
+  calculateButton: HTMLButtonElement,
+  resultsSection: HTMLElement
 ): Promise<void> {
   const formData = parseFormInput(form);
   const validationError = validateInput(formData);
@@ -90,6 +91,8 @@ async function handleCalculate(
       </div>
     `;
     chartContainer.innerHTML = '';
+    // Show results section even for errors
+    resultsSection.classList.remove('hidden');
     return;
   }
 
@@ -163,6 +166,18 @@ async function handleCalculate(
 
     // Display results
     displayResults(scenarios, resultsDiv, chartContainer, formData);
+    
+    // Show the results section
+    resultsSection.classList.remove('hidden');
+    
+    // Also show the results indicator (success banner)
+    const resultsIndicator = document.getElementById('results');
+    if (resultsIndicator) {
+      resultsIndicator.classList.remove('hidden');
+    }
+    
+    // Scroll to results
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     // Cache results
     cacheResults(formData, scenarios);
@@ -186,6 +201,8 @@ async function handleCalculate(
       </div>
     `;
     chartContainer.innerHTML = '';
+    // Show results section even for errors so user sees the message
+    resultsSection.classList.remove('hidden');
   } finally {
     calculateButton.disabled = false;
     calculateButton.innerHTML = 'Calculate &amp; Compare';
@@ -196,14 +213,28 @@ async function handleCalculate(
  * Initialize the Mortgage Scenario Planning Calculator
  */
 export function initializeMortgageScenarioPlanning(): void {
-  const form = document.getElementById('mortgage-scenario-form') as HTMLFormElement | null;
-  const resultsDiv = document.getElementById('results') as HTMLElement | null;
-  const chartContainer = document.getElementById('chart-container') as HTMLElement | null;
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  const resultsDiv = document.getElementById('results-content') as HTMLElement | null;
+  const resultsSection = document.getElementById('results-section') as HTMLElement | null;
   const calculateButton = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
-  if (!form || !resultsDiv || !chartContainer || !calculateButton) {
-    console.error('Mortgage Scenario Planning: Required elements not found');
+  if (!form || !resultsDiv || !resultsSection || !calculateButton) {
+    console.error('Mortgage Scenario Planning: Required elements not found', {
+      form: !!form,
+      resultsDiv: !!resultsDiv,
+      resultsSection: !!resultsSection,
+      calculateButton: !!calculateButton
+    });
     return;
+  }
+  
+  // Create a chart container dynamically if needed
+  let chartContainer = document.getElementById('chart-container') as HTMLElement | null;
+  if (!chartContainer) {
+    chartContainer = document.createElement('div');
+    chartContainer.id = 'chart-container';
+    chartContainer.className = 'mt-6';
+    resultsDiv.appendChild(chartContainer);
   }
 
   // Inject dynamic scenario UI (replaces static scenario 1/2 cards)
@@ -218,7 +249,7 @@ export function initializeMortgageScenarioPlanning(): void {
   // Handle form submission
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    handleCalculate(form, resultsDiv, chartContainer, calculateButton);
+    handleCalculate(form, resultsDiv, chartContainer, calculateButton, resultsSection);
   });
 
   // Try to load cached results on page load
@@ -256,6 +287,13 @@ export function initializeMortgageScenarioPlanning(): void {
 
     // Display cached results
     displayResults(cachedData.scenarios, resultsDiv, chartContainer, cachedData.formData);
+    
+    // Show the results section for cached results
+    resultsSection.classList.remove('hidden');
+    const resultsIndicator = document.getElementById('results');
+    if (resultsIndicator) {
+      resultsIndicator.classList.remove('hidden');
+    }
     
     // Update chatbot with cached results
     updateChatbotWithResults(cachedData.scenarios, cachedData.formData);

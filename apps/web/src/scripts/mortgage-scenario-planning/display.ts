@@ -5,7 +5,13 @@
 import type { Scenario, MortgageScenarioPlanningInput } from './types';
 import { SCENARIO_COLORS } from './constants';
 import { formatTimeDisplay, calculateDownPaymentPercent } from './utils';
-import { renderPaymentBreakdownChart } from './charts';
+import { 
+  renderPaymentBreakdownChart, 
+  renderTotalCostComparisonChart,
+  renderPayoffTimelineChart,
+  renderEquityGrowthChart,
+  renderMonthlyBreakdownCharts
+} from './charts';
 import { parseFormInput } from './form-handling';
 import { formatCurrency } from '../../utils/calculator-utilities';
 
@@ -58,7 +64,14 @@ export function displayResults(
   resultsContent.innerHTML = `
     ${hasIncome && parsedFormData ? renderAffordabilityAnalysis(baseScenarios, parsedFormData) : ''}
     
-    ${renderPaymentBreakdownChart(baseScenarios)}
+    <!-- Visual Charts Section -->
+    <div class="space-y-6 mb-6">
+      ${renderTotalCostComparisonChart(baseScenarios)}
+      ${renderMonthlyBreakdownCharts(baseScenarios)}
+      ${renderPayoffTimelineChart(baseScenarios)}
+      ${renderPaymentBreakdownChart(baseScenarios)}
+      ${renderEquityGrowthChart(baseScenarios)}
+    </div>
     
     <!-- All Scenarios Detailed Comparison -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
