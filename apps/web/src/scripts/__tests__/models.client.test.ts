@@ -207,7 +207,7 @@ describe('models.client selection behavior', () => {
   };
 
   const loadModule = async () => {
-    await import('../models.client');
+    await import('../models/models.client');
   };
 
   beforeEach(async () => {

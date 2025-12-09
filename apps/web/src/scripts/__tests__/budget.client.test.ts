@@ -5,7 +5,7 @@ import {
   collectIncome,
   displayResults,
   parseNumber,
-} from '../budget.client';
+} from '../calculators/budget.client';
 
 describe('budget.client', () => {
   const buildFormData = () => {

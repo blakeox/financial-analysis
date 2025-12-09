@@ -26,7 +26,7 @@ describe('analytics.client', () => {
 
   it('binds analytics handlers to buttons', async () => {
     monitoredFetch.mockResolvedValueOnce(undefined);
-    await import('../analytics.client');
+    await import('../analytics/analytics.client');
 
     document.getElementById('test-api-call')?.dispatchEvent(new Event('click'));
     await Promise.resolve();

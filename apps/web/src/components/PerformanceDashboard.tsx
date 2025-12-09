@@ -9,7 +9,7 @@ import type {
   PerformanceDashboard,
   PerformanceMetrics,
   SystemHealth,
-} from '../scripts/performance-dashboard';
+} from '../scripts/_shared/performance-dashboard';
 
 interface PerformanceDashboardProps {
   dashboard: PerformanceDashboard;

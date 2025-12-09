@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { openChatWithContext, registerChatButton } from '../chat-actions';
+import { openChatWithContext, registerChatButton } from '../chat/chat-actions';
 
 declare global {
   interface Window {

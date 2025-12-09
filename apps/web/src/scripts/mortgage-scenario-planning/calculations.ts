@@ -3,7 +3,7 @@
  */
 
 import type { Scenario, AmortizationAnalysisResult } from './types';
-import { postAnalysisRequest } from '../analysis-api';
+import { postAnalysisRequest } from '../analysis/analysis-api';
 import { coerceNumber, isFiniteNumber } from '../../utils/calculator-utilities';
 
 /**

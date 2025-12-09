@@ -4,10 +4,10 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AdvancedCache } from '../advanced-caching';
-import { AdvancedErrorRecovery } from '../advanced-error-recovery';
-import { EnhancedChatPanel } from '../enhanced-chat-panel';
-import { PerformanceDashboard } from '../performance-dashboard';
+import { AdvancedCache } from '../_shared/advanced-caching';
+import { AdvancedErrorRecovery } from '../_shared/advanced-error-recovery';
+import { EnhancedChatPanel } from '../chat/enhanced-chat-panel';
+import { PerformanceDashboard } from '../_shared/performance-dashboard';
 
 // Mock DOM elements with proper IDs
 const createMockElements = () => {

@@ -1,4 +1,4 @@
-import { storeAnalysisResult } from '../scripts/analysis-results';
+import { storeAnalysisResult } from '../scripts/analysis/analysis-results';
 
 /**
  * Shared Calculator Utilities

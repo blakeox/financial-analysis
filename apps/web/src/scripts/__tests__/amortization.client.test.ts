@@ -5,7 +5,7 @@ import {
   parseAmortizationInput,
   renderSchedule,
   renderSummaryCards,
-} from '../amortization.client';
+} from '../calculators/amortization.client';
 
 describe('amortization.client', () => {
   const buildFormData = (overrides: Record<string, string> = {}) => {

@@ -65,7 +65,7 @@ describe('analysis.client', () => {
         })
       );
 
-    await import('../analysis.client');
+    await import('../analysis/analysis.client');
 
     const form = document.getElementById('analysis-form') as HTMLFormElement;
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -102,7 +102,7 @@ describe('analysis.client', () => {
       principalInput.value = '-10';
     }
 
-    await import('../analysis.client');
+    await import('../analysis/analysis.client');
 
     const form = document.getElementById('analysis-form') as HTMLFormElement;
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -141,7 +141,7 @@ describe('analysis.client', () => {
         })
       );
 
-    await import('../analysis.client');
+    await import('../analysis/analysis.client');
 
     await flushPromises();
     await flushPromises();

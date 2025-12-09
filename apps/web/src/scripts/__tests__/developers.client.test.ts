@@ -16,7 +16,7 @@ describe('developers.client', () => {
   });
 
   it('initializes pricing estimate based on slider value', async () => {
-    await import('../developers.client');
+    await import('../_shared/developers.client');
 
   expect(document.getElementById('request-count')?.textContent).toBe('75,000');
   expect(document.getElementById('estimated-price')?.textContent).toBe('$79');
@@ -24,7 +24,7 @@ describe('developers.client', () => {
   });
 
   it('updates estimates when slider emits input', async () => {
-    await import('../developers.client');
+    await import('../_shared/developers.client');
 
     const slider = document.getElementById('pricing-slider') as HTMLInputElement;
     slider.value = '1000';

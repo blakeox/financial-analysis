@@ -15,7 +15,7 @@ vi.mock('./chat-actions', () => ({
 }));
 
 // Import the functions we want to test
-import { displayResults, handleSubmit } from '../student-loans.client';
+import { displayResults, handleSubmit } from '../calculators/student-loans.client';
 
 type StudentLoanResultOverrides = {
   input?: Partial<StudentLoanResult['input']>;

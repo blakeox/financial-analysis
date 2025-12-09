@@ -7,7 +7,7 @@ import {
   describeSavings,
   displayResults,
   formatMonths,
-} from '../debt-payoff.client';
+} from '../calculators/debt-payoff.client';
 
 describe('debt-payoff.client', () => {
   const buildFormData = () => {

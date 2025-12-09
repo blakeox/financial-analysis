@@ -212,7 +212,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
       // Dynamically import and initialize the calculator
       try {
-        await import('../../../../scripts/invest-vs-payoff-debt.client.ts');
+        await import('../../../../scripts/calculators/invest-vs-payoff-debt.client.ts');
         
         // Pre-fill calculator with journey data
         const calculatorContainer = document.getElementById('invest-vs-payoff-calculator-container');

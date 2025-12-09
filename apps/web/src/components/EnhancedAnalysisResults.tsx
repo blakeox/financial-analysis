@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@financial-analysis/ui';
 import React, { useEffect, useState } from 'react';
-import { FinancialAnalysisEngine } from '../scripts/financial-analysis-engine';
+import { FinancialAnalysisEngine } from '../scripts/analysis/financial-analysis-engine';
 
 declare global {
   interface Window {

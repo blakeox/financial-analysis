@@ -7,7 +7,7 @@ import {
   displayResults,
   formatAnnualIncome,
   parseNumber,
-} from '../retirement.client';
+} from '../calculators/retirement.client';
 
 describe('retirement.client', () => {
   const buildFormData = () => {

@@ -5,7 +5,7 @@ import {
   getAllAnalysisResults,
   getAnalysisResult,
   storeAnalysisResult,
-} from '../analysis-results';
+} from '../analysis/analysis-results';
 
 declare global {
   interface Window {

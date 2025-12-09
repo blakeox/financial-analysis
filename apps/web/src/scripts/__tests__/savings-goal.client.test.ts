@@ -11,7 +11,7 @@ import {
   SavingsGoalFormSchema,
   serializeForm,
   toRecommendationText,
-} from '../savings-goal.client';
+} from '../calculators/savings-goal.client';
 
 describe('savings-goal.client', () => {
   beforeEach(() => {

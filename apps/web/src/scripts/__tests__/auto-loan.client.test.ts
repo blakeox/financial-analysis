@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { AutoLoanEngine } from '@financial-analysis/analysis';
-import { parseAutoLoanInput, renderAutoLoanResults } from '../auto-loan.client';
+import { parseAutoLoanInput, renderAutoLoanResults } from '../calculators/auto-loan.client';
 
 describe('auto-loan.client', () => {
   const buildFormData = (overrides: Record<string, string> = {}) => {
