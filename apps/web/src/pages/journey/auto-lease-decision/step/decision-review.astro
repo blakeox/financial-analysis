@@ -125,6 +125,51 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             </div>
           </div>
 
+          <!-- Early Termination & Wear Costs (Step 1 data) -->
+          <div id="termination-section" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Early termination & end-of-lease costs</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Early termination</h4>
+                <ul id="termination-details" class="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                </ul>
+              </div>
+              <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Wear & tear charges</h4>
+                <ul id="wear-details" class="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exit Strategies (Step 2 data) -->
+          <div id="exit-section" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Exit strategy comparison</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div id="exit-tradein" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Trade-in</h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300">—</p>
+              </div>
+              <div id="exit-private" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Private sale</h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300">—</p>
+              </div>
+              <div id="exit-instant" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Instant offer</h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300">—</p>
+              </div>
+            </div>
+            <p id="exit-recommendation" class="mt-4 text-sm font-medium text-emerald-600 dark:text-emerald-400"></p>
+          </div>
+
+          <!-- Incentives & Rebates (Step 3 data) -->
+          <div id="incentives-section" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Incentives & rebates</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="incentives-grid">
+            </div>
+            <p id="incentives-total" class="mt-4 text-sm font-medium text-emerald-600 dark:text-emerald-400"></p>
+          </div>
+
           <!-- Scorecard -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Decision scorecard</h2>
@@ -251,21 +296,159 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const buyout = data.collectedData?.['lease-vs-buyout'];
     const replacements = data.collectedData?.['replacement-options'];
 
+    // ======= Lease snapshot (Step 1) =======
     const leaseSummary = document.getElementById('summary-lease');
     if (leaseSummary && profile) {
       leaseSummary.textContent = `Payment ${formatCurrency(Number(profile.monthlyPayment))}, ${profile.monthsRemaining || '?'} months left, residual ${formatCurrency(Number(profile.residualValue))}. Mileage: ${profile.currentMileage || '?'} / ${profile.allowedMileage || '?'}.`;
     }
 
+    // ======= Early termination & wear/tear (Step 1) =======
+    const terminationSection = document.getElementById('termination-section');
+    const terminationDetails = document.getElementById('termination-details');
+    const wearDetails = document.getElementById('wear-details');
+
+    const hasTerminationData = profile && (
+      profile.earlyTerminationFee || profile.remainingPaymentsOwed || profile.leaseTransferFee
+    );
+    const hasWearData = profile && (
+      profile.excessWearCharges || profile.tireCharges || profile.bodyDamageEstimate
+    );
+
+    if ((hasTerminationData || hasWearData) && terminationSection) {
+      terminationSection.classList.remove('hidden');
+
+      if (terminationDetails && hasTerminationData) {
+        const items: string[] = [];
+        if (profile.earlyTerminationFee) items.push(`Early termination fee: ${formatCurrency(Number(profile.earlyTerminationFee))}`);
+        if (profile.remainingPaymentsOwed) items.push(`Remaining payments owed: ${formatCurrency(Number(profile.remainingPaymentsOwed))}`);
+        if (profile.leaseTransferFee) items.push(`Lease transfer fee: ${formatCurrency(Number(profile.leaseTransferFee))}`);
+        terminationDetails.innerHTML = items.map(i => `<li>• ${i}</li>`).join('');
+      }
+
+      if (wearDetails && hasWearData) {
+        const items: string[] = [];
+        if (profile.excessWearCharges) items.push(`Excess wear charges: ${formatCurrency(Number(profile.excessWearCharges))}`);
+        if (profile.tireCharges) items.push(`Tire replacement: ${formatCurrency(Number(profile.tireCharges))}`);
+        if (profile.bodyDamageEstimate) items.push(`Body damage estimate: ${formatCurrency(Number(profile.bodyDamageEstimate))}`);
+        wearDetails.innerHTML = items.map(i => `<li>• ${i}</li>`).join('');
+      }
+    }
+
+    // ======= Buyout summary (Step 2) =======
     const buyoutSummary = document.getElementById('summary-buyout');
     if (buyoutSummary && buyout) {
       buyoutSummary.textContent = `Buyout ${formatCurrency(Number(buyout.buyoutAmount))} + taxes/fees; APR ${buyout.apr || '?'}% over ${buyout.loanTermMonths || '?'} months. Market now ${formatCurrency(Number(buyout.expectedValueNow || 0))}.`;
     }
 
-    const optionsSummary = document.getElementById('summary-options');
-    if (optionsSummary && replacements) {
-      optionsSummary.textContent = `Inputs set for lease/new/used costs. Horizon ${replacements.horizonMonths || 36} months at ${replacements.annualMiles || 12000} miles/yr.`;
+    // ======= Exit strategies (Step 2) =======
+    const exitSection = document.getElementById('exit-section');
+    const hasExitData = buyout && (buyout.tradeInValue || buyout.privateSaleValue || buyout.instantOfferValue);
+
+    if (hasExitData && exitSection) {
+      exitSection.classList.remove('hidden');
+      const buyoutAmt = Number(buyout.buyoutAmount) || 0;
+
+      const exitTradeIn = document.getElementById('exit-tradein');
+      if (exitTradeIn && buyout.tradeInValue) {
+        const value = Number(buyout.tradeInValue);
+        const equity = value - buyoutAmt;
+        exitTradeIn.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Trade-in</h4>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
+          <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
+            ${equity >= 0 ? '+' : ''}${formatCurrency(equity)} equity
+          </p>`;
+      }
+
+      const exitPrivate = document.getElementById('exit-private');
+      if (exitPrivate && buyout.privateSaleValue) {
+        const value = Number(buyout.privateSaleValue);
+        const equity = value - buyoutAmt;
+        exitPrivate.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Private sale</h4>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
+          <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
+            ${equity >= 0 ? '+' : ''}${formatCurrency(equity)} equity
+          </p>`;
+      }
+
+      const exitInstant = document.getElementById('exit-instant');
+      if (exitInstant && buyout.instantOfferValue) {
+        const value = Number(buyout.instantOfferValue);
+        const equity = value - buyoutAmt;
+        exitInstant.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Instant offer</h4>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
+          <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
+            ${equity >= 0 ? '+' : ''}${formatCurrency(equity)} equity
+          </p>`;
+      }
+
+      // Determine best exit strategy
+      const exitRecommendation = document.getElementById('exit-recommendation');
+      if (exitRecommendation) {
+        const options = [
+          { name: 'Trade-in', value: Number(buyout.tradeInValue) || 0 },
+          { name: 'Private sale', value: Number(buyout.privateSaleValue) || 0 },
+          { name: 'Instant offer', value: Number(buyout.instantOfferValue) || 0 },
+        ].filter(o => o.value > 0);
+
+        if (options.length > 1) {
+          options.sort((a, b) => b.value - a.value);
+          const best = options[0];
+          const diff = best.value - options[1].value;
+          exitRecommendation.textContent = `💡 Best exit: ${best.name} nets ${formatCurrency(diff)} more than ${options[1].name}`;
+        }
+      }
     }
 
+    // ======= Replacement options summary (Step 3) =======
+    const optionsSummary = document.getElementById('summary-options');
+    if (optionsSummary && replacements) {
+      const hasNpv = replacements.discountRate && Number(replacements.discountRate) > 0;
+      const npvNote = hasNpv ? ` (NPV at ${replacements.discountRate}% discount)` : '';
+      optionsSummary.textContent = `Inputs set for lease/new/used costs. Horizon ${replacements.horizonMonths || 36} months at ${replacements.annualMiles || 12000} miles/yr.${npvNote}`;
+    }
+
+    // ======= Incentives & rebates (Step 3) =======
+    const incentivesSection = document.getElementById('incentives-section');
+    const incentivesGrid = document.getElementById('incentives-grid');
+    const incentivesTotal = document.getElementById('incentives-total');
+
+    const incentiveFields = [
+      { key: 'loyaltyBonus', label: 'Loyalty bonus' },
+      { key: 'conquestCash', label: 'Conquest cash' },
+      { key: 'evFederalCredit', label: 'EV federal credit' },
+      { key: 'evStateCredit', label: 'EV state credit' },
+      { key: 'dealerRebate', label: 'Dealer rebate' },
+      { key: 'collegeGradRebate', label: 'College grad rebate' },
+    ];
+
+    let totalIncentives = 0;
+    const activeIncentives: { label: string; value: number }[] = [];
+
+    if (replacements) {
+      for (const field of incentiveFields) {
+        const val = Number(replacements[field.key]) || 0;
+        if (val > 0) {
+          activeIncentives.push({ label: field.label, value: val });
+          totalIncentives += val;
+        }
+      }
+    }
+
+    if (activeIncentives.length > 0 && incentivesSection && incentivesGrid) {
+      incentivesSection.classList.remove('hidden');
+      incentivesGrid.innerHTML = activeIncentives.map(inc => `
+        <div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+          <p class="text-xs text-gray-600 dark:text-gray-400">${inc.label}</p>
+          <p class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(inc.value)}</p>
+        </div>
+      `).join('');
+
+      if (incentivesTotal) {
+        incentivesTotal.textContent = `💰 Total incentives: ${formatCurrency(totalIncentives)} — applied to new vehicle options`;
+      }
+    }
+
+    // ======= Chat prompt for AI analysis =======
     const chatPrompt = document.getElementById('chat-prompt');
     if (chatPrompt) {
       const prompt = {

@@ -174,6 +174,61 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </div>
               </div>
 
+              <!-- Trade-in & Sale Options -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">If Buying Out: Exit Strategy Values</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Compare what you could get if you buy out and then sell/trade the vehicle.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="tradeInValue">Trade-in Value (dealer) ($)</label>
+                    <input id="tradeInValue" name="tradeInValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19000" />
+                    <p class="text-xs text-gray-500 mt-1">What dealer would give on trade.</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="privateSaleValue">Private Sale Value ($)</label>
+                    <input id="privateSaleValue" name="privateSaleValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="21500" />
+                    <p class="text-xs text-gray-500 mt-1">Estimated private party sale.</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="instantOfferValue">Instant Offer Value ($)</label>
+                    <input id="instantOfferValue" name="instantOfferValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="20000" />
+                    <p class="text-xs text-gray-500 mt-1">CarMax, Carvana, Vroom offer.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Depreciation & Additional Options -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Additional Factors</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="depreciationModel">Depreciation Model</label>
+                    <select id="depreciationModel" name="depreciationModel" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                      <option value="standard">Standard (15%/yr)</option>
+                      <option value="accelerated">Accelerated (20% yr1, 15% after)</option>
+                      <option value="luxury">Luxury (25% yr1, 18% after)</option>
+                      <option value="truck">Truck/SUV (12%/yr)</option>
+                      <option value="ev">EV (varies by model)</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">How fast the vehicle loses value.</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="gapInsuranceRequired">Gap Insurance Required?</label>
+                    <select id="gapInsuranceRequired" name="gapInsuranceRequired" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                      <option value="no">No</option>
+                      <option value="yes-included">Yes (included in lease)</option>
+                      <option value="yes-extra">Yes (extra cost)</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Covers loan vs value gap if totaled.</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="gapInsuranceCost">Gap Insurance Cost ($)</label>
+                    <input id="gapInsuranceCost" name="gapInsuranceCost" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="500" />
+                    <p class="text-xs text-gray-500 mt-1">One-time or annual cost.</p>
+                  </div>
+                </div>
+              </div>
+
               <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button type="button" id="calculate-lease-buyout" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
                   Run Comparison
@@ -281,6 +336,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     equityNow: number;
     equityFuture: number;
     monthsRemaining: number;
+    // New fields for enhanced comparison
+    gapInsuranceCost: number;
+    tradeInValue: number;
+    privateSaleValue: number;
+    instantOfferValue: number;
+    bestExitOption: string;
+    bestExitValue: number;
   };
 
   type JourneyStorage = {
@@ -317,6 +379,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     equityNow,
     equityFuture,
     monthsRemaining,
+    gapInsuranceCost,
+    tradeInValue,
+    privateSaleValue,
+    instantOfferValue,
+    bestExitOption,
+    bestExitValue,
   }: ComparisonResult) => {
     const leaseCostSummary = document.getElementById('leaseCostSummary');
     const buyoutSummary = document.getElementById('buyoutSummary');
@@ -326,16 +394,37 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
     if (!leaseCostSummary || !buyoutSummary || !equitySummary || !recommendation || !resultsWrapper) return;
 
+    // Include gap insurance in total buyout cost display
+    const totalBuyoutWithGap = buyoutTotal + gapInsuranceCost;
     leaseCostSummary.textContent = `${formatCurrency(leaseCost)} total (${monthsRemaining} months)`;
-    buyoutSummary.textContent = `${formatPerMonth(buyoutPayment)}/mo, ${formatCurrency(buyoutTotal)} total`;
-    equitySummary.textContent = `Equity now: ${formatCurrency(equityNow)} | At lease-end: ${formatCurrency(equityFuture)}`;
+    buyoutSummary.textContent = `${formatPerMonth(buyoutPayment)}/mo, ${formatCurrency(totalBuyoutWithGap)} total${gapInsuranceCost > 0 ? ` (incl. ${formatCurrency(gapInsuranceCost)} gap ins.)` : ''}`;
+    
+    // Show all exit options if provided
+    const exitOptions: string[] = [];
+    if (tradeInValue > 0) exitOptions.push(`Trade-in: ${formatCurrency(tradeInValue)}`);
+    if (privateSaleValue > 0) exitOptions.push(`Private: ${formatCurrency(privateSaleValue)}`);
+    if (instantOfferValue > 0) exitOptions.push(`Instant: ${formatCurrency(instantOfferValue)}`);
+    
+    let exitInfo = '';
+    if (exitOptions.length > 0) {
+      exitInfo = ` | Exit values: ${exitOptions.join(', ')}`;
+      if (bestExitValue > 0 && exitOptions.length > 1) {
+        exitInfo += ` → Best: ${bestExitOption}`;
+      }
+    }
+    equitySummary.textContent = `Equity now: ${formatCurrency(equityNow)} | At lease-end: ${formatCurrency(equityFuture)}${exitInfo}`;
 
-    const leaning =
-      equityNow > 0
-        ? 'Buyout is compelling because you have positive equity now.'
-        : equityFuture > 0
-          ? 'Running the lease to the end then buying keeps equity positive.'
-          : 'Watch total cost and negative equity risk—shop other options in the next step.';
+    // Enhanced recommendation logic
+    let leaning = '';
+    if (equityNow > 0 && bestExitValue > equityNow) {
+      leaning = `Strong buyout case: ${formatCurrency(equityNow)} equity now, and ${bestExitOption} offers ${formatCurrency(bestExitValue)}.`;
+    } else if (equityNow > 0) {
+      leaning = 'Buyout is compelling because you have positive equity now.';
+    } else if (equityFuture > 0) {
+      leaning = 'Running the lease to the end then buying keeps equity positive.';
+    } else {
+      leaning = 'Watch total cost and negative equity risk—shop other options in the next step.';
+    }
 
     recommendation.textContent = leaning;
     resultsWrapper.classList.remove('hidden');
@@ -345,19 +434,56 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
     const data = JSON.parse(saved) as JourneyStorage;
-    const details = data.collectedData?.['lease-vs-buyout'] as StoredDetails | undefined;
-    if (!details) return;
 
-    Object.entries(details).forEach(([key, value]) => {
-      const input = document.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
-        `[name="${key}"]`
-      );
-      if (input) {
-        input.value = String(value ?? '');
+    // First, pre-fill from lease-profile (step 1) data
+    const leaseProfile = data.collectedData?.['lease-profile'] as StoredDetails | undefined;
+    if (leaseProfile) {
+      // Map step 1 fields to step 2 fields
+      const mappings: Record<string, string> = {
+        monthsRemaining: 'monthsRemaining',
+        residualValue: 'buyoutAmount',
+        dispositionFee: 'dispositionFee',
+        monthlyPayment: '_monthlyPayment', // Store for calculation
+      };
+
+      // Calculate remaining payments from monthly payment × months remaining
+      const monthlyPayment = parseNumber(leaseProfile.monthlyPayment);
+      const monthsRemaining = parseNumber(leaseProfile.monthsRemaining);
+      if (monthlyPayment > 0 && monthsRemaining > 0) {
+        const remainingInput = document.querySelector<HTMLInputElement>('[name="remainingPayments"]');
+        if (remainingInput && !remainingInput.value) {
+          remainingInput.value = String(monthlyPayment * monthsRemaining);
+        }
       }
-    });
+
+      Object.entries(mappings).forEach(([fromKey, toKey]) => {
+        if (toKey.startsWith('_')) return; // Skip internal mappings
+        const value = leaseProfile[fromKey];
+        if (value === undefined || value === null || value === '') return;
+        const input = document.querySelector<HTMLInputElement>(`[name="${toKey}"]`);
+        if (input && !input.value) {
+          input.value = String(value);
+        }
+      });
+    }
+
+    // Then, override with any saved step 2 data
+    const details = data.collectedData?.['lease-vs-buyout'] as StoredDetails | undefined;
+    if (details) {
+      Object.entries(details).forEach(([key, value]) => {
+        const input = document.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+          `[name="${key}"]`
+        );
+        if (input) {
+          input.value = String(value ?? '');
+        }
+      });
+    }
+
     const statusEl = document.getElementById('lease-buyout-status');
-    if (statusEl) statusEl.textContent = 'Loaded from last session';
+    if (statusEl) {
+      statusEl.textContent = details ? 'Loaded from last session' : (leaseProfile ? 'Pre-filled from lease profile' : '');
+    }
   };
 
   const runComparison = () => {
@@ -383,6 +509,26 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const equityNow = parseNumber(formData.get('expectedValueNow')) - buyoutPrincipal;
     const equityFuture = parseNumber(formData.get('expectedValueFuture')) - buyoutPrincipal;
 
+    // New fields: gap insurance
+    const gapRequired = formData.get('gapInsuranceRequired') as string;
+    const gapInsuranceCost = gapRequired === 'yes-extra' ? parseNumber(formData.get('gapInsuranceCost')) : 0;
+
+    // New fields: trade-in and sale options
+    const tradeInValue = parseNumber(formData.get('tradeInValue'));
+    const privateSaleValue = parseNumber(formData.get('privateSaleValue'));
+    const instantOfferValue = parseNumber(formData.get('instantOfferValue'));
+
+    // Determine best exit option (if user buys out then sells)
+    const exitOptions = [
+      { name: 'Trade-in', value: tradeInValue },
+      { name: 'Private sale', value: privateSaleValue },
+      { name: 'Instant offer', value: instantOfferValue },
+    ].filter(opt => opt.value > 0);
+    
+    const bestExit = exitOptions.length > 0 
+      ? exitOptions.reduce((best, curr) => curr.value > best.value ? curr : best)
+      : { name: '', value: 0 };
+
     renderResults({
       leaseCost,
       buyoutPayment: payment,
@@ -390,6 +536,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       equityNow,
       equityFuture,
       monthsRemaining,
+      gapInsuranceCost,
+      tradeInValue,
+      privateSaleValue,
+      instantOfferValue,
+      bestExitOption: bestExit.name,
+      bestExitValue: bestExit.value - buyoutPrincipal, // Net profit after buyout
     });
   };
 
