@@ -36,6 +36,17 @@ export {
 export { createMCPTools, handleMCPRequest } from './mcp/tools';
 export type { MCPRequestMethod, MCPTool } from './mcp/tools';
 
+// Tool Metadata Registry
+export {
+  toolMetadata,
+  getToolMetadata,
+  getToolsByCategory,
+  getAllCategories,
+  categoryDescriptions,
+  buildToolCategoryPrompt,
+} from './mcp/tool-metadata';
+export type { ToolCategory, ToolMetadata } from './mcp/tool-metadata';
+
 // Event Bus
 export {
   appEventBus,

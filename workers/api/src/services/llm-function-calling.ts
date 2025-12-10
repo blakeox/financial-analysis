@@ -6,6 +6,7 @@
 import { runWithTools, autoTrimTools } from '@cloudflare/ai-utils';
 import type { Ai } from '@cloudflare/workers-types';
 import type { MCPTool } from '@financial-analysis/tools';
+import { getToolMetadata } from '@financial-analysis/tools';
 
 // Model that supports function calling
 // Using hermes-2-pro which is recommended in Cloudflare examples
@@ -46,11 +47,79 @@ const DEFAULT_CONFIG: FunctionCallingConfig = {
   maxTokens: 2048,
 };
 
+/** Timeout for individual tool executions (30 seconds) */
+const TOOL_EXECUTION_TIMEOUT_MS = 30000;
+
+/** Converted tool schema type for Cloudflare function calling */
+interface CloudflareTool {
+  name: string;
+  description: string;
+  parameters: {
+    type: 'object';
+    properties: Record<string, { type: string; description?: string }>;
+    required: string[];
+  };
+  function: (args: Record<string, unknown>) => Promise<string>;
+}
+
+/** Cache for converted tool schemas to avoid repeated conversions */
+const toolSchemaCache = new Map<string, CloudflareTool>();
+
+/** Tool execution metrics */
+export interface ToolMetrics {
+  toolName: string;
+  executionTimeMs: number;
+  success: boolean;
+  error?: string;
+  timedOut?: boolean;
+}
+
+/** Collected metrics for current request */
+let currentRequestMetrics: ToolMetrics[] = [];
+
+/** Get and reset metrics for current request */
+export function getAndResetToolMetrics(): ToolMetrics[] {
+  const metrics = [...currentRequestMetrics];
+  currentRequestMetrics = [];
+  return metrics;
+}
+
+/** Conditional logger that respects verbose flag */
+function createLogger(verbose: boolean) {
+  return {
+    debug: (...args: unknown[]) => verbose && console.log(...args),
+    info: (...args: unknown[]) => console.log(...args),
+    error: (...args: unknown[]) => console.error(...args),
+  };
+}
+
+/** Global verbose flag - set via FunctionCallingService config */
+let globalVerbose = false;
+
+/**
+ * Execute a promise with a timeout
+ */
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, toolName: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Tool ${toolName} timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
 /**
  * Convert MCP tool to Cloudflare function calling format
  * Uses type assertions since MCP tool schemas are JSON Schema compatible
+ * Results are cached to avoid repeated conversions
  */
-function mcpToolToCloudflareFormat(tool: MCPTool) {
+function mcpToolToCloudflareFormat(tool: MCPTool): CloudflareTool {
+  // Check cache first
+  const cached = toolSchemaCache.get(tool.name);
+  if (cached) {
+    return cached;
+  }
+
   // MCP tools use JSON Schema which should have type: 'object'
   // Cast through unknown to satisfy strict Cloudflare types
   const inputSchema = tool.inputSchema as unknown as {
@@ -59,7 +128,7 @@ function mcpToolToCloudflareFormat(tool: MCPTool) {
     required: string[];
   };
 
-  return {
+  const converted = {
     name: tool.name,
     description: tool.description,
     parameters: {
@@ -68,23 +137,52 @@ function mcpToolToCloudflareFormat(tool: MCPTool) {
       required: inputSchema.required || [],
     },
     // Cloudflare expects Promise<string>, so we stringify the result
+    // Wrapped with timeout to prevent runaway executions
     function: async (args: Record<string, unknown>): Promise<string> => {
+      const startTime = Date.now();
+      const metrics: ToolMetrics = {
+        toolName: tool.name,
+        executionTimeMs: 0,
+        success: false,
+      };
+      
       try {
-        const result = await tool.execute(args);
+        const result = await withTimeout(
+          tool.execute(args),
+          TOOL_EXECUTION_TIMEOUT_MS,
+          tool.name
+        );
+        metrics.executionTimeMs = Date.now() - startTime;
+        metrics.success = true;
+        currentRequestMetrics.push(metrics);
         return typeof result === 'string' ? result : JSON.stringify(result);
       } catch (error) {
-        console.error(`Tool ${tool.name} execution error:`, error);
+        metrics.executionTimeMs = Date.now() - startTime;
+        metrics.success = false;
+        metrics.error = error instanceof Error ? error.message : 'Unknown error';
+        metrics.timedOut = error instanceof Error && error.message.includes('timed out');
+        currentRequestMetrics.push(metrics);
+        
+        if (globalVerbose) {
+          console.error(`Tool ${tool.name} execution error:`, error);
+        }
         return JSON.stringify({
           error: true,
-          message: error instanceof Error ? error.message : 'Unknown error',
+          message: metrics.error,
+          timedOut: metrics.timedOut,
         });
       }
     },
   };
+
+  // Cache the converted tool schema
+  toolSchemaCache.set(tool.name, converted);
+  return converted;
 }
 
 /**
  * Extract model changes from tool results for GUI updates
+ * Uses centralized tool metadata to know which fields to extract
  */
 function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknown> | undefined {
   const changes: Record<string, unknown> = {};
@@ -101,11 +199,16 @@ function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknow
       if ('modelChanges' in result) {
         Object.assign(changes, result.modelChanges);
       }
-      // For analysis tools, extract key values that should update the form
-      if ('principal' in result) changes.principal = result.principal;
-      if ('annualRate' in result) changes.annualRate = result.annualRate;
-      if ('termMonths' in result) changes.termMonths = result.termMonths;
-      if ('monthlyPayment' in result) changes.monthlyPayment = result.monthlyPayment;
+      
+      // Use centralized metadata to extract tool-specific output fields
+      const meta = getToolMetadata(call.toolName);
+      if (meta.outputFields) {
+        for (const field of meta.outputFields) {
+          if (field in result) {
+            changes[field] = result[field];
+          }
+        }
+      }
     }
   }
   
@@ -114,49 +217,15 @@ function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknow
 
 /**
  * Pre-filter tools based on user message to reduce token usage
- * This is a simple keyword-based filter to stay within model context limits
+ * Uses centralized tool metadata for keywords (single source of truth)
  */
 function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
   const message = userMessage.toLowerCase();
   
-  // Tool categories with keywords
-  const toolKeywords: Record<string, string[]> = {
-    'analyze_lease': ['lease', 'rent', 'tenant', 'landlord', 'commercial'],
-    'analyze_enhanced_lease': ['lease', 'rent', 'tenant', 'landlord', 'commercial', 'enhanced'],
-    'analyze_amortization': ['amortization', 'mortgage', 'loan payment', 'principal', 'schedule'],
-    'ebitda_forecasting': ['ebitda', 'earnings', 'forecast', 'operating'],
-    'ebitda_scenario_comparison': ['ebitda', 'scenario', 'compare', 'operating'],
-    'analyze_bond_pricing': ['bond', 'coupon', 'yield', 'maturity', 'fixed income'],
-    'analyze_options_pricing': ['option', 'call', 'put', 'strike', 'black-scholes', 'derivative'],
-    'analyze_cash_flow': ['cash flow', 'dcf', 'npv', 'irr', 'present value'],
-    'analyze_auto_loan': ['auto', 'car', 'vehicle', 'auto loan'],
-    'analyze_debt_payoff': ['debt', 'payoff', 'snowball', 'avalanche', 'credit card'],
-    'analyze_savings_goal': ['savings', 'save', 'goal', 'target'],
-    'analyze_student_loans': ['student', 'loan', 'education', 'college loan'],
-    'analyze_retirement_savings': ['retirement', '401k', 'ira', 'pension', 'retire'],
-    'optimize_budget': ['budget', 'expense', 'income', 'spending'],
-    'populate_lease_form': ['populate', 'form', 'fill', 'lease form'],
-    'analyze_college_savings': ['college', '529', 'education', 'tuition'],
-    'analyze_home_buying_affordability': ['home', 'house', 'afford', 'buy', 'mortgage'],
-    'analyze_tax_optimization': ['tax', 'deduction', 'bracket', 'optimize'],
-    'analyze_insurance_needs': ['insurance', 'coverage', 'life insurance', 'policy'],
-    'analyze_investment_portfolio': ['portfolio', 'investment', 'diversif', 'asset allocation'],
-    'analyze_financial_journey': ['financial journey', 'milestones', 'life events'],
-    'interactive_financial_model': ['interactive', 'model', 'scenario'],
-    'multi_model_scenario_analysis': ['scenario', 'multi', 'compare', 'analysis'],
-    'analyze_ma_deal': ['m&a', 'merger', 'acquisition', 'deal'],
-    'analyze_dcf_valuation': ['dcf', 'valuation', 'discount', 'cash flow'],
-    'analyze_cca_valuation': ['comparable', 'cca', 'multiples', 'valuation'],
-    'analyze_rent_vs_buy': ['rent', 'buy', 'renting', 'buying', 'home purchase', 'housing decision', 'apartment', 'homeowner'],
-    'cache_document': ['document', 'cache', 'store'],
-    'search_documents': ['search', 'document', 'find'],
-    'get_document': ['get', 'retrieve', 'document'],
-    'clear_expired_documents': ['clear', 'expired', 'document'],
-  };
-
-  // Score each tool based on keyword matches
+  // Score each tool based on keyword matches from centralized metadata
   const scoredTools = tools.map(tool => {
-    const keywords = toolKeywords[tool.name] || [];
+    const meta = getToolMetadata(tool.name);
+    const keywords = meta.keywords;
     let score = 0;
     
     for (const keyword of keywords) {
@@ -188,9 +257,12 @@ function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
     ? filtered.slice(0, 8).map(t => t.tool) // Max 8 relevant tools
     : sorted.slice(0, 5).map(t => t.tool);  // Fallback to top 5
   
-  console.log('[preFilterTools] User message:', userMessage.substring(0, 100));
-  console.log('[preFilterTools] Tools with scores:', sorted.slice(0, 10).map(t => `${t.tool.name}:${t.score}`));
-  console.log('[preFilterTools] Selected tools:', result.map(t => t.name));
+  // Only log in verbose mode
+  if (globalVerbose) {
+    console.log('[preFilterTools] User message:', userMessage.substring(0, 100));
+    console.log('[preFilterTools] Tools with scores:', sorted.slice(0, 10).map(t => `${t.tool.name}:${t.score}`));
+    console.log('[preFilterTools] Selected tools:', result.map(t => t.name));
+  }
   return result;
 }
 
@@ -199,12 +271,16 @@ function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
  */
 export class FunctionCallingService {
   private config: FunctionCallingConfig;
+  private log: ReturnType<typeof createLogger>;
 
   constructor(
     private ai: Ai,
     config?: Partial<FunctionCallingConfig>
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.log = createLogger(this.config.verbose ?? false);
+    // Set global verbose for helper functions
+    globalVerbose = this.config.verbose ?? false;
   }
 
   /**
@@ -227,7 +303,7 @@ export class FunctionCallingService {
     // Pre-filter tools based on user message to stay within context limits
     const userMessage = messages.find(m => m.role === 'user')?.content || '';
     const filteredTools = preFilterTools(tools, userMessage);
-    console.log(`[FunctionCallingService] Filtered from ${tools.length} to ${filteredTools.length} tools`);
+    this.log.debug(`[FunctionCallingService] Filtered from ${tools.length} to ${filteredTools.length} tools`);
 
     // Convert MCP tools to Cloudflare format
     const cloudflareTools = filteredTools.map(mcpToolToCloudflareFormat);
@@ -247,34 +323,36 @@ export class FunctionCallingService {
     }));
 
     try {
-      // Debug: Log tools and messages
-      console.log('[FunctionCallingService] tools count:', tools.length);
-      console.log('[FunctionCallingService] cloudflareTools count:', cloudflareTools.length);
-      console.log('[FunctionCallingService] trackedTools count:', trackedTools.length);
+      // Debug: Log tools and messages (only in verbose mode)
+      this.log.debug('[FunctionCallingService] tools count:', tools.length);
+      this.log.debug('[FunctionCallingService] cloudflareTools count:', cloudflareTools.length);
+      this.log.debug('[FunctionCallingService] trackedTools count:', trackedTools.length);
       
       // Validate AI binding
-      console.log('[FunctionCallingService] ai binding exists:', !!this.ai);
-      console.log('[FunctionCallingService] ai binding type:', typeof this.ai);
+      this.log.debug('[FunctionCallingService] ai binding exists:', !!this.ai);
+      this.log.debug('[FunctionCallingService] ai binding type:', typeof this.ai);
       if (!this.ai) {
         throw new Error('AI binding is undefined - check worker bindings');
       }
       
-      // Log first few tools in detail for debugging
-      if (trackedTools.length > 0) {
-        const firstTool = trackedTools[0]!;
-        console.log('[FunctionCallingService] first tool structure:', JSON.stringify({
-          name: firstTool.name,
-          description: firstTool.description?.substring(0, 50),
-          hasFunction: typeof firstTool.function === 'function',
-          hasParameters: !!firstTool.parameters,
-          parametersType: firstTool.parameters?.type,
-          hasProperties: !!firstTool.parameters?.properties,
-          propertiesKeys: firstTool.parameters?.properties ? Object.keys(firstTool.parameters.properties).slice(0, 5) : [],
-        }));
+      // Log first few tools in detail for debugging (only in verbose mode)
+      if (this.config.verbose && trackedTools.length > 0) {
+        const firstTool = trackedTools[0];
+        if (firstTool) {
+          this.log.debug('[FunctionCallingService] first tool structure:', JSON.stringify({
+            name: firstTool.name,
+            description: firstTool.description?.substring(0, 50),
+            hasFunction: typeof firstTool.function === 'function',
+            hasParameters: !!firstTool.parameters,
+            parametersType: firstTool.parameters?.type,
+            hasProperties: !!firstTool.parameters?.properties,
+            propertiesKeys: firstTool.parameters?.properties ? Object.keys(firstTool.parameters.properties).slice(0, 5) : [],
+          }));
+        }
       }
       
-      console.log('[FunctionCallingService] messages count:', fullMessages.length);
-      console.log('[FunctionCallingService] first message role:', fullMessages[0]?.role);
+      this.log.debug('[FunctionCallingService] messages count:', fullMessages.length);
+      this.log.debug('[FunctionCallingService] first message role:', fullMessages[0]?.role);
 
       // Build options, only including defined values
       const options: {
@@ -299,7 +377,7 @@ export class FunctionCallingService {
         options.trimFunction = autoTrimTools;
       }
 
-      console.log('[FunctionCallingService] options:', JSON.stringify(options));
+      this.log.debug('[FunctionCallingService] options:', JSON.stringify(options));
 
       // Prepare input for runWithTools
       const runWithToolsInput = {
@@ -310,9 +388,9 @@ export class FunctionCallingService {
         tools: trackedTools,
       };
       
-      console.log('[FunctionCallingService] calling runWithTools with model:', FUNCTION_CALLING_MODEL);
-      console.log('[FunctionCallingService] input messages length:', runWithToolsInput.messages.length);
-      console.log('[FunctionCallingService] input tools length:', runWithToolsInput.tools.length);
+      this.log.debug('[FunctionCallingService] calling runWithTools with model:', FUNCTION_CALLING_MODEL);
+      this.log.debug('[FunctionCallingService] input messages length:', runWithToolsInput.messages.length);
+      this.log.debug('[FunctionCallingService] input tools length:', runWithToolsInput.tools.length);
 
       // Use runWithTools for embedded function calling
       const aiResponse = await runWithTools(
@@ -322,7 +400,7 @@ export class FunctionCallingService {
         options
       );
       
-      console.log('[FunctionCallingService] runWithTools response type:', typeof aiResponse);
+      this.log.debug('[FunctionCallingService] runWithTools response type:', typeof aiResponse);
 
       // Extract response content
       let content = '';
@@ -356,7 +434,7 @@ export class FunctionCallingService {
       }
       return result;
     } catch (error) {
-      console.error('Function calling error:', error);
+      this.log.error('Function calling error:', error);
       throw error;
     }
   }
@@ -403,4 +481,17 @@ export function createFunctionCallingService(
   config?: Partial<FunctionCallingConfig>
 ): FunctionCallingService {
   return new FunctionCallingService(ai, config);
+}
+
+// Export internals for testing
+export const __testing = {
+  preFilterTools,
+  extractModelChanges,
+  withTimeout,
+  TOOL_EXECUTION_TIMEOUT_MS,
+};
+
+/** Clear the tool schema cache (useful for testing) */
+export function clearToolSchemaCache(): void {
+  toolSchemaCache.clear();
 }
