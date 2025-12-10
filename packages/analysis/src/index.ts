@@ -35,7 +35,7 @@ export type {
 export { z } from 'zod';
 
 // Export schemas and types for API usage
-export { AmortizationInputSchema, FinancialInputSchema } from './schemas.js';
+export { AmortizationInputSchema, FinancialInputSchema, validateFinancialInput } from './schemas.js';
 export type { AmortizationInput, FinancialInput } from './schemas.js';
 
 // Enhanced lease schemas and types

@@ -91,3 +91,8 @@ export const ScenarioInputSchema = z.object({
 export type FinancialInput = z.infer<typeof FinancialInputSchema>;
 export type AmortizationInput = z.infer<typeof AmortizationInputSchema>;
 export type ScenarioInput = z.infer<typeof ScenarioInputSchema>;
+
+// Validation helper functions
+export function validateFinancialInput(input: unknown): input is FinancialInput {
+  return FinancialInputSchema.safeParse(input).success;
+}
