@@ -4,6 +4,7 @@
  */
 
 import { LLMRetryHandler } from './llm-retry';
+import { toolMetadata } from '@financial-analysis/tools';
 
 export interface ToolRecommendation {
   primaryTool?: string;
@@ -105,6 +106,7 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
 
   /**
    * Fallback to pattern matching if AI fails
+   * Uses centralized tool metadata for keywords (single source of truth)
    */
   private fallbackSelection(
     userQuery: string,
@@ -112,55 +114,29 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
   ): ToolRecommendation {
     const query = userQuery.toLowerCase();
 
-    // Map keywords to tools
-    const keywordMap: Record<string, string[]> = {
-      lease: ['analyze_lease', 'analyze_enhanced_lease', 'populate_lease_form'],
-      amortization: ['analyze_amortization'],
-      mortgage: ['analyze_amortization', 'analyze_home_buying_affordability'],
-      retirement: ['analyze_retirement_savings', 'analyze_financial_journey'],
-      debt: ['analyze_debt_payoff'],
-      savings: ['analyze_savings_goal', 'analyze_investment_portfolio'],
-      student: ['analyze_student_loans'],
-      budget: ['optimize_budget', 'analyze_cash_flow'],
-      college: ['analyze_college_savings'],
-      home: ['analyze_home_buying_affordability'],
-      tax: ['analyze_tax_optimization'],
-      insurance: ['analyze_insurance_needs'],
-      portfolio: ['analyze_investment_portfolio'],
-      ebitda: ['ebitda_forecasting', 'ebitda_scenario_comparison'],
-      bond: ['analyze_bond_pricing'],
-      option: ['analyze_options_pricing'],
-      'cash flow': ['analyze_cash_flow'],
-      'burn rate': ['analyze_cash_flow', 'optimize_budget'],
-      runway: ['analyze_cash_flow', 'ebitda_forecasting'],
-      'revenue projection': ['ebitda_forecasting', 'analyze_cash_flow'],
-      projection: ['ebitda_forecasting', 'analyze_cash_flow'],
-      forecast: ['ebitda_forecasting', 'analyze_cash_flow'],
-      startup: ['analyze_cash_flow', 'ebitda_forecasting', 'analyze_financial_journey'],
-      'seed round': ['analyze_financial_journey'],
-      'series a': ['analyze_financial_journey', 'analyze_cash_flow'],
-      funding: ['analyze_cash_flow', 'analyze_financial_journey'],
-      'capital investment': ['analyze_financial_journey'],
-      merger: ['analyze_ma_deal'],
-      'm&a': ['analyze_ma_deal'],
-      acquisition: ['analyze_ma_deal'],
-      dcf: ['analyze_dcf_valuation'],
-      valuation: ['analyze_dcf_valuation', 'analyze_cca_valuation'],
-      comparable: ['analyze_cca_valuation'],
-      auto: ['analyze_auto_loan'],
-      car: ['analyze_auto_loan'],
-    };
+    // Build keyword-to-tools map from centralized metadata
+    const keywordToTools = new Map<string, string[]>();
+    for (const [toolName, meta] of Object.entries(toolMetadata)) {
+      for (const keyword of meta.keywords) {
+        const existing = keywordToTools.get(keyword) || [];
+        existing.push(toolName);
+        keywordToTools.set(keyword, existing);
+      }
+    }
 
-    // Find matching tools
-    for (const [keyword, tools] of Object.entries(keywordMap)) {
+    // Find matching tools by keyword (longer keywords first for specificity)
+    const sortedKeywords = [...keywordToTools.keys()].sort((a, b) => b.length - a.length);
+    
+    for (const keyword of sortedKeywords) {
       if (query.includes(keyword)) {
+        const tools = keywordToTools.get(keyword) || [];
         const matchedTools = tools.filter(name =>
           availableTools.some(t => t.name === name)
         );
         if (matchedTools.length > 0) {
           return {
             primaryTool: matchedTools[0],
-            secondaryTools: matchedTools.slice(1),
+            secondaryTools: matchedTools.slice(1, 4), // Limit secondary tools
             reasoning: `Matched keyword: ${keyword}`,
             confidence: 0.6,
           } as ToolRecommendation;

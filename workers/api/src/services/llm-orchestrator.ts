@@ -16,7 +16,7 @@ import type { Env } from '../types';
 import type { DocumentCacheConfig } from './document-cache';
 import { IntelligentToolSelector } from './intelligent-tool-selection';
 import { PIIRedactor } from './pii-redactor';
-import { createMCPTools, type MCPTool } from '@financial-analysis/tools';
+import { createMCPTools, type MCPTool, buildToolCategoryPrompt } from '@financial-analysis/tools';
 import { FunctionCallingService, createFunctionCallingService } from './llm-function-calling';
 
 export interface OrchestrationRequest {
@@ -319,6 +319,7 @@ export class LLMOrchestrator {
 
   /**
    * Build system prompt for function calling
+   * Uses centralized tool metadata for dynamic category generation
    */
   private buildFunctionCallingSystemPrompt(
     context: string,
@@ -332,14 +333,8 @@ export class LLMOrchestrator {
       'CRITICAL: You MUST use the provided tools for ANY financial calculation. Do NOT compute answers manually.',
       'When a user asks about bonds, loans, mortgages, leases, or any financial analysis - ALWAYS call the appropriate tool.',
       '',
-      'Available tool categories:',
-      '- Bond pricing: use analyze_bond_pricing',
-      '- Auto loans: use analyze_auto_loan',
-      '- Mortgages/amortization: use analyze_amortization',
-      '- Leases: use analyze_lease or analyze_enhanced_lease',
-      '- Cash flow/NPV/IRR: use analyze_cash_flow',
-      '- Debt payoff: use analyze_debt_payoff',
-      '- Options: use analyze_options_pricing',
+      // Use dynamic tool categories from centralized metadata
+      buildToolCategoryPrompt(),
       '',
       'After calling a tool, explain the results clearly to the user.',
     ];
