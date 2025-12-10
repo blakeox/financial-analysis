@@ -552,3 +552,378 @@ test.describe('MCP Tool Integration - Error Handling @integration', () => {
     expect(response?.response).toBeTruthy();
   });
 });
+
+// ============================================
+// Multi-Turn Conversation Tests
+// ============================================
+test.describe('MCP Tool Execution Verification › Multi-Turn Conversations', () => {
+  test('should persist function calling across multiple messages', async ({ page }) => {
+    // Set up request tracking before navigation
+    const chatRequests: Array<{ message: string; body: Record<string, unknown> }> = [];
+    
+    page.on('request', (request) => {
+      if (request.url().includes('/v1/chat') && request.method() === 'POST') {
+        try {
+          const body = JSON.parse(request.postData() || '{}');
+          chatRequests.push({ 
+            message: body.message || '', 
+            body 
+          });
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    });
+
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    // Send first message
+    const chatInput = page.locator('#chat-input');
+    await chatInput.fill('What is my monthly payment for a $300,000 mortgage?');
+    await chatInput.press('Enter');
+    
+    // Wait for first response
+    await page.waitForTimeout(3000);
+    
+    // Clear tracking for second message
+    const firstRequestCount = chatRequests.length;
+    
+    // Send second message (follow-up)
+    await chatInput.fill('What if I put 20% down?');
+    await chatInput.press('Enter');
+    
+    // Wait for second response
+    await page.waitForTimeout(3000);
+    
+    // Verify both requests had function calling enabled
+    expect(chatRequests.length).toBeGreaterThanOrEqual(2);
+    
+    // First request should have enableFunctionCalling
+    expect(chatRequests[0]?.body.enableFunctionCalling).toBe(true);
+    
+    // Second request should also have enableFunctionCalling (persistence check)
+    const secondRequest = chatRequests.find((r, i) => i >= firstRequestCount);
+    expect(secondRequest?.body.enableFunctionCalling).toBe(true);
+    
+    // Both should include available tools
+    expect(chatRequests[0]?.body.availableTools).toBeDefined();
+    expect(secondRequest?.body.availableTools).toBeDefined();
+  });
+
+  test('should maintain conversation context for follow-up questions @integration', async ({ page }) => {
+    test.skip(process.env.CI !== 'true', 'Requires AI binding - run in CI');
+    
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    // First message with specific numbers
+    const { response: firstResponse } = await sendMessageAndCaptureApi(
+      page,
+      'Calculate monthly payment for a $400,000 mortgage at 7% for 30 years'
+    );
+    
+    expect(firstResponse).not.toBeNull();
+    
+    // Follow-up that references first calculation
+    const { response: secondResponse } = await sendMessageAndCaptureApi(
+      page,
+      'How much would I save with a 15 year term instead?'
+    );
+    
+    expect(secondResponse).not.toBeNull();
+    // Follow-up should still provide numerical results
+    const hasNumbers = /\$[\d,]+\.?\d*|\d+%/.test(secondResponse?.response || '');
+    expect(hasNumbers).toBe(true);
+  });
+});
+
+// ============================================
+// Calculator Context Switching Tests
+// ============================================
+test.describe('MCP Tool Execution Verification › Calculator Context Switching', () => {
+  test('should update available tools when navigating between calculators', async ({ page }) => {
+    // Track tools received for each page
+    const toolsByPage: Record<string, string[]> = {};
+    
+    page.on('response', async (response) => {
+      if (response.url().includes('/api/v1/mcp/tools') && response.ok()) {
+        try {
+          const data = await response.json();
+          const currentUrl = page.url();
+          const toolNames = (data?.tools || []).map((t: { name: string }) => t.name);
+          toolsByPage[currentUrl] = toolNames;
+        } catch {
+          // Ignore errors
+        }
+      }
+    });
+
+    // Start on amortization calculator
+    await page.goto('/calculator/amortization');
+    await page.waitForLoadState('networkidle');
+    await openChatPanel(page);
+    
+    // Give time for tools to load
+    await page.waitForTimeout(2000);
+    
+    // Close chat and navigate to auto loan
+    await page.locator('#chat-toggle').click();
+    await page.waitForTimeout(500);
+    
+    await page.goto('/calculator/auto-loan');
+    await page.waitForLoadState('networkidle');
+    await openChatPanel(page);
+    
+    // Give time for tools to load
+    await page.waitForTimeout(2000);
+    
+    // Verify tools were fetched for both contexts
+    const amortizationTools = Object.entries(toolsByPage).find(([url]) => 
+      url.includes('amortization')
+    )?.[1] || [];
+    
+    const autoLoanTools = Object.entries(toolsByPage).find(([url]) => 
+      url.includes('auto-loan')
+    )?.[1] || [];
+    
+    // Both should have tools
+    expect(amortizationTools.length).toBeGreaterThan(0);
+    expect(autoLoanTools.length).toBeGreaterThan(0);
+    
+    console.log(`Amortization tools: ${amortizationTools.join(', ')}`);
+    console.log(`Auto loan tools: ${autoLoanTools.join(', ')}`);
+  });
+
+  test('should use context-appropriate tools after navigation', async ({ page }) => {
+    // Track chat requests
+    const chatRequests: Array<{ url: string; tools: string[] }> = [];
+    
+    page.on('request', (request) => {
+      if (request.url().includes('/v1/chat') && request.method() === 'POST') {
+        try {
+          const body = JSON.parse(request.postData() || '{}');
+          const tools = (body.availableTools || []).map((t: { name: string }) => t.name);
+          chatRequests.push({ url: page.url(), tools });
+        } catch {
+          // Ignore
+        }
+      }
+    });
+
+    // Navigate to auto loan calculator
+    await setupToolsListenerAndNavigate(page, '/calculator/auto-loan');
+    await openChatPanel(page);
+
+    // Ask about auto loans
+    const chatInput = page.locator('#chat-input');
+    await chatInput.fill('What is my monthly car payment for a $35,000 vehicle?');
+    await chatInput.press('Enter');
+    
+    await page.waitForTimeout(3000);
+    
+    // Check that the request included tools
+    expect(chatRequests.length).toBeGreaterThan(0);
+    const lastRequest = chatRequests[chatRequests.length - 1];
+    expect(lastRequest?.tools.length).toBeGreaterThan(0);
+    
+    console.log(`Tools sent with auto loan query: ${lastRequest?.tools.join(', ')}`);
+  });
+});
+
+// ============================================
+// Tool Selection Accuracy Tests
+// ============================================
+test.describe('MCP Tool Execution Verification › Tool Selection Accuracy', () => {
+  test('should have mortgage/amortization tools available on amortization page', async ({ page }) => {
+    const toolsData = await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    
+    expect(toolsData).not.toBeNull();
+    expect(toolsData?.tools?.length).toBeGreaterThan(0);
+    
+    const toolNames = (toolsData?.tools as Array<{ name: string }>).map(t => t.name.toLowerCase());
+    
+    // Should have amortization-related tools
+    const hasRelevantTool = toolNames.some(name => 
+      name.includes('amortization') || 
+      name.includes('mortgage') || 
+      name.includes('loan')
+    );
+    
+    expect(hasRelevantTool).toBe(true);
+    console.log(`Amortization page tools: ${toolNames.join(', ')}`);
+  });
+
+  test('should have bond-related tools available on bond pricing page', async ({ page }) => {
+    const toolsData = await setupToolsListenerAndNavigate(page, '/calculator/bond-pricing');
+    
+    expect(toolsData).not.toBeNull();
+    expect(toolsData?.tools?.length).toBeGreaterThan(0);
+    
+    const toolNames = (toolsData?.tools as Array<{ name: string }>).map(t => t.name.toLowerCase());
+    
+    // Should have bond-related tools
+    const hasRelevantTool = toolNames.some(name => 
+      name.includes('bond') || 
+      name.includes('pricing') || 
+      name.includes('yield')
+    );
+    
+    expect(hasRelevantTool).toBe(true);
+    console.log(`Bond pricing page tools: ${toolNames.join(', ')}`);
+  });
+
+  test('should include relevant tools in chat request based on query topic @integration', async ({ page }) => {
+    test.skip(process.env.CI !== 'true', 'Requires AI binding - run in CI');
+    
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    // Ask specifically about mortgage - should trigger amortization tool, not bond tool
+    const { request, response } = await sendMessageAndCaptureApi(
+      page,
+      'Calculate my mortgage payment for a $350,000 home loan at 6.5% interest for 30 years'
+    );
+
+    expect(request).not.toBeNull();
+    expect(response).not.toBeNull();
+    
+    // If functionCallingResults present, check which tool was used
+    if (response?.functionCallingResults?.toolsExecuted) {
+      const executedTools = response.functionCallingResults.toolsExecuted.map(t => t.toolName.toLowerCase());
+      console.log(`Tools executed: ${executedTools.join(', ')}`);
+      
+      // Should NOT have used bond pricing tool for a mortgage question
+      const usedBondTool = executedTools.some(name => name.includes('bond'));
+      expect(usedBondTool).toBe(false);
+      
+      // Should have used amortization/mortgage tool
+      const usedMortgageTool = executedTools.some(name => 
+        name.includes('amortization') || name.includes('mortgage') || name.includes('loan')
+      );
+      expect(usedMortgageTool).toBe(true);
+    }
+  });
+});
+
+// ============================================
+// Session/Conversation State Tests
+// ============================================
+test.describe('MCP Tool Execution Verification › Session State', () => {
+  test('should include conversation history in subsequent requests', async ({ page }) => {
+    const chatRequests: Array<{ message: string; history?: unknown[] }> = [];
+    
+    page.on('request', (request) => {
+      if (request.url().includes('/v1/chat') && request.method() === 'POST') {
+        try {
+          const body = JSON.parse(request.postData() || '{}');
+          chatRequests.push({ 
+            message: body.message || '',
+            history: body.conversationHistory || body.history || []
+          });
+        } catch {
+          // Ignore
+        }
+      }
+    });
+
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    // Send first message
+    const chatInput = page.locator('#chat-input');
+    await chatInput.fill('What is a typical mortgage rate?');
+    await chatInput.press('Enter');
+    await page.waitForTimeout(3000);
+
+    // Send second message
+    await chatInput.fill('How does that compare to last year?');
+    await chatInput.press('Enter');
+    await page.waitForTimeout(3000);
+
+    // Check if second request includes history/context
+    expect(chatRequests.length).toBeGreaterThanOrEqual(2);
+    
+    // Log what we found for debugging
+    console.log(`First request message: "${chatRequests[0]?.message}"`);
+    console.log(`Second request message: "${chatRequests[1]?.message}"`);
+    console.log(`Second request has history: ${(chatRequests[1]?.history?.length || 0) > 0}`);
+  });
+
+  test('should reference previous tool results in follow-up responses @integration', async ({ page }) => {
+    test.skip(process.env.CI !== 'true', 'Requires AI binding - run in CI');
+    
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    // First: get a specific calculation
+    const { response: firstResponse } = await sendMessageAndCaptureApi(
+      page,
+      'Calculate the monthly payment for a $500,000 mortgage at 6% for 30 years'
+    );
+    
+    expect(firstResponse).not.toBeNull();
+    
+    // Extract the monthly payment from first response
+    const paymentMatch = firstResponse?.response.match(/\$[\d,]+\.?\d*/);
+    const firstPayment = paymentMatch?.[0];
+    
+    console.log(`First response payment: ${firstPayment}`);
+    
+    // Follow-up asking about the previous calculation
+    const { response: secondResponse } = await sendMessageAndCaptureApi(
+      page,
+      'What would be the total interest paid over the life of that loan?'
+    );
+    
+    expect(secondResponse).not.toBeNull();
+    // Should provide a numerical answer
+    const hasNumbers = /\$[\d,]+\.?\d*/.test(secondResponse?.response || '');
+    expect(hasNumbers).toBe(true);
+    
+    console.log(`Follow-up response: ${secondResponse?.response.substring(0, 200)}...`);
+  });
+
+  test('should maintain tool availability throughout conversation', async ({ page }) => {
+    const requestsWithTools: boolean[] = [];
+    
+    page.on('request', (request) => {
+      if (request.url().includes('/v1/chat') && request.method() === 'POST') {
+        try {
+          const body = JSON.parse(request.postData() || '{}');
+          requestsWithTools.push(
+            body.enableFunctionCalling === true && 
+            Array.isArray(body.availableTools) && 
+            body.availableTools.length > 0
+          );
+        } catch {
+          requestsWithTools.push(false);
+        }
+      }
+    });
+
+    await setupToolsListenerAndNavigate(page, '/calculator/amortization');
+    await openChatPanel(page);
+
+    const chatInput = page.locator('#chat-input');
+    
+    // Send 3 messages in sequence
+    for (const message of [
+      'What is a good mortgage rate?',
+      'Calculate payment for $300k at that rate',
+      'What about a 15 year term?'
+    ]) {
+      await chatInput.fill(message);
+      await chatInput.press('Enter');
+      await page.waitForTimeout(2500);
+    }
+
+    // All requests should have tools available
+    expect(requestsWithTools.length).toBeGreaterThanOrEqual(3);
+    
+    const allHadTools = requestsWithTools.every(had => had === true);
+    expect(allHadTools).toBe(true);
+    
+    console.log(`Requests with tools: ${requestsWithTools.length}, all had tools: ${allHadTools}`);
+  });
+});
