@@ -24,6 +24,7 @@ export interface RentVsBuyInput {
   interestRate: number;
   loanTermYears: number;
   propertyTaxRate: number;
+  propertyTaxIncreaseRate: number; // Annual property tax increase (separate from appreciation)
   homeInsurance: number;
   hoaFees: number;
   maintenanceRate: number;
@@ -33,9 +34,13 @@ export interface RentVsBuyInput {
   monthlyRent: number;
   rentIncreaseRate: number;
   rentersInsurance: number;
+  securityDepositMonths: number; // Security deposit (1-2 months rent)
   yearsToAnalyze: number;
   marginalTaxRate: number;
   investmentReturnRate: number;
+  inflationRate: number;
+  filingStatus: 'single' | 'married' | 'head';
+  otherItemizedDeductions: number;
 }
 
 export interface ScenarioResult {
@@ -49,6 +54,13 @@ export interface ScenarioResult {
     taxBenefits: number;
     opportunityCost: number;
     appreciation: number;
+    shouldItemize?: boolean;
+    potentialItemized?: number;
+    standardDeduction?: number;
+    pmiCost?: number; // Total PMI paid
+    capitalGains?: number; // Capital gains on home sale
+    capitalGainsTax?: number; // Tax on capital gains (after exclusion)
+    securityDeposit?: number; // Security deposit opportunity cost (renting)
   };
   yearByYear: Array<{
     year: number;
@@ -78,7 +90,44 @@ export interface RentVsBuyResult {
 // CALCULATIONS
 // ============================================================================
 
-function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
+/**
+ * Calculate PMI (Private Mortgage Insurance) details
+ */
+function calculatePMI(principal: number, downPayment: number, homePrice: number): {
+  hasPMI: boolean;
+  pmiMonthly: number;
+  pmiRate: number;
+} {
+  const downPaymentPercent = (downPayment / homePrice) * 100;
+  
+  // No PMI if down payment >= 20%
+  if (downPaymentPercent >= 20) {
+    return { hasPMI: false, pmiMonthly: 0, pmiRate: 0 };
+  }
+  
+  // Calculate PMI rate based on down payment amount
+  let pmiRate = 0.01; // 1% annual default
+  if (downPaymentPercent >= 15) {
+    pmiRate = 0.005; // 0.5% for 15-19.99% down
+  } else if (downPaymentPercent >= 10) {
+    pmiRate = 0.0075; // 0.75% for 10-14.99% down
+  } else if (downPaymentPercent >= 5) {
+    pmiRate = 0.01; // 1% for 5-9.99% down
+  } else {
+    pmiRate = 0.012; // 1.2% for <5% down (FHA territory)
+  }
+  
+  const pmiAnnual = principal * pmiRate;
+  const pmiMonthly = pmiAnnual / 12;
+  
+  return {
+    hasPMI: true,
+    pmiMonthly,
+    pmiRate,
+  };
+}
+
+function calculateBuyingScenario(input: RentVsBuyInput, rentScenarioMonthlyPayment?: number): ScenarioResult {
   const principal = input.homePrice - input.downPayment;
   const monthlyRate = input.interestRate / 100 / 12;
   const termMonths = input.loanTermYears * 12;
@@ -88,13 +137,23 @@ function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
   const monthlyMortgage = (principal * (monthlyRate * Math.pow(1 + monthlyRate, termMonths))) /
     (Math.pow(1 + monthlyRate, termMonths) - 1);
   
-  // Property tax and insurance (monthly)
-  const monthlyPropertyTax = (input.homePrice * (input.propertyTaxRate / 100)) / 12;
+  // PMI calculation (for down payment < 20%)
+  const pmiInfo = calculatePMI(principal, input.downPayment, input.homePrice);
+  
+  // Initial property tax and insurance (monthly) - these may increase over time
+  const initialMonthlyPropertyTax = (input.homePrice * (input.propertyTaxRate / 100)) / 12;
   const monthlyInsurance = input.homeInsurance;
   const monthlyHOA = input.hoaFees;
   const monthlyMaintenance = (input.homePrice * (input.maintenanceRate / 100)) / 12;
   
-  const totalMonthlyPayment = monthlyMortgage + monthlyPropertyTax + monthlyInsurance + monthlyHOA + monthlyMaintenance;
+  // Property tax increase rate (separate from appreciation)
+  const propertyTaxIncreaseRate = (input.propertyTaxIncreaseRate || 0) / 100;
+  
+  // Initial monthly payment (for display purposes, without PMI since it may drop)
+  const initialTotalMonthlyPayment = monthlyMortgage + initialMonthlyPropertyTax + monthlyInsurance + monthlyHOA + monthlyMaintenance + pmiInfo.pmiMonthly;
+  
+  // Investment returns rate for monthly savings (when buying is cheaper than renting)
+  const monthlyInvestmentReturn = input.investmentReturnRate / 100 / 12;
   
   // Track year-by-year
   const yearByYear: ScenarioResult['yearByYear'] = [];
@@ -102,11 +161,24 @@ function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
   let totalHousingCosts = input.downPayment + (input.homePrice * (input.closingCostRate / 100)); // Include closing costs
   let totalInterestPaid = 0;
   let totalPropertyTaxPaid = 0;
+  let totalPMIPaid = 0;
+  
+  // Track invested savings when buying is cheaper than renting
+  let investmentBalance = 0;
+  let currentRentPayment = input.monthlyRent + input.rentersInsurance;
+  
+  // Current home value for equity tracking (grows with appreciation)
+  let currentHomeValue = input.homePrice;
   
   for (let year = 1; year <= input.yearsToAnalyze; year++) {
     let yearHousingCost = 0;
     let yearInterest = 0;
     let yearPropertyTax = 0;
+    let yearPMI = 0;
+    
+    // Property tax for this year (increases annually)
+    const yearlyPropertyTaxRate = initialMonthlyPropertyTax * 12 * Math.pow(1 + propertyTaxIncreaseRate, year - 1);
+    const currentMonthlyPropertyTax = yearlyPropertyTaxRate / 12;
     
     for (let month = 1; month <= 12 && ((year - 1) * 12 + month) <= analysisMonths; month++) {
       const monthNum = (year - 1) * 12 + month;
@@ -119,20 +191,44 @@ function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
         yearInterest += interestPayment;
       }
       
-      yearPropertyTax += monthlyPropertyTax;
-      yearHousingCost += totalMonthlyPayment;
+      // Calculate current LTV to determine if PMI still applies
+      // PMI drops when equity reaches 20% (LTV <= 80%)
+      const equityBuilt = input.downPayment + (principal - remainingPrincipal);
+      const ltv = (currentHomeValue - equityBuilt) / currentHomeValue;
+      const pmiThisMonth = ltv > 0.80 ? pmiInfo.pmiMonthly : 0;
+      yearPMI += pmiThisMonth;
+      
+      yearPropertyTax += currentMonthlyPropertyTax;
+      const totalMonthlyPaymentThisMonth = monthlyMortgage + currentMonthlyPropertyTax + monthlyInsurance + monthlyHOA + monthlyMaintenance + pmiThisMonth;
+      yearHousingCost += totalMonthlyPaymentThisMonth;
+      
+      // Calculate what rent would cost at this point (rent increases annually)
+      // and invest the difference if buying is cheaper
+      const effectiveRentPayment = rentScenarioMonthlyPayment !== undefined 
+        ? currentRentPayment 
+        : (input.monthlyRent + input.rentersInsurance);
+      
+      const monthlySavings = Math.max(0, effectiveRentPayment - totalMonthlyPaymentThisMonth);
+      investmentBalance = investmentBalance * (1 + monthlyInvestmentReturn) + monthlySavings;
     }
     
     totalHousingCosts += yearHousingCost;
     totalInterestPaid += yearInterest;
     totalPropertyTaxPaid += yearPropertyTax;
+    totalPMIPaid += yearPMI;
     
-    const equityBuilt = principal - remainingPrincipal;
+    // Increase the rent comparison for next year (rent rises annually)
+    currentRentPayment = currentRentPayment * (1 + (input.rentIncreaseRate / 100));
+    
+    // Update home value for next year (appreciation)
+    currentHomeValue = currentHomeValue * (1 + (input.appreciationRate / 100));
+    
+    const currentEquityBuilt = principal - remainingPrincipal;
     
     yearByYear.push({
       year,
       housingCost: yearHousingCost,
-      equity: equityBuilt,
+      equity: currentEquityBuilt,
       cumulativeCost: totalHousingCosts,
     });
   }
@@ -143,42 +239,92 @@ function calculateBuyingScenario(input: RentVsBuyInput): ScenarioResult {
   // Equity = home value - remaining loan + down payment (already paid)
   const homeEquity = futureHomeValue - remainingPrincipal;
   
+  // Calculate capital gains and exclusion
+  const capitalGains = Math.max(0, futureHomeValue - input.homePrice);
+  // Primary residence exclusion: $250K for single, $500K for married (requires 2+ years ownership)
+  const capitalGainsExclusion = input.yearsToAnalyze >= 2 
+    ? (input.filingStatus === 'married' ? 500000 : 250000)
+    : 0;
+  const taxableGains = Math.max(0, capitalGains - capitalGainsExclusion);
+  // Long-term capital gains rate (simplified: 15% for most filers)
+  const capitalGainsTax = taxableGains * 0.15;
+  
   // Selling costs
   const sellingCosts = futureHomeValue * (input.sellingCostRate / 100);
-  const netProceeds = homeEquity - sellingCosts;
+  const netProceeds = homeEquity - sellingCosts - capitalGainsTax;
   
-  // Tax benefits (mortgage interest + property tax deduction)
+  // Calculate tax benefits considering standard deduction and SALT cap
+  // 2024 standard deductions (approximate, should be updated annually)
+  const standardDeductions: Record<string, number> = {
+    single: 14600,
+    married: 29200,
+    head: 21900,
+  };
+  const standardDeduction = standardDeductions[input.filingStatus] || 14600;
+  
   const taxRate = input.marginalTaxRate / 100;
-  const taxBenefits = (totalInterestPaid + totalPropertyTaxPaid) * taxRate;
   
-  // Net position = net proceeds from sale - total costs paid + tax benefits
-  const netPosition = netProceeds - input.downPayment + taxBenefits;
+  // Average annual itemized deductions from mortgage interest + property taxes + other
+  const avgAnnualInterest = totalInterestPaid / input.yearsToAnalyze;
+  const avgAnnualPropertyTax = totalPropertyTaxPaid / input.yearsToAnalyze;
+  
+  // SALT cap: $10,000 limit on state and local tax deductions (property taxes + state income taxes)
+  // This applies to the property tax portion plus any state taxes included in otherItemizedDeductions
+  const SALT_CAP = 10000;
+  const saltDeduction = Math.min(avgAnnualPropertyTax, SALT_CAP);
+  
+  // Mortgage interest is NOT subject to SALT cap (it's a separate deduction)
+  const potentialItemized = avgAnnualInterest + saltDeduction + Math.max(0, input.otherItemizedDeductions - Math.max(0, avgAnnualPropertyTax - SALT_CAP));
+  
+  // Only get benefit for amount exceeding standard deduction
+  const excessItemized = Math.max(0, potentialItemized - standardDeduction);
+  const annualTaxBenefit = excessItemized * taxRate;
+  const taxBenefits = annualTaxBenefit * input.yearsToAnalyze;
+  
+  // Track whether itemizing makes sense
+  const shouldItemize = potentialItemized > standardDeduction;
+  
+  // Net position = net proceeds from sale - total costs paid + tax benefits + investment balance
+  const netPosition = netProceeds - input.downPayment + taxBenefits + investmentBalance;
   
   return {
     name: 'Buying',
     totalCost: totalHousingCosts,
-    monthlyPayment: totalMonthlyPayment,
+    monthlyPayment: initialTotalMonthlyPayment,
     equity: homeEquity,
     netPosition,
     breakdown: {
       housingCosts: totalHousingCosts,
       taxBenefits,
-      opportunityCost: 0, // Calculated separately
+      opportunityCost: investmentBalance, // Now tracks invested savings
       appreciation: futureHomeValue - input.homePrice,
+      shouldItemize,
+      potentialItemized,
+      standardDeduction,
+      pmiCost: totalPMIPaid,
+      capitalGains,
+      capitalGainsTax,
     },
     yearByYear,
   };
 }
 
-function calculateRentingScenario(input: RentVsBuyInput): ScenarioResult {
+function calculateRentingScenario(input: RentVsBuyInput, buyingScenarioMonthlyPayment: number): ScenarioResult {
   const yearByYear: ScenarioResult['yearByYear'] = [];
   let monthlyRent = input.monthlyRent;
   let totalHousingCosts = 0;
   
-  // Calculate opportunity cost: invest down payment + monthly difference
+  // Security deposit (tied-up capital that can't be invested)
+  const securityDepositMonths = input.securityDepositMonths || 1;
+  const securityDeposit = input.monthlyRent * securityDepositMonths;
+  
+  // Calculate opportunity cost: invest down payment + closing costs - security deposit
   const downPayment = input.downPayment;
   const closingCosts = input.homePrice * (input.closingCostRate / 100);
-  const upfrontCapital = downPayment + closingCosts;
+  const upfrontCapital = downPayment + closingCosts - securityDeposit; // Renter also pays security deposit
+  
+  // Add security deposit to housing costs (will get it back, but can't invest it)
+  totalHousingCosts += securityDeposit;
   
   // Investment returns on saved capital
   const monthlyInvestmentReturn = input.investmentReturnRate / 100 / 12;
@@ -188,11 +334,12 @@ function calculateRentingScenario(input: RentVsBuyInput): ScenarioResult {
     let yearHousingCost = 0;
     
     for (let month = 1; month <= 12; month++) {
-      yearHousingCost += monthlyRent + input.rentersInsurance;
+      const currentRentTotal = monthlyRent + input.rentersInsurance;
+      yearHousingCost += currentRentTotal;
       
       // Invest any savings (if rent is cheaper than buying)
-      const buyingMonthlyPayment = calculateBuyingScenario(input).monthlyPayment;
-      const monthlySavings = Math.max(0, buyingMonthlyPayment - (monthlyRent + input.rentersInsurance));
+      // Use the pre-calculated buying monthly payment to avoid recalculating
+      const monthlySavings = Math.max(0, buyingScenarioMonthlyPayment - currentRentTotal);
       
       investmentBalance = investmentBalance * (1 + monthlyInvestmentReturn) + monthlySavings;
     }
@@ -210,25 +357,36 @@ function calculateRentingScenario(input: RentVsBuyInput): ScenarioResult {
     });
   }
   
+  // Add security deposit back (returned at end of lease)
+  const finalInvestmentBalance = investmentBalance + securityDeposit;
+  
+  // Calculate opportunity cost of security deposit (what it could have earned)
+  const securityDepositOpportunityCost = securityDeposit * Math.pow(1 + input.investmentReturnRate / 100, input.yearsToAnalyze) - securityDeposit;
+  
   return {
     name: 'Renting',
-    totalCost: totalHousingCosts,
+    totalCost: totalHousingCosts - securityDeposit, // Don't count security deposit as cost (it's returned)
     monthlyPayment: input.monthlyRent + input.rentersInsurance,
-    equity: investmentBalance,
-    netPosition: investmentBalance - totalHousingCosts,
+    equity: finalInvestmentBalance,
+    netPosition: finalInvestmentBalance - (totalHousingCosts - securityDeposit),
     breakdown: {
-      housingCosts: totalHousingCosts,
+      housingCosts: totalHousingCosts - securityDeposit,
       taxBenefits: 0,
-      opportunityCost: investmentBalance,
+      opportunityCost: finalInvestmentBalance,
       appreciation: 0,
+      securityDeposit: securityDepositOpportunityCost, // Lost investment opportunity
     },
     yearByYear,
   };
 }
 
 function compareRentVsBuy(input: RentVsBuyInput): RentVsBuyResult {
-  const buy = calculateBuyingScenario(input);
-  const rent = calculateRentingScenario(input);
+  // First calculate buying scenario to get monthly payment for renting comparison
+  const initialRentPayment = input.monthlyRent + input.rentersInsurance;
+  const buy = calculateBuyingScenario(input, initialRentPayment);
+  
+  // Then calculate renting scenario with buying's monthly payment for savings comparison
+  const rent = calculateRentingScenario(input, buy.monthlyPayment);
   
   const difference = buy.netPosition - rent.netPosition;
   
@@ -288,6 +446,12 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     return;
   }
 
+  // Calculate inflation-adjusted (real) values
+  const inflationFactor = Math.pow(1 + (input.inflationRate / 100), input.yearsToAnalyze);
+  const buyRealNetPosition = result.buy.netPosition / inflationFactor;
+  const rentRealNetPosition = result.rent.netPosition / inflationFactor;
+  const realDifference = buyRealNetPosition - rentRealNetPosition;
+
   // Summary cards
   summaryCards.innerHTML = `
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
@@ -335,9 +499,15 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
               <span class="font-semibold">${formatCurrency(result.buy.monthlyPayment)}</span>
             </div>
+            ${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? `
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Total PMI Paid</span>
+              <span class="font-semibold text-orange-600 dark:text-orange-400">${formatCurrency(result.buy.breakdown.pmiCost)}</span>
+            </div>
+            ` : ''}
             <div class="flex justify-between">
               <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.buy.totalCost)}</span>
@@ -347,9 +517,19 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.equity)}</span>
             </div>
             <div class="flex justify-between">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Invested Savings</span>
+              <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.breakdown.opportunityCost)}</span>
+            </div>
+            <div class="flex justify-between">
               <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
               <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.breakdown.taxBenefits)}</span>
             </div>
+            ${result.buy.breakdown.capitalGainsTax && result.buy.breakdown.capitalGainsTax > 0 ? `
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Capital Gains Tax</span>
+              <span class="font-semibold text-red-600 dark:text-red-400">-${formatCurrency(result.buy.breakdown.capitalGainsTax)}</span>
+            </div>
+            ` : ''}
             <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
               <span class="text-sm font-semibold text-gray-900 dark:text-white">Net Position</span>
               <span class="font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.netPosition)}</span>
@@ -375,6 +555,12 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               <span class="text-sm text-gray-600 dark:text-gray-400">Investments</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.rent.equity)}</span>
             </div>
+            ${result.rent.breakdown.securityDeposit && result.rent.breakdown.securityDeposit > 0 ? `
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600 dark:text-gray-400">Security Deposit Opp. Cost</span>
+              <span class="font-semibold text-orange-600 dark:text-orange-400">-${formatCurrency(result.rent.breakdown.securityDeposit)}</span>
+            </div>
+            ` : ''}
             <div class="flex justify-between">
               <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
               <span class="font-semibold">$0</span>
@@ -396,26 +582,39 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Financial Factors</h4>
+          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Buying Advantages</h4>
           <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li>✓ Home appreciation: ${formatCurrency(result.buy.breakdown.appreciation)}</li>
-            <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}</li>
+            <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}${!result.buy.breakdown.shouldItemize ? ' ⚠️' : ''}</li>
             <li>✓ Equity built: ${formatCurrency(result.buy.equity)}</li>
+            <li>✓ Invested savings: ${formatCurrency(result.buy.breakdown.opportunityCost)}</li>
             ${result.comparison.breakEvenYear ? `<li>✓ Break-even in year ${result.comparison.breakEvenYear}</li>` : '<li>⚠️ No break-even in analysis period</li>'}
           </ul>
         </div>
         
         <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Lifestyle Factors</h4>
+          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Renting Advantages</h4>
           <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-            <li><strong>Flexibility:</strong> Renting = easy to move</li>
-            <li><strong>Stability:</strong> Buying = predictable costs</li>
-            <li><strong>Maintenance:</strong> Renting = landlord handles</li>
-            <li><strong>Customization:</strong> Buying = full control</li>
+            <li>✓ Invested capital: ${formatCurrency(result.rent.equity)}</li>
+            <li>✓ Flexibility: Easy to move</li>
+            <li>✓ No maintenance costs</li>
+            <li>✓ No closing/selling costs</li>
           </ul>
         </div>
       </div>
     </div>
+    
+    ${!result.buy.breakdown.shouldItemize ? `
+    <!-- Standard Deduction Alert -->
+    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 mb-6 border-l-4 border-orange-500">
+      <h4 class="font-semibold text-orange-900 dark:text-orange-100 mb-2">⚠️ Standard Deduction Alert</h4>
+      <p class="text-sm text-orange-800 dark:text-orange-200">
+        Your itemized deductions (${formatCurrency(result.buy.breakdown.potentialItemized || 0)}) don't exceed the standard deduction 
+        (${formatCurrency(result.buy.breakdown.standardDeduction || 0)}). The tax benefit shown above only accounts for amounts 
+        <strong>above</strong> the standard deduction. Many homeowners don't get the full mortgage interest deduction benefit.
+      </p>
+    </div>
+    ` : ''}
     
     <!-- Important Notes -->
     <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border-l-4 border-yellow-500">
@@ -423,10 +622,83 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <ul class="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
         <li>• Assumes ${input.appreciationRate}% annual home appreciation (historical avg: 3-4%)</li>
         <li>• Assumes ${input.investmentReturnRate}% annual investment returns (historical avg: 7-10%)</li>
+        ${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? `<li>• PMI included until 20% equity is reached (total: ${formatCurrency(result.buy.breakdown.pmiCost)})</li>` : ''}
+        <li>• Property tax deduction limited by $10,000 SALT cap (IRS rule)</li>
+        ${input.yearsToAnalyze >= 2 ? `<li>• Capital gains exclusion: $${input.filingStatus === 'married' ? '500,000' : '250,000'} for primary residence (2+ year ownership)</li>` : '<li>• No capital gains exclusion: requires 2+ years ownership</li>'}
         <li>• Does not include moving costs, furniture, or one-time expenses</li>
-        <li>• Tax benefits assume itemized deductions exceed standard deduction</li>
+        <li>• Tax benefits calculated vs standard deduction (${formatCurrency(result.buy.breakdown.standardDeduction || 0)})</li>
         <li>• Results depend heavily on local market conditions</li>
       </ul>
+    </div>
+    
+    <!-- Inflation-Adjusted Values -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span>📉</span> Inflation-Adjusted Values (${input.inflationRate}% annual)
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Real Net Position (Buy)</h5>
+          <p class="text-xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(buyRealNetPosition)}</p>
+          <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">in today's dollars</p>
+        </div>
+        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Real Net Position (Rent)</h5>
+          <p class="text-xl font-bold text-green-600 dark:text-green-400">${formatCurrency(rentRealNetPosition)}</p>
+          <p class="text-xs text-green-700 dark:text-green-300 mt-1">in today's dollars</p>
+        </div>
+        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Real Difference</h5>
+          <p class="text-xl font-bold ${realDifference > 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(realDifference))}</p>
+          <p class="text-xs ${realDifference > 0 ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Year-by-Year Comparison Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span>📅</span> Year-by-Year Comparison
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+              <th class="text-left py-3 px-2 font-semibold text-gray-900 dark:text-white">Year</th>
+              <th class="text-right py-3 px-2 font-semibold text-blue-600 dark:text-blue-400">Buy Cost</th>
+              <th class="text-right py-3 px-2 font-semibold text-blue-600 dark:text-blue-400">Buy Equity</th>
+              <th class="text-right py-3 px-2 font-semibold text-green-600 dark:text-green-400">Rent Cost</th>
+              <th class="text-right py-3 px-2 font-semibold text-green-600 dark:text-green-400">Investments</th>
+              <th class="text-right py-3 px-2 font-semibold text-purple-600 dark:text-purple-400">Net Advantage</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${result.buy.yearByYear.map((buyYear, index) => {
+              const rentYear = result.rent.yearByYear[index];
+              const buyNetAtYear = buyYear.equity - buyYear.cumulativeCost;
+              const rentNetAtYear = (rentYear?.equity || 0) - (rentYear?.cumulativeCost || 0);
+              const advantage = buyNetAtYear - rentNetAtYear;
+              return `
+                <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/20">
+                  <td class="py-2 px-2 text-gray-900 dark:text-white font-medium">${buyYear.year}</td>
+                  <td class="py-2 px-2 text-right text-blue-600 dark:text-blue-400">${formatCurrency(buyYear.cumulativeCost)}</td>
+                  <td class="py-2 px-2 text-right text-blue-600 dark:text-blue-400">${formatCurrency(buyYear.equity)}</td>
+                  <td class="py-2 px-2 text-right text-green-600 dark:text-green-400">${formatCurrency(rentYear?.cumulativeCost || 0)}</td>
+                  <td class="py-2 px-2 text-right text-green-600 dark:text-green-400">${formatCurrency(rentYear?.equity || 0)}</td>
+                  <td class="py-2 px-2 text-right font-semibold ${advantage > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}">
+                    ${advantage > 0 ? '🏠' : '🏢'} ${formatCurrency(Math.abs(advantage))}
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+        Net Advantage shows whether buying (🏠) or renting (🏢) is ahead at each year point.
+      </p>
     </div>
   `;
   
@@ -445,6 +717,7 @@ function parseFormInput(form: HTMLFormElement): RentVsBuyInput {
     interestRate: coerceNumber(formData.get('interestRate'), 0),
     loanTermYears: coerceNumber(formData.get('loanTermYears'), 30),
     propertyTaxRate: coerceNumber(formData.get('propertyTaxRate'), 1.2),
+    propertyTaxIncreaseRate: coerceNumber(formData.get('propertyTaxIncreaseRate'), 2),
     homeInsurance: coerceNumber(formData.get('homeInsurance'), 100),
     hoaFees: coerceNumber(formData.get('hoaFees'), 0),
     maintenanceRate: coerceNumber(formData.get('maintenanceRate'), 1),
@@ -454,9 +727,13 @@ function parseFormInput(form: HTMLFormElement): RentVsBuyInput {
     monthlyRent: coerceNumber(formData.get('monthlyRent'), 0),
     rentIncreaseRate: coerceNumber(formData.get('rentIncreaseRate'), 3),
     rentersInsurance: coerceNumber(formData.get('rentersInsurance'), 20),
+    securityDepositMonths: coerceNumber(formData.get('securityDepositMonths'), 1),
     yearsToAnalyze: coerceNumber(formData.get('yearsToAnalyze'), 5),
     marginalTaxRate: coerceNumber(formData.get('marginalTaxRate'), 22),
     investmentReturnRate: coerceNumber(formData.get('investmentReturnRate'), 7),
+    inflationRate: coerceNumber(formData.get('inflationRate'), 2.5),
+    filingStatus: (formData.get('filingStatus') as 'single' | 'married' | 'head') || 'single',
+    otherItemizedDeductions: coerceNumber(formData.get('otherItemizedDeductions'), 0),
   };
 }
 
@@ -472,6 +749,90 @@ function validateInput(input: RentVsBuyInput): void {
 // INITIALIZATION
 // ============================================================================
 
+/**
+ * Initialize the Basic/Advanced mode toggle
+ */
+function initializeModeToggle(): void {
+  const toggle = document.getElementById('mode-toggle') as HTMLButtonElement | null;
+  const basicLabel = document.getElementById('mode-label-basic');
+  const advancedLabel = document.getElementById('mode-label-advanced');
+  const advancedFields = document.querySelectorAll('[data-advanced="true"]');
+  
+  if (!toggle || advancedFields.length === 0) {
+    return; // No toggle or no advanced fields
+  }
+  
+  // Load saved preference from localStorage
+  const savedMode = localStorage.getItem('rentVsBuy-mode') || 'basic';
+  let isAdvancedMode = savedMode === 'advanced';
+  
+  function updateToggleUI(): void {
+    if (!toggle || !basicLabel || !advancedLabel) return;
+    
+    // Update toggle switch appearance
+    const toggleKnob = toggle.querySelector('span');
+    if (toggleKnob) {
+      if (isAdvancedMode) {
+        toggle.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+        toggle.classList.add('bg-purple-600');
+        toggleKnob.classList.remove('translate-x-0');
+        toggleKnob.classList.add('translate-x-5');
+      } else {
+        toggle.classList.remove('bg-purple-600');
+        toggle.classList.add('bg-gray-300', 'dark:bg-gray-600');
+        toggleKnob.classList.remove('translate-x-5');
+        toggleKnob.classList.add('translate-x-0');
+      }
+    }
+    
+    // Update label colors
+    if (isAdvancedMode) {
+      basicLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
+      basicLabel.classList.add('text-gray-400', 'dark:text-gray-500');
+      advancedLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
+      advancedLabel.classList.add('text-purple-600', 'dark:text-purple-400');
+    } else {
+      basicLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
+      basicLabel.classList.add('text-purple-600', 'dark:text-purple-400');
+      advancedLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
+      advancedLabel.classList.add('text-gray-400', 'dark:text-gray-500');
+    }
+    
+    // Update ARIA
+    toggle.setAttribute('aria-checked', String(isAdvancedMode));
+  }
+  
+  function updateFieldVisibility(): void {
+    advancedFields.forEach(field => {
+      if (isAdvancedMode) {
+        field.classList.remove('hidden');
+      } else {
+        field.classList.add('hidden');
+      }
+    });
+  }
+  
+  // Set initial state
+  updateToggleUI();
+  updateFieldVisibility();
+  
+  // Handle toggle click
+  toggle.addEventListener('click', () => {
+    isAdvancedMode = !isAdvancedMode;
+    localStorage.setItem('rentVsBuy-mode', isAdvancedMode ? 'advanced' : 'basic');
+    updateToggleUI();
+    updateFieldVisibility();
+    
+    // Track analytics
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'calculator_mode_changed', {
+        calculator: 'rent-vs-buy',
+        mode: isAdvancedMode ? 'advanced' : 'basic',
+      });
+    }
+  });
+}
+
 function initializeRentVsBuy(): void {
   const form = document.getElementById('calculator-form') as HTMLFormElement;
   const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement;
@@ -481,6 +842,9 @@ function initializeRentVsBuy(): void {
     console.error('Form not found');
     return;
   }
+
+  // Initialize Basic/Advanced mode toggle
+  initializeModeToggle();
 
   // Form submission
   form.addEventListener('submit', async (e) => {

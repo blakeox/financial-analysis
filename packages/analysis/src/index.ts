@@ -187,3 +187,15 @@ export type { BusinessValuationInput, BusinessValuationResult, ValuationMethod }
 
 // Revenue forecast schemas and types
 export type { RevenueForecastInput, RevenueForecastResult, RevenueStream, MonthlyForecast } from './engines/revenue-forecast.js';
+
+// Rent vs Buy schemas and types
+export { RentVsBuyCalculator } from './engines/rent-vs-buy.js';
+export { RentVsBuyInputSchema, FilingStatusSchema } from './schemas/rent-vs-buy.js';
+export type { RentVsBuyInput, FilingStatus } from './schemas/rent-vs-buy.js';
+export type {
+  RentVsBuyResult,
+  ScenarioResult as RentVsBuyScenarioResult,
+  ScenarioBreakdown as RentVsBuyBreakdown,
+  YearByYearData as RentVsBuyYearData,
+  ComparisonSummary as RentVsBuyComparison,
+} from './types/rent-vs-buy-result.js';

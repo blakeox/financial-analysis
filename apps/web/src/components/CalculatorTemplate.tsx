@@ -48,6 +48,7 @@ export interface FormFieldConfig {
   options?: Array<{ value: string; label: string }>;
   group?: string;
   helpText?: string;
+  advancedOnly?: boolean; // If true, field is hidden in Basic mode
 }
 
 // Predefined calculator configurations - only including calculators with existing client scripts
@@ -1355,6 +1356,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Loan Term',
         required: true,
         options: [
+          { value: '10', label: '10 years' },
           { value: '15', label: '15 years' },
           { value: '20', label: '20 years' },
           { value: '30', label: '30 years' },
@@ -1372,6 +1374,19 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         placeholder: '1.2',
         group: '💰 Ownership Costs',
         helpText: 'Annual property tax as % of home value',
+      },
+      {
+        id: 'propertyTaxIncreaseRate',
+        name: 'propertyTaxIncreaseRate',
+        type: 'number',
+        label: 'Property Tax Annual Increase (%)',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        placeholder: '2',
+        group: '💰 Ownership Costs',
+        helpText: 'Annual increase separate from appreciation',
+        advancedOnly: true,
       },
       {
         id: 'homeInsurance',
@@ -1438,6 +1453,21 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         group: '🏢 Rental Details',
       },
       {
+        id: 'securityDepositMonths',
+        name: 'securityDepositMonths',
+        type: 'select',
+        label: 'Security Deposit',
+        options: [
+          { value: '0', label: 'None' },
+          { value: '1', label: '1 month' },
+          { value: '2', label: '2 months' },
+          { value: '3', label: '3 months' },
+        ],
+        group: '🏢 Rental Details',
+        helpText: 'Months of rent held as deposit',
+        advancedOnly: true,
+      },
+      {
         id: 'yearsToAnalyze',
         name: 'yearsToAnalyze',
         type: 'select',
@@ -1449,6 +1479,9 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
           { value: '7', label: '7 years' },
           { value: '10', label: '10 years' },
           { value: '15', label: '15 years' },
+          { value: '20', label: '20 years' },
+          { value: '25', label: '25 years' },
+          { value: '30', label: '30 years' },
         ],
         group: '📊 Analysis Settings',
         helpText: 'How long do you plan to stay?',
@@ -1478,6 +1511,19 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         helpText: 'Return on invested down payment savings',
       },
       {
+        id: 'inflationRate',
+        name: 'inflationRate',
+        type: 'number',
+        label: 'Inflation Rate (%)',
+        min: 0,
+        max: 15,
+        step: 0.1,
+        placeholder: '2.5',
+        group: '📊 Analysis Settings',
+        helpText: 'For real vs nominal value comparison',
+        advancedOnly: true,
+      },
+      {
         id: 'marginalTaxRate',
         name: 'marginalTaxRate',
         type: 'number',
@@ -1488,6 +1534,34 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         placeholder: '22',
         group: '📊 Analysis Settings',
         helpText: 'For mortgage interest deduction',
+      },
+      {
+        id: 'filingStatus',
+        name: 'filingStatus',
+        type: 'select',
+        label: 'Tax Filing Status',
+        required: false,
+        options: [
+          { value: 'single', label: 'Single' },
+          { value: 'married', label: 'Married Filing Jointly' },
+          { value: 'head', label: 'Head of Household' },
+        ],
+        group: '📊 Analysis Settings',
+        helpText: 'For standard deduction comparison',
+        advancedOnly: true,
+      },
+      {
+        id: 'otherItemizedDeductions',
+        name: 'otherItemizedDeductions',
+        type: 'number',
+        label: 'Other Itemized Deductions ($)',
+        min: 0,
+        max: 100000,
+        step: 100,
+        placeholder: '0',
+        group: '📊 Analysis Settings',
+        helpText: 'State/local taxes, charity, etc.',
+        advancedOnly: true,
       },
       {
         id: 'closingCostRate',
@@ -2228,6 +2302,9 @@ export function getRandomCalculator(): CalculatorConfig {
 
 // Enhanced form generation with validation
 export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): string {
+  // Check if any fields are marked as advancedOnly (to show toggle)
+  const hasAdvancedFields = fields.some(f => f.advancedOnly);
+  
   const groupedFields = fields.reduce(
     (groups, field) => {
       const group = field.group || 'default';
@@ -2239,6 +2316,25 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   );
 
   let html = '<form id="calculator-form" class="space-y-6" novalidate>';
+
+  // Add Basic/Advanced toggle if there are advanced fields
+  if (hasAdvancedFields) {
+    html += `
+    <div class="flex items-center justify-between p-4 mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+      <div>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Calculator Mode</span>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Advanced mode includes PMI, tax details, inflation & more</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="mode-label-basic" class="text-sm font-medium text-purple-600 dark:text-purple-400">Basic</span>
+        <button type="button" id="mode-toggle" role="switch" aria-checked="false" aria-label="Toggle advanced mode"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-300 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+        </button>
+        <span id="mode-label-advanced" class="text-sm font-medium text-gray-400 dark:text-gray-500">Advanced</span>
+      </div>
+    </div>`;
+  }
 
   Object.entries(groupedFields).forEach(([groupName, groupFields], _index) => {
     if (groupName !== 'default') {
@@ -2315,8 +2411,12 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
       break;
   }
 
+  // Add data-advanced attribute for fields that should be hidden in Basic mode
+  const advancedAttr = field.advancedOnly ? 'data-advanced="true"' : '';
+  const hiddenClass = field.advancedOnly ? ' hidden' : '';
+
   return `
-    <div class="form-field field-container" data-field-id="${field.id}">
+    <div class="form-field field-container${hiddenClass}" data-field-id="${field.id}" ${advancedAttr}>
       <label for="${field.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         ${field.label}
         ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}

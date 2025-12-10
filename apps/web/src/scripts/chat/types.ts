@@ -35,6 +35,17 @@ export type ChatRequestPayload = {
     modelStates?: string;
   };
   negative_constraints?: string[];
+  /** Enable function calling for LLM tool execution */
+  enableFunctionCalling?: boolean;
+};
+
+export type FunctionCallingResults = {
+  toolsExecuted: Array<{
+    toolName: string;
+    arguments: Record<string, unknown>;
+    result: unknown;
+  }>;
+  modelChanges?: ModelChanges;
 };
 
 export type ChatResponsePayload = {
@@ -47,4 +58,6 @@ export type ChatResponsePayload = {
   thinking?: string[];
   metadata?: ChatMetadata;
   tooling?: ToolingMetadata;
+  /** Results from LLM function calling tool executions */
+  functionCallingResults?: FunctionCallingResults;
 };

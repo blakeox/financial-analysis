@@ -22,6 +22,7 @@ import { MAAnalysisTool } from '../tools/ma-analysis.js';
 import { MultiModelScenarioTool } from '../tools/multi-model-scenario.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
+import { RentVsBuyTool } from '../tools/rent-vs-buy.js';
 import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
@@ -199,6 +200,12 @@ export function createMCPTools(): MCPTool[] {
       inputSchema: CCAAnalysisTool.inputSchema,
       execute: CCAAnalysisTool.execute.bind(CCAAnalysisTool),
     },
+    {
+      name: RentVsBuyTool.toolName,
+      description: RentVsBuyTool.description,
+      inputSchema: RentVsBuyTool.inputSchema,
+      execute: RentVsBuyTool.execute.bind(RentVsBuyTool),
+    },
     // AutoRAG Document Management Tools
     {
       name: CacheDocumentTool.toolName,
@@ -258,6 +265,7 @@ function getConciseDescription(toolName: string): string {
     analyze_ma_deal: 'Comprehensive M&A deal analysis including synergies, accretion/dilution, and integration planning',
     analyze_dcf_valuation: 'DCF valuation with WACC, cash flow projections, terminal value, and sensitivity analysis',
     analyze_cca_valuation: 'Comparable company analysis with trading multiples and peer group valuation',
+    analyze_rent_vs_buy: 'Compare renting vs buying a home including appreciation, PMI, taxes, and opportunity costs',
     cache_document: 'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
     search_documents: 'Search cached documents using semantic similarity',
     get_document: 'Get a specific cached document by URL (cache or live fetch)',

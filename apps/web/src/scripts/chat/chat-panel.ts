@@ -948,6 +948,10 @@ class ChatPanel {
       chatMemory.updateModelState(modelType, currentModel);
     }
 
+    // Enable function calling when MCP tools are available
+    // This allows the LLM to execute tools and generate natural language responses
+    const hasTools = (this.mcpTools?.length ?? 0) > 0;
+
     const payload: ChatRequestPayload = {
       message,
       context: contextKey,
@@ -959,6 +963,7 @@ class ChatPanel {
         modelStates: chatMemory.getModelStateSummary(),
       },
       negative_constraints: NEGATIVE_CONSTRAINTS,
+      enableFunctionCalling: hasTools,
     };
 
     if (import.meta.env.DEV) {
@@ -969,6 +974,7 @@ class ChatPanel {
         toolCount: this.mcpTools?.length ?? 0,
         hasToolOutputs: Boolean(this.mcpToolOutputs),
         hasMemoryContext: Boolean(payload.memoryContext),
+        enableFunctionCalling: hasTools,
       });
     }
 

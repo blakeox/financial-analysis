@@ -147,6 +147,7 @@ function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
     'analyze_ma_deal': ['m&a', 'merger', 'acquisition', 'deal'],
     'analyze_dcf_valuation': ['dcf', 'valuation', 'discount', 'cash flow'],
     'analyze_cca_valuation': ['comparable', 'cca', 'multiples', 'valuation'],
+    'analyze_rent_vs_buy': ['rent', 'buy', 'renting', 'buying', 'home purchase', 'housing decision', 'apartment', 'homeowner'],
     'cache_document': ['document', 'cache', 'store'],
     'search_documents': ['search', 'document', 'find'],
     'get_document': ['get', 'retrieve', 'document'],

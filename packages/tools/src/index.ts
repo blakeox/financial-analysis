@@ -24,6 +24,7 @@ export { DCFAnalysisTool } from './tools/dcf-analysis';
 export { CCAAnalysisTool } from './tools/cca-analysis';
 export { PopulateLeaseFormTool } from './tools/populate-lease-form';
 export { AutoLoanTool } from './tools/auto-loan';
+export { RentVsBuyTool } from './tools/rent-vs-buy';
 export { 
   CacheDocumentTool, 
   SearchDocumentsTool, 

@@ -369,6 +369,7 @@ export function registerChatRoutes(router: RouterType) {
             modelStates?: string;
           };
           negative_constraints?: string[];
+          enableFunctionCalling?: boolean;
         };
         const {
           message,
@@ -380,6 +381,7 @@ export function registerChatRoutes(router: RouterType) {
           contextLabel = null,
           memoryContext = {},
           negative_constraints = [],
+          enableFunctionCalling = false,
         } = body;
         // Handle explicit null values (JS destructuring defaults don't apply to null)
         const toolOutputs = rawToolOutputs ?? {};
@@ -434,6 +436,7 @@ export function registerChatRoutes(router: RouterType) {
           contextLabel,
           requestId: requestContext.requestId,
           negative_constraints,
+          enableFunctionCalling,
         };
 
         const stream = orchestrator.stream(orchestratorRequest);

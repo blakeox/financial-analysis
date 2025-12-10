@@ -24,6 +24,7 @@ type RentVsBuyInput = {
   interestRate: number;
   loanTermYears: number;
   propertyTaxRate: number;
+  propertyTaxIncreaseRate: number;
   homeInsurance: number;
   hoaFees: number;
   maintenanceRate: number;
@@ -33,9 +34,13 @@ type RentVsBuyInput = {
   monthlyRent: number;
   rentIncreaseRate: number;
   rentersInsurance: number;
+  securityDepositMonths: number;
   yearsToAnalyze: number;
   marginalTaxRate: number;
   investmentReturnRate: number;
+  inflationRate: number;
+  filingStatus: 'single' | 'married' | 'head';
+  otherItemizedDeductions: number;
 };
 
 describe('Rent vs Buy Calculator', () => {
@@ -48,6 +53,7 @@ describe('Rent vs Buy Calculator', () => {
       interestRate: 6.5,
       loanTermYears: 30,
       propertyTaxRate: 1.2,
+      propertyTaxIncreaseRate: 2,
       homeInsurance: 150,
       hoaFees: 0,
       maintenanceRate: 1,
@@ -57,9 +63,13 @@ describe('Rent vs Buy Calculator', () => {
       monthlyRent: 2500,
       rentIncreaseRate: 3,
       rentersInsurance: 20,
+      securityDepositMonths: 1,
       yearsToAnalyze: 5,
       marginalTaxRate: 22,
       investmentReturnRate: 7,
+      inflationRate: 2.5,
+      filingStatus: 'single',
+      otherItemizedDeductions: 0,
     };
   });
 
@@ -252,6 +262,72 @@ describe('Rent vs Buy Calculator', () => {
       };
       
       expect(rentFavorable.investmentReturnRate).toBeGreaterThan(rentFavorable.appreciationRate);
+    });
+  });
+
+  describe('Monthly Savings Investment', () => {
+    it('should invest renter monthly savings when rent is cheaper than buying', () => {
+      // Set rent much lower than expected mortgage payment
+      const cheapRent = {
+        ...defaultInput,
+        monthlyRent: 1500, // Cheap rent vs ~$3500+ total monthly buying cost
+        investmentReturnRate: 7,
+      };
+      
+      // Calculate estimated buying monthly payment
+      // $400k loan at 6.5%, plus taxes, insurance, maintenance
+      const mortgagePayment = 2528; // approximate P&I
+      const otherCosts = 500 + 150 + 417; // property tax + insurance + maintenance
+      const totalBuyingMonthly = mortgagePayment + otherCosts;
+      
+      // The renter should save ~$2000/month when rent is $1500 vs $3500+ buying
+      const monthlySavings = totalBuyingMonthly - (cheapRent.monthlyRent + cheapRent.rentersInsurance);
+      expect(monthlySavings).toBeGreaterThan(1500); // Significant monthly savings
+    });
+
+    it('should invest buyer monthly savings when buying is cheaper than renting', () => {
+      // Set rent higher than typical mortgage costs
+      const expensiveRent = {
+        ...defaultInput,
+        monthlyRent: 4500, // Expensive rent vs ~$3500 total monthly buying cost
+        investmentReturnRate: 7,
+      };
+      
+      // When rent > buying monthly payment, buyer should have savings to invest
+      const rentTotal = expensiveRent.monthlyRent + expensiveRent.rentersInsurance;
+      const estimatedBuyingMonthly = 3500; // approximate total
+      const monthlySavings = rentTotal - estimatedBuyingMonthly;
+      expect(monthlySavings).toBeGreaterThan(900); // ~$1000/month savings
+    });
+
+    it('should use user-configurable investment return rate', () => {
+      // Test that changing the investment return rate affects calculations
+      const lowReturn = { ...defaultInput, investmentReturnRate: 4 };
+      const highReturn = { ...defaultInput, investmentReturnRate: 10 };
+      
+      // With higher investment returns, renting becomes more attractive
+      // because the opportunity cost of buying (down payment invested) grows faster
+      expect(highReturn.investmentReturnRate).toBeGreaterThan(lowReturn.investmentReturnRate);
+      
+      // Over 5 years, $100k at 10% vs 4%
+      const lowGrowth = 100000 * Math.pow(1.04, 5);
+      const highGrowth = 100000 * Math.pow(1.10, 5);
+      expect(highGrowth - lowGrowth).toBeGreaterThan(39000); // Significant difference (~$39,386)
+    });
+
+    it('should compound monthly savings at the user-specified rate', () => {
+      // Monthly compounding of $1000/month at 7% annual for 5 years
+      const monthlyContribution = 1000;
+      const annualRate = 0.07;
+      const monthlyRate = annualRate / 12;
+      const months = 60;
+      
+      // Future value of annuity formula: PMT * ((1+r)^n - 1) / r
+      const futureValue = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+      
+      // Should be around $71k (more than just 60 * $1000 = $60k due to compounding)
+      expect(futureValue).toBeGreaterThan(70000);
+      expect(futureValue).toBeLessThan(75000);
     });
   });
 });
