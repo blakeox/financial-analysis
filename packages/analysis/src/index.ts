@@ -1,33 +1,33 @@
 export { AmortizationAnalyzer } from './engines/amortization.js';
 export { BondPricingAnalyzer } from './engines/bond-pricing.js';
+export { BusinessValuationEngine } from './engines/business-valuation.js';
 export { CashFlowAnalyzer } from './engines/cash-flow.js';
+export { CCAValuationEngine } from './engines/cca-analysis.js';
+export { DCFValuationEngine } from './engines/dcf-analysis.js';
 export { EbitdaForecaster } from './engines/ebitda-forecasting.js';
 export { EnhancedLeaseAnalyzer } from './engines/enhanced-lease.js';
-export { LeaseAnalyzer } from './engines/lease.js';
-export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
-export { MAAnalysisEngine } from './engines/ma-analysis.js';
-export { DCFValuationEngine } from './engines/dcf-analysis.js';
-export { CCAValuationEngine } from './engines/cca-analysis.js';
 export { FinancialJourneyAnalysisEngine } from './engines/financial-journey.js';
 export { InsuranceNeedsCalculator } from './engines/insurance-needs.js';
-export { UnitEconomicsEngine } from './engines/unit-economics.js';
-export { BusinessValuationEngine } from './engines/business-valuation.js';
+export { LeaseAnalyzer } from './engines/lease.js';
+export { MAAnalysisEngine } from './engines/ma-analysis.js';
+export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
 export { RevenueForecastEngine } from './engines/revenue-forecast.js';
+export { UnitEconomicsEngine } from './engines/unit-economics.js';
 
 // Export amortization functions and types
 export {
-  computeAmortizationInsights,
   buildAmortizationComprehensiveAnalysis,
+  computeAmortizationInsights,
 } from './engines/amortization.js';
 export type {
   AmortizationAnalysisResult,
-  AmortizationInsights,
-  AmortizationResultItem,
   AmortizationComprehensiveAnalysis,
   AmortizationComprehensiveSummary,
+  AmortizationInsights,
   AmortizationNarrativeInsight,
   AmortizationNarrativeRecommendation,
   AmortizationOptimizationOpportunity,
+  AmortizationResultItem,
   AmortizationRiskFactor,
 } from './engines/amortization.js';
 
@@ -35,7 +35,11 @@ export type {
 export { z } from 'zod';
 
 // Export schemas and types for API usage
-export { AmortizationInputSchema, FinancialInputSchema, validateFinancialInput } from './schemas.js';
+export {
+  AmortizationInputSchema,
+  FinancialInputSchema,
+  validateFinancialInput,
+} from './schemas.js';
 export type { AmortizationInput, FinancialInput } from './schemas.js';
 
 // Enhanced lease schemas and types
@@ -163,39 +167,86 @@ export type { FinancialJourneyInput, FinancialJourneyResult } from './engines/fi
 export { InsuranceNeedsInputSchema } from './engines/insurance-needs.js';
 export type { InsuranceNeedsInput, InsuranceNeedsResult } from './engines/insurance-needs.js';
 
-// College savings schemas and types (stub)
-export { CollegeSavingsPlanner } from './engines/college-savings-stub.js';
+// College savings schemas and types
+export { CollegeSavingsPlanner } from './engines/college-savings.js';
 export { CollegeSavingsInputSchema } from './schemas/college-savings.js';
+export type { CollegeSavingsInput } from './schemas/college-savings.js';
 
-// Home buying schemas and types (stub - need to check)
-export { HomeBuyingAffordabilityCalculator } from './engines/home-buying-affordability-stub.js';
+// Home buying schemas and types
+export { HomeBuyingAffordabilityCalculator } from './engines/home-buying-affordability.js';
 export { HomeBuyingAffordabilityInputSchema } from './schemas/home-buying-affordability.js';
+export type { HomeBuyingAffordabilityInput } from './schemas/home-buying-affordability.js';
 
-// Investment portfolio schemas and types (stub - need to check)
-export { InvestmentPortfolioAnalyzer } from './engines/investment-portfolio-stub.js';
+// Investment portfolio schemas and types
+export { InvestmentPortfolioAnalyzer } from './engines/investment-portfolio.js';
 export { InvestmentPortfolioInputSchema } from './schemas/investment-portfolio.js';
+export type { InvestmentPortfolioInput } from './schemas/investment-portfolio.js';
 
-// Tax optimization schemas and types (stub - need to check)
-export { TaxOptimizationPlanner } from './engines/tax-optimization-stub.js';
+// Retirement planning schemas and types
+export { RetirementPlanningEngine } from './engines/retirement-planning.js';
+export { RetirementPlanningInputSchema } from './schemas/retirement-planning.js';
+export type { RetirementPlanningInput } from './schemas/retirement-planning.js';
+
+// Tax optimization schemas and types
+export { TaxOptimizationPlanner } from './engines/tax-optimization.js';
 export { TaxOptimizationInputSchema } from './schemas/tax-optimization.js';
+export type { TaxOptimizationInput } from './schemas/tax-optimization.js';
+
+// Business expansion loan schemas and types
+export { BusinessExpansionLoanJourney } from './engines/business-expansion-loan.js';
+export { BusinessExpansionLoanInputSchema } from './schemas/business-expansion-loan.js';
+export type { BusinessExpansionLoanInput } from './schemas/business-expansion-loan.js';
+
+// Business financial health schemas and types
+export { BusinessFinancialHealthAnalyzer } from './engines/business-financial-health.js';
+export { BusinessFinancialHealthInputSchema } from './schemas/business-financial-health.js';
+export type { BusinessFinancialHealthInput } from './schemas/business-financial-health.js';
+
+// Debt capacity schemas and types
+export { DebtCapacityCalculator } from './engines/debt-capacity.js';
+export { DebtCapacityInputSchema } from './schemas/debt-capacity.js';
+export type { DebtCapacityInput } from './schemas/debt-capacity.js';
+
+// DSCR schemas and types
+export { DSCRCalculator } from './engines/dscr.js';
+export { DSCRInputSchema } from './schemas/dscr.js';
+export type { DSCRInput } from './schemas/dscr.js';
+
+// Business loan scenarios schemas and types
+export { BusinessLoanScenariosAnalyzer } from './engines/business-loan-scenarios.js';
+export { BusinessLoanScenariosInputSchema } from './schemas/business-loan-scenarios.js';
+export type { BusinessLoanScenariosInput } from './schemas/business-loan-scenarios.js';
 
 // Unit economics schemas and types
-export type { UnitEconomicsInput, UnitEconomicsResult, CohortAnalysis } from './engines/unit-economics.js';
+export type {
+  CohortAnalysis,
+  UnitEconomicsInput,
+  UnitEconomicsResult,
+} from './engines/unit-economics.js';
 
 // Business valuation schemas and types
-export type { BusinessValuationInput, BusinessValuationResult, ValuationMethod } from './engines/business-valuation.js';
+export type {
+  BusinessValuationInput,
+  BusinessValuationResult,
+  ValuationMethod,
+} from './engines/business-valuation.js';
 
 // Revenue forecast schemas and types
-export type { RevenueForecastInput, RevenueForecastResult, RevenueStream, MonthlyForecast } from './engines/revenue-forecast.js';
+export type {
+  MonthlyForecast,
+  RevenueForecastInput,
+  RevenueForecastResult,
+  RevenueStream,
+} from './engines/revenue-forecast.js';
 
 // Rent vs Buy schemas and types
 export { RentVsBuyCalculator } from './engines/rent-vs-buy.js';
-export { RentVsBuyInputSchema, FilingStatusSchema } from './schemas/rent-vs-buy.js';
-export type { RentVsBuyInput, FilingStatus } from './schemas/rent-vs-buy.js';
+export { FilingStatusSchema, RentVsBuyInputSchema } from './schemas/rent-vs-buy.js';
+export type { FilingStatus, RentVsBuyInput } from './schemas/rent-vs-buy.js';
 export type {
+  ScenarioBreakdown as RentVsBuyBreakdown,
+  ComparisonSummary as RentVsBuyComparison,
   RentVsBuyResult,
   ScenarioResult as RentVsBuyScenarioResult,
-  ScenarioBreakdown as RentVsBuyBreakdown,
   YearByYearData as RentVsBuyYearData,
-  ComparisonSummary as RentVsBuyComparison,
 } from './types/rent-vs-buy-result.js';

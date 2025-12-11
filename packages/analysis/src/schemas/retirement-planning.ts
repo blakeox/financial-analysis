@@ -8,13 +8,15 @@ export const RetirementPlanningInputSchema = z.object({
     maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
     dependents: z.number().min(0).max(20),
   }),
-  currentAccounts: z.array(z.object({
-    type: z.enum(['401k', 'ira', 'roth-ira', 'pension', 'savings']),
-    balance: z.number().min(0),
-    annualContribution: z.number().min(0),
-    employerMatch: z.number().min(0).optional(),
-    expectedReturn: z.number().min(0).max(0.2),
-  })),
+  currentAccounts: z.array(
+    z.object({
+      type: z.enum(['401k', 'ira', 'roth-ira', 'pension', 'savings']),
+      balance: z.number().min(0),
+      annualContribution: z.number().min(0),
+      employerMatch: z.number().min(0).optional(),
+      expectedReturn: z.number().min(0).max(0.2),
+    })
+  ),
   income: z.object({
     currentAnnual: z.number().min(0),
     expectedGrowthRate: z.number().min(0).max(0.1),
@@ -31,3 +33,5 @@ export const RetirementPlanningInputSchema = z.object({
     taxStrategy: z.enum(['traditional-first', 'roth-first', 'balanced']),
   }),
 });
+
+export type RetirementPlanningInput = z.infer<typeof RetirementPlanningInputSchema>;

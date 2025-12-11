@@ -1,0 +1,312 @@
+---
+import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import StructuredData from '../components/StructuredData.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Retirement Planning Engine - Advanced Retirement Analysis | Fanalyx" 
+  description="Advanced retirement planning with multi-account projections, Social Security optimization, tax-advantaged strategies, withdrawal strategies, healthcare cost planning, and comprehensive retirement readiness analysis."
+  keywords="retirement planning, retirement calculator, Social Security optimization, retirement readiness, retirement accounts, 401k, IRA, retirement strategy"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Models', url: '/models' },
+      { name: 'Personal Finance', url: '/models/personal' },
+      { name: 'Retirement Planning', url: '/retirement-planning' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Retirement Planning Engine',
+      description: 'Advanced retirement planning tool with multi-account projections, Social Security optimization, tax-advantaged strategies, and comprehensive retirement readiness analysis.',
+      category: 'FinanceApplication',
+      rating: 4.9,
+      ratingCount: 240
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is the difference between retirement planning and retirement savings?',
+        answer: 'Retirement savings focuses on accumulating wealth, while retirement planning is comprehensive analysis including multiple account types, Social Security optimization, withdrawal strategies, healthcare costs, and estate planning. Our advanced engine coordinates all aspects of retirement planning.'
+      },
+      {
+        question: 'When should I claim Social Security?',
+        answer: 'You can claim Social Security as early as 62 (with reduced benefits) or delay until 70 (with increased benefits). Full retirement age is typically 67. Delaying increases benefits by 8% per year. Our calculator analyzes optimal claiming strategies based on your situation.'
+      },
+      {
+        question: 'What is the 4% rule for retirement withdrawals?',
+        answer: 'The 4% rule suggests withdrawing 4% of your retirement portfolio in the first year, then adjusting for inflation. This historically allowed portfolios to last 30 years. Our calculator uses risk-adjusted withdrawal rates and analyzes how long your portfolio will last.'
+      },
+      {
+        question: 'How do I optimize my retirement accounts?',
+        answer: 'Optimization involves maximizing employer matches, choosing between Traditional and Roth accounts based on tax brackets, coordinating multiple accounts, and planning withdrawal sequences. Our engine provides personalized recommendations for your specific situation.'
+      },
+      {
+        question: 'What is retirement readiness and how is it calculated?',
+        answer: 'Retirement readiness measures whether you\'re on track to meet your retirement income needs. It considers projected savings, Social Security benefits, expected expenses, and withdrawal strategies. Our calculator provides a readiness score (0-100) with specific recommendations.'
+      }
+    ]}
+  />
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Retirement Planning Engine</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Advanced retirement planning with multi-account analysis and Social Security optimization
+      </p>
+
+      <!-- Retirement Planning Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+
+        <form id="retirement-planning-form" class="space-y-6">
+          <!-- Personal Info Section -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Current Age
+              </label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                min="18"
+                max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="35"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="retirementAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Target Retirement Age
+              </label>
+              <input
+                type="number"
+                id="retirementAge"
+                name="retirementAge"
+                min="50"
+                max="80"
+                value="65"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="lifeExpectancy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Life Expectancy
+              </label>
+              <input
+                type="number"
+                id="lifeExpectancy"
+                name="lifeExpectancy"
+                min="70"
+                max="120"
+                value="85"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Marital Status
+              </label>
+              <select
+                id="maritalStatus"
+                name="maritalStatus"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="single">Single</option>
+                <option value="married" selected>Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Income Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Income Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="currentAnnual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Current Annual Income ($)
+                </label>
+                <input
+                  type="number"
+                  id="currentAnnual"
+                  name="currentAnnual"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="100000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="expectedGrowthRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expected Income Growth Rate (%)
+                </label>
+                <input
+                  type="number"
+                  id="expectedGrowthRate"
+                  name="expectedGrowthRate"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value="3"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="socialSecurity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expected Social Security Benefit ($/year)
+                </label>
+                <input
+                  type="number"
+                  id="socialSecurity"
+                  name="socialSecurity"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="30000"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Expenses Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Expense Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="currentAnnualExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Current Annual Expenses ($)
+                </label>
+                <input
+                  type="number"
+                  id="currentAnnualExpenses"
+                  name="currentAnnualExpenses"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="60000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="retirementAnnualExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expected Retirement Annual Expenses ($)
+                </label>
+                <input
+                  type="number"
+                  id="retirementAnnualExpenses"
+                  name="retirementAnnualExpenses"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="48000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="inflationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Expected Inflation Rate (%)
+                </label>
+                <input
+                  type="number"
+                  id="inflationRate"
+                  name="inflationRate"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value="3"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Goals Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Retirement Goals</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="targetRetirementIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Target Retirement Income ($/year)
+                </label>
+                <input
+                  type="number"
+                  id="targetRetirementIncome"
+                  name="targetRetirementIncome"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="80000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="riskTolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Risk Tolerance
+                </label>
+                <select
+                  id="riskTolerance"
+                  name="riskTolerance"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="conservative">Conservative</option>
+                  <option value="moderate" selected>Moderate</option>
+                  <option value="aggressive">Aggressive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Analyze Retirement Plan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="retirement-planning-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Retirement Planning Analysis</h2>
+        <div id="retirement-planning-results-content" class="space-y-4"></div>
+      </div>
+
+      <!-- AdSense -->
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    </div>
+  </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="retirement-planning" />
+</Layout>

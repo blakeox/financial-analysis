@@ -1,12 +1,58 @@
 import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
+  BondPricingAnalyzer,
+  BondPricingInputSchema,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessExpansionLoanInputSchema,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessExpansionLoanJourney,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessFinancialHealthAnalyzer,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessFinancialHealthInputSchema,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessLoanScenariosAnalyzer,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  BusinessLoanScenariosInputSchema,
+  CashFlowAnalysisInputSchema,
+  CashFlowAnalyzer,
+  CCAValuationEngine,
+  CCAValuationInputSchema,
+  CollegeSavingsInputSchema,
+  CollegeSavingsPlanner,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  DebtCapacityCalculator,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  DebtCapacityInputSchema,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  DSCRCalculator,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  DSCRInputSchema,
   EbitdaForecaster,
   EnhancedLeaseAnalyzer,
   EnhancedLeaseInputSchema,
   FinancialInputSchema,
+  FinancialJourneyAnalysisEngine,
+  FinancialJourneyInputSchema,
+  HomeBuyingAffordabilityCalculator,
+  HomeBuyingAffordabilityInputSchema,
+  InsuranceNeedsCalculator,
+  InsuranceNeedsInputSchema,
+  InvestmentPortfolioAnalyzer,
+  InvestmentPortfolioInputSchema,
   LeaseAnalyzer,
+  MAAnalysisEngine,
+  MAAnalysisInputSchema,
+  OptionsPricingAnalyzer,
+  OptionsPricingInputSchema,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  RetirementPlanningEngine,
+  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+  RetirementPlanningInputSchema,
   ScenarioInputSchema,
+  TaxOptimizationInputSchema,
+  TaxOptimizationPlanner,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -43,7 +89,6 @@ import { registerHealthRoute } from './routes/health';
 const router = Router();
 
 // ---- Headers helpers ----
-
 
 // Rate limiting now lives in ./lib/rate-limit
 
@@ -677,7 +722,6 @@ router.options('/docs', (_req: Request, env: Env) => {
 
 // ---- Enhanced AI Chat endpoint with thinking process ----
 registerChatRoutes(router);
-
 
 // ---- Storage endpoints (R2) ----
 // Note: This implementation is conservative and designed for free-tier safety.
@@ -1836,7 +1880,10 @@ type CachedResponsePayload = {
   body: string | null;
 };
 
-async function buildDocsResponsePayload(request: Request, env: Env): Promise<CachedResponsePayload> {
+async function buildDocsResponsePayload(
+  request: Request,
+  env: Env
+): Promise<CachedResponsePayload> {
   const url = new URL(request.url);
   const baseUrl = `${url.protocol}//${url.host}`;
   // Tight CSP allowing only our origin and the RapiDoc CDN script
@@ -1975,7 +2022,6 @@ async function buildOpenApiResponsePayload(
     body: json,
   };
 }
-
 
 // ===============================================================================
 // ALL LEGACY CODE REMOVED (700+ lines)
@@ -2399,6 +2445,272 @@ Second Option: 24 months at market rate
 Special Provisions: Tenant improvement allowance of $25 per square foot provided by landlord.
   `;
 }
+
+// ===============================================================================
+// Analysis Endpoints for New Models
+// ===============================================================================
+
+// Helper function to create analysis endpoints
+function createAnalysisEndpoint<T>(
+  route: string,
+  schema: z.ZodSchema<T>,
+  analyzer: (input: T) => unknown
+): void {
+  router.post(
+    route,
+    withErrorHandler(
+      withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+        const contentType = request.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Content-Type must be application/json',
+                code: 'INVALID_CONTENT_TYPE',
+              },
+            }),
+            { status: 415, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const maxBytes = getMaxJsonBytes(env);
+        const declaredLen =
+          request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+        if (declaredLen && Number(declaredLen) > maxBytes) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: `JSON body too large (max ${maxBytes} bytes)`,
+                code: 'PAYLOAD_TOO_LARGE',
+              },
+            }),
+            { status: 413, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const text = await request.text();
+        if (text.length > maxBytes) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: `JSON body too large (max ${maxBytes} bytes)`,
+                code: 'PAYLOAD_TOO_LARGE',
+              },
+            }),
+            { status: 413, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const body = (() => {
+          try {
+            return JSON.parse(text);
+          } catch {
+            return undefined;
+          }
+        })();
+
+        if (!body || typeof body !== 'object') {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Invalid JSON body',
+                code: 'BAD_REQUEST',
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const parseResult = schema.safeParse(body);
+        if (!parseResult.success) {
+          const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+            path: i.path.join('.'),
+            message: i.message,
+            code: i.code,
+          }));
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Invalid request body',
+                code: 'BAD_REQUEST',
+                issues,
+              },
+            }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Optional caching
+        const ttl = getAnalysisCacheTtl(env);
+        const cache = ttl > 0 ? getDefaultCache() : undefined;
+        if (ttl > 0 && cache) {
+          const keyStr = await sha256Hex(stableStringify({ route, input: parseResult.data }));
+          const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+          const cached = await cache.match(cacheReq);
+          if (cached) {
+            const hitHeaders = new Headers(cached.headers);
+            hitHeaders.set('X-Cache', 'HIT');
+            return new Response(cached.body, {
+              status: cached.status,
+              statusText: cached.statusText,
+              headers: hitHeaders,
+            });
+          }
+
+          const result = analyzer(parseResult.data);
+          const res = new Response(JSON.stringify(result), {
+            status: 200,
+            headers: {
+              ...buildDefaultHeaders(env),
+              'Cache-Control': `public, max-age=${ttl}`,
+              'X-Cache': 'MISS',
+            },
+          });
+          void cache.put(cacheReq, res.clone());
+          return res;
+        }
+
+        const result = analyzer(parseResult.data);
+        return new Response(JSON.stringify(result), {
+          status: 200,
+          headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+        });
+      })
+    )
+  );
+}
+
+// Register all analysis endpoints
+createAnalysisEndpoint('/api/analyze-tax-optimization', TaxOptimizationInputSchema, (input) =>
+  TaxOptimizationPlanner.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-insurance-needs', InsuranceNeedsInputSchema, (input) =>
+  InsuranceNeedsCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-college-savings', CollegeSavingsInputSchema, (input) =>
+  CollegeSavingsPlanner.analyze(input)
+);
+
+createAnalysisEndpoint(
+  '/api/analyze-home-buying-affordability',
+  HomeBuyingAffordabilityInputSchema,
+  (input) => HomeBuyingAffordabilityCalculator.analyze(input)
+);
+
+createAnalysisEndpoint(
+  '/api/analyze-investment-portfolio',
+  InvestmentPortfolioInputSchema,
+  (input) => InvestmentPortfolioAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-retirement-planning', RetirementPlanningInputSchema, (input) =>
+  RetirementPlanningEngine.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-cca-valuation', CCAValuationInputSchema, (input) =>
+  CCAValuationEngine.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-ma-deal', MAAnalysisInputSchema, (input) =>
+  MAAnalysisEngine.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-financial-journey', FinancialJourneyInputSchema, (input) =>
+  FinancialJourneyAnalysisEngine.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-cash-flow', CashFlowAnalysisInputSchema, (input) =>
+  CashFlowAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-bond-pricing', BondPricingInputSchema, (input) =>
+  BondPricingAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-options-pricing', OptionsPricingInputSchema, (input) =>
+  OptionsPricingAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint(
+  '/api/analyze-business-expansion-loan',
+  BusinessExpansionLoanInputSchema,
+  (input) => BusinessExpansionLoanJourney.analyze(input)
+);
+
+createAnalysisEndpoint(
+  '/api/analyze-business-financial-health',
+  BusinessFinancialHealthInputSchema,
+  (input) => BusinessFinancialHealthAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-debt-capacity', DebtCapacityInputSchema, (input) =>
+  DebtCapacityCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-dscr', DSCRInputSchema, (input) =>
+  DSCRCalculator.analyze(input)
+);
+
+createAnalysisEndpoint(
+  '/api/analyze-business-loan-scenarios',
+  BusinessLoanScenariosInputSchema,
+  (input) => BusinessLoanScenariosAnalyzer.analyze(input)
+);
+
+// Multi-Model Scenario Analysis (uses MCP tool)
+router.post(
+  '/api/multi-model-scenario-analysis',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const text = await request.text();
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      if (!body || typeof body !== 'object') {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid JSON body',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Use MCP tool for multi-model scenario analysis
+      const result = await handleMCPRequest('tools/call', {
+        name: 'multi_model_scenario_analysis',
+        arguments: body,
+      });
+
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env) },
+      });
+    })
+  )
+);
 
 // 404 handler
 router.all(

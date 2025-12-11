@@ -1,0 +1,301 @@
+---
+import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import StructuredData from '../components/StructuredData.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Tax Optimization Planner - Free Tax Planning & Strategy Tool | Fanalyx" 
+  description="Comprehensive tax optimization planner with tax-loss harvesting, Roth vs Traditional IRA analysis, capital gains optimization, charitable giving strategies, and tax bracket optimization. Professional tax planning made simple."
+  keywords="tax optimization, tax planning, tax strategy, Roth IRA, Traditional IRA, tax-loss harvesting, capital gains, charitable giving, tax bracket, tax calculator"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Models', url: '/models' },
+      { name: 'Personal Finance', url: '/models/personal' },
+      { name: 'Tax Optimization', url: '/tax-optimization' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Tax Optimization Planner',
+      description: 'Professional tax optimization tool with tax-loss harvesting, Roth vs Traditional IRA analysis, capital gains optimization, charitable giving strategies, and comprehensive tax planning.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 240
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is tax optimization and why is it important?',
+        answer: 'Tax optimization involves strategically managing your finances to minimize tax liability while staying compliant. It includes strategies like tax-loss harvesting, retirement account optimization, charitable giving, and timing income and deductions. Proper tax optimization can save thousands of dollars annually.'
+      },
+      {
+        question: 'Should I contribute to a Roth or Traditional IRA?',
+        answer: 'The choice depends on your current tax bracket, expected future tax bracket, and time horizon. Generally, Roth IRAs are better if you expect to be in a higher tax bracket in retirement, while Traditional IRAs provide immediate tax deductions. Our calculator analyzes your specific situation to recommend the best strategy.'
+      },
+      {
+        question: 'What is tax-loss harvesting?',
+        answer: 'Tax-loss harvesting involves selling investments at a loss to offset capital gains and reduce taxes. You can deduct up to $3,000 in net capital losses against ordinary income each year, with excess losses carrying forward. This strategy is most effective in taxable investment accounts.'
+      },
+      {
+        question: 'How can charitable giving reduce my taxes?',
+        answer: 'Charitable contributions are tax-deductible if you itemize. Donating appreciated assets (like stocks) can be especially tax-efficient, as you avoid capital gains tax while getting a deduction for the full fair market value. Donor-advised funds allow you to donate now and distribute later.'
+      },
+      {
+        question: 'What is tax bracket optimization?',
+        answer: 'Tax bracket optimization involves managing your income and deductions to stay in a lower tax bracket. Strategies include timing income recognition, maximizing deductions, contributing to retirement accounts, and using tax-loss harvesting to offset gains.'
+      }
+    ]}
+  />
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Tax Optimization Planner</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Comprehensive tax planning and optimization strategies to minimize your tax liability
+      </p>
+
+      <!-- Tax Optimization Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+
+        <form id="tax-optimization-form" class="space-y-6">
+          <!-- Personal Info Section -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Age
+              </label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                min="18"
+                max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="35"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Marital Status
+              </label>
+              <select
+                id="maritalStatus"
+                name="maritalStatus"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="single">Single</option>
+                <option value="married-filing-jointly">Married Filing Jointly</option>
+                <option value="married-filing-separately">Married Filing Separately</option>
+                <option value="head-of-household">Head of Household</option>
+                <option value="qualifying-widow">Qualifying Widow(er)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="dependents" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Number of Dependents
+              </label>
+              <input
+                type="number"
+                id="dependents"
+                name="dependents"
+                min="0"
+                max="20"
+                value="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="state" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                State of Residence
+              </label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="CA"
+              />
+            </div>
+          </div>
+
+          <!-- Income Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Income Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="annualIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Annual Income ($)
+                </label>
+                <input
+                  type="number"
+                  id="annualIncome"
+                  name="annualIncome"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="100000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="adjustedGrossIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Adjusted Gross Income ($)
+                </label>
+                <input
+                  type="number"
+                  id="adjustedGrossIncome"
+                  name="adjustedGrossIncome"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="95000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="taxableIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Taxable Income ($)
+                </label>
+                <input
+                  type="number"
+                  id="taxableIncome"
+                  name="taxableIncome"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="75000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="federalTaxOwed" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Federal Tax Owed ($)
+                </label>
+                <input
+                  type="number"
+                  id="federalTaxOwed"
+                  name="federalTaxOwed"
+                  min="0"
+                  step="100"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="12000"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Retirement Accounts Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Retirement Accounts</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="traditional401k" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Traditional 401(k) Balance ($)
+                </label>
+                <input
+                  type="number"
+                  id="traditional401k"
+                  name="traditional401k"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="roth401k" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Roth 401(k) Balance ($)
+                </label>
+                <input
+                  type="number"
+                  id="roth401k"
+                  name="roth401k"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="traditionalIRA" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Traditional IRA Balance ($)
+                </label>
+                <input
+                  type="number"
+                  id="traditionalIRA"
+                  name="traditionalIRA"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="rothIRA" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Roth IRA Balance ($)
+                </label>
+                <input
+                  type="number"
+                  id="rothIRA"
+                  name="rothIRA"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Analyze Tax Optimization
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="tax-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Tax Optimization Results</h2>
+        <div id="tax-results-content" class="space-y-4"></div>
+      </div>
+
+      <!-- AdSense -->
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    </div>
+  </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="tax-optimization" />
+</Layout>

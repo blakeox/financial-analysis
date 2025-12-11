@@ -154,6 +154,75 @@ export function getJourneyData(): JourneyData {
         'Create final acquisition recommendation',
       ],
     },
+    'business-expansion-loan': {
+      name: 'Business Expansion Loan Journey',
+      description:
+        'Comprehensive journey for businesses considering expansion loans including financial health assessment, debt capacity analysis, cash flow projections, DSCR analysis, and risk assessment',
+      ageRange: 'Business',
+      complexity: 'Intermediate',
+      duration: '2-3 hours',
+      icon: '📈',
+      color: 'orange',
+      models: [
+        {
+          id: 'financial-health-assessment',
+          name: 'Financial Health Assessment',
+          description: 'Assess current business financial health and readiness for expansion',
+          url: '/calculator/business-financial-health',
+          order: 1,
+          required: true,
+        },
+        {
+          id: 'debt-capacity-analysis',
+          name: 'Debt Capacity Analysis',
+          description: 'Calculate maximum safe loan amount based on DSCR and cash flow',
+          url: '/calculator/debt-capacity',
+          order: 2,
+          required: true,
+        },
+        {
+          id: 'dscr-analysis',
+          name: 'DSCR Analysis',
+          description: 'Calculate and analyze Debt Service Coverage Ratio',
+          url: '/calculator/dscr',
+          order: 3,
+          required: true,
+        },
+        {
+          id: 'cash-flow-projections',
+          name: 'Cash Flow Projections',
+          description: 'Project cash flow with loan payments over 24 months',
+          url: '/calculator/cash-flow',
+          order: 4,
+          required: true,
+        },
+        {
+          id: 'loan-scenario-analysis',
+          name: 'Loan Scenario Comparison',
+          description: 'Compare different loan terms, rates, and structures',
+          url: '/calculator/business-loan-scenarios',
+          order: 5,
+          required: true,
+        },
+        {
+          id: 'comprehensive-analysis',
+          name: 'Comprehensive Loan Analysis',
+          description: 'Complete expansion loan analysis with all factors',
+          url: '/business-expansion-loan',
+          order: 6,
+          required: false,
+        },
+      ],
+      workflow: [
+        'Assess current business financial health and readiness',
+        'Calculate debt capacity and maximum safe loan amount',
+        'Analyze Debt Service Coverage Ratio (DSCR)',
+        'Project cash flow with loan payments over 24 months',
+        'Compare different loan scenarios (terms, rates, structures)',
+        'Review comprehensive analysis and get final recommendations',
+        'Finalize expansion loan decision and application strategy',
+      ],
+    },
     'young-professional': {
       name: 'Young Professional Journey',
       description:
@@ -345,7 +414,8 @@ export function getJourneyData(): JourneyData {
         {
           id: 'lease-profile',
           name: 'Existing Lease Snapshot',
-          description: 'Capture current lease terms, mileage position, cash on hand, and decision goals',
+          description:
+            'Capture current lease terms, mileage position, cash on hand, and decision goals',
           url: '/journey/auto-lease-decision/step/lease-profile',
           order: 1,
           required: true,
@@ -353,7 +423,8 @@ export function getJourneyData(): JourneyData {
         {
           id: 'lease-vs-buyout',
           name: 'Buyout Math & Equity Check',
-          description: 'Compare finishing the lease vs buying out now or at lease-end with tax/fee impacts',
+          description:
+            'Compare finishing the lease vs buying out now or at lease-end with tax/fee impacts',
           url: '/journey/auto-lease-decision/step/lease-vs-buyout',
           order: 2,
           required: true,
@@ -361,7 +432,8 @@ export function getJourneyData(): JourneyData {
         {
           id: 'replacement-options',
           name: 'New Lease vs Finance vs Cash',
-          description: 'Enter new lease terms, financed new car terms, and optional cash purchase (skip if cash is tight)',
+          description:
+            'Enter new lease terms, financed new car terms, and optional cash purchase (skip if cash is tight)',
           url: '/journey/auto-lease-decision/step/replacement-options',
           order: 3,
           required: true,

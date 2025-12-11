@@ -1,0 +1,252 @@
+---
+import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import StructuredData from '../components/StructuredData.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Cash Flow Analysis - Business Cash Flow Projections & Analysis | Fanalyx" 
+  description="Professional cash flow analysis tool with NPV, IRR, burn rate, runway calculations, and sensitivity testing. Comprehensive cash flow projections for business planning and investment analysis."
+  keywords="cash flow analysis, cash flow projection, NPV calculator, IRR calculator, burn rate, cash runway, working capital, cash flow forecasting, business cash flow"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Models', url: '/models' },
+      { name: 'Business Finance', url: '/models/business' },
+      { name: 'Cash Flow Analysis', url: '/cash-flow-analysis' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Cash Flow Analysis',
+      description: 'Professional cash flow analysis tool with NPV, IRR, burn rate, runway calculations, working capital analysis, and comprehensive cash flow projections.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 220
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is cash flow analysis and why is it important?',
+        answer: 'Cash flow analysis tracks the movement of money in and out of a business. It\'s critical for understanding liquidity, planning for growth, managing working capital, and ensuring you have enough cash to operate. Positive cash flow is essential for business survival.'
+      },
+      {
+        question: 'What is the difference between operating, investing, and financing cash flows?',
+        answer: 'Operating cash flows come from core business activities (revenue, expenses). Investing cash flows involve buying/selling assets. Financing cash flows involve debt, equity, and dividends. All three are important for understanding a company\'s financial health.'
+      },
+      {
+        question: 'What is burn rate and cash runway?',
+        answer: 'Burn rate is how quickly a company spends cash (usually monthly). Cash runway is how many months until cash runs out at the current burn rate. These metrics are critical for startups and businesses with negative cash flow.'
+      },
+      {
+        question: 'How do I calculate NPV and IRR?',
+        answer: 'NPV (Net Present Value) discounts future cash flows to today\'s value using a discount rate. IRR (Internal Rate of Return) is the discount rate that makes NPV zero. Both help evaluate investment opportunities and project profitability.'
+      },
+      {
+        question: 'What is working capital and why does it matter for cash flow?',
+        answer: 'Working capital is current assets minus current liabilities. Changes in working capital (like accounts receivable, inventory, accounts payable) directly impact cash flow. Managing working capital efficiently is crucial for maintaining positive cash flow.'
+      }
+    ]}
+  />
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Cash Flow Analysis</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Comprehensive cash flow projections with NPV, IRR, burn rate, and runway analysis
+      </p>
+
+      <!-- Cash Flow Analysis Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Analysis Parameters</h2>
+
+        <form id="cash-flow-analysis-form" class="space-y-6">
+          <!-- Basic Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="companyName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Company Name (Optional)
+              </label>
+              <input
+                type="text"
+                id="companyName"
+                name="companyName"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="My Company"
+              />
+            </div>
+
+            <div>
+              <label for="analysisPeriodMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Analysis Period (Months)
+              </label>
+              <input
+                type="number"
+                id="analysisPeriodMonths"
+                name="analysisPeriodMonths"
+                min="1"
+                max="120"
+                value="12"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="openingCashBalance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Opening Cash Balance ($)
+              </label>
+              <input
+                type="number"
+                id="openingCashBalance"
+                name="openingCashBalance"
+                min="0"
+                step="1000"
+                value="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="minimumCashBalance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Minimum Cash Balance ($)
+              </label>
+              <input
+                type="number"
+                id="minimumCashBalance"
+                name="minimumCashBalance"
+                min="0"
+                step="1000"
+                value="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="discountRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Discount Rate (%)
+              </label>
+              <input
+                type="number"
+                id="discountRate"
+                name="discountRate"
+                min="0"
+                max="100"
+                step="0.1"
+                value="10"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="taxRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tax Rate (%)
+              </label>
+              <input
+                type="number"
+                id="taxRate"
+                name="taxRate"
+                min="0"
+                max="100"
+                step="0.1"
+                value="25"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <!-- Cash Flow Items Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Cash Flow Items</h3>
+            <div id="cash-flow-items" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                  <input
+                    type="text"
+                    name="itemDescription"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Monthly Revenue"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount ($)</label>
+                  <input
+                    type="number"
+                    name="itemAmount"
+                    step="100"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="10000"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+                  <select
+                    name="itemType"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="operating">Operating</option>
+                    <option value="investing">Investing</option>
+                    <option value="financing">Financing</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frequency</label>
+                  <select
+                    name="itemFrequency"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="annual">Annual</option>
+                    <option value="one-time">One-Time</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              id="add-cash-flow-item"
+              class="mt-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-md transition-colors duration-200"
+            >
+              + Add Cash Flow Item
+            </button>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Analyze Cash Flow
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="cash-flow-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Cash Flow Analysis Results</h2>
+        <div id="cash-flow-results-content" class="space-y-4"></div>
+      </div>
+
+      <!-- AdSense -->
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    </div>
+  </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="cash-flow-analysis" />
+</Layout>

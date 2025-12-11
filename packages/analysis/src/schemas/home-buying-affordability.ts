@@ -29,3 +29,5 @@ export const HomeBuyingAffordabilityInputSchema = z.object({
     priority: z.enum(['affordability', 'location', 'size', 'investment']),
   }),
 });
+
+export type HomeBuyingAffordabilityInput = z.infer<typeof HomeBuyingAffordabilityInputSchema>;

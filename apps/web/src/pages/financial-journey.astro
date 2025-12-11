@@ -1,0 +1,305 @@
+---
+import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import StructuredData from '../components/StructuredData.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Financial Journey Planner - Comprehensive Financial Planning Tool | Fanalyx" 
+  description="Multi-stage financial planning and analysis system with journey-based recommendations, cross-model integration, progress tracking, and personalized action plans for achieving financial goals."
+  keywords="financial journey, financial planning, financial goals, financial roadmap, personal finance planning, financial milestones, financial progress tracking"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <!-- Structured Data for SEO -->
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Models', url: '/models' },
+      { name: 'Personal Finance', url: '/models/personal' },
+      { name: 'Financial Journey', url: '/financial-journey' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Financial Journey Planner',
+      description: 'Comprehensive multi-stage financial planning system with journey-based recommendations, cross-model integration, progress tracking, and personalized action plans.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 180
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'What is a financial journey and how does it work?',
+        answer: 'A financial journey is a personalized roadmap that guides you through multiple stages of financial planning - from building an emergency fund to retirement planning. Our tool analyzes your current situation, sets milestones, and provides step-by-step recommendations to achieve your goals.'
+      },
+      {
+        question: 'How does the financial journey integrate with other models?',
+        answer: 'The financial journey connects all your financial models - budgeting, debt payoff, savings goals, retirement planning, and more. It coordinates strategies across models to ensure you\'re making progress on all fronts without conflicting priorities.'
+      },
+      {
+        question: 'What financial stages are included?',
+        answer: 'The journey includes stages like emergency fund building, debt elimination, savings goals, investment planning, retirement preparation, and wealth building. Each stage has specific milestones and recommendations tailored to your situation.'
+      },
+      {
+        question: 'How do I track my progress?',
+        answer: 'The tool tracks your progress through each stage, showing completion percentages, milestones achieved, and next steps. You can see how your financial health improves over time and adjust your plan as circumstances change.'
+      },
+      {
+        question: 'Can I customize my financial journey?',
+        answer: 'Yes! You can set custom goals, adjust priorities, and modify timelines. The tool adapts recommendations based on your risk tolerance, time horizon, and specific financial objectives.'
+      }
+    ]}
+  />
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Financial Journey Planner</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Comprehensive multi-stage financial planning with personalized recommendations and progress tracking
+      </p>
+
+      <!-- Financial Journey Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+
+        <form id="financial-journey-form" class="space-y-6">
+          <!-- Personal Info Section -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Age
+              </label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                min="18"
+                max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="35"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Marital Status
+              </label>
+              <select
+                id="maritalStatus"
+                name="maritalStatus"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="dependents" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Number of Dependents
+              </label>
+              <input
+                type="number"
+                id="dependents"
+                name="dependents"
+                min="0"
+                max="20"
+                value="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="employmentStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Employment Status
+              </label>
+              <select
+                id="employmentStatus"
+                name="employmentStatus"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="employed">Employed</option>
+                <option value="self-employed">Self-Employed</option>
+                <option value="unemployed">Unemployed</option>
+                <option value="retired">Retired</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Current Financials Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Current Financial Situation</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="annualIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Annual Income ($)
+                </label>
+                <input
+                  type="number"
+                  id="annualIncome"
+                  name="annualIncome"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="100000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="monthlyExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Monthly Expenses ($)
+                </label>
+                <input
+                  type="number"
+                  id="monthlyExpenses"
+                  name="monthlyExpenses"
+                  min="0"
+                  step="100"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="5000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="totalDebt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Total Debt ($)
+                </label>
+                <input
+                  type="number"
+                  id="totalDebt"
+                  name="totalDebt"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="emergencyFund" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Emergency Fund ($)
+                </label>
+                <input
+                  type="number"
+                  id="emergencyFund"
+                  name="emergencyFund"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="retirementSavings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Retirement Savings ($)
+                </label>
+                <input
+                  type="number"
+                  id="retirementSavings"
+                  name="retirementSavings"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label for="otherAssets" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Other Assets ($)
+                </label>
+                <input
+                  type="number"
+                  id="otherAssets"
+                  name="otherAssets"
+                  min="0"
+                  step="1000"
+                  value="0"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Goals Section -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Goals</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="riskTolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Risk Tolerance
+                </label>
+                <select
+                  id="riskTolerance"
+                  name="riskTolerance"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="conservative">Conservative</option>
+                  <option value="moderate" selected>Moderate</option>
+                  <option value="aggressive">Aggressive</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="timeHorizon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Time Horizon (Years)
+                </label>
+                <input
+                  type="number"
+                  id="timeHorizon"
+                  name="timeHorizon"
+                  min="1"
+                  max="50"
+                  value="10"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Plan Financial Journey
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div id="journey-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Financial Journey Plan</h2>
+        <div id="journey-results-content" class="space-y-4"></div>
+      </div>
+
+      <!-- AdSense -->
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    </div>
+  </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="financial-journey" />
+</Layout>

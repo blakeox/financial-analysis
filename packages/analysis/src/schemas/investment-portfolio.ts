@@ -9,14 +9,16 @@ export const InvestmentPortfolioInputSchema = z.object({
   }),
   currentPortfolio: z.object({
     totalValue: z.number().min(0),
-    holdings: z.array(z.object({
-      symbol: z.string(),
-      name: z.string(),
-      shares: z.number().min(0),
-      currentPrice: z.number().min(0),
-      sector: z.string(),
-      assetClass: z.enum(['stock', 'bond', 'etf', 'mutual-fund', 'cash', 'alternative']),
-    })),
+    holdings: z.array(
+      z.object({
+        symbol: z.string(),
+        name: z.string(),
+        shares: z.number().min(0),
+        currentPrice: z.number().min(0),
+        sector: z.string(),
+        assetClass: z.enum(['stock', 'bond', 'etf', 'mutual-fund', 'cash', 'alternative']),
+      })
+    ),
     cashReserve: z.number().min(0),
   }),
   goals: z.object({
@@ -31,3 +33,5 @@ export const InvestmentPortfolioInputSchema = z.object({
     rebalancingFrequency: z.enum(['monthly', 'quarterly', 'annually', 'never']),
   }),
 });
+
+export type InvestmentPortfolioInput = z.infer<typeof InvestmentPortfolioInputSchema>;

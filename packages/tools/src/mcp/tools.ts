@@ -1,7 +1,14 @@
 import { AmortizationTool } from '../tools/amortization.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
+import {
+  CacheDocumentTool,
+  ClearExpiredDocumentsTool,
+  GetDocumentTool,
+  SearchDocumentsTool,
+} from '../tools/autorag-documents.js';
 import { BondPricingTool } from '../tools/bond-pricing.js';
 import { BudgetTool } from '../tools/budget.js';
+import { BusinessExpansionLoanTool } from '../tools/business-expansion-loan.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 import { CCAAnalysisTool } from '../tools/cca-analysis.js';
 import { CollegeSavingsTool } from '../tools/college-savings.js';
@@ -23,16 +30,11 @@ import { MultiModelScenarioTool } from '../tools/multi-model-scenario.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
 import { RentVsBuyTool } from '../tools/rent-vs-buy.js';
+import { RetirementPlanningTool } from '../tools/retirement-planning.js';
 import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
 import { TaxOptimizationTool } from '../tools/tax-optimization.js';
-import {
-  CacheDocumentTool,
-  SearchDocumentsTool,
-  GetDocumentTool,
-  ClearExpiredDocumentsTool,
-} from '../tools/autorag-documents.js';
 
 export interface MCPTool {
   name: string;
@@ -123,6 +125,12 @@ export function createMCPTools(): MCPTool[] {
       execute: RetirementTool.execute.bind(RetirementTool),
     },
     {
+      name: RetirementPlanningTool.toolName,
+      description: RetirementPlanningTool.description,
+      inputSchema: RetirementPlanningTool.inputSchema,
+      execute: RetirementPlanningTool.execute.bind(RetirementPlanningTool),
+    },
+    {
       name: BudgetTool.toolName,
       description: BudgetTool.description,
       inputSchema: BudgetTool.inputSchema,
@@ -183,6 +191,12 @@ export function createMCPTools(): MCPTool[] {
       execute: MultiModelScenarioTool.execute.bind(MultiModelScenarioTool),
     },
     {
+      name: BusinessExpansionLoanTool.toolName,
+      description: BusinessExpansionLoanTool.description,
+      inputSchema: BusinessExpansionLoanTool.inputSchema,
+      execute: BusinessExpansionLoanTool.execute.bind(BusinessExpansionLoanTool),
+    },
+    {
       name: MAAnalysisTool.toolName,
       description: MAAnalysisTool.description,
       inputSchema: MAAnalysisTool.inputSchema,
@@ -229,7 +243,9 @@ export function createMCPTools(): MCPTool[] {
       name: ClearExpiredDocumentsTool.toolName,
       description: ClearExpiredDocumentsTool.description,
       inputSchema: ClearExpiredDocumentsTool.inputSchema,
-      execute: ClearExpiredDocumentsTool.execute.bind(ClearExpiredDocumentsTool) as MCPTool['execute'],
+      execute: ClearExpiredDocumentsTool.execute.bind(
+        ClearExpiredDocumentsTool
+      ) as MCPTool['execute'],
     },
   ];
 }
@@ -252,21 +268,32 @@ function getConciseDescription(toolName: string): string {
     analyze_savings_goal: 'Plan savings goals with compound interest',
     analyze_student_loans: 'Optimize student loan repayment strategies',
     analyze_retirement_savings: 'Plan retirement savings and projections',
+    analyze_retirement_planning:
+      'Advanced retirement planning with multi-account analysis and Social Security optimization',
     optimize_budget: 'Analyze and optimize personal budget',
-    populate_lease_form: 'Populate lease analysis form fields from extracted data or natural language',
+    populate_lease_form:
+      'Populate lease analysis form fields from extracted data or natural language',
     analyze_college_savings: 'Plan college savings with 529 plans, ESA, and financial aid impact',
     analyze_home_buying_affordability: 'Assess home buying affordability and mortgage options',
-    analyze_tax_optimization: 'Optimize tax strategies including IRA, deductions, and capital gains',
+    analyze_tax_optimization:
+      'Optimize tax strategies including IRA, deductions, and capital gains',
     analyze_insurance_needs: 'Calculate life, disability, and long-term care insurance needs',
     analyze_investment_portfolio: 'Optimize investment portfolio allocation and rebalancing',
     analyze_financial_journey: 'Comprehensive multi-stage financial journey planning and analysis',
     interactive_financial_model: 'Interactive financial model management and modification',
     multi_model_scenario_analysis: 'Analyze complex multi-model financial scenarios',
-    analyze_ma_deal: 'Comprehensive M&A deal analysis including synergies, accretion/dilution, and integration planning',
-    analyze_dcf_valuation: 'DCF valuation with WACC, cash flow projections, terminal value, and sensitivity analysis',
-    analyze_cca_valuation: 'Comparable company analysis with trading multiples and peer group valuation',
-    analyze_rent_vs_buy: 'Compare renting vs buying a home including appreciation, PMI, taxes, and opportunity costs',
-    cache_document: 'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
+    analyze_ma_deal:
+      'Comprehensive M&A deal analysis including synergies, accretion/dilution, and integration planning',
+    analyze_dcf_valuation:
+      'DCF valuation with WACC, cash flow projections, terminal value, and sensitivity analysis',
+    analyze_cca_valuation:
+      'Comparable company analysis with trading multiples and peer group valuation',
+    analyze_rent_vs_buy:
+      'Compare renting vs buying a home including appreciation, PMI, taxes, and opportunity costs',
+    analyze_business_expansion_loan:
+      'Comprehensive business expansion loan analysis with debt capacity, DSCR, cash flow projections, and risk assessment',
+    cache_document:
+      'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
     search_documents: 'Search cached documents using semantic similarity',
     get_document: 'Get a specific cached document by URL (cache or live fetch)',
     clear_expired_documents: 'Clear all documents older than 7 days (admin operation)',
