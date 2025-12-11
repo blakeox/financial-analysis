@@ -1,3 +1,4 @@
+import { EmployerMatch401kTool } from '../tools/401k-match.js';
 import { AmortizationTool } from '../tools/amortization.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
 import {
@@ -9,32 +10,47 @@ import {
 import { BondPricingTool } from '../tools/bond-pricing.js';
 import { BudgetTool } from '../tools/budget.js';
 import { BusinessExpansionLoanTool } from '../tools/business-expansion-loan.js';
+import { CapitalStructureTool } from '../tools/capital-structure.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 import { CCAAnalysisTool } from '../tools/cca-analysis.js';
 import { CollegeSavingsTool } from '../tools/college-savings.js';
+import { CreditRiskTool } from '../tools/credit-risk.js';
 import { DCFAnalysisTool } from '../tools/dcf-analysis.js';
 import { DebtPayoffTool } from '../tools/debt-payoff.js';
 import {
   EbitdaForecastingTool,
   EbitdaScenarioComparisonTool,
 } from '../tools/ebitda-forecasting.js';
+import { EmergencyFundTool } from '../tools/emergency-fund.js';
 import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
+import { EstatePlanningTool } from '../tools/estate-planning.js';
 import { FinancialJourneyTool } from '../tools/financial-journey.js';
+import { FIRECalculatorTool } from '../tools/fire-calculator.js';
+import { HELOCTool } from '../tools/heloc.js';
 import { HomeBuyingAffordabilityTool } from '../tools/home-buying-affordability.js';
 import { InsuranceNeedsTool } from '../tools/insurance-needs.js';
 import { InteractiveModelTool } from '../tools/interactive-model.js';
 import { InvestmentPortfolioTool } from '../tools/investment-portfolio.js';
+import { LBOTool } from '../tools/lbo.js';
 import { LeaseTool } from '../tools/lease.js';
 import { MAAnalysisTool } from '../tools/ma-analysis.js';
 import { MultiModelScenarioTool } from '../tools/multi-model-scenario.js';
+import { NetWorthTool } from '../tools/net-worth.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
 import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
+import { PortfolioOptimizationTool } from '../tools/portfolio-optimization.js';
+import { ProjectFinanceTool } from '../tools/project-finance.js';
+import { RealEstateInvestmentTool } from '../tools/real-estate-investment.js';
+import { RefinancingTool } from '../tools/refinancing.js';
 import { RentVsBuyTool } from '../tools/rent-vs-buy.js';
 import { RetirementPlanningTool } from '../tools/retirement-planning.js';
 import { RetirementTool } from '../tools/retirement.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
+import { SocialSecurityTool } from '../tools/social-security.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
 import { TaxOptimizationTool } from '../tools/tax-optimization.js';
+import { VaRTool } from '../tools/var.js';
+import { WorkingCapitalTool } from '../tools/working-capital.js';
 
 export interface MCPTool {
   name: string;
@@ -197,6 +213,102 @@ export function createMCPTools(): MCPTool[] {
       execute: BusinessExpansionLoanTool.execute.bind(BusinessExpansionLoanTool),
     },
     {
+      name: SocialSecurityTool.toolName,
+      description: SocialSecurityTool.description,
+      inputSchema: SocialSecurityTool.inputSchema,
+      execute: SocialSecurityTool.execute.bind(SocialSecurityTool),
+    },
+    {
+      name: HELOCTool.toolName,
+      description: HELOCTool.description,
+      inputSchema: HELOCTool.inputSchema,
+      execute: HELOCTool.execute.bind(HELOCTool),
+    },
+    {
+      name: RefinancingTool.toolName,
+      description: RefinancingTool.description,
+      inputSchema: RefinancingTool.inputSchema,
+      execute: RefinancingTool.execute.bind(RefinancingTool),
+    },
+    {
+      name: FIRECalculatorTool.toolName,
+      description: FIRECalculatorTool.description,
+      inputSchema: FIRECalculatorTool.inputSchema,
+      execute: FIRECalculatorTool.execute.bind(FIRECalculatorTool),
+    },
+    {
+      name: CapitalStructureTool.toolName,
+      description: CapitalStructureTool.description,
+      inputSchema: CapitalStructureTool.inputSchema,
+      execute: CapitalStructureTool.execute.bind(CapitalStructureTool),
+    },
+    {
+      name: ProjectFinanceTool.toolName,
+      description: ProjectFinanceTool.description,
+      inputSchema: ProjectFinanceTool.inputSchema,
+      execute: ProjectFinanceTool.execute.bind(ProjectFinanceTool),
+    },
+    {
+      name: RealEstateInvestmentTool.toolName,
+      description: RealEstateInvestmentTool.description,
+      inputSchema: RealEstateInvestmentTool.inputSchema,
+      execute: RealEstateInvestmentTool.execute.bind(RealEstateInvestmentTool),
+    },
+    {
+      name: LBOTool.toolName,
+      description: LBOTool.description,
+      inputSchema: LBOTool.inputSchema,
+      execute: LBOTool.execute.bind(LBOTool),
+    },
+    {
+      name: CreditRiskTool.toolName,
+      description: CreditRiskTool.description,
+      inputSchema: CreditRiskTool.inputSchema,
+      execute: CreditRiskTool.execute.bind(CreditRiskTool),
+    },
+    {
+      name: WorkingCapitalTool.toolName,
+      description: WorkingCapitalTool.description,
+      inputSchema: WorkingCapitalTool.inputSchema,
+      execute: WorkingCapitalTool.execute.bind(WorkingCapitalTool),
+    },
+    {
+      name: VaRTool.toolName,
+      description: VaRTool.description,
+      inputSchema: VaRTool.inputSchema,
+      execute: VaRTool.execute.bind(VaRTool),
+    },
+    {
+      name: PortfolioOptimizationTool.toolName,
+      description: PortfolioOptimizationTool.description,
+      inputSchema: PortfolioOptimizationTool.inputSchema,
+      execute: PortfolioOptimizationTool.execute.bind(PortfolioOptimizationTool),
+    },
+    {
+      name: EstatePlanningTool.toolName,
+      description: EstatePlanningTool.description,
+      inputSchema: EstatePlanningTool.inputSchema,
+      execute: EstatePlanningTool.execute.bind(EstatePlanningTool),
+    },
+    {
+      name: EmergencyFundTool.toolName,
+      description: EmergencyFundTool.description,
+      inputSchema: EmergencyFundTool.inputSchema,
+      execute: EmergencyFundTool.execute.bind(EmergencyFundTool),
+    },
+    {
+      name: NetWorthTool.toolName,
+      description: NetWorthTool.description,
+      inputSchema: NetWorthTool.inputSchema,
+      execute: NetWorthTool.execute.bind(NetWorthTool),
+    },
+    {
+      name: EmployerMatch401kTool.toolName,
+      description: EmployerMatch401kTool.description,
+      inputSchema: EmployerMatch401kTool.inputSchema,
+      execute: EmployerMatch401kTool.execute.bind(EmployerMatch401kTool),
+    },
+    {
       name: MAAnalysisTool.toolName,
       description: MAAnalysisTool.description,
       inputSchema: MAAnalysisTool.inputSchema,
@@ -292,6 +404,34 @@ function getConciseDescription(toolName: string): string {
       'Compare renting vs buying a home including appreciation, PMI, taxes, and opportunity costs',
     analyze_business_expansion_loan:
       'Comprehensive business expansion loan analysis with debt capacity, DSCR, cash flow projections, and risk assessment',
+    analyze_social_security:
+      'Optimize Social Security claiming strategy with break-even analysis, spousal benefits, and lifetime projections',
+    analyze_heloc:
+      'Analyze Home Equity Line of Credit options and compare to refinancing and personal loans',
+    analyze_refinancing:
+      'Comprehensive mortgage refinancing analysis with break-even point and interest savings',
+    analyze_fire_calculator:
+      'Calculate Financial Independence (FIRE) number, retirement date, and savings strategies',
+    analyze_estate_planning: 'Estate tax planning, inheritance projections, and trust analysis',
+    analyze_emergency_fund:
+      'Calculate emergency fund target, build timeline, and withdrawal scenarios',
+    analyze_net_worth: 'Track net worth over time with asset/liability breakdown and projections',
+    analyze_401k_match: 'Maximize 401(k) employer match and optimize contribution strategy',
+    analyze_capital_structure:
+      'Optimize capital structure with WACC optimization and debt capacity analysis',
+    analyze_project_finance:
+      'Project finance analysis with NPV, IRR, payback period, and sensitivity analysis',
+    analyze_real_estate_investment:
+      'Real estate investment analysis with cap rate, cash-on-cash return, and IRR',
+    analyze_lbo: 'Leveraged buyout analysis with returns, debt paydown, and exit scenarios',
+    analyze_credit_risk:
+      'Credit risk analysis with Probability of Default (PD), Loss Given Default (LGD), and Expected Loss',
+    analyze_working_capital:
+      'Working capital optimization with cash conversion cycle and liquidity analysis',
+    analyze_var:
+      'Value at Risk (VaR) calculation using historical, parametric, or Monte Carlo methods',
+    analyze_portfolio_optimization:
+      'Portfolio optimization with efficient frontier and asset allocation',
     cache_document:
       'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
     search_documents: 'Search cached documents using semantic similarity',

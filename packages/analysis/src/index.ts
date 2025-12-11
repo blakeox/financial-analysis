@@ -217,6 +217,86 @@ export { BusinessLoanScenariosAnalyzer } from './engines/business-loan-scenarios
 export { BusinessLoanScenariosInputSchema } from './schemas/business-loan-scenarios.js';
 export type { BusinessLoanScenariosInput } from './schemas/business-loan-scenarios.js';
 
+// Social Security schemas and types
+export { SocialSecurityOptimizer } from './engines/social-security.js';
+export { SocialSecurityInputSchema } from './schemas/social-security.js';
+export type { SocialSecurityInput } from './schemas/social-security.js';
+
+// HELOC schemas and types
+export { HELOCAnalyzer } from './engines/heloc.js';
+export { HELOCInputSchema } from './schemas/heloc.js';
+export type { HELOCInput } from './schemas/heloc.js';
+
+// Refinancing schemas and types
+export { RefinancingCalculator } from './engines/refinancing.js';
+export { RefinancingInputSchema } from './schemas/refinancing.js';
+export type { RefinancingInput } from './schemas/refinancing.js';
+
+// Capital Structure schemas and types
+export { CapitalStructureOptimizer } from './engines/capital-structure.js';
+export { CapitalStructureInputSchema } from './schemas/capital-structure.js';
+export type { CapitalStructureInput } from './schemas/capital-structure.js';
+
+// Project Finance schemas and types
+export { ProjectFinanceAnalyzer } from './engines/project-finance.js';
+export { ProjectFinanceInputSchema } from './schemas/project-finance.js';
+export type { ProjectFinanceInput } from './schemas/project-finance.js';
+
+// Real Estate Investment schemas and types
+export { RealEstateInvestmentAnalyzer } from './engines/real-estate-investment.js';
+export { RealEstateInvestmentInputSchema } from './schemas/real-estate-investment.js';
+export type { RealEstateInvestmentInput } from './schemas/real-estate-investment.js';
+
+// FIRE Calculator schemas and types
+export { FIRECalculator } from './engines/fire-calculator.js';
+export { FIRECalculatorInputSchema } from './schemas/fire-calculator.js';
+export type { FIRECalculatorInput } from './schemas/fire-calculator.js';
+
+// LBO Model schemas and types
+export { LBOModel } from './engines/lbo.js';
+export { LBOInputSchema } from './schemas/lbo.js';
+export type { LBOInput } from './schemas/lbo.js';
+
+// Credit Risk schemas and types
+export { CreditRiskAnalyzer } from './engines/credit-risk.js';
+export { CreditRiskInputSchema } from './schemas/credit-risk.js';
+export type { CreditRiskInput } from './schemas/credit-risk.js';
+
+// Working Capital schemas and types
+export { WorkingCapitalOptimizer } from './engines/working-capital.js';
+export { WorkingCapitalInputSchema } from './schemas/working-capital.js';
+export type { WorkingCapitalInput } from './schemas/working-capital.js';
+
+// VaR Calculator schemas and types
+export { VaRCalculator } from './engines/var.js';
+export { VaRInputSchema } from './schemas/var.js';
+export type { VaRInput } from './schemas/var.js';
+
+// Portfolio Optimization schemas and types
+export { PortfolioOptimizer } from './engines/portfolio-optimization.js';
+export { PortfolioOptimizationInputSchema } from './schemas/portfolio-optimization.js';
+export type { PortfolioOptimizationInput } from './schemas/portfolio-optimization.js';
+
+// Estate Planning schemas and types
+export { EstatePlanningCalculator } from './engines/estate-planning.js';
+export { EstatePlanningInputSchema } from './schemas/estate-planning.js';
+export type { EstatePlanningInput } from './schemas/estate-planning.js';
+
+// Emergency Fund schemas and types
+export { EmergencyFundCalculator } from './engines/emergency-fund.js';
+export { EmergencyFundInputSchema } from './schemas/emergency-fund.js';
+export type { EmergencyFundInput } from './schemas/emergency-fund.js';
+
+// Net Worth schemas and types
+export { NetWorthTracker } from './engines/net-worth.js';
+export { NetWorthInputSchema } from './schemas/net-worth.js';
+export type { NetWorthInput } from './schemas/net-worth.js';
+
+// 401(k) Employer Match schemas and types
+export { EmployerMatch401kOptimizer } from './engines/401k-match.js';
+export { EmployerMatch401kInputSchema } from './schemas/401k-match.js';
+export type { EmployerMatch401kInput } from './schemas/401k-match.js';
+
 // Unit economics schemas and types
 export type {
   CohortAnalysis,

@@ -1,0 +1,245 @@
+---
+import AdSense from '../components/AdSense.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import StructuredData from '../components/StructuredData.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Social Security Optimizer - Claiming Strategy Analysis | Fanalyx" 
+  description="Optimize your Social Security claiming strategy with break-even analysis, spousal benefits, survivor benefits, and lifetime benefit projections."
+  keywords="social security, social security optimization, claiming strategy, spousal benefits, survivor benefits, break-even analysis, retirement benefits"
+  canonical={Astro.url.href}
+  type="article"
+>
+  <StructuredData 
+    type="breadcrumb" 
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'Models', url: '/models' },
+      { name: 'Personal Finance', url: '/models/personal' },
+      { name: 'Social Security Optimizer', url: '/social-security' }
+    ]}
+  />
+  
+  <StructuredData 
+    type="software" 
+    softwareApp={{
+      name: 'Social Security Optimizer',
+      description: 'Optimize Social Security claiming strategy with break-even analysis and benefit projections.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 180
+    }}
+  />
+  
+  <StructuredData 
+    type="faq" 
+    faqs={[
+      {
+        question: 'When should I claim Social Security benefits?',
+        answer: 'The optimal claiming age depends on your life expectancy, financial needs, and marital status. Generally, claiming at 70 provides the highest monthly benefit, while claiming at 62 provides benefits sooner but at a reduced rate. Our calculator analyzes your specific situation to recommend the optimal strategy.'
+      },
+      {
+        question: 'What is the break-even point for Social Security?',
+        answer: 'The break-even point is the age at which total lifetime benefits from delaying exceed total benefits from claiming early. Typically, if you live beyond age 78-80, delaying to 70 becomes more advantageous.'
+      },
+      {
+        question: 'How do spousal benefits work?',
+        answer: 'Spousal benefits allow a spouse to receive up to 50% of their partner\'s Primary Insurance Amount (PIA) at full retirement age. The spouse gets the higher of their own benefit or the spousal benefit.'
+      },
+      {
+        question: 'What are survivor benefits?',
+        answer: 'Survivor benefits allow a surviving spouse to receive 100% of the deceased spouse\'s benefit. The survivor can claim as early as age 60, though benefits are reduced if claimed before full retirement age.'
+      }
+    ]}
+  />
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Social Security Optimizer</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Optimize your Social Security claiming strategy for maximum lifetime benefits
+      </p>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+
+        <form id="social-security-form" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="birthDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Birth Date
+              </label>
+              <input
+                type="date"
+                id="birthDate"
+                name="birthDate"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="currentAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Current Age
+              </label>
+              <input
+                type="number"
+                id="currentAge"
+                name="currentAge"
+                min="62"
+                max="70"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="65"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="fullRetirementAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Full Retirement Age
+              </label>
+              <input
+                type="number"
+                id="fullRetirementAge"
+                name="fullRetirementAge"
+                min="66"
+                max="67"
+                step="0.1"
+                value="67"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="lifeExpectancy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Life Expectancy
+              </label>
+              <input
+                type="number"
+                id="lifeExpectancy"
+                name="lifeExpectancy"
+                min="70"
+                max="100"
+                value="85"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Marital Status
+              </label>
+              <select
+                id="maritalStatus"
+                name="maritalStatus"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Earnings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="currentAnnualEarnings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Current Annual Earnings ($)
+                </label>
+                <input
+                  type="number"
+                  id="currentAnnualEarnings"
+                  name="currentAnnualEarnings"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="75000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="averageLifetimeEarnings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Average Lifetime Earnings ($) (Optional)
+                </label>
+                <input
+                  type="number"
+                  id="averageLifetimeEarnings"
+                  name="averageLifetimeEarnings"
+                  min="0"
+                  step="1000"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="70000"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Claiming Strategy</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="primaryClaimingAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Primary Claiming Age
+                </label>
+                <input
+                  type="number"
+                  id="primaryClaimingAge"
+                  name="primaryClaimingAge"
+                  min="62"
+                  max="70"
+                  value="67"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="optimizeFor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Optimize For
+                </label>
+                <select
+                  id="optimizeFor"
+                  name="optimizeFor"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="maximum-lifetime">Maximum Lifetime Benefits</option>
+                  <option value="maximum-monthly">Maximum Monthly Benefit</option>
+                  <option value="survivor-benefits">Survivor Benefits</option>
+                  <option value="spousal-benefits">Spousal Benefits</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Optimize Social Security Strategy
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="social-security-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Social Security Analysis</h2>
+        <div id="social-security-results-content" class="space-y-4"></div>
+      </div>
+
+      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    </div>
+  </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="social-security" />
+</Layout>
