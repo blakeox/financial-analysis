@@ -693,5 +693,57 @@ export function getJourneyData(): JourneyData {
         'Make informed decision based on personalized analysis',
       ],
     },
+    'project-finance-journey': {
+      name: 'Project Finance Journey',
+      description:
+        'Comprehensive project finance journey for infrastructure projects including feasibility analysis, risk assessment, and financing optimization',
+      ageRange: 'Infrastructure',
+      complexity: 'Advanced',
+      duration: '4-5 hours',
+      icon: '🏗️',
+      color: 'teal',
+      models: [
+        {
+          id: 'dcf-valuation',
+          name: 'DCF Valuation',
+          description: 'Project cash flow analysis and NPV calculation',
+          url: '/dcf-analysis',
+          order: 1,
+          required: true,
+        },
+        {
+          id: 'risk-management',
+          name: 'Risk Management',
+          description: 'Project risk assessment and mitigation',
+          url: '/calculator/risk-management',
+          order: 2,
+          required: true,
+        },
+        {
+          id: 'cash-flow-analysis',
+          name: 'Cash Flow Analysis',
+          description: 'Detailed cash flow projections for the project',
+          url: '/cash-flow-analysis',
+          order: 3,
+          required: true,
+        },
+        {
+          id: 'bond-pricing',
+          name: 'Bond Pricing',
+          description: 'Analyze project bond financing options',
+          url: '/bond-pricing',
+          order: 4,
+          required: false,
+        },
+      ],
+      workflow: [
+        'Analyze project cash flows and calculate NPV/IRR',
+        'Assess project risks and develop mitigation strategies',
+        'Create detailed cash flow projections',
+        'Evaluate bond financing options if applicable',
+        'Optimize financing structure',
+        'Monitor project performance and adjust as needed',
+      ],
+    },
   };
 }
