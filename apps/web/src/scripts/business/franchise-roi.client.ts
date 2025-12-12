@@ -109,3 +109,4 @@ if (document.readyState === 'loading') {
 } else {
   new FranchiseROICalculator();
 }
+

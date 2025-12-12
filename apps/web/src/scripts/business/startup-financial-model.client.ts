@@ -117,3 +117,4 @@ if (document.readyState === 'loading') {
 } else {
   new StartupFinancialModelCalculator();
 }
+
