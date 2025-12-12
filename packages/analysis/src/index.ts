@@ -14,6 +14,37 @@ export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
 export { RevenueForecastEngine } from './engines/revenue-forecast.js';
 export { UnitEconomicsEngine } from './engines/unit-economics.js';
 
+// New Personal Finance Engines
+export { FiveTwoNineOptimizer } from './engines/529-optimizer.js';
+export { CarLeaseVsBuyCalculator } from './engines/car-lease-vs-buy.js';
+export { CharitableGivingOptimizer } from './engines/charitable-giving.js';
+export { CreditScoreImpactAnalyzer } from './engines/credit-score-impact.js';
+export { DisabilityInsuranceCalculator } from './engines/disability-insurance.js';
+export { HSAOptimizer } from './engines/hsa-optimization.js';
+export { LifeInsuranceReassessmentCalculator } from './engines/life-insurance-reassessment.js';
+export { LongTermCareCalculator } from './engines/long-term-care.js';
+export { RothVsTraditionalIRACalculator } from './engines/roth-vs-traditional-ira.js';
+export { TaxLossHarvestingOptimizer } from './engines/tax-loss-harvesting.js';
+
+// New Business Finance Engines
+export { AccountsPayableOptimizer } from './engines/accounts-payable-optimization.js';
+export { AccountsReceivableAgingAnalyzer } from './engines/accounts-receivable-aging.js';
+export { DepreciationCalculator } from './engines/depreciation.js';
+export { EmployeeStockOptionsValuator } from './engines/employee-stock-options.js';
+export { EquipmentLeaseVsBuyCalculator } from './engines/equipment-lease-vs-buy.js';
+export { FinancialRatioAnalyzer } from './engines/financial-ratio-analyzer.js';
+export { FranchiseROICalculator } from './engines/franchise-roi.js';
+export { InventoryOptimizer } from './engines/inventory-optimization.js';
+export { RevenueRecognitionCalculator } from './engines/revenue-recognition.js';
+export { StartupFinancialModel } from './engines/startup-financial-model.js';
+
+// Specialized/Advanced Engines
+export { OneZeroThreeOneExchangeAnalyzer } from './engines/1031-exchange.js';
+export { BusinessSuccessionPlanningCalculator } from './engines/business-succession-planning.js';
+export { CryptocurrencyTaxCalculator } from './engines/cryptocurrency-tax.js';
+export { InternationalTaxPlanningCalculator } from './engines/international-tax-planning.js';
+export { SupplyChainFinanceOptimizer } from './engines/supply-chain-finance.js';
+
 // Export amortization functions and types
 export {
   buildAmortizationComprehensiveAnalysis,
@@ -330,3 +361,81 @@ export type {
   ScenarioResult as RentVsBuyScenarioResult,
   YearByYearData as RentVsBuyYearData,
 } from './types/rent-vs-buy-result.js';
+
+// New Personal Finance Models - Schemas
+export { HSAOptimizationInputSchema } from './schemas/hsa-optimization.js';
+export type { HSAOptimizationInput } from './schemas/hsa-optimization.js';
+
+export { RothVsTraditionalIRAInputSchema } from './schemas/roth-vs-traditional-ira.js';
+export type { RothVsTraditionalIRAInput } from './schemas/roth-vs-traditional-ira.js';
+
+export { TaxLossHarvestingInputSchema } from './schemas/tax-loss-harvesting.js';
+export type { TaxLossHarvestingInput } from './schemas/tax-loss-harvesting.js';
+
+export { CharitableGivingInputSchema } from './schemas/charitable-giving.js';
+export type { CharitableGivingInput } from './schemas/charitable-giving.js';
+
+export { CarLeaseVsBuyInputSchema } from './schemas/car-lease-vs-buy.js';
+export type { CarLeaseVsBuyInput } from './schemas/car-lease-vs-buy.js';
+
+export { LongTermCareInputSchema } from './schemas/long-term-care.js';
+export type { LongTermCareInput } from './schemas/long-term-care.js';
+
+export { DisabilityInsuranceInputSchema } from './schemas/disability-insurance.js';
+export type { DisabilityInsuranceInput } from './schemas/disability-insurance.js';
+
+export { LifeInsuranceReassessmentInputSchema } from './schemas/life-insurance-reassessment.js';
+export type { LifeInsuranceReassessmentInput } from './schemas/life-insurance-reassessment.js';
+
+export { FiveTwoNineOptimizerInputSchema } from './schemas/529-optimizer.js';
+export type { FiveTwoNineOptimizerInput } from './schemas/529-optimizer.js';
+
+export { CreditScoreImpactInputSchema } from './schemas/credit-score-impact.js';
+export type { CreditScoreImpactInput } from './schemas/credit-score-impact.js';
+
+// New Business Finance Models - Schemas
+export { InventoryOptimizationInputSchema } from './schemas/inventory-optimization.js';
+export type { InventoryOptimizationInput } from './schemas/inventory-optimization.js';
+
+export { AccountsReceivableAgingInputSchema } from './schemas/accounts-receivable-aging.js';
+export type { AccountsReceivableAgingInput } from './schemas/accounts-receivable-aging.js';
+
+export { FinancialRatioAnalyzerInputSchema } from './schemas/financial-ratio-analyzer.js';
+export type { FinancialRatioAnalyzerInput } from './schemas/financial-ratio-analyzer.js';
+
+export { DepreciationInputSchema } from './schemas/depreciation.js';
+export type { DepreciationInput } from './schemas/depreciation.js';
+
+export { EquipmentLeaseVsBuyInputSchema } from './schemas/equipment-lease-vs-buy.js';
+export type { EquipmentLeaseVsBuyInput } from './schemas/equipment-lease-vs-buy.js';
+
+export { RevenueRecognitionInputSchema } from './schemas/revenue-recognition.js';
+export type { RevenueRecognitionInput } from './schemas/revenue-recognition.js';
+
+export { EmployeeStockOptionsInputSchema } from './schemas/employee-stock-options.js';
+export type { EmployeeStockOptionsInput } from './schemas/employee-stock-options.js';
+
+export { FranchiseROIInputSchema } from './schemas/franchise-roi.js';
+export type { FranchiseROIInput } from './schemas/franchise-roi.js';
+
+export { StartupFinancialModelInputSchema } from './schemas/startup-financial-model.js';
+export type { StartupFinancialModelInput } from './schemas/startup-financial-model.js';
+
+export { AccountsPayableOptimizationInputSchema } from './schemas/accounts-payable-optimization.js';
+export type { AccountsPayableOptimizationInput } from './schemas/accounts-payable-optimization.js';
+
+// Specialized/Advanced Models - Schemas
+export { CryptocurrencyTaxInputSchema } from './schemas/cryptocurrency-tax.js';
+export type { CryptocurrencyTaxInput } from './schemas/cryptocurrency-tax.js';
+
+export { InternationalTaxPlanningInputSchema } from './schemas/international-tax-planning.js';
+export type { InternationalTaxPlanningInput } from './schemas/international-tax-planning.js';
+
+export { OneZeroThreeOneExchangeInputSchema } from './schemas/1031-exchange.js';
+export type { OneZeroThreeOneExchangeInput } from './schemas/1031-exchange.js';
+
+export { BusinessSuccessionPlanningInputSchema } from './schemas/business-succession-planning.js';
+export type { BusinessSuccessionPlanningInput } from './schemas/business-succession-planning.js';
+
+export { SupplyChainFinanceInputSchema } from './schemas/supply-chain-finance.js';
+export type { SupplyChainFinanceInput } from './schemas/supply-chain-finance.js';

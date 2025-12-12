@@ -52,9 +52,14 @@ export class VaRCalculator {
       : undefined;
 
     // Backtesting
-    const backtesting = analysis.includeBacktesting && marketData.historicalReturns
-      ? this.performBacktesting(marketData.historicalReturns, varResult.varValue, portfolio.totalValue)
-      : undefined;
+    const backtesting =
+      analysis.includeBacktesting && marketData.historicalReturns
+        ? this.performBacktesting(
+            marketData.historicalReturns,
+            varResult.varValue,
+            portfolio.totalValue
+          )
+        : undefined;
 
     // Recommendations
     const recommendations = this.generateRecommendations(varResult, stressTesting);
@@ -110,15 +115,17 @@ export class VaRCalculator {
     timeHorizon: number;
   } {
     // Simplified: assume portfolio volatility
-    const portfolioVolatility = volatilities && volatilities.length > 0
-      ? volatilities.reduce((sum, v) => sum + v, 0) / volatilities.length
-      : 0.15; // Default 15% volatility
+    const portfolioVolatility =
+      volatilities && volatilities.length > 0
+        ? volatilities.reduce((sum, v) => sum + v, 0) / volatilities.length
+        : 0.15; // Default 15% volatility
 
     // Z-score for confidence level (95% = 1.65, 99% = 2.33)
     const zScore = confidenceLevel === 0.95 ? 1.65 : confidenceLevel === 0.99 ? 2.33 : 1.96;
 
     // VaR = Portfolio Value × Volatility × Z-score × sqrt(time horizon)
-    const varValue = portfolio.totalValue * portfolioVolatility * zScore * Math.sqrt(timeHorizon / 252);
+    const varValue =
+      portfolio.totalValue * portfolioVolatility * zScore * Math.sqrt(timeHorizon / 252);
 
     return {
       varValue,
@@ -142,14 +149,16 @@ export class VaRCalculator {
   } {
     // Simplified Monte Carlo simulation
     const simulations = 10000;
-    const portfolioVolatility = volatilities && volatilities.length > 0
-      ? volatilities.reduce((sum, v) => sum + v, 0) / volatilities.length
-      : 0.15;
+    const portfolioVolatility =
+      volatilities && volatilities.length > 0
+        ? volatilities.reduce((sum, v) => sum + v, 0) / volatilities.length
+        : 0.15;
 
     const simulatedReturns: number[] = [];
     for (let i = 0; i < simulations; i++) {
       // Generate random return using normal distribution
-      const randomReturn = this.generateNormalRandom() * portfolioVolatility * Math.sqrt(timeHorizon / 252);
+      const randomReturn =
+        this.generateNormalRandom() * portfolioVolatility * Math.sqrt(timeHorizon / 252);
       simulatedReturns.push(randomReturn);
     }
 
@@ -246,3 +255,5 @@ export class VaRCalculator {
     return recommendations;
   }
 }
+
+

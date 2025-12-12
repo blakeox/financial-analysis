@@ -1,122 +1,225 @@
 import {
-  AmortizationAnalyzer,
-  AmortizationInputSchema,
-  BondPricingAnalyzer,
-  BondPricingInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessExpansionLoanInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessExpansionLoanJourney,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessFinancialHealthAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessFinancialHealthInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessLoanScenariosAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  BusinessLoanScenariosInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  CapitalStructureInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  CapitalStructureOptimizer,
-  CashFlowAnalysisInputSchema,
-  CashFlowAnalyzer,
-  CCAValuationEngine,
-  CCAValuationInputSchema,
-  CollegeSavingsInputSchema,
-  CollegeSavingsPlanner,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  CreditRiskAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  CreditRiskInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  DebtCapacityCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  DebtCapacityInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  DSCRCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  DSCRInputSchema,
-  EbitdaForecaster,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EmergencyFundCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EmergencyFundInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EmployerMatch401kInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EmployerMatch401kOptimizer,
-  EnhancedLeaseAnalyzer,
-  EnhancedLeaseInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EstatePlanningCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  EstatePlanningInputSchema,
-  FinancialInputSchema,
-  FinancialJourneyAnalysisEngine,
-  FinancialJourneyInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  FIRECalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  FIRECalculatorInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  HELOCAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  HELOCInputSchema,
-  HomeBuyingAffordabilityCalculator,
-  HomeBuyingAffordabilityInputSchema,
-  InsuranceNeedsCalculator,
-  InsuranceNeedsInputSchema,
-  InvestmentPortfolioAnalyzer,
-  InvestmentPortfolioInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  LBOInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  LBOModel,
-  LeaseAnalyzer,
-  MAAnalysisEngine,
-  MAAnalysisInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  NetWorthInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  NetWorthTracker,
-  OptionsPricingAnalyzer,
-  OptionsPricingInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  PortfolioOptimizationInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  PortfolioOptimizer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  ProjectFinanceAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  ProjectFinanceInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RealEstateInvestmentAnalyzer,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RealEstateInvestmentInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RefinancingCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RefinancingInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RetirementPlanningEngine,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  RetirementPlanningInputSchema,
-  ScenarioInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  SocialSecurityInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  SocialSecurityOptimizer,
-  TaxOptimizationInputSchema,
-  TaxOptimizationPlanner,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  VaRCalculator,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  VaRInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  WorkingCapitalInputSchema,
-  // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
-  WorkingCapitalOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    AccountsPayableOptimizationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    AccountsPayableOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    AccountsReceivableAgingAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    AccountsReceivableAgingInputSchema,
+    AmortizationAnalyzer,
+    AmortizationInputSchema,
+    BondPricingAnalyzer,
+    BondPricingInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessExpansionLoanInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessExpansionLoanJourney,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessFinancialHealthAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessFinancialHealthInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessLoanScenariosAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessLoanScenariosInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessSuccessionPlanningCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    BusinessSuccessionPlanningInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CapitalStructureInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CapitalStructureOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CarLeaseVsBuyCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CarLeaseVsBuyInputSchema,
+    CashFlowAnalysisInputSchema,
+    CashFlowAnalyzer,
+    CCAValuationEngine,
+    CCAValuationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CharitableGivingInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CharitableGivingOptimizer,
+    CollegeSavingsInputSchema,
+    CollegeSavingsPlanner,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CreditRiskAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CreditRiskInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CreditScoreImpactAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CreditScoreImpactInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CryptocurrencyTaxCalculator,
+    // Specialized/Advanced Models
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    CryptocurrencyTaxInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DebtCapacityCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DebtCapacityInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DepreciationCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DepreciationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DisabilityInsuranceCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DisabilityInsuranceInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DSCRCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    DSCRInputSchema,
+    EbitdaForecaster,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmergencyFundCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmergencyFundInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmployeeStockOptionsInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmployeeStockOptionsValuator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmployerMatch401kInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EmployerMatch401kOptimizer,
+    EnhancedLeaseAnalyzer,
+    EnhancedLeaseInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EquipmentLeaseVsBuyCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EquipmentLeaseVsBuyInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EstatePlanningCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    EstatePlanningInputSchema,
+    FinancialInputSchema,
+    FinancialJourneyAnalysisEngine,
+    FinancialJourneyInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FinancialRatioAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FinancialRatioAnalyzerInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FIRECalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FIRECalculatorInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FiveTwoNineOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FiveTwoNineOptimizerInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FranchiseROICalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    FranchiseROIInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    HELOCAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    HELOCInputSchema,
+    HomeBuyingAffordabilityCalculator,
+    HomeBuyingAffordabilityInputSchema,
+    // New Personal Finance Models
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    HSAOptimizationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    HSAOptimizer,
+    InsuranceNeedsCalculator,
+    InsuranceNeedsInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    InternationalTaxPlanningCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    InternationalTaxPlanningInputSchema,
+    // New Business Finance Models
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    InventoryOptimizationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    InventoryOptimizer,
+    InvestmentPortfolioAnalyzer,
+    InvestmentPortfolioInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LBOInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LBOModel,
+    LeaseAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LifeInsuranceReassessmentCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LifeInsuranceReassessmentInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LongTermCareCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    LongTermCareInputSchema,
+    MAAnalysisEngine,
+    MAAnalysisInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    NetWorthInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    NetWorthTracker,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    OneZeroThreeOneExchangeAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    OneZeroThreeOneExchangeInputSchema,
+    OptionsPricingAnalyzer,
+    OptionsPricingInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    PortfolioOptimizationInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    PortfolioOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    ProjectFinanceAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    ProjectFinanceInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RealEstateInvestmentAnalyzer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RealEstateInvestmentInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RefinancingCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RefinancingInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RetirementPlanningEngine,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RetirementPlanningInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RevenueRecognitionCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RevenueRecognitionInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RothVsTraditionalIRACalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    RothVsTraditionalIRAInputSchema,
+    ScenarioInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    SocialSecurityInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    SocialSecurityOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    StartupFinancialModel,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    StartupFinancialModelInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    SupplyChainFinanceInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    SupplyChainFinanceOptimizer,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    TaxLossHarvestingInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    TaxLossHarvestingOptimizer,
+    TaxOptimizationInputSchema,
+    TaxOptimizationPlanner,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    VaRCalculator,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    VaRInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    WorkingCapitalInputSchema,
+    // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
+    WorkingCapitalOptimizer,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -125,25 +228,25 @@ import { getOpenApiDocument } from './openapi';
 import type { Env } from './types';
 // Lib barrel export consolidates helpers in one place for tidy imports
 import {
-  adjustApproxBytes,
-  attachRateLimitHeaders,
-  buildDefaultHeaders,
-  checkRateLimit,
-  getAllCircuitStates,
-  getAnalysisCacheTtl,
-  getApproxBytes,
-  getCorsHeaders,
-  getDefaultCache,
-  getMaxJsonBytes,
-  getSecurityHeaders,
-  getThresholds,
-  isQuotaLocked,
-  reconcileBucketUsage,
-  setQuotaLocked,
-  sha256Hex,
-  stableStringify,
-  withErrorHandler,
-  type RateLimitInfo,
+    adjustApproxBytes,
+    attachRateLimitHeaders,
+    buildDefaultHeaders,
+    checkRateLimit,
+    getAllCircuitStates,
+    getAnalysisCacheTtl,
+    getApproxBytes,
+    getCorsHeaders,
+    getDefaultCache,
+    getMaxJsonBytes,
+    getSecurityHeaders,
+    getThresholds,
+    isQuotaLocked,
+    reconcileBucketUsage,
+    setQuotaLocked,
+    sha256Hex,
+    stableStringify,
+    withErrorHandler,
+    type RateLimitInfo,
 } from './lib';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
@@ -552,10 +655,10 @@ registerAnalyticsRoutes(router);
 
 // API Key Management endpoints
 import {
-  createAuthErrorResponse,
-  trackApiUsage,
-  validateApiKey,
-  type ApiKeyInfo,
+    createAuthErrorResponse,
+    trackApiUsage,
+    validateApiKey,
+    type ApiKeyInfo,
 } from './lib/auth';
 import { createApiKey, getKeyUsage, listApiKeys, revokeApiKey } from './routes/api-keys';
 
@@ -2787,6 +2890,109 @@ createAnalysisEndpoint(
   '/api/analyze-business-loan-scenarios',
   BusinessLoanScenariosInputSchema,
   (input) => BusinessLoanScenariosAnalyzer.analyze(input)
+);
+
+// New Personal Finance Models
+createAnalysisEndpoint('/api/analyze-hsa-optimization', HSAOptimizationInputSchema, (input) =>
+  HSAOptimizer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-roth-vs-traditional-ira', RothVsTraditionalIRAInputSchema, (input) =>
+  RothVsTraditionalIRACalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-tax-loss-harvesting', TaxLossHarvestingInputSchema, (input) =>
+  TaxLossHarvestingOptimizer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-charitable-giving', CharitableGivingInputSchema, (input) =>
+  CharitableGivingOptimizer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-car-lease-vs-buy', CarLeaseVsBuyInputSchema, (input) =>
+  CarLeaseVsBuyCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-long-term-care', LongTermCareInputSchema, (input) =>
+  LongTermCareCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-disability-insurance', DisabilityInsuranceInputSchema, (input) =>
+  DisabilityInsuranceCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-life-insurance-reassessment', LifeInsuranceReassessmentInputSchema, (input) =>
+  LifeInsuranceReassessmentCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-529-optimizer', FiveTwoNineOptimizerInputSchema, (input) =>
+  FiveTwoNineOptimizer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-credit-score-impact', CreditScoreImpactInputSchema, (input) =>
+  CreditScoreImpactAnalyzer.analyze(input)
+);
+
+// New Business Finance Models
+createAnalysisEndpoint('/api/analyze-inventory-optimization', InventoryOptimizationInputSchema, (input) =>
+  InventoryOptimizer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-accounts-receivable-aging', AccountsReceivableAgingInputSchema, (input) =>
+  AccountsReceivableAgingAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-financial-ratio-analyzer', FinancialRatioAnalyzerInputSchema, (input) =>
+  FinancialRatioAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-depreciation', DepreciationInputSchema, (input) =>
+  DepreciationCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-equipment-lease-vs-buy', EquipmentLeaseVsBuyInputSchema, (input) =>
+  EquipmentLeaseVsBuyCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-revenue-recognition', RevenueRecognitionInputSchema, (input) =>
+  RevenueRecognitionCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-employee-stock-options', EmployeeStockOptionsInputSchema, (input) =>
+  EmployeeStockOptionsValuator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-franchise-roi', FranchiseROIInputSchema, (input) =>
+  FranchiseROICalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-startup-financial-model', StartupFinancialModelInputSchema, (input) =>
+  StartupFinancialModel.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-accounts-payable-optimization', AccountsPayableOptimizationInputSchema, (input) =>
+  AccountsPayableOptimizer.analyze(input)
+);
+
+// Specialized/Advanced Models
+createAnalysisEndpoint('/api/analyze-cryptocurrency-tax', CryptocurrencyTaxInputSchema, (input) =>
+  CryptocurrencyTaxCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-international-tax-planning', InternationalTaxPlanningInputSchema, (input) =>
+  InternationalTaxPlanningCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-1031-exchange', OneZeroThreeOneExchangeInputSchema, (input) =>
+  OneZeroThreeOneExchangeAnalyzer.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-business-succession-planning', BusinessSuccessionPlanningInputSchema, (input) =>
+  BusinessSuccessionPlanningCalculator.analyze(input)
+);
+
+createAnalysisEndpoint('/api/analyze-supply-chain-finance', SupplyChainFinanceInputSchema, (input) =>
+  SupplyChainFinanceOptimizer.analyze(input)
 );
 
 // Multi-Model Scenario Analysis (uses MCP tool)

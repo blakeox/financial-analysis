@@ -51,6 +51,34 @@ import { StudentLoanTool } from '../tools/student-loan.js';
 import { TaxOptimizationTool } from '../tools/tax-optimization.js';
 import { VaRTool } from '../tools/var.js';
 import { WorkingCapitalTool } from '../tools/working-capital.js';
+// New Personal Finance Models
+import { FiveTwoNineOptimizerTool } from '../tools/529-optimizer.js';
+import { CarLeaseVsBuyTool } from '../tools/car-lease-vs-buy.js';
+import { CharitableGivingTool } from '../tools/charitable-giving.js';
+import { CreditScoreImpactTool } from '../tools/credit-score-impact.js';
+import { DisabilityInsuranceTool } from '../tools/disability-insurance.js';
+import { HSAOptimizationTool } from '../tools/hsa-optimization.js';
+import { LifeInsuranceReassessmentTool } from '../tools/life-insurance-reassessment.js';
+import { LongTermCareTool } from '../tools/long-term-care.js';
+import { RothVsTraditionalIRATool } from '../tools/roth-vs-traditional-ira.js';
+import { TaxLossHarvestingTool } from '../tools/tax-loss-harvesting.js';
+// New Business Finance Models
+import { AccountsPayableOptimizationTool } from '../tools/accounts-payable-optimization.js';
+import { AccountsReceivableAgingTool } from '../tools/accounts-receivable-aging.js';
+import { DepreciationTool } from '../tools/depreciation.js';
+import { EmployeeStockOptionsTool } from '../tools/employee-stock-options.js';
+import { EquipmentLeaseVsBuyTool } from '../tools/equipment-lease-vs-buy.js';
+import { FinancialRatioAnalyzerTool } from '../tools/financial-ratio-analyzer.js';
+import { FranchiseROITool } from '../tools/franchise-roi.js';
+import { InventoryOptimizationTool } from '../tools/inventory-optimization.js';
+import { RevenueRecognitionTool } from '../tools/revenue-recognition.js';
+import { StartupFinancialModelTool } from '../tools/startup-financial-model.js';
+// Specialized/Advanced Models
+import { OneZeroThreeOneExchangeTool } from '../tools/1031-exchange.js';
+import { BusinessSuccessionPlanningTool } from '../tools/business-succession-planning.js';
+import { CryptocurrencyTaxTool } from '../tools/cryptocurrency-tax.js';
+import { InternationalTaxPlanningTool } from '../tools/international-tax-planning.js';
+import { SupplyChainFinanceTool } from '../tools/supply-chain-finance.js';
 
 export interface MCPTool {
   name: string;
@@ -359,6 +387,159 @@ export function createMCPTools(): MCPTool[] {
         ClearExpiredDocumentsTool
       ) as MCPTool['execute'],
     },
+    // New Personal Finance Models
+    {
+      name: HSAOptimizationTool.toolName,
+      description: HSAOptimizationTool.description,
+      inputSchema: HSAOptimizationTool.inputSchema,
+      execute: HSAOptimizationTool.execute.bind(HSAOptimizationTool),
+    },
+    {
+      name: RothVsTraditionalIRATool.toolName,
+      description: RothVsTraditionalIRATool.description,
+      inputSchema: RothVsTraditionalIRATool.inputSchema,
+      execute: RothVsTraditionalIRATool.execute.bind(RothVsTraditionalIRATool),
+    },
+    {
+      name: TaxLossHarvestingTool.toolName,
+      description: TaxLossHarvestingTool.description,
+      inputSchema: TaxLossHarvestingTool.inputSchema,
+      execute: TaxLossHarvestingTool.execute.bind(TaxLossHarvestingTool),
+    },
+    {
+      name: CharitableGivingTool.toolName,
+      description: CharitableGivingTool.description,
+      inputSchema: CharitableGivingTool.inputSchema,
+      execute: CharitableGivingTool.execute.bind(CharitableGivingTool),
+    },
+    {
+      name: CarLeaseVsBuyTool.toolName,
+      description: CarLeaseVsBuyTool.description,
+      inputSchema: CarLeaseVsBuyTool.inputSchema,
+      execute: CarLeaseVsBuyTool.execute.bind(CarLeaseVsBuyTool),
+    },
+    {
+      name: LongTermCareTool.toolName,
+      description: LongTermCareTool.description,
+      inputSchema: LongTermCareTool.inputSchema,
+      execute: LongTermCareTool.execute.bind(LongTermCareTool),
+    },
+    {
+      name: DisabilityInsuranceTool.toolName,
+      description: DisabilityInsuranceTool.description,
+      inputSchema: DisabilityInsuranceTool.inputSchema,
+      execute: DisabilityInsuranceTool.execute.bind(DisabilityInsuranceTool),
+    },
+    {
+      name: LifeInsuranceReassessmentTool.toolName,
+      description: LifeInsuranceReassessmentTool.description,
+      inputSchema: LifeInsuranceReassessmentTool.inputSchema,
+      execute: LifeInsuranceReassessmentTool.execute.bind(LifeInsuranceReassessmentTool),
+    },
+    {
+      name: FiveTwoNineOptimizerTool.toolName,
+      description: FiveTwoNineOptimizerTool.description,
+      inputSchema: FiveTwoNineOptimizerTool.inputSchema,
+      execute: FiveTwoNineOptimizerTool.execute.bind(FiveTwoNineOptimizerTool),
+    },
+    {
+      name: CreditScoreImpactTool.toolName,
+      description: CreditScoreImpactTool.description,
+      inputSchema: CreditScoreImpactTool.inputSchema,
+      execute: CreditScoreImpactTool.execute.bind(CreditScoreImpactTool),
+    },
+    // New Business Finance Models
+    {
+      name: InventoryOptimizationTool.toolName,
+      description: InventoryOptimizationTool.description,
+      inputSchema: InventoryOptimizationTool.inputSchema,
+      execute: InventoryOptimizationTool.execute.bind(InventoryOptimizationTool),
+    },
+    {
+      name: AccountsReceivableAgingTool.toolName,
+      description: AccountsReceivableAgingTool.description,
+      inputSchema: AccountsReceivableAgingTool.inputSchema,
+      execute: AccountsReceivableAgingTool.execute.bind(AccountsReceivableAgingTool),
+    },
+    {
+      name: FinancialRatioAnalyzerTool.toolName,
+      description: FinancialRatioAnalyzerTool.description,
+      inputSchema: FinancialRatioAnalyzerTool.inputSchema,
+      execute: FinancialRatioAnalyzerTool.execute.bind(FinancialRatioAnalyzerTool),
+    },
+    {
+      name: DepreciationTool.toolName,
+      description: DepreciationTool.description,
+      inputSchema: DepreciationTool.inputSchema,
+      execute: DepreciationTool.execute.bind(DepreciationTool),
+    },
+    {
+      name: EquipmentLeaseVsBuyTool.toolName,
+      description: EquipmentLeaseVsBuyTool.description,
+      inputSchema: EquipmentLeaseVsBuyTool.inputSchema,
+      execute: EquipmentLeaseVsBuyTool.execute.bind(EquipmentLeaseVsBuyTool),
+    },
+    {
+      name: RevenueRecognitionTool.toolName,
+      description: RevenueRecognitionTool.description,
+      inputSchema: RevenueRecognitionTool.inputSchema,
+      execute: RevenueRecognitionTool.execute.bind(RevenueRecognitionTool),
+    },
+    {
+      name: EmployeeStockOptionsTool.toolName,
+      description: EmployeeStockOptionsTool.description,
+      inputSchema: EmployeeStockOptionsTool.inputSchema,
+      execute: EmployeeStockOptionsTool.execute.bind(EmployeeStockOptionsTool),
+    },
+    {
+      name: FranchiseROITool.toolName,
+      description: FranchiseROITool.description,
+      inputSchema: FranchiseROITool.inputSchema,
+      execute: FranchiseROITool.execute.bind(FranchiseROITool),
+    },
+    {
+      name: StartupFinancialModelTool.toolName,
+      description: StartupFinancialModelTool.description,
+      inputSchema: StartupFinancialModelTool.inputSchema,
+      execute: StartupFinancialModelTool.execute.bind(StartupFinancialModelTool),
+    },
+    {
+      name: AccountsPayableOptimizationTool.toolName,
+      description: AccountsPayableOptimizationTool.description,
+      inputSchema: AccountsPayableOptimizationTool.inputSchema,
+      execute: AccountsPayableOptimizationTool.execute.bind(AccountsPayableOptimizationTool),
+    },
+    // Specialized/Advanced Models
+    {
+      name: CryptocurrencyTaxTool.toolName,
+      description: CryptocurrencyTaxTool.description,
+      inputSchema: CryptocurrencyTaxTool.inputSchema,
+      execute: CryptocurrencyTaxTool.execute.bind(CryptocurrencyTaxTool),
+    },
+    {
+      name: InternationalTaxPlanningTool.toolName,
+      description: InternationalTaxPlanningTool.description,
+      inputSchema: InternationalTaxPlanningTool.inputSchema,
+      execute: InternationalTaxPlanningTool.execute.bind(InternationalTaxPlanningTool),
+    },
+    {
+      name: OneZeroThreeOneExchangeTool.toolName,
+      description: OneZeroThreeOneExchangeTool.description,
+      inputSchema: OneZeroThreeOneExchangeTool.inputSchema,
+      execute: OneZeroThreeOneExchangeTool.execute.bind(OneZeroThreeOneExchangeTool),
+    },
+    {
+      name: BusinessSuccessionPlanningTool.toolName,
+      description: BusinessSuccessionPlanningTool.description,
+      inputSchema: BusinessSuccessionPlanningTool.inputSchema,
+      execute: BusinessSuccessionPlanningTool.execute.bind(BusinessSuccessionPlanningTool),
+    },
+    {
+      name: SupplyChainFinanceTool.toolName,
+      description: SupplyChainFinanceTool.description,
+      inputSchema: SupplyChainFinanceTool.inputSchema,
+      execute: SupplyChainFinanceTool.execute.bind(SupplyChainFinanceTool),
+    },
   ];
 }
 
@@ -437,6 +618,59 @@ function getConciseDescription(toolName: string): string {
     search_documents: 'Search cached documents using semantic similarity',
     get_document: 'Get a specific cached document by URL (cache or live fetch)',
     clear_expired_documents: 'Clear all documents older than 7 days (admin operation)',
+    // New Personal Finance Models
+    analyze_hsa_optimization:
+      'Maximize HSA tax benefits with contribution optimization and retirement healthcare planning',
+    analyze_roth_vs_traditional_ira:
+      'Compare Roth vs Traditional IRA strategies with tax optimization and conversion analysis',
+    analyze_tax_loss_harvesting:
+      'Identify tax-loss harvesting opportunities to offset capital gains and optimize tax savings',
+    analyze_charitable_giving:
+      'Optimize charitable giving strategies including cash, securities, DAFs, and QCDs for maximum tax benefits',
+    analyze_car_lease_vs_buy:
+      'Compare car leasing vs buying with comprehensive cost analysis including ownership costs and depreciation',
+    analyze_long_term_care:
+      'Analyze long-term care insurance needs, self-funding options, and hybrid strategies',
+    analyze_disability_insurance:
+      'Analyze disability insurance needs, coverage gaps, and policy options with own-occupation vs any-occupation analysis',
+    analyze_life_insurance_reassessment:
+      'Reassess life insurance coverage needs, analyze gaps, optimize policies, and compare term vs permanent insurance',
+    analyze_529_optimizer:
+      'Optimize 529 plan contributions, compare state plans for tax benefits, and analyze financial aid impact',
+    analyze_credit_score_impact:
+      'Analyze actions that impact credit score including payment history, utilization, credit mix, and new credit inquiries',
+    // New Business Finance Models
+    analyze_inventory_optimization:
+      'Optimize inventory levels with EOQ, safety stock calculations, ABC analysis, and reorder point optimization',
+    analyze_accounts_receivable_aging:
+      'Analyze accounts receivable aging, calculate DSO, forecast bad debt, and optimize collection strategies',
+    analyze_financial_ratios:
+      'Comprehensive financial ratio analysis including liquidity, profitability, efficiency, leverage, and market ratios',
+    analyze_depreciation:
+      'Calculate depreciation using multiple methods (straight-line, declining balance, MACRS, Section 179, bonus depreciation)',
+    analyze_equipment_lease_vs_buy:
+      'Compare equipment leasing vs purchasing with tax implications, NPV/IRR analysis, and cash flow comparison',
+    analyze_revenue_recognition:
+      'ASC 606 compliant revenue recognition analysis with performance obligation allocation and deferred revenue',
+    analyze_employee_stock_options:
+      'Value employee stock options using Black-Scholes, analyze tax implications (ISO vs NSO), and optimize exercise strategies',
+    analyze_franchise_roi:
+      'Analyze franchise investment ROI, calculate payback period, project cash flows, and compare franchise opportunities',
+    analyze_startup_financial_model:
+      'Comprehensive startup financial model with revenue projections, burn rate analysis, runway calculation, and funding scenarios',
+    analyze_accounts_payable_optimization:
+      'Optimize accounts payable management with payment term analysis, early payment discounts, and cash flow optimization',
+    // Specialized/Advanced Models
+    analyze_cryptocurrency_tax:
+      'Calculate cryptocurrency tax obligations with FIFO/LIFO/HIFO methods, wash sale analysis, and DeFi transaction tracking',
+    analyze_international_tax_planning:
+      'Optimize international tax planning with FEIE, FTC, tax treaties, and entity structure analysis for global income',
+    analyze_1031_exchange:
+      'Analyze 1031 like-kind exchange opportunities for real estate with tax deferral calculations and replacement property analysis',
+    analyze_business_succession_planning:
+      'Plan business succession with valuation, buy-sell agreements, tax optimization, and transfer strategies',
+    analyze_supply_chain_finance:
+      'Optimize supply chain finance with dynamic discounting, reverse factoring, inventory financing, and working capital solutions',
   };
 
   return descriptions[toolName] || 'Financial analysis tool';

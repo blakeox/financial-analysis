@@ -19,7 +19,12 @@ export class NetWorthTracker {
     const currentNetWorth = this.calculateNetWorth(assets, liabilities);
 
     // Project future net worth
-    const netWorthProjections = this.projectNetWorth(assets, liabilities, projections, goals.targetDate);
+    const netWorthProjections = this.projectNetWorth(
+      assets,
+      liabilities,
+      projections,
+      goals.targetDate
+    );
 
     // Milestones
     const milestones = goals.includeMilestones
@@ -241,7 +246,9 @@ export class NetWorthTracker {
     // Target net worth
     let yearsToTarget: number | undefined;
     if (targetNetWorth && targetNetWorth > currentNetWorth.netWorth) {
-      const targetMilestone = netWorthProjections.projections.find((p) => p.netWorth >= targetNetWorth);
+      const targetMilestone = netWorthProjections.projections.find(
+        (p) => p.netWorth >= targetNetWorth
+      );
       if (targetMilestone) {
         yearsToTarget = targetMilestone.year;
         milestones.push({
@@ -378,3 +385,5 @@ export class NetWorthTracker {
     return recommendations;
   }
 }
+
+
