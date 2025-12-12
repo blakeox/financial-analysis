@@ -55,3 +55,4 @@ export const CharitableGivingInputSchema = z.object({
 export type CharitableGivingInput = z.infer<typeof CharitableGivingInputSchema>;
 
 
+

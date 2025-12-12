@@ -62,3 +62,4 @@ export const FranchiseROIInputSchema = z.object({
 export type FranchiseROIInput = z.infer<typeof FranchiseROIInputSchema>;
 
 
+

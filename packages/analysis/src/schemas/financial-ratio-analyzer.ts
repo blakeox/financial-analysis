@@ -69,3 +69,4 @@ export const FinancialRatioAnalyzerInputSchema = z.object({
 export type FinancialRatioAnalyzerInput = z.infer<typeof FinancialRatioAnalyzerInputSchema>;
 
 
+

@@ -66,3 +66,4 @@ export const CryptocurrencyTaxInputSchema = z.object({
 export type CryptocurrencyTaxInput = z.infer<typeof CryptocurrencyTaxInputSchema>;
 
 
+

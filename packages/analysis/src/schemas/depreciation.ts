@@ -66,3 +66,4 @@ export const DepreciationInputSchema = z.object({
 export type DepreciationInput = z.infer<typeof DepreciationInputSchema>;
 
 
+

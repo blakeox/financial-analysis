@@ -62,3 +62,4 @@ export const RevenueRecognitionInputSchema = z.object({
 export type RevenueRecognitionInput = z.infer<typeof RevenueRecognitionInputSchema>;
 
 
+

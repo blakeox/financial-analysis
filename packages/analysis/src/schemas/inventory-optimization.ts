@@ -38,3 +38,4 @@ export const InventoryOptimizationInputSchema = z.object({
 export type InventoryOptimizationInput = z.infer<typeof InventoryOptimizationInputSchema>;
 
 
+

@@ -72,3 +72,4 @@ export const CreditScoreImpactInputSchema = z.object({
 export type CreditScoreImpactInput = z.infer<typeof CreditScoreImpactInputSchema>;
 
 
+
