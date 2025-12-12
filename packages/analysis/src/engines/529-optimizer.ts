@@ -36,9 +36,10 @@ export class FiveTwoNineOptimizer {
       : undefined;
 
     // State comparison
-    const stateComparison = strategy.includeMultiStateComparison && state529Options
-      ? this.compareStates(state529Options, personalInfo, contributionPlan)
-      : undefined;
+    const stateComparison =
+      strategy.includeMultiStateComparison && state529Options
+        ? this.compareStates(state529Options, personalInfo, contributionPlan)
+        : undefined;
 
     // Financial aid impact
     const aidImpact = financialAid.includeAidImpact
@@ -70,9 +71,7 @@ export class FiveTwoNineOptimizer {
     };
   }
 
-  private static calculateEducationCosts(
-    children: FiveTwoNineOptimizerInput['children']
-  ): {
+  private static calculateEducationCosts(children: FiveTwoNineOptimizerInput['children']): {
     totalCost: number;
     perChild: Array<{ childAge: number; totalCost: number; yearsUntilCollege: number }>;
   } {
@@ -105,11 +104,13 @@ export class FiveTwoNineOptimizer {
     totalFees: number;
   } {
     const totalBalance = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
-    const totalAnnualContribution = accounts.reduce((sum, acc) => sum + acc.annualContribution, 0) + plan.annualContribution;
-    const averageReturn = accounts.length > 0
-      ? accounts.reduce((sum, acc) => sum + acc.investmentReturn, 0) / accounts.length
-      : 0.07;
-    const totalFees = accounts.reduce((sum, acc) => sum + (acc.currentBalance * acc.fees), 0);
+    const totalAnnualContribution =
+      accounts.reduce((sum, acc) => sum + acc.annualContribution, 0) + plan.annualContribution;
+    const averageReturn =
+      accounts.length > 0
+        ? accounts.reduce((sum, acc) => sum + acc.investmentReturn, 0) / accounts.length
+        : 0.07;
+    const totalFees = accounts.reduce((sum, acc) => sum + acc.currentBalance * acc.fees, 0);
 
     return {
       totalBalance,
@@ -140,7 +141,9 @@ export class FiveTwoNineOptimizer {
 
     for (let year = 1; year <= maxYears; year++) {
       balance = balance.times(new Decimal(1).plus(annualReturn));
-      balance = balance.plus(annualContribution * Math.pow(1 + plan.contributionIncrease, year - 1));
+      balance = balance.plus(
+        annualContribution * Math.pow(1 + plan.contributionIncrease, year - 1)
+      );
       projections.push({
         year,
         balance: balance.toNumber(),
@@ -150,7 +153,8 @@ export class FiveTwoNineOptimizer {
 
     const perChildProjections = children.map((child) => {
       const years = child.yearsUntilCollege;
-      const projectedBalance = years > 0 && years <= projections.length ? projections[years - 1]?.balance || 0 : 0;
+      const projectedBalance =
+        years > 0 && years <= projections.length ? projections[years - 1]?.balance || 0 : 0;
       const shortfall = Math.max(0, (child.expectedCollegeCost || 0) - projectedBalance);
       return {
         childAge: child.age,
@@ -180,9 +184,10 @@ export class FiveTwoNineOptimizer {
     bestState: string;
   } {
     const stateAnalysis = states.map((state) => {
-      const taxSavings = state.stateTaxDeduction && state.state === personalInfo.stateOfResidence
-        ? Math.min(plan.annualContribution, state.maxDeduction) * personalInfo.stateTaxRate
-        : 0;
+      const taxSavings =
+        state.stateTaxDeduction && state.state === personalInfo.stateOfResidence
+          ? Math.min(plan.annualContribution, state.maxDeduction) * personalInfo.stateTaxRate
+          : 0;
       const fees = plan.annualContribution * state.fees;
       const netBenefit = taxSavings - fees;
 
@@ -251,7 +256,9 @@ export class FiveTwoNineOptimizer {
     if (projections) {
       recommendations.push(`Projected 529 balance: $${projections.totalBalance.toFixed(0)}`);
       if (projections.shortfall > 0) {
-        recommendations.push(`Shortfall: $${projections.shortfall.toFixed(0)} - consider increasing contributions`);
+        recommendations.push(
+          `Shortfall: $${projections.shortfall.toFixed(0)} - consider increasing contributions`
+        );
       }
     }
 
@@ -266,5 +273,4 @@ export class FiveTwoNineOptimizer {
     return recommendations;
   }
 }
-
 
