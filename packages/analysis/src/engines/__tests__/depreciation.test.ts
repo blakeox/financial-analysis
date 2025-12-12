@@ -74,3 +74,4 @@ describe('DepreciationCalculator', () => {
     expect(result).toBeDefined();
   });
 });
+

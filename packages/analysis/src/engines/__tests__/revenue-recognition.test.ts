@@ -67,3 +67,4 @@ describe('RevenueRecognitionCalculator', () => {
     expect(result.complianceCheck).toBeDefined();
   });
 });
+

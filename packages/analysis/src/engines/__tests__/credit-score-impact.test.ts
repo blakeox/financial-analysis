@@ -70,3 +70,4 @@ describe('CreditScoreImpactAnalyzer', () => {
     expect(result.timelineAnalysis).toBeDefined();
   });
 });
+

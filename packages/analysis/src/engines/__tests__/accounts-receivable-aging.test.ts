@@ -80,3 +80,4 @@ describe('AccountsReceivableAgingAnalyzer', () => {
     expect(Array.isArray(result.collectionRecommendations)).toBe(true);
   });
 });
+

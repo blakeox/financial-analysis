@@ -69,3 +69,4 @@ describe('SupplyChainFinanceOptimizer', () => {
     expect(result.scenarioAnalysis).toBeDefined();
   });
 });
+

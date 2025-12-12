@@ -79,3 +79,4 @@ describe('CharitableGivingOptimizer', () => {
     expect(result.summary.totalTaxSavings).toBeGreaterThan(0);
   });
 });
+

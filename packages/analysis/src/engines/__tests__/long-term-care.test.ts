@@ -68,3 +68,4 @@ describe('LongTermCareCalculator', () => {
     expect(result.comparison.selfFundingCost).toBeGreaterThan(0);
   });
 });
+

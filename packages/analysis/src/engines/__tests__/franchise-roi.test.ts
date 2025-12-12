@@ -69,3 +69,4 @@ describe('FranchiseROICalculator', () => {
     expect(Array.isArray(result.cashFlowProjections)).toBe(true);
   });
 });
+

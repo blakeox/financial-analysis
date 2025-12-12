@@ -82,3 +82,4 @@ describe('FinancialRatioAnalyzer', () => {
     expect(result.leverageRatios.debtToEquity).toBeGreaterThanOrEqual(0);
   });
 });
+

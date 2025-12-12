@@ -82,3 +82,4 @@ describe('LifeInsuranceReassessmentCalculator', () => {
     expect(result.policyOptimization).toBeDefined();
   });
 });
+

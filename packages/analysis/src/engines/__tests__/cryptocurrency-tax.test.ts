@@ -73,3 +73,4 @@ describe('CryptocurrencyTaxCalculator', () => {
     expect(Array.isArray(result.form8949Data)).toBe(true);
   });
 });
+

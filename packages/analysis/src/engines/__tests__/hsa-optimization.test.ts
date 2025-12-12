@@ -71,3 +71,4 @@ describe('HSAOptimizer', () => {
     expect(Array.isArray(result.recommendations)).toBe(true);
   });
 });
+

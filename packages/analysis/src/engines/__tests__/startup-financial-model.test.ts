@@ -68,3 +68,4 @@ describe('StartupFinancialModel', () => {
     expect(Array.isArray(result.fundingScenarios)).toBe(true);
   });
 });
+

@@ -71,3 +71,4 @@ describe('EquipmentLeaseVsBuyCalculator', () => {
     expect(result.taxImpactAnalysis).toBeDefined();
   });
 });
+

@@ -84,3 +84,4 @@ describe('TaxLossHarvestingOptimizer', () => {
     expect(result.carryForwardAnalysis).toBeDefined();
   });
 });
+

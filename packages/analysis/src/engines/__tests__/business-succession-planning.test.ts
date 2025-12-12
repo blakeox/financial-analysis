@@ -66,3 +66,4 @@ describe('BusinessSuccessionPlanningCalculator', () => {
     expect(result.fundingAnalysis).toBeDefined();
   });
 });
+

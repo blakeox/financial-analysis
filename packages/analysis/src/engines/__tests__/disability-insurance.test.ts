@@ -68,3 +68,4 @@ describe('DisabilityInsuranceCalculator', () => {
     expect(result.definitionComparison).toBeDefined();
   });
 });
+

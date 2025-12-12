@@ -71,3 +71,4 @@ describe('InventoryOptimizer', () => {
     expect(result.reorderPointAnalysis).toBeDefined();
   });
 });
+
