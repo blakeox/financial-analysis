@@ -98,6 +98,54 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     outputFields: ['allocation', 'expectedReturn', 'risk', 'sharpeRatio'],
     promptHint: 'Portfolio optimization and asset allocation',
   },
+  calculate_capm: {
+    keywords: ['capm', 'expected return', 'beta', 'risk free', 'market risk premium', 'equity cost'],
+    category: 'investment',
+    outputFields: ['expectedReturn'],
+    promptHint: 'CAPM expected return / cost of equity calculation',
+  },
+  analyze_risk_adjusted_returns: {
+    keywords: ['sharpe', 'sortino', 'risk adjusted', 'risk-adjusted', 'volatility', 'downside deviation'],
+    category: 'investment',
+    outputFields: ['sharpeRatio', 'sortinoRatio'],
+    promptHint: 'Sharpe and Sortino ratios from historical returns',
+  },
+  simulate_investment_monte_carlo: {
+    keywords: ['monte carlo', 'simulation', 'probabilistic', 'distribution', 'percentile', 'scenarios'],
+    category: 'investment',
+    outputFields: ['endingValue'],
+    promptHint: 'Deterministic Monte Carlo simulation for investment outcomes',
+  },
+  calculate_dividend_reinvestment: {
+    keywords: ['dividend', 'drip', 'reinvest', 'compound', 'yield', 'income investing'],
+    category: 'investment',
+    outputFields: ['endingValue', 'endingShares', 'totalDividends'],
+    promptHint: 'Dividend reinvestment (DRIP) growth modeling',
+  },
+  analyze_fx_hedge: {
+    keywords: ['fx', 'forex', 'hedge', 'forward', 'currency', 'interest rate parity', 'irp'],
+    category: 'investment',
+    outputFields: ['forwardRate', 'hedgedReturn', 'unhedgedReturn'],
+    promptHint: 'FX forward rate and hedged vs unhedged return impact',
+  },
+  calculate_esg_score: {
+    keywords: ['esg', 'environmental', 'social', 'governance', 'sustainability', 'impact'],
+    category: 'investment',
+    outputFields: ['score', 'rating'],
+    promptHint: 'Basic ESG score and rating from E/S/G components',
+  },
+  analyze_p2p_lending: {
+    keywords: ['p2p', 'peer to peer', 'peer-to-peer', 'lending', 'default', 'recovery', 'fee'],
+    category: 'investment',
+    outputFields: ['expectedTotalReturn', 'expectedAnnualizedReturn'],
+    promptHint: 'Expected return and loss estimation for P2P lending',
+  },
+  value_carbon_credits: {
+    keywords: ['carbon credit', 'co2', 'co2e', 'offset', 'offsets', 'sequestration'],
+    category: 'investment',
+    outputFields: ['presentValue', 'futureValue', 'spotValue'],
+    promptHint: 'Carbon credit valuation with optional price growth and discounting',
+  },
 
   // Cash Flow & Business Tools
   analyze_cash_flow: {
@@ -117,6 +165,18 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     category: 'business',
     outputFields: ['scenarios', 'comparison', 'variance'],
     promptHint: 'Compare multiple EBITDA scenarios',
+  },
+  calculate_npv_irr: {
+    keywords: ['npv', 'irr', 'net present value', 'internal rate of return', 'payback', 'sensitivity'],
+    category: 'valuation',
+    outputFields: ['npv', 'irr', 'paybackPeriod'],
+    promptHint: 'Dedicated NPV/IRR calculator with optional sensitivity analysis',
+  },
+  analyze_break_even: {
+    keywords: ['break even', 'break-even', 'fixed costs', 'variable costs', 'contribution margin'],
+    category: 'business',
+    outputFields: ['breakEvenUnits', 'breakEvenRevenue'],
+    promptHint: 'Break-even analysis in units and revenue',
   },
 
   // Valuation Tools

@@ -222,6 +222,25 @@ test.describe('MCP Tool Execution Verification', () => {
       expect(toolsData?.tools).toBeDefined();
       expect(Array.isArray(toolsData?.tools)).toBe(true);
       expect((toolsData?.tools as unknown[]).length).toBeGreaterThan(0);
+
+      // Sanity-check that newly added tools are present in the catalog
+      const toolNames = (toolsData?.tools as Array<{ name?: unknown }>).map((t) =>
+        typeof t?.name === 'string' ? t.name : ''
+      );
+      expect(toolNames).toEqual(
+        expect.arrayContaining([
+          'calculate_capm',
+          'analyze_risk_adjusted_returns',
+          'calculate_npv_irr',
+          'analyze_break_even',
+          'simulate_investment_monte_carlo',
+          'calculate_dividend_reinvestment',
+          'analyze_fx_hedge',
+          'calculate_esg_score',
+          'analyze_p2p_lending',
+          'value_carbon_credits',
+        ])
+      );
     });
   });
 

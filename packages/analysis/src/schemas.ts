@@ -87,10 +87,20 @@ export const ScenarioInputSchema = z.object({
   }).default({ taxRate: 0.25, discountRate: 0.1, inflationRate: 0.03 }),
 });
 
+// WACC Input Schema
+export const WACCInputSchema = z.object({
+  equityValue: z.number().positive('Equity value must be positive'),
+  debtValue: z.number().positive('Debt value must be positive'),
+  costOfEquity: z.number().min(0).max(1, 'Cost of equity must be between 0 and 1'),
+  costOfDebt: z.number().min(0).max(1, 'Cost of debt must be between 0 and 1'),
+  taxRate: z.number().min(0).max(1, 'Tax rate must be between 0 and 1'),
+});
+
 // Type exports
 export type FinancialInput = z.infer<typeof FinancialInputSchema>;
 export type AmortizationInput = z.infer<typeof AmortizationInputSchema>;
 export type ScenarioInput = z.infer<typeof ScenarioInputSchema>;
+export type WACCInput = z.infer<typeof WACCInputSchema>;
 
 // Validation helper functions
 export function validateFinancialInput(input: unknown): input is FinancialInput {

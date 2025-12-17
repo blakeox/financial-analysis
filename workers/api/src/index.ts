@@ -216,6 +216,8 @@ import {
     VaRCalculator,
     // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
     VaRInputSchema,
+    WACCAnalyzer,
+    WACCInputSchema,
     // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
     WorkingCapitalInputSchema,
     // @ts-expect-error - Exports exist but TypeScript may need package rebuild to recognize them
@@ -1716,6 +1718,89 @@ router.post(
       const result = EbitdaForecaster.forecast(
         parseResult.data as unknown as Parameters<typeof EbitdaForecaster.forecast>[0]
       );
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+      });
+    })
+  )
+);
+
+// WACC analysis endpoint
+router.post(
+  '/v1/api/analysis/wacc',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      const parseResult = WACCInputSchema.safeParse(body);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const result = WACCAnalyzer.analyze(parseResult.data);
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },

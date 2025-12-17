@@ -1,31 +1,32 @@
 import { EmployerMatch401kTool } from '../tools/401k-match.js';
 import { AmortizationTool } from '../tools/amortization.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
-import {
-  CacheDocumentTool,
-  ClearExpiredDocumentsTool,
-  GetDocumentTool,
-  SearchDocumentsTool,
-} from '../tools/autorag-documents.js';
+import { WACCTool } from '../tools/wacc.js';
 import { BondPricingTool } from '../tools/bond-pricing.js';
 import { BudgetTool } from '../tools/budget.js';
+import { BreakEvenTool } from '../tools/break-even.js';
 import { BusinessExpansionLoanTool } from '../tools/business-expansion-loan.js';
+import { CAPMTool } from '../tools/capm.js';
 import { CapitalStructureTool } from '../tools/capital-structure.js';
 import { CashFlowAnalysisTool } from '../tools/cash-flow.js';
 import { CCAAnalysisTool } from '../tools/cca-analysis.js';
 import { CollegeSavingsTool } from '../tools/college-savings.js';
+import { CarbonCreditValuationTool } from '../tools/carbon-credit.js';
 import { CreditRiskTool } from '../tools/credit-risk.js';
 import { DCFAnalysisTool } from '../tools/dcf-analysis.js';
 import { DebtPayoffTool } from '../tools/debt-payoff.js';
+import { DividendReinvestmentTool } from '../tools/dividend-reinvestment.js';
 import {
   EbitdaForecastingTool,
   EbitdaScenarioComparisonTool,
 } from '../tools/ebitda-forecasting.js';
 import { EmergencyFundTool } from '../tools/emergency-fund.js';
+import { ESGScoreTool } from '../tools/esg-score.js';
 import { EnhancedLeaseTool } from '../tools/enhanced-lease.js';
 import { EstatePlanningTool } from '../tools/estate-planning.js';
 import { FinancialJourneyTool } from '../tools/financial-journey.js';
 import { FIRECalculatorTool } from '../tools/fire-calculator.js';
+import { FXHedgingTool } from '../tools/fx-hedging.js';
 import { HELOCTool } from '../tools/heloc.js';
 import { HomeBuyingAffordabilityTool } from '../tools/home-buying-affordability.js';
 import { InsuranceNeedsTool } from '../tools/insurance-needs.js';
@@ -34,9 +35,12 @@ import { InvestmentPortfolioTool } from '../tools/investment-portfolio.js';
 import { LBOTool } from '../tools/lbo.js';
 import { LeaseTool } from '../tools/lease.js';
 import { MAAnalysisTool } from '../tools/ma-analysis.js';
+import { MonteCarloInvestmentTool } from '../tools/monte-carlo-investment.js';
 import { MultiModelScenarioTool } from '../tools/multi-model-scenario.js';
 import { NetWorthTool } from '../tools/net-worth.js';
+import { NPVIRRTool } from '../tools/npv-irr.js';
 import { OptionsPricingTool } from '../tools/options-pricing.js';
+import { P2PLendingTool } from '../tools/p2p-lending.js';
 import { PopulateLeaseFormTool } from '../tools/populate-lease-form.js';
 import { PortfolioOptimizationTool } from '../tools/portfolio-optimization.js';
 import { ProjectFinanceTool } from '../tools/project-finance.js';
@@ -45,6 +49,7 @@ import { RefinancingTool } from '../tools/refinancing.js';
 import { RentVsBuyTool } from '../tools/rent-vs-buy.js';
 import { RetirementPlanningTool } from '../tools/retirement-planning.js';
 import { RetirementTool } from '../tools/retirement.js';
+import { RiskAdjustedReturnsTool } from '../tools/risk-adjusted-returns.js';
 import { SavingsGoalTool } from '../tools/savings-goal.js';
 import { SocialSecurityTool } from '../tools/social-security.js';
 import { StudentLoanTool } from '../tools/student-loan.js';
@@ -307,6 +312,66 @@ export function createMCPTools(): MCPTool[] {
       execute: VaRTool.execute.bind(VaRTool),
     },
     {
+      name: CAPMTool.toolName,
+      description: CAPMTool.description,
+      inputSchema: CAPMTool.inputSchema,
+      execute: CAPMTool.execute.bind(CAPMTool),
+    },
+    {
+      name: RiskAdjustedReturnsTool.toolName,
+      description: RiskAdjustedReturnsTool.description,
+      inputSchema: RiskAdjustedReturnsTool.inputSchema,
+      execute: RiskAdjustedReturnsTool.execute.bind(RiskAdjustedReturnsTool),
+    },
+    {
+      name: NPVIRRTool.toolName,
+      description: NPVIRRTool.description,
+      inputSchema: NPVIRRTool.inputSchema,
+      execute: NPVIRRTool.execute.bind(NPVIRRTool),
+    },
+    {
+      name: BreakEvenTool.toolName,
+      description: BreakEvenTool.description,
+      inputSchema: BreakEvenTool.inputSchema,
+      execute: BreakEvenTool.execute.bind(BreakEvenTool),
+    },
+    {
+      name: MonteCarloInvestmentTool.toolName,
+      description: MonteCarloInvestmentTool.description,
+      inputSchema: MonteCarloInvestmentTool.inputSchema,
+      execute: MonteCarloInvestmentTool.execute.bind(MonteCarloInvestmentTool),
+    },
+    {
+      name: DividendReinvestmentTool.toolName,
+      description: DividendReinvestmentTool.description,
+      inputSchema: DividendReinvestmentTool.inputSchema,
+      execute: DividendReinvestmentTool.execute.bind(DividendReinvestmentTool),
+    },
+    {
+      name: FXHedgingTool.toolName,
+      description: FXHedgingTool.description,
+      inputSchema: FXHedgingTool.inputSchema,
+      execute: FXHedgingTool.execute.bind(FXHedgingTool),
+    },
+    {
+      name: ESGScoreTool.toolName,
+      description: ESGScoreTool.description,
+      inputSchema: ESGScoreTool.inputSchema,
+      execute: ESGScoreTool.execute.bind(ESGScoreTool),
+    },
+    {
+      name: P2PLendingTool.toolName,
+      description: P2PLendingTool.description,
+      inputSchema: P2PLendingTool.inputSchema,
+      execute: P2PLendingTool.execute.bind(P2PLendingTool),
+    },
+    {
+      name: CarbonCreditValuationTool.toolName,
+      description: CarbonCreditValuationTool.description,
+      inputSchema: CarbonCreditValuationTool.inputSchema,
+      execute: CarbonCreditValuationTool.execute.bind(CarbonCreditValuationTool),
+    },
+    {
       name: PortfolioOptimizationTool.toolName,
       description: PortfolioOptimizationTool.description,
       inputSchema: PortfolioOptimizationTool.inputSchema,
@@ -347,6 +412,12 @@ export function createMCPTools(): MCPTool[] {
       description: DCFAnalysisTool.description,
       inputSchema: DCFAnalysisTool.inputSchema,
       execute: DCFAnalysisTool.execute.bind(DCFAnalysisTool),
+    },
+    {
+      name: WACCTool.toolName,
+      description: WACCTool.description,
+      inputSchema: WACCTool.inputSchema,
+      execute: WACCTool.execute.bind(WACCTool),
     },
     {
       name: CCAAnalysisTool.toolName,
@@ -611,6 +682,19 @@ function getConciseDescription(toolName: string): string {
       'Working capital optimization with cash conversion cycle and liquidity analysis',
     analyze_var:
       'Value at Risk (VaR) calculation using historical, parametric, or Monte Carlo methods',
+    calculate_capm: 'Calculate expected return using CAPM',
+    analyze_risk_adjusted_returns: 'Calculate Sharpe and Sortino ratios from return series',
+    calculate_npv_irr: 'Calculate NPV and IRR with optional sensitivity analysis',
+    analyze_break_even: 'Calculate break-even units and revenue given costs and pricing',
+    simulate_investment_monte_carlo:
+      'Deterministic Monte Carlo simulation for investment outcomes',
+    calculate_dividend_reinvestment:
+      'Model investment growth with dividend reinvestment over time',
+    analyze_fx_hedge:
+      'Compute FX forward rates and hedged vs unhedged return impact',
+    calculate_esg_score: 'Compute a basic ESG score and rating',
+    analyze_p2p_lending: 'Estimate expected returns for peer-to-peer lending',
+    value_carbon_credits: 'Value carbon credits with price growth and discounting',
     analyze_portfolio_optimization:
       'Portfolio optimization with efficient frontier and asset allocation',
     cache_document:

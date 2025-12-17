@@ -44,6 +44,7 @@ export { BusinessSuccessionPlanningCalculator } from './engines/business-success
 export { CryptocurrencyTaxCalculator } from './engines/cryptocurrency-tax.js';
 export { InternationalTaxPlanningCalculator } from './engines/international-tax-planning.js';
 export { SupplyChainFinanceOptimizer } from './engines/supply-chain-finance.js';
+export { WACCAnalyzer } from './engines/wacc.js';
 
 // Export amortization functions and types
 export {
@@ -70,8 +71,9 @@ export {
   AmortizationInputSchema,
   FinancialInputSchema,
   validateFinancialInput,
+  WACCInputSchema,
 } from './schemas.js';
-export type { AmortizationInput, FinancialInput } from './schemas.js';
+export type { AmortizationInput, FinancialInput, WACCInput } from './schemas.js';
 
 // Enhanced lease schemas and types
 export { EnhancedLeaseInputSchema } from './schemas/enhanced-lease.js';
@@ -302,6 +304,48 @@ export type { WorkingCapitalInput } from './schemas/working-capital.js';
 export { VaRCalculator } from './engines/var.js';
 export { VaRInputSchema } from './schemas/var.js';
 export type { VaRInput } from './schemas/var.js';
+
+// Investment Metrics schemas and types
+export { CAPMCalculator } from './engines/capm.js';
+export { CAPMInputSchema } from './schemas/capm.js';
+export type { CAPMInput } from './schemas/capm.js';
+
+export { RiskAdjustedReturnsCalculator } from './engines/risk-adjusted-returns.js';
+export { RiskAdjustedReturnsInputSchema } from './schemas/risk-adjusted-returns.js';
+export type { RiskAdjustedReturnsInput } from './schemas/risk-adjusted-returns.js';
+
+export { DividendReinvestmentCalculator } from './engines/dividend-reinvestment.js';
+export { DividendReinvestmentInputSchema } from './schemas/dividend-reinvestment.js';
+export type { DividendReinvestmentInput } from './schemas/dividend-reinvestment.js';
+
+export { FXHedgingAnalyzer } from './engines/fx-hedging.js';
+export { FXHedgingInputSchema } from './schemas/fx-hedging.js';
+export type { FXHedgingInput } from './schemas/fx-hedging.js';
+
+export { MonteCarloInvestmentSimulator } from './engines/monte-carlo-investment.js';
+export { MonteCarloInvestmentInputSchema } from './schemas/monte-carlo-investment.js';
+export type { MonteCarloInvestmentInput } from './schemas/monte-carlo-investment.js';
+
+export { ESGScoringCalculator } from './engines/esg-score.js';
+export { ESGScoreInputSchema } from './schemas/esg-score.js';
+export type { ESGScoreInput } from './schemas/esg-score.js';
+
+export { P2PLendingAnalyzer } from './engines/p2p-lending.js';
+export { P2PLendingInputSchema } from './schemas/p2p-lending.js';
+export type { P2PLendingInput } from './schemas/p2p-lending.js';
+
+export { CarbonCreditValuationCalculator } from './engines/carbon-credit.js';
+export { CarbonCreditValuationInputSchema } from './schemas/carbon-credit.js';
+export type { CarbonCreditValuationInput } from './schemas/carbon-credit.js';
+
+// Business Metrics schemas and types
+export { BreakEvenAnalyzer } from './engines/break-even.js';
+export { BreakEvenInputSchema } from './schemas/break-even.js';
+export type { BreakEvenInput } from './schemas/break-even.js';
+
+export { NPVIRRCalculator } from './engines/npv-irr.js';
+export { NPVIRRInputSchema } from './schemas/npv-irr.js';
+export type { NPVIRRInput } from './schemas/npv-irr.js';
 
 // Portfolio Optimization schemas and types
 export { PortfolioOptimizer } from './engines/portfolio-optimization.js';

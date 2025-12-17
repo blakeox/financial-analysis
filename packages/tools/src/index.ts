@@ -25,12 +25,17 @@ export { CCAAnalysisTool } from './tools/cca-analysis';
 export { PopulateLeaseFormTool } from './tools/populate-lease-form';
 export { AutoLoanTool } from './tools/auto-loan';
 export { RentVsBuyTool } from './tools/rent-vs-buy';
-export { 
-  CacheDocumentTool, 
-  SearchDocumentsTool, 
-  GetDocumentTool, 
-  ClearExpiredDocumentsTool 
-} from './tools/autorag-documents';
+export { WACCTool } from './tools/wacc';
+export { CAPMTool } from './tools/capm';
+export { RiskAdjustedReturnsTool } from './tools/risk-adjusted-returns';
+export { BreakEvenTool } from './tools/break-even';
+export { NPVIRRTool } from './tools/npv-irr';
+export { MonteCarloInvestmentTool } from './tools/monte-carlo-investment';
+export { DividendReinvestmentTool } from './tools/dividend-reinvestment';
+export { FXHedgingTool } from './tools/fx-hedging';
+export { ESGScoreTool } from './tools/esg-score';
+export { P2PLendingTool } from './tools/p2p-lending';
+export { CarbonCreditValuationTool } from './tools/carbon-credit';
 
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';

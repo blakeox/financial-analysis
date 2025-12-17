@@ -103,6 +103,11 @@ function organizeToolsByCategory(
       description.includes('business') ||
       description.includes('revenue') ||
       description.includes('cash flow') ||
+      description.includes('npv') ||
+      description.includes('irr') ||
+      description.includes('payback') ||
+      description.includes('break-even') ||
+      description.includes('break even') ||
       description.includes('valuation') ||
       description.includes('unit economics') ||
       description.includes('startup')
@@ -119,7 +124,21 @@ function organizeToolsByCategory(
       description.includes('bond') ||
       description.includes('option') ||
       description.includes('portfolio') ||
-      description.includes('investment')
+      description.includes('investment') ||
+      description.includes('capm') ||
+      description.includes('sharpe') ||
+      description.includes('sortino') ||
+      description.includes('var') ||
+      description.includes('monte carlo') ||
+      description.includes('dividend') ||
+      description.includes('fx') ||
+      description.includes('forex') ||
+      description.includes('hedge') ||
+      description.includes('currency') ||
+      description.includes('esg') ||
+      description.includes('carbon') ||
+      description.includes('p2p') ||
+      description.includes('lending')
     ) {
       category = 'Investment';
     }
@@ -289,4 +308,3 @@ function formatToolName(toolName: string): string {
     .join(' ')
     .replace(/analyze /i, '');
 }
-
