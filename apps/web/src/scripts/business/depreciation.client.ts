@@ -87,7 +87,7 @@ class DepreciationCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('depreciation-results');
     const contentDiv = document.getElementById('depreciation-results-content');
     if (!resultsDiv || !contentDiv) return;

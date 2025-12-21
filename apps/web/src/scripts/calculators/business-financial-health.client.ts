@@ -73,7 +73,7 @@ class BusinessFinancialHealthCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('results');
     if (!resultsDiv) return;
 

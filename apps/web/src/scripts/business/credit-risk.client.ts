@@ -82,7 +82,7 @@ class CreditRiskAnalyzer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('credit-risk-results');
     const contentDiv = document.getElementById('credit-risk-results-content');
     if (!resultsDiv || !contentDiv) return;

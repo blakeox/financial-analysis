@@ -78,7 +78,7 @@ class AccountsPayableOptimizationCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('accounts-payable-optimization-results');
     const contentDiv = document.getElementById('accounts-payable-optimization-results-content');
     if (!resultsDiv || !contentDiv) return;

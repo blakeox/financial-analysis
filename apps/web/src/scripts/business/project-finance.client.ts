@@ -95,7 +95,7 @@ class ProjectFinanceAnalyzer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('project-finance-results');
     const contentDiv = document.getElementById('project-finance-results-content');
     if (!resultsDiv || !contentDiv) return;

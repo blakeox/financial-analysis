@@ -81,7 +81,7 @@ class FIRECalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('fire-calculator-results');
     const contentDiv = document.getElementById('fire-calculator-results-content');
     if (!resultsDiv || !contentDiv) return;

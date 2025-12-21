@@ -76,7 +76,7 @@ class InventoryOptimizationCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('inventory-optimization-results');
     const contentDiv = document.getElementById('inventory-optimization-results-content');
     if (!resultsDiv || !contentDiv) return;

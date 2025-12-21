@@ -78,7 +78,7 @@ class AccountsReceivableAgingCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('accounts-receivable-aging-results');
     const contentDiv = document.getElementById('accounts-receivable-aging-results-content');
     if (!resultsDiv || !contentDiv) return;

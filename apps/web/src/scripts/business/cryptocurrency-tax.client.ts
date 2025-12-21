@@ -73,7 +73,7 @@ class CryptocurrencyTaxCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('cryptocurrency-tax-results');
     const contentDiv = document.getElementById('cryptocurrency-tax-results-content');
     if (!resultsDiv || !contentDiv) return;

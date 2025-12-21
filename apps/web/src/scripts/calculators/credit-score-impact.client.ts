@@ -84,7 +84,7 @@ class CreditScoreImpactCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('credit-score-impact-results');
     const contentDiv = document.getElementById('credit-score-impact-results-content');
     if (!resultsDiv || !contentDiv) return;

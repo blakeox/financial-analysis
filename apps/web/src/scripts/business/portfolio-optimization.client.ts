@@ -102,7 +102,7 @@ class PortfolioOptimizer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('portfolio-optimization-results');
     const contentDiv = document.getElementById('portfolio-optimization-results-content');
     if (!resultsDiv || !contentDiv) return;

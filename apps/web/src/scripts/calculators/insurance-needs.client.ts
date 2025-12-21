@@ -112,7 +112,7 @@ class InsuranceNeedsCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('insurance-results');
     const contentDiv = document.getElementById('insurance-results-content');
 

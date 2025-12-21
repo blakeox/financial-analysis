@@ -92,7 +92,7 @@ class WorkingCapitalOptimizer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('working-capital-results');
     const contentDiv = document.getElementById('working-capital-results-content');
     if (!resultsDiv || !contentDiv) return;

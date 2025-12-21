@@ -186,7 +186,7 @@ class TaxOptimizationCalculator {
     return mapping[maritalStatus] || 'single';
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('tax-results');
     const contentDiv = document.getElementById('tax-results-content');
 

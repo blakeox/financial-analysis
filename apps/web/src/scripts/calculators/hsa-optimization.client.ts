@@ -44,7 +44,7 @@ class HSAOptimizationCalculator {
             (formData.get('catchUpContribution') as string) || '1000'
           ),
           currentYear: parseInt(
-            (formData.get('currentYear') as string) || new Date().getFullYear()
+            (formData.get('currentYear') as string) || new Date().getFullYear().toString()
           ),
         },
         hsaDetails: {
@@ -95,7 +95,7 @@ class HSAOptimizationCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('hsa-optimization-results');
     const contentDiv = document.getElementById('hsa-optimization-results-content');
     if (!resultsDiv || !contentDiv) return;

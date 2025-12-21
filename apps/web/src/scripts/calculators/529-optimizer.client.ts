@@ -80,7 +80,7 @@ class FiveTwoNineOptimizerCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('529-optimizer-results');
     const contentDiv = document.getElementById('529-optimizer-results-content');
     if (!resultsDiv || !contentDiv) return;

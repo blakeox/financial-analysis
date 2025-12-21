@@ -393,7 +393,7 @@ class JourneyPageManager {
 // Initialize when DOM is ready
 function initializeJourneyPage() {
   console.log('Journey page script loaded');
-  window.journeyManager = new JourneyPageManager();
+  (window as any).journeyManager = new JourneyPageManager();
   console.log('Journey manager initialized:', window.journeyManager);
 }
 
@@ -417,7 +417,6 @@ interface JourneyContext {
 
 declare global {
   interface Window {
-    journeyManager: JourneyPageManager;
     currentJourney?: JourneyContext;
   }
 }

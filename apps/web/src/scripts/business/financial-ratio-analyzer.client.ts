@@ -101,7 +101,7 @@ class FinancialRatioAnalyzerCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('financial-ratio-analyzer-results');
     const contentDiv = document.getElementById('financial-ratio-analyzer-results-content');
     if (!resultsDiv || !contentDiv) return;

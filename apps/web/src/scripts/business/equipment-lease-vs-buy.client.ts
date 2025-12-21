@@ -93,7 +93,7 @@ class EquipmentLeaseVsBuyCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('equipment-lease-vs-buy-results');
     const contentDiv = document.getElementById('equipment-lease-vs-buy-results-content');
     if (!resultsDiv || !contentDiv) return;

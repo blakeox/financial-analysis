@@ -84,7 +84,7 @@ class EmployeeStockOptionsCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('employee-stock-options-results');
     const contentDiv = document.getElementById('employee-stock-options-results-content');
     if (!resultsDiv || !contentDiv) return;

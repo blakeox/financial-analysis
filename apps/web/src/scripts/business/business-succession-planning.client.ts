@@ -91,7 +91,7 @@ class BusinessSuccessionPlanningCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('business-succession-planning-results');
     const contentDiv = document.getElementById('business-succession-planning-results-content');
     if (!resultsDiv || !contentDiv) return;

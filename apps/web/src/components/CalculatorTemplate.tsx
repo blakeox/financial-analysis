@@ -49,6 +49,7 @@ export interface FormFieldConfig {
   group?: string;
   helpText?: string;
   advancedOnly?: boolean; // If true, field is hidden in Basic mode
+  default?: string | number | boolean;
 }
 
 // Predefined calculator configurations - only including calculators with existing client scripts

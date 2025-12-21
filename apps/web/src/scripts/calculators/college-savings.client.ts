@@ -93,7 +93,7 @@ class CollegeSavingsCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('college-savings-results');
     const contentDiv = document.getElementById('college-savings-results-content');
 

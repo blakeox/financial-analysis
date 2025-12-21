@@ -86,7 +86,7 @@ class CharitableGivingCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('charitable-giving-results');
     const contentDiv = document.getElementById('charitable-giving-results-content');
     if (!resultsDiv || !contentDiv) return;

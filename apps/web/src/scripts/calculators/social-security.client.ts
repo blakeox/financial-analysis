@@ -31,15 +31,15 @@ class SocialSecurityCalculator {
 
       const formData = new FormData(this.form);
       const birthDate = formData.get('birthDate') as string;
-      const birthYear = new Date(birthDate).getFullYear();
-      const fullRetirementAge = parseFloat((formData.get('fullRetirementAge') as string) || 67);
+      // const birthYear = new Date(birthDate).getFullYear();
+      const fullRetirementAge = parseFloat((formData.get('fullRetirementAge') as string) || '67');
 
       const input = {
         personalInfo: {
           birthDate,
           currentAge: parseInt((formData.get('currentAge') as string) || '65'),
           fullRetirementAge,
-          lifeExpectancy: parseInt((formData.get('lifeExpectancy') as string) || 85),
+          lifeExpectancy: parseInt((formData.get('lifeExpectancy') as string) || '85'),
         },
         earnings: {
           currentAnnualEarnings: parseFloat(
@@ -51,7 +51,7 @@ class SocialSecurityCalculator {
         },
         maritalStatus: (formData.get('maritalStatus') as string) || 'single',
         claimingStrategy: {
-          primaryClaimingAge: parseInt((formData.get('primaryClaimingAge') as string) || 67),
+          primaryClaimingAge: parseInt((formData.get('primaryClaimingAge') as string) || '67'),
           strategy: undefined,
         },
         goals: {
@@ -83,7 +83,7 @@ class SocialSecurityCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('social-security-results');
     const contentDiv = document.getElementById('social-security-results-content');
     if (!resultsDiv || !contentDiv) return;

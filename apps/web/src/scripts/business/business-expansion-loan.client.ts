@@ -110,7 +110,7 @@ class BusinessExpansionLoanCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('expansion-loan-results');
     const contentDiv = document.getElementById('expansion-loan-results-content');
 

@@ -92,7 +92,7 @@ class HomeBuyingAffordabilityCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('home-buying-results');
     const contentDiv = document.getElementById('home-buying-results-content');
 

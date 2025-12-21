@@ -84,7 +84,7 @@ class FranchiseROICalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('franchise-roi-results');
     const contentDiv = document.getElementById('franchise-roi-results-content');
     if (!resultsDiv || !contentDiv) return;

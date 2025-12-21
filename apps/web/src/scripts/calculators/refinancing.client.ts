@@ -78,7 +78,7 @@ class RefinancingCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('refinancing-results');
     const contentDiv = document.getElementById('refinancing-results-content');
     if (!resultsDiv || !contentDiv) return;

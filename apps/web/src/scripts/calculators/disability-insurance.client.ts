@@ -84,7 +84,7 @@ class DisabilityInsuranceCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('disability-insurance-results');
     const contentDiv = document.getElementById('disability-insurance-results-content');
     if (!resultsDiv || !contentDiv) return;

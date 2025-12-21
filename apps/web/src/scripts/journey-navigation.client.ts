@@ -414,14 +414,8 @@ class JourneyNavigationManager {
 // Initialize journey navigation manager
 const journeyNavigationManager = new JourneyNavigationManager();
 
-declare global {
-  interface Window {
-    journeyNavigationManager?: JourneyNavigationManager;
-  }
-}
-
 // Export for external access
-window.journeyNavigationManager = journeyNavigationManager;
+(window as any).journeyNavigationManager = journeyNavigationManager;
 
 // Export types for TypeScript
 export { JourneyNavigationManager };

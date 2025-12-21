@@ -83,7 +83,7 @@ class CapitalStructureOptimizer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('capital-structure-results');
     const contentDiv = document.getElementById('capital-structure-results-content');
     if (!resultsDiv || !contentDiv) return;

@@ -85,7 +85,7 @@ class TaxLossHarvestingCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('tax-loss-harvesting-results');
     const contentDiv = document.getElementById('tax-loss-harvesting-results-content');
     if (!resultsDiv || !contentDiv) return;

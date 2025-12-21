@@ -27,7 +27,7 @@ type ScriptLoaderMap = {
   'journey-analysis': () => Promise<unknown>;
   // Business calculators
   'dcf-valuation': () => Promise<unknown>;
-  'ma-analysis': () => Promise<unknown>;
+  'ma-analysis-simple': () => Promise<unknown>;
   'risk-management': () => Promise<unknown>;
   'break-even': () => Promise<unknown>;
   'cash-flow-forecast': () => Promise<unknown>;
@@ -125,7 +125,7 @@ const scriptLoaders: ScriptLoaderMap = {
   'mortgage-scenario-planning': () => import('../scripts/mortgage-scenario-planning/index.ts'),
   // Business calculators
   'dcf-valuation': () => import('../scripts/business/dcf-valuation-simple.client.ts'),
-  'ma-analysis': () => import('../scripts/business/ma-analysis-simple.client.ts'),
+  'ma-analysis-simple': () => import('../scripts/business/ma-analysis-simple.client.ts'),
   'risk-management': () => import('../scripts/business/risk-management-simple.client.ts'),
   'cash-flow-forecast': () => import('../scripts/business/cash-flow-forecast.client.ts'),
   'cash-flow-analysis': () => import('../scripts/business/cash-flow-analysis.client.ts'),

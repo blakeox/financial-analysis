@@ -100,7 +100,7 @@ class InvestmentPortfolioCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('portfolio-results');
     const contentDiv = document.getElementById('portfolio-results-content');
 

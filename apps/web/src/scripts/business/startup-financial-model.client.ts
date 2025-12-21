@@ -92,7 +92,7 @@ class StartupFinancialModelCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('startup-financial-model-results');
     const contentDiv = document.getElementById('startup-financial-model-results-content');
     if (!resultsDiv || !contentDiv) return;

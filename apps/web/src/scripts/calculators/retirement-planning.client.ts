@@ -98,7 +98,7 @@ class RetirementPlanningCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('retirement-planning-results');
     const contentDiv = document.getElementById('retirement-planning-results-content');
 

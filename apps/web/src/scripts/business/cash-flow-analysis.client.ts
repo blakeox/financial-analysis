@@ -165,7 +165,7 @@ class CashFlowAnalysisCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('cash-flow-results');
     const contentDiv = document.getElementById('cash-flow-results-content');
 

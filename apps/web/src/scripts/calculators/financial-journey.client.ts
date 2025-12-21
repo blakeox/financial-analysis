@@ -85,7 +85,7 @@ class FinancialJourneyCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('journey-results');
     const contentDiv = document.getElementById('journey-results-content');
 

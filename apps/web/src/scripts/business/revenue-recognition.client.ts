@@ -70,7 +70,7 @@ class RevenueRecognitionCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('revenue-recognition-results');
     const contentDiv = document.getElementById('revenue-recognition-results-content');
     if (!resultsDiv || !contentDiv) return;

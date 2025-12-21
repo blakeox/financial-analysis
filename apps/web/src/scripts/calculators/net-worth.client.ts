@@ -82,7 +82,7 @@ class NetWorthTracker {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('net-worth-results');
     const contentDiv = document.getElementById('net-worth-results-content');
     if (!resultsDiv || !contentDiv) return;

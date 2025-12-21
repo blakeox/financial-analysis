@@ -89,7 +89,7 @@ class OneZeroThreeOneExchangeCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('1031-exchange-results');
     const contentDiv = document.getElementById('1031-exchange-results-content');
     if (!resultsDiv || !contentDiv) return;

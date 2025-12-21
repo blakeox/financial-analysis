@@ -91,7 +91,7 @@ class CarLeaseVsBuyCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('car-lease-vs-buy-results');
     const contentDiv = document.getElementById('car-lease-vs-buy-results-content');
     if (!resultsDiv || !contentDiv) return;

@@ -86,7 +86,7 @@ class HELOCCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('heloc-results');
     const contentDiv = document.getElementById('heloc-results-content');
     if (!resultsDiv || !contentDiv) return;

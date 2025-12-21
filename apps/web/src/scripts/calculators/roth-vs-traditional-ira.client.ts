@@ -101,7 +101,7 @@ class RothVsTraditionalIRACalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('roth-vs-traditional-ira-results');
     const contentDiv = document.getElementById('roth-vs-traditional-ira-results-content');
     if (!resultsDiv || !contentDiv) return;

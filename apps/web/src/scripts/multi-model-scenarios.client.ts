@@ -944,7 +944,6 @@ declare global {
   interface Window {
     selectScenario: (scenarioId: string) => void;
     clearScenarioSelection: () => void;
-    scenarioManager: MultiModelScenarioManager;
     currentScenario?: {
       id: string;
       name: string;
@@ -958,7 +957,7 @@ declare global {
 // Initialize scenario manager when DOM is loaded
 function initializeScenarioManager() {
   console.log('Multi-model scenarios script loaded');
-  window.scenarioManager = new MultiModelScenarioManager();
+  (window as any).scenarioManager = new MultiModelScenarioManager();
   console.log('Scenario manager initialized:', window.scenarioManager);
 
   // Make functions globally available

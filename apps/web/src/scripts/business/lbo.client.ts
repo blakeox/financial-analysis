@@ -91,7 +91,7 @@ class LBOModel {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('lbo-results');
     const contentDiv = document.getElementById('lbo-results-content');
     if (!resultsDiv || !contentDiv) return;

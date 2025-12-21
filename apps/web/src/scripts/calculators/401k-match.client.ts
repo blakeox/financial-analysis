@@ -75,7 +75,7 @@ class EmployerMatch401kOptimizer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('401k-match-results');
     const contentDiv = document.getElementById('401k-match-results-content');
     if (!resultsDiv || !contentDiv) return;

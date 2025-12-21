@@ -93,7 +93,7 @@ class LifeInsuranceReassessmentCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('life-insurance-reassessment-results');
     const contentDiv = document.getElementById('life-insurance-reassessment-results-content');
     if (!resultsDiv || !contentDiv) return;

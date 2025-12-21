@@ -203,7 +203,7 @@ class CCAnalysisCalculator {
     };
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('cca-results');
     const contentDiv = document.getElementById('cca-results-content');
 

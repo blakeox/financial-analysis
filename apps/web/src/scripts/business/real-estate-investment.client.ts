@@ -98,7 +98,7 @@ class RealEstateInvestmentAnalyzer {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('real-estate-investment-results');
     const contentDiv = document.getElementById('real-estate-investment-results-content');
     if (!resultsDiv || !contentDiv) return;

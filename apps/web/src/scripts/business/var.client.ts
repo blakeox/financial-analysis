@@ -93,7 +93,7 @@ class VaRCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('var-results');
     const contentDiv = document.getElementById('var-results-content');
     if (!resultsDiv || !contentDiv) return;

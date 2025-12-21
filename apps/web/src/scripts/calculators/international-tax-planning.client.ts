@@ -86,7 +86,7 @@ class InternationalTaxPlanningCalculator {
     }
   }
 
-  private displayResults(result: unknown): void {
+  private displayResults(_result: unknown): void {
     const resultsDiv = document.getElementById('international-tax-planning-results');
     const contentDiv = document.getElementById('international-tax-planning-results-content');
     if (!resultsDiv || !contentDiv) return;
