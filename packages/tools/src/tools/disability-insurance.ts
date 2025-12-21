@@ -2,7 +2,7 @@
  * Disability Insurance MCP Tool
  */
 
-import { DisabilityInsuranceCalculator, DisabilityInsuranceInputSchema } from '@financial-analysis/analysis';
+import { DisabilityInsuranceAnalyzer, DisabilityInsuranceInputSchema } from '@financial-analysis/analysis';
 
 export class DisabilityInsuranceTool {
   static readonly toolName = 'analyze_disability_insurance';
@@ -79,7 +79,7 @@ export class DisabilityInsuranceTool {
 
   static async execute(args: unknown): Promise<unknown> {
     const validated = DisabilityInsuranceInputSchema.parse(args);
-    return DisabilityInsuranceCalculator.analyze(validated);
+    return DisabilityInsuranceAnalyzer.analyze(validated);
   }
 }
 

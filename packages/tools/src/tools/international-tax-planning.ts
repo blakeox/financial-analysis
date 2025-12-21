@@ -2,7 +2,7 @@
  * International Tax Planning MCP Tool
  */
 
-import { InternationalTaxPlanningInputSchema, InternationalTaxPlanningCalculator } from '@financial-analysis/analysis';
+import { InternationalTaxPlanningInputSchema, InternationalTaxPlanningOptimizer } from '@financial-analysis/analysis';
 
 export class InternationalTaxPlanningTool {
   static readonly toolName = 'analyze_international_tax_planning';
@@ -76,7 +76,7 @@ export class InternationalTaxPlanningTool {
 
   static async execute(args: unknown): Promise<unknown> {
     const validated = InternationalTaxPlanningInputSchema.parse(args);
-    return InternationalTaxPlanningCalculator.analyze(validated);
+    return InternationalTaxPlanningOptimizer.analyze(validated);
   }
 }
 

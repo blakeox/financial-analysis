@@ -1,6 +1,12 @@
 import { EmployerMatch401kTool } from '../tools/401k-match.js';
 import { AmortizationTool } from '../tools/amortization.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
+import {
+  CacheDocumentTool,
+  SearchDocumentsTool,
+  GetDocumentTool,
+  ClearExpiredDocumentsTool,
+} from '../tools/autorag-documents.js';
 import { WACCTool } from '../tools/wacc.js';
 import { BondPricingTool } from '../tools/bond-pricing.js';
 import { BudgetTool } from '../tools/budget.js';
