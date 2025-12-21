@@ -22,6 +22,7 @@ describe('DepreciationCalculator', () => {
       federalTaxRate: 0.21,
       stateTaxRate: 0.05,
       section179Limit: 1080000,
+      section179Threshold: 2900000,
       bonusDepreciationPercentage: 0.6,
     },
     analysis: {
@@ -40,15 +41,15 @@ describe('DepreciationCalculator', () => {
   });
 
   it('should generate depreciation schedule when requested', () => {
-    const result = DepreciationCalculator.analyze(baseInput);
+    const result = DepreciationCalculator.analyze(baseInput) as any;
     expect(result.depreciationSchedule).toBeDefined();
-    expect(Array.isArray(result.depreciationSchedule)).toBe(true);
+    expect(Array.isArray(result.depreciationSchedule.schedule)).toBe(true);
   });
 
   it('should calculate tax savings', () => {
-    const result = DepreciationCalculator.analyze(baseInput);
+    const result = DepreciationCalculator.analyze(baseInput) as any;
     expect(result.taxSavings).toBeDefined();
-    expect(result.taxSavings.totalTaxSavings).toBeGreaterThanOrEqual(0);
+    expect(result.taxSavings.totalSavings).toBeGreaterThanOrEqual(0);
   });
 
   it('should handle MACRS method', () => {
