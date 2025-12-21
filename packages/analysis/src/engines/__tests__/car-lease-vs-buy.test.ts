@@ -21,12 +21,17 @@ describe('CarLeaseVsBuyCalculator', () => {
       residualPercentage: 0.5,
       mileageAllowance: 12000,
       excessMileageFee: 0.25,
+      acquisitionFee: 0,
+      dispositionFee: 0,
+      securityDeposit: 0,
     },
     purchaseTerms: {
       loanTerm: 60,
       downPayment: 5000,
       interestRate: 0.05,
       salesTaxRate: 0.08,
+      registrationFee: 0,
+      titleFee: 0,
     },
     ownershipCosts: {
       annualInsurance: 1500,
@@ -38,6 +43,7 @@ describe('CarLeaseVsBuyCalculator', () => {
     financialAssumptions: {
       opportunityCostRate: 0.07,
       expectedDepreciation: 0.15,
+      tradeInValue: 0,
     },
     analysis: {
       analysisPeriod: 3,
@@ -47,34 +53,37 @@ describe('CarLeaseVsBuyCalculator', () => {
   };
 
   it('should calculate lease vs buy comparison', () => {
-    const result = CarLeaseVsBuyCalculator.analyze(baseInput);
+    const result = CarLeaseVsBuyCalculator.analyze(baseInput) as any;
     expect(result).toBeDefined();
     expect(result.comparison).toBeDefined();
-    expect(result.comparison.leaseTotalCost).toBeGreaterThan(0);
-    expect(result.comparison.purchaseTotalCost).toBeGreaterThan(0);
+    expect(result.summary.leaseTotalCost).toBeGreaterThan(0);
+    expect(result.summary.purchaseTotalCost).toBeGreaterThan(0);
   });
 
   it('should calculate total cost of ownership', () => {
-    const result = CarLeaseVsBuyCalculator.analyze(baseInput);
-    expect(result.totalCostAnalysis).toBeDefined();
-    expect(result.totalCostAnalysis.leaseTotalCost).toBeGreaterThan(0);
-    expect(result.totalCostAnalysis.purchaseTotalCost).toBeGreaterThan(0);
+    const result = CarLeaseVsBuyCalculator.analyze(baseInput) as any;
+    expect(result.summary).toBeDefined();
+    expect(result.summary.leaseTotalCost).toBeGreaterThan(0);
+    expect(result.summary.purchaseTotalCost).toBeGreaterThan(0);
   });
 
   it('should provide recommendation', () => {
-    const result = CarLeaseVsBuyCalculator.analyze(baseInput);
-    expect(result.recommendation).toBeDefined();
-    expect(result.recommendation.recommendedOption).toBeDefined();
+    const result = CarLeaseVsBuyCalculator.analyze(baseInput) as any;
+    expect(result.recommendations).toBeDefined();
+    expect(Array.isArray(result.recommendations)).toBe(true);
+    expect(result.recommendations.length).toBeGreaterThan(0);
   });
 
   it('should calculate break-even analysis', () => {
-    const result = CarLeaseVsBuyCalculator.analyze(baseInput);
-    expect(result.breakEvenAnalysis).toBeDefined();
+    const result = CarLeaseVsBuyCalculator.analyze(baseInput) as any;
+    expect(result.comparison).toBeDefined();
+    expect(result.comparison.breakEvenYears).toBeDefined();
   });
 
   it('should include opportunity cost analysis', () => {
-    const result = CarLeaseVsBuyCalculator.analyze(baseInput);
-    expect(result.opportunityCostAnalysis).toBeDefined();
+    const result = CarLeaseVsBuyCalculator.analyze(baseInput) as any;
+    expect(result.purchaseAnalysis).toBeDefined();
+    expect(result.purchaseAnalysis.opportunityCost).toBeDefined();
   });
 });
 
