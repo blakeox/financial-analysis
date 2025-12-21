@@ -24,7 +24,7 @@ export class AccountsPayableOptimizer {
 
     // Cash flow impact
     const cashFlowImpact = analysis.includeCashFlowImpact
-      ? this.analyzeCashFlowImpact(payables, paymentTerms, cashFlow, discountAnalysis)
+      ? this.analyzeCashFlowImpact(payables, paymentTerms, discountAnalysis)
       : undefined;
 
     // Payment schedule
@@ -42,7 +42,6 @@ export class AccountsPayableOptimizer {
       discountAnalysis,
       cashFlowImpact,
       paymentSchedule,
-      vendorOptimization,
       strategy
     );
 
@@ -110,7 +109,6 @@ export class AccountsPayableOptimizer {
   private static analyzeCashFlowImpact(
     payables: AccountsPayableOptimizationInput['payables'],
     terms: AccountsPayableOptimizationInput['paymentTerms'],
-    cashFlow: AccountsPayableOptimizationInput['cashFlow'],
     discounts: { totalSavings: number } | undefined
   ): {
     currentPaymentDays: number;
@@ -150,7 +148,7 @@ export class AccountsPayableOptimizer {
       return {
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate,
-        paymentDate: paymentDate.toISOString().split('T')[0],
+        paymentDate: paymentDate.toISOString().split('T')[0] as string,
         amount: invoice.amountOutstanding,
         discountTaken: takeDiscount || false,
       };
@@ -201,7 +199,6 @@ export class AccountsPayableOptimizer {
     discounts: { totalSavings: number; discounts: Array<{ recommendation: string }> } | undefined,
     cashFlow: { netCashFlowImpact: number } | undefined,
     schedule: { averagePaymentDays: number } | undefined,
-    vendors: { criticalVendorPayments: Array<unknown> } | undefined,
     strategy: AccountsPayableOptimizationInput['strategy']
   ): string[] {
     const recommendations: string[] = [];

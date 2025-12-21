@@ -180,11 +180,12 @@ export class PortfolioOptimizer {
     }));
 
     // Calculate optimized metrics
+    const expectedReturns = marketData.expectedReturns;
     const optimizedReturn =
-      marketData.expectedReturns &&
-      marketData.expectedReturns.length === normalizedAllocations.length
+      expectedReturns &&
+      expectedReturns.length === normalizedAllocations.length
         ? normalizedAllocations.reduce(
-            (sum, alloc, i) => sum + alloc.allocation * marketData.expectedReturns[i]!,
+            (sum, alloc, i) => sum + alloc.allocation * expectedReturns[i]!,
             0
           )
         : currentMetrics.expectedReturn * 1.1;
@@ -296,7 +297,7 @@ export class PortfolioOptimizer {
   }
 
   private static generateRecommendations(
-    currentAllocation: Array<{ allocation: number }>,
+    _currentAllocation: Array<{ allocation: number }>,
     optimalAllocation: { expectedReturn: number; risk: number; sharpeRatio: number },
     currentMetrics: { expectedReturn: number; risk: number },
     constraints: PortfolioOptimizationInput['constraints']

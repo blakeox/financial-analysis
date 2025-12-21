@@ -25,8 +25,7 @@ export class EquipmentLeaseVsBuyCalculator {
       equipmentInfo,
       purchaseTerms,
       taxInfo,
-      financialAssumptions,
-      analysis
+      financialAssumptions
     );
 
     // Compare options
@@ -34,10 +33,8 @@ export class EquipmentLeaseVsBuyCalculator {
 
     // Recommendations
     const recommendations = this.generateRecommendations(
-      leaseAnalysis,
-      purchaseAnalysis,
       comparison,
-      analysis
+      financialAssumptions.analysisPeriod
     );
 
     return {
@@ -91,8 +88,7 @@ export class EquipmentLeaseVsBuyCalculator {
     equipment: EquipmentLeaseVsBuyInput['equipmentInfo'],
     purchaseTerms: EquipmentLeaseVsBuyInput['purchaseTerms'],
     taxInfo: EquipmentLeaseVsBuyInput['taxInfo'],
-    assumptions: EquipmentLeaseVsBuyInput['financialAssumptions'],
-    analysis: EquipmentLeaseVsBuyInput['analysis']
+    assumptions: EquipmentLeaseVsBuyInput['financialAssumptions']
   ): {
     purchasePrice: number;
     totalInterest: number;
@@ -116,25 +112,25 @@ export class EquipmentLeaseVsBuyCalculator {
     const totalInterest = (monthlyPayment * numPayments) - loanAmount;
 
     // Maintenance and insurance
-    const totalMaintenance = purchaseTerms.annualMaintenanceCost * analysis.analysisPeriod;
-    const totalInsurance = purchaseTerms.insuranceCost * analysis.analysisPeriod;
+    const totalMaintenance = purchaseTerms.annualMaintenanceCost * assumptions.analysisPeriod;
+    const totalInsurance = purchaseTerms.insuranceCost * assumptions.analysisPeriod;
 
     // Depreciation and tax benefits
-    const depreciation = purchasePrice * (1 - Math.pow(1 - 0.2, analysis.analysisPeriod)); // 20% annual depreciation
+    const depreciation = purchasePrice * (1 - Math.pow(1 - 0.2, assumptions.analysisPeriod)); // 20% annual depreciation
     const section179 = taxInfo.section179Eligible ? Math.min(purchasePrice, taxInfo.section179Deduction) : 0;
     const bonusDepreciation = taxInfo.bonusDepreciationEligible ? purchasePrice * taxInfo.bonusDepreciationPercentage : 0;
     const totalDepreciation = section179 + bonusDepreciation + depreciation;
     const taxSavings = totalDepreciation * (taxInfo.federalTaxRate + taxInfo.stateTaxRate);
 
     // Resale value
-    const resaleValue = equipment.expectedResidualValue * Math.pow(1 - assumptions.inflationRate, analysis.analysisPeriod);
+    const resaleValue = equipment.expectedResidualValue * Math.pow(1 - assumptions.inflationRate, assumptions.analysisPeriod);
 
     const totalCost = purchasePrice + salesTax + totalInterest + totalMaintenance + totalInsurance - taxSavings - resaleValue;
     const afterTaxCost = totalCost;
 
     // NPV
     const discountRate = assumptions.opportunityCostRate;
-    const npv = this.calculateNPV(monthlyPayment * 12, analysis.analysisPeriod, discountRate) - purchasePrice - salesTax + taxSavings + resaleValue;
+    const npv = this.calculateNPV(monthlyPayment * 12, assumptions.analysisPeriod, discountRate) - purchasePrice - salesTax + taxSavings + resaleValue;
 
     return {
       purchasePrice: totalPurchase,
@@ -178,15 +174,13 @@ export class EquipmentLeaseVsBuyCalculator {
   }
 
   private static generateRecommendations(
-    lease: { totalCost: number },
-    purchase: { totalCost: number },
-    comparison: { betterOption: string },
-    analysis: EquipmentLeaseVsBuyInput['analysis']
+    comparison: { betterOption: string; costDifference: number },
+    analysisPeriod: number
   ): string[] {
     const recommendations: string[] = [];
 
     recommendations.push(`${comparison.betterOption === 'lease' ? 'Leasing' : 'Buying'} is more cost-effective`);
-    recommendations.push(`Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysis.analysisPeriod} years`);
+    recommendations.push(`Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysisPeriod} years`);
 
     if (comparison.betterOption === 'lease') {
       recommendations.push('Leasing provides tax benefits and preserves capital');

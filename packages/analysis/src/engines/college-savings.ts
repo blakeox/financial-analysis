@@ -56,7 +56,6 @@ export class CollegeSavingsPlanner {
 
     // Analyze 529 plan benefits
     const plan529Analysis = this.analyze529Plan(
-      familyInfo.stateOfResidence,
       currentSavings.total529Balance,
       currentSavings.monthlyContribution,
       goals.riskTolerance
@@ -80,7 +79,6 @@ export class CollegeSavingsPlanner {
 
     // Calculate success probability
     const successProbability = this.calculateSuccessProbability(
-      projectedSavings,
       new Decimal(totalProjectedCost),
       savingsGap
     );
@@ -141,11 +139,11 @@ export class CollegeSavingsPlanner {
     return children.map((child) => {
       const yearsToCollege = child.expectedCollegeStartAge - child.age;
       const collegeCosts = costByType[child.collegeType] || costByType['public'];
-      const currentAnnualCost = collegeCosts.annual;
+      const currentAnnualCost = collegeCosts!.annual;
       const futureAnnualCost = new Decimal(currentAnnualCost)
         .times(new Decimal(1).plus(inflationRate).pow(yearsToCollege))
         .toNumber();
-      const totalCost = futureAnnualCost * collegeCosts.years;
+      const totalCost = futureAnnualCost * collegeCosts!.years;
 
       return {
         name: child.name,
@@ -197,11 +195,10 @@ export class CollegeSavingsPlanner {
       moderate: new Decimal(0.07),
       aggressive: new Decimal(0.09),
     };
-    return rates[riskTolerance] || rates.moderate;
+    return (rates[riskTolerance] || rates.moderate) as Decimal;
   }
 
   private static analyze529Plan(
-    state: string,
     currentBalance: number,
     monthlyContribution: number,
     riskTolerance: string
@@ -232,7 +229,6 @@ export class CollegeSavingsPlanner {
   }
 
   private static calculateSuccessProbability(
-    projectedSavings: Decimal,
     targetAmount: Decimal,
     gap: number
   ): number {

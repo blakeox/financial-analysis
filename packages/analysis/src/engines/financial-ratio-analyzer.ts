@@ -53,7 +53,6 @@ export class FinancialRatioAnalyzer {
     const recommendations = this.generateRecommendations(
       liquidityRatios,
       profitabilityRatios,
-      efficiencyRatios,
       leverageRatios,
       benchmarking
     );
@@ -67,7 +66,10 @@ export class FinancialRatioAnalyzer {
         debtToEquity: leverageRatios?.debtToEquity || 0,
       },
       liquidityRatios,
-      profitabilityRatios,
+      profitabilityRatios: profitabilityRatios ? {
+        ...profitabilityRatios,
+        netProfitMargin: profitabilityRatios.netMargin,
+      } : undefined,
       efficiencyRatios,
       leverageRatios,
       marketRatios,
@@ -243,7 +245,7 @@ export class FinancialRatioAnalyzer {
 
   private static performBenchmarking(
     liquidity: { currentRatio: number } | undefined,
-    profitability: { roe: number; roa: number; profitMargin: number } | undefined,
+    profitability: { roe: number } | undefined,
     leverage: { debtToEquity: number } | undefined,
     industry: NonNullable<FinancialRatioAnalyzerInput['marketData']['industryAverages']>
   ): {
@@ -279,7 +281,6 @@ export class FinancialRatioAnalyzer {
   private static generateRecommendations(
     liquidity: { currentRatio: number; interpretation: string } | undefined,
     profitability: { roe: number; roa: number } | undefined,
-    efficiency: { assetTurnover: number } | undefined,
     leverage: { debtToEquity: number } | undefined,
     benchmarking: { liquidityComparison: { variance: number } } | undefined
   ): string[] {

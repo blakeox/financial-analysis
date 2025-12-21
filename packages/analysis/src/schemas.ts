@@ -96,11 +96,26 @@ export const WACCInputSchema = z.object({
   taxRate: z.number().min(0).max(1, 'Tax rate must be between 0 and 1'),
 });
 
+// Real Options Input Schema
+export const RealOptionsInputSchema = z.object({
+  initialInvestment: z.number().positive('Initial investment must be positive'),
+  expectedCashFlows: z.array(z.number()).min(1, 'At least one cash flow required'),
+  volatility: z.number().min(0, 'Volatility must be between 0 and 1').max(1, 'Volatility must be between 0 and 1'),
+  riskFreeRate: z.number().min(0, 'Risk-free rate must be between 0 and 1').max(1, 'Risk-free rate must be between 0 and 1'),
+  timeToMaturity: z.number().positive('Time to maturity must be positive'),
+
+  optionType: z.enum(['expand', 'abandon', 'delay']),
+  exercisePrice: z.number().optional(),
+  expansionCost: z.number().optional(),
+  salvageValue: z.number().optional(),
+});
+
 // Type exports
 export type FinancialInput = z.infer<typeof FinancialInputSchema>;
 export type AmortizationInput = z.infer<typeof AmortizationInputSchema>;
 export type ScenarioInput = z.infer<typeof ScenarioInputSchema>;
 export type WACCInput = z.infer<typeof WACCInputSchema>;
+export type RealOptionsInput = z.infer<typeof RealOptionsInputSchema>;
 
 // Validation helper functions
 export function validateFinancialInput(input: unknown): input is FinancialInput {

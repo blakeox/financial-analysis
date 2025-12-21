@@ -19,7 +19,7 @@ export { FiveTwoNineOptimizer } from './engines/529-optimizer.js';
 export { CarLeaseVsBuyCalculator } from './engines/car-lease-vs-buy.js';
 export { CharitableGivingOptimizer } from './engines/charitable-giving.js';
 export { CreditScoreImpactAnalyzer } from './engines/credit-score-impact.js';
-export { DisabilityInsuranceCalculator } from './engines/disability-insurance.js';
+export { DisabilityInsuranceAnalyzer } from './engines/disability-insurance.js';
 export { HSAOptimizer } from './engines/hsa-optimization.js';
 export { LifeInsuranceReassessmentCalculator } from './engines/life-insurance-reassessment.js';
 export { LongTermCareCalculator } from './engines/long-term-care.js';
@@ -42,9 +42,14 @@ export { StartupFinancialModel } from './engines/startup-financial-model.js';
 export { OneZeroThreeOneExchangeAnalyzer } from './engines/1031-exchange.js';
 export { BusinessSuccessionPlanningCalculator } from './engines/business-succession-planning.js';
 export { CryptocurrencyTaxCalculator } from './engines/cryptocurrency-tax.js';
-export { InternationalTaxPlanningCalculator } from './engines/international-tax-planning.js';
+export { InternationalTaxPlanningOptimizer } from './engines/international-tax-planning.js';
 export { SupplyChainFinanceOptimizer } from './engines/supply-chain-finance.js';
 export { WACCAnalyzer } from './engines/wacc.js';
+
+// Advanced Derivatives and Risk Management
+export { FuturesPricingAnalyzer, ForwardPricingAnalyzer } from './engines/futures.js';
+export { InterestRateSwapAnalyzer, CurrencySwapAnalyzer } from './engines/swaps.js';
+export { RealOptionsAnalyzer } from './engines/real-options.js';
 
 // Export amortization functions and types
 export {
@@ -103,6 +108,7 @@ export type {
 export { ScenarioInputSchema } from './engines/ebitda-forecasting.js';
 export type { EbitdaForecastResult, ScenarioInput } from './engines/ebitda-forecasting.js';
 export type { LeaseAnalysisResult } from './engines/lease.js';
+export type { WACCResult } from './engines/wacc.js';
 
 // Bond pricing schemas and types
 export { BondPricingInputSchema } from './schemas/bond-pricing.js';
@@ -222,7 +228,7 @@ export type { RetirementPlanningInput } from './schemas/retirement-planning.js';
 
 // Tax optimization schemas and types
 export { TaxOptimizationPlanner } from './engines/tax-optimization.js';
-export { TaxOptimizationInputSchema } from './schemas/tax-optimization.js';
+export { TaxOptimizationInputSchema } from './engines/tax-optimization.js';
 export type { TaxOptimizationInput } from './schemas/tax-optimization.js';
 
 // Business expansion loan schemas and types

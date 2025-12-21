@@ -19,7 +19,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
     // Calculate tax deferral
     const taxDeferral = analysis.includeTaxDeferral
-      ? this.calculateTaxDeferral(relinquished, replacement, boot, taxInfo)
+      ? this.calculateTaxDeferral(relinquished, boot, taxInfo)
       : undefined;
 
     // Depreciation recapture
@@ -34,7 +34,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
     // Comparison to selling without exchange
     const comparison = analysis.includeComparison
-      ? this.compareToSale(relinquished, replacement, taxDeferral, taxInfo)
+      ? this.compareToSale(relinquished, taxDeferral, taxInfo)
       : undefined;
 
     // Recommendations
@@ -65,7 +65,6 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
   private static calculateTaxDeferral(
     relinquished: OneZeroThreeOneExchangeInput['relinquishedProperty'],
-    replacement: OneZeroThreeOneExchangeInput['replacementProperty'],
     boot: OneZeroThreeOneExchangeInput['boot'],
     taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
   ): {
@@ -128,7 +127,6 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
   private static compareToSale(
     relinquished: OneZeroThreeOneExchangeInput['relinquishedProperty'],
-    replacement: OneZeroThreeOneExchangeInput['replacementProperty'],
     deferral: { deferredTax: number } | undefined,
     taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
   ): {
@@ -159,7 +157,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
     deferral: { deferredTax: number } | undefined,
     recapture: { recaptureTax: number } | undefined,
     boot: { taxOnBoot: number } | undefined,
-    comparison: { taxSavings: number } | undefined,
+    comparison: { taxSavings: number; recommendation: string } | undefined,
     timeline: OneZeroThreeOneExchangeInput['exchangeTimeline']
   ): string[] {
     const recommendations: string[] = [];
@@ -171,6 +169,10 @@ export class OneZeroThreeOneExchangeAnalyzer {
     if (comparison) {
       recommendations.push(`Tax savings vs sale: $${comparison.taxSavings.toFixed(0)}`);
       recommendations.push(comparison.recommendation);
+    }
+
+    if (recapture) {
+      recommendations.push(`Depreciation recapture tax: $${recapture.recaptureTax.toFixed(0)}`);
     }
 
     if (boot && boot.taxOnBoot > 0) {

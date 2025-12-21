@@ -19,7 +19,7 @@ export class CreditRiskAnalyzer {
 
     // Probability of Default (PD)
     const probabilityOfDefault = analysis.includePD
-      ? this.calculatePD(ratios, financials, input.borrowerInfo)
+      ? this.calculatePD(ratios, input.borrowerInfo)
       : undefined;
 
     // Loss Given Default (LGD)
@@ -38,7 +38,7 @@ export class CreditRiskAnalyzer {
         : undefined;
 
     // Credit rating assessment
-    const creditRating = this.assessCreditRating(ratios, financials, probabilityOfDefault);
+    const creditRating = this.assessCreditRating(ratios, probabilityOfDefault);
 
     // Stress testing
     const stressTesting = analysis.includeStressTesting
@@ -104,7 +104,6 @@ export class CreditRiskAnalyzer {
 
   private static calculatePD(
     ratios: { debtToEBITDA: number; interestCoverage: number; currentRatio: number },
-    financials: CreditRiskInput['financials'],
     borrowerInfo?: CreditRiskInput['borrowerInfo']
   ): {
     pd: number;
@@ -145,7 +144,7 @@ export class CreditRiskAnalyzer {
     }
 
     // Years in business
-    if (borrowerInfo && borrowerInfo.yearsInBusiness < 2) {
+    if (borrowerInfo && borrowerInfo.yearsInBusiness && borrowerInfo.yearsInBusiness < 2) {
       pd += 0.05;
       factors.push('Newer business has higher default risk');
     }
@@ -218,7 +217,6 @@ export class CreditRiskAnalyzer {
 
   private static assessCreditRating(
     ratios: { debtToEBITDA: number; interestCoverage: number },
-    financials: CreditRiskInput['financials'],
     pd?: { pd: number }
   ): {
     rating: string;

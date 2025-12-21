@@ -142,7 +142,7 @@ export class StartupFinancialModel {
   } {
     const cac = expenses.variableCosts.customerAcquisitionCost || (expenses.variableCosts.marketing * (revenue.revenueModel === 'subscription' ? current.currentMRR : current.currentRevenue)) / (current.currentCustomers || 1);
     const arpu = revenue.revenueModel === 'subscription' ? (current.currentMRR / (current.currentCustomers || 1)) * 12 : (current.currentRevenue / (current.currentCustomers || 1));
-    const churnRate = revenue.revenueProjections.monthlyRevenue[0]?.churnRate || 0.05;
+    const churnRate = revenue.monthlyRevenue[0]?.churnRate || 0.05;
     const ltv = arpu / churnRate;
     const ltvCacRatio = cac > 0 ? ltv / cac : 0;
     const paybackPeriod = arpu > 0 ? cac / (arpu / 12) : 0;
@@ -188,7 +188,7 @@ export class StartupFinancialModel {
 
   private static trackMilestones(
     milestones: StartupFinancialModelInput['milestones'],
-    revenue: StartupFinancialModelInput['revenueProjections'],
+    _revenue: StartupFinancialModelInput['revenueProjections'],
     current: StartupFinancialModelInput['currentSituation']
   ): {
     milestones: Array<{

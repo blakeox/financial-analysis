@@ -60,13 +60,22 @@ export class HSAOptimizer {
       summary: {
         maxContribution: maxContribution.total,
         currentContribution: hsaDetails.annualContribution,
-        annualTaxSavings: taxBenefits.totalSavings,
+        totalTaxSavings: taxBenefits.totalSavings,
         projectedBalanceAtRetirement: hsaProjection.finalBalance,
         tripleTaxBenefit: true,
       },
-      contributionLimits: maxContribution,
-      taxBenefits,
-      hsaProjection,
+      contributionOptimization: {
+        ...maxContribution,
+        optimalContribution: maxContribution.personalContribution,
+      },
+      taxSavings: {
+        ...taxBenefits,
+        annualTaxSavings: taxBenefits.totalSavings,
+      },
+      retirementProjections: {
+        ...hsaProjection,
+        projectedBalance: hsaProjection.finalBalance,
+      },
       retirementAnalysis,
       recommendations,
     };
@@ -177,7 +186,7 @@ export class HSAOptimizer {
 
   private static analyzeRetirementHealthcare(
     hsaProjection: { finalBalance: number },
-    _medicalExpenses: HSAOptimizationInput['medicalExpenses'],
+    medicalExpenses: HSAOptimizationInput['medicalExpenses'],
     strategy: HSAOptimizationInput['strategy']
   ): {
     projectedRetirementBalance: number;

@@ -5,11 +5,37 @@
 
 import type { CryptocurrencyTaxInput } from '../schemas/cryptocurrency-tax.js';
 
+interface CryptocurrencyTaxAnalysisResult {
+  summary: {
+    totalRealizedGains: number;
+    totalRealizedLosses: number;
+    netCapitalGains: number;
+    incomeTax: number;
+    totalTaxLiability: number;
+  };
+  realizedGains: {
+    gains: Array<{ transactionId: string | undefined; asset: string; gain: number; costBasis: number; proceeds: number }>;
+    totalGains: number;
+    totalLosses: number;
+    netGains: number;
+  } | undefined;
+  unrealizedGains?: unknown;
+  taxLossHarvesting?: unknown;
+  washSaleAnalysis?: unknown;
+  incomeTax: {
+    totalTax: number;
+  };
+  totalTaxLiability: {
+    totalTax: number;
+  };
+  recommendations: unknown;
+}
+
 export class CryptocurrencyTaxCalculator {
   /**
    * Analyze cryptocurrency tax implications
    */
-  static analyze(input: CryptocurrencyTaxInput): unknown {
+  static analyze(input: CryptocurrencyTaxInput): CryptocurrencyTaxAnalysisResult {
     const transactions = input.transactions;
     const costBasisMethod = input.costBasisMethod;
     const taxInfo = input.taxInfo;
@@ -81,38 +107,39 @@ export class CryptocurrencyTaxCalculator {
     totalLosses: number;
     netGains: number;
   } {
-    const sellTransactions = transactions.filter((t) => t.transactionType === 'sell' || t.transactionType === 'trade');
-    const buyTransactions = transactions.filter((t) => t.transactionType === 'buy').sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
+    const sellTransactions = transactions.filter((t) => (t as any).transactionType === 'sell' || (t as any).transactionType === 'trade');
+    const buyTransactions = transactions.filter((t) => (t as any).transactionType === 'buy').sort((a, b) => 
+      new Date((a as any).date).getTime() - new Date((b as any).date).getTime()
     );
 
     const gains = sellTransactions.map((sell) => {
+      const sellTyped = sell as any;
       let costBasis = 0;
-      const proceeds = sell.proceeds || sell.totalValue;
+      const proceeds = sellTyped.proceeds || sellTyped.totalValue;
 
       // Calculate cost basis based on method
       switch (method) {
         case 'fifo':
-          costBasis = this.calculateFIFOBasis(sell, buyTransactions);
+          costBasis = this.calculateFIFOBasis(sellTyped, buyTransactions);
           break;
         case 'lifo':
-          costBasis = this.calculateLIFOBasis(sell, buyTransactions);
+          costBasis = this.calculateLIFOBasis(sellTyped, buyTransactions);
           break;
         case 'highest-cost':
-          costBasis = this.calculateHighestCostBasis(sell, buyTransactions);
+          costBasis = this.calculateHighestCostBasis(sellTyped, buyTransactions);
           break;
         case 'lowest-cost':
-          costBasis = this.calculateLowestCostBasis(sell, buyTransactions);
+          costBasis = this.calculateLowestCostBasis(sellTyped, buyTransactions);
           break;
         default:
-          costBasis = sell.costBasis || sell.pricePerUnit * sell.quantity;
+          costBasis = sellTyped.costBasis || sellTyped.pricePerUnit * sellTyped.quantity;
       }
 
       const gain = proceeds - costBasis;
 
       return {
-        transactionId: sell.transactionId,
-        asset: sell.asset,
+        transactionId: sellTyped.transactionId,
+        asset: sellTyped.asset,
         gain,
         costBasis,
         proceeds,
@@ -133,15 +160,15 @@ export class CryptocurrencyTaxCalculator {
 
   private static calculateFIFOBasis(
     sell: CryptocurrencyTaxInput['transactions'][0],
-    buys: CryptocurrencyTaxInput['transactions'][]
+    buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    let remainingQuantity = sell.quantity;
+    let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
 
-    for (const buy of buys.filter((b) => b.asset === sell.asset)) {
+    for (const buy of buys.filter((b) => (b as any).asset === (sell as any).asset)) {
       if (remainingQuantity <= 0) break;
-      const quantityUsed = Math.min(remainingQuantity, buy.quantity);
-      costBasis += buy.pricePerUnit * quantityUsed;
+      const quantityUsed = Math.min(remainingQuantity, (buy as any).quantity);
+      costBasis += (buy as any).pricePerUnit * quantityUsed;
       remainingQuantity -= quantityUsed;
     }
 
@@ -150,16 +177,16 @@ export class CryptocurrencyTaxCalculator {
 
   private static calculateLIFOBasis(
     sell: CryptocurrencyTaxInput['transactions'][0],
-    buys: CryptocurrencyTaxInput['transactions'][]
+    buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    let remainingQuantity = sell.quantity;
+    let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
-    const relevantBuys = buys.filter((b) => b.asset === sell.asset).reverse();
+    const relevantBuys = buys.filter((b) => (b as any).asset === (sell as any).asset).reverse();
 
     for (const buy of relevantBuys) {
       if (remainingQuantity <= 0) break;
-      const quantityUsed = Math.min(remainingQuantity, buy.quantity);
-      costBasis += buy.pricePerUnit * quantityUsed;
+      const quantityUsed = Math.min(remainingQuantity, (buy as any).quantity);
+      costBasis += (buy as any).pricePerUnit * quantityUsed;
       remainingQuantity -= quantityUsed;
     }
 
@@ -168,16 +195,16 @@ export class CryptocurrencyTaxCalculator {
 
   private static calculateHighestCostBasis(
     sell: CryptocurrencyTaxInput['transactions'][0],
-    buys: CryptocurrencyTaxInput['transactions'][]
+    buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    const relevantBuys = buys.filter((b) => b.asset === sell.asset).sort((a, b) => b.pricePerUnit - a.pricePerUnit);
-    let remainingQuantity = sell.quantity;
+    const relevantBuys = buys.filter((b) => (b as any).asset === (sell as any).asset).sort((a, b) => (b as any).pricePerUnit - (a as any).pricePerUnit);
+    let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
 
     for (const buy of relevantBuys) {
       if (remainingQuantity <= 0) break;
-      const quantityUsed = Math.min(remainingQuantity, buy.quantity);
-      costBasis += buy.pricePerUnit * quantityUsed;
+      const quantityUsed = Math.min(remainingQuantity, (buy as any).quantity);
+      costBasis += (buy as any).pricePerUnit * quantityUsed;
       remainingQuantity -= quantityUsed;
     }
 
@@ -186,16 +213,16 @@ export class CryptocurrencyTaxCalculator {
 
   private static calculateLowestCostBasis(
     sell: CryptocurrencyTaxInput['transactions'][0],
-    buys: CryptocurrencyTaxInput['transactions'][]
+    buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    const relevantBuys = buys.filter((b) => b.asset === sell.asset).sort((a, b) => a.pricePerUnit - b.pricePerUnit);
-    let remainingQuantity = sell.quantity;
+    const relevantBuys = buys.filter((b) => (b as any).asset === (sell as any).asset).sort((a, b) => (a as any).pricePerUnit - (b as any).pricePerUnit);
+    let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
 
     for (const buy of relevantBuys) {
       if (remainingQuantity <= 0) break;
-      const quantityUsed = Math.min(remainingQuantity, buy.quantity);
-      costBasis += buy.pricePerUnit * quantityUsed;
+      const quantityUsed = Math.min(remainingQuantity, (buy as any).quantity);
+      costBasis += (buy as any).pricePerUnit * quantityUsed;
       remainingQuantity -= quantityUsed;
     }
 
@@ -211,17 +238,17 @@ export class CryptocurrencyTaxCalculator {
     const holdings = new Map<string, { quantity: number; costBasis: number }>();
 
     transactions.forEach((t) => {
-      if (t.transactionType === 'buy') {
-        const current = holdings.get(t.asset) || { quantity: 0, costBasis: 0 };
-        holdings.set(t.asset, {
-          quantity: current.quantity + t.quantity,
-          costBasis: current.costBasis + t.totalValue,
+      if ((t as any).transactionType === 'buy') {
+        const current = holdings.get((t as any).asset) || { quantity: 0, costBasis: 0 };
+        holdings.set((t as any).asset, {
+          quantity: current.quantity + (t as any).quantity,
+          costBasis: current.costBasis + (t as any).totalValue,
         });
-      } else if (t.transactionType === 'sell' || t.transactionType === 'trade') {
-        const current = holdings.get(t.asset) || { quantity: 0, costBasis: 0 };
+      } else if ((t as any).transactionType === 'sell' || (t as any).transactionType === 'trade') {
+        const current = holdings.get((t as any).asset) || { quantity: 0, costBasis: 0 };
         const avgCostBasis = current.quantity > 0 ? current.costBasis / current.quantity : 0;
-        const quantitySold = t.quantity;
-        holdings.set(t.asset, {
+        const quantitySold = (t as any).quantity;
+        holdings.set((t as any).asset, {
           quantity: current.quantity - quantitySold,
           costBasis: current.costBasis - (avgCostBasis * quantitySold),
         });
@@ -230,8 +257,8 @@ export class CryptocurrencyTaxCalculator {
 
     const holdingsArray = Array.from(holdings.entries()).map(([asset, holding]) => {
       const latestPrice = transactions
-        .filter((t) => t.asset === asset)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.pricePerUnit || 0;
+        .filter((t) => (t as any).asset === asset)
+        .sort((a, b) => new Date((b as any).date).getTime() - new Date((a as any).date).getTime())[0]?.pricePerUnit || 0;
       const currentValue = holding.quantity * latestPrice;
       const unrealizedGain = currentValue - holding.costBasis;
 
@@ -291,18 +318,18 @@ export class CryptocurrencyTaxCalculator {
   } {
     // Simplified wash sale detection - crypto doesn't have traditional wash sale rules but similar assets may
     const washSaleRisks = transactions
-      .filter((t) => t.transactionType === 'sell')
+      .filter((t) => (t as any).transactionType === 'sell')
       .map((sell) => {
         const buyBack = transactions.find(
           (t) =>
-            t.asset === sell.asset &&
-            t.transactionType === 'buy' &&
-            new Date(t.date).getTime() - new Date(sell.date).getTime() < 30 * 24 * 60 * 60 * 1000
+            (t as any).asset === (sell as any).asset &&
+            (t as any).transactionType === 'buy' &&
+            new Date((t as any).date).getTime() - new Date((sell as any).date).getTime() < 30 * 24 * 60 * 60 * 1000
         );
 
         return {
-          transactionId: sell.transactionId,
-          asset: sell.asset,
+          transactionId: (sell as any).transactionId,
+          asset: (sell as any).asset,
           risk: buyBack ? 'potential-wash-sale' : 'low',
         };
       });

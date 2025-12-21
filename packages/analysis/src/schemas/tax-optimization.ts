@@ -35,3 +35,5 @@ export const TaxOptimizationInputSchema = z.object({
     timeHorizon: z.number().min(1).max(50),
   }),
 });
+
+export type TaxOptimizationInput = z.infer<typeof TaxOptimizationInputSchema>;

@@ -37,7 +37,7 @@ export class WorkingCapitalOptimizer {
 
     // Liquidity analysis
     const liquidityAnalysis = analysis.includeLiquidityAnalysis
-      ? this.analyzeLiquidity(workingCapital, ratios, currentAssets, currentLiabilities)
+      ? this.analyzeLiquidity(workingCapital, ratios, currentLiabilities)
       : undefined;
 
     // Optimization recommendations
@@ -65,7 +65,7 @@ export class WorkingCapitalOptimizer {
         currentRatio: ratios.currentRatio,
         quickRatio: ratios.quickRatio,
         cashConversionCycle: cashConversionCycle?.cycle,
-        workingCapitalRatio: ratios.workingCapitalRatio,
+        workingCapitalTurnover: ratios.workingCapitalTurnover,
       },
       workingCapital,
       ratios,
@@ -200,7 +200,6 @@ export class WorkingCapitalOptimizer {
   private static analyzeLiquidity(
     workingCapital: { netWorkingCapital: number },
     ratios: { currentRatio: number; quickRatio: number },
-    currentAssets: WorkingCapitalInput['currentAssets'],
     currentLiabilities: WorkingCapitalInput['currentLiabilities']
   ): {
     liquidityScore: number;

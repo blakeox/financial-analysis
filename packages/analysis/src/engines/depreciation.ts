@@ -18,17 +18,17 @@ export class DepreciationCalculator {
 
     // Calculate depreciation schedule
     const depreciationSchedule = analysis.includeSchedule
-      ? this.calculateDepreciationSchedule(assetInfo, depreciationMethod, taxInfo, analysis.projectionYears)
+      ? this.calculateDepreciationSchedule(input)
       : undefined;
 
     // Tax savings
     const taxSavings = analysis.includeTaxSavings
-      ? this.calculateTaxSavings(depreciationSchedule, taxInfo)
+      ? this.calculateTaxSavings(depreciationSchedule, input)
       : undefined;
 
     // Method comparison
     const methodComparison = analysis.includeMethodComparison
-      ? this.compareMethods(assetInfo, taxInfo, analysis.projectionYears)
+      ? this.compareMethods(input)
       : undefined;
 
     // Disposal analysis
@@ -41,7 +41,6 @@ export class DepreciationCalculator {
       depreciationSchedule,
       taxSavings,
       methodComparison,
-      disposalAnalysis,
       depreciationMethod
     );
 
@@ -61,16 +60,17 @@ export class DepreciationCalculator {
   }
 
   private static calculateDepreciationSchedule(
-    asset: DepreciationInput['assetInfo'],
-    method: DepreciationInput['depreciationMethod'],
-    taxInfo: DepreciationInput['taxInfo'],
-    years: number
+    input: DepreciationInput
   ): {
     schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }>;
     totalDepreciation: number;
   } {
     const schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }> = [];
     let accumulatedDepreciation = 0;
+    const asset = input.assetInfo;
+    const method = input.depreciationMethod;
+    const taxInfo = input.taxInfo;
+    const years = input.analysis.projectionYears;
     const depreciableBase = asset.purchaseCost - asset.salvageValue;
 
     for (let year = 1; year <= Math.min(years, asset.usefulLife); year++) {
@@ -94,7 +94,7 @@ export class DepreciationCalculator {
           break;
         }
         case 'macrs':
-          depreciation = this.calculateMACRS(asset, taxInfo, year);
+          depreciation = this.calculateMACRS(input, year);
           break;
         case 'section-179':
           depreciation = year === 1 ? Math.min(asset.purchaseCost, taxInfo.section179Limit) : 0;
@@ -121,17 +121,15 @@ export class DepreciationCalculator {
     };
   }
 
-  private static calculateMACRS(
-    asset: DepreciationInput['assetInfo'],
-    taxInfo: DepreciationInput['taxInfo'],
-    year: number
-  ): number {
-    if (!taxInfo.macrsDetails) {
+  private static calculateMACRS(input: DepreciationInput, year: number): number {
+    if (!input.macrsDetails) {
       return 0;
     }
 
+    const { assetInfo: asset } = input;
+
     // Simplified MACRS calculation - in reality uses specific tables
-    const propertyClass = taxInfo.macrsDetails.propertyClass;
+    const propertyClass = input.macrsDetails.propertyClass;
     const classYears: Record<string, number> = {
       '3-year': 3,
       '5-year': 5,
@@ -147,7 +145,7 @@ export class DepreciationCalculator {
     const depreciableBase = asset.purchaseCost - asset.salvageValue;
 
     // Simplified: use double-declining balance for MACRS
-    if (year === 1 && taxInfo.macrsDetails.convention === 'half-year') {
+    if (year === 1 && input.macrsDetails.convention === 'half-year') {
       return (depreciableBase * (2 / usefulLife)) / 2;
     }
 
@@ -156,8 +154,8 @@ export class DepreciationCalculator {
   }
 
   private static calculateTaxSavings(
-    schedule: { schedule: Array<{ depreciation: number }> } | undefined,
-    taxInfo: DepreciationInput['taxInfo']
+    schedule: { schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }>; totalDepreciation: number } | undefined,
+    input: DepreciationInput
   ): {
     annualSavings: Array<{ year: number; taxSavings: number }>;
     totalSavings: number;
@@ -169,10 +167,11 @@ export class DepreciationCalculator {
       };
     }
 
+    const { taxInfo, assetInfo: asset } = input;
     const taxRate = taxInfo.federalTaxRate + taxInfo.stateTaxRate;
     const annualSavings = schedule.schedule.map((entry) => ({
       year: entry.year,
-      taxSavings: entry.depreciation * taxRate * taxInfo.businessUsePercentage,
+      taxSavings: entry.depreciation * taxRate * asset.businessUsePercentage,
     }));
 
     const totalSavings = annualSavings.reduce((sum, entry) => sum + entry.taxSavings, 0);
@@ -184,20 +183,16 @@ export class DepreciationCalculator {
   }
 
   private static compareMethods(
-    asset: DepreciationInput['assetInfo'],
-    taxInfo: DepreciationInput['taxInfo'],
-    years: number
+    input: DepreciationInput
   ): {
     methods: Array<{ method: string; totalDepreciation: number; totalTaxSavings: number }>;
     bestMethod: string;
   } {
+    const { taxInfo, assetInfo: asset } = input;
+
     const methods = ['straight-line', 'double-declining-balance', 'macrs'].map((method) => {
-      const schedule = this.calculateDepreciationSchedule(
-        asset,
-        method as DepreciationInput['depreciationMethod'],
-        taxInfo,
-        years
-      );
+      const tempInput = { ...input, depreciationMethod: method as DepreciationInput['depreciationMethod'] };
+      const schedule = this.calculateDepreciationSchedule(tempInput);
       const taxRate = taxInfo.federalTaxRate + taxInfo.stateTaxRate;
       const totalTaxSavings = schedule.totalDepreciation * taxRate * asset.businessUsePercentage;
 
@@ -241,7 +236,7 @@ export class DepreciationCalculator {
     const gainOrLoss = disposal.disposalProceeds - bookValue;
     const depreciationRecapture = Math.min(gainOrLoss, schedule.totalDepreciation);
     const taxOnDisposal = gainOrLoss > 0
-      ? gainOrLoss * (taxInfo.federalTaxRate.capitalGains || taxInfo.federalTaxRate)
+      ? gainOrLoss * taxInfo.federalTaxRate
       : 0;
     const netProceeds = disposal.disposalProceeds - taxOnDisposal;
 
@@ -258,7 +253,6 @@ export class DepreciationCalculator {
     schedule: { totalDepreciation: number } | undefined,
     taxSavings: { totalSavings: number } | undefined,
     comparison: { bestMethod: string } | undefined,
-    disposal: { netProceeds: number } | undefined,
     method: DepreciationInput['depreciationMethod']
   ): string[] {
     const recommendations: string[] = [];

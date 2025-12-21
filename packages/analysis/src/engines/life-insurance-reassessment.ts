@@ -31,6 +31,11 @@ export class LifeInsuranceReassessmentCalculator {
       ? this.optimizePolicies(currentPolicies, totalNeeds, financialSituation)
       : undefined;
 
+    // Term vs Permanent comparison
+    const termVsPermanentComparison = analysis.includeTermVsPermanent
+      ? this.compareTermVsPermanent(totalNeeds, financialSituation)
+      : undefined;
+
     // Recommendations
     const recommendations = this.generateRecommendations(
       totalNeeds,
@@ -47,11 +52,44 @@ export class LifeInsuranceReassessmentCalculator {
         excessCoverage: gapAnalysis?.excess || 0,
         recommendation: gapAnalysis && gapAnalysis.gap > 0 ? 'increase' : gapAnalysis && gapAnalysis.excess > totalNeeds.totalCoverage * 0.2 ? 'decrease' : 'maintain',
       },
-      totalNeeds,
+      needsAnalysis: {
+        ...totalNeeds,
+        totalNeeded: totalNeeds.totalCoverage,
+      },
       currentCoverageAnalysis,
-      gapAnalysis,
-      optimization,
+      coverageGapAnalysis: gapAnalysis ? {
+        ...gapAnalysis,
+        coverageGap: gapAnalysis.gap,
+      } : undefined,
+      policyOptimization: optimization,
+      termVsPermanentComparison,
       recommendations,
+    };
+  }
+
+  private static compareTermVsPermanent(
+    needs: { totalCoverage: number },
+    _financial: LifeInsuranceReassessmentInput['financialSituation']
+  ): {
+    termRecommendation: string;
+    permanentRecommendation: string;
+    costComparison: {
+      termCost: number;
+      permanentCost: number;
+      difference: number;
+    };
+  } {
+    const termCost = needs.totalCoverage * 0.001;
+    const permanentCost = needs.totalCoverage * 0.01;
+
+    return {
+      termRecommendation: 'Recommended for temporary needs (income replacement, debt payoff)',
+      permanentRecommendation: 'Recommended for permanent needs (estate taxes, final expenses)',
+      costComparison: {
+        termCost,
+        permanentCost,
+        difference: permanentCost - termCost,
+      },
     };
   }
 

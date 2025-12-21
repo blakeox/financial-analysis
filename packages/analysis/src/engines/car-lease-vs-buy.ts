@@ -34,8 +34,6 @@ export class CarLeaseVsBuyCalculator {
 
     // Recommendations
     const recommendations = this.generateRecommendations(
-      leaseAnalysis,
-      purchaseAnalysis,
       comparison,
       analysis
     );
@@ -150,9 +148,7 @@ export class CarLeaseVsBuyCalculator {
   }
 
   private static generateRecommendations(
-    lease: { totalCost: number },
-    purchase: { totalCost: number },
-    comparison: { betterOption: string },
+    comparison: { betterOption: string; costDifference: number },
     analysis: CarLeaseVsBuyInput['analysis']
   ): string[] {
     const recommendations: string[] = [];

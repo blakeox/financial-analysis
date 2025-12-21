@@ -126,7 +126,7 @@ export class RetirementPlanningEngine {
       annualContribution: number;
       expectedReturn: number;
     }>,
-    currentIncome: number,
+    _currentIncome: number,
     incomeGrowthRate: number,
     yearsToRetirement: number,
     _riskTolerance: string
@@ -240,7 +240,7 @@ export class RetirementPlanningEngine {
 
   private static calculateWithdrawalStrategy(
     retirementBalance: number,
-    annualIncomeNeeds: number,
+    _annualIncomeNeeds: number,
     yearsInRetirement: number,
     riskTolerance: string
   ): {
@@ -271,7 +271,7 @@ export class RetirementPlanningEngine {
 
     return {
       safeWithdrawalRate: safeWithdrawalRate * 100,
-      annualWithdrawal: annualWithdrawal.toFixed(2),
+      annualWithdrawal: Number(annualWithdrawal.toFixed(2)),
       portfolioLastsYears: years,
       strategy: `Using ${(safeWithdrawalRate * 100).toFixed(1)}% withdrawal rate with ${(returnRate * 100).toFixed(1)}% expected returns`,
     };

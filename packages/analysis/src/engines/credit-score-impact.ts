@@ -21,7 +21,6 @@ export class CreditScoreImpactAnalyzer {
 
     // Calculate current score factors
     const scoreFactors = this.calculateScoreFactors(
-      currentCredit,
       creditHistory,
       paymentHistory,
       creditUtilization,
@@ -31,12 +30,20 @@ export class CreditScoreImpactAnalyzer {
 
     // Project score changes
     const scoreProjection = analysis.includeScoreProjection
-      ? this.projectScoreChanges(scoreFactors, plannedActions, analysis.projectionMonths)
+      ? this.projectScoreChanges(plannedActions, analysis.projectionMonths)
       : undefined;
 
     // Action recommendations
     const actionRecommendations = analysis.includeActionRecommendations
-      ? this.generateActionRecommendations(scoreFactors, plannedActions, creditUtilization)
+      ? this.generateActionRecommendations(plannedActions, creditUtilization)
+      : undefined;
+
+    // Utilization analysis
+    const utilizationAnalysis = this.calculateUtilizationAnalysis(creditUtilization);
+
+    // Timeline analysis
+    const timelineAnalysis = analysis.includeTimelineAnalysis
+      ? this.calculateTimelineAnalysis(scoreProjection)
       : undefined;
 
     // Recommendations
@@ -57,12 +64,52 @@ export class CreditScoreImpactAnalyzer {
       scoreFactors,
       scoreProjection,
       actionRecommendations,
+      utilizationAnalysis,
+      timelineAnalysis,
       recommendations,
     };
   }
 
+  private static calculateUtilizationAnalysis(
+    utilization: CreditScoreImpactInput['creditUtilization']
+  ) {
+    const status =
+      utilization.utilizationPercentage <= 0.1
+        ? 'excellent'
+        : utilization.utilizationPercentage <= 0.3
+          ? 'good'
+          : utilization.utilizationPercentage <= 0.5
+            ? 'fair'
+            : 'poor';
+
+    return {
+      totalLimit: utilization.totalCreditLimit,
+      totalUsed: utilization.totalCreditUsed,
+      utilizationPercentage: utilization.utilizationPercentage,
+      status,
+      individualCards: utilization.individualCardUtilization,
+    };
+  }
+
+  private static calculateTimelineAnalysis(
+    scoreProjection:
+      | {
+          scoreChanges: Array<{ month: number; score: number; change: number; reason: string }>;
+        }
+      | undefined
+  ) {
+    if (!scoreProjection) return undefined;
+
+    return {
+      timeline: scoreProjection.scoreChanges.map((change) => ({
+        month: change.month,
+        score: change.score,
+        event: change.reason,
+      })),
+    };
+  }
+
   private static calculateScoreFactors(
-    current: CreditScoreImpactInput['currentCredit'],
     history: CreditScoreImpactInput['creditHistory'],
     payment: CreditScoreImpactInput['paymentHistory'],
     utilization: CreditScoreImpactInput['creditUtilization'],
@@ -93,7 +140,7 @@ export class CreditScoreImpactAnalyzer {
     const mixWeighted = mixScore * 0.1;
 
     // New credit (10%)
-    const newCreditScore = activity.hardInquiriesLast12Months === 0 ? 100 : Math.max(0, 100 - activity.hardInquiriesLast12Months * 10);
+    const newCreditScore = activity.hardInquiries === 0 ? 100 : Math.max(0, 100 - activity.hardInquiries * 10);
     const newCreditWeighted = newCreditScore * 0.1;
 
     const overallScore = paymentHistoryScore + utilizationWeighted + historyWeighted + mixWeighted + newCreditWeighted;
@@ -110,7 +157,6 @@ export class CreditScoreImpactAnalyzer {
   }
 
   private static projectScoreChanges(
-    factors: { overallHealth: string },
     actions: CreditScoreImpactInput['plannedActions'],
     months: number
   ): {
@@ -162,7 +208,6 @@ export class CreditScoreImpactAnalyzer {
   }
 
   private static generateActionRecommendations(
-    factors: { overallHealth: string },
     actions: CreditScoreImpactInput['plannedActions'],
     utilization: CreditScoreImpactInput['creditUtilization']
   ): {

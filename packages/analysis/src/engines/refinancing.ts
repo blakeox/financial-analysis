@@ -36,8 +36,6 @@ export class RefinancingCalculator {
     // Calculate total interest comparison
     const interestComparison = this.compareInterestCosts(
       currentMortgage,
-      newLoanAmount,
-      newMortgage,
       newPayment
     );
 
@@ -45,16 +43,13 @@ export class RefinancingCalculator {
     const breakEvenAnalysis = goals.includeBreakEvenAnalysis
       ? this.calculateBreakEven(
           currentMortgage.monthlyPayment,
-          newPayment,
+          newPayment.monthlyPayment,
           costs.closingCosts + costs.points * newLoanAmount * 0.01
         )
       : undefined;
 
     // Net benefit analysis
     const netBenefit = this.calculateNetBenefit(
-      currentRemainingPayments,
-      newPayment,
-      newMortgage.term,
       costs.closingCosts + costs.points * newLoanAmount * 0.01,
       interestComparison
     );
@@ -141,8 +136,6 @@ export class RefinancingCalculator {
 
   private static compareInterestCosts(
     currentMortgage: RefinancingInput['currentMortgage'],
-    newLoanAmount: number,
-    newMortgage: RefinancingInput['newMortgage'],
     newPayment: { totalInterest: number }
   ): {
     currentTotalInterest: number;
@@ -208,9 +201,6 @@ export class RefinancingCalculator {
   }
 
   private static calculateNetBenefit(
-    currentRemaining: { totalRemainingCost: number },
-    newPayment: { totalPayments: number },
-    newTermYears: number,
     totalCosts: number,
     interestComparison: { totalSavings: number }
   ): {

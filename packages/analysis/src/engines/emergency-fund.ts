@@ -139,7 +139,7 @@ export class EmergencyFundCalculator {
   }
 
   private static analyzeWithdrawals(
-    currentSituation: EmergencyFundInput['currentSituation'],
+    _currentSituation: EmergencyFundInput['currentSituation'],
     targetFund: { targetAmount: number; monthlyExpenses: number },
     currentFund: number
   ): {

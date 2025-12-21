@@ -28,7 +28,7 @@ export class NetWorthTracker {
 
     // Milestones
     const milestones = goals.includeMilestones
-      ? this.calculateMilestones(currentNetWorth, projections, goals.targetNetWorth)
+      ? this.calculateMilestones(currentNetWorth, netWorthProjections, goals.targetNetWorth)
       : undefined;
 
     // Asset allocation
@@ -40,7 +40,7 @@ export class NetWorthTracker {
     // Recommendations
     const recommendations = this.generateRecommendations(
       currentNetWorth,
-      projections,
+      netWorthProjections,
       milestones,
       debtAnalysis
     );

@@ -17,7 +17,7 @@ export class AccountsReceivableAgingAnalyzer {
 
     // Calculate DSO
     const dsoAnalysis = analysis.includeDSO
-      ? this.calculateDSO(receivables, historicalData)
+      ? this.calculateDSO(receivables, historicalData, creditPolicy)
       : undefined;
 
     // Aging analysis
@@ -55,10 +55,16 @@ export class AccountsReceivableAgingAnalyzer {
         overdueAmount: agingAnalysis?.overdueAmount || 0,
         estimatedBadDebt: badDebtForecast?.estimatedBadDebt || 0,
       },
-      dsoAnalysis,
-      agingAnalysis,
+      dsoAnalysis: dsoAnalysis ? {
+        ...dsoAnalysis,
+        daysSalesOutstanding: dsoAnalysis.dso,
+      } : undefined,
+      agingAnalysis: agingAnalysis ? {
+        ...agingAnalysis,
+        agingBuckets: agingAnalysis.buckets,
+      } : undefined,
       badDebtForecast,
-      collectionRecommendations,
+      collectionRecommendations: collectionRecommendations?.recommendations,
       creditPolicyOptimization,
       recommendations,
     };
@@ -66,7 +72,8 @@ export class AccountsReceivableAgingAnalyzer {
 
   private static calculateDSO(
     receivables: AccountsReceivableAgingInput['receivables'],
-    historical: AccountsReceivableAgingInput['historicalData']
+    historical: AccountsReceivableAgingInput['historicalData'],
+    creditPolicy: AccountsReceivableAgingInput['creditPolicy']
   ): {
     dso: number;
     targetDSO: number;
@@ -76,7 +83,7 @@ export class AccountsReceivableAgingAnalyzer {
     const dso = historical.annualCreditSales > 0
       ? (receivables.totalReceivables / historical.annualCreditSales) * 365
       : 0;
-    const targetDSO = historical.paymentTerms || 30;
+    const targetDSO = creditPolicy.paymentTerms || 30;
     const dsoVariance = dso - targetDSO;
 
     let interpretation = 'DSO is within target range';
@@ -220,8 +227,8 @@ export class AccountsReceivableAgingAnalyzer {
     expectedDSO: number;
   } {
     // Optimize payment terms based on industry and DSO
-    const recommendedTerms = historical.averageCollectionPeriod > 45 ? 30 : historical.paymentTerms;
-    const recommendedCreditLimit = policy.creditLimit > 0 ? policy.creditLimit : receivables.totalReceivables * 1.5;
+    const recommendedTerms = historical.averageCollectionPeriod > 45 ? 30 : _policy.paymentTerms;
+    const recommendedCreditLimit = _policy.creditLimit > 0 ? _policy.creditLimit : receivables.totalReceivables * 1.5;
     const expectedDSO = recommendedTerms;
 
     return {

@@ -303,6 +303,7 @@ export class BusinessExpansionLoanJourney {
       alternatives.push({
         ...alt,
         term: shorterTerm,
+        rate: baseRate,
         description: `Shorter ${shorterTerm}-year term saves $${(optimalScenario.totalInterest - alt.totalInterest).toFixed(0)} in interest`,
       });
     }
@@ -314,6 +315,7 @@ export class BusinessExpansionLoanJourney {
       alternatives.push({
         ...alt,
         term: longerTerm,
+        rate: baseRate,
         description: `Longer ${longerTerm}-year term reduces monthly payment by $${(optimalScenario.monthlyPayment - alt.monthlyPayment).toFixed(0)}`,
       });
     }
@@ -325,6 +327,7 @@ export class BusinessExpansionLoanJourney {
       alternatives.push({
         ...alt,
         rate: betterRate,
+        term: baseTerm,
         description: `With excellent credit, you may qualify for a ${(betterRate * 100).toFixed(2)}% rate`,
       });
     }
@@ -555,7 +558,7 @@ export class BusinessExpansionLoanJourney {
     }
 
     // Revenue projection risk
-    if (expansionPlan.expectedRevenueIncrease / currentFinancials.annualRevenue > 0.5) {
+    if (expansionPlan.expectedRevenueIncrease / financials.annualRevenue > 0.5) {
       riskFactors.push({
         factor: 'Aggressive Revenue Projections',
         severity: 'medium',

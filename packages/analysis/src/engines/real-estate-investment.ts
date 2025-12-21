@@ -28,21 +28,19 @@ export class RealEstateInvestmentAnalyzer {
 
     // Calculate Cash-on-Cash Return
     const cashOnCash = analysis.includeCashOnCash
-      ? this.calculateCashOnCash(noi?.annualNOI || 0, financing, expenses)
+      ? this.calculateCashOnCash(noi?.annualNOI || 0, financing)
       : undefined;
 
     // Calculate mortgage payment
     const mortgagePayment = this.calculateMortgagePayment(financing);
 
     // Cash flow analysis
-    const cashFlow = this.calculateCashFlow(noi?.annualNOI || 0, mortgagePayment, expenses);
+    const cashFlow = this.calculateCashFlow(noi?.annualNOI || 0, mortgagePayment);
 
     // Projected returns
     const projectedReturns = this.projectReturns(
       propertyInfo,
       financing,
-      income,
-      expenses,
       projections,
       cashFlow
     );
@@ -140,16 +138,15 @@ export class RealEstateInvestmentAnalyzer {
 
   private static calculateCashOnCash(
     annualNOI: number,
-    financing: RealEstateInvestmentInput['financing'],
-    _expenses: RealEstateInvestmentInput['expenses']
+    financing: RealEstateInvestmentInput['financing']
   ): {
     annualDebtService: number;
     annualCashFlow: number;
     cashOnCashReturn: number;
     interpretation: string;
   } {
-    const monthlyPayment = this.calculateMortgagePayment(financing);
-    const annualDebtService = monthlyPayment * 12;
+    const mortgagePaymentResult = this.calculateMortgagePayment(financing);
+    const annualDebtService = mortgagePaymentResult.monthlyPayment * 12;
     const annualCashFlow = annualNOI - annualDebtService;
     const cashOnCashReturn = financing.downPayment > 0 ? annualCashFlow / financing.downPayment : 0;
 
@@ -207,8 +204,7 @@ export class RealEstateInvestmentAnalyzer {
 
   private static calculateCashFlow(
     annualNOI: number,
-    mortgagePayment: { monthlyPayment: number },
-    _expenses: RealEstateInvestmentInput['expenses']
+    mortgagePayment: { monthlyPayment: number }
   ): {
     monthlyCashFlow: number;
     annualCashFlow: number;
@@ -229,8 +225,6 @@ export class RealEstateInvestmentAnalyzer {
   private static projectReturns(
     propertyInfo: RealEstateInvestmentInput['propertyInfo'],
     financing: RealEstateInvestmentInput['financing'],
-    income: RealEstateInvestmentInput['income'],
-    expenses: RealEstateInvestmentInput['expenses'],
     projections: RealEstateInvestmentInput['projections'],
     cashFlow: { annualCashFlow: number }
   ): {
@@ -278,15 +272,13 @@ export class RealEstateInvestmentAnalyzer {
   } {
     // Simplified IRR calculation
     const projectedReturns = this.projectReturns(
-      propertyInfo,
-      financing,
-      income,
-      expenses,
+      _propertyInfo,
+      _financing,
       projections,
       cashFlow
     );
     const totalReturn = projectedReturns.totalReturn;
-    const initialInvestment = financing.downPayment;
+    const initialInvestment = _financing.downPayment;
 
     // Use approximation: IRR ≈ (Total Return / Initial Investment) ^ (1/Years) - 1
     const irr =
@@ -312,9 +304,9 @@ export class RealEstateInvestmentAnalyzer {
   }
 
   private static generateRecommendations(
-    capRate?: { capRate: number },
-    cashOnCash?: { cashOnCashReturn: number },
-    irr?: { irr: number },
+    capRate?: { capRate: number; interpretation: string },
+    cashOnCash?: { cashOnCashReturn: number; interpretation: string },
+    irr?: { irr: number; interpretation: string },
     cashFlow?: { monthlyCashFlow: number },
     propertyInfo?: RealEstateInvestmentInput['propertyInfo']
   ): string[] {

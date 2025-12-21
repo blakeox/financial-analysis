@@ -45,10 +45,10 @@ export class HELOCAnalyzer {
     // Recommendations
     const recommendations = this.generateRecommendations(
       helocAnalysis,
-      refinancingComparison,
-      personalLoanComparison,
       riskAssessment,
-      usage
+      usage,
+      refinancingComparison,
+      personalLoanComparison
     );
 
     return {
@@ -437,10 +437,10 @@ export class HELOCAnalyzer {
 
   private static generateRecommendations(
     helocAnalysis: { totalCost: number; monthlyPayment: number },
-    refinancingComparison?: { comparison: { recommendation: string } },
-    personalLoanComparison?: { comparison: { recommendation: string } },
     riskAssessment: { overallRisk: string },
-    usage: HELOCInput['usage']
+    usage: HELOCInput['usage'],
+    refinancingComparison?: { comparison: { recommendation: string } },
+    personalLoanComparison?: { comparison: { recommendation: string } }
   ): string[] {
     const recommendations: string[] = [];
 

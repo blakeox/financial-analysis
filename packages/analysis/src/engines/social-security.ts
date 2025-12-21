@@ -78,9 +78,9 @@ export class SocialSecurityOptimizer {
       recommendations: this.generateRecommendations(
         optimalStrategy,
         benefitScenarios,
+        goals,
         spousalBenefits,
-        survivorBenefits,
-        goals
+        survivorBenefits
       ),
     };
   }
@@ -159,7 +159,7 @@ export class SocialSecurityOptimizer {
 
   private static calculateLifetimeBenefits(
     scenarios: Array<{ claimingAge: number; monthlyBenefit: number }>,
-    currentAge: number,
+    _currentAge: number,
     lifeExpectancy: number
   ): Array<{
     claimingAge: number;
@@ -289,7 +289,7 @@ export class SocialSecurityOptimizer {
     lifetimeBenefits: Array<{ claimingAge: number; totalLifetimeBenefit: number }>,
     benefitScenarios: Array<{ claimingAge: number; monthlyBenefit: number }>,
     goals: SocialSecurityInput['goals'],
-    spousalBenefits?: { spousalBenefit: number },
+    _spousalBenefits?: { spousalBenefit: number },
     survivorBenefits?: { totalLifetimeSurvivorBenefit: number }
   ): {
     optimalAge: number;
@@ -353,9 +353,9 @@ export class SocialSecurityOptimizer {
   private static generateRecommendations(
     optimalStrategy: { optimalAge: number; strategy: string },
     benefitScenarios: Array<{ claimingAge: number; monthlyBenefit: number }>,
+    _goals: SocialSecurityInput['goals'],
     spousalBenefits?: { spousalBenefit: number },
-    survivorBenefits?: { totalLifetimeSurvivorBenefit: number },
-    _goals: SocialSecurityInput['goals']
+    survivorBenefits?: { totalLifetimeSurvivorBenefit: number }
   ): string[] {
     const recommendations: string[] = [];
 

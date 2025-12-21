@@ -40,7 +40,6 @@ export class VaRCalculator {
       varResult = this.calculateMonteCarloVaR(
         portfolio,
         marketData.volatilities,
-        marketData.correlations,
         parameters.confidenceLevel,
         parameters.timeHorizon
       );
@@ -138,7 +137,6 @@ export class VaRCalculator {
   private static calculateMonteCarloVaR(
     portfolio: VaRInput['portfolio'],
     volatilities?: number[],
-    correlations?: number[][],
     confidenceLevel: number = 0.95,
     timeHorizon: number = 1
   ): {

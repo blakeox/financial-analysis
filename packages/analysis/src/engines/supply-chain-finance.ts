@@ -221,7 +221,7 @@ export class SupplyChainFinanceOptimizer {
   }
 
   private static analyzeRisks(
-    supplyChain: SupplyChainFinanceInput['supplyChain'],
+    _supplyChain: SupplyChainFinanceInput['supplyChain'],
     options: SupplyChainFinanceInput['financingOptions'],
     workingCapital: SupplyChainFinanceInput['workingCapital']
   ): {
@@ -258,7 +258,7 @@ export class SupplyChainFinanceOptimizer {
     optimization: { improvement: number } | undefined,
     financing: { bestOption: string; totalSavings: number } | undefined,
     cashFlow: { freedCash: number } | undefined,
-    suppliers: { totalSupplierBenefits: number } | undefined,
+    _suppliers: { totalSupplierBenefits: number } | undefined,
     risk: { overallRisk: string } | undefined
   ): string[] {
     const recommendations: string[] = [];

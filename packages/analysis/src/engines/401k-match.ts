@@ -22,7 +22,7 @@ export class EmployerMatch401kOptimizer {
 
     // Optimization analysis
     const optimization = analysis.includeMaximization
-      ? this.optimizeContribution(planDetails, employeeInfo, currentMatch, maximumMatch)
+      ? this.optimizeContribution(employeeInfo, currentMatch, maximumMatch)
       : undefined;
 
     // Vesting analysis
@@ -32,7 +32,7 @@ export class EmployerMatch401kOptimizer {
 
     // Tax analysis
     const taxAnalysis = analysis.includeTaxAnalysis
-      ? this.analyzeTaxBenefits(employeeInfo, maximumMatch)
+      ? this.analyzeTaxBenefits(maximumMatch)
       : undefined;
 
     // Recommendations
@@ -112,10 +112,9 @@ export class EmployerMatch401kOptimizer {
   }
 
   private static optimizeContribution(
-    planDetails: EmployerMatch401kInput['planDetails'],
     employeeInfo: EmployerMatch401kInput['employeeInfo'],
     currentMatch: { annualMatch: number },
-    maximumMatch: { annualMatch: number }
+    maximumMatch: { optimalContributionPercent: number; optimalContributionAmount: number; annualMatch: number }
   ): {
     currentContributionPercent: number;
     optimalContributionPercent: number;
@@ -186,8 +185,7 @@ export class EmployerMatch401kOptimizer {
   }
 
   private static analyzeTaxBenefits(
-    employeeInfo: EmployerMatch401kInput['employeeInfo'],
-    maximumMatch: { totalAnnualContribution: number }
+    maximumMatch: { optimalContributionAmount: number; totalAnnualContribution: number }
   ): {
     taxSavings: number;
     effectiveContribution: number;

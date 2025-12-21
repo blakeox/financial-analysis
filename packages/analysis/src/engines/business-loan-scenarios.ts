@@ -61,29 +61,29 @@ export class BusinessLoanScenariosAnalyzer {
       scenarios,
       comparison: {
         cheapest: {
-          scenario: cheapest.name,
-          totalCost: cheapest.totalCost,
+          scenario: cheapest!.name,
+          totalCost: cheapest!.totalCost,
           savings:
             scenarios.length > 1
               ? scenarios
-                  .filter((s) => s.name !== cheapest.name)
-                  .map((s) => s.totalCost - cheapest.totalCost)
+                  .filter((s) => s.name !== cheapest!.name)
+                  .map((s) => s.totalCost - cheapest!.totalCost)
                   .reduce((a, b) => Math.max(a, b), 0)
               : 0,
         },
         lowestPayment: {
-          scenario: lowestPayment.name,
-          monthlyPayment: lowestPayment.monthlyPayment,
+          scenario: lowestPayment!.name,
+          monthlyPayment: lowestPayment!.monthlyPayment,
           savings:
             scenarios.length > 1
               ? scenarios
-                  .filter((s) => s.name !== lowestPayment.name)
-                  .map((s) => s.monthlyPayment - lowestPayment.monthlyPayment)
+                  .filter((s) => s.name !== lowestPayment!.name)
+                  .map((s) => s.monthlyPayment - lowestPayment!.monthlyPayment)
                   .reduce((a, b) => Math.max(a, b), 0)
               : 0,
         },
       },
-      recommendations: this.generateRecommendations(scenarios, cheapest, lowestPayment),
+      recommendations: this.generateRecommendations(scenarios, cheapest!, lowestPayment!),
     };
   }
 
@@ -101,11 +101,13 @@ export class BusinessLoanScenariosAnalyzer {
 
     if (scenarios.length > 1) {
       recommendations.push(
-        `Lowest total cost: ${cheapest.name} (saves up to $${(scenarios[0].totalCost - cheapest.totalCost).toFixed(0)})`
+        `Lowest total cost: ${cheapest.name} (saves up to $${(scenarios[0]!.totalCost - cheapest.totalCost).toFixed(0)})`
       );
-      recommendations.push(
-        `Lowest monthly payment: ${lowestPayment.name} (saves $${(scenarios[0].monthlyPayment - lowestPayment.monthlyPayment).toFixed(0)}/month)`
-      );
+      if (lowestPayment) {
+        recommendations.push(
+          `Lowest monthly payment: ${lowestPayment.name} (saves $${(scenarios[0]!.monthlyPayment - lowestPayment.monthlyPayment).toFixed(0)}/month)`
+        );
+      }
     }
 
     return recommendations;

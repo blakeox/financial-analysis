@@ -158,7 +158,7 @@ export class EmployeeStockOptionsValuator {
         exerciseTax = intrinsicValue * (taxInfo.federalTaxRate.ordinary + taxInfo.stateTaxRate);
       } else if (option.optionType === 'iso') {
         // ISO: no tax on exercise, but may trigger AMT
-        if (taxInfo.includeAMT && taxInfo.taxRate.amt) {
+        if (taxInfo.includeAMT && taxInfo.federalTaxRate.amt) {
           exerciseTax = intrinsicValue * 0.26; // AMT rate
         }
       }
@@ -235,7 +235,7 @@ export class EmployeeStockOptionsValuator {
   private static generateRecommendations(
     valuation: { totalIntrinsicValue: number } | undefined,
     tax: { totalTaxOnExercise: number } | undefined,
-    scenarios: { scenarios: Array<{ recommendation: string }> } | undefined,
+    scenarios: { scenarios: Array<{ scenario: string; recommendation: string }> } | undefined,
     strategy: EmployeeStockOptionsInput['exerciseStrategy']
   ): string[] {
     const recommendations: string[] = [];

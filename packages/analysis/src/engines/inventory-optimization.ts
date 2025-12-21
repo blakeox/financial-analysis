@@ -169,7 +169,7 @@ export class InventoryOptimizer {
   }
 
   private static calculateReorderPoint(
-    inventory: InventoryOptimizationInput['inventoryData'],
+    _inventory: InventoryOptimizationInput['inventoryData'],
     safetyStock: { items: Array<{ sku: string; reorderPoint: number }> } | undefined
   ): {
     items: Array<{ sku: string; reorderPoint: number }>;

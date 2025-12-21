@@ -154,8 +154,8 @@ export class InvestmentPortfolioAnalyzer {
   }
 
   private static calculatePortfolioScore(
-    current: { stocks: number; bonds: number; cash: number; alternatives: number },
-    target: { stocks: number; bonds: number; cash: number; alternatives: number },
+    _current: { stocks: number; bonds: number; cash: number; alternatives: number },
+    _target: { stocks: number; bonds: number; cash: number; alternatives: number },
     drift: { total: number }
   ): number {
     let score = 100;

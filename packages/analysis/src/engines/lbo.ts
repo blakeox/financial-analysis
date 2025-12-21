@@ -342,7 +342,7 @@ export class LBOModel {
 
   private static assessRisks(
     initialMetrics: { debtToEBITDA: number; leverage: number },
-    debtService: { totalDebtService: number },
+    _debtService: { totalDebtService: number },
     cashFlowProjections: Array<{ freeCashFlow: number }>
   ): {
     overallRisk: 'low' | 'medium' | 'high';

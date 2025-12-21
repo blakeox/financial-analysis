@@ -23,7 +23,7 @@ export class BusinessSuccessionPlanningCalculator {
 
     // Tax analysis
     const taxAnalysis = analysis.includeTaxAnalysis
-      ? this.analyzeTaxes(valuationAnalysis, taxPlanning, successionOptions)
+      ? this.analyzeTaxes(valuationAnalysis, successionOptions)
       : undefined;
 
     // Estate tax impact
@@ -33,7 +33,7 @@ export class BusinessSuccessionPlanningCalculator {
 
     // Transfer strategies
     const transferStrategies = analysis.includeTransferStrategies
-      ? this.analyzeTransferStrategies(successionOptions, taxPlanning, valuationAnalysis)
+      ? this.analyzeTransferStrategies(taxPlanning, valuationAnalysis)
       : undefined;
 
     // Timing analysis
@@ -104,7 +104,6 @@ export class BusinessSuccessionPlanningCalculator {
 
   private static analyzeTaxes(
     valuation: { estimatedValue: number },
-    taxPlanning: BusinessSuccessionPlanningInput['taxPlanning'],
     succession: BusinessSuccessionPlanningInput['successionOptions']
   ): {
     transferTax: number;
@@ -115,7 +114,7 @@ export class BusinessSuccessionPlanningCalculator {
     const transferValue = succession.salePrice || valuation.estimatedValue;
     const transferTax = transferValue * 0.2; // Capital gains rate
     const capitalGainsTax = transferTax;
-    const giftTax = successionOptions.transferMethod === 'gift' ? transferValue * 0.4 : 0; // Estate tax rate
+    const giftTax = succession.transferMethod === 'gift' ? transferValue * 0.4 : 0; // Estate tax rate
     const totalTax = capitalGainsTax + giftTax;
 
     return {
@@ -150,7 +149,6 @@ export class BusinessSuccessionPlanningCalculator {
   }
 
   private static analyzeTransferStrategies(
-    succession: BusinessSuccessionPlanningInput['successionOptions'],
     taxPlanning: BusinessSuccessionPlanningInput['taxPlanning'],
     valuation: { estimatedValue: number }
   ): {

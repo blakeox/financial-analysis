@@ -36,7 +36,7 @@ export class CapitalStructureOptimizer {
 
     // Credit rating impact
     const creditRatingImpact = analysis.includeCreditRatingImpact
-      ? this.analyzeCreditRatingImpact(financials, currentStructure, marketData.creditRating)
+      ? this.analyzeCreditRatingImpact(currentStructure, marketData.creditRating)
       : undefined;
 
     // Dividend policy (if requested)
@@ -48,7 +48,6 @@ export class CapitalStructureOptimizer {
     const optimalStructure = this.recommendOptimalStructure(
       wacc,
       waccOptimization,
-      debtCapacity,
       creditRatingImpact
     );
 
@@ -69,9 +68,9 @@ export class CapitalStructureOptimizer {
       optimalStructure,
       recommendations: this.generateRecommendations(
         wacc,
+        optimalStructure,
         waccOptimization,
-        debtCapacity,
-        optimalStructure
+        debtCapacity
       ),
     };
   }
@@ -194,7 +193,7 @@ export class CapitalStructureOptimizer {
       const baseCostOfDebt = this.getCostOfDebtFromRating(marketData.creditRating);
       const costOfDebt = baseCostOfDebt * (1 + debtToEquity * 0.1); // Simplified
 
-      const afterTaxCostOfDebt = costOfDebt * (1 - financials.taxRate);
+      const afterTaxCostOfDebt = costOfDebt * (1 - _financials.taxRate);
       const wacc = equityWeight * costOfEquity + debtWeight * afterTaxCostOfDebt;
 
       scenarios.push({
@@ -232,8 +231,8 @@ export class CapitalStructureOptimizer {
     const maxDebt = maxDebtService / avgCostOfDebt;
     const recommendedDebt = maxDebt * 0.8; // 80% of max for safety
 
-    const currentDebtRatio = maxDebt > 0 ? structure.debt / maxDebt : 0;
-    const debtCapacityRatio = structure.debt > 0 ? maxDebt / structure.debt : 999;
+    const currentDebtRatio = maxDebt > 0 ? _structure.debt / maxDebt : 0;
+    const debtCapacityRatio = _structure.debt > 0 ? maxDebt / _structure.debt : 999;
 
     return {
       maxDebt,
@@ -244,7 +243,6 @@ export class CapitalStructureOptimizer {
   }
 
   private static analyzeCreditRatingImpact(
-    financials: CapitalStructureInput['financials'],
     structure: { debtToEquity: number },
     currentRating?: CapitalStructureInput['marketData']['creditRating']
   ): {
@@ -308,7 +306,6 @@ export class CapitalStructureOptimizer {
   private static recommendOptimalStructure(
     wacc: { wacc: number },
     waccOptimization?: { optimalDebtToEquity: number; optimalWACC: number },
-    debtCapacity?: { recommendedDebt: number },
     creditRatingImpact?: { projectedRating: string }
   ): {
     optimalDebtToEquity: number;
@@ -345,9 +342,9 @@ export class CapitalStructureOptimizer {
 
   private static generateRecommendations(
     wacc: { wacc: number },
+    optimalStructure: { optimalDebtToEquity: number },
     waccOptimization?: { optimalWACC: number; optimalDebtToEquity: number },
-    debtCapacity?: { recommendedDebt: number },
-    optimalStructure: { optimalDebtToEquity: number }
+    debtCapacity?: { recommendedDebt: number }
   ): string[] {
     const recommendations: string[] = [];
 

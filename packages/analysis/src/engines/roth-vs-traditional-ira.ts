@@ -231,7 +231,7 @@ export class RothVsTraditionalIRACalculator {
   private static generateRecommendations(
     traditional: { afterTaxValue: number },
     roth: { afterTaxValue: number },
-    taxAnalysis: { netTaxBenefit: number },
+    _taxAnalysis: { netTaxBenefit: number },
     personalInfo: RothVsTraditionalIRAInput['personalInfo'],
     taxInfo: RothVsTraditionalIRAInput['taxInfo']
   ): string[] {

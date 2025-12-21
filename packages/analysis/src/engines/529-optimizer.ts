@@ -58,8 +58,8 @@ export class FiveTwoNineOptimizer {
     return {
       summary: {
         totalEducationCosts: educationCosts.totalCost,
-        projected529Balance: projections?.totalBalance || 0,
-        shortfall: educationCosts.totalCost - (projections?.totalBalance || 0),
+        projected529Balance: new Decimal(projections?.totalBalance ?? 0),
+        shortfall: new Decimal(educationCosts.totalCost).minus(projections?.totalBalance ?? 0).toNumber(),
         optimalState: stateComparison?.bestState,
       },
       educationCosts,
@@ -244,9 +244,9 @@ export class FiveTwoNineOptimizer {
 
   private static generateRecommendations(
     costs: { totalCost: number },
-    projections: { totalBalance: number; shortfall: number } | undefined,
+    projections: { totalBalance: number; perChildProjections: Array<{ childAge: number; projectedBalance: number; shortfall: number }>; annualProjections: Array<{ year: number; balance: number; contributions: number }> } | undefined,
     stateComparison: { bestState: string } | undefined,
-    aidImpact: { recommendation: string } | undefined,
+    aidImpact: { aidReduction: number; net529Benefit: number; recommendation: string } | undefined,
     _strategy: FiveTwoNineOptimizerInput['strategy']
   ): string[] {
     const recommendations: string[] = [];
@@ -255,9 +255,10 @@ export class FiveTwoNineOptimizer {
 
     if (projections) {
       recommendations.push(`Projected 529 balance: $${projections.totalBalance.toFixed(0)}`);
-      if (projections.shortfall > 0) {
+      const totalShortfall = projections.perChildProjections.reduce((sum, child) => sum + child.shortfall, 0);
+      if (totalShortfall > 0) {
         recommendations.push(
-          `Shortfall: $${projections.shortfall.toFixed(0)} - consider increasing contributions`
+          `Shortfall: $${totalShortfall.toFixed(0)} - consider increasing contributions`
         );
       }
     }

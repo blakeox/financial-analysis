@@ -20,7 +20,7 @@ export class FIRECalculator {
     const fireNumber = this.calculateFIRENumber(fireGoals);
 
     // Calculate years to FIRE
-    const yearsToFIRE = this.calculateYearsToFIRE(currentSituation, fireNumber, assumptions);
+    const yearsToFIRE = this.calculateYearsToFIRE(currentSituation, fireNumber, assumptions, fireGoals);
 
     // Projected retirement date
     const projectedRetirementAge = currentSituation.age + yearsToFIRE.years;
@@ -85,7 +85,8 @@ export class FIRECalculator {
   private static calculateYearsToFIRE(
     currentSituation: FIRECalculatorInput['currentSituation'],
     fireNumber: number,
-    assumptions: FIRECalculatorInput['assumptions']
+    assumptions: FIRECalculatorInput['assumptions'],
+    fireGoals: FIRECalculatorInput['fireGoals']
   ): {
     years: number;
     monthlySavingsNeeded: number;
@@ -182,7 +183,8 @@ export class FIRECalculator {
     const yearsToCoastFIRE = this.calculateYearsToFIRE(
       currentSituation,
       coastFIRENumber,
-      assumptions
+      assumptions,
+      fireGoals
     ).years;
 
     const coastFIREAge = currentSituation.age + yearsToCoastFIRE;
@@ -199,7 +201,7 @@ export class FIRECalculator {
   }
 
   private static calculateBaristaFIRE(
-    currentSituation: FIRECalculatorInput['currentSituation'],
+    _currentSituation: FIRECalculatorInput['currentSituation'],
     fireGoals: FIRECalculatorInput['fireGoals'],
     _assumptions: FIRECalculatorInput['assumptions']
   ): {
@@ -307,17 +309,17 @@ export class FIRECalculator {
   } {
     const fireNumber = this.calculateFIRENumber(fireGoals);
 
-    const base = this.calculateYearsToFIRE(currentSituation, fireNumber, assumptions);
+    const base = this.calculateYearsToFIRE(currentSituation, fireNumber, _assumptions, fireGoals);
     const optimistic = this.calculateYearsToFIRE(currentSituation, fireNumber, {
-      ...assumptions,
-      expectedReturn: assumptions.expectedReturn * 1.2,
-      incomeGrowth: assumptions.incomeGrowth * 1.2,
-    });
+      ..._assumptions,
+      expectedReturn: _assumptions.expectedReturn * 1.2,
+      incomeGrowth: _assumptions.incomeGrowth * 1.2,
+    }, fireGoals);
     const pessimistic = this.calculateYearsToFIRE(currentSituation, fireNumber, {
-      ...assumptions,
-      expectedReturn: assumptions.expectedReturn * 0.8,
-      incomeGrowth: assumptions.incomeGrowth * 0.8,
-    });
+      ..._assumptions,
+      expectedReturn: _assumptions.expectedReturn * 0.8,
+      incomeGrowth: _assumptions.incomeGrowth * 0.8,
+    }, fireGoals);
 
     return {
       optimistic: {
@@ -351,18 +353,19 @@ export class FIRECalculator {
         : 0;
 
     // Optimize by reducing expenses
-    const expenseReduction = assumptions.expenseReduction;
+    const expenseReduction = _assumptions.expenseReduction;
     const optimizedExpenses = currentSituation.annualExpenses * (1 - expenseReduction);
     const optimizedSavings = currentSituation.annualIncome - optimizedExpenses;
     const optimizedSavingsRate =
       currentSituation.annualIncome > 0 ? optimizedSavings / currentSituation.annualIncome : 0;
 
     const fireNumber = this.calculateFIRENumber(fireGoals);
-    const currentYears = this.calculateYearsToFIRE(currentSituation, fireNumber, assumptions).years;
+    const currentYears = this.calculateYearsToFIRE(currentSituation, fireNumber, _assumptions, fireGoals).years;
     const optimizedYears = this.calculateYearsToFIRE(
       { ...currentSituation, monthlySavings: optimizedSavings / 12 },
       fireNumber,
-      assumptions
+      _assumptions,
+      fireGoals
     ).years;
 
     const yearsSaved = currentYears - optimizedYears;
