@@ -9,39 +9,62 @@ import { CryptocurrencyTaxCalculator } from '../cryptocurrency-tax.js';
 describe('CryptocurrencyTaxCalculator', () => {
   const baseInput: CryptocurrencyTaxInput = {
     personalInfo: {
+      country: 'US',
       taxYear: 2024,
       filingStatus: 'single',
-      federalTaxRate: 0.22,
+    },
+    taxInfo: {
+      federalTaxRate: {
+        shortTerm: 0.22,
+        longTerm: 0.15,
+      },
       stateTaxRate: 0.05,
+      incomeBracket: 0.22,
+    },
+    incomeTransactions: {
+      miningIncome: 0,
+      stakingRewards: 0,
+      defiYield: 0,
+      airdrops: 0,
+      forks: 0,
     },
     transactions: [
       {
+        date: '2024-01-01',
         transactionType: 'buy',
         asset: 'BTC',
-        date: '2024-01-01',
-        amount: 1,
+        quantity: 1,
+        pricePerUnit: 40000,
+        totalValue: 40000,
+        fees: 0,
         costBasis: 40000,
-        fairMarketValue: 40000,
-        proceeds: 0,
-        holdingPeriod: 'short-term',
+        proceeds: undefined,
+        counterpartyAsset: undefined,
+        counterpartyQuantity: undefined,
+        counterpartyValue: undefined,
       },
       {
+        date: '2024-06-01',
         transactionType: 'sell',
         asset: 'BTC',
-        date: '2024-06-01',
-        amount: 0.5,
-        costBasis: 20000,
-        fairMarketValue: 35000,
+        quantity: 0.5,
+        pricePerUnit: 35000,
+        totalValue: 17500,
+        fees: 0,
+        costBasis: undefined,
         proceeds: 17500,
-        holdingPeriod: 'short-term',
+        counterpartyAsset: undefined,
+        counterpartyQuantity: undefined,
+        counterpartyValue: undefined,
       },
     ],
     costBasisMethod: 'fifo',
     analysis: {
-      includeCapitalGains: true,
-      includeOrdinaryIncome: true,
+      includeRealizedGains: true,
+      includeUnrealizedGains: true,
+      includeTaxLossHarvesting: true,
       includeWashSaleAnalysis: true,
-      includeForm8949: true,
+      includeMethodComparison: false,
     },
   };
 
@@ -49,17 +72,19 @@ describe('CryptocurrencyTaxCalculator', () => {
     const result = CryptocurrencyTaxCalculator.analyze(baseInput);
     expect(result).toBeDefined();
     expect(result.summary).toBeDefined();
+    expect(result.summary.totalRealizedGains).toBeDefined();
   });
 
-  it('should calculate capital gains', () => {
+  it('should calculate realized gains', () => {
     const result = CryptocurrencyTaxCalculator.analyze(baseInput);
-    expect(result.capitalGains).toBeDefined();
-    expect(result.capitalGains.totalCapitalGains).toBeDefined();
+    expect(result.realizedGains).toBeDefined();
+    expect(result.realizedGains!.totalGains).toBeDefined();
   });
 
-  it('should calculate ordinary income', () => {
+  it('should calculate income tax', () => {
     const result = CryptocurrencyTaxCalculator.analyze(baseInput);
-    expect(result.ordinaryIncome).toBeDefined();
+    expect(result.incomeTax).toBeDefined();
+    expect(result.incomeTax.totalTax).toBeDefined();
   });
 
   it('should analyze wash sales when requested', () => {
@@ -67,10 +92,10 @@ describe('CryptocurrencyTaxCalculator', () => {
     expect(result.washSaleAnalysis).toBeDefined();
   });
 
-  it('should generate Form 8949 data when requested', () => {
+  it('should generate recommendations', () => {
     const result = CryptocurrencyTaxCalculator.analyze(baseInput);
-    expect(result.form8949Data).toBeDefined();
-    expect(Array.isArray(result.form8949Data)).toBe(true);
+    expect(result.recommendations).toBeDefined();
+    expect(Array.isArray(result.recommendations)).toBe(true);
   });
 });
 

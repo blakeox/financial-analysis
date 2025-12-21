@@ -21,6 +21,7 @@ describe('FiveTwoNineOptimizer', () => {
         collegeType: 'public-in-state',
       },
     ],
+    current529Accounts: [],
     contributionPlan: {
       annualContribution: 5000,
       contributionIncrease: 0.03,
@@ -44,18 +45,18 @@ describe('FiveTwoNineOptimizer', () => {
     const result = FiveTwoNineOptimizer.analyze(baseInput);
     expect(result).toBeDefined();
     expect(result.summary).toBeDefined();
-    expect(result.summary.projectedBalance).toBeGreaterThan(0);
+    expect(result.summary.projected529Balance.toNumber()).toBeGreaterThan(0);
   });
 
   it('should calculate projected balance at college start', () => {
     const result = FiveTwoNineOptimizer.analyze(baseInput);
-    expect(result.projection).toBeDefined();
-    expect(result.projection.projectedBalance).toBeGreaterThan(0);
+    expect(result.projections).toBeDefined();
+    expect(result.projections.totalBalance).toBeGreaterThan(0);
   });
 
   it('should analyze shortfall when requested', () => {
     const result = FiveTwoNineOptimizer.analyze(baseInput);
-    expect(result.shortfallAnalysis).toBeDefined();
+    expect(result.summary.shortfall).toBeDefined();
   });
 
   it('should provide recommendations', () => {
@@ -65,7 +66,14 @@ describe('FiveTwoNineOptimizer', () => {
   });
 
   it('should compare state plans when requested', () => {
-    const result = FiveTwoNineOptimizer.analyze(baseInput);
+    const inputWithStates: FiveTwoNineOptimizerInput = {
+      ...baseInput,
+      state529Options: [
+        { state: 'CA', stateTaxDeduction: false, maxDeduction: 0, fees: 0.001, investmentOptions: 'good', minimumContribution: 0 },
+        { state: 'NY', stateTaxDeduction: true, maxDeduction: 5000, fees: 0.0015, investmentOptions: 'good', minimumContribution: 0 }
+      ]
+    };
+    const result = FiveTwoNineOptimizer.analyze(inputWithStates);
     expect(result.stateComparison).toBeDefined();
   });
 });

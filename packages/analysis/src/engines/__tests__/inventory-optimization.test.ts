@@ -51,9 +51,9 @@ describe('InventoryOptimizer', () => {
   });
 
   it('should calculate EOQ when requested', () => {
-    const result = InventoryOptimizer.analyze(baseInput);
+    const result = InventoryOptimizer.analyze(baseInput) as any;
     expect(result.eoqAnalysis).toBeDefined();
-    expect(Array.isArray(result.eoqAnalysis)).toBe(true);
+    expect(Array.isArray(result.eoqAnalysis.items)).toBe(true);
   });
 
   it('should perform ABC analysis when requested', () => {

@@ -37,10 +37,31 @@ describe('AccountsPayableOptimizer', () => {
         },
       ],
     },
+    paymentTerms: {
+      standardTerms: 'Net 30',
+      earlyPaymentDiscounts: [
+        {
+          vendor: 'Vendor A',
+          discountPercentage: 0.02,
+          discountDays: 10,
+          annualInvoiceVolume: 120000,
+        },
+      ],
+    },
     cashFlow: {
       currentCash: 200000,
       monthlyCashFlow: 50000,
       costOfCapital: 0.1,
+    },
+    vendorRelationships: {
+      criticalVendors: ['Vendor A'],
+      vendorPaymentHistory: [
+        {
+          vendor: 'Vendor A',
+          averagePaymentDays: 28,
+          relationshipScore: 8,
+        },
+      ],
     },
     strategy: {
       optimizeFor: 'balanced',
@@ -50,7 +71,7 @@ describe('AccountsPayableOptimizer', () => {
       includeDiscountAnalysis: true,
       includeCashFlowImpact: true,
       includePaymentSchedule: true,
-      includeVendorAnalysis: true,
+      includeVendorOptimization: true,
     },
   };
 
@@ -63,7 +84,7 @@ describe('AccountsPayableOptimizer', () => {
   it('should analyze early payment discounts', () => {
     const result = AccountsPayableOptimizer.analyze(baseInput);
     expect(result.discountAnalysis).toBeDefined();
-    expect(result.discountAnalysis.totalPotentialSavings).toBeGreaterThanOrEqual(0);
+    expect(result.discountAnalysis.totalSavings).toBeGreaterThanOrEqual(0);
   });
 
   it('should calculate cash flow impact', () => {
@@ -74,12 +95,12 @@ describe('AccountsPayableOptimizer', () => {
   it('should provide payment schedule', () => {
     const result = AccountsPayableOptimizer.analyze(baseInput);
     expect(result.paymentSchedule).toBeDefined();
-    expect(Array.isArray(result.paymentSchedule)).toBe(true);
+    expect(Array.isArray(result.paymentSchedule.schedule)).toBe(true);
   });
 
   it('should analyze vendors', () => {
     const result = AccountsPayableOptimizer.analyze(baseInput);
-    expect(result.vendorAnalysis).toBeDefined();
+    expect(result.vendorOptimization).toBeDefined();
   });
 });
 

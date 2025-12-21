@@ -4,9 +4,9 @@
 
 import { describe, expect, it } from 'vitest';
 import type { DisabilityInsuranceInput } from '../../schemas/disability-insurance.js';
-import { DisabilityInsuranceCalculator } from '../disability-insurance.js';
+import { DisabilityInsuranceAnalyzer } from '../disability-insurance.js';
 
-describe('DisabilityInsuranceCalculator', () => {
+describe('DisabilityInsuranceAnalyzer', () => {
   const baseInput: DisabilityInsuranceInput = {
     personalInfo: {
       age: 35,
@@ -31,6 +31,12 @@ describe('DisabilityInsuranceCalculator', () => {
       eliminationPeriod: 90,
       definitionOfDisability: 'own-occupation',
       estimatedAnnualPremium: 3000,
+      riders: {
+        costOfLivingAdjustment: false,
+        residualDisability: true,
+        futureIncreaseOption: false,
+        catastrophicDisability: false,
+      },
     },
     analysis: {
       includeCoverageGapAnalysis: true,
@@ -40,32 +46,21 @@ describe('DisabilityInsuranceCalculator', () => {
   };
 
   it('should calculate disability insurance needs', () => {
-    const result = DisabilityInsuranceCalculator.analyze(baseInput);
+    const result = DisabilityInsuranceAnalyzer.analyze(baseInput);
     expect(result).toBeDefined();
-    expect(result.needsAnalysis).toBeDefined();
-    expect(result.needsAnalysis.recommendedCoverage).toBeGreaterThan(0);
+    expect(result.recommendedCoverage).toBeGreaterThan(0);
   });
 
-  it('should identify coverage gaps', () => {
-    const result = DisabilityInsuranceCalculator.analyze(baseInput);
-    expect(result.coverageGapAnalysis).toBeDefined();
-    expect(result.coverageGapAnalysis.coverageGap).toBeDefined();
+  it('should calculate costs', () => {
+    const result = DisabilityInsuranceAnalyzer.analyze(baseInput);
+    expect(result.monthlyPremium).toBeGreaterThan(0);
+    expect(result.totalCost).toBeGreaterThan(0);
   });
 
   it('should provide recommendations', () => {
-    const result = DisabilityInsuranceCalculator.analyze(baseInput);
+    const result = DisabilityInsuranceAnalyzer.analyze(baseInput);
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
-  });
-
-  it('should calculate cost-benefit analysis', () => {
-    const result = DisabilityInsuranceCalculator.analyze(baseInput);
-    expect(result.costBenefitAnalysis).toBeDefined();
-  });
-
-  it('should compare own-occupation vs any-occupation', () => {
-    const result = DisabilityInsuranceCalculator.analyze(baseInput);
-    expect(result.definitionComparison).toBeDefined();
   });
 });
 

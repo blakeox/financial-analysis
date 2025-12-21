@@ -20,6 +20,7 @@ describe('LifeInsuranceReassessmentCalculator', () => {
         faceAmount: 500000,
         annualPremium: 500,
         cashValue: 0,
+        policyAge: 5,
       },
     ],
     financialSituation: {
@@ -28,6 +29,7 @@ describe('LifeInsuranceReassessmentCalculator', () => {
       totalDebt: 200000,
       monthlyExpenses: 5000,
       dependents: 2,
+      yearsUntilRetirement: 25,
     },
     needsAnalysis: {
       incomeReplacement: {

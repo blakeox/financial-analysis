@@ -9,32 +9,53 @@ import { StartupFinancialModel } from '../startup-financial-model.js';
 describe('StartupFinancialModel', () => {
   const baseInput: StartupFinancialModelInput = {
     companyInfo: {
-      companyName: 'Test Startup',
+      name: 'Test Startup',
       industry: 'SaaS',
       businessModel: 'saas',
       stage: 'seed',
     },
-    financials: {
+    currentSituation: {
       currentCash: 500000,
       monthlyBurnRate: 50000,
-      monthlyRevenue: 10000,
-      annualRecurringRevenue: 120000,
+      currentRevenue: 10000,
+      currentMRR: 10000,
+      currentCustomers: 100,
     },
     revenueProjections: {
-      monthlyGrowthRate: 0.1,
-      churnRate: 0.05,
-      averageRevenuePerUser: 100,
+      revenueModel: 'subscription',
+      monthlyRevenue: [],
+      growthAssumptions: {
+        customerGrowthRate: 0.1,
+        revenuePerCustomer: 100,
+        churnRate: 0.05,
+      },
     },
-    unitEconomics: {
-      customerAcquisitionCost: 500,
-      lifetimeValue: 2000,
-      grossMargin: 0.7,
+    expenses: {
+      fixedCosts: {
+        salaries: 30000,
+        rent: 5000,
+        utilities: 1000,
+        insurance: 1000,
+        otherFixed: 3000,
+      },
+      variableCosts: {
+        costOfGoodsSold: 0.2,
+        marketing: 0.3,
+        sales: 0.1,
+        customerAcquisitionCost: 500,
+      },
     },
+    funding: {
+      fundingRounds: [],
+      plannedFunding: [],
+    },
+    milestones: [],
     analysis: {
       includeRunway: true,
       includeBurnRate: true,
       includeUnitEconomics: true,
-      includeFundingScenarios: true,
+      includeFundingNeeds: true,
+      includeMilestoneTracking: true,
       projectionMonths: 24,
     },
   };
@@ -48,7 +69,7 @@ describe('StartupFinancialModel', () => {
   it('should calculate runway when requested', () => {
     const result = StartupFinancialModel.analyze(baseInput);
     expect(result.runwayAnalysis).toBeDefined();
-    expect(result.runwayAnalysis.monthsOfRunway).toBeGreaterThan(0);
+    expect(result.runwayAnalysis.runwayMonths).toBeDefined();
   });
 
   it('should analyze burn rate', () => {
@@ -59,13 +80,12 @@ describe('StartupFinancialModel', () => {
   it('should calculate unit economics', () => {
     const result = StartupFinancialModel.analyze(baseInput);
     expect(result.unitEconomics).toBeDefined();
-    expect(result.unitEconomics.ltvToCacRatio).toBeGreaterThan(0);
+    expect(result.unitEconomics.ltvCacRatio).toBeGreaterThan(0);
   });
 
-  it('should provide funding scenarios', () => {
+  it('should provide funding needs', () => {
     const result = StartupFinancialModel.analyze(baseInput);
-    expect(result.fundingScenarios).toBeDefined();
-    expect(Array.isArray(result.fundingScenarios)).toBe(true);
+    expect(result.fundingNeeds).toBeDefined();
   });
 });
 

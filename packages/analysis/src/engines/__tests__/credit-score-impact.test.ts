@@ -12,16 +12,38 @@ describe('CreditScoreImpactAnalyzer', () => {
       currentScore: 720,
       creditBureau: 'fico-8',
     },
-    creditUtilization: {
-      totalCreditLimit: 50000,
-      totalCreditUsed: 15000,
-      utilizationPercentage: 0.3,
+    creditHistory: {
+      averageAgeOfAccounts: 60,
+      oldestAccountAge: 120,
+      totalAccounts: 10,
+      openAccounts: 5,
     },
     paymentHistory: {
       onTimePayments: 100,
       latePayments30Days: 0,
       latePayments60Days: 0,
       latePayments90Days: 0,
+      collections: 0,
+      bankruptcies: 0,
+    },
+    creditUtilization: {
+      totalCreditLimit: 50000,
+      totalCreditUsed: 15000,
+      utilizationPercentage: 0.3,
+      individualCardUtilization: [],
+    },
+    creditMix: {
+      creditCards: 5,
+      installmentLoans: 2,
+      mortgages: 1,
+      otherAccounts: 0,
+    },
+    recentActivity: {
+      hardInquiries: 2,
+      inquiriesLast6Months: 1,
+      inquiriesLast12Months: 2,
+      newAccounts: 1,
+      accountsOpenedLast6Months: 0,
     },
     plannedActions: {
       payDownDebt: {

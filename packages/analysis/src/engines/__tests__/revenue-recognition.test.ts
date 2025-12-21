@@ -28,6 +28,7 @@ describe('RevenueRecognitionCalculator', () => {
         ],
         paymentTerms: {
           upfrontPayment: 0,
+          milestonePayments: [],
         },
       },
     ],
@@ -47,19 +48,19 @@ describe('RevenueRecognitionCalculator', () => {
   });
 
   it('should generate revenue schedule when requested', () => {
-    const result = RevenueRecognitionCalculator.analyze(baseInput);
+    const result = RevenueRecognitionCalculator.analyze(baseInput) as any;
     expect(result.revenueSchedule).toBeDefined();
-    expect(Array.isArray(result.revenueSchedule)).toBe(true);
+    expect(Array.isArray(result.revenueSchedule.schedule)).toBe(true);
   });
 
   it('should calculate deferred revenue', () => {
-    const result = RevenueRecognitionCalculator.analyze(baseInput);
+    const result = RevenueRecognitionCalculator.analyze(baseInput) as any;
     expect(result.deferredRevenue).toBeDefined();
   });
 
   it('should analyze contract assets', () => {
-    const result = RevenueRecognitionCalculator.analyze(baseInput);
-    expect(result.contractAssetAnalysis).toBeDefined();
+    const result = RevenueRecognitionCalculator.analyze(baseInput) as any;
+    expect(result.contractAssets).toBeDefined();
   });
 
   it('should perform compliance check', () => {

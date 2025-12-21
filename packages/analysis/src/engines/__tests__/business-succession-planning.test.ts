@@ -12,29 +12,45 @@ describe('BusinessSuccessionPlanningCalculator', () => {
       businessName: 'Test Business',
       businessType: 'llc',
       annualRevenue: 2000000,
-      businessValue: 5000000,
+      annualEBITDA: 500000,
+      totalAssets: 1000000,
+      totalDebt: 200000,
     },
-    ownerInfo: {
-      age: 55,
-      ownershipPercentage: 1,
-      expectedRetirementAge: 65,
+    ownership: {
+      currentOwners: [{
+        name: 'Owner 1',
+        ownershipPercentage: 1,
+        age: 55,
+        expectedExitAge: 65
+      }],
+      totalOwnership: 1
+    },
+    valuation: {
+      valuationMethod: 'market-multiple',
+      estimatedValue: 2500000,
+      valuationMultiple: 5
     },
     successionOptions: {
-      successionType: 'family-transfer',
-      hasBuySellAgreement: false,
-      buySellFunding: 'life-insurance',
+      transferMethod: 'family-transfer',
     },
-    estatePlanning: {
-      estateTaxExemption: 12920000,
-      includeGiftingStrategy: true,
-      annualGiftExclusion: 18000,
+    taxPlanning: {
+      federalEstateTaxExemption: 12920000,
+      stateEstateTaxExemption: 0,
+      estateTaxRate: 0.4,
+      giftTaxExemption: 18000,
+      includeGRAT: false,
+      includeFLP: false,
+    },
+    buySellAgreement: {
+      hasAgreement: false,
+      fundingMethod: 'life-insurance'
     },
     analysis: {
-      includeValuation: true,
       includeTaxAnalysis: true,
-      includeTransitionPlan: true,
+      includeEstateTaxImpact: true,
+      includeTransferStrategies: true,
+      includeTimingAnalysis: true,
       includeFundingAnalysis: true,
-      projectionYears: 10,
     },
   };
 
@@ -45,20 +61,20 @@ describe('BusinessSuccessionPlanningCalculator', () => {
   });
 
   it('should perform valuation when requested', () => {
-    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput);
-    expect(result.valuation).toBeDefined();
-    expect(result.valuation.businessValue).toBeGreaterThan(0);
+    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput) as any;
+    expect(result.valuationAnalysis).toBeDefined();
+    expect(result.valuationAnalysis.estimatedValue).toBeGreaterThan(0);
   });
 
   it('should analyze tax implications', () => {
-    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput);
+    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput) as any;
     expect(result.taxAnalysis).toBeDefined();
-    expect(result.taxAnalysis.estateTaxLiability).toBeGreaterThanOrEqual(0);
+    expect(result.taxAnalysis.totalTax).toBeGreaterThanOrEqual(0);
   });
 
   it('should provide transition plan', () => {
-    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput);
-    expect(result.transitionPlan).toBeDefined();
+    const result = BusinessSuccessionPlanningCalculator.analyze(baseInput) as any;
+    expect(result.transferStrategies).toBeDefined();
   });
 
   it('should analyze funding options', () => {

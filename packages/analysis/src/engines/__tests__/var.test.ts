@@ -30,10 +30,10 @@ describe('VaRCalculator', () => {
   };
 
   it('should calculate VaR using historical method', () => {
-    const result = VaRCalculator.analyze(baseInput);
+    const result = VaRCalculator.analyze(baseInput) as any;
     expect(result).toBeDefined();
     expect(result.varResult).toBeDefined();
-    expect(result.varResult.var).toBeGreaterThanOrEqual(0);
+    expect(result.varResult.varValue).toBeGreaterThanOrEqual(0);
     expect(result.varResult.method).toBe('Historical Simulation');
   });
 
@@ -45,7 +45,7 @@ describe('VaRCalculator', () => {
         volatilities: [0.15, 0.2],
       },
     };
-    const result = VaRCalculator.analyze(parametricInput);
+    const result = VaRCalculator.analyze(parametricInput) as any;
     expect(result.varResult.method).toBe('Parametric (Variance-Covariance)');
   });
 
@@ -57,7 +57,7 @@ describe('VaRCalculator', () => {
         volatilities: [0.15, 0.2],
       },
     };
-    const result = VaRCalculator.analyze(mcInput);
+    const result = VaRCalculator.analyze(mcInput) as any;
     expect(result.varResult.method).toBe('Monte Carlo Simulation');
   });
 
@@ -66,7 +66,7 @@ describe('VaRCalculator', () => {
       ...baseInput,
       analysis: { ...baseInput.analysis, includeStressTesting: true },
     };
-    const result = VaRCalculator.analyze(stressInput);
+    const result = VaRCalculator.analyze(stressInput) as any;
     expect(result.stressTesting).toBeDefined();
     expect(result.stressTesting?.scenarios.length).toBeGreaterThan(0);
   });

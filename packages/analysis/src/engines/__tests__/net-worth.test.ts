@@ -35,10 +35,10 @@ describe('NetWorthTracker', () => {
   };
 
   it('should calculate current net worth', () => {
-    const result = NetWorthTracker.analyze(baseInput);
+    const result = NetWorthTracker.analyze(baseInput) as any;
     expect(result).toBeDefined();
     expect(result.currentNetWorth).toBeDefined();
-    expect(result.currentNetWorth.netWorth).toBe(715000); // 1050000 - 340000
+    expect(result.currentNetWorth.netWorth).toBe(710000); // 1050000 - 340000
   });
 
   it('should project future net worth', () => {
