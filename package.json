@@ -63,7 +63,10 @@
   "packageManager": "pnpm@10.17.0",
   "pnpm": {
     "overrides": {
-      "js-yaml": ">=4.1.1"
+      "js-yaml": ">=4.1.1",
+      "astro@<5.15.9": ">=5.15.9",
+      "astro@<5.15.8": ">=5.15.8",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": ">=13.2.1"
     }
   }
 }
