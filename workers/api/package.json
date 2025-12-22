@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@asteasolutions/zod-to-openapi": "^8.1.0",
+    "@asteasolutions/zod-to-openapi": "^8.2.0",
     "@cloudflare/ai-utils": "^1.0.1",
     "@cloudflare/workers-types": "^4.20251125.0",
     "@financial-analysis/analysis": "workspace:*",
