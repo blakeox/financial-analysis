@@ -4,14 +4,14 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CollegeSavingsPlanner } from '../college-savings-stub';
-import { HomeBuyingAffordabilityCalculator } from '../home-buying-affordability-stub';
+import { CollegeSavingsPlanner } from '../college-savings';
+import { HomeBuyingAffordabilityCalculator } from '../home-buying-affordability';
 import { InsuranceNeedsCalculator, InsuranceNeedsInputSchema } from '../insurance-needs';
-import { TaxOptimizationPlanner } from '../tax-optimization-stub';
+import { TaxOptimizationPlanner } from '../tax-optimization';
 // Import schemas from schemas directory
-import { CollegeSavingsInputSchema } from '../../schemas/college-savings';
-import { HomeBuyingAffordabilityInputSchema } from '../../schemas/home-buying-affordability';
-import { TaxOptimizationInputSchema } from '../../schemas/tax-optimization';
+import { CollegeSavingsInputSchema } from '../../../schemas/college-savings';
+import { HomeBuyingAffordabilityInputSchema } from '../../../schemas/home-buying-affordability';
+import { TaxOptimizationInputSchema } from '../../../schemas/tax-optimization';
 
 describe('Phase 1 Personal Finance Models Integration', () => {
   describe('Insurance Needs Calculator', () => {

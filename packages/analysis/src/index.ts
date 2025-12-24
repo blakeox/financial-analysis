@@ -1,61 +1,61 @@
-export { AmortizationAnalyzer } from './engines/amortization.js';
-export { BondPricingAnalyzer } from './engines/bond-pricing.js';
-export { BusinessValuationEngine } from './engines/business-valuation.js';
-export { CashFlowAnalyzer } from './engines/cash-flow.js';
-export { CCAValuationEngine } from './engines/cca-analysis.js';
-export { DCFValuationEngine } from './engines/dcf-analysis.js';
-export { EbitdaForecaster } from './engines/ebitda-forecasting.js';
-export { EnhancedLeaseAnalyzer } from './engines/enhanced-lease.js';
-export { FinancialJourneyAnalysisEngine } from './engines/financial-journey.js';
-export { InsuranceNeedsCalculator } from './engines/insurance-needs.js';
-export { LeaseAnalyzer } from './engines/lease.js';
-export { MAAnalysisEngine } from './engines/ma-analysis.js';
-export { OptionsPricingAnalyzer } from './engines/options-pricing.js';
-export { RevenueForecastEngine } from './engines/revenue-forecast.js';
-export { UnitEconomicsEngine } from './engines/unit-economics.js';
+export { AmortizationAnalyzer } from './engines/business/amortization.js';
+export { BondPricingAnalyzer } from './engines/business/bond-pricing.js';
+export { BusinessValuationEngine } from './engines/business/business-valuation.js';
+export { CashFlowAnalyzer } from './engines/business/cash-flow.js';
+export { CCAValuationEngine } from './engines/business/cca-analysis.js';
+export { DCFValuationEngine } from './engines/business/dcf-analysis.js';
+export { EbitdaForecaster } from './engines/business/ebitda-forecasting.js';
+export { EnhancedLeaseAnalyzer } from './engines/business/enhanced-lease.js';
+export { FinancialJourneyAnalysisEngine } from './engines/business/financial-journey.js';
+export { InsuranceNeedsCalculator } from './engines/personal/insurance-needs.js';
+export { LeaseAnalyzer } from './engines/business/lease.js';
+export { MAAnalysisEngine } from './engines/business/ma-analysis.js';
+export { OptionsPricingAnalyzer } from './engines/derivatives/options-pricing.js';
+export { RevenueForecastEngine } from './engines/business/revenue-forecast.js';
+export { UnitEconomicsEngine } from './engines/business/unit-economics.js';
 
 // New Personal Finance Engines
-export { FiveTwoNineOptimizer } from './engines/529-optimizer.js';
-export { CarLeaseVsBuyCalculator } from './engines/car-lease-vs-buy.js';
-export { CharitableGivingOptimizer } from './engines/charitable-giving.js';
-export { CreditScoreImpactAnalyzer } from './engines/credit-score-impact.js';
-export { DisabilityInsuranceAnalyzer } from './engines/disability-insurance.js';
-export { HSAOptimizer } from './engines/hsa-optimization.js';
-export { LifeInsuranceReassessmentCalculator } from './engines/life-insurance-reassessment.js';
-export { LongTermCareCalculator } from './engines/long-term-care.js';
-export { RothVsTraditionalIRACalculator } from './engines/roth-vs-traditional-ira.js';
-export { TaxLossHarvestingOptimizer } from './engines/tax-loss-harvesting.js';
+export { FiveTwoNineOptimizer } from './engines/personal/529-optimizer.js';
+export { CarLeaseVsBuyCalculator } from './engines/personal/car-lease-vs-buy.js';
+export { CharitableGivingOptimizer } from './engines/personal/charitable-giving.js';
+export { CreditScoreImpactAnalyzer } from './engines/personal/credit-score-impact.js';
+export { DisabilityInsuranceAnalyzer } from './engines/personal/disability-insurance.js';
+export { HSAOptimizer } from './engines/personal/hsa-optimization.js';
+export { LifeInsuranceReassessmentCalculator } from './engines/personal/life-insurance-reassessment.js';
+export { LongTermCareCalculator } from './engines/personal/long-term-care.js';
+export { RothVsTraditionalIRACalculator } from './engines/personal/roth-vs-traditional-ira.js';
+export { TaxLossHarvestingOptimizer } from './engines/personal/tax-loss-harvesting.js';
 
 // New Business Finance Engines
-export { AccountsPayableOptimizer } from './engines/accounts-payable-optimization.js';
-export { AccountsReceivableAgingAnalyzer } from './engines/accounts-receivable-aging.js';
-export { DepreciationCalculator } from './engines/depreciation.js';
-export { EmployeeStockOptionsValuator } from './engines/employee-stock-options.js';
-export { EquipmentLeaseVsBuyCalculator } from './engines/equipment-lease-vs-buy.js';
-export { FinancialRatioAnalyzer } from './engines/financial-ratio-analyzer.js';
-export { FranchiseROICalculator } from './engines/franchise-roi.js';
-export { InventoryOptimizer } from './engines/inventory-optimization.js';
-export { RevenueRecognitionCalculator } from './engines/revenue-recognition.js';
-export { StartupFinancialModel } from './engines/startup-financial-model.js';
+export { AccountsPayableOptimizer } from './engines/business/accounts-payable-optimization.js';
+export { AccountsReceivableAgingAnalyzer } from './engines/business/accounts-receivable-aging.js';
+export { DepreciationCalculator } from './engines/business/depreciation.js';
+export { EmployeeStockOptionsValuator } from './engines/business/employee-stock-options.js';
+export { EquipmentLeaseVsBuyCalculator } from './engines/business/equipment-lease-vs-buy.js';
+export { FinancialRatioAnalyzer } from './engines/business/financial-ratio-analyzer.js';
+export { FranchiseROICalculator } from './engines/business/franchise-roi.js';
+export { InventoryOptimizer } from './engines/business/inventory-optimization.js';
+export { RevenueRecognitionCalculator } from './engines/business/revenue-recognition.js';
+export { StartupFinancialModel } from './engines/business/startup-financial-model.js';
 
 // Specialized/Advanced Engines
-export { OneZeroThreeOneExchangeAnalyzer } from './engines/1031-exchange.js';
-export { BusinessSuccessionPlanningCalculator } from './engines/business-succession-planning.js';
-export { CryptocurrencyTaxCalculator } from './engines/cryptocurrency-tax.js';
-export { InternationalTaxPlanningOptimizer } from './engines/international-tax-planning.js';
-export { SupplyChainFinanceOptimizer } from './engines/supply-chain-finance.js';
-export { WACCAnalyzer } from './engines/wacc.js';
+export { OneZeroThreeOneExchangeAnalyzer } from './engines/specialized/1031-exchange.js';
+export { BusinessSuccessionPlanningCalculator } from './engines/business/business-succession-planning.js';
+export { CryptocurrencyTaxCalculator } from './engines/specialized/cryptocurrency-tax.js';
+export { InternationalTaxPlanningOptimizer } from './engines/specialized/international-tax-planning.js';
+export { SupplyChainFinanceOptimizer } from './engines/business/supply-chain-finance.js';
+export { WACCAnalyzer } from './engines/business/wacc.js';
 
 // Advanced Derivatives and Risk Management
-export { FuturesPricingAnalyzer, ForwardPricingAnalyzer } from './engines/futures.js';
-export { InterestRateSwapAnalyzer, CurrencySwapAnalyzer } from './engines/swaps.js';
-export { RealOptionsAnalyzer } from './engines/real-options.js';
+export { FuturesPricingAnalyzer, ForwardPricingAnalyzer } from './engines/derivatives/futures.js';
+export { InterestRateSwapAnalyzer, CurrencySwapAnalyzer } from './engines/derivatives/swaps.js';
+export { RealOptionsAnalyzer } from './engines/derivatives/real-options.js';
 
 // Export amortization functions and types
 export {
   buildAmortizationComprehensiveAnalysis,
   computeAmortizationInsights,
-} from './engines/amortization.js';
+} from './engines/business/amortization.js';
 export type {
   AmortizationAnalysisResult,
   AmortizationComprehensiveAnalysis,
@@ -66,7 +66,7 @@ export type {
   AmortizationOptimizationOpportunity,
   AmortizationResultItem,
   AmortizationRiskFactor,
-} from './engines/amortization.js';
+} from './engines/business/amortization.js';
 
 // Export zod from our dependency for API usage
 export { z } from 'zod';
@@ -105,10 +105,10 @@ export type {
 } from './schemas/lease-extraction.js';
 
 // Align Scenario schema with EBITDA forecaster's contract
-export { ScenarioInputSchema } from './engines/ebitda-forecasting.js';
-export type { EbitdaForecastResult, ScenarioInput } from './engines/ebitda-forecasting.js';
-export type { LeaseAnalysisResult } from './engines/lease.js';
-export type { WACCResult } from './engines/wacc.js';
+export { ScenarioInputSchema } from './engines/business/ebitda-forecasting.js';
+export type { EbitdaForecastResult, ScenarioInput } from './engines/business/ebitda-forecasting.js';
+export type { LeaseAnalysisResult } from './engines/business/lease.js';
+export type { WACCResult } from './engines/business/wacc.js';
 
 // Bond pricing schemas and types
 export { BondPricingInputSchema } from './schemas/bond-pricing.js';
@@ -131,25 +131,25 @@ export type { CashFlowAnalysisInput, CashFlowType } from './schemas/cash-flow.js
 export type { CashFlowAnalysisResult } from './types/cash-flow-result.js';
 
 // Auto loan schemas and types
-export * as AutoLoanEngine from './engines/auto-loan.js';
+export * as AutoLoanEngine from './engines/personal/auto-loan.js';
 export { AutoLoanInputSchema } from './schemas/auto-loan.js';
 export type { AutoLoanInput } from './schemas/auto-loan.js';
 export type { AutoLoanResult } from './types/auto-loan-result.js';
 
 // Debt payoff schemas and types
-export * as DebtPayoffEngine from './engines/debt-payoff.js';
+export * as DebtPayoffEngine from './engines/personal/debt-payoff.js';
 export { DebtItemSchema, DebtPayoffInputSchema } from './schemas/debt-payoff.js';
 export type { DebtItem, DebtPayoffInput } from './schemas/debt-payoff.js';
 export type { DebtPayoffResult } from './types/debt-payoff-result.js';
 
 // Savings goal schemas and types
-export * as SavingsGoalEngine from './engines/savings-goal.js';
+export * as SavingsGoalEngine from './engines/personal/savings-goal.js';
 export { SavingsGoalInputSchema } from './schemas/savings-goal.js';
 export type { SavingsGoalInput } from './schemas/savings-goal.js';
 export type { SavingsGoalResult } from './types/savings-goal-result.js';
 
 // Student loan schemas and types
-export * as StudentLoanEngine from './engines/student-loan.js';
+export * as StudentLoanEngine from './engines/personal/student-loan.js';
 export {
   IncomeDrivenPlanSchema,
   RefinancingOptionSchema,
@@ -165,13 +165,13 @@ export type {
 export type { StudentLoanResult } from './types/student-loan-result.js';
 
 // Retirement schemas and types
-export * as RetirementEngine from './engines/retirement.js';
+export * as RetirementEngine from './engines/personal/retirement.js';
 export { RetirementAccountSchema, RetirementInputSchema } from './schemas/retirement.js';
 export type { RetirementAccount, RetirementInput } from './schemas/retirement.js';
 export type { RetirementResult } from './types/retirement-result.js';
 
 // Budget optimizer schemas and types
-export * as BudgetEngine from './engines/budget.js';
+export * as BudgetEngine from './engines/personal/budget.js';
 export {
   BudgetInputSchema,
   DebtObligationSchema,
@@ -187,194 +187,194 @@ export type {
 export type { BudgetResult } from './types/budget-result.js';
 
 // M&A analysis schemas and types
-export { MAAnalysisInputSchema } from './engines/ma-analysis.js';
-export type { MAAnalysisInput, MAAnalysisResult } from './engines/ma-analysis.js';
+export { MAAnalysisInputSchema } from './engines/business/ma-analysis.js';
+export type { MAAnalysisInput, MAAnalysisResult } from './engines/business/ma-analysis.js';
 
 // DCF valuation schemas and types
-export { DCFValuationInputSchema } from './engines/dcf-analysis.js';
-export type { DCFValuationInput, DCFValuationResult } from './engines/dcf-analysis.js';
+export { DCFValuationInputSchema } from './engines/business/dcf-analysis.js';
+export type { DCFValuationInput, DCFValuationResult } from './engines/business/dcf-analysis.js';
 
 // CCA valuation schemas and types
-export { CCAValuationInputSchema } from './engines/cca-analysis.js';
-export type { CCAValuationInput, CCAValuationResult } from './engines/cca-analysis.js';
+export { CCAValuationInputSchema } from './engines/business/cca-analysis.js';
+export type { CCAValuationInput, CCAValuationResult } from './engines/business/cca-analysis.js';
 
 // Financial journey schemas and types
-export { FinancialJourneyInputSchema } from './engines/financial-journey.js';
-export type { FinancialJourneyInput, FinancialJourneyResult } from './engines/financial-journey.js';
+export { FinancialJourneyInputSchema } from './engines/business/financial-journey.js';
+export type { FinancialJourneyInput, FinancialJourneyResult } from './engines/business/financial-journey.js';
 
 // Insurance needs schemas and types
-export { InsuranceNeedsInputSchema } from './engines/insurance-needs.js';
-export type { InsuranceNeedsInput, InsuranceNeedsResult } from './engines/insurance-needs.js';
+export { InsuranceNeedsInputSchema } from './engines/personal/insurance-needs.js';
+export type { InsuranceNeedsInput, InsuranceNeedsResult } from './engines/personal/insurance-needs.js';
 
 // College savings schemas and types
-export { CollegeSavingsPlanner } from './engines/college-savings.js';
+export { CollegeSavingsPlanner } from './engines/personal/college-savings.js';
 export { CollegeSavingsInputSchema } from './schemas/college-savings.js';
 export type { CollegeSavingsInput } from './schemas/college-savings.js';
 
 // Home buying schemas and types
-export { HomeBuyingAffordabilityCalculator } from './engines/home-buying-affordability.js';
+export { HomeBuyingAffordabilityCalculator } from './engines/personal/home-buying-affordability.js';
 export { HomeBuyingAffordabilityInputSchema } from './schemas/home-buying-affordability.js';
 export type { HomeBuyingAffordabilityInput } from './schemas/home-buying-affordability.js';
 
 // Investment portfolio schemas and types
-export { InvestmentPortfolioAnalyzer } from './engines/investment-portfolio.js';
+export { InvestmentPortfolioAnalyzer } from './engines/business/investment-portfolio.js';
 export { InvestmentPortfolioInputSchema } from './schemas/investment-portfolio.js';
 export type { InvestmentPortfolioInput } from './schemas/investment-portfolio.js';
 
 // Retirement planning schemas and types
-export { RetirementPlanningEngine } from './engines/retirement-planning.js';
+export { RetirementPlanningEngine } from './engines/personal/retirement-planning.js';
 export { RetirementPlanningInputSchema } from './schemas/retirement-planning.js';
 export type { RetirementPlanningInput } from './schemas/retirement-planning.js';
 
 // Tax optimization schemas and types
-export { TaxOptimizationPlanner } from './engines/tax-optimization.js';
-export { TaxOptimizationInputSchema } from './engines/tax-optimization.js';
+export { TaxOptimizationPlanner } from './engines/personal/tax-optimization.js';
+export { TaxOptimizationInputSchema } from './engines/personal/tax-optimization.js';
 export type { TaxOptimizationInput } from './schemas/tax-optimization.js';
 
 // Business expansion loan schemas and types
-export { BusinessExpansionLoanJourney } from './engines/business-expansion-loan.js';
+export { BusinessExpansionLoanJourney } from './engines/business/business-expansion-loan.js';
 export { BusinessExpansionLoanInputSchema } from './schemas/business-expansion-loan.js';
 export type { BusinessExpansionLoanInput } from './schemas/business-expansion-loan.js';
 
 // Business financial health schemas and types
-export { BusinessFinancialHealthAnalyzer } from './engines/business-financial-health.js';
+export { BusinessFinancialHealthAnalyzer } from './engines/business/business-financial-health.js';
 export { BusinessFinancialHealthInputSchema } from './schemas/business-financial-health.js';
 export type { BusinessFinancialHealthInput } from './schemas/business-financial-health.js';
 
 // Debt capacity schemas and types
-export { DebtCapacityCalculator } from './engines/debt-capacity.js';
+export { DebtCapacityCalculator } from './engines/business/debt-capacity.js';
 export { DebtCapacityInputSchema } from './schemas/debt-capacity.js';
 export type { DebtCapacityInput } from './schemas/debt-capacity.js';
 
 // DSCR schemas and types
-export { DSCRCalculator } from './engines/dscr.js';
+export { DSCRCalculator } from './engines/business/dscr.js';
 export { DSCRInputSchema } from './schemas/dscr.js';
 export type { DSCRInput } from './schemas/dscr.js';
 
 // Business loan scenarios schemas and types
-export { BusinessLoanScenariosAnalyzer } from './engines/business-loan-scenarios.js';
+export { BusinessLoanScenariosAnalyzer } from './engines/business/business-loan-scenarios.js';
 export { BusinessLoanScenariosInputSchema } from './schemas/business-loan-scenarios.js';
 export type { BusinessLoanScenariosInput } from './schemas/business-loan-scenarios.js';
 
 // Social Security schemas and types
-export { SocialSecurityOptimizer } from './engines/social-security.js';
+export { SocialSecurityOptimizer } from './engines/personal/social-security.js';
 export { SocialSecurityInputSchema } from './schemas/social-security.js';
 export type { SocialSecurityInput } from './schemas/social-security.js';
 
 // HELOC schemas and types
-export { HELOCAnalyzer } from './engines/heloc.js';
+export { HELOCAnalyzer } from './engines/personal/heloc.js';
 export { HELOCInputSchema } from './schemas/heloc.js';
 export type { HELOCInput } from './schemas/heloc.js';
 
 // Refinancing schemas and types
-export { RefinancingCalculator } from './engines/refinancing.js';
+export { RefinancingCalculator } from './engines/personal/refinancing.js';
 export { RefinancingInputSchema } from './schemas/refinancing.js';
 export type { RefinancingInput } from './schemas/refinancing.js';
 
 // Capital Structure schemas and types
-export { CapitalStructureOptimizer } from './engines/capital-structure.js';
+export { CapitalStructureOptimizer } from './engines/business/capital-structure.js';
 export { CapitalStructureInputSchema } from './schemas/capital-structure.js';
 export type { CapitalStructureInput } from './schemas/capital-structure.js';
 
 // Project Finance schemas and types
-export { ProjectFinanceAnalyzer } from './engines/project-finance.js';
+export { ProjectFinanceAnalyzer } from './engines/business/project-finance.js';
 export { ProjectFinanceInputSchema } from './schemas/project-finance.js';
 export type { ProjectFinanceInput } from './schemas/project-finance.js';
 
 // Real Estate Investment schemas and types
-export { RealEstateInvestmentAnalyzer } from './engines/real-estate-investment.js';
+export { RealEstateInvestmentAnalyzer } from './engines/business/real-estate-investment.js';
 export { RealEstateInvestmentInputSchema } from './schemas/real-estate-investment.js';
 export type { RealEstateInvestmentInput } from './schemas/real-estate-investment.js';
 
 // FIRE Calculator schemas and types
-export { FIRECalculator } from './engines/fire-calculator.js';
+export { FIRECalculator } from './engines/personal/fire-calculator.js';
 export { FIRECalculatorInputSchema } from './schemas/fire-calculator.js';
 export type { FIRECalculatorInput } from './schemas/fire-calculator.js';
 
 // LBO Model schemas and types
-export { LBOModel } from './engines/lbo.js';
+export { LBOModel } from './engines/business/lbo.js';
 export { LBOInputSchema } from './schemas/lbo.js';
 export type { LBOInput } from './schemas/lbo.js';
 
 // Credit Risk schemas and types
-export { CreditRiskAnalyzer } from './engines/credit-risk.js';
+export { CreditRiskAnalyzer } from './engines/business/credit-risk.js';
 export { CreditRiskInputSchema } from './schemas/credit-risk.js';
 export type { CreditRiskInput } from './schemas/credit-risk.js';
 
 // Working Capital schemas and types
-export { WorkingCapitalOptimizer } from './engines/working-capital.js';
+export { WorkingCapitalOptimizer } from './engines/business/working-capital.js';
 export { WorkingCapitalInputSchema } from './schemas/working-capital.js';
 export type { WorkingCapitalInput } from './schemas/working-capital.js';
 
 // VaR Calculator schemas and types
-export { VaRCalculator } from './engines/var.js';
+export { VaRCalculator } from './engines/business/var.js';
 export { VaRInputSchema } from './schemas/var.js';
 export type { VaRInput } from './schemas/var.js';
 
 // Investment Metrics schemas and types
-export { CAPMCalculator } from './engines/capm.js';
+export { CAPMCalculator } from './engines/business/capm.js';
 export { CAPMInputSchema } from './schemas/capm.js';
 export type { CAPMInput } from './schemas/capm.js';
 
-export { RiskAdjustedReturnsCalculator } from './engines/risk-adjusted-returns.js';
+export { RiskAdjustedReturnsCalculator } from './engines/business/risk-adjusted-returns.js';
 export { RiskAdjustedReturnsInputSchema } from './schemas/risk-adjusted-returns.js';
 export type { RiskAdjustedReturnsInput } from './schemas/risk-adjusted-returns.js';
 
-export { DividendReinvestmentCalculator } from './engines/dividend-reinvestment.js';
+export { DividendReinvestmentCalculator } from './engines/personal/dividend-reinvestment.js';
 export { DividendReinvestmentInputSchema } from './schemas/dividend-reinvestment.js';
 export type { DividendReinvestmentInput } from './schemas/dividend-reinvestment.js';
 
-export { FXHedgingAnalyzer } from './engines/fx-hedging.js';
+export { FXHedgingAnalyzer } from './engines/derivatives/fx-hedging.js';
 export { FXHedgingInputSchema } from './schemas/fx-hedging.js';
 export type { FXHedgingInput } from './schemas/fx-hedging.js';
 
-export { MonteCarloInvestmentSimulator } from './engines/monte-carlo-investment.js';
+export { MonteCarloInvestmentSimulator } from './engines/personal/monte-carlo-investment.js';
 export { MonteCarloInvestmentInputSchema } from './schemas/monte-carlo-investment.js';
 export type { MonteCarloInvestmentInput } from './schemas/monte-carlo-investment.js';
 
-export { ESGScoringCalculator } from './engines/esg-score.js';
+export { ESGScoringCalculator } from './engines/specialized/esg-score.js';
 export { ESGScoreInputSchema } from './schemas/esg-score.js';
 export type { ESGScoreInput } from './schemas/esg-score.js';
 
-export { P2PLendingAnalyzer } from './engines/p2p-lending.js';
+export { P2PLendingAnalyzer } from './engines/personal/p2p-lending.js';
 export { P2PLendingInputSchema } from './schemas/p2p-lending.js';
 export type { P2PLendingInput } from './schemas/p2p-lending.js';
 
-export { CarbonCreditValuationCalculator } from './engines/carbon-credit.js';
+export { CarbonCreditValuationCalculator } from './engines/specialized/carbon-credit.js';
 export { CarbonCreditValuationInputSchema } from './schemas/carbon-credit.js';
 export type { CarbonCreditValuationInput } from './schemas/carbon-credit.js';
 
 // Business Metrics schemas and types
-export { BreakEvenAnalyzer } from './engines/break-even.js';
+export { BreakEvenAnalyzer } from './engines/business/break-even.js';
 export { BreakEvenInputSchema } from './schemas/break-even.js';
 export type { BreakEvenInput } from './schemas/break-even.js';
 
-export { NPVIRRCalculator } from './engines/npv-irr.js';
+export { NPVIRRCalculator } from './engines/business/npv-irr.js';
 export { NPVIRRInputSchema } from './schemas/npv-irr.js';
 export type { NPVIRRInput } from './schemas/npv-irr.js';
 
 // Portfolio Optimization schemas and types
-export { PortfolioOptimizer } from './engines/portfolio-optimization.js';
+export { PortfolioOptimizer } from './engines/personal/portfolio-optimization.js';
 export { PortfolioOptimizationInputSchema } from './schemas/portfolio-optimization.js';
 export type { PortfolioOptimizationInput } from './schemas/portfolio-optimization.js';
 
 // Estate Planning schemas and types
-export { EstatePlanningCalculator } from './engines/estate-planning.js';
+export { EstatePlanningCalculator } from './engines/personal/estate-planning.js';
 export { EstatePlanningInputSchema } from './schemas/estate-planning.js';
 export type { EstatePlanningInput } from './schemas/estate-planning.js';
 
 // Emergency Fund schemas and types
-export { EmergencyFundCalculator } from './engines/emergency-fund.js';
+export { EmergencyFundCalculator } from './engines/personal/emergency-fund.js';
 export { EmergencyFundInputSchema } from './schemas/emergency-fund.js';
 export type { EmergencyFundInput } from './schemas/emergency-fund.js';
 
 // Net Worth schemas and types
-export { NetWorthTracker } from './engines/net-worth.js';
+export { NetWorthTracker } from './engines/personal/net-worth.js';
 export { NetWorthInputSchema } from './schemas/net-worth.js';
 export type { NetWorthInput } from './schemas/net-worth.js';
 
 // 401(k) Employer Match schemas and types
-export { EmployerMatch401kOptimizer } from './engines/401k-match.js';
+export { EmployerMatch401kOptimizer } from './engines/personal/401k-match.js';
 export { EmployerMatch401kInputSchema } from './schemas/401k-match.js';
 export type { EmployerMatch401kInput } from './schemas/401k-match.js';
 
@@ -383,14 +383,14 @@ export type {
   CohortAnalysis,
   UnitEconomicsInput,
   UnitEconomicsResult,
-} from './engines/unit-economics.js';
+} from './engines/business/unit-economics.js';
 
 // Business valuation schemas and types
 export type {
   BusinessValuationInput,
   BusinessValuationResult,
   ValuationMethod,
-} from './engines/business-valuation.js';
+} from './engines/business/business-valuation.js';
 
 // Revenue forecast schemas and types
 export type {
@@ -398,10 +398,10 @@ export type {
   RevenueForecastInput,
   RevenueForecastResult,
   RevenueStream,
-} from './engines/revenue-forecast.js';
+} from './engines/business/revenue-forecast.js';
 
 // Rent vs Buy schemas and types
-export { RentVsBuyCalculator } from './engines/rent-vs-buy.js';
+export { RentVsBuyCalculator } from './engines/personal/rent-vs-buy.js';
 export { FilingStatusSchema, RentVsBuyInputSchema } from './schemas/rent-vs-buy.js';
 export type { FilingStatus, RentVsBuyInput } from './schemas/rent-vs-buy.js';
 export type {
