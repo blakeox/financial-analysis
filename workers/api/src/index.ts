@@ -4,6 +4,7 @@ import {
     AccountsReceivableAgingAnalyzer,
     AccountsReceivableAgingInputSchema,
     AmortizationAnalyzer,
+  type AmortizationResultItem,
     AmortizationInputSchema,
     BondPricingAnalyzer,
     BondPricingInputSchema,
@@ -1953,7 +1954,7 @@ router.post(
           monthlyPayment: analysisResult.monthlyPayment,
           totalInterest: analysisResult.totalInterest,
           totalPayments: analysisResult.totalPayments,
-          schedule: analysisResult.schedule.map((payment) => ({
+          schedule: analysisResult.schedule.map((payment: AmortizationResultItem) => ({
             month: payment.month,
             payment: payment.payment,
             principal: payment.principal,
@@ -1982,7 +1983,7 @@ router.post(
         monthlyPayment: analysisResult.monthlyPayment,
         totalInterest: analysisResult.totalInterest,
         totalPayments: analysisResult.totalPayments,
-        schedule: analysisResult.schedule.map((payment) => ({
+        schedule: analysisResult.schedule.map((payment: AmortizationResultItem) => ({
           month: payment.month,
           payment: payment.payment,
           principal: payment.principal,
