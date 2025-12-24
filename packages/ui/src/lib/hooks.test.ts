@@ -171,7 +171,27 @@ describe('hooks', () => {
 
   describe('useLocalStorage', () => {
     beforeEach(() => {
-      localStorage.clear();
+      const maybeStorage = localStorage as unknown as Partial<Storage>;
+
+      if (typeof maybeStorage.clear === 'function') {
+        maybeStorage.clear();
+        return;
+      }
+
+      if (
+        typeof maybeStorage.length === 'number' &&
+        typeof maybeStorage.key === 'function' &&
+        typeof maybeStorage.removeItem === 'function'
+      ) {
+        for (let i = maybeStorage.length - 1; i >= 0; i -= 1) {
+          const key = maybeStorage.key(i);
+          if (key != null) maybeStorage.removeItem(key);
+        }
+        return;
+      }
+
+      // Minimal fallback for shims that only implement getItem/setItem/removeItem.
+      maybeStorage.removeItem?.('test-key');
     });
 
     it('returns initial value when key does not exist', () => {
