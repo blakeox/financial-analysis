@@ -170,7 +170,49 @@ describe('hooks', () => {
   });
 
   describe('useLocalStorage', () => {
+    const createInMemoryStorage = (): Storage => {
+      const store = new Map<string, string>();
+
+      return {
+        get length() {
+          return store.size;
+        },
+        clear() {
+          store.clear();
+        },
+        getItem(key: string) {
+          return store.has(key) ? (store.get(key) ?? null) : null;
+        },
+        key(index: number) {
+          return Array.from(store.keys())[index] ?? null;
+        },
+        removeItem(key: string) {
+          store.delete(key);
+        },
+        setItem(key: string, value: string) {
+          store.set(key, String(value));
+        },
+      } as unknown as Storage;
+    };
+
+    let originalWindowLocalStorageDescriptor: PropertyDescriptor | undefined;
+
     beforeEach(() => {
+      originalWindowLocalStorageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
+
+      const storage = createInMemoryStorage();
+      vi.stubGlobal('localStorage', storage);
+
+      try {
+        Object.defineProperty(window, 'localStorage', {
+          configurable: true,
+          enumerable: true,
+          value: storage,
+        });
+      } catch {
+        // Ignore if the test environment prevents overriding window.localStorage.
+      }
+
       const maybeStorage = localStorage as unknown as Partial<Storage>;
 
       if (typeof maybeStorage.clear === 'function') {
@@ -192,6 +234,23 @@ describe('hooks', () => {
 
       // Minimal fallback for shims that only implement getItem/setItem/removeItem.
       maybeStorage.removeItem?.('test-key');
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+
+      try {
+        if (originalWindowLocalStorageDescriptor != null) {
+          Object.defineProperty(window, 'localStorage', originalWindowLocalStorageDescriptor);
+        } else {
+          // If we created an own property on window.localStorage, remove it.
+          // (The original may be on the prototype chain.)
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete (window as unknown as { localStorage?: unknown }).localStorage;
+        }
+      } catch {
+        // Ignore restoration failures; vitest will still restore global stubs.
+      }
     });
 
     it('returns initial value when key does not exist', () => {
