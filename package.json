@@ -16,7 +16,7 @@
     "dev:all": "node scripts/dev-all.mjs",
     "rebuild:ui": "pnpm --filter @financial-analysis/ui run build",
     "clean:vite:web": "rm -rf apps/web/node_modules/.vite",
-    "test": "pnpm --recursive run test",
+    "test": "pnpm --recursive --sort --workspace-concurrency=1 run test",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive exec prettier --check .",
