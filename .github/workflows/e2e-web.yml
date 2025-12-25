@@ -2,7 +2,7 @@ name: E2E Web
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - 'apps/web/**'
       - 'packages/ui/**'
@@ -27,6 +27,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

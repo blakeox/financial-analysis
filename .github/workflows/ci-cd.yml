@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
   workflow_dispatch:
 
 # Default, least-privilege permissions for all jobs; override per-job when needed
@@ -32,6 +32,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -64,6 +66,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -97,6 +101,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -145,6 +151,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -205,7 +213,7 @@ jobs:
             exit 0;
           fi
           cd workers/api
-          npx wrangler deploy --dry-run
+          npx wrangler deploy --env preview --dry-run
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -218,7 +226,7 @@ jobs:
             exit 0;
           fi
           cd workers/web
-          npx wrangler deploy --dry-run
+          npx wrangler deploy --env preview --dry-run
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -265,7 +273,7 @@ jobs:
             exit 0;
           fi
           cd workers/api
-          npx wrangler deploy
+          npx wrangler deploy --env production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -278,7 +286,7 @@ jobs:
             exit 0;
           fi
           cd workers/web
-          npx wrangler deploy
+          npx wrangler deploy --env production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
