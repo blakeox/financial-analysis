@@ -1,4 +1,6 @@
 import type { Env } from '../types';
+import { logRateLimitViolation } from './analytics-logger';
+import { generateFingerprint } from './security-middleware';
 
 const LIMITS = {
   CHAT: { window: 60 * 1000, max: 20 },
@@ -92,6 +94,19 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
 
     const remaining = Math.max(0, limitConfig.max - rateLimitData.count);
     const allowed = rateLimitData.count <= limitConfig.max;
+
+    // Log rate limit violations to Analytics Engine
+    if (!allowed) {
+      const userAgent = request.headers.get('User-Agent') || 'unknown';
+      const fingerprint = await generateFingerprint(clientIP, userAgent);
+      logRateLimitViolation(
+        env.ANALYTICS,
+        fingerprint,
+        clientIP,
+        url.pathname,
+        0, // Trust score drops to 0 on rate limit
+      );
+    }
 
     await retryKVOperation(() =>
       sessions.put(key, JSON.stringify(rateLimitData), {

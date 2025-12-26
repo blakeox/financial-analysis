@@ -76,14 +76,16 @@ export class LLMOrchestrator {
 
   constructor(
     ai: Ai,
-    env: Pick<Env, 'KV' | 'DOCUMENTS' | 'VECTORIZE'>
+    env: Pick<Env, 'KV' | 'DOCUMENTS' | 'VECTORIZE' | 'AI_GATEWAY_ID'>
   ) {
     // Initialize services
     const cache = env.KV ? new IntelligentCacheImpl(env.KV) : undefined;
     const retry = new LLMRetryHandlerImpl();
     const metrics = env.KV ? new LLMMetricsCollectorImpl(env.KV) : undefined;
 
-    this.llm = new LLMServiceImpl(ai, cache, retry, metrics);
+    this.llm = new LLMServiceImpl(ai, cache, retry, metrics, {
+      ...(env.AI_GATEWAY_ID ? { gatewayId: env.AI_GATEWAY_ID } : {}),
+    });
     this.toolSelector = new IntelligentToolSelector(ai);
     
     // Initialize function calling service and MCP tools

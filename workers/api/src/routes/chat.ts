@@ -15,6 +15,9 @@ import {
   logWarn,
   logError,
   withErrorHandler,
+  withSecurityContext,
+  commitSecurityContext,
+  type SecurityContext,
 } from '../lib';
 import { canCreateOrchestrator, createLLMOrchestrator } from '../services/llm-service-factory';
 
@@ -22,7 +25,15 @@ export function registerChatRoutes(router: RouterType) {
   // ---- Simple contextual chat endpoint (AI Orchestrator) ----
   router.post(
     '/v1/chat/enhanced',
-    withErrorHandler(async (request: Request, env: Env) => {
+    withErrorHandler(withSecurityContext(async (request: Request, env: Env, securityContext: SecurityContext) => {
+      // Check security context
+      if (!securityContext.isAllowed) {
+        return new Response(JSON.stringify({ error: securityContext.denyReason }), {
+          status: 429,
+          headers: { 'Retry-After': String(securityContext.retryAfter || 60) }
+        });
+      }
+
       // Build request context for logging
       const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
       logInfo(requestContext, 'Contextual chat request received');
@@ -212,6 +223,8 @@ export function registerChatRoutes(router: RouterType) {
             }
 
             // Return AI response
+            await commitSecurityContext(env, securityContext, undefined, true);
+
             return new Response(
               JSON.stringify(responseBody),
               {
@@ -308,13 +321,21 @@ export function registerChatRoutes(router: RouterType) {
           }
         );
       }
-    })
+    }, { isMessageRequest: true }))
   );
 
   // ---- Streaming chat endpoint ----
   router.post(
     '/v1/chat/stream',
-    withErrorHandler(async (request: Request, env: Env) => {
+    withErrorHandler(withSecurityContext(async (request: Request, env: Env, securityContext: SecurityContext) => {
+      // Check security context
+      if (!securityContext.isAllowed) {
+        return new Response(JSON.stringify({ error: securityContext.denyReason }), {
+          status: 429,
+          headers: { 'Retry-After': String(securityContext.retryAfter || 60) }
+        });
+      }
+
       const requestContext = buildRequestContext(request, env.ENVIRONMENT || 'production');
 
       try {
@@ -440,6 +461,10 @@ export function registerChatRoutes(router: RouterType) {
         };
 
         const stream = orchestrator.stream(orchestratorRequest);
+        
+        // Commit security context (increment counters)
+        await commitSecurityContext(env, securityContext, undefined, true);
+
         const encoder = new TextEncoder();
 
         const readable = new ReadableStream({
@@ -487,7 +512,7 @@ export function registerChatRoutes(router: RouterType) {
         logError(requestContext, error instanceof Error ? error : new Error(String(error)));
         return new Response(JSON.stringify({ error: 'Internal Error' }), { status: 500 });
       }
-    })
+    }))
   );
 }
 

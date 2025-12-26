@@ -11,6 +11,7 @@
 import type { DurableObjectNamespace } from '@cloudflare/workers-types';
 import type { Env } from '../types';
 import { buildRequestContext, type RequestContext } from './request-context';
+import { logSecurityEventAnalytics, logCircuitBreakerEvent } from './analytics-logger';
 
 export interface SecurityContext extends RequestContext {
   sessionId: string;
@@ -255,14 +256,16 @@ export async function buildSecurityContext(
     };
     
     // Log to Analytics Engine
-    logSecurityEvent(env.ANALYTICS, {
-      type: 'session_denied',
+    logSecurityEventAnalytics(
+      env.ANALYTICS,
+      'session_denied',
       fingerprint,
-      trustScore: 0,
-      flags: [],
-      allowed: false,
       ipAddress,
-    });
+      0,
+      ['session_unavailable'],
+      false,
+      requestContext.path
+    );
     
     return context;
   }
@@ -283,14 +286,14 @@ export async function buildSecurityContext(
     };
     
     // Log to Analytics Engine
-    logSecurityEvent(env.ANALYTICS, {
-      type: 'circuit_breaker',
+    logCircuitBreakerEvent(
+      env.ANALYTICS,
       fingerprint,
-      trustScore: 50,
-      flags: ['circuit-breaker-open'],
-      allowed: true,
       ipAddress,
-    });
+      requestContext.path,
+      'open',
+      sessionDOFailureCount
+    );
     
     return context;
   }
@@ -328,14 +331,16 @@ export async function buildSecurityContext(
       };
       
       // Log to Analytics Engine
-      logSecurityEvent(env.ANALYTICS, {
-        type: 'session_created',
+      logSecurityEventAnalytics(
+        env.ANALYTICS,
+        'session_created',
         fingerprint,
-        trustScore: recheckResult.trustScore,
-        flags: recheckResult.flags,
-        allowed: recheckResult.allowed,
         ipAddress,
-      });
+        recheckResult.trustScore,
+        recheckResult.flags,
+        recheckResult.allowed,
+        requestContext.path
+      );
       
       return context;
     }
@@ -354,14 +359,16 @@ export async function buildSecurityContext(
     };
     
     // Log to Analytics Engine
-    logSecurityEvent(env.ANALYTICS, {
-      type: checkResult.allowed ? 'session_check' : 'session_denied',
+    logSecurityEventAnalytics(
+      env.ANALYTICS,
+      checkResult.allowed ? 'session_check' : 'session_denied',
       fingerprint,
-      trustScore: checkResult.trustScore,
-      flags: checkResult.flags,
-      allowed: checkResult.allowed,
       ipAddress,
-    });
+      checkResult.trustScore,
+      checkResult.flags,
+      checkResult.allowed,
+      requestContext.path
+    );
     
     return context;
   } catch (error) {
@@ -382,14 +389,16 @@ export async function buildSecurityContext(
     };
     
     // Log to Analytics Engine
-    logSecurityEvent(env.ANALYTICS, {
-      type: 'suspicious_activity',
+    logSecurityEventAnalytics(
+      env.ANALYTICS,
+      'suspicious_activity',
       fingerprint,
-      trustScore: 50,
-      flags: ['session-do-error'],
-      allowed: true,
       ipAddress,
-    });
+      50,
+      ['session-do-error'],
+      true,
+      requestContext.path
+    );
     
     return context;
   }

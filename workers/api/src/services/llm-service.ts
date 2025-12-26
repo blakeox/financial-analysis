@@ -57,6 +57,7 @@ export interface LLMConfig {
   cacheTTL: number;
   retryEnabled: boolean;
   metricsEnabled: boolean;
+  gatewayId?: string;
 }
 
 const DEFAULT_CONFIG: LLMConfig = {
@@ -218,13 +219,23 @@ export class LLMService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = this.ai as any;
 
+    const options: any = {
+      prompt: fullPrompt,
+      temperature,
+      max_tokens: maxTokens,
+      stream: true,
+    };
+
+    if (this.config.gatewayId) {
+      options.gateway = {
+        id: this.config.gatewayId,
+        skipCache: false,
+        cacheTtl: 3600,
+      };
+    }
+
     try {
-      const stream = await ai.run(model, {
-        prompt: fullPrompt,
-        temperature,
-        max_tokens: maxTokens,
-        stream: true,
-      });
+      const stream = await ai.run(model, options);
 
       const decoder = new TextDecoder();
       let buffer = '';
@@ -312,11 +323,22 @@ export class LLMService {
     // Call Cloudflare Workers AI
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = this.ai as any;
-    const response = await ai.run(model, {
+    
+    const options: any = {
       prompt,
       temperature,
       max_tokens: maxTokens,
-    });
+    };
+
+    if (this.config.gatewayId) {
+      options.gateway = {
+        id: this.config.gatewayId,
+        skipCache: false,
+        cacheTtl: 3600,
+      };
+    }
+
+    const response = await ai.run(model, options);
 
     // Handle ReadableStream response (Cloudflare AI sometimes streams even without stream: true)
     if (response instanceof ReadableStream) {
