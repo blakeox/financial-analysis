@@ -4,6 +4,7 @@
  */
 
 import { Decimal } from 'decimal.js';
+import { FiveTwoNineOptimizerInputSchema } from '../../schemas/529-optimizer.js';
 import type { FiveTwoNineOptimizerInput } from '../../schemas/529-optimizer.js';
 
 export class FiveTwoNineOptimizer {
@@ -11,14 +12,16 @@ export class FiveTwoNineOptimizer {
    * Optimize 529 plan strategy
    */
   static analyze(input: FiveTwoNineOptimizerInput): unknown {
-    const personalInfo = input.personalInfo;
-    const children = input.children;
-    const current529Accounts = input.current529Accounts;
-    const contributionPlan = input.contributionPlan;
-    const state529Options = input.state529Options;
-    const financialAid = input.financialAid;
-    const strategy = input.strategy;
-    const analysis = input.analysis;
+    const validated = FiveTwoNineOptimizerInputSchema.parse(input);
+
+    const personalInfo = validated.personalInfo;
+    const children = validated.children;
+    const current529Accounts = validated.current529Accounts;
+    const contributionPlan = validated.contributionPlan;
+    const state529Options = validated.state529Options;
+    const financialAid = validated.financialAid;
+    const strategy = validated.strategy;
+    const analysis = validated.analysis;
 
     // Calculate total education costs
     const educationCosts = this.calculateEducationCosts(children);
@@ -36,10 +39,14 @@ export class FiveTwoNineOptimizer {
       : undefined;
 
     // State comparison
-    const stateComparison =
-      strategy.includeMultiStateComparison && state529Options
+    const stateComparison = strategy.includeMultiStateComparison
+      ? (state529Options
         ? this.compareStates(state529Options, personalInfo, contributionPlan)
-        : undefined;
+        : {
+          states: [],
+          bestState: personalInfo.stateOfResidence,
+        })
+      : undefined;
 
     // Financial aid impact
     const aidImpact = financialAid.includeAidImpact
@@ -55,18 +62,36 @@ export class FiveTwoNineOptimizer {
       strategy
     );
 
+    const projectedBalance = projections?.totalBalance ?? 0;
+    const shortfallTotal = Math.max(0, educationCosts.totalCost - projectedBalance);
+    const shortfallAnalysis = analysis.includeShortfallAnalysis
+      ? {
+        totalShortfall: shortfallTotal,
+        perChild: projections?.perChildProjections ?? [],
+      }
+      : undefined;
+
     return {
       summary: {
         totalEducationCosts: educationCosts.totalCost,
-        projected529Balance: new Decimal(projections?.totalBalance ?? 0),
-        shortfall: new Decimal(educationCosts.totalCost).minus(projections?.totalBalance ?? 0).toNumber(),
+        projectedBalance,
+        projected529Balance: new Decimal(projectedBalance),
+        shortfall: new Decimal(educationCosts.totalCost).minus(projectedBalance).toNumber(),
         optimalState: stateComparison?.bestState,
       },
       educationCosts,
       currentAccountAnalysis,
       projections,
+      projection: projections
+        ? {
+          projectedBalance: projections.totalBalance,
+          perChildProjections: projections.perChildProjections,
+          annualProjections: projections.annualProjections,
+        }
+        : undefined,
       stateComparison,
       aidImpact,
+      shortfallAnalysis,
       recommendations,
     };
   }

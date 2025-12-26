@@ -243,22 +243,24 @@ export async function buildSecurityContext(
 
   // Get Session DO stub
   if (!env.SESSION_DO) {
-    // Fallback if SESSION_DO binding not configured
-    console.warn('SESSION_DO binding not found, security checks disabled');
+    // If SESSION_DO binding isn't configured, we can't reliably enforce security policies.
+    // Treat this as a denial so callers can fail closed (tests rely on this behavior).
+    console.warn('SESSION_DO binding not found');
     const context = {
       ...requestContext,
       sessionId: fingerprint,
       fingerprint,
       trustScore: 0,
-      securityFlags: [],
+      securityFlags: ['session_unavailable'],
       isAllowed: false,
       denyReason: 'session_unavailable',
+      retryAfter: 60,
     };
     
     // Log to Analytics Engine
     logSecurityEventAnalytics(
       env.ANALYTICS,
-      'session_denied',
+      'session_unavailable',
       fingerprint,
       ipAddress,
       0,

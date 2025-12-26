@@ -92,4 +92,41 @@ describe('Analysis cache behavior', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (globalThis as any).caches;
   });
+
+  it('MISS then HIT for another endpoint (wacc)', async () => {
+    const { env, ctx } = makeEnv('60');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).caches = { default: new MemoryCache() } as unknown as CacheStorage & {
+      default: Cache;
+    };
+
+    const body = {
+      equityValue: 1_000_000,
+      debtValue: 500_000,
+      costOfEquity: 0.1,
+      costOfDebt: 0.06,
+      taxRate: 0.21,
+    };
+
+    const req1 = new Request('https://example.com/v1/api/analysis/wacc', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const res1 = await api.fetch(req1, env, ctx);
+    expect(res1.status).toBe(200);
+    expect(res1.headers.get('x-cache')).toBe('MISS');
+
+    const req2 = new Request('https://example.com/v1/api/analysis/wacc', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const res2 = await api.fetch(req2, env, ctx);
+    expect(res2.status).toBe(200);
+    expect(res2.headers.get('x-cache')).toBe('HIT');
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (globalThis as any).caches;
+  });
 });

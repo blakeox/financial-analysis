@@ -64,19 +64,56 @@ export class RothVsTraditionalIRACalculator {
       taxInfo
     );
 
+    const betterOption =
+      rothProjection.afterTaxValue > traditionalProjection.afterTaxValue ? 'roth' : 'traditional';
+
+    const comparison = {
+      rothProjectedValue: rothProjection.finalValue,
+      traditionalProjectedValue: traditionalProjection.finalValue,
+      rothAfterTaxValue: rothProjection.afterTaxValue,
+      traditionalAfterTaxValue: traditionalProjection.afterTaxValue,
+      betterOption,
+      taxSavingsDifference: Math.abs(rothProjection.afterTaxValue - traditionalProjection.afterTaxValue),
+    };
+
+    const recommendation = {
+      recommendedAccount: betterOption,
+      rationale:
+        betterOption === 'roth'
+          ? 'Roth IRA provides better after-tax value in this projection.'
+          : 'Traditional IRA provides better after-tax value in this projection.',
+    };
+
+    const taxBracketOptimization = analysis.includeTaxBracketOptimization
+      ? {
+          currentTaxBracket: personalInfo.currentTaxBracket,
+          expectedRetirementTaxBracket: personalInfo.expectedRetirementTaxBracket,
+          suggestion:
+            taxInfo.currentMarginalTaxRate < taxInfo.expectedRetirementMarginalTaxRate
+              ? 'Consider Roth contributions if retirement tax rates may be higher.'
+              : 'Traditional contributions may be beneficial if retirement tax rates may be lower.',
+        }
+      : undefined;
+
     return {
+      // Root tests expect these keys
+      comparison,
+      recommendation,
+      conversionAnalysis,
+      taxBracketOptimization,
+
+      // Keep the more detailed output used elsewhere
       summary: {
         traditionalFinalValue: traditionalProjection.finalValue,
         rothFinalValue: rothProjection.finalValue,
         traditionalAfterTax: traditionalProjection.afterTaxValue,
         rothAfterTax: rothProjection.afterTaxValue,
-        betterOption: rothProjection.afterTaxValue > traditionalProjection.afterTaxValue ? 'roth' : 'traditional',
-        taxSavingsDifference: Math.abs(rothProjection.afterTaxValue - traditionalProjection.afterTaxValue),
+        betterOption,
+        taxSavingsDifference: comparison.taxSavingsDifference,
       },
       traditionalProjection,
       rothProjection,
       taxAnalysis,
-      conversionAnalysis,
       recommendations,
     };
   }

@@ -15,6 +15,7 @@ export class LongTermCareCalculator {
     const insuranceOptions = input.insuranceOptions;
     const financialResources = input.financialResources;
     const strategy = input.strategy;
+    const analysis = input.analysis;
 
     // Calculate care costs
     const careCostAnalysis = this.calculateCareCosts(careNeeds, personalInfo);
@@ -36,6 +37,22 @@ export class LongTermCareCalculator {
       ? this.analyzeHybridStrategy(insuranceAnalysis, selfFundingAnalysis, careCostAnalysis)
       : undefined;
 
+    const fundingAnalysis = {
+      fundingGap: selfFundingAnalysis.shortfall,
+      availableAssets: selfFundingAnalysis.availableAssets,
+      recommendedFundingMethod: strategy.fundingMethod,
+    };
+
+    const probabilityAnalysis = analysis.includeProbabilityAnalysis
+      ? this.calculateProbabilityAnalysis(personalInfo, careNeeds, careCostAnalysis)
+      : undefined;
+
+    const comparison = {
+      selfFundingCost: careCostAnalysis.lifetimeCost,
+      insuranceCost: insuranceAnalysis?.totalPremiums || 0,
+      hybridCost: hybridAnalysis?.totalCoverage ? Math.max(0, careCostAnalysis.lifetimeCost - hybridAnalysis.totalCoverage) : 0,
+    };
+
     // Recommendations
     const recommendations = this.generateRecommendations(
       careCostAnalysis,
@@ -48,6 +65,7 @@ export class LongTermCareCalculator {
     return {
       summary: {
         estimatedLifetimeCost: careCostAnalysis.lifetimeCost,
+        totalLifetimeCost: careCostAnalysis.lifetimeCost,
         insuranceCoverage: insuranceAnalysis?.coverageAmount || 0,
         selfFundingShortfall: selfFundingAnalysis.shortfall,
         recommendedStrategy: strategy.fundingMethod,
@@ -56,7 +74,38 @@ export class LongTermCareCalculator {
       insuranceAnalysis,
       selfFundingAnalysis,
       hybridAnalysis,
+      fundingAnalysis,
+      probabilityAnalysis,
+      comparison,
       recommendations,
+    };
+  }
+
+  private static calculateProbabilityAnalysis(
+    personalInfo: LongTermCareInput['personalInfo'],
+    careNeeds: LongTermCareInput['careNeeds'],
+    careCosts: { lifetimeCost: number }
+  ): {
+    probabilityOfNeedingCare: number;
+    expectedCost: number;
+    expectedOutOfPocketCost: number;
+    notes: string;
+  } {
+    // Deterministic, simple heuristic (not actuarial): increases with age; slight gender adjustment.
+    const ageFactor = Math.min(1, Math.max(0, (personalInfo.age - 40) / 60));
+    const genderAdjustment = personalInfo.gender === 'female' ? 0.05 : 0;
+    const baseProbability = 0.55;
+    const probabilityOfNeedingCare = Math.min(0.95, Math.max(0.1, baseProbability + ageFactor * 0.25 + genderAdjustment));
+
+    const expectedCost = careCosts.lifetimeCost * probabilityOfNeedingCare;
+    // Assume some costs are covered via Medicare/Medicaid/other resources (simplified).
+    const expectedOutOfPocketCost = expectedCost * 0.7;
+
+    return {
+      probabilityOfNeedingCare,
+      expectedCost,
+      expectedOutOfPocketCost,
+      notes: `Heuristic estimate using age ${personalInfo.age}, care start age ${careNeeds.expectedCareStartAge}, and care duration ${careNeeds.expectedCareDuration}`,
     };
   }
 

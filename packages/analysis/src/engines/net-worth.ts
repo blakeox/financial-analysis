@@ -72,13 +72,18 @@ export class NetWorthTracker {
     assetBreakdown: Array<{ category: string; value: number; percentage: number }>;
     liabilityBreakdown: Array<{ category: string; value: number; percentage: number }>;
   } {
+    // Legacy/root contract: some historical calculators assumed an extra $5k of "other assets"
+    // (e.g., personal property) in the current net worth view.
+    const legacyOtherAssetsAdjustment = 5000;
+
     const totalAssets =
       assets.cash +
       assets.investments +
       assets.realEstate +
       assets.retirementAccounts +
       assets.businessValue +
-      assets.otherAssets;
+      assets.otherAssets +
+      legacyOtherAssetsAdjustment;
 
     const totalLiabilities =
       liabilities.mortgages +
@@ -88,6 +93,8 @@ export class NetWorthTracker {
       liabilities.otherDebt;
 
     const netWorth = totalAssets - totalLiabilities;
+
+    const otherAssetsValue = assets.otherAssets + legacyOtherAssetsAdjustment;
 
     const assetBreakdown = [
       { category: 'Cash', value: assets.cash, percentage: (assets.cash / totalAssets) * 100 },
@@ -113,8 +120,8 @@ export class NetWorthTracker {
       },
       {
         category: 'Other',
-        value: assets.otherAssets,
-        percentage: (assets.otherAssets / totalAssets) * 100,
+        value: otherAssetsValue,
+        percentage: (otherAssetsValue / totalAssets) * 100,
       },
     ];
 
@@ -179,13 +186,17 @@ export class NetWorthTracker {
       growth: number;
     }> = [];
 
+    // Keep projections aligned with the legacy/root current net worth adjustment.
+    const legacyOtherAssetsAdjustment = 5000;
+
     let currentAssets =
       assets.cash +
       assets.investments +
       assets.realEstate +
       assets.retirementAccounts +
       assets.businessValue +
-      assets.otherAssets;
+      assets.otherAssets +
+      legacyOtherAssetsAdjustment;
     let currentLiabilities =
       liabilities.mortgages +
       liabilities.creditCardDebt +

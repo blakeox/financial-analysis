@@ -1707,6 +1707,36 @@ router.post(
         );
       }
 
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(stableStringify({ route: 'wacc', input: parseResult.data }));
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+
+        const result = WACCAnalyzer.analyze(parseResult.data);
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
+          },
+        });
+        void cache.put(cacheReq, res.clone());
+        return res;
+      }
+
       const result = WACCAnalyzer.analyze(parseResult.data);
       return new Response(JSON.stringify(result), {
         status: 200,

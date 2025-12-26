@@ -72,8 +72,9 @@ export class FuturesPricingAnalyzer {
     const priceDifference = validated.futuresPrice - theoreticalPrice;
     const percentageDifference = theoreticalPrice !== 0 ? (priceDifference / theoreticalPrice) * 100 : 0;
 
-    const isOvervalued = priceDifference > 0;
-    const isUndervalued = priceDifference < 0;
+    // Treat small differences as "fairly valued" (threshold = 1%)
+    const isOvervalued = percentageDifference > 1;
+    const isUndervalued = percentageDifference < -1;
 
     const recommendation = this.generateRecommendation(validated, theoreticalPrice);
     const insights = this.generateInsights(validated, theoreticalPrice, basis);
@@ -236,7 +237,7 @@ export interface ForwardContractInput {
 
 export type ForwardPricingResult = FuturesPricingResult;
 
-export const ForwardContractInputSchema = FuturesContractInputSchema.extend({
+export const ForwardContractInputSchema = FuturesContractInputSchema.omit({ futuresPrice: true }).extend({
   forwardPrice: z.number().positive('Forward price must be positive'),
 });
 

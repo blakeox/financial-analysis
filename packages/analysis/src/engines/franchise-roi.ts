@@ -3,18 +3,23 @@
  * Analyze franchise investment returns and profitability
  */
 
-import type { FranchiseROIInput } from '../schemas/franchise-roi.js';
+import {
+  FranchiseROIInputSchema,
+  type FranchiseROIInput,
+} from '../schemas/franchise-roi.js';
 
 export class FranchiseROICalculator {
   /**
    * Analyze franchise ROI
    */
-  static analyze(input: FranchiseROIInput): unknown {
-    const initialInvestment = input.initialInvestment;
-    const ongoingCosts = input.ongoingCosts;
-    const revenueProjections = input.revenueProjections;
-    const exitStrategy = input.exitStrategy;
-    const analysis = input.analysis;
+  static analyze(input: unknown): unknown {
+    const normalizedInput = FranchiseROIInputSchema.parse(input);
+
+    const initialInvestment = normalizedInput.initialInvestment;
+    const ongoingCosts = normalizedInput.ongoingCosts;
+    const revenueProjections = normalizedInput.revenueProjections;
+    const exitStrategy = normalizedInput.exitStrategy;
+    const analysis = normalizedInput.analysis;
 
     // Calculate cash flows
     const cashFlows = this.calculateCashFlows(
@@ -61,21 +66,32 @@ export class FranchiseROICalculator {
       breakEven
     );
 
+    const breakEvenAnalysis = breakEven
+      ? {
+          ...breakEven,
+          breakEvenMonth: breakEven.year * 12,
+        }
+      : undefined;
+
     return {
       summary: {
         totalInvestment: initialInvestment.totalInvestment,
+        roi: roiAnalysis?.totalROI || 0,
         totalROI: roiAnalysis?.totalROI || 0,
         paybackPeriod: paybackPeriod?.years || 0,
         npv: npv || 0,
         irr: irr || 0,
         breakEvenYear: breakEven?.year || 0,
       },
+      cashFlowProjections: cashFlows.annualCashFlows,
       cashFlows,
       roiAnalysis,
       paybackPeriod,
       npv,
       irr,
+      breakEvenAnalysis,
       breakEven,
+      scenarioAnalysis: sensitivity,
       sensitivity,
       recommendations,
     };
@@ -117,17 +133,22 @@ export class FranchiseROICalculator {
   private static calculateROI(
     initial: FranchiseROIInput['initialInvestment'],
     cashFlows: { annualCashFlows: Array<{ netCashFlow: number }> },
-    exit: FranchiseROIInput['exitStrategy']
+    exit: FranchiseROIInput['exitStrategy'] | undefined
   ): {
     totalROI: number;
     annualizedROI: number;
     totalReturn: number;
   } {
     const totalCashFlow = cashFlows.annualCashFlows.reduce((sum, cf) => sum + cf.netCashFlow, 0);
-    const exitValue = exit.expectedExitValue;
+    const expectedExitValue = exit?.expectedExitValue ?? 0;
+    const expectedExitYear = exit?.expectedExitYear ?? 1;
+    const exitValue = expectedExitValue;
     const totalReturn = totalCashFlow + exitValue;
     const totalROI = ((totalReturn - initial.totalInvestment) / initial.totalInvestment) * 100;
-    const annualizedROI = (Math.pow(totalReturn / initial.totalInvestment, 1 / exit.expectedExitYear) - 1) * 100;
+    const annualizedROI =
+      totalReturn > 0 && initial.totalInvestment > 0
+        ? (Math.pow(totalReturn / initial.totalInvestment, 1 / expectedExitYear) - 1) * 100
+        : 0;
 
     return {
       totalROI,

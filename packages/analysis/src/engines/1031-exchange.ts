@@ -10,12 +10,79 @@ export class OneZeroThreeOneExchangeAnalyzer {
    * Analyze 1031 exchange benefits
    */
   static analyze(input: OneZeroThreeOneExchangeInput): unknown {
-    const relinquished = input.relinquishedProperty;
-    const replacement = input.replacementProperty;
-    const timeline = input.exchangeTimeline;
-    const taxInfo = input.taxInfo;
-    const boot = input.boot;
-    const analysis = input.analysis;
+    const raw = input as unknown as Record<string, unknown>;
+
+    const toNumber = (value: unknown, fallback = 0): number => {
+      const num = typeof value === 'number' ? value : Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    };
+
+    const toBoolean = (value: unknown, fallback = false): boolean => {
+      if (typeof value === 'boolean') return value;
+      if (value === 'true') return true;
+      if (value === 'false') return false;
+      return fallback;
+    };
+
+    const relinquishedRaw = (raw['relinquishedProperty'] ?? {}) as Record<string, unknown>;
+    const replacementRaw = (raw['replacementProperty'] ?? {}) as Record<string, unknown>;
+    const timelineRaw = ((raw['exchangeTimeline'] ?? raw['exchangeDetails']) ?? {}) as Record<string, unknown>;
+    const taxInfoRaw = (raw['taxInfo'] ?? {}) as Record<string, unknown>;
+    const analysisRaw = (raw['analysis'] ?? {}) as Record<string, unknown>;
+    const bootRaw = (raw['boot'] ?? {}) as Record<string, unknown>;
+
+    const relinquished = {
+      sellingPrice: toNumber(relinquishedRaw['sellingPrice'] ?? relinquishedRaw['salePrice']),
+      adjustedBasis: toNumber(relinquishedRaw['adjustedBasis']),
+      accumulatedDepreciation: toNumber(relinquishedRaw['accumulatedDepreciation']),
+      sellingExpenses: toNumber(relinquishedRaw['sellingExpenses']),
+    };
+
+    const replacement = {
+      purchasePrice: toNumber(replacementRaw['purchasePrice']),
+      purchaseExpenses: toNumber(replacementRaw['purchaseExpenses'] ?? replacementRaw['closingCosts']),
+      mortgageAmount: toNumber(replacementRaw['mortgageAmount']),
+      downPayment: toNumber(replacementRaw['downPayment']),
+    };
+
+    const timeline = {
+      identificationDeadline: String(timelineRaw['identificationDeadline'] ?? ''),
+      closingDeadline: String(timelineRaw['closingDeadline'] ?? ''),
+      qualifiedIntermediary: toBoolean(timelineRaw['qualifiedIntermediary'], true),
+      exchangeType: String(timelineRaw['exchangeType'] ?? ''),
+    };
+
+    const federalTaxRateRaw = (taxInfoRaw['federalTaxRate'] ?? {}) as Record<string, unknown>;
+    const taxInfo = {
+      federalTaxRate: {
+        ordinary: toNumber(federalTaxRateRaw['ordinary'], 0.37),
+        capitalGains: toNumber(federalTaxRateRaw['capitalGains'], 0.2),
+        depreciationRecapture: toNumber(federalTaxRateRaw['depreciationRecapture'], 0.25),
+      },
+      stateTaxRate: toNumber(taxInfoRaw['stateTaxRate'], 0),
+      netInvestmentIncomeTax: toBoolean(taxInfoRaw['netInvestmentIncomeTax'], false),
+      niiTaxRate: toNumber(taxInfoRaw['niiTaxRate'], 0.038),
+      includeDepreciationRecapture: toBoolean(taxInfoRaw['includeDepreciationRecapture'], true),
+    };
+
+    const boot = {
+      cashReceived: toNumber(bootRaw['cashReceived']),
+      debtRelief: toNumber(bootRaw['debtRelief']),
+      nonLikeKindProperty: toNumber(bootRaw['nonLikeKindProperty']),
+      totalBoot: toNumber(
+        bootRaw['totalBoot'],
+        toNumber(bootRaw['cashReceived']) + toNumber(bootRaw['debtRelief']) + toNumber(bootRaw['nonLikeKindProperty'])
+      ),
+    };
+
+    const analysis = {
+      includeTaxDeferral: toBoolean(analysisRaw['includeTaxDeferral'], true),
+      includeDepreciationRecapture: toBoolean(analysisRaw['includeDepreciationRecapture'], taxInfo.includeDepreciationRecapture),
+      includeBootAnalysis: toBoolean(analysisRaw['includeBootAnalysis'], true),
+      includeComparison: toBoolean(analysisRaw['includeComparison'], false),
+      includeComplianceCheck: toBoolean(analysisRaw['includeComplianceCheck'], true),
+      includeReplacementAnalysis: toBoolean(analysisRaw['includeReplacementAnalysis'], true),
+    };
 
     // Calculate tax deferral
     const taxDeferral = analysis.includeTaxDeferral
@@ -35,6 +102,14 @@ export class OneZeroThreeOneExchangeAnalyzer {
     // Comparison to selling without exchange
     const comparison = analysis.includeComparison
       ? this.compareToSale(relinquished, taxDeferral, taxInfo)
+      : undefined;
+
+    const complianceCheck = analysis.includeComplianceCheck
+      ? this.checkCompliance(timeline)
+      : undefined;
+
+    const replacementAnalysis = analysis.includeReplacementAnalysis
+      ? this.analyzeReplacement(relinquished, replacement)
       : undefined;
 
     // Recommendations
@@ -58,37 +133,48 @@ export class OneZeroThreeOneExchangeAnalyzer {
       taxDeferral,
       depreciationRecapture,
       bootAnalysis,
+      complianceCheck,
+      replacementAnalysis,
       comparison,
       recommendations,
     };
   }
 
   private static calculateTaxDeferral(
-    relinquished: OneZeroThreeOneExchangeInput['relinquishedProperty'],
-    boot: OneZeroThreeOneExchangeInput['boot'],
-    taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
+    relinquished: { sellingPrice: number; adjustedBasis: number },
+    boot: { totalBoot: number },
+    taxInfo: {
+      federalTaxRate: { capitalGains: number };
+      stateTaxRate: number;
+      netInvestmentIncomeTax: boolean;
+      niiTaxRate: number;
+    }
   ): {
     realizedGain: number;
     recognizedGain: number;
     deferredGain: number;
     deferredTax: number;
+    deferredTaxAmount: number;
   } {
     const realizedGain = relinquished.sellingPrice - relinquished.adjustedBasis;
-    const recognizedGain = boot.totalBoot; // Only boot is recognized
+    const recognizedGain = Math.max(0, Math.min(boot.totalBoot, realizedGain)); // Only boot is recognized
     const deferredGain = realizedGain - recognizedGain;
-    const deferredTax = deferredGain * (taxInfo.federalTaxRate.capitalGains + taxInfo.stateTaxRate);
+    const baseRate = taxInfo.federalTaxRate.capitalGains + taxInfo.stateTaxRate;
+    const niitRate = taxInfo.netInvestmentIncomeTax ? taxInfo.niiTaxRate : 0;
+    const deferredTax = deferredGain * (baseRate + niitRate);
 
     return {
       realizedGain,
       recognizedGain,
       deferredGain,
       deferredTax,
+      deferredTaxAmount: deferredTax,
     };
   }
 
   private static calculateDepreciationRecapture(
-    relinquished: OneZeroThreeOneExchangeInput['relinquishedProperty'],
-    taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
+    relinquished: { accumulatedDepreciation: number; sellingPrice: number; adjustedBasis: number },
+    taxInfo: { federalTaxRate: { depreciationRecapture: number } }
   ): {
     depreciationRecapture: number;
     recaptureTax: number;
@@ -106,8 +192,8 @@ export class OneZeroThreeOneExchangeAnalyzer {
   }
 
   private static analyzeBoot(
-    boot: OneZeroThreeOneExchangeInput['boot'],
-    taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
+    boot: { cashReceived: number; debtRelief: number; totalBoot: number },
+    taxInfo: { federalTaxRate: { capitalGains: number }; stateTaxRate: number }
   ): {
     cashBoot: number;
     debtReliefBoot: number;
@@ -126,9 +212,9 @@ export class OneZeroThreeOneExchangeAnalyzer {
   }
 
   private static compareToSale(
-    relinquished: OneZeroThreeOneExchangeInput['relinquishedProperty'],
+    relinquished: { sellingPrice: number; adjustedBasis: number },
     deferral: { deferredTax: number } | undefined,
-    taxInfo: OneZeroThreeOneExchangeInput['taxInfo']
+    taxInfo: { federalTaxRate: { capitalGains: number }; stateTaxRate: number }
   ): {
     taxWithoutExchange: number;
     taxWithExchange: number;
@@ -158,7 +244,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
     recapture: { recaptureTax: number } | undefined,
     boot: { taxOnBoot: number } | undefined,
     comparison: { taxSavings: number; recommendation: string } | undefined,
-    timeline: OneZeroThreeOneExchangeInput['exchangeTimeline']
+    timeline: { identificationDeadline: string; closingDeadline: string; qualifiedIntermediary: boolean }
   ): string[] {
     const recommendations: string[] = [];
 
@@ -187,6 +273,48 @@ export class OneZeroThreeOneExchangeAnalyzer {
     }
 
     return recommendations;
+  }
+
+  private static checkCompliance(timeline: {
+    identificationDeadline: string;
+    closingDeadline: string;
+    qualifiedIntermediary: boolean;
+    exchangeType: string;
+  }): { isCompliant: boolean; issues: string[] } {
+    const issues: string[] = [];
+
+    if (!timeline.identificationDeadline) issues.push('Missing identification deadline');
+    if (!timeline.closingDeadline) issues.push('Missing closing deadline');
+    if (!timeline.qualifiedIntermediary) issues.push('Qualified intermediary required');
+
+    // Keep deterministic/simple: treat missing deadlines/QI as non-compliant.
+    const isCompliant = issues.length === 0;
+
+    // Optional informational note.
+    if (timeline.exchangeType && timeline.exchangeType !== 'delayed') {
+      issues.push(`Exchange type: ${timeline.exchangeType}`);
+    }
+
+    return { isCompliant, issues };
+  }
+
+  private static analyzeReplacement(
+    relinquished: { sellingPrice: number },
+    replacement: { purchasePrice: number; purchaseExpenses: number; mortgageAmount: number; downPayment: number }
+  ): {
+    totalReplacementCost: number;
+    meetsReinvestmentRequirement: boolean;
+    valueGap: number;
+  } {
+    const totalReplacementCost = replacement.purchasePrice + replacement.purchaseExpenses;
+    const meetsReinvestmentRequirement = totalReplacementCost >= relinquished.sellingPrice;
+    const valueGap = relinquished.sellingPrice - totalReplacementCost;
+
+    return {
+      totalReplacementCost,
+      meetsReinvestmentRequirement,
+      valueGap,
+    };
   }
 }
 

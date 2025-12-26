@@ -27,6 +27,10 @@ describe('Debug Chat Failure', () => {
     worker = await unstable_dev(path.resolve(__dirname, '../index.ts'), {
       experimental: { disableExperimentalWarning: true },
       local: true, // We run the worker locally
+      vars: {
+        // Avoid production defaults (e.g., strict rate limiting) during local tests.
+        ENVIRONMENT: 'development',
+      },
       // We rely on wrangler.toml to define the bindings. 
       // If the user runs this test, they might need to have authenticated with wrangler login.
     });

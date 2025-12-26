@@ -301,7 +301,7 @@ export class InterestRateSwapAnalyzer {
     } else if (npv > 0) {
       return `Swap is undervalued (NPV: $${npv.toFixed(2)}). Consider entering as ${input.payFixed ? 'fixed payer' : 'fixed receiver'}.`;
     } else {
-      return `Swap is overvalued (NPV: $${npv.toFixed(2)}). Consider entering as ${input.payFixed ? 'fixed receiver' : 'fixed payer'}.`;
+      return `Swap is overvalued (NPV: $${npv.toFixed(2)}). Consider entering as ${input.payFixed ? 'fixed payer' : 'fixed receiver'}.`;
     }
   }
 

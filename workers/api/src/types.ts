@@ -18,6 +18,9 @@ export interface Env {
   ALLOWED_UPLOAD_MIME_PREFIXES?: string;
   ANALYSIS_CACHE_TTL_SECONDS?: string;
   ANALYSIS_MAX_JSON_BYTES?: string;
+  TURNSTILE_SECRET?: string;
+  TURNSTILE_ENFORCE_CHAT?: string;
+  TURNSTILE_ENFORCE_CHAT_STREAM?: string;
   // LLM optimization
   KV?: KVNamespace;
   // Stripe integration

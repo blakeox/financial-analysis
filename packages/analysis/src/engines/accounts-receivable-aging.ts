@@ -55,10 +55,20 @@ export class AccountsReceivableAgingAnalyzer {
         overdueAmount: agingAnalysis?.overdueAmount || 0,
         estimatedBadDebt: badDebtForecast?.estimatedBadDebt || 0,
       },
-      dsoAnalysis,
-      agingAnalysis,
+      dsoAnalysis: dsoAnalysis
+        ? {
+            ...dsoAnalysis,
+            daysSalesOutstanding: dsoAnalysis.dso,
+          }
+        : undefined,
+      agingAnalysis: agingAnalysis
+        ? {
+            ...agingAnalysis,
+            agingBuckets: agingAnalysis.buckets,
+          }
+        : undefined,
       badDebtForecast,
-      collectionRecommendations,
+      collectionRecommendations: collectionRecommendations?.recommendations,
       creditPolicyOptimization,
       recommendations,
     };

@@ -8,7 +8,15 @@
  */
 
 export interface AnalyticsEventData {
-  type: 'rate_limit' | 'circuit_breaker' | 'session_created' | 'session_check' | 'suspicious_activity' | 'session_denied' | 'auth_failure';
+  type:
+    | 'rate_limit'
+    | 'circuit_breaker'
+    | 'session_created'
+    | 'session_check'
+    | 'session_unavailable'
+    | 'suspicious_activity'
+    | 'session_denied'
+    | 'auth_failure';
   fingerprint: string;
   trustScore: number;
   flags: string[];
@@ -78,7 +86,7 @@ export function logRateLimitViolation(
  */
 export function logSecurityEventAnalytics(
   analytics: AnalyticsEngineDataset | undefined,
-  eventType: 'session_created' | 'session_check' | 'session_denied' | 'suspicious_activity',
+  eventType: 'session_created' | 'session_check' | 'session_unavailable' | 'session_denied' | 'suspicious_activity',
   fingerprint: string,
   ipAddress: string,
   trustScore: number,

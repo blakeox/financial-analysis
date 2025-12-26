@@ -114,6 +114,15 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
      crossorigin="anonymous"></script>
 
+    {/* Cloudflare Web Analytics (optional) */}
+    {import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN}"}`}
+      ></script>
+    )}
+
     <!-- Tailwind CSS -->
     <script is:inline>
       if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {

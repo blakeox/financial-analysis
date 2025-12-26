@@ -16,9 +16,11 @@ export class InventoryOptimizer {
     const analysis = input.analysis;
 
     // EOQ analysis
-    const eoqAnalysis = analysis.includeEOQ
+    const eoqDetails = analysis.includeEOQ
       ? this.calculateEOQ(inventoryData, costs)
       : undefined;
+    // Root tests expect `eoqAnalysis` to be an array.
+    const eoqAnalysis = eoqDetails?.items;
 
     // ABC analysis
     const abcAnalysis = analysis.includeABC
@@ -37,12 +39,12 @@ export class InventoryOptimizer {
 
     // Total cost analysis
     const totalCostAnalysis = analysis.includeTotalCostAnalysis
-      ? this.analyzeTotalCosts(inventoryData, costs, eoqAnalysis, safetyStockAnalysis)
+      ? this.analyzeTotalCosts(inventoryData, costs, eoqDetails, safetyStockAnalysis)
       : undefined;
 
     // Recommendations
     const recommendations = this.generateRecommendations(
-      eoqAnalysis,
+      eoqDetails,
       abcAnalysis,
       safetyStockAnalysis,
       totalCostAnalysis
@@ -51,11 +53,12 @@ export class InventoryOptimizer {
     return {
       summary: {
         totalInventoryValue: inventoryData.totalInventoryValue,
-        optimalOrderQuantity: eoqAnalysis?.averageEOQ || 0,
+        optimalOrderQuantity: eoqDetails?.averageEOQ || 0,
         totalSafetyStock: safetyStockAnalysis?.totalSafetyStock || 0,
         totalCostSavings: totalCostAnalysis?.potentialSavings || 0,
       },
       eoqAnalysis,
+      eoqDetails,
       abcAnalysis,
       safetyStockAnalysis,
       reorderPointAnalysis,

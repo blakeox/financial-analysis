@@ -40,12 +40,17 @@ export const EquipmentLeaseVsBuyInputSchema = z.object({
     opportunityCostRate: z.number().min(0).max(0.2).default(0.1),
     inflationRate: z.number().min(0).max(0.1).default(0.03),
     analysisPeriod: z.number().min(1).max(20).default(5), // years
+  }).default({
+    opportunityCostRate: 0.1,
+    inflationRate: 0.03,
+    analysisPeriod: 5,
   }),
   analysis: z.object({
     includeNPV: z.boolean().default(true),
     includeIRR: z.boolean().default(true),
     includeCashFlowComparison: z.boolean().default(true),
     includeTaxImpact: z.boolean().default(true),
+    analysisPeriod: z.number().min(1).max(20).default(5),
   }),
 });
 

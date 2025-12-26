@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { InterestRateSwapAnalyzer, CurrencySwapAnalyzer, InterestRateSwapInputSchema, CurrencySwapInputSchema } from './swaps';
+import { InterestRateSwapAnalyzer, CurrencySwapAnalyzer, InterestRateSwapInputSchema, CurrencySwapInputSchema } from '../swaps';
 
 describe('InterestRateSwapAnalyzer', () => {
   const baseInput = {

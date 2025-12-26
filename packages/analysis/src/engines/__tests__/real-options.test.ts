@@ -51,7 +51,7 @@ describe('RealOptionsAnalyzer', () => {
       const discountRate = 0.1;
 
       const npv = RealOptionsAnalyzer['calculateNPV'](initialInvestment, cashFlows, discountRate);
-      expect(npv).toBeCloseTo(300000 + 400000/1.1 + 500000/1.21 - 1000000, 0.01);
+      expect(npv).toBeCloseTo(300000/1.1 + 400000/1.21 + 500000/1.331 - 1000000, 0.01);
     });
 
     it('should handle zero discount rate', () => {
@@ -60,7 +60,7 @@ describe('RealOptionsAnalyzer', () => {
       const discountRate = 0;
 
       const npv = RealOptionsAnalyzer['calculateNPV'](initialInvestment, cashFlows, discountRate);
-      expect(npv).toBe(-100000 + 200000 + 300000 + 400000);
+      expect(npv).toBe(-1000000 + 200000 + 300000 + 400000);
     });
   });
 

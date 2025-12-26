@@ -11,11 +11,34 @@ export class EquipmentLeaseVsBuyCalculator {
    */
   static analyze(input: EquipmentLeaseVsBuyInput): unknown {
     const equipmentInfo = input.equipmentInfo;
-    const leaseTerms = input.leaseTerms;
-    const purchaseTerms = input.purchaseTerms;
-    const taxInfo = input.taxInfo;
-    const financialAssumptions = input.financialAssumptions;
-    const analysis = input.analysis;
+    const leaseTerms = {
+      ...input.leaseTerms,
+      securityDeposit: input.leaseTerms.securityDeposit ?? 0,
+    };
+    const purchaseTerms = {
+      ...input.purchaseTerms,
+      insuranceCost: input.purchaseTerms.insuranceCost ?? 0,
+    };
+    const taxInfo = {
+      ...input.taxInfo,
+      stateTaxRate: input.taxInfo.stateTaxRate ?? 0,
+      section179Deduction: input.taxInfo.section179Deduction ?? 0,
+      bonusDepreciationPercentage: input.taxInfo.bonusDepreciationPercentage ?? 0,
+    };
+    const analysis = {
+      ...input.analysis,
+      analysisPeriod:
+        (input.analysis as any).analysisPeriod ??
+        input.financialAssumptions?.analysisPeriod ??
+        equipmentInfo.usefulLife ??
+        5,
+    } as any;
+
+    const financialAssumptions = {
+      opportunityCostRate: input.financialAssumptions?.opportunityCostRate ?? 0.1,
+      inflationRate: input.financialAssumptions?.inflationRate ?? 0.03,
+      analysisPeriod: analysis.analysisPeriod,
+    };
 
     // Calculate lease costs
     const leaseAnalysis = this.calculateLeaseCosts(leaseTerms, taxInfo, analysis);
@@ -29,13 +52,48 @@ export class EquipmentLeaseVsBuyCalculator {
     );
 
     // Compare options
-    const comparison = this.compareOptions(leaseAnalysis, purchaseAnalysis, analysis);
+    const comparisonBase = this.compareOptions(leaseAnalysis, purchaseAnalysis, analysis);
+    const comparison = {
+      ...comparisonBase,
+      leaseTotalCost: leaseAnalysis.totalCost,
+      purchaseTotalCost: purchaseAnalysis.totalCost,
+    };
 
     // Recommendations
     const recommendations = this.generateRecommendations(
       comparison,
       financialAssumptions.analysisPeriod
     );
+
+    const npvAnalysis = analysis.includeNPV
+      ? {
+          leaseNPV: leaseAnalysis.npv,
+          purchaseNPV: purchaseAnalysis.npv,
+          npvDifference: leaseAnalysis.npv - purchaseAnalysis.npv,
+        }
+      : undefined;
+
+    const irrAnalysis = analysis.includeIRR
+      ? {
+          leaseIRR: null,
+          purchaseIRR: null,
+          note: 'IRR calculation not implemented',
+        }
+      : undefined;
+
+    const taxImpactAnalysis = analysis.includeTaxImpact
+      ? {
+          leaseTaxSavings: leaseAnalysis.totalCost - leaseAnalysis.afterTaxCost,
+          purchaseTaxSavings: purchaseAnalysis.taxSavings,
+          taxSavingsDifference:
+            (leaseAnalysis.totalCost - leaseAnalysis.afterTaxCost) - purchaseAnalysis.taxSavings,
+        }
+      : undefined;
+
+    const recommendation = {
+      recommendedOption: comparison.betterOption,
+      rationale: recommendations[0] ?? '',
+    };
 
     return {
       summary: {
@@ -49,6 +107,10 @@ export class EquipmentLeaseVsBuyCalculator {
       purchaseAnalysis,
       comparison,
       recommendations,
+      npvAnalysis,
+      irrAnalysis,
+      taxImpactAnalysis,
+      recommendation,
     };
   }
 
@@ -108,29 +170,45 @@ export class EquipmentLeaseVsBuyCalculator {
     const loanAmount = totalPurchase;
     const monthlyRate = purchaseTerms.interestRate / 12;
     const numPayments = purchaseTerms.loanTerm * 12;
-    const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+    const monthlyPayment =
+      monthlyRate === 0
+        ? loanAmount / Math.max(1, numPayments)
+        : (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
+          (Math.pow(1 + monthlyRate, numPayments) - 1);
     const totalInterest = (monthlyPayment * numPayments) - loanAmount;
 
     // Maintenance and insurance
     const totalMaintenance = purchaseTerms.annualMaintenanceCost * assumptions.analysisPeriod;
-    const totalInsurance = purchaseTerms.insuranceCost * assumptions.analysisPeriod;
+    const totalInsurance = (purchaseTerms.insuranceCost ?? 0) * assumptions.analysisPeriod;
 
     // Depreciation and tax benefits
     const depreciation = purchasePrice * (1 - Math.pow(1 - 0.2, assumptions.analysisPeriod)); // 20% annual depreciation
-    const section179 = taxInfo.section179Eligible ? Math.min(purchasePrice, taxInfo.section179Deduction) : 0;
-    const bonusDepreciation = taxInfo.bonusDepreciationEligible ? purchasePrice * taxInfo.bonusDepreciationPercentage : 0;
+    const section179 = taxInfo.section179Eligible
+      ? Math.min(purchasePrice, taxInfo.section179Deduction ?? 0)
+      : 0;
+    const bonusDepreciation = taxInfo.bonusDepreciationEligible
+      ? purchasePrice * (taxInfo.bonusDepreciationPercentage ?? 0)
+      : 0;
     const totalDepreciation = section179 + bonusDepreciation + depreciation;
-    const taxSavings = totalDepreciation * (taxInfo.federalTaxRate + taxInfo.stateTaxRate);
+    const taxSavings =
+      totalDepreciation * (taxInfo.federalTaxRate + (taxInfo.stateTaxRate ?? 0));
 
     // Resale value
-    const resaleValue = equipment.expectedResidualValue * Math.pow(1 - assumptions.inflationRate, assumptions.analysisPeriod);
+    const resaleValue =
+      equipment.expectedResidualValue *
+      Math.pow(1 - assumptions.inflationRate, assumptions.analysisPeriod);
 
     const totalCost = purchasePrice + salesTax + totalInterest + totalMaintenance + totalInsurance - taxSavings - resaleValue;
     const afterTaxCost = totalCost;
 
     // NPV
     const discountRate = assumptions.opportunityCostRate;
-    const npv = this.calculateNPV(monthlyPayment * 12, assumptions.analysisPeriod, discountRate) - purchasePrice - salesTax + taxSavings + resaleValue;
+    const npv =
+      this.calculateNPV(monthlyPayment * 12, assumptions.analysisPeriod, discountRate) -
+      purchasePrice -
+      salesTax +
+      taxSavings +
+      resaleValue;
 
     return {
       purchasePrice: totalPurchase,

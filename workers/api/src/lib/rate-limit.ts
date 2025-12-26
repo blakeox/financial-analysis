@@ -46,6 +46,9 @@ async function retryKVOperation<T>(
 }
 
 export async function checkRateLimit(request: Request, env: Env): Promise<RateLimitInfo> {
+  const environment = env.ENVIRONMENT || 'production';
+  const isProduction = environment === 'production';
+
   const clientIP =
     request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
 
@@ -62,6 +65,17 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
   } else if (url.pathname.includes('/mcp')) {
     limitConfig = LIMITS.MCP;
     keyPrefix = 'mcp';
+  }
+
+  // In non-production (local dev/preview), keep rate limiting enabled but much higher.
+  // NOTE: do not inflate in `test` env; unit tests assert specific 429 behavior.
+  const shouldInflateLimits = !isProduction && environment !== 'test';
+  if (shouldInflateLimits) {
+    if (keyPrefix === 'chat') {
+      limitConfig = { ...limitConfig, max: Math.max(limitConfig.max, 1000) };
+    } else {
+      limitConfig = { ...limitConfig, max: Math.max(limitConfig.max, 5000) };
+    }
   }
 
   const key = `ratelimit:${keyPrefix}:${clientIP}`;

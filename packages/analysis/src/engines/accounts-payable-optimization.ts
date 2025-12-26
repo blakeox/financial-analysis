@@ -3,19 +3,24 @@
  * Optimize payment terms and maximize early payment discounts
  */
 
-import type { AccountsPayableOptimizationInput } from '../schemas/accounts-payable-optimization.js';
+import {
+  AccountsPayableOptimizationInputSchema,
+  type AccountsPayableOptimizationInput,
+} from '../schemas/accounts-payable-optimization.js';
 
 export class AccountsPayableOptimizer {
   /**
    * Optimize accounts payable strategy
    */
   static analyze(input: AccountsPayableOptimizationInput): unknown {
-    const payables = input.payables;
-    const paymentTerms = input.paymentTerms;
-    const cashFlow = input.cashFlow;
-    const vendorRelationships = input.vendorRelationships;
-    const strategy = input.strategy;
-    const analysis = input.analysis;
+    const validated = AccountsPayableOptimizationInputSchema.parse(input);
+
+    const payables = validated.payables;
+    const paymentTerms = validated.paymentTerms;
+    const cashFlow = validated.cashFlow;
+    const vendorRelationships = validated.vendorRelationships;
+    const strategy = validated.strategy;
+    const analysis = validated.analysis;
 
     // Discount analysis
     const discountAnalysis = analysis.includeDiscountAnalysis
@@ -33,7 +38,9 @@ export class AccountsPayableOptimizer {
       : undefined;
 
     // Vendor optimization
-    const vendorOptimization = analysis.includeVendorOptimization
+    const includeVendorAnalysis =
+      analysis.includeVendorAnalysis ?? analysis.includeVendorOptimization;
+    const vendorOptimization = includeVendorAnalysis
       ? this.optimizeVendorPayments(payables, vendorRelationships, strategy)
       : undefined;
 
@@ -52,9 +59,15 @@ export class AccountsPayableOptimizer {
         cashFlowImpact: cashFlowImpact?.netCashFlowImpact || 0,
         optimalPaymentDays: paymentSchedule?.averagePaymentDays || 0,
       },
-      discountAnalysis,
+      discountAnalysis: discountAnalysis
+        ? {
+            ...discountAnalysis,
+            totalPotentialSavings: discountAnalysis.totalSavings,
+          }
+        : undefined,
       cashFlowImpact,
-      paymentSchedule,
+      paymentSchedule: paymentSchedule?.schedule ?? [],
+      vendorAnalysis: vendorOptimization,
       vendorOptimization,
       recommendations,
     };

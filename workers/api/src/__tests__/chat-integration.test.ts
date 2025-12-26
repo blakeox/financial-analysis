@@ -33,12 +33,17 @@ describe('Chat Endpoint Integration Tests', () => {
     worker = await unstable_dev(path.resolve(__dirname, '../index.ts'), {
       experimental: { disableExperimentalWarning: true },
       local: true,
+      vars: {
+        // Ensure the dev worker doesn't default to production behavior
+        // (notably strict global rate limiting / security gating).
+        ENVIRONMENT: 'development',
+      },
     });
-  });
+  }, 30_000);
 
   afterAll(async () => {
     await worker.stop();
-  });
+  }, 30_000);
 
   describe('/v1/chat/enhanced endpoint', () => {
     it('should handle basic chat messages', async () => {

@@ -149,7 +149,7 @@ export class AccountsPayableOptimizer {
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate,
         paymentDate: paymentDate.toISOString().split('T')[0] as string,
-        amount: invoice.amountOutstanding,
+        amount: invoice.amountOutstanding ?? invoice.invoiceAmount,
         discountTaken: takeDiscount || false,
       };
     });

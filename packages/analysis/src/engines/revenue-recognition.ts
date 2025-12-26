@@ -18,18 +18,20 @@ export class RevenueRecognitionCalculator {
     const contractAllocation = this.allocateContractValue(contracts);
 
     // Revenue schedule
-    const revenueSchedule = analysis.includeRevenueSchedule
+    const revenueScheduleDetails = analysis.includeRevenueSchedule
       ? this.createRevenueSchedule(contractAllocation, analysis.projectionPeriod)
       : undefined;
+    // Root tests expect `revenueSchedule` to be an array.
+    const revenueSchedule = revenueScheduleDetails?.schedule;
 
     // Deferred revenue
     const deferredRevenue = analysis.includeDeferredRevenue
-      ? this.calculateDeferredRevenue(contractAllocation, revenueSchedule)
+      ? this.calculateDeferredRevenue(contractAllocation, revenueScheduleDetails)
       : undefined;
 
     // Contract assets
     const contractAssets = analysis.includeContractAssetAnalysis
-      ? this.calculateContractAssets(contractAllocation, revenueSchedule)
+      ? this.calculateContractAssets(contractAllocation, revenueScheduleDetails)
       : undefined;
 
     // Compliance check
@@ -39,7 +41,7 @@ export class RevenueRecognitionCalculator {
 
     // Recommendations
     const recommendations = this.generateRecommendations(
-      revenueSchedule,
+      revenueScheduleDetails,
       deferredRevenue,
       complianceCheck
     );
@@ -47,14 +49,16 @@ export class RevenueRecognitionCalculator {
     return {
       summary: {
         totalContractValue: contracts.reduce((sum, c) => sum + c.contractValue, 0),
-        totalRevenueRecognized: revenueSchedule?.totalRecognized || 0,
+        totalRevenueRecognized: revenueScheduleDetails?.totalRecognized || 0,
         totalDeferredRevenue: deferredRevenue?.totalDeferred || 0,
         complianceStatus: complianceCheck?.status || 'unknown',
       },
       contractAllocation,
       revenueSchedule,
+      revenueScheduleDetails,
       deferredRevenue,
       contractAssets,
+      contractAssetAnalysis: contractAssets,
       complianceCheck,
       recommendations,
     };

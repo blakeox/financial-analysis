@@ -164,8 +164,8 @@ export class RealOptionsAnalyzer {
       if (cumulative >= initialInvestment) {
         // Interpolate for partial year
         const excess = cumulative - initialInvestment;
-        const partialYear = excess / flow;
-        return years - 1 + partialYear;
+        const fractionOfLastYearNotNeeded = excess / flow;
+        return years - fractionOfLastYearNotNeeded;
       }
     }
 

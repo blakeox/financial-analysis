@@ -66,7 +66,12 @@ export class FinancialRatioAnalyzer {
         debtToEquity: leverageRatios?.debtToEquity || 0,
       },
       liquidityRatios,
-      profitabilityRatios,
+      profitabilityRatios: profitabilityRatios
+        ? {
+            ...profitabilityRatios,
+            netProfitMargin: profitabilityRatios.netMargin,
+          }
+        : undefined,
       efficiencyRatios,
       leverageRatios,
       marketRatios,
