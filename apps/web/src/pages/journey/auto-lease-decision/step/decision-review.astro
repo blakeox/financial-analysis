@@ -282,16 +282,29 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script>
+<script is:inline>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const formatCurrency = (value: number | string | undefined | null) =>
+  const isNonZeroNumberString = (value) => {
+    if (value === undefined || value === null) return false;
+    const asString = String(value).trim();
+    if (asString === '') return false;
+    const asNumber = Number(asString);
+    return Number.isFinite(asNumber) && asNumber !== 0;
+  };
+
+  const formatCurrency = (value) =>
     value?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
   const loadSummaries = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const data = JSON.parse(saved);
+    let data;
+    try {
+      data = JSON.parse(saved);
+    } catch {
+      return;
+    }
     const profile = data.collectedData?.['lease-profile'];
     const buyout = data.collectedData?.['lease-vs-buyout'];
     const replacements = data.collectedData?.['replacement-options'];
@@ -308,28 +321,32 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     const wearDetails = document.getElementById('wear-details');
 
     const hasTerminationData = profile && (
-      profile.earlyTerminationFee || profile.remainingPaymentsOwed || profile.leaseTransferFee
+      isNonZeroNumberString(profile.earlyTerminationFee) ||
+      isNonZeroNumberString(profile.remainingPaymentsOwed) ||
+      isNonZeroNumberString(profile.leaseTransferFee)
     );
     const hasWearData = profile && (
-      profile.excessWearCharges || profile.tireCharges || profile.bodyDamageEstimate
+      isNonZeroNumberString(profile.excessWearCharges) ||
+      isNonZeroNumberString(profile.tireCharges) ||
+      isNonZeroNumberString(profile.bodyDamageEstimate)
     );
 
     if ((hasTerminationData || hasWearData) && terminationSection) {
       terminationSection.classList.remove('hidden');
 
       if (terminationDetails && hasTerminationData) {
-        const items: string[] = [];
-        if (profile.earlyTerminationFee) items.push(`Early termination fee: ${formatCurrency(Number(profile.earlyTerminationFee))}`);
-        if (profile.remainingPaymentsOwed) items.push(`Remaining payments owed: ${formatCurrency(Number(profile.remainingPaymentsOwed))}`);
-        if (profile.leaseTransferFee) items.push(`Lease transfer fee: ${formatCurrency(Number(profile.leaseTransferFee))}`);
+        const items = [];
+        if (isNonZeroNumberString(profile.earlyTerminationFee)) items.push(`Early termination fee: ${formatCurrency(Number(profile.earlyTerminationFee))}`);
+        if (isNonZeroNumberString(profile.remainingPaymentsOwed)) items.push(`Remaining payments owed: ${formatCurrency(Number(profile.remainingPaymentsOwed))}`);
+        if (isNonZeroNumberString(profile.leaseTransferFee)) items.push(`Lease transfer fee: ${formatCurrency(Number(profile.leaseTransferFee))}`);
         terminationDetails.innerHTML = items.map(i => `<li>• ${i}</li>`).join('');
       }
 
       if (wearDetails && hasWearData) {
-        const items: string[] = [];
-        if (profile.excessWearCharges) items.push(`Excess wear charges: ${formatCurrency(Number(profile.excessWearCharges))}`);
-        if (profile.tireCharges) items.push(`Tire replacement: ${formatCurrency(Number(profile.tireCharges))}`);
-        if (profile.bodyDamageEstimate) items.push(`Body damage estimate: ${formatCurrency(Number(profile.bodyDamageEstimate))}`);
+        const items = [];
+        if (isNonZeroNumberString(profile.excessWearCharges)) items.push(`Excess wear charges: ${formatCurrency(Number(profile.excessWearCharges))}`);
+        if (isNonZeroNumberString(profile.tireCharges)) items.push(`Tire replacement: ${formatCurrency(Number(profile.tireCharges))}`);
+        if (isNonZeroNumberString(profile.bodyDamageEstimate)) items.push(`Body damage estimate: ${formatCurrency(Number(profile.bodyDamageEstimate))}`);
         wearDetails.innerHTML = items.map(i => `<li>• ${i}</li>`).join('');
       }
     }
@@ -342,16 +359,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
     // ======= Exit strategies (Step 2) =======
     const exitSection = document.getElementById('exit-section');
-    const hasExitData = buyout && (buyout.tradeInValue || buyout.privateSaleValue || buyout.instantOfferValue);
+    const hasExitData = buyout && (
+      isNonZeroNumberString(buyout.tradeInValue) ||
+      isNonZeroNumberString(buyout.privateSaleValue) ||
+      isNonZeroNumberString(buyout.instantOfferValue)
+    );
 
     if (hasExitData && exitSection) {
       exitSection.classList.remove('hidden');
       const buyoutAmt = Number(buyout.buyoutAmount) || 0;
+      const salesTaxRate = Number(buyout.salesTaxRate) || 0;
+      const fees = Number(buyout.fees) || 0;
+      const buyoutSalesTax = buyoutAmt * (salesTaxRate / 100);
+      const buyoutBasis = Number(buyout.buyoutTotal) || (buyoutAmt + buyoutSalesTax + fees);
 
       const exitTradeIn = document.getElementById('exit-tradein');
-      if (exitTradeIn && buyout.tradeInValue) {
+      if (exitTradeIn && isNonZeroNumberString(buyout.tradeInValue)) {
         const value = Number(buyout.tradeInValue);
-        const equity = value - buyoutAmt;
+        const equity = value - buyoutBasis;
         exitTradeIn.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Trade-in</h4>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
           <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
@@ -360,9 +385,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       }
 
       const exitPrivate = document.getElementById('exit-private');
-      if (exitPrivate && buyout.privateSaleValue) {
+      if (exitPrivate && isNonZeroNumberString(buyout.privateSaleValue)) {
         const value = Number(buyout.privateSaleValue);
-        const equity = value - buyoutAmt;
+        const equity = value - buyoutBasis;
         exitPrivate.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Private sale</h4>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
           <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
@@ -371,9 +396,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       }
 
       const exitInstant = document.getElementById('exit-instant');
-      if (exitInstant && buyout.instantOfferValue) {
+      if (exitInstant && isNonZeroNumberString(buyout.instantOfferValue)) {
         const value = Number(buyout.instantOfferValue);
-        const equity = value - buyoutAmt;
+        const equity = value - buyoutBasis;
         exitInstant.innerHTML = `<h4 class="font-semibold text-gray-900 dark:text-white mb-2">Instant offer</h4>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(value)}</p>
           <p class="text-sm ${equity >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}">
@@ -394,7 +419,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           options.sort((a, b) => b.value - a.value);
           const best = options[0];
           const diff = best.value - options[1].value;
-          exitRecommendation.textContent = `💡 Best exit: ${best.name} nets ${formatCurrency(diff)} more than ${options[1].name}`;
+          exitRecommendation.textContent = `💡 Best exit: ${best.name.toLowerCase()} nets ${formatCurrency(diff)} more than ${options[1].name} (based on offer amounts; buyout taxes/fees included in equity above)`;
         }
       }
     }
@@ -422,10 +447,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     ];
 
     let totalIncentives = 0;
-    const activeIncentives: { label: string; value: number }[] = [];
+    const activeIncentives = [];
 
     if (replacements) {
+      // Loyalty vs conquest are mutually exclusive; pick the larger if both are provided.
+      const loyalty = Number(replacements.loyaltyBonus) || 0;
+      const conquest = Number(replacements.conquestCash) || 0;
+      const chosen = Math.max(loyalty, conquest);
+      if (chosen > 0) {
+        activeIncentives.push({ label: chosen === loyalty ? 'Loyalty bonus' : 'Conquest cash', value: chosen });
+        totalIncentives += chosen;
+      }
+
       for (const field of incentiveFields) {
+        if (field.key === 'loyaltyBonus' || field.key === 'conquestCash') continue;
         const val = Number(replacements[field.key]) || 0;
         if (val > 0) {
           activeIncentives.push({ label: field.label, value: val });

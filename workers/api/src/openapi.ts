@@ -1,5 +1,5 @@
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
-import { z } from '@financial-analysis/analysis';
+import { AutoLoanAnalysisInputSchema, z } from '@financial-analysis/analysis';
 
 // Extend Zod to support OpenAPI metadata (.openapi) on the same Zod instance
 // that created the schemas from @financial-analysis/analysis
@@ -259,6 +259,104 @@ const AmortizationAnalysisResultSchema = z.object({
 });
 registry.register('AmortizationAnalysisResult', AmortizationAnalysisResultSchema);
 
+// Auto loan analysis response schema
+const AutoLoanAnalysisPaymentScheduleItemOpenAPISchema = z.object({
+  paymentNumber: z.number(),
+  paymentDate: z.string(),
+  principalPayment: z.number(),
+  interestPayment: z.number(),
+  remainingBalance: z.number(),
+  cumulativeInterest: z.number(),
+});
+
+const AutoLoanAnalysisResultOpenAPISchema = z.object({
+  loanAnalysis: z.object({
+    monthlyPayment: z.number(),
+    totalInterest: z.number(),
+    totalCost: z.number(),
+    effectiveRate: z.number(),
+    payoffDate: z.string(),
+    paymentSchedule: z.array(AutoLoanAnalysisPaymentScheduleItemOpenAPISchema),
+  }),
+  leaseAnalysis: z
+    .object({
+      monthlyPayment: z.number(),
+      totalPayments: z.number(),
+      totalCost: z.number(),
+      effectiveRate: z.number(),
+      endDate: z.string(),
+      buyoutCost: z.number(),
+      totalCostIfPurchased: z.number(),
+    })
+    .optional(),
+  comparison: z
+    .object({
+      loanVsLease: z.object({
+        monthlyPaymentDifference: z.number(),
+        totalCostDifference: z.number(),
+        breakEvenPoint: z.number(),
+        recommendation: z.enum(['loan', 'lease', 'depends']),
+        reasoning: z.array(z.string()),
+      }),
+    })
+    .optional(),
+  refinancingAnalysis: z
+    .object({
+      scenarios: z.array(
+        z.object({
+          newRate: z.number(),
+          newMonthlyPayment: z.number(),
+          monthlySavings: z.number(),
+          totalSavings: z.number(),
+          breakEvenMonths: z.number(),
+          recommendation: z.enum(['refinance', 'keep-current']),
+        })
+      ),
+      bestScenario: z.object({
+        rate: z.number(),
+        monthlySavings: z.number(),
+        totalSavings: z.number(),
+      }),
+    })
+    .optional(),
+  tcoAnalysis: z
+    .object({
+      ownershipYears: z.number(),
+      totalCostOfOwnership: z.number(),
+      costPerMile: z.number(),
+      costPerMonth: z.number(),
+      breakdown: z.object({
+        loanPayments: z.number(),
+        interest: z.number(),
+        maintenance: z.number(),
+        fuel: z.number(),
+        insurance: z.number(),
+        registration: z.number(),
+        depreciation: z.number(),
+        fees: z.number(),
+      }),
+      residualValue: z.number(),
+    })
+    .optional(),
+  insights: z.array(z.string()),
+  recommendations: z.array(
+    z.object({
+      category: z.string(),
+      priority: z.enum(['high', 'medium', 'low']),
+      description: z.string(),
+      impact: z.string(),
+      action: z.string(),
+    })
+  ),
+  metadata: z.object({
+    calculatedAt: z.string(),
+    version: z.string(),
+    methodology: z.string(),
+    assumptions: z.record(z.string(), z.unknown()),
+  }),
+});
+registry.register('AutoLoanAnalysisResult', AutoLoanAnalysisResultOpenAPISchema);
+
 // Paths
 registry.registerPath({
   method: 'get',
@@ -333,7 +431,7 @@ registry.registerPath({
   },
 });
 
-const AnalysisTypeEnum = z.enum(['lease', 'amortization', 'cashflow']);
+const AnalysisTypeEnum = z.enum(['lease', 'amortization', 'cashflow', 'ebitda-forecast', 'auto-loan-analysis']);
 registry.registerPath({
   method: 'get',
   path: '/v1/api/analysis',
@@ -414,6 +512,37 @@ registry.registerPath({
       content: {
         'application/json': {
           schema: AmortizationAnalysisResultSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request body',
+    },
+    415: {
+      description: 'Unsupported Media Type',
+    },
+  },
+});
+
+// Auto loan analysis endpoint
+registry.registerPath({
+  method: 'post',
+  path: '/v1/api/analysis/auto-loan-analysis',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: AutoLoanAnalysisInputSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Auto loan analysis result',
+      content: {
+        'application/json': {
+          schema: AutoLoanAnalysisResultOpenAPISchema,
         },
       },
     },

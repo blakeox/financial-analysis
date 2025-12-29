@@ -45,8 +45,12 @@ test.describe('Auto Lease Journey - Complete Flow', () => {
 
     // Navigate to Step 2
     const nextButton1 = page.locator('a:has-text("Next:")');
-    await nextButton1.click();
-    await page.waitForURL('**/lease-vs-buyout');
+    await Promise.all([
+      page.waitForURL(/\/journey\/auto-lease-decision\/step\/lease-vs-buyout\/?$/, {
+        waitUntil: 'domcontentloaded',
+      }),
+      nextButton1.click(),
+    ]);
 
     // Step 2: Lease vs Buyout
     await page.fill('input[name="buyoutAmount"]', '17500');
@@ -58,8 +62,12 @@ test.describe('Auto Lease Journey - Complete Flow', () => {
 
     // Navigate to Step 3
     const nextButton2 = page.locator('a:has-text("Next:")');
-    await nextButton2.click();
-    await page.waitForURL('**/replacement-options');
+    await Promise.all([
+      page.waitForURL(/\/journey\/auto-lease-decision\/step\/replacement-options\/?$/, {
+        waitUntil: 'domcontentloaded',
+      }),
+      nextButton2.click(),
+    ]);
 
     // Step 3: Replacement Options
     await page.fill('input[name="horizonMonths"]', '48');
@@ -71,8 +79,12 @@ test.describe('Auto Lease Journey - Complete Flow', () => {
 
     // Navigate to Step 4
     const nextButton3 = page.locator('a:has-text("Next:")');
-    await nextButton3.click();
-    await page.waitForURL('**/decision-review');
+    await Promise.all([
+      page.waitForURL(/\/journey\/auto-lease-decision\/step\/decision-review\/?$/, {
+        waitUntil: 'domcontentloaded',
+      }),
+      nextButton3.click(),
+    ]);
 
     // Step 4: Verify all data persisted
     const stored = await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY);

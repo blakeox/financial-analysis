@@ -6,6 +6,8 @@ import {
     AmortizationAnalyzer,
   type AmortizationResultItem,
     AmortizationInputSchema,
+    AutoLoanAnalysisEngine,
+    AutoLoanAnalysisInputSchema,
     BondPricingAnalyzer,
     BondPricingInputSchema,
     BusinessExpansionLoanInputSchema,
@@ -1086,7 +1088,7 @@ router.get(
     const type = url.searchParams.get('type');
 
     // Basic validation for analysis type
-    const validTypes = ['lease', 'amortization', 'cashflow', 'ebitda-forecast'];
+    const validTypes = ['lease', 'amortization', 'cashflow', 'ebitda-forecast', 'auto-loan-analysis'];
     if (type && !validTypes.includes(type)) {
       throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
     }
@@ -1320,6 +1322,120 @@ router.post(
       }
 
       const result = EnhancedLeaseAnalyzer.analyze(parseResult.data);
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },
+      });
+    })
+  )
+);
+
+// Auto loan analysis endpoint (with API key authentication)
+router.post(
+  '/v1/api/analysis/auto-loan-analysis',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const text = await request.text();
+      if (text.length > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const body = (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })();
+
+      const parseResult = AutoLoanAnalysisInputSchema.safeParse(body);
+      if (!parseResult.success) {
+        const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        }));
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid request body',
+              code: 'BAD_REQUEST',
+              issues,
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Optional deterministic caching (Cache API)
+      const ttl = getAnalysisCacheTtl(env);
+      const cache = ttl > 0 ? getDefaultCache() : undefined;
+      if (ttl > 0 && cache) {
+        const keyStr = await sha256Hex(
+          stableStringify({ route: 'auto-loan-analysis', input: parseResult.data })
+        );
+        const cacheReq = new Request(`https://cache.local/analysis/${keyStr}`);
+        const cached = await cache.match(cacheReq);
+        if (cached) {
+          const hitHeaders = new Headers(cached.headers);
+          hitHeaders.set('X-Cache', 'HIT');
+          return new Response(cached.body, {
+            status: cached.status,
+            statusText: cached.statusText,
+            headers: hitHeaders,
+          });
+        }
+
+        const result = AutoLoanAnalysisEngine.analyze(parseResult.data);
+        const res = new Response(JSON.stringify(result), {
+          status: 200,
+          headers: {
+            ...buildDefaultHeaders(env),
+            'Cache-Control': `public, max-age=${ttl}`,
+            'X-Cache': 'MISS',
+          },
+        });
+        void cache.put(cacheReq, res.clone());
+        return res;
+      }
+
+      const result = AutoLoanAnalysisEngine.analyze(parseResult.data);
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { ...buildDefaultHeaders(env), 'X-Cache': 'BYPASS' },

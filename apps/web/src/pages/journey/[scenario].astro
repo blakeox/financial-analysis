@@ -122,7 +122,7 @@ const structuredData = {
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Analysis Models</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentScenario.models.map((model, index) => (
-            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <a href={model.url} class="block border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:shadow-md transition-shadow">
               <div class="flex items-start mb-4">
                 <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">
                   {index + 1}
@@ -139,7 +139,7 @@ const structuredData = {
                   </span>
                 </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -167,14 +167,18 @@ const structuredData = {
 
       <!-- Start Journey Button -->
       <div class="text-center mb-8">
-        <a href={`/journey/${scenario}/step/${currentScenario.models[0].id}`} 
-           class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-          <span class="mr-2">{currentScenario.icon}</span>
-          Start Your Journey
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </a>
+        <form action={`/journey/${scenario}/step/${currentScenario.models[0].id}`} method="get">
+          <button
+            type="submit"
+            class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <span class="mr-2">{currentScenario.icon}</span>
+            Start Your Journey
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </form>
         <p class="text-gray-600 dark:text-gray-400 mt-4">
           Begin with the first step: <strong>{currentScenario.models[0].name}</strong>
         </p>

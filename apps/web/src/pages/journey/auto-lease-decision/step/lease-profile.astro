@@ -277,7 +277,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
               <div class="flex items-center space-x-4">
                 {journeyNav.nextStep ? (
-                  <a href={journeyNav.nextStep.url} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -321,51 +321,30 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script>
+<script is:inline>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
-
-  type LeaseProfile = {
-    monthlyPayment: number | null;
-    monthsRemaining: number | null;
-    residualValue: number | null;
-    moneyFactor: string;
-    currentMileage: number | null;
-    allowedMileage: number | null;
-    overageFee: number | null;
-    dispositionFee: number | null;
-    purchaseOptionFee: number | null;
-    creditBand: string;
-    goals: string;
-    notes: string;
-  };
-
-  type JourneyStorage = {
-    collectedData?: Record<string, unknown>;
-  };
-
-  const parseNumber = (value: FormDataEntryValue | null): number | null => {
-    if (typeof value !== 'string') return null;
-    const num = Number(value);
-    return Number.isFinite(num) ? num : null;
-  };
-
-  const getString = (value: FormDataEntryValue | null): string =>
-    typeof value === 'string' ? value : '';
 
   const hydrateForm = () => {
     if (typeof window === 'undefined') return;
+
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const data = JSON.parse(saved) as JourneyStorage;
-    const profile = data.collectedData?.['lease-profile'] as Partial<LeaseProfile> | undefined;
-    if (!profile) return;
+
+    let data;
+    try {
+      data = JSON.parse(saved);
+    } catch {
+      return;
+    }
+
+    const collectedData = data && typeof data === 'object' ? data.collectedData : null;
+    const profile = collectedData && typeof collectedData === 'object' ? collectedData['lease-profile'] : null;
+    if (!profile || typeof profile !== 'object') return;
 
     Object.entries(profile).forEach(([key, value]) => {
-      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        `[name="${key}"]`
-      );
-      if (input) {
-        input.value = String(value ?? '');
+      const input = document.querySelector(`[name="${key}"]`);
+      if (input && 'value' in input) {
+        input.value = value === undefined || value === null ? '' : String(value);
       }
     });
 
@@ -373,41 +352,61 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     if (statusEl) statusEl.textContent = 'Loaded from last session';
   };
 
-  const saveProfile = (event: SubmitEvent) => {
-    event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement | null;
-    if (!form) return;
+  const persistProfile = (form, options) => {
     const formData = new FormData(form);
-    const profile: LeaseProfile = {
-      monthlyPayment: parseNumber(formData.get('monthlyPayment')),
-      monthsRemaining: parseNumber(formData.get('monthsRemaining')),
-      residualValue: parseNumber(formData.get('residualValue')),
-      moneyFactor: getString(formData.get('moneyFactor')),
-      currentMileage: parseNumber(formData.get('currentMileage')),
-      allowedMileage: parseNumber(formData.get('allowedMileage')),
-      overageFee: parseNumber(formData.get('overageFee')),
-      dispositionFee: parseNumber(formData.get('dispositionFee')),
-      purchaseOptionFee: parseNumber(formData.get('purchaseOptionFee')),
-      creditBand: getString(formData.get('creditBand')),
-      goals: getString(formData.get('goals')),
-      notes: getString(formData.get('notes')),
-    };
+    const profile = Object.fromEntries(
+      Array.from(formData.entries()).map(([key, value]) => [key, typeof value === 'string' ? value : value.name])
+    );
 
     const rawState = localStorage.getItem(STORAGE_KEY);
-    const journeyState = (rawState ? JSON.parse(rawState) : { collectedData: {} }) as JourneyStorage & {
-      collectedData: Record<string, unknown>;
-    };
+    let journeyState = {};
+    if (rawState) {
+      try {
+        journeyState = JSON.parse(rawState);
+      } catch {
+        journeyState = {};
+      }
+    }
+
+    if (!journeyState.collectedData || typeof journeyState.collectedData !== 'object') {
+      journeyState.collectedData = {};
+    }
     journeyState.collectedData['lease-profile'] = profile;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
 
-    const statusEl = document.getElementById('lease-profile-status');
-    if (statusEl) {
-      statusEl.textContent = 'Saved ✓';
-      statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+    if (options?.showStatus) {
+      const statusEl = document.getElementById('lease-profile-status');
+      if (statusEl) {
+        statusEl.textContent = 'Saved ✓';
+        statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+      }
     }
   };
 
-  const leaseProfileForm = document.getElementById('lease-profile-form') as HTMLFormElement | null;
-  leaseProfileForm?.addEventListener('submit', saveProfile);
+  const scheduleAutosave = (() => {
+    let timeoutId = null;
+    return (form) => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        persistProfile(form);
+      }, 150);
+    };
+  })();
+
+  const saveProfile = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!(form instanceof HTMLFormElement)) return;
+    persistProfile(form, { showStatus: true });
+  };
+
+  const leaseProfileForm = document.getElementById('lease-profile-form');
+  if (leaseProfileForm instanceof HTMLFormElement) {
+    leaseProfileForm.addEventListener('submit', saveProfile);
+    leaseProfileForm.addEventListener('input', () => scheduleAutosave(leaseProfileForm));
+    leaseProfileForm.addEventListener('change', () => scheduleAutosave(leaseProfileForm));
+    document.addEventListener('click', () => scheduleAutosave(leaseProfileForm));
+  }
+
   hydrateForm();
 </script>

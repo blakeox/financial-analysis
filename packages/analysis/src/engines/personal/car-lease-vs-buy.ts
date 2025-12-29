@@ -63,11 +63,28 @@ export class CarLeaseVsBuyCalculator {
     totalCost: number;
     monthlyEffectiveCost: number;
   } {
-    const totalPayments = leaseTerms.monthlyPayment * leaseTerms.leaseTerm;
-    const totalFees = leaseTerms.downPayment + leaseTerms.acquisitionFee + leaseTerms.dispositionFee + leaseTerms.securityDeposit;
-    const totalOwnershipCosts = (ownershipCosts.annualInsurance + ownershipCosts.annualMaintenance + ownershipCosts.annualRepairs + ownershipCosts.fuelCost) * (analysis.analysisPeriod / 12);
+    const analysisPeriodMonths = Math.round(analysis.analysisPeriod * 12);
+    const leaseTermMonths = leaseTerms.leaseTerm;
+
+    const numberOfLeaseTerms = Math.ceil(analysisPeriodMonths / leaseTermMonths);
+
+    const totalPayments = leaseTerms.monthlyPayment * analysisPeriodMonths;
+    const perLeaseFees =
+      leaseTerms.downPayment +
+      leaseTerms.acquisitionFee +
+      leaseTerms.dispositionFee +
+      leaseTerms.securityDeposit;
+    const totalFees = perLeaseFees * numberOfLeaseTerms;
+
+    const annualOwnershipCosts =
+      ownershipCosts.annualInsurance +
+      ownershipCosts.annualMaintenance +
+      ownershipCosts.annualRepairs +
+      ownershipCosts.fuelCost;
+    const totalOwnershipCosts = annualOwnershipCosts * analysis.analysisPeriod;
+
     const totalCost = totalPayments + totalFees + totalOwnershipCosts;
-    const monthlyEffectiveCost = totalCost / (leaseTerms.leaseTerm * analysis.analysisPeriod);
+    const monthlyEffectiveCost = totalCost / analysisPeriodMonths;
 
     return {
       totalPayments,
@@ -93,31 +110,65 @@ export class CarLeaseVsBuyCalculator {
     totalCost: number;
     resaleValue: number;
   } {
-    const purchasePrice = vehicleInfo.negotiatedPrice;
-    const salesTax = purchasePrice * purchaseTerms.salesTaxRate;
-    const totalPurchase = purchasePrice + salesTax + purchaseTerms.registrationFee + purchaseTerms.titleFee - purchaseTerms.downPayment;
+    const analysisPeriodMonths = Math.round(analysis.analysisPeriod * 12);
+
+    const vehiclePrice = vehicleInfo.negotiatedPrice;
+    const salesTax = vehiclePrice * purchaseTerms.salesTaxRate;
+    const purchaseFees = purchaseTerms.registrationFee + purchaseTerms.titleFee;
+    const totalOutTheDoor = vehiclePrice + salesTax + purchaseFees;
+
+    const principal = Math.max(0, totalOutTheDoor - purchaseTerms.downPayment);
 
     // Loan calculation
-    const loanAmount = totalPurchase;
     const monthlyRate = purchaseTerms.interestRate / 12;
     const numPayments = purchaseTerms.loanTerm;
-    const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
-    const totalInterest = (monthlyPayment * numPayments) - loanAmount;
 
-    // Depreciation
-    const depreciation = purchasePrice * (1 - Math.pow(1 - assumptions.expectedDepreciation, analysis.analysisPeriod));
-    const resaleValue = purchasePrice - depreciation;
+    const monthlyPayment =
+      monthlyRate === 0
+        ? principal / numPayments
+        : (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
+          (Math.pow(1 + monthlyRate, numPayments) - 1);
+
+    const monthsAnalyzed = Math.min(numPayments, analysisPeriodMonths);
+    let remainingBalance = principal;
+    let totalInterest = 0;
+
+    for (let month = 0; month < monthsAnalyzed; month += 1) {
+      const interestPayment = remainingBalance * monthlyRate;
+      const principalPayment = Math.min(
+        Math.max(0, monthlyPayment - interestPayment),
+        remainingBalance
+      );
+      totalInterest += interestPayment;
+      remainingBalance -= principalPayment;
+    }
+
+    // Depreciation / resale value at end of analysis period (years)
+    const resaleValue = vehiclePrice * Math.pow(1 - assumptions.expectedDepreciation, analysis.analysisPeriod);
+    const depreciation = vehiclePrice - resaleValue;
 
     // Ownership costs
-    const totalOwnershipCosts = (ownershipCosts.annualInsurance + ownershipCosts.annualMaintenance + ownershipCosts.annualRepairs + ownershipCosts.fuelCost) * analysis.analysisPeriod;
+    const annualOwnershipCosts =
+      ownershipCosts.annualInsurance +
+      ownershipCosts.annualMaintenance +
+      ownershipCosts.annualRepairs +
+      ownershipCosts.fuelCost;
+    const totalOwnershipCosts = annualOwnershipCosts * analysis.analysisPeriod;
 
     // Opportunity cost of down payment
     const opportunityCost = purchaseTerms.downPayment * assumptions.opportunityCostRate * analysis.analysisPeriod;
 
-    const totalCost = totalPurchase + totalInterest + totalOwnershipCosts + opportunityCost - resaleValue;
+    const totalLoanPayments = monthlyPayment * monthsAnalyzed;
+    const totalCost =
+      purchaseTerms.downPayment +
+      totalLoanPayments +
+      totalOwnershipCosts +
+      opportunityCost +
+      remainingBalance -
+      resaleValue;
 
     return {
-      purchasePrice: totalPurchase,
+      purchasePrice: totalOutTheDoor,
       totalInterest,
       totalOwnershipCosts,
       depreciation,
