@@ -110,9 +110,15 @@ const currentContext = getCurrentContext(Astro.url.pathname);
       type={type}
     />
 
-    <!-- Google AdSense -->
-    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense (prod only) -->
+    {import.meta.env.PROD && (
+      <script
+        is:inline
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+        crossorigin="anonymous"
+      ></script>
+    )}
 
     {/* Cloudflare Web Analytics (optional) */}
     {import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (

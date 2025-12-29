@@ -132,8 +132,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Lease Terms</h3>
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="leaseMonthly">Monthly payment ($)</label>
                   <input id="leaseMonthly" name="leaseMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="430" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseUpfront">Drive-off / upfront ($)</label>
-                  <input id="leaseUpfront" name="leaseUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="1500" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseDownPayment">Down payment / drive-off ($)</label>
+                  <input id="leaseDownPayment" name="leaseDownPayment" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="2500" />
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseFees">Disposition/fees ($)</label>
                   <input id="leaseFees" name="leaseFees" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="495" />
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseInsurance">Insurance ($/mo)</label>
@@ -146,12 +146,16 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
                 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Finance a New Car</h3>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="financeMonthly">Monthly payment ($)</label>
-                  <input id="financeMonthly" name="financeMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="520" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeUpfront">Down payment / drive-off ($)</label>
-                  <input id="financeUpfront" name="financeUpfront" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="4000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeResale">Resale value at horizon ($)</label>
-                  <input id="financeResale" name="financeResale" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="financePrice">Vehicle price ($)</label>
+                  <input id="financePrice" name="financePrice" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="35000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeDownPayment">Down payment ($)</label>
+                  <input id="financeDownPayment" name="financeDownPayment" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5000" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeApr">APR (%)</label>
+                  <input id="financeApr" name="financeApr" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5.9" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeTermMonths">Loan term (months)</label>
+                  <input id="financeTermMonths" name="financeTermMonths" type="number" min="1" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
+                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeResaleValue">Resale value at horizon ($)</label>
+                  <input id="financeResaleValue" name="financeResaleValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="22000" />
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeInsurance">Insurance ($/mo)</label>
                   <input id="financeInsurance" name="financeInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="165" />
                   <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeMaintenance">Maintenance ($/mo)</label>
@@ -259,7 +263,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button type="button" id="calculate-options" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
-                  Compare Options
+                  Compare
                 </button>
                 <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
                   Save Scenario Inputs
@@ -267,7 +271,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
             </form>
 
-            <div id="replacement-results" class="hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
+            <div id="replacement-results" class="results hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">3-year cost snapshot</h3>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">
                 <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
@@ -309,7 +313,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
               <div class="flex items-center space-x-4">
                 {journeyNav.nextStep ? (
-                  <a href={journeyNav.nextStep.url} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -353,59 +357,34 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   </main>
 </Layout>
 
-<script>
-  type OptionKey = 'lease' | 'finance' | 'cash';
-
-  interface OptionResult {
-    total: number;
-    costPerMile: number;
-    totalIncentives: number;
-    npvTotal: number; // Net Present Value adjusted total
-    gapInsuranceCost: number;
-  }
-
-  interface OptionInputs {
-    monthly: number;
-    upfront: number;
-    insurance: number;
-    maintenance: number;
-    fuel: number;
-    fees?: number;
-    resale?: number;
-    horizonMonths: number;
-    annualMiles: number;
-    subtractResale?: boolean;
-    // New fields for enhanced calculations
-    incentives?: number;
-    gapInsurance?: number;
-    discountRate?: number; // Annual discount rate for NPV
-  }
-
-  type ReplacementOptionsDetails = Record<string, string | number | boolean | null | undefined>;
-
-  interface JourneyStorage {
-    collectedData?: Record<string, unknown>;
-  }
-
+<script is:inline>
   const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
 
-  const parseNumber = (value: FormDataEntryValue | string | number | null | undefined): number => {
+  const debounce = (fn, waitMs) => {
+    let timeoutId = null;
+    return (...args) => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => fn(...args), waitMs);
+    };
+  };
+
+  const parseNumber = (value) => {
     if (value === null || value === undefined) return 0;
     const num = typeof value === 'string' ? Number(value) : Number(value.valueOf?.() ?? value);
     return Number.isFinite(num) ? num : 0;
   };
 
-  const formatCurrency = (value: number | null | undefined): string =>
+  const formatCurrency = (value) =>
     typeof value === 'number' && Number.isFinite(value)
       ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
       : '$0';
 
-  const formatPerMile = (value: number | null | undefined): string =>
+  const formatPerMile = (value) =>
     typeof value === 'number' && Number.isFinite(value)
       ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 })
       : '$0';
 
-  const computeOption = (inputs: OptionInputs): OptionResult => {
+  const computeOption = (inputs) => {
     const {
       monthly,
       upfront,
@@ -436,7 +415,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     
     // Calculate NPV (present value of future cash flows)
     // Simple NPV: discount future monthly payments
-    let npvTotal = upfront + gapInsurance - incentives; // Upfront costs at present value
+    let npvTotal = upfront + fees + gapInsurance - incentives; // Treat fees as paid at start
     const monthlyRate = discountRate > 0 ? discountRate / 100 / 12 : 0;
     const monthlyCost = monthly + insurance + maintenance + fuel;
     
@@ -464,15 +443,83 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     };
   };
 
-  const toggleCashFields = (): void => {
+  const computeLoanPayment = (principal, aprPercent, termMonths) => {
+    if (!Number.isFinite(principal) || principal <= 0) return 0;
+    if (!Number.isFinite(termMonths) || termMonths <= 0) return 0;
+    const r = Number.isFinite(aprPercent) && aprPercent > 0 ? aprPercent / 100 / 12 : 0;
+    if (r === 0) return principal / termMonths;
+    const pow = Math.pow(1 + r, -termMonths);
+    return (principal * r) / (1 - pow);
+  };
+
+  const computeRemainingLoanBalance = (principal, aprPercent, termMonths, paymentsMade, paymentPerMonth) => {
+    if (!Number.isFinite(principal) || principal <= 0) return 0;
+    if (!Number.isFinite(termMonths) || termMonths <= 0) return 0;
+    const k = Math.max(0, Math.min(termMonths, Math.floor(paymentsMade || 0)));
+    if (k === 0) return principal;
+    const r = Number.isFinite(aprPercent) && aprPercent > 0 ? aprPercent / 100 / 12 : 0;
+    if (r === 0) return Math.max(0, principal - paymentPerMonth * k);
+    const pow = Math.pow(1 + r, k);
+    const balance = principal * pow - paymentPerMonth * ((pow - 1) / r);
+    return Number.isFinite(balance) ? Math.max(0, balance) : 0;
+  };
+
+  const getStringEntriesFromForm = (form) => {
+    const details = {};
+    const formData = new FormData(form);
+
+    formData.forEach((value, key) => {
+      details[key] = typeof value === 'string' ? value : value.name;
+    });
+
+    const cashNotOptionEl = document.getElementById('cashNotOption');
+    if (cashNotOptionEl instanceof HTMLInputElement && cashNotOptionEl.type === 'checkbox') {
+      details.cashNotOption = cashNotOptionEl.checked ? 'on' : '';
+    }
+
+    // Back-compat (in case older sessions used previous field names)
+    if (details.leaseUpfront && !details.leaseDownPayment) details.leaseDownPayment = details.leaseUpfront;
+    if (details.financeUpfront && !details.financeDownPayment) details.financeDownPayment = details.financeUpfront;
+    if (details.financeResale && !details.financeResaleValue) details.financeResaleValue = details.financeResale;
+
+    return details;
+  };
+
+  const persistForm = (form, opts) => {
+    const details = getStringEntriesFromForm(form);
+    const rawState = localStorage.getItem(STORAGE_KEY);
+    let journeyState = { collectedData: {} };
+    if (rawState) {
+      try {
+        journeyState = JSON.parse(rawState);
+      } catch {
+        journeyState = { collectedData: {} };
+      }
+    }
+    journeyState.collectedData = journeyState.collectedData || {};
+    journeyState.collectedData['replacement-options'] = details;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
+
+    if (opts?.showStatus) {
+      const statusEl = document.getElementById('replacement-status');
+      if (statusEl) {
+        statusEl.textContent = 'Saved ✓';
+        statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
+      }
+    }
+  };
+
+  const toggleCashFields = () => {
     const cashToggle = document.getElementById('cashNotOption');
     const disabled = cashToggle instanceof HTMLInputElement ? cashToggle.checked : false;
-    document.querySelectorAll<HTMLInputElement>('.cash-input').forEach((el) => {
-      el.disabled = disabled;
+    document.querySelectorAll('.cash-input').forEach((el) => {
+      if (el instanceof HTMLInputElement) {
+        el.disabled = disabled;
+      }
     });
   };
 
-  const renderResults = (results: { lease: OptionResult; finance: OptionResult; cash: OptionResult | null }, cashNotOption: boolean, showNpv: boolean = false): void => {
+  const renderResults = (results, cashNotOption, showNpv = false) => {
     const leaseResult = document.getElementById('leaseResult');
     const financeResult = document.getElementById('financeResult');
     const cashResult = document.getElementById('cashResult');
@@ -505,7 +552,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     }
 
     // Compare using NPV if available, otherwise total
-    const comparisons: Array<[OptionKey, OptionResult]> = [
+    const comparisons = [
       ['lease', results.lease],
       ['finance', results.finance],
     ];
@@ -516,7 +563,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     // Sort by NPV if discount rate was used, otherwise by total
     const sortKey = showNpv ? 'npvTotal' : 'total';
     const cheapest = comparisons.sort((a, b) => a[1][sortKey] - b[1][sortKey])[0];
-    const labelMap: Record<OptionKey, string> = {
+    const labelMap = {
       lease: 'New lease',
       finance: 'Finance a new car',
       cash: 'Buy with cash',
@@ -532,24 +579,30 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     wrapper.classList.remove('hidden');
   };
 
-  const hydrateForm = (): void => {
+  const hydrateForm = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    let data: JourneyStorage;
+    let data;
     try {
       data = JSON.parse(saved);
     } catch {
       return;
     }
-    const details = data.collectedData?.['replacement-options'] as ReplacementOptionsDetails | undefined;
+    const details = data && typeof data === 'object' ? data.collectedData?.['replacement-options'] : undefined;
     if (!details) return;
 
-    Object.entries(details).forEach(([key, value]) => {
-      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[name="${key}"]`);
+    // Back-compat: hydrate new fields from older keys if present.
+    const normalized = { ...details };
+    if (normalized.leaseUpfront && !normalized.leaseDownPayment) normalized.leaseDownPayment = normalized.leaseUpfront;
+    if (normalized.financeUpfront && !normalized.financeDownPayment) normalized.financeDownPayment = normalized.financeUpfront;
+    if (normalized.financeResale && !normalized.financeResaleValue) normalized.financeResaleValue = normalized.financeResale;
+
+    Object.entries(normalized).forEach(([key, value]) => {
+      const input = document.querySelector(`[name="${key}"]`);
       if (input instanceof HTMLInputElement && input.type === 'checkbox') {
-        input.checked = value === 'on' || value === true || value === 'true';
-      } else if (input) {
-        input.value = value === undefined || value === null ? '' : String(value);
+        input.checked = value === 'on' || value === 'true';
+      } else if (input && 'value' in input) {
+        input.value = value;
       }
     });
     toggleCashFields();
@@ -557,7 +610,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     if (statusEl) statusEl.textContent = 'Loaded from last session';
   };
 
-  const runComparison = (): void => {
+  const runComparison = () => {
     const formEl = document.getElementById('replacement-form');
     if (!(formEl instanceof HTMLFormElement)) return;
     const formData = new FormData(formEl);
@@ -586,7 +639,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
     const lease = computeOption({
       monthly: parseNumber(formData.get('leaseMonthly')),
-      upfront: parseNumber(formData.get('leaseUpfront')),
+      upfront: parseNumber(formData.get('leaseDownPayment')),
       insurance: parseNumber(formData.get('leaseInsurance')),
       maintenance: parseNumber(formData.get('leaseMaintenance')),
       fuel: parseNumber(formData.get('leaseFuel')),
@@ -600,13 +653,32 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       discountRate,
     });
 
+    const financePrice = parseNumber(formData.get('financePrice'));
+    const financeDownPayment = parseNumber(formData.get('financeDownPayment'));
+    const financeApr = parseNumber(formData.get('financeApr'));
+    const financeTermMonths = parseNumber(formData.get('financeTermMonths'));
+    // Treat incentives as reducing the effective purchase price (and thus the financed principal).
+    const financeEffectivePrice = Math.max(0, financePrice - totalIncentives);
+    const financePrincipal = Math.max(0, financeEffectivePrice - financeDownPayment);
+    const financeMonthlyPayment = computeLoanPayment(financePrincipal, financeApr, financeTermMonths);
+
+    const financeResaleValue = parseNumber(formData.get('financeResaleValue'));
+    const financeRemainingBalanceAtHorizon = computeRemainingLoanBalance(
+      financePrincipal,
+      financeApr,
+      financeTermMonths,
+      horizonMonths,
+      financeMonthlyPayment
+    );
+    const financeNetResaleAtHorizon = Math.max(0, financeResaleValue - financeRemainingBalanceAtHorizon);
+
     const finance = computeOption({
-      monthly: parseNumber(formData.get('financeMonthly')),
-      upfront: parseNumber(formData.get('financeUpfront')),
+      monthly: financeMonthlyPayment,
+      upfront: financeDownPayment,
       insurance: parseNumber(formData.get('financeInsurance')),
       maintenance: parseNumber(formData.get('financeMaintenance')),
       fuel: parseNumber(formData.get('financeFuel')),
-      resale: parseNumber(formData.get('financeResale')),
+      resale: financeNetResaleAtHorizon,
       horizonMonths,
       annualMiles,
       subtractResale: true,
@@ -637,49 +709,34 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     renderResults({ lease, finance, cash: cashPurchase }, cashNotOption, discountRate > 0);
   };
 
-  const saveForm = (event: SubmitEvent): void => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) return;
-    const formData = new FormData(form);
-    const details: ReplacementOptionsDetails = {};
-    formData.forEach((value, key) => {
-      details[key] = typeof value === 'string' ? value : value.name;
-    });
-    if (!details.cashNotOption) {
-      details.cashNotOption = '';
-    }
-
-    const rawState = localStorage.getItem(STORAGE_KEY);
-    let journeyState: JourneyStorage = { collectedData: {} };
-    if (rawState) {
-      try {
-        journeyState = JSON.parse(rawState);
-      } catch {
-        journeyState = { collectedData: {} };
-      }
-    }
-    journeyState.collectedData = journeyState.collectedData || {};
-    journeyState.collectedData['replacement-options'] = details;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
-
-    const statusEl = document.getElementById('replacement-status');
-    if (statusEl) {
-      statusEl.textContent = 'Saved ✓';
-      statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
-    }
-
-    runComparison();
-  };
-
   const calculateButton = document.getElementById('calculate-options');
   if (calculateButton) {
-    calculateButton.addEventListener('click', runComparison);
+    calculateButton.addEventListener('click', () => {
+      const formEl = document.getElementById('replacement-form');
+      if (formEl instanceof HTMLFormElement) {
+        persistForm(formEl, { showStatus: true });
+      }
+      runComparison();
+    });
   }
 
   const formEl = document.getElementById('replacement-form');
   if (formEl instanceof HTMLFormElement) {
-    formEl.addEventListener('submit', saveForm);
+    const scheduleAutosave = debounce(() => persistForm(formEl), 150);
+    formEl.addEventListener('input', scheduleAutosave);
+    formEl.addEventListener('change', scheduleAutosave);
+    formEl.addEventListener('submit', (event) => {
+      event.preventDefault();
+      persistForm(formEl, { showStatus: true });
+      runComparison();
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (formEl.contains(target)) return;
+      persistForm(formEl);
+    });
   }
 
   const cashToggle = document.getElementById('cashNotOption');

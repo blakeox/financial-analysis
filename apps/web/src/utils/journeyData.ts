@@ -413,7 +413,7 @@ export function getJourneyData(): JourneyData {
       models: [
         {
           id: 'lease-profile',
-          name: 'Existing Lease Snapshot',
+          name: 'Lease Profile',
           description:
             'Capture current lease terms, mileage position, cash on hand, and decision goals',
           url: '/journey/auto-lease-decision/step/lease-profile',
@@ -440,7 +440,7 @@ export function getJourneyData(): JourneyData {
         },
         {
           id: 'decision-review',
-          name: 'Decision Scorecard & Next Steps',
+          name: 'Decision Review',
           description: 'Summarize tradeoffs, cash needs, risk factors, and action plan',
           url: '/journey/auto-lease-decision/step/decision-review',
           order: 4,

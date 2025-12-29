@@ -148,6 +148,37 @@ interface AmortizationResponse {
   }>;
 }
 
+interface AutoLoanAnalysisResponse {
+  loanAnalysis: {
+    monthlyPayment: number;
+    totalInterest: number;
+    totalCost: number;
+    effectiveRate: number;
+    payoffDate: string;
+    paymentSchedule: Array<{
+      paymentNumber: number;
+      paymentDate: string;
+      principalPayment: number;
+      interestPayment: number;
+      remainingBalance: number;
+      cumulativeInterest: number;
+    }>;
+  };
+  insights: string[];
+  recommendations: Array<{
+    category: string;
+    priority: 'high' | 'medium' | 'low';
+    description: string;
+    impact: string;
+    action: string;
+  }>;
+  metadata: {
+    calculatedAt: string;
+    version: string;
+    methodology: string;
+  };
+}
+
 describe('API Endpoint Integration Tests', () => {
   let worker: Unstable_DevWorker;
 
@@ -444,6 +475,69 @@ describe('API Endpoint Integration Tests', () => {
         'Expected forecast to include a final month entry'
       );
       expect(finalMonth.employeeCount).toBe(3); // Should include new hire
+    });
+  });
+
+  describe('/v1/api/analysis/auto-loan-analysis endpoint', () => {
+    it('should analyze a basic auto loan', async () => {
+      const request = {
+        vehicle: {
+          make: 'Toyota',
+          model: 'Camry',
+          year: 2024,
+          msrp: 32000,
+          negotiatedPrice: 30000,
+          tradeInValue: 0,
+          downPayment: 5000,
+        },
+        loanTerms: {
+          loanAmount: 25000,
+          interestRate: 0.0549,
+          termMonths: 60,
+          salesTaxRate: 0.0825,
+          fees: {
+            documentationFee: 500,
+            titleFee: 100,
+            registrationFee: 200,
+            otherFees: 0,
+          },
+        },
+        analysis: {
+          includeLeaseComparison: false,
+          includeRefinancingAnalysis: true,
+          includeTCOAnalysis: true,
+          includePaymentSchedule: true,
+          refinancingRates: [0.04, 0.05],
+          ownershipYears: 5,
+        },
+        tcoParameters: {
+          annualMileage: 12000,
+          fuelCostPerGallon: 3.5,
+          mpg: 28,
+          maintenanceCostPerYear: 900,
+          insuranceCostPerYear: 1400,
+          registrationCostPerYear: 120,
+          depreciationRate: 0.15,
+        },
+      };
+
+      const response = await worker.fetch('/v1/api/analysis/auto-loan-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Content-Type')).toContain('application/json');
+
+      const result = (await response.json()) as AutoLoanAnalysisResponse;
+      expect(result.loanAnalysis.monthlyPayment).toBeGreaterThan(0);
+      expect(result.loanAnalysis.paymentSchedule.length).toBe(60);
+      expect(Array.isArray(result.insights)).toBe(true);
+      expect(Array.isArray(result.recommendations)).toBe(true);
+      expect(result.metadata).toBeDefined();
     });
   });
 
