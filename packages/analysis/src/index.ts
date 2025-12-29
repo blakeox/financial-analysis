@@ -138,7 +138,7 @@ export type { AutoLoanResult } from './types/auto-loan-result.js';
 
 // Auto loan analysis engine (comprehensive professional-grade analyzer with lease comparison)
 export { AutoLoanAnalysisEngine } from './engines/auto-loan-analysis.js';
-export { AutoLoanInputSchema as AutoLoanAnalysisInputSchema } from './engines/auto-loan-analysis.js';
+export { AutoLoanAnalysisInputSchema } from './schemas/auto-loan-analysis.js';
 export type { AutoLoanInput as AutoLoanAnalysisInput, AutoLoanResult as AutoLoanAnalysisResult } from './engines/auto-loan-analysis.js';
 
 // Debt payoff schemas and types
