@@ -21,22 +21,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@asteasolutions/zod-to-openapi": "^8.1.0",
+    "@asteasolutions/zod-to-openapi": "^8.2.0",
     "@cloudflare/ai-utils": "^1.0.1",
     "@cloudflare/workers-types": "^4.20251125.0",
     "@financial-analysis/analysis": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
     "itty-router": "^5.0.22",
-    "zod": "^4.1.12"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
-    "@typescript-eslint/parser": "^8.46.4",
+    "@typescript-eslint/parser": "^8.50.0",
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
-    "miniflare": "^4.20251109.1",
-    "prettier": "^3.6.2",
+    "miniflare": "^4.20251217.0",
+    "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "vitest": "4.0.9",
     "wrangler": "^4.50.0"
