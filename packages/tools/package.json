@@ -10,6 +10,7 @@
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
+    "pretest": "pnpm --filter @financial-analysis/analysis build",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -12,77 +12,21 @@
  */
 
 import { Decimal } from 'decimal.js';
-import { z } from 'zod';
+
+import {
+  AutoLoanAnalysisInputSchema,
+  type AutoLoanAnalysisInput,
+} from '../schemas/auto-loan-analysis.js';
 
 // ============================================================================
 // INPUT SCHEMAS
 // ============================================================================
 
-export const AutoLoanInputSchema = z.object({
-  // Vehicle Information
-  vehicle: z.object({
-    make: z.string(),
-    model: z.string(),
-    year: z
-      .number()
-      .min(1990)
-      .max(new Date().getFullYear() + 2),
-    msrp: z.number().min(0),
-    negotiatedPrice: z.number().min(0),
-    tradeInValue: z.number().min(0).default(0),
-    downPayment: z.number().min(0).default(0),
-  }),
+export { AutoLoanAnalysisInputSchema };
 
-  // Loan Terms
-  loanTerms: z.object({
-    loanAmount: z.number().min(0),
-    interestRate: z.number().min(0).max(0.5), // 0-50% APR
-    termMonths: z.number().min(12).max(84), // 1-7 years
-    salesTaxRate: z.number().min(0).max(0.2).default(0.08), // 0-20%
-    fees: z.object({
-      documentationFee: z.number().min(0).default(500),
-      titleFee: z.number().min(0).default(100),
-      registrationFee: z.number().min(0).default(200),
-      otherFees: z.number().min(0).default(0),
-    }),
-  }),
-
-  // Lease Terms (for comparison)
-  leaseTerms: z
-    .object({
-      leaseAmount: z.number().min(0),
-      moneyFactor: z.number().min(0).max(0.01), // 0-0.01 (equivalent to APR/2400)
-      termMonths: z.number().min(24).max(48), // 2-4 years
-      residualValue: z.number().min(0),
-      securityDeposit: z.number().min(0).default(0),
-      acquisitionFee: z.number().min(0).default(1000),
-      dispositionFee: z.number().min(0).default(400),
-    })
-    .optional(),
-
-  // Analysis Parameters
-  analysis: z.object({
-    includeLeaseComparison: z.boolean().default(true),
-    includeRefinancingAnalysis: z.boolean().default(true),
-    includeTCOAnalysis: z.boolean().default(true),
-    includePaymentSchedule: z.boolean().default(true),
-    refinancingRates: z.array(z.number()).default([0.03, 0.04, 0.05, 0.06]),
-    ownershipYears: z.number().min(1).max(10).default(5),
-  }),
-
-  // TCO Parameters
-  tcoParameters: z.object({
-    annualMileage: z.number().min(0).default(12000),
-    fuelCostPerGallon: z.number().min(0).default(3.5),
-    mpg: z.number().min(0).default(25),
-    maintenanceCostPerYear: z.number().min(0).default(1000),
-    insuranceCostPerYear: z.number().min(0).default(1200),
-    registrationCostPerYear: z.number().min(0).default(100),
-    depreciationRate: z.number().min(0).max(1).default(0.15), // 15% per year
-  }),
-});
-
-export type AutoLoanInput = z.infer<typeof AutoLoanInputSchema>;
+// Back-compat exports (existing consumers import these from this module)
+export const AutoLoanInputSchema = AutoLoanAnalysisInputSchema;
+export type AutoLoanInput = AutoLoanAnalysisInput;
 
 const formatISODate = (date: Date): string => date.toISOString().slice(0, 10);
 
@@ -91,7 +35,6 @@ const formatISODate = (date: Date): string => date.toISOString().slice(0, 10);
 // ============================================================================
 
 export interface AutoLoanResult {
-  // Loan Analysis
   loanAnalysis: {
     monthlyPayment: number;
     totalInterest: number;
@@ -108,7 +51,6 @@ export interface AutoLoanResult {
     }>;
   };
 
-  // Lease Analysis (if included)
   leaseAnalysis?: {
     monthlyPayment: number;
     totalPayments: number;
@@ -119,7 +61,6 @@ export interface AutoLoanResult {
     totalCostIfPurchased: number;
   };
 
-  // Comparison Analysis
   comparison?: {
     loanVsLease: {
       monthlyPaymentDifference: number;
@@ -130,7 +71,6 @@ export interface AutoLoanResult {
     };
   };
 
-  // Refinancing Analysis (if included)
   refinancingAnalysis?: {
     scenarios: Array<{
       newRate: number;
@@ -147,7 +87,6 @@ export interface AutoLoanResult {
     };
   };
 
-  // Total Cost of Ownership
   tcoAnalysis?: {
     ownershipYears: number;
     totalCostOfOwnership: number;
@@ -166,7 +105,6 @@ export interface AutoLoanResult {
     residualValue: number;
   };
 
-  // Insights and Recommendations
   insights: string[];
   recommendations: Array<{
     category: string;
@@ -176,7 +114,6 @@ export interface AutoLoanResult {
     action: string;
   }>;
 
-  // Metadata
   metadata: {
     calculatedAt: string;
     version: string;

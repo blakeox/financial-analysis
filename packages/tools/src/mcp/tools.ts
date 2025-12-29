@@ -1,5 +1,6 @@
 import { EmployerMatch401kTool } from '../tools/401k-match.js';
 import { AmortizationTool } from '../tools/amortization.js';
+import { AutoLoanAnalysisTool } from '../tools/auto-loan-analysis.js';
 import { AutoLoanTool } from '../tools/auto-loan.js';
 import {
   CacheDocumentTool,
@@ -154,6 +155,12 @@ export function createMCPTools(): MCPTool[] {
       description: AutoLoanTool.description,
       inputSchema: AutoLoanTool.inputSchema,
       execute: AutoLoanTool.execute.bind(AutoLoanTool),
+    },
+    {
+      name: AutoLoanAnalysisTool.toolName,
+      description: AutoLoanAnalysisTool.description,
+      inputSchema: AutoLoanAnalysisTool.inputSchema,
+      execute: AutoLoanAnalysisTool.execute.bind(AutoLoanAnalysisTool),
     },
     {
       name: DebtPayoffTool.toolName,

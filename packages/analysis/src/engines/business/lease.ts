@@ -25,11 +25,11 @@ export class LeaseAnalyzer {
   static analyze(input: z.infer<typeof LeaseInputSchema>): LeaseAnalysisResult {
     const validated = LeaseInputSchema.parse(input);
     const { principal, annualRate, termMonths, residualValue } = validated;
-    const monthlyRate = annualRate / 12;
+    const monthlyRate = new Decimal(annualRate).div(12);
 
     let monthlyPayment: number;
 
-    if (monthlyRate === 0) {
+    if (monthlyRate.eq(0)) {
       // Zero interest rate: simple division
       monthlyPayment = Number(
         new Decimal(principal - residualValue).div(termMonths).toFixed(2)
@@ -41,7 +41,7 @@ export class LeaseAnalyzer {
       // where r = monthlyRate, n = termMonths
       const pv = new Decimal(principal);
       const fv = new Decimal(residualValue);
-      const r = new Decimal(monthlyRate);
+      const r = monthlyRate;
       const n = new Decimal(termMonths);
       const one = new Decimal(1);
       const denom = one.minus(one.plus(r).pow(n.neg()));
@@ -51,33 +51,46 @@ export class LeaseAnalyzer {
     }
 
     const schedule: LeaseAnalysisResult['schedule'] = [];
-    let balance = principal;
+    let balance = new Decimal(principal);
+    const residual = new Decimal(residualValue);
+    const monthlyPaymentDecimal = new Decimal(monthlyPayment);
+    let totalPayments = new Decimal(0);
+    let totalInterest = new Decimal(0);
 
     for (let month = 1; month <= termMonths; month++) {
-      const interest = balance * monthlyRate;
-      let principalPayment = monthlyPayment - interest;
-      // On last payment, adjust for residual value
+      const interest = balance.times(monthlyRate);
+      let principalPayment = monthlyPaymentDecimal.minus(interest);
+      let payment = monthlyPaymentDecimal;
+
+      // On last payment, adjust to land exactly on residual.
+      // This can make the last payment differ slightly due to rounding.
       if (month === termMonths) {
-        principalPayment = balance - residualValue;
+        principalPayment = balance.minus(residual);
+        payment = interest.plus(principalPayment);
       }
-      balance = balance - principalPayment;
+
+      balance = balance.minus(principalPayment);
+
+      const paymentRounded = new Decimal(payment.toFixed(2));
+      const interestRounded = new Decimal(interest.toFixed(2));
+      const principalRounded = new Decimal(principalPayment.toFixed(2));
+
+      totalPayments = totalPayments.plus(paymentRounded);
+      totalInterest = totalInterest.plus(interestRounded);
 
       schedule.push({
         month,
-        payment: monthlyPayment,
-        principal: Number(new Decimal(principalPayment).toFixed(2)),
-        interest: Number(new Decimal(interest).toFixed(2)),
-        balance: Number(new Decimal(Math.max(0, balance)).toFixed(2)),
+        payment: Number(paymentRounded.toFixed(2)),
+        principal: Number(principalRounded.toFixed(2)),
+        interest: Number(interestRounded.toFixed(2)),
+        balance: Number(Decimal.max(residual, balance).toFixed(2)),
       });
     }
 
-    const totalPayments = monthlyPayment * termMonths;
-    const totalInterest = totalPayments - (principal - residualValue);
-
     return {
       monthlyPayment: Number(new Decimal(monthlyPayment).toFixed(2)),
-      totalPayments: Number(new Decimal(totalPayments).toFixed(2)),
-      totalInterest: Number(new Decimal(totalInterest).toFixed(2)),
+      totalPayments: Number(totalPayments.toFixed(2)),
+      totalInterest: Number(totalInterest.toFixed(2)),
       schedule,
     };
   }
