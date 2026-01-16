@@ -3,6 +3,15 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import { CALCULATOR_CONFIGS, generateFormHTMLWithValidation } from '../components/CalculatorTemplate';
+
+const config = CALCULATOR_CONFIGS['ma-analysis'];
+
+if (!config) {
+  throw new Error('Calculator configuration not found for ma-analysis');
+}
+
+const formHTML = generateFormHTMLWithValidation(config.formFields);
 ---
 
 <Layout 
@@ -38,241 +47,97 @@ import Layout from '../layouts/Layout.astro';
     type="faq" 
     faqs={[
       {
-        question: 'What is M&A analysis and why is it important?',
-        answer: 'M&A analysis evaluates mergers and acquisitions to determine deal value, synergies, accretion/dilution impact, and integration risks. It helps acquirers make informed decisions about whether a deal creates value and at what price.'
+        question: 'What does this M&A calculator analyze?',
+        answer:
+          'This calculator models an M&A transaction using deal terms, company financials, expected synergies, and integration costs to estimate value creation and key deal metrics.'
       },
       {
-        question: 'What are synergies in M&A?',
-        answer: 'Synergies are cost savings or revenue enhancements from combining companies. Cost synergies come from eliminating duplicate functions, while revenue synergies come from cross-selling, expanded markets, or complementary products. Our tool analyzes both types.'
+        question: 'What inputs do I need for a professional M&A analysis?',
+        answer:
+          'At minimum: purchase price, cash/stock mix, acquirer and target revenue/EBITDA/net income, shares and current prices, synergy estimates, and integration costs. Advanced assumptions refine discount rates, tax rates, and realization timing.'
       },
       {
-        question: 'What is accretion/dilution analysis?',
-        answer: 'Accretion/dilution measures how a deal affects earnings per share (EPS). A deal is accretive if it increases EPS and dilutive if it decreases EPS. This is critical for stock-for-stock deals where EPS impact affects shareholder value.'
+        question: 'How do synergies and integration costs affect the result?',
+        answer:
+          'Synergies increase combined cash flows and value, while integration costs reduce near-term benefits. Realistic timing and probability assumptions help avoid overstating value creation.'
       },
       {
-        question: 'How do I calculate deal value?',
-        answer: 'Deal value includes purchase price, assumed debt, transaction costs, and integration expenses. Our calculator considers all components and provides comprehensive value creation analysis including NPV of synergies and break-even analysis.'
+        question: 'What is accretion/dilution?',
+        answer:
+          'Accretion/dilution measures whether the combined company’s earnings per share (EPS) increases (accretive) or decreases (dilutive) after the deal, based on financing mix, purchase price, and expected benefits.'
       },
       {
-        question: 'What integration risks should I consider?',
-        answer: 'Key risks include cultural differences, technology integration challenges, customer retention, employee retention, regulatory issues, and execution delays. Our tool includes risk assessment and integration planning capabilities.'
+        question: 'Is this financial advice?',
+        answer:
+          'No. Results are for educational modeling purposes and depend heavily on assumptions. For investment decisions, consult qualified professionals.'
       }
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">M&A Analysis</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Comprehensive merger and acquisition deal analysis with synergy modeling and value creation
-      </p>
-
-      <!-- M&A Analysis Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Transaction Information</h2>
-
-        <form id="ma-analysis-form" class="space-y-6">
-          <!-- Transaction Details -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <div class="flex items-center mb-4">
+            <span class="text-3xl mr-3">{config.icon}</span>
             <div>
-              <label for="acquirer" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Acquirer Company
-              </label>
-              <input
-                type="text"
-                id="acquirer"
-                name="acquirer"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Acquirer Inc."
-                required
-              />
-            </div>
-
-            <div>
-              <label for="target" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Target Company
-              </label>
-              <input
-                type="text"
-                id="target"
-                name="target"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Target Corp."
-                required
-              />
-            </div>
-
-            <div>
-              <label for="transactionType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Transaction Type
-              </label>
-              <select
-                id="transactionType"
-                name="transactionType"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="acquisition">Acquisition</option>
-                <option value="merger">Merger</option>
-                <option value="divestiture">Divestiture</option>
-                <option value="spin-off">Spin-Off</option>
-                <option value="joint-venture">Joint Venture</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="purchasePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Purchase Price ($)
-              </label>
-              <input
-                type="number"
-                id="purchasePrice"
-                name="purchasePrice"
-                min="0"
-                step="1000000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100000000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="premium" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Premium (%)
-              </label>
-              <input
-                type="number"
-                id="premium"
-                name="premium"
-                min="0"
-                max="100"
-                step="0.1"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="20"
-              />
-            </div>
-          </div>
-
-          <!-- Financial Data Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Data</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="acquirerRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Acquirer Revenue ($)
-                </label>
-                <input
-                  type="number"
-                  id="acquirerRevenue"
-                  name="acquirerRevenue"
-                  min="0"
-                  step="1000000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="500000000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="acquirerEbitda" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Acquirer EBITDA ($)
-                </label>
-                <input
-                  type="number"
-                  id="acquirerEbitda"
-                  name="acquirerEbitda"
-                  step="1000000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="100000000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="targetRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Target Revenue ($)
-                </label>
-                <input
-                  type="number"
-                  id="targetRevenue"
-                  name="targetRevenue"
-                  min="0"
-                  step="1000000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="200000000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="targetEbitda" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Target EBITDA ($)
-                </label>
-                <input
-                  type="number"
-                  id="targetEbitda"
-                  name="targetEbitda"
-                  step="1000000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="40000000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="synergies" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Expected Synergies ($)
-                </label>
-                <input
-                  type="number"
-                  id="synergies"
-                  name="synergies"
-                  min="0"
-                  step="1000000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="integrationCosts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Integration Costs ($)
-                </label>
-                <input
-                  type="number"
-                  id="integrationCosts"
-                  name="integrationCosts"
-                  min="0"
-                  step="1000000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{config.title}</h1>
+              <p class="text-gray-600 dark:text-gray-400">{config.description}</p>
+              <div class="mt-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  Business Finance
+                </span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Analyze M&A Deal
-            </button>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <div id="calculator-form-container">
+            <Fragment set:html={formHTML} />
           </div>
-        </form>
+
+          <div id="loading-state" class="hidden text-center py-8">
+            <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-blue-500 hover:bg-blue-400 transition ease-in-out duration-150 cursor-not-allowed">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Calculating...
+            </div>
+          </div>
+
+          <div id="error-state" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+            <div class="flex">
+              <div class="shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+                <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                  <p id="error-message"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="results-section" class="mt-6 hidden">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Analysis Results</h2>
+            <div id="summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+            <div id="results-container" class="hidden"></div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+        </div>
       </div>
-
-      <!-- Results Section -->
-      <div id="ma-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">M&A Analysis Results</h2>
-        <div id="ma-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
     </div>
-  </div>
+  </main>
 
   <ClientScriptLoader client:load slot="pageScripts" name="ma-analysis" />
 </Layout>
