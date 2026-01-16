@@ -30,6 +30,12 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'dist/', '**/*.d.ts'],
+      thresholds: {
+        branches: 60,
+        statements: 70,
+        functions: 60,
+        lines: 70,
+      },
     },
   },
 });
