@@ -295,7 +295,7 @@ export class RealOptionsAnalyzer {
   private static generateRecommendation(npv: number, optionValue: number, optionType: string): string {
     const totalValue = npv + optionValue;
 
-    if (totalValue > 0) {
+    if (totalValue > 0 && npv >= 0) {
       return `Strong recommendation to proceed. The project has positive value including ${optionType} flexibility worth $${optionValue.toFixed(2)}.`;
     } else if (optionValue > Math.abs(npv)) {
       return `Consider proceeding due to significant ${optionType} value ($${optionValue.toFixed(2)}) that offsets negative NPV.`;

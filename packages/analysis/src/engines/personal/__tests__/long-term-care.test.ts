@@ -77,5 +77,79 @@ describe('LongTermCareCalculator', () => {
     expect(result.careCostAnalysis).toBeDefined();
     expect(result.careCostAnalysis.lifetimeCost).toBeGreaterThan(0);
   });
+
+  it('should analyze insurance when policy details are provided', () => {
+    const result = LongTermCareCalculator.analyze({
+      ...baseInput,
+      insuranceOptions: {
+        hasLTCInsurance: true,
+        policyDetails: {
+          dailyBenefit: 200,
+          benefitPeriod: 3,
+          inflationProtection: true,
+          eliminationPeriod: 90,
+          annualPremium: 1000,
+        },
+      },
+    }) as any;
+
+    expect(result.insuranceAnalysis).toBeDefined();
+    expect(result.insuranceAnalysis.coverageAmount).toBeGreaterThan(0);
+    expect(result.recommendations.join(' ')).toContain('positive net benefit');
+  });
+
+  it('should compute hybrid strategy coverage when selected', () => {
+    const result = LongTermCareCalculator.analyze({
+      ...baseInput,
+      insuranceOptions: {
+        hasLTCInsurance: true,
+        policyDetails: {
+          dailyBenefit: 150,
+          benefitPeriod: 2,
+          inflationProtection: false,
+          eliminationPeriod: 90,
+          annualPremium: 2000,
+        },
+      },
+      strategy: {
+        fundingMethod: 'hybrid',
+      },
+    }) as any;
+
+    expect(result.hybridAnalysis).toBeDefined();
+    expect(result.hybridAnalysis.coveragePercentage).toBeGreaterThan(0);
+  });
+
+  it('should recommend insurance when self-funding has a shortfall', () => {
+    const result = LongTermCareCalculator.analyze({
+      ...baseInput,
+      strategy: {
+        fundingMethod: 'self-fund',
+      },
+      financialResources: {
+        ...baseInput.financialResources,
+        currentAssets: 100000,
+        expectedRetirementAssets: 0,
+      },
+    }) as any;
+
+    expect(result.recommendations.join(' ')).toContain('Self-funding shortfall');
+  });
+
+  it('should cap self-funding coverage at 100%', () => {
+    const result = LongTermCareCalculator.analyze({
+      ...baseInput,
+      financialResources: {
+        ...baseInput.financialResources,
+        currentAssets: 10000000,
+        expectedRetirementAssets: 10000000,
+      },
+      strategy: {
+        fundingMethod: 'self-fund',
+      },
+    }) as any;
+
+    expect(result.selfFundingAnalysis.coveragePercentage).toBe(100);
+  });
 });
 

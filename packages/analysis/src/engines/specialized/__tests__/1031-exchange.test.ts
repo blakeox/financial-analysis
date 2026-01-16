@@ -98,5 +98,80 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
     expect(result.comparison).toBeDefined();
     expect(result.recommendations).toBeDefined();
   });
+
+  it('should flag low tax savings and boot tax recommendations', () => {
+    const result = OneZeroThreeOneExchangeAnalyzer.analyze({
+      ...baseInput,
+      relinquishedProperty: {
+        ...baseInput.relinquishedProperty,
+        sellingPrice: 505000,
+        adjustedBasis: 500000,
+        accumulatedDepreciation: 0,
+      },
+      boot: {
+        ...baseInput.boot,
+        cashReceived: 10000,
+        totalBoot: 10000,
+      },
+      exchangeTimeline: {
+        ...baseInput.exchangeTimeline,
+        qualifiedIntermediary: false,
+      },
+    });
+
+    expect(result.comparison?.recommendation).toBe('Tax savings may not justify exchange complexity');
+    expect(result.recommendations).toContain('Tax on boot received: $2500');
+    expect(result.recommendations).toContain('CRITICAL: Use qualified intermediary for valid exchange');
+  });
+
+  it('should omit optional analyses when flags are disabled', () => {
+    const result = OneZeroThreeOneExchangeAnalyzer.analyze({
+      ...baseInput,
+      analysis: {
+        ...baseInput.analysis,
+        includeTaxDeferral: false,
+        includeDepreciationRecapture: false,
+        includeBootAnalysis: false,
+        includeComparison: false,
+      },
+    });
+
+    expect(result.taxDeferral).toBeUndefined();
+    expect(result.depreciationRecapture).toBeUndefined();
+    expect(result.bootAnalysis).toBeUndefined();
+    expect(result.comparison).toBeUndefined();
+    expect(result.recommendations).toContain('Identification deadline: 2024-02-15');
+  });
+
+  it('should keep default recommendation when tax savings are large', () => {
+    const result = OneZeroThreeOneExchangeAnalyzer.analyze({
+      ...baseInput,
+      relinquishedProperty: {
+        ...baseInput.relinquishedProperty,
+        sellingPrice: 700000,
+        adjustedBasis: 400000,
+      },
+      boot: {
+        ...baseInput.boot,
+        totalBoot: 50000,
+      },
+    });
+
+    expect(result.comparison?.recommendation).toBe('1031 exchange provides significant tax deferral');
+  });
+
+  it('should handle comparison without tax deferral', () => {
+    const result = OneZeroThreeOneExchangeAnalyzer.analyze({
+      ...baseInput,
+      analysis: {
+        ...baseInput.analysis,
+        includeTaxDeferral: false,
+        includeComparison: true,
+      },
+    });
+
+    expect(result.taxDeferral).toBeUndefined();
+    expect(result.comparison?.taxWithExchange).toBe(0);
+  });
 });
 

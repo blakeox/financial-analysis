@@ -62,4 +62,76 @@ describe('RefinancingCalculator', () => {
     expect(result.netBenefit).toBeDefined();
     expect(result.netBenefit.netSavings).toBeDefined();
   });
+
+  it('should recommend excellent break-even for shorter-term goals', () => {
+    const result = RefinancingCalculator.analyze({
+      ...baseInput,
+      newMortgage: {
+        ...baseInput.newMortgage,
+        interestRate: 0.03,
+      },
+      costs: {
+        ...baseInput.costs,
+        closingCosts: 1000,
+      },
+      goals: {
+        priority: 'shorter-term',
+        includeBreakEvenAnalysis: true,
+      },
+    });
+
+    expect(result.breakEvenAnalysis?.breakEvenMonths).toBeLessThan(24);
+    expect(result.recommendations.some((item) => item.includes('Excellent break-even point'))).toBe(true);
+    expect(
+      result.recommendations.some((item) =>
+        item.includes('Refinancing to shorter term will save significant interest')
+      )
+    ).toBe(true);
+  });
+
+  it('should recommend mid-range break-even timing', () => {
+    const result = RefinancingCalculator.analyze({
+      ...baseInput,
+      newMortgage: {
+        ...baseInput.newMortgage,
+        interestRate: 0.045,
+      },
+      costs: {
+        ...baseInput.costs,
+        closingCosts: 8000,
+      },
+    });
+
+    expect(result.breakEvenAnalysis?.breakEvenMonths).toBeGreaterThanOrEqual(24);
+    expect(result.breakEvenAnalysis?.breakEvenMonths).toBeLessThan(60);
+    expect(
+      result.recommendations.some((item) =>
+        item.includes('consider if you plan to stay in home longer')
+      )
+    ).toBe(true);
+  });
+
+  it('should warn on long break-even with negative savings', () => {
+    const result = RefinancingCalculator.analyze({
+      ...baseInput,
+      newMortgage: {
+        ...baseInput.newMortgage,
+        interestRate: 0.06,
+      },
+      costs: {
+        ...baseInput.costs,
+        closingCosts: 10000,
+      },
+    });
+
+    expect(result.breakEvenAnalysis?.breakEvenMonths).toBeGreaterThanOrEqual(60);
+    expect(result.breakEvenAnalysis?.monthlySavings).toBeLessThanOrEqual(0);
+    expect(
+      result.recommendations.some((item) =>
+        item.includes('may not be worth refinancing unless staying long-term')
+      )
+    ).toBe(true);
+    expect(result.recommendations.some((item) => item.includes('Total net savings:'))).toBe(false);
+    expect(result.recommendations.some((item) => item.includes('Total interest savings:'))).toBe(false);
+  });
 });

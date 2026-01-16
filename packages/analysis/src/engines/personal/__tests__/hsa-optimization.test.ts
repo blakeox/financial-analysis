@@ -70,5 +70,67 @@ describe('HSAOptimizer', () => {
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
   });
+
+  it('handles family catch-up limits with employer overage', () => {
+    const result = HSAOptimizer.analyze({
+      ...baseInput,
+      personalInfo: {
+        ...baseInput.personalInfo,
+        age: 60,
+        filingStatus: 'married-joint',
+      },
+      hsaDetails: {
+        ...baseInput.hsaDetails,
+        employerContribution: 12000,
+      },
+    });
+
+    expect(result.contributionOptimization.catchUp).toBe(1000);
+    expect(result.contributionOptimization.total).toBe(9300);
+    expect(result.contributionOptimization.personalContribution).toBe(0);
+  });
+
+  it('adds retirement healthcare recommendations for low coverage', () => {
+    const result = HSAOptimizer.analyze({
+      ...baseInput,
+      medicalExpenses: {
+        ...baseInput.medicalExpenses,
+        expectedRetirementMedicalCosts: 0,
+      },
+      strategy: {
+        optimizeFor: 'retirement-healthcare',
+        useForCurrentExpenses: true,
+        saveReceipts: true,
+      },
+    });
+
+    expect(result.retirementAnalysis.coveragePercentage).toBe(0);
+    expect(result.retirementAnalysis.recommendations).toEqual(
+      expect.arrayContaining([
+        'Consider increasing HSA contributions to better cover retirement healthcare costs',
+        'Consider saving receipts for future reimbursement to maximize tax-free growth',
+      ])
+    );
+    expect(result.recommendations).toEqual(
+      expect.arrayContaining([
+        'Focus on maximizing contributions for retirement healthcare planning',
+        'Save medical receipts for future tax-free reimbursement',
+      ])
+    );
+  });
+
+  it('omits receipt recommendation when saveReceipts is false', () => {
+    const result = HSAOptimizer.analyze({
+      ...baseInput,
+      strategy: {
+        ...baseInput.strategy,
+        saveReceipts: false,
+      },
+    });
+
+    expect(result.recommendations).not.toEqual(
+      expect.arrayContaining(['Save medical receipts for future tax-free reimbursement'])
+    );
+  });
 });
 

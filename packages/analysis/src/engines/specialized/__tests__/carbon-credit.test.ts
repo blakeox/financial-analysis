@@ -20,6 +20,19 @@ describe('CarbonCreditValuationCalculator', () => {
     expect(result.presentValue).toBeCloseTo(2195, 0);
   });
 
+  it('returns NaN present value when discount factor is non-positive', () => {
+    const input: CarbonCreditValuationInput = {
+      tonnesCO2e: 50,
+      pricePerTonne: 30,
+      yearsUntilSale: 1,
+      priceGrowthRate: 0,
+      discountRate: -1,
+    };
+
+    const result = CarbonCreditValuationCalculator.analyze(input);
+    expect(Number.isNaN(result.presentValue)).toBe(true);
+  });
+
   describe('Comprehensive Analysis', () => {
     it('should return all required fields in the analysis result', () => {
       const input: CarbonCreditValuationInput = {

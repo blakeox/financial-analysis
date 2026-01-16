@@ -207,10 +207,19 @@ function normalizeLegacyInput(input: LegacyInternationalTaxPlanningInput): Inter
 export const InternationalTaxPlanningCalculator = {
   analyze(input: unknown) {
     const legacy = input as LegacyInternationalTaxPlanningInput;
-    const normalizedInput: InternationalTaxPlanningInput =
-      legacy && typeof legacy === 'object' && 'foreignIncome' in legacy
-        ? (legacy as unknown as InternationalTaxPlanningInput)
-        : normalizeLegacyInput(legacy);
+    const isNormalizedInput =
+      legacy &&
+      typeof legacy === 'object' &&
+      'foreignIncome' in legacy &&
+      'feie' in legacy &&
+      'foreignTaxCredit' in legacy &&
+      'foreignAssets' in legacy &&
+      'taxTreaties' in legacy &&
+      'analysis' in legacy;
+
+    const normalizedInput: InternationalTaxPlanningInput = isNormalizedInput
+      ? (legacy as unknown as InternationalTaxPlanningInput)
+      : normalizeLegacyInput(legacy);
 
     const result = InternationalTaxPlanningOptimizer.analyze(normalizedInput);
 

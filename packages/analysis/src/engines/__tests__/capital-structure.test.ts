@@ -68,4 +68,101 @@ describe('CapitalStructureOptimizer', () => {
     expect(result.creditRatingImpact).toBeDefined();
     expect(result.creditRatingImpact?.projectedRating).toBeDefined();
   });
+
+  it('should fall back to rating-based cost of debt when interest expense is zero', () => {
+    const result = CapitalStructureOptimizer.analyze({
+      ...baseInput,
+      financials: {
+        ...baseInput.financials,
+        annualInterestExpense: 0,
+      },
+      marketData: {
+        ...baseInput.marketData,
+        creditRating: 'BB',
+      },
+    });
+
+    expect(result.wacc.costOfDebt).toBeCloseTo(0.07, 4);
+    expect(result.wacc.wacc).toBeGreaterThan(0);
+  });
+
+  it('should expose dividend policy recommendations when enabled', () => {
+    const result = CapitalStructureOptimizer.analyze({
+      ...baseInput,
+      analysis: {
+        includeWACCOptimization: false,
+        includeDebtCapacity: false,
+        includeCreditRatingImpact: false,
+        includeDividendPolicy: true,
+      },
+    }) as any;
+
+    expect(result.dividendPolicy).toBeDefined();
+    expect(result.dividendPolicy.recommendations.length).toBeGreaterThan(0);
+  });
+
+  it('should mark high leverage as BB and note downgrade risk', () => {
+    const result = CapitalStructureOptimizer.analyze({
+      ...baseInput,
+      companyInfo: {
+        ...baseInput.companyInfo,
+        currentDebt: 2000000000,
+        marketCap: 1000000000,
+      },
+      analysis: {
+        includeWACCOptimization: true,
+        includeDebtCapacity: false,
+        includeCreditRatingImpact: true,
+        includeDividendPolicy: false,
+      },
+    }) as any;
+
+    expect(result.creditRatingImpact.projectedRating).toBe('BB');
+    expect(result.creditRatingImpact.ratingFactors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          factor: 'High Debt-to-Equity',
+        }),
+      ])
+    );
+    expect(result.optimalStructure.reasoning).toContain('credit rating');
+  });
+
+  it('should omit optional analyses when disabled', () => {
+    const result = CapitalStructureOptimizer.analyze({
+      ...baseInput,
+      analysis: {
+        includeWACCOptimization: false,
+        includeDebtCapacity: false,
+        includeCreditRatingImpact: false,
+        includeDividendPolicy: false,
+      },
+    }) as any;
+
+    expect(result.waccOptimization).toBeUndefined();
+    expect(result.debtCapacity).toBeUndefined();
+    expect(result.creditRatingImpact).toBeUndefined();
+    expect(result.dividendPolicy).toBeUndefined();
+    expect(result.optimalStructure).toBeDefined();
+  });
+
+  it('should handle zero equity without crashing', () => {
+    const result = CapitalStructureOptimizer.analyze({
+      ...baseInput,
+      companyInfo: {
+        ...baseInput.companyInfo,
+        marketCap: 0,
+        currentDebt: 100000000,
+      },
+      analysis: {
+        includeWACCOptimization: false,
+        includeDebtCapacity: true,
+        includeCreditRatingImpact: true,
+        includeDividendPolicy: false,
+      },
+    }) as any;
+
+    expect(result.currentStructure.debtToEquity).toBe(999);
+    expect(result.debtCapacity).toBeDefined();
+  });
 });

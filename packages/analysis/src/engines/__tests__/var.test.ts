@@ -2,7 +2,7 @@
  * VaR Calculator Tests
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { VaRInputSchema } from '../../schemas/var.js';
 import { VaRCalculator } from '../var.js';
 
@@ -69,5 +69,73 @@ describe('VaRCalculator', () => {
     const result = VaRCalculator.analyze(stressInput) as any;
     expect(result.stressTesting).toBeDefined();
     expect(result.stressTesting?.scenarios.length).toBeGreaterThan(0);
+    expect(result.recommendations.some((rec: string) => rec.includes('Maximum stress VaR'))).toBe(true);
+  });
+
+  it('falls back to Monte Carlo when historical returns are missing', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const input = VaRInputSchema.parse({
+      ...baseInput,
+      parameters: { ...baseInput.parameters, method: 'historical' },
+      marketData: {},
+    });
+    const result = VaRCalculator.analyze(input) as any;
+    expect(result.varResult.method).toBe('Monte Carlo Simulation');
+    expect(result.varResult.varValue).toBeGreaterThan(0);
+    randomSpy.mockRestore();
+  });
+
+  it('uses default volatility and 99% z-score in parametric VaR', () => {
+    const input = VaRInputSchema.parse({
+      ...baseInput,
+      parameters: { ...baseInput.parameters, method: 'parametric', confidenceLevel: 0.99, timeHorizon: 252 },
+      marketData: { volatilities: [] },
+    });
+
+    const result = VaRCalculator.analyze(input) as any;
+    expect(result.varResult.varValue).toBeCloseTo(25000 * 0.15 * 2.33, 2);
+  });
+
+  it('uses fallback z-score for non-95/99 confidence', () => {
+    const input = VaRInputSchema.parse({
+      ...baseInput,
+      parameters: { ...baseInput.parameters, method: 'parametric', confidenceLevel: 0.9, timeHorizon: 252 },
+      marketData: { volatilities: [0.1] },
+    });
+
+    const result = VaRCalculator.analyze(input) as any;
+    expect(result.varResult.varValue).toBeCloseTo(25000 * 0.1 * 1.96, 2);
+  });
+
+  it('handles backtesting with empty historical returns', () => {
+    const input = VaRInputSchema.parse({
+      ...baseInput,
+      analysis: { ...baseInput.analysis, includeBacktesting: true },
+      marketData: { historicalReturns: [] },
+    });
+
+    const result = VaRCalculator.analyze(input) as any;
+    expect(result.backtesting).toBeDefined();
+    expect(result.backtesting.violationRate).toBe(0);
+    expect(result.backtesting.backtestResult).toBe('VaR model appears accurate');
+  });
+
+  it('flags recalibration when backtesting violations exceed expectations', () => {
+    const input = VaRInputSchema.parse({
+      ...baseInput,
+      parameters: { ...baseInput.parameters, method: 'parametric' },
+      analysis: { ...baseInput.analysis, includeBacktesting: true },
+      marketData: {
+        historicalReturns: [
+          -0.02, -0.018, -0.017, -0.016, -0.015, -0.014, -0.013, -0.012, -0.011, -0.01,
+          -0.009, -0.008, -0.007, -0.006, -0.005, -0.004, -0.003, -0.002, -0.001, 0.001,
+        ],
+        volatilities: [0.01],
+      },
+    });
+
+    const result = VaRCalculator.analyze(input) as any;
+    expect(result.backtesting.violations).toBeGreaterThan(2);
+    expect(result.backtesting.backtestResult).toBe('VaR model may underestimate risk - consider recalibration');
   });
 });

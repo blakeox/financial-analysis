@@ -29,6 +29,9 @@ describe('EmergencyFundCalculator', () => {
     },
   };
 
+  const cloneInput = (): EmergencyFundInput =>
+    JSON.parse(JSON.stringify(baseInput)) as EmergencyFundInput;
+
   it('should calculate target emergency fund', () => {
     const result = EmergencyFundCalculator.analyze(baseInput);
     expect(result).toBeDefined();
@@ -54,5 +57,50 @@ describe('EmergencyFundCalculator', () => {
     expect(result.scenarios?.conservative).toBeDefined();
     expect(result.scenarios?.moderate).toBeDefined();
     expect(result.scenarios?.aggressive).toBeDefined();
+  });
+
+  it('adjusts target for dependents and self-employment', () => {
+    const input = cloneInput();
+    input.currentSituation.dependents = 2;
+    input.currentSituation.employmentStatus = 'self-employed';
+
+    const result = EmergencyFundCalculator.analyze(input);
+    expect(result.targetFund.monthlyExpenses).toBeCloseTo(9500, 6);
+    expect(result.targetFund.targetAmount).toBeCloseTo(57000, 6);
+    expect(result.targetFund.interpretation).toContain('Adequate');
+  });
+
+  it('flags below-minimum targets for low month goals', () => {
+    const input = cloneInput();
+    input.goals.targetMonths = 2;
+
+    const result = EmergencyFundCalculator.analyze(input);
+    expect(result.targetFund.interpretation).toContain('Below recommended minimum');
+  });
+
+  it('omits timeline and scenarios when disabled', () => {
+    const input = cloneInput();
+    input.analysis.includeTimeline = false;
+    input.analysis.includeScenarios = false;
+
+    const result = EmergencyFundCalculator.analyze(input);
+    expect(result.buildTimeline).toBeUndefined();
+    expect(result.scenarios).toBeUndefined();
+    expect(result.withdrawalScenarios).toBeDefined();
+  });
+
+  it('marks target met and includes quick-build guidance when on track', () => {
+    const input = cloneInput();
+    input.goals.priority = 'build-quickly';
+    input.currentSituation.currentEmergencyFund = 40000;
+    input.analysis.includeTimeline = true;
+
+    const result = EmergencyFundCalculator.analyze(input);
+    expect(result.summary.onTrack).toBe(true);
+    expect(result.buildTimeline?.monthsToBuild).toBe(999);
+    expect(result.recommendations).toContain('✅ Emergency fund target met!');
+    expect(result.recommendations).toContain(
+      'Prioritize building emergency fund quickly - consider reducing other expenses temporarily'
+    );
   });
 });

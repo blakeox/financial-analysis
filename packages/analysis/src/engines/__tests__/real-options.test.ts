@@ -64,6 +64,13 @@ describe('RealOptionsAnalyzer', () => {
     });
   });
 
+  describe('IRR calculation', () => {
+    it('should return non-finite value when IRR fails to converge', () => {
+      const irr = RealOptionsAnalyzer['calculateIRR'](100000, [0]);
+      expect(Number.isFinite(irr)).toBe(false);
+    });
+  });
+
   describe('payback period calculation', () => {
     it('should calculate payback period correctly', () => {
       const initialInvestment = 500000;
@@ -79,6 +86,14 @@ describe('RealOptionsAnalyzer', () => {
 
       const payback = RealOptionsAnalyzer['calculatePaybackPeriod'](initialInvestment, cashFlows);
       expect(payback).toBe(2);
+    });
+
+    it('should return full period when payback not achieved', () => {
+      const initialInvestment = 500000;
+      const cashFlows = [50000, 50000, 50000];
+
+      const payback = RealOptionsAnalyzer['calculatePaybackPeriod'](initialInvestment, cashFlows);
+      expect(payback).toBe(3);
     });
   });
 
@@ -165,6 +180,19 @@ describe('RealOptionsAnalyzer', () => {
       expect(result).toHaveProperty('optionValue');
       expect(result.optionType === 'delay' ? result.optionValue >= 0 : true).toBe(true);
     });
+
+    it('should return zero for unsupported option types', () => {
+      const optionValue = RealOptionsAnalyzer['calculateRealOptionValue']({
+        initialInvestment: 1000000,
+        expectedCashFlows: [300000],
+        volatility: 0.2,
+        riskFreeRate: 0.03,
+        timeToMaturity: 3,
+        optionType: 'unsupported' as any,
+      });
+
+      expect(optionValue).toBe(0);
+    });
   });
 
   describe('Greeks calculation', () => {
@@ -190,6 +218,23 @@ describe('RealOptionsAnalyzer', () => {
       expect(result.delta).toBeGreaterThanOrEqual(0);
       expect(result.delta).toBeLessThanOrEqual(1);
     });
+
+    it('should return zero Greeks when strike price is missing', () => {
+      const input = {
+        initialInvestment: 500000,
+        expectedCashFlows: [200000, 200000],
+        volatility: 0.2,
+        riskFreeRate: 0.03,
+        timeToMaturity: 2,
+        optionType: 'delay' as const,
+      };
+
+      const result = RealOptionsAnalyzer.analyze(input);
+      expect(result.delta).toBe(0);
+      expect(result.gamma).toBe(0);
+      expect(result.theta).toBe(0);
+      expect(result.rho).toBe(0);
+    });
   });
 
   describe('recommendations and insights', () => {
@@ -211,6 +256,11 @@ describe('RealOptionsAnalyzer', () => {
       expect(result.risks.length).toBeGreaterThan(0);
     });
 
+    it('should provide cautious recommendation when option offsets negative NPV', () => {
+      const recommendation = RealOptionsAnalyzer['generateRecommendation'](-100000, 150000, 'expand');
+      expect(recommendation).toContain('Consider proceeding');
+    });
+
     it('should provide cautious recommendation for marginal project', () => {
       const input = {
         initialInvestment: 1200000,
@@ -226,6 +276,83 @@ describe('RealOptionsAnalyzer', () => {
 
       expect(result.recommendation).toBeDefined();
       expect(result.insights.length).toBeGreaterThan(0);
+    });
+
+    it('should recommend against projects with negative total value', () => {
+      const recommendation = RealOptionsAnalyzer['generateRecommendation'](-200000, 50000, 'abandon');
+      expect(recommendation).toContain('Not recommended');
+    });
+
+    it('should add insights for high volatility and long horizon', () => {
+      const input = {
+        initialInvestment: 1000000,
+        expectedCashFlows: [100000, 100000, 100000, 100000, 100000, 100000],
+        volatility: 0.5,
+        riskFreeRate: 0.03,
+        timeToMaturity: 6,
+        optionType: 'expand' as const,
+        exercisePrice: 100000,
+      };
+
+      const insights = RealOptionsAnalyzer['generateInsights'](input as any, -100000, 200000);
+      expect(insights.some((item: string) => item.includes('Real options value'))).toBe(true);
+      expect(insights.some((item: string) => item.includes('High volatility'))).toBe(true);
+      expect(insights.some((item: string) => item.includes('Long time horizon'))).toBe(true);
+    });
+
+    it('should list risks for low volatility and short horizon', () => {
+      const input = {
+        initialInvestment: 300000,
+        expectedCashFlows: [100000, 100000],
+        volatility: 0.05,
+        riskFreeRate: 0.02,
+        timeToMaturity: 1,
+        optionType: 'expand' as const,
+        exercisePrice: 50000,
+      };
+
+      const risks = RealOptionsAnalyzer['generateRisks'](input as any);
+      expect(risks).toContain('Low volatility reduces the value of managerial flexibility options.');
+      expect(risks).toContain('Short time horizon limits the strategic value of real options.');
+    });
+  });
+
+  describe('real option edge cases', () => {
+    it('returns zero for delay option when delayed NPV is negative', () => {
+      const optionValue = RealOptionsAnalyzer['calculateRealOptionValue']({
+        initialInvestment: 1000000,
+        expectedCashFlows: [10000, 10000],
+        volatility: 0.2,
+        riskFreeRate: 0.05,
+        timeToMaturity: 2,
+        optionType: 'delay',
+      });
+
+      expect(optionValue).toBe(0);
+    });
+
+    it('returns zero Greeks when time to maturity is zero', () => {
+      const greeks = RealOptionsAnalyzer['calculateGreeks']({
+        initialInvestment: 1000000,
+        expectedCashFlows: [300000, 400000],
+        volatility: 0.2,
+        riskFreeRate: 0.03,
+        timeToMaturity: 0,
+        optionType: 'expand',
+        exercisePrice: 400000,
+      } as any);
+
+      expect(greeks.delta).toBe(0);
+      expect(greeks.gamma).toBe(0);
+      expect(greeks.theta).toBe(0);
+      expect(greeks.rho).toBe(0);
+    });
+  });
+
+  describe('distribution helpers', () => {
+    it('should handle negative values in normal CDF', () => {
+      const value = RealOptionsAnalyzer['normalCDF'](-1);
+      expect(value).toBeLessThan(0.5);
     });
   });
 });

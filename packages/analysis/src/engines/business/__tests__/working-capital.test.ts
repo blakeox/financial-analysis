@@ -67,4 +67,71 @@ describe('WorkingCapitalOptimizer', () => {
     expect(result.optimization).toBeDefined();
     expect(result.optimization?.optimizations.length).toBeGreaterThan(0);
   });
+
+  it('should compute cash conversion cycle from balances when metrics are missing', () => {
+    const result = WorkingCapitalOptimizer.analyze({
+      ...baseInput,
+      operatingMetrics: {
+        inventoryTurnover: 6,
+      },
+    });
+
+    expect(result.cashConversionCycle).toBeDefined();
+    expect(result.cashConversionCycle.daysSalesOutstanding).toBeGreaterThan(0);
+    expect(result.cashConversionCycle.daysInventoryOutstanding).toBeGreaterThan(0);
+    expect(result.cashConversionCycle.daysPayableOutstanding).toBeGreaterThan(0);
+  });
+
+  it('should mark liquidity as critical with negative working capital', () => {
+    const result = WorkingCapitalOptimizer.analyze({
+      ...baseInput,
+      currentAssets: {
+        cash: 10000,
+        accountsReceivable: 20000,
+        inventory: 10000,
+        otherCurrentAssets: 0,
+      },
+      currentLiabilities: {
+        accountsPayable: 200000,
+        shortTermDebt: 50000,
+        accruedExpenses: 20000,
+        otherCurrentLiabilities: 10000,
+      },
+    });
+
+    expect(result.liquidityAnalysis.liquidityStatus).toBe('Critical');
+    expect(result.liquidityAnalysis.riskFactors.join(' ')).toContain('Negative working capital');
+    expect(result.recommendations.join(' ')).toContain('Negative working capital');
+  });
+
+  it('should skip AP optimization when DPO is already high', () => {
+    const result = WorkingCapitalOptimizer.analyze({
+      ...baseInput,
+      operatingMetrics: {
+        daysSalesOutstanding: 45,
+        daysPayableOutstanding: 90,
+        daysInventoryOutstanding: 60,
+      },
+    });
+
+    const areas = result.optimization.optimizations.map((opt: any) => opt.area);
+    expect(areas).toContain('Accounts Receivable');
+    expect(areas).toContain('Inventory');
+    expect(areas).not.toContain('Accounts Payable');
+  });
+
+  it('should omit optional analyses when disabled', () => {
+    const result = WorkingCapitalOptimizer.analyze({
+      ...baseInput,
+      analysis: {
+        includeCashConversionCycle: false,
+        includeOptimization: false,
+        includeLiquidityAnalysis: false,
+      },
+    });
+
+    expect(result.cashConversionCycle).toBeUndefined();
+    expect(result.optimization).toBeUndefined();
+    expect(result.liquidityAnalysis).toBeUndefined();
+  });
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { EbitdaForecaster } from '../ebitda-forecasting';
-import type { ScenarioInput, MonthlyFinancials, Employee } from '../ebitda-forecasting';
+import type { ScenarioInput, MonthlyFinancials, Employee, EbitdaForecastResult } from '../ebitda-forecasting';
 
 describe('EbitdaForecaster', () => {
   const baseFinancials: MonthlyFinancials = {
@@ -113,6 +113,27 @@ describe('EbitdaForecaster', () => {
       const maxRevenue = Math.max(...revenues);
       
       expect(maxRevenue).toBeGreaterThan(minRevenue);
+    });
+
+    it('applies market growth and competition factors', () => {
+      const competitiveInput: ScenarioInput = {
+        ...basicInput,
+        economicFactors: {
+          marketGrowth: 0.12,
+          competitionFactor: 0.8,
+        },
+      };
+
+      const baseline = EbitdaForecaster.forecast({
+        ...basicInput,
+        economicFactors: {
+          marketGrowth: 0.12,
+          competitionFactor: 1,
+        },
+      });
+      const competitive = EbitdaForecaster.forecast(competitiveInput);
+
+      expect(competitive.forecast[0]!.revenue).toBeLessThan(baseline.forecast[0]!.revenue);
     });
   });
 
@@ -266,6 +287,27 @@ describe('EbitdaForecaster', () => {
 
       expect(result.summary.revenueGrowth).toBeGreaterThan(0);
     });
+
+    it('handles zero baseline revenue', () => {
+      const zeroBaseline: ScenarioInput = {
+        ...basicInput,
+        currentMonthlyFinancials: [
+          {
+            ...baseFinancials,
+            revenue: 0,
+            costOfGoodsSold: 0,
+            operatingExpenses: 0,
+          },
+        ],
+        currentEmployees: [],
+        revenueGrowthRate: 0,
+      };
+
+      const result = EbitdaForecaster.forecast(zeroBaseline);
+      expect(result.summary.revenueGrowth).toBe(0);
+      expect(result.summary.ebitdaGrowth).toBe(0);
+      expect(result.keyMetrics.revenuePerBillableHour).toBe(0);
+    });
   });
 
   describe('key metrics', () => {
@@ -340,6 +382,36 @@ describe('EbitdaForecaster', () => {
       // Should show expense in quarters
       expect(result.forecast).toHaveLength(12);
     });
+
+    it('applies annual expenses in month 12', () => {
+      const inputWithAnnual: ScenarioInput = {
+        ...basicInput,
+        currentMonthlyFinancials: [
+          {
+            ...baseFinancials,
+            operatingExpenses: 0,
+          },
+        ],
+        currentEmployees: [],
+        operatingExpenseGrowthRate: 0,
+        inflationRate: 0,
+        additionalExpenses: [
+          {
+            id: 'expA',
+            name: 'Annual Fee',
+            category: 'fixed',
+            amount: 12000,
+            frequency: 'annually',
+            isRecurring: true,
+            startMonth: 1,
+          },
+        ],
+      };
+
+      const result = EbitdaForecaster.forecast(inputWithAnnual);
+      expect(result.forecast[10]!.operatingExpenses).toBe(0);
+      expect(result.forecast[11]!.operatingExpenses).toBeGreaterThan(0);
+    });
   });
 
   describe('scenario comparison', () => {
@@ -387,6 +459,88 @@ describe('EbitdaForecaster', () => {
 
       expect(comparison.insights).toBeDefined();
       expect(Array.isArray(comparison.insights)).toBe(true);
+    });
+
+    it('highlights margin and efficiency differences', () => {
+      const scenario1 = EbitdaForecaster.forecast({
+        ...basicInput,
+        name: 'High EBITDA',
+        currentEmployees: [
+          baseEmployee,
+          { ...baseEmployee, id: 'emp2', name: 'Jane Doe' },
+          { ...baseEmployee, id: 'emp3', name: 'Sam Doe' },
+        ],
+        revenueGrowthRate: 0.06,
+        operatingExpenseGrowthRate: 0.03,
+      });
+      const scenario2 = EbitdaForecaster.forecast({
+        ...basicInput,
+        name: 'High Margin',
+        currentEmployees: [baseEmployee],
+        revenueGrowthRate: 0.005,
+        operatingExpenseGrowthRate: -0.02,
+      });
+
+      const comparison = EbitdaForecaster.compareScenarios([scenario1, scenario2]);
+      expect(comparison.insights.length).toBeGreaterThan(0);
+    });
+
+    it('adds highest margin insight when not best by EBITDA', () => {
+      const scenarioA = {
+        scenario: { name: 'Scenario A', forecastPeriodMonths: 12 },
+        forecast: [],
+        summary: {
+          totalRevenue: 100000,
+          totalEbitda: 60000,
+          averageEbitdaMargin: 10,
+          totalEmployeeCosts: 0,
+          totalOperatingExpenses: 0,
+          finalEmployeeCount: 3,
+          revenueGrowth: 0,
+          ebitdaGrowth: 0,
+        },
+        keyMetrics: {
+          revenuePerEmployee: 0,
+          ebitdaPerEmployee: 0,
+          averageBillableHours: 0,
+          revenuePerBillableHour: 0,
+        },
+      } as EbitdaForecastResult;
+
+      const scenarioB = {
+        scenario: { name: 'Scenario B', forecastPeriodMonths: 12 },
+        forecast: [],
+        summary: {
+          totalRevenue: 80000,
+          totalEbitda: 40000,
+          averageEbitdaMargin: 50,
+          totalEmployeeCosts: 0,
+          totalOperatingExpenses: 0,
+          finalEmployeeCount: 2,
+          revenueGrowth: 0,
+          ebitdaGrowth: 0,
+        },
+        keyMetrics: {
+          revenuePerEmployee: 0,
+          ebitdaPerEmployee: 0,
+          averageBillableHours: 0,
+          revenuePerBillableHour: 0,
+        },
+      } as EbitdaForecastResult;
+
+      const comparison = EbitdaForecaster.compareScenarios([scenarioA, scenarioB]);
+      expect(comparison.insights.some((item) => item.includes('highest EBITDA margin'))).toBe(true);
+    });
+
+    it('adds per-employee insight for single scenario', () => {
+      const scenario = EbitdaForecaster.forecast({
+        ...basicInput,
+        name: 'Single Scenario',
+      });
+
+      const comparison = EbitdaForecaster.compareScenarios([scenario]);
+      expect(comparison.insights.length).toBe(1);
+      expect(comparison.insights[0]).toContain('EBITDA per employee');
     });
   });
 

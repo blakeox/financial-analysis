@@ -72,5 +72,37 @@ describe('RothVsTraditionalIRACalculator', () => {
     const result = RothVsTraditionalIRACalculator.analyze(baseInput) as any;
     expect(result.taxAnalysis).toBeDefined();
   });
+
+  it('should recommend Traditional IRA when after-tax values are equal', () => {
+    const input: RothVsTraditionalIRAInput = {
+      ...baseInput,
+      taxInfo: {
+        ...baseInput.taxInfo,
+        expectedRetirementMarginalTaxRate: 0,
+        stateTaxRate: 0,
+      },
+    };
+
+    const result = RothVsTraditionalIRACalculator.analyze(input) as any;
+    expect(result.recommendations).toContain(
+      'Traditional IRA provides better after-tax value in your situation'
+    );
+  });
+
+  it('should recommend Roth contributions when retirement tax rate is higher', () => {
+    const input: RothVsTraditionalIRAInput = {
+      ...baseInput,
+      taxInfo: {
+        ...baseInput.taxInfo,
+        currentMarginalTaxRate: 0.1,
+        expectedRetirementMarginalTaxRate: 0.25,
+      },
+    };
+
+    const result = RothVsTraditionalIRACalculator.analyze(input) as any;
+    expect(result.recommendations).toContain(
+      'Consider Roth contributions since retirement tax rate may be higher'
+    );
+  });
 });
 

@@ -28,6 +28,19 @@ describe('RiskAdjustedReturnsCalculator', () => {
     expect(result.sortinoRatio).toBeNull();
   });
 
+  it('returns null Sharpe when volatility is zero', () => {
+    const input: RiskAdjustedReturnsInput = {
+      returns: [0.01],
+      riskFreeRate: 0,
+      targetReturn: 0.02,
+      periodsPerYear: 252,
+    };
+    const result = RiskAdjustedReturnsCalculator.analyze(input);
+    expect(result.sharpeRatio).toBeNull();
+    expect(result.sortinoRatio).not.toBeNull();
+    expect(result.annualizedVolatility).toBe(0);
+  });
+
   describe('Comprehensive Analysis', () => {
     it('should return a complete analysis object with all required fields', () => {
       const input: RiskAdjustedReturnsInput = {

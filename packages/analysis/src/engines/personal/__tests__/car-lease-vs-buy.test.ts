@@ -97,5 +97,27 @@ describe('CarLeaseVsBuyCalculator', () => {
       expect(result).toHaveProperty('recommendations');
     });
   });
+
+  it('should recommend buying when purchase costs are lower', () => {
+    const buyFavoredInput: CarLeaseVsBuyInput = {
+      ...baseInput,
+      leaseTerms: {
+        ...baseInput.leaseTerms,
+        monthlyPayment: 900,
+      },
+      purchaseTerms: {
+        ...baseInput.purchaseTerms,
+        interestRate: 0.01,
+      },
+      financialAssumptions: {
+        ...baseInput.financialAssumptions,
+        expectedDepreciation: 0.05,
+      },
+    };
+
+    const result = CarLeaseVsBuyCalculator.analyze(buyFavoredInput) as any;
+    expect(result.comparison.betterOption).toBe('buy');
+    expect(result.recommendations).toContain('Buying provides equity and no mileage restrictions');
+  });
 });
 

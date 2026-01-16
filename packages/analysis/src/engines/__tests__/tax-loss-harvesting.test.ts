@@ -13,7 +13,7 @@ describe('TaxLossHarvestingOptimizer', () => {
         {
           symbol: 'AAPL',
           shares: 100,
-          costBasis: 150,
+          costBasis: 15000,
           currentPrice: 120,
           purchaseDate: '2023-01-15',
           holdingPeriod: 'long-term',
@@ -21,7 +21,7 @@ describe('TaxLossHarvestingOptimizer', () => {
         {
           symbol: 'MSFT',
           shares: 50,
-          costBasis: 300,
+          costBasis: 16000,
           currentPrice: 280,
           purchaseDate: '2023-06-01',
           holdingPeriod: 'short-term',
@@ -77,6 +77,38 @@ describe('TaxLossHarvestingOptimizer', () => {
     const result = TaxLossHarvestingOptimizer.analyze(baseInput);
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
+  });
+
+  it('should list recommended actions for harvestable losses', () => {
+    const result = TaxLossHarvestingOptimizer.analyze(baseInput);
+    expect(result.recommendedActions.length).toBeGreaterThan(0);
+    expect(result.recommendedActions[0]).toContain('Harvest loss');
+    expect(result.harvestableLosses[0].washSaleRisk).toBe(false);
+  });
+
+  it('should return zero savings when no losses exist', () => {
+    const noLossInput = TaxLossHarvestingInputSchema.parse({
+      ...baseInput,
+      portfolio: {
+        ...baseInput.portfolio,
+        holdings: [
+          {
+            symbol: 'AAPL',
+            shares: 100,
+            costBasis: 150,
+            currentPrice: 170,
+            purchaseDate: '2023-01-15',
+            holdingPeriod: 'long-term',
+          },
+        ],
+      },
+    });
+
+    const result = TaxLossHarvestingOptimizer.analyze(noLossInput);
+    expect(result.totalTaxLoss).toBe(0);
+    expect(result.projectedTaxSavings).toBe(0);
+    expect(result.harvestableLosses.length).toBe(0);
+    expect(result.recommendedActions.length).toBe(0);
   });
 });
 

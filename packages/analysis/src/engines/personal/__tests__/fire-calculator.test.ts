@@ -89,4 +89,76 @@ describe('FIRECalculator', () => {
     expect(result.recommendations.length).toBeGreaterThan(0);
     expect(typeof result.recommendations[0]).toBe('string');
   });
+
+  it('flags off-track plan and required savings', () => {
+    const offTrackInput: FIRECalculatorInput = {
+      ...baseInput,
+      currentSituation: {
+        ...baseInput.currentSituation,
+        monthlySavings: 200,
+        annualIncome: 60000,
+      },
+      fireGoals: {
+        ...baseInput.fireGoals,
+        targetAge: 31,
+        annualExpensesInRetirement: 80000,
+      },
+      assumptions: {
+        ...baseInput.assumptions,
+        expectedReturn: 0.04,
+      },
+    };
+
+    const result = FIRECalculator.analyze(offTrackInput);
+    expect(result.recommendations.some((rec: string) => rec.includes('Off track'))).toBe(true);
+    expect(result.recommendations.some((rec: string) => rec.includes('Required monthly savings'))).toBe(true);
+  });
+
+  it('returns Coast FIRE status when at or past target age', () => {
+    const coastInput: FIRECalculatorInput = {
+      ...baseInput,
+      currentSituation: {
+        ...baseInput.currentSituation,
+        age: 50,
+      },
+      fireGoals: {
+        ...baseInput.fireGoals,
+        targetAge: 50,
+      },
+    };
+
+    const result = FIRECalculator.analyze(coastInput);
+    expect(result.coastFIRE.yearsToCoastFIRE).toBe(0);
+    expect(result.coastFIRE.interpretation).toBe('Already at or past target retirement age');
+  });
+
+  it('adds expense optimization recommendations when enabled', () => {
+    const optimizedInput: FIRECalculatorInput = {
+      ...baseInput,
+      assumptions: {
+        ...baseInput.assumptions,
+        expenseReduction: 0.2,
+      },
+    };
+
+    const result = FIRECalculator.analyze(optimizedInput);
+    expect(result.expenseOptimization?.recommendations.length).toBeGreaterThan(0);
+    expect(result.recommendations.some((rec: string) => rec.includes('Reducing expenses'))).toBe(true);
+  });
+
+  it('omits optional analysis outputs when flags are false', () => {
+    const minimalInput: FIRECalculatorInput = {
+      ...baseInput,
+      analysis: {
+        includeProjections: false,
+        includeScenarios: false,
+        includeExpenseOptimization: false,
+      },
+    };
+
+    const result = FIRECalculator.analyze(minimalInput);
+    expect(result.projections).toBeUndefined();
+    expect(result.scenarios).toBeUndefined();
+    expect(result.expenseOptimization).toBeUndefined();
+  });
 });

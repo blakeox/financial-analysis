@@ -62,5 +62,37 @@ describe('DisabilityInsuranceAnalyzer', () => {
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
   });
+
+  it('should adjust premiums for age and occupation risk', () => {
+    const base = DisabilityInsuranceAnalyzer.analyze(baseInput);
+
+    const younger = DisabilityInsuranceAnalyzer.analyze({
+      ...baseInput,
+      personalInfo: {
+        ...baseInput.personalInfo,
+        age: 25,
+      },
+    });
+
+    const older = DisabilityInsuranceAnalyzer.analyze({
+      ...baseInput,
+      personalInfo: {
+        ...baseInput.personalInfo,
+        age: 45,
+      },
+    });
+
+    const highRisk = DisabilityInsuranceAnalyzer.analyze({
+      ...baseInput,
+      personalInfo: {
+        ...baseInput.personalInfo,
+        occupationClass: 'high-risk',
+      },
+    });
+
+    expect(younger.monthlyPremium).toBeLessThan(base.monthlyPremium);
+    expect(older.monthlyPremium).toBeGreaterThan(base.monthlyPremium);
+    expect(highRisk.monthlyPremium).toBeGreaterThan(base.monthlyPremium);
+  });
 });
 

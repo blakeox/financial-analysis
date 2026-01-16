@@ -671,6 +671,31 @@ describe('Implied Volatility Calculation', () => {
 
     expect(result.impliedVolatility).toBeUndefined();
   });
+
+  it('should fallback when vega is near zero', () => {
+    const option = createBasicCallOption({
+      underlyingPrice: 1000,
+      strikePrice: 1,
+      timeToExpiry: 1e-8,
+      volatility: 0.2,
+    });
+
+    const implied = (OptionsPricingAnalyzer as any).calculateImpliedVolatility(option, 0.01);
+    expect(implied).toBeGreaterThanOrEqual(0.001);
+    expect(implied).toBeLessThanOrEqual(5);
+  });
+});
+
+// ============================================================================
+// SINGLE GREEK FALLBACK TEST
+// ============================================================================
+
+describe('Single Greek fallback', () => {
+  it('should return 0 for unsupported greek types', () => {
+    const option = createBasicCallOption();
+    const value = (OptionsPricingAnalyzer as any).calculateSingleGreek(option, 'rho', {});
+    expect(value).toBe(0);
+  });
 });
 
 // ============================================================================

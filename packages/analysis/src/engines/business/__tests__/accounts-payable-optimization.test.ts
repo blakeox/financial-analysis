@@ -103,6 +103,114 @@ describe('AccountsPayableOptimizer', () => {
     expect(result.vendorOptimization).toBeDefined();
   });
 
+  it('should recommend early payment discounts for standard vendors', () => {
+    const result = AccountsPayableOptimizer.analyze({
+      ...baseInput,
+      payables: {
+        ...baseInput.payables,
+        invoices: [
+          ...baseInput.payables.invoices,
+          {
+            invoiceNumber: 'INV003',
+            vendorName: undefined,
+            invoiceDate: '2024-01-20',
+            dueDate: '2024-02-20',
+            invoiceAmount: 5000,
+            paymentTerms: 'Net 30',
+            earlyPaymentDiscount: {
+              discountPercentage: 0.02,
+              discountDays: 10,
+            },
+          },
+        ],
+      },
+      vendorRelationships: {
+        ...baseInput.vendorRelationships,
+        criticalVendors: ['Vendor A'],
+      },
+      strategy: {
+        ...baseInput.strategy,
+        optimizeFor: 'max-discounts',
+      },
+    } as AccountsPayableOptimizationInput);
+
+    expect(result.vendorOptimization).toBeDefined();
+    const vendorOptimization = result.vendorOptimization as any;
+    expect(vendorOptimization.standardVendorPayments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          vendor: 'Unknown',
+          recommendedAction: 'Take early payment discount',
+        }),
+      ])
+    );
+    expect(result.recommendations).toEqual(
+      expect.arrayContaining(['Focus on maximizing early payment discounts'])
+    );
+  });
+
+  it('should include cash flow focus recommendation', () => {
+    const result = AccountsPayableOptimizer.analyze({
+      ...baseInput,
+      strategy: {
+        ...baseInput.strategy,
+        optimizeFor: 'max-cash-flow',
+      },
+    } as AccountsPayableOptimizationInput);
+
+    expect(result.recommendations).toEqual(
+      expect.arrayContaining(['Focus on maximizing cash flow by extending payment terms'])
+    );
+  });
+
+  it('should keep default discount recommendation when rate is below cost of capital', () => {
+    const result = AccountsPayableOptimizer.analyze({
+      ...baseInput,
+      paymentTerms: {
+        standardTerms: 'Net 30',
+        earlyPaymentDiscounts: [
+          {
+            vendor: 'Vendor A',
+            discountPercentage: 0.01,
+            discountDays: 10,
+            annualInvoiceVolume: 10000,
+          },
+        ],
+      },
+      cashFlow: {
+        currentCash: 200000,
+        monthlyCashFlow: 50000,
+        costOfCapital: 0.2,
+      },
+    } as AccountsPayableOptimizationInput);
+
+    expect(result.discountAnalysis).toBeDefined();
+    expect(result.discountAnalysis.discounts[0].recommendation).toBe(
+      'Take discount if cash available'
+    );
+    expect(result.cashFlowImpact.optimizedPaymentDays).toBe(
+      result.cashFlowImpact.currentPaymentDays
+    );
+  });
+
+  it('should skip optional analyses when disabled', () => {
+    const result = AccountsPayableOptimizer.analyze({
+      ...baseInput,
+      analysis: {
+        includeDiscountAnalysis: false,
+        includeCashFlowImpact: false,
+        includePaymentSchedule: false,
+        includeVendorOptimization: false,
+        projectionMonths: 3,
+      },
+    } as AccountsPayableOptimizationInput);
+
+    expect(result.discountAnalysis).toBeUndefined();
+    expect(result.cashFlowImpact).toBeUndefined();
+    expect(result.paymentSchedule).toBeUndefined();
+    expect(result.vendorOptimization).toBeUndefined();
+  });
+
   it('should perform comprehensive analysis', () => {
     const result = AccountsPayableOptimizer.analyze(baseInput) as any;
     expect(result).toBeDefined();

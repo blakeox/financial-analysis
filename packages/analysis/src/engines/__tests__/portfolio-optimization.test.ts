@@ -55,4 +55,64 @@ describe('PortfolioOptimizer', () => {
     expect(result.efficientFrontier).toBeDefined();
     expect(result.efficientFrontier?.points.length).toBeGreaterThan(0);
   });
+
+  it('should return default metrics when expected returns are missing', () => {
+    const result = PortfolioOptimizer.analyze({
+      ...baseInput,
+      marketData: {
+        expectedReturns: [0.1],
+        volatilities: [0.2],
+      },
+    });
+
+    expect(result.currentMetrics.expectedReturn).toBeCloseTo(0.07, 5);
+    expect(result.currentMetrics.risk).toBeCloseTo(0.15, 5);
+  });
+
+  it('should return zero allocations when total value is zero', () => {
+    const result = PortfolioOptimizer.analyze({
+      ...baseInput,
+      portfolio: {
+        ...baseInput.portfolio,
+        totalValue: 0,
+      },
+    });
+
+    expect(result.currentAllocation[0].allocation).toBe(0);
+    expect(result.currentAllocation[1].allocation).toBe(0);
+  });
+
+  it('should include rebalancing trades when enabled', () => {
+    const result = PortfolioOptimizer.analyze({
+      ...baseInput,
+      constraints: {
+        ...baseInput.constraints,
+        riskTolerance: 'aggressive',
+        minAllocation: 0.1,
+        maxAllocation: 0.9,
+      },
+      analysis: {
+        includeEfficientFrontier: false,
+        includeRebalancing: true,
+      },
+    });
+
+    expect(result.rebalancing).toBeDefined();
+    expect(result.rebalancing.rebalancingTrades.length).toBeGreaterThan(0);
+    expect(result.rebalancing.rebalancingTrades.some((t: any) => t.action === 'Buy')).toBe(true);
+    expect(result.rebalancing.rebalancingTrades.some((t: any) => t.action === 'Sell')).toBe(true);
+    expect(result.efficientFrontier).toBeUndefined();
+  });
+
+  it('should include risk tolerance guidance in recommendations', () => {
+    const result = PortfolioOptimizer.analyze({
+      ...baseInput,
+      constraints: {
+        ...baseInput.constraints,
+        riskTolerance: 'conservative',
+      },
+    });
+
+    expect(result.recommendations.join(' ')).toContain('Conservative allocation');
+  });
 });

@@ -29,6 +29,18 @@ describe('BreakEvenAnalyzer', () => {
     expect(result.breakEvenUnits).toBeNull();
   });
 
+  it('handles zero price per unit when computing margin ratio', () => {
+    const input: BreakEvenInput = {
+      fixedCosts: 500,
+      variableCostPerUnit: 0,
+      pricePerUnit: 0,
+      targetProfit: 0,
+    };
+    const result = BreakEvenAnalyzer.analyze(input);
+    expect(result.breakEvenPossible).toBe(false);
+    expect(result.contributionMarginRatio).toBe(0);
+  });
+
   describe('Comprehensive Analysis', () => {
     it('returns all required fields in the result object', () => {
       const input: BreakEvenInput = {

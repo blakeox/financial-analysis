@@ -81,5 +81,104 @@ describe('LifeInsuranceReassessmentCalculator', () => {
     const result = LifeInsuranceReassessmentCalculator.analyze(baseInput);
     expect(result.policyOptimization).toBeDefined();
   });
+
+  it('should flag excess coverage and recommend decrease', () => {
+    const result = LifeInsuranceReassessmentCalculator.analyze({
+      ...baseInput,
+      currentPolicies: [
+        {
+          policyType: 'term',
+          faceAmount: 2500000,
+          annualPremium: 2000,
+          cashValue: 0,
+        },
+      ],
+    });
+
+    expect(result.coverageGapAnalysis).toBeDefined();
+    expect(result.coverageGapAnalysis.excess).toBeGreaterThan(0);
+    expect(result.summary.recommendation).toBe('decrease');
+    expect(result.recommendations.some((item) => item.includes('Excess coverage'))).toBe(true);
+  });
+
+  it('should omit optional analyses when disabled', () => {
+    const result = LifeInsuranceReassessmentCalculator.analyze({
+      ...baseInput,
+      analysis: {
+        includeCoverageGapAnalysis: false,
+        includePolicyOptimization: false,
+        includeConversionAnalysis: false,
+        includeTermVsPermanent: false,
+      },
+    });
+
+    expect(result.coverageGapAnalysis).toBeUndefined();
+    expect(result.policyOptimization).toBeUndefined();
+    expect(result.termVsPermanentComparison).toBeUndefined();
+    expect(result.summary.recommendation).toBe('maintain');
+  });
+
+  it('should include potential savings recommendation when optimization yields savings', () => {
+    const result = LifeInsuranceReassessmentCalculator.analyze({
+      ...baseInput,
+      currentPolicies: [
+        {
+          policyType: 'term',
+          faceAmount: 1500000,
+          annualPremium: 20000,
+          cashValue: 0,
+        },
+      ],
+    });
+
+    expect(result.policyOptimization).toBeDefined();
+    expect(result.policyOptimization.potentialSavings).toBeGreaterThan(0);
+    expect(result.recommendations.some((item) => item.includes('Potential savings:'))).toBe(true);
+  });
+
+  it('should handle zero needs and coverage', () => {
+    const result = LifeInsuranceReassessmentCalculator.analyze({
+      ...baseInput,
+      currentPolicies: [],
+      needsAnalysis: {
+        incomeReplacement: {
+          yearsOfIncome: 0,
+          replacementPercentage: 0,
+        },
+        debtPayoff: {
+          mortgageBalance: 0,
+          otherDebt: 0,
+        },
+        educationFunding: {
+          childrenCount: 0,
+          educationCostPerChild: 0,
+        },
+        finalExpenses: 0,
+        estateTaxes: 0,
+      },
+    });
+
+    expect(result.coverageGapAnalysis).toBeDefined();
+    expect(result.coverageGapAnalysis.gapPercentage).toBe(0);
+    expect(result.coverageGapAnalysis.excessPercentage).toBe(0);
+    expect(result.summary.recommendation).toBe('maintain');
+  });
+
+  it('should track permanent policy coverage', () => {
+    const result = LifeInsuranceReassessmentCalculator.analyze({
+      ...baseInput,
+      currentPolicies: [
+        {
+          policyType: 'whole',
+          faceAmount: 300000,
+          annualPremium: 1500,
+          cashValue: 20000,
+        },
+      ],
+    });
+
+    expect(result.currentCoverageAnalysis.permanentCoverage).toBeGreaterThan(0);
+    expect(result.currentCoverageAnalysis.termCoverage).toBe(0);
+  });
 });
 

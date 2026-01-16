@@ -89,5 +89,122 @@ describe('SupplyChainFinanceOptimizer', () => {
     const result = SupplyChainFinanceOptimizer.analyze(baseInput);
     expect(result.riskAnalysis).toBeDefined();
   });
+
+  it('should include supplier benefits for dynamic discounting', () => {
+    const result = SupplyChainFinanceOptimizer.analyze({
+      ...baseInput,
+      supplyChain: {
+        ...baseInput.supplyChain,
+        suppliers: [
+          {
+            supplierName: 'Supplier A',
+            annualPurchaseVolume: 500000,
+            paymentTerms: 30,
+            averageInvoiceAmount: 10000,
+            invoicesPerMonth: 4,
+            supplierRelationship: 'important',
+          },
+        ],
+      },
+    });
+
+    expect(result.supplierBenefits).toBeDefined();
+    expect(result.supplierBenefits.suppliers[0].benefit).toBe('Early payment with discount');
+    expect(result.supplierBenefits.suppliers[0].earlyPaymentDays).toBe(10);
+  });
+
+  it('should include supplier benefits for reverse factoring', () => {
+    const result = SupplyChainFinanceOptimizer.analyze({
+      ...baseInput,
+      supplyChain: {
+        ...baseInput.supplyChain,
+        suppliers: [
+          {
+            supplierName: 'Supplier A',
+            annualPurchaseVolume: 500000,
+            paymentTerms: 30,
+            averageInvoiceAmount: 10000,
+            invoicesPerMonth: 4,
+            supplierRelationship: 'important',
+          },
+        ],
+      },
+      financingOptions: {
+        ...baseInput.financingOptions,
+        dynamicDiscounting: { ...baseInput.financingOptions.dynamicDiscounting, enabled: false },
+        reverseFactoring: { ...baseInput.financingOptions.reverseFactoring, enabled: true },
+      },
+    });
+
+    expect(result.supplierBenefits.suppliers[0].benefit).toBe(
+      'Access to financing at lower cost'
+    );
+  });
+
+  it('should mark overall risk as high when cash conversion cycle is extended', () => {
+    const result = SupplyChainFinanceOptimizer.analyze({
+      ...baseInput,
+      supplyChain: {
+        ...baseInput.supplyChain,
+        suppliers: [
+          {
+            supplierName: 'Supplier A',
+            annualPurchaseVolume: 500000,
+            paymentTerms: 30,
+            averageInvoiceAmount: 10000,
+            invoicesPerMonth: 4,
+            supplierRelationship: 'important',
+          },
+        ],
+      },
+      workingCapital: {
+        ...baseInput.workingCapital,
+        cashConversionCycle: 120,
+      },
+    });
+
+    expect(result.riskAnalysis.overallRisk).toBe('high');
+    expect(result.recommendations.join(' ')).toContain('high-risk');
+  });
+
+  it('should mark overall risk as medium when program utilization is low', () => {
+    const result = SupplyChainFinanceOptimizer.analyze({
+      ...baseInput,
+      financingOptions: {
+        ...baseInput.financingOptions,
+        supplyChainFinance: {
+          ...baseInput.financingOptions.supplyChainFinance,
+          enabled: true,
+          annualVolume: 0,
+        },
+      },
+      workingCapital: {
+        ...baseInput.workingCapital,
+        cashConversionCycle: 80,
+      },
+    });
+
+    expect(result.riskAnalysis.overallRisk).toBe('medium');
+  });
+
+  it('should omit optional analyses when disabled', () => {
+    const result = SupplyChainFinanceOptimizer.analyze({
+      ...baseInput,
+      analysis: {
+        includeWorkingCapitalOptimization: false,
+        includeFinancingComparison: false,
+        includeCashFlowImpact: false,
+        includeSupplierBenefits: false,
+        includeRiskAnalysis: false,
+        projectionMonths: 12,
+      },
+    });
+
+    expect(result.workingCapitalOptimization).toBeUndefined();
+    expect(result.financingComparison).toBeUndefined();
+    expect(result.cashFlowImpact).toBeUndefined();
+    expect(result.supplierBenefits).toBeUndefined();
+    expect(result.riskAnalysis).toBeUndefined();
+  });
 });
 
