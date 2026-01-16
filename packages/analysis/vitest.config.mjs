@@ -21,6 +21,7 @@ export default defineConfig({
       all: true,
       include: ['src/**/*.ts'],
       thresholds: {
+        perFile: true,
         branches: 90,
         statements: 98,
         functions: 99,
@@ -59,6 +60,7 @@ export default defineConfig({
         isolate: false,
       },
     },
+    slowTestThreshold: 2000,
     testTimeout: 30000,
     hookTimeout: 30000,
     teardownTimeout: 5000,

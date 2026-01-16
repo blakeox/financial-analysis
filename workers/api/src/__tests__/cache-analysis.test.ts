@@ -1,31 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import api from '../index';
-
-function makeEnv(ttlSeconds?: string) {
-  const env: {
-    ENVIRONMENT: string;
-    ANALYSIS_CACHE_TTL_SECONDS?: string;
-    DB: D1Database;
-    SESSIONS: KVNamespace;
-    DOCUMENTS: R2Bucket;
-  } = {
-    ENVIRONMENT: 'test',
-    ...(ttlSeconds !== undefined ? { ANALYSIS_CACHE_TTL_SECONDS: ttlSeconds } : {}),
-    DB: {} as unknown as D1Database,
-    SESSIONS: {
-      get: async () => null,
-      put: async () => undefined,
-      delete: async () => undefined,
-      list: async () => ({ keys: [], list_complete: true }),
-    } as unknown as KVNamespace,
-    DOCUMENTS: {} as unknown as R2Bucket,
-  };
-  const ctx: ExecutionContext = {
-    waitUntil: () => {},
-    passThroughOnException: () => {},
-  } as unknown as ExecutionContext;
-  return { env, ctx };
-}
+import { makeTestEnv } from './helpers/env';
 
 // Minimal mock for the Cache API to run under node test env
 class MemoryCache implements Cache {
@@ -49,7 +24,7 @@ class MemoryCache implements Cache {
 
 describe('Analysis cache behavior', () => {
   it('BYPASS when ANALYSIS_CACHE_TTL_SECONDS = 0', async () => {
-    const { env, ctx } = makeEnv('0');
+    const { env, ctx } = makeTestEnv({ analysisCacheTtlSeconds: '0' });
     const body = { principal: 10000, annualRate: 0.06, termMonths: 12, residualValue: 1000 };
     const req = new Request('https://example.com/v1/api/analysis/lease', {
       method: 'POST',
@@ -62,7 +37,7 @@ describe('Analysis cache behavior', () => {
   });
 
   it('MISS then HIT when ANALYSIS_CACHE_TTL_SECONDS > 0 and caches.default present', async () => {
-    const { env, ctx } = makeEnv('60');
+    const { env, ctx } = makeTestEnv({ analysisCacheTtlSeconds: '60' });
     // Inject an in-memory default cache on global
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).caches = { default: new MemoryCache() } as unknown as CacheStorage & {
@@ -94,7 +69,7 @@ describe('Analysis cache behavior', () => {
   });
 
   it('MISS then HIT for another endpoint (wacc)', async () => {
-    const { env, ctx } = makeEnv('60');
+    const { env, ctx } = makeTestEnv({ analysisCacheTtlSeconds: '60' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).caches = { default: new MemoryCache() } as unknown as CacheStorage & {
       default: Cache;

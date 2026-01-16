@@ -3,13 +3,15 @@
  * Performance tests for Monte Carlo and sensitivity analysis
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
 import { CCAValuationEngine, CCAValuationInput } from '../cca-analysis';
 import { DCFValuationEngine, DCFValuationInput } from '../dcf-analysis';
 import { MAAnalysisEngine, MAAnalysisInput } from '../ma-analysis';
-
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('Business Models Performance', () => {
   let dcfInput: DCFValuationInput;
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
   let ccaInput: CCAValuationInput;
   let maInput: MAAnalysisInput;
 

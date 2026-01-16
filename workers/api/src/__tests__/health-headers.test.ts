@@ -1,28 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import api from '../index';
-
-function makeEnv() {
-  const env: { ENVIRONMENT: string; DB: D1Database; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket } = {
-    ENVIRONMENT: 'test',
-    DB: {} as unknown as D1Database,
-    SESSIONS: {
-      get: async () => null,
-      put: async () => undefined,
-      delete: async () => undefined,
-      list: async () => ({ keys: [], list_complete: true }),
-    } as unknown as KVNamespace,
-    DOCUMENTS: {} as unknown as R2Bucket,
-  };
-  const ctx: ExecutionContext = {
-    waitUntil: () => {},
-    passThroughOnException: () => {},
-  } as unknown as ExecutionContext;
-  return { env, ctx };
-}
+import { makeTestEnv } from './helpers/env';
 
 describe('/health headers', () => {
   it('returns JSON with security headers and no RateLimit headers', async () => {
-    const { env, ctx } = makeEnv();
+    const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/health', { method: 'GET' });
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);

@@ -1,28 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import api from '../index';
-
-function makeEnv() {
-  const env: { ENVIRONMENT: string; DB: D1Database; SESSIONS: KVNamespace; DOCUMENTS: R2Bucket } = {
-    ENVIRONMENT: 'test',
-    DB: {} as unknown as D1Database,
-    SESSIONS: {
-      get: async () => null,
-      put: async () => undefined,
-      delete: async () => undefined,
-      list: async () => ({ keys: [], list_complete: true }),
-    } as unknown as KVNamespace,
-    DOCUMENTS: {} as unknown as R2Bucket,
-  };
-  const ctx: ExecutionContext = {
-    waitUntil: () => {},
-    passThroughOnException: () => {},
-  } as unknown as ExecutionContext;
-  return { env, ctx };
-}
+import { makeTestEnv } from './helpers/env';
 
 describe('MCP endpoint', () => {
   it('supports initialize', async () => {
-    const { env, ctx } = makeEnv();
+    const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/mcp', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -35,7 +17,7 @@ describe('MCP endpoint', () => {
   });
 
   it('lists tools', async () => {
-    const { env, ctx } = makeEnv();
+    const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/mcp', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -53,7 +35,7 @@ describe('MCP endpoint', () => {
   });
 
   it('calls analyze_lease tool', async () => {
-    const { env, ctx } = makeEnv();
+    const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/mcp', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -80,7 +62,7 @@ describe('MCP endpoint', () => {
 
 describe('MCP amortization tool', () => {
   it('calls analyze_amortization tool', async () => {
-    const { env, ctx } = makeEnv();
+    const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/mcp', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

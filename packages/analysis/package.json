@@ -24,7 +24,8 @@
     "test": "pnpm run build && vitest run --config ./vitest.config.mjs",
     "test:fast": "pnpm run build && vitest run --config ./vitest.config.mjs --exclude **/performance.test.ts",
     "test:slow": "pnpm run build && vitest run --config ./vitest.config.mjs --include **/performance.test.ts",
-    "test:coverage": "pnpm run build && vitest run --coverage --config ./vitest.config.mjs"
+    "test:coverage": "pnpm run build && vitest run --coverage --config ./vitest.config.mjs",
+    "test:mutation": "stryker run"
   },
   "dependencies": {
     "decimal.js": "^10.6.0",
@@ -32,6 +33,8 @@
   },
   "devDependencies": {
     "@financial-analysis/config": "workspace:*",
+    "@stryker-mutator/core": "^9.2.0",
+    "@stryker-mutator/vitest-runner": "^9.2.0",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.50.0",
     "@vitest/coverage-v8": "4.0.9",

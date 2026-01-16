@@ -1,6 +1,8 @@
-import { afterAll, beforeEach } from 'vitest';
+import { afterAll, beforeEach, vi } from 'vitest';
 
 const originalRandom = Math.random;
+const fixedNow = new Date('2024-01-01T00:00:00.000Z').getTime();
+let nowSpy: ReturnType<typeof vi.spyOn> | null = null;
 
 const createSeededRandom = (seed: number) => {
   let t = seed;
@@ -14,8 +16,11 @@ const createSeededRandom = (seed: number) => {
 
 beforeEach(() => {
   Math.random = createSeededRandom(0x12345678);
+  nowSpy?.mockRestore();
+  nowSpy = vi.spyOn(Date, 'now').mockReturnValue(fixedNow);
 });
 
 afterAll(() => {
+  nowSpy?.mockRestore();
   Math.random = originalRandom;
 });

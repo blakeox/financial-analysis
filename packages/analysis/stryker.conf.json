@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/stryker.schema.json",
+  "packageManager": "pnpm",
+  "testRunner": "vitest",
+  "coverageAnalysis": "perTest",
+  "reporters": ["clear-text", "progress", "html"],
+  "mutate": [
+    "src/engines/options.ts",
+    "src/engines/real-options.ts"
+  ],
+  "vitest": {
+    "configFile": "vitest.config.mjs"
+  },
+  "timeoutMS": 600000,
+  "timeoutFactor": 1.5
+}
