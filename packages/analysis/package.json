@@ -22,7 +22,9 @@
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
     "test": "pnpm run build && vitest run --config ./vitest.config.mjs",
-    "test:coverage": "pnpm run build && vitest --coverage --config ./vitest.config.mjs"
+    "test:fast": "pnpm run build && vitest run --config ./vitest.config.mjs --exclude **/performance.test.ts",
+    "test:slow": "pnpm run build && vitest run --config ./vitest.config.mjs --include **/performance.test.ts",
+    "test:coverage": "pnpm run build && vitest run --coverage --config ./vitest.config.mjs"
   },
   "dependencies": {
     "decimal.js": "^10.6.0",
@@ -35,6 +37,7 @@
     "@vitest/coverage-v8": "4.0.9",
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
+    "fast-check": "^3.18.0",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "vite": "7.3.0",

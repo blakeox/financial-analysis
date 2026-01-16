@@ -4,7 +4,8 @@
  * Tests Black-Scholes, Black-Scholes-Merton, Binomial, and Monte Carlo pricing models
  * along with Greeks calculations, probability metrics, and strategy analysis.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import fc from 'fast-check';
 import {
   OptionsPricingAnalyzer,
   OptionAnalysisInputSchema,
@@ -505,6 +506,14 @@ describe('Probability Metrics', () => {
     expect(result.probabilityTouch).toBeGreaterThanOrEqual(0);
     expect(result.probabilityTouch).toBeLessThanOrEqual(1);
   });
+
+  it('should clamp probability of touch to 1 for extreme strikes', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput({ underlyingPrice: 10, strikePrice: 100 })
+    );
+
+    expect(result.probabilityTouch).toBe(1);
+  });
 });
 
 // ============================================================================
@@ -590,6 +599,17 @@ describe('Time Decay Analysis', () => {
       expect(first.timeValue).toBeGreaterThanOrEqual(last.timeValue);
     }
   });
+
+  it('should skip days beyond expiry', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput(
+        { timeToExpiry: 0.01 },
+        { timeDecayDays: [1, 5, 10] }
+      )
+    );
+
+    expect(result.thetaDecay.length).toBe(1);
+  });
 });
 
 // ============================================================================
@@ -671,6 +691,31 @@ describe('Implied Volatility Calculation', () => {
 
     expect(result.impliedVolatility).toBeUndefined();
   });
+
+  it('should fallback when vega is near zero', () => {
+    const option = createBasicCallOption({
+      underlyingPrice: 1000,
+      strikePrice: 1,
+      timeToExpiry: 1e-8,
+      volatility: 0.2,
+    });
+
+    const implied = (OptionsPricingAnalyzer as any).calculateImpliedVolatility(option, 0.01);
+    expect(implied).toBeGreaterThanOrEqual(0.001);
+    expect(implied).toBeLessThanOrEqual(5);
+  });
+});
+
+// ============================================================================
+// SINGLE GREEK FALLBACK TEST
+// ============================================================================
+
+describe('Single Greek fallback', () => {
+  it('should return 0 for unsupported greek types', () => {
+    const option = createBasicCallOption();
+    const value = (OptionsPricingAnalyzer as any).calculateSingleGreek(option, 'rho', {});
+    expect(value).toBe(0);
+  });
 });
 
 // ============================================================================
@@ -722,6 +767,276 @@ describe('Model Assumptions', () => {
   it('should record constant risk-free rate assumption', () => {
     const result = OptionsPricingAnalyzer.analyze(createBasicInput());
     expect(result.assumptions.constantRiskFreeRate).toBe(true);
+  });
+});
+
+// ============================================================================
+// PROPERTY-BASED INVARIANTS
+// ============================================================================
+
+describe('Property-based invariants', () => {
+  it('should have monotonic call price with underlying', () => {
+    fc.assert(
+      fc.property(
+        fc.double({ min: 50, max: 150 }),
+        fc.double({ min: 50, max: 150 }),
+        fc.double({ min: 0.01, max: 0.8 }),
+        fc.double({ min: 0.0, max: 0.1 }),
+        fc.double({ min: 0.05, max: 2 }),
+        (s1, s2, vol, r, T) => {
+          const [lowS, highS] = s1 <= s2 ? [s1, s2] : [s2, s1];
+          const low = OptionsPricingAnalyzer.analyze(
+            createBasicInput({ underlyingPrice: lowS, volatility: vol, riskFreeRate: r, timeToExpiry: T })
+          );
+          const high = OptionsPricingAnalyzer.analyze(
+            createBasicInput({ underlyingPrice: highS, volatility: vol, riskFreeRate: r, timeToExpiry: T })
+          );
+
+          expect(high.theoreticalPrice).toBeGreaterThanOrEqual(low.theoreticalPrice - 1e-6);
+        }
+      ),
+      { seed: 42, numRuns: 25 }
+    );
+  });
+
+  it('should satisfy put-call parity within tolerance', () => {
+    fc.assert(
+      fc.property(
+        fc.double({ min: 50, max: 150 }),
+        fc.double({ min: 50, max: 150 }),
+        fc.double({ min: 0.01, max: 0.8 }),
+        fc.double({ min: 0.0, max: 0.1 }),
+        fc.double({ min: 0.05, max: 2 }),
+        (S, K, vol, r, T) => {
+          const call = OptionsPricingAnalyzer.analyze(
+            createBasicInput({ underlyingPrice: S, strikePrice: K, volatility: vol, riskFreeRate: r, timeToExpiry: T })
+          );
+          const put = OptionsPricingAnalyzer.analyze(
+            createBasicInput({ type: 'put', underlyingPrice: S, strikePrice: K, volatility: vol, riskFreeRate: r, timeToExpiry: T })
+          );
+
+          const expectedDifference = S - K * Math.exp(-r * T);
+          const actualDifference = call.theoreticalPrice - put.theoreticalPrice;
+
+          expect(actualDifference).toBeCloseTo(expectedDifference, 2);
+        }
+      ),
+      { seed: 42, numRuns: 25 }
+    );
+  });
+});
+
+// ============================================================================
+// SNAPSHOT SHAPE TESTS
+// ============================================================================
+
+describe('Snapshot shapes', () => {
+  it('should keep a stable analysis shape', () => {
+    const result = OptionsPricingAnalyzer.analyze(createBasicInput());
+    const shape = {
+      keys: Object.keys(result).sort(),
+      greeks: Object.keys(result.greeks).sort(),
+      moneyness: Object.keys(result.moneyness).sort(),
+      thetaDecayKeys: result.thetaDecay[0] ? Object.keys(result.thetaDecay[0]).sort() : [],
+    };
+
+    expect(shape).toMatchInlineSnapshot(`
+      {
+        "greeks": [
+          "charm",
+          "color",
+          "delta",
+          "gamma",
+          "rho",
+          "speed",
+          "theta",
+          "ultima",
+          "vanna",
+          "vega",
+          "vomma",
+          "zomma",
+        ],
+        "keys": [
+          "assumptions",
+          "breakevenPoints",
+          "greeks",
+          "impliedVolatility",
+          "intrinsicValue",
+          "maxLoss",
+          "maxProfit",
+          "moneyness",
+          "pricingModel",
+          "probabilityITM",
+          "probabilityOTM",
+          "probabilityOfProfit",
+          "probabilityTouch",
+          "theoreticalPrice",
+          "thetaDecay",
+          "timeValue",
+          "volatilityPercentile",
+          "volatilityRank",
+        ],
+        "moneyness": [
+          "forward",
+          "logMoneyness",
+          "percentMoneyness",
+          "spot",
+        ],
+        "thetaDecayKeys": [
+          "daysToExpiry",
+          "theoreticalPrice",
+          "theta",
+          "timeValue",
+        ],
+      }
+    `);
+  });
+});
+
+// ============================================================================
+// ANALYSIS TOGGLE BRANCHES
+// ============================================================================
+
+describe('Analysis Toggles', () => {
+  it('should zero-fill greeks when disabled', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput({}, { includeGreeks: false })
+    );
+
+    expect(result.greeks.delta).toBe(0);
+    expect(result.greeks.gamma).toBe(0);
+    expect(result.greeks.theta).toBe(0);
+  });
+
+  it('should skip probabilities when disabled', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput({}, { includeProbabilities: false })
+    );
+
+    expect(result.probabilityOfProfit).toBe(0);
+    expect(result.probabilityITM).toBe(0);
+    expect(result.probabilityOTM).toBe(0);
+    expect(result.probabilityTouch).toBe(0);
+  });
+
+  it('should skip time decay when disabled', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput({}, { includeTimeDecay: false })
+    );
+
+    expect(result.thetaDecay.length).toBe(0);
+  });
+
+  it('should skip moneyness when disabled', () => {
+    const result = OptionsPricingAnalyzer.analyze(
+      createBasicInput({}, { includeMoneyness: false })
+    );
+
+    expect(result.moneyness.spot).toBe(1);
+    expect(result.moneyness.forward).toBe(1);
+    expect(result.moneyness.logMoneyness).toBe(0);
+    expect(result.moneyness.percentMoneyness).toBe(0);
+  });
+
+  it('should skip implied volatility when disabled', () => {
+    const withPremium = createBasicInput(
+      { premium: 12 },
+      { includeImpliedVol: false }
+    );
+    const result = OptionsPricingAnalyzer.analyze(withPremium);
+
+    expect(result.impliedVolatility).toBeUndefined();
+  });
+
+  it('should honor disabled analysis flags and undefined dividend yield', () => {
+    const parsed = OptionAnalysisInputSchema.parse(createBasicInput());
+    const mockedParsed = {
+      ...parsed,
+      option: { ...parsed.option, dividendYield: undefined },
+      analysis: {
+        ...parsed.analysis,
+        includeGreeks: false,
+        includeProbabilities: false,
+        includeTimeDecay: false,
+        includeMoneyness: false,
+        includeImpliedVol: false,
+      },
+    };
+
+    const parseSpy = vi.spyOn(OptionAnalysisInputSchema, 'parse').mockReturnValue(mockedParsed as OptionAnalysisInput);
+    const result = OptionsPricingAnalyzer.analyze(createBasicInput({ premium: 10 }));
+    parseSpy.mockRestore();
+
+    expect(result.greeks.delta).toBe(0);
+    expect(result.probabilityOfProfit).toBe(0);
+    expect(result.thetaDecay.length).toBe(0);
+    expect(result.moneyness.spot).toBe(1);
+    expect(result.impliedVolatility).toBeUndefined();
+    expect(result.assumptions.noDividends).toBe(true);
+  });
+});
+
+// ============================================================================
+// INTERNAL BRANCH COVERAGE HELPERS
+// ============================================================================
+
+describe('Internal branch coverage helpers', () => {
+  it('should fallback in binomial pricing when steps produce no node values', () => {
+    const option = createBasicCallOption({ dividendYield: undefined });
+    const value = (OptionsPricingAnalyzer as any).binomialPrice(option, -1);
+
+    expect(value).toBe(0);
+  });
+
+  it('should handle undefined dividend yield in Monte Carlo pricing', () => {
+    const option = createBasicCallOption({ dividendYield: undefined });
+    const value = (OptionsPricingAnalyzer as any).monteCarloPrice(option, 1);
+
+    expect(Number.isFinite(value)).toBe(true);
+  });
+
+  it('should handle undefined dividend yield in probability metrics', () => {
+    const option = createBasicCallOption({ dividendYield: undefined });
+    const result = (OptionsPricingAnalyzer as any).calculateProbabilities(option);
+
+    expect(result.probabilityITM).toBeGreaterThanOrEqual(0);
+    expect(result.probabilityITM).toBeLessThanOrEqual(1);
+  });
+
+  it('should handle undefined dividend yield in moneyness metrics', () => {
+    const option = createBasicCallOption({ dividendYield: undefined });
+    const result = (OptionsPricingAnalyzer as any).calculateMoneyness(option);
+
+    expect(result.spot).toBeCloseTo(1, 4);
+  });
+
+  it('should default risk-free rate for empty strategies', () => {
+    const result = OptionsPricingAnalyzer.analyzeStrategy([], { min: 90, max: 110, steps: 4 });
+
+    expect(result.sharpeRatio).toBe(0);
+  });
+
+  it('should return null max profit/loss for infinite payoff ranges', () => {
+    const result = (OptionsPricingAnalyzer as any).analyzeStrategyRisk([
+      { underlyingPrice: 0, payoff: Infinity },
+      { underlyingPrice: 1, payoff: -Infinity },
+    ]);
+
+    expect(result.maxProfit).toBeNull();
+    expect(result.maxLoss).toBeNull();
+  });
+
+  it('should handle empty payoff diagrams in strategy metrics', () => {
+    const probability = (OptionsPricingAnalyzer as any).calculateStrategyProbabilityOfProfit([], []);
+    const expectedValue = (OptionsPricingAnalyzer as any).calculateExpectedValue([]);
+    const sharpe = (OptionsPricingAnalyzer as any).calculateSharpeRatio(
+      [{ underlyingPrice: 1, payoff: 5 }, { underlyingPrice: 2, payoff: 5 }],
+      0.05
+    );
+
+    expect(probability).toBe(0);
+    expect(expectedValue).toBe(0);
+    expect(sharpe).toBe(0);
   });
 });
 
