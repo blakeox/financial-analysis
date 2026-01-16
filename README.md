@@ -148,10 +148,10 @@ Mutation testing (analysis package):
 pnpm --filter @financial-analysis/analysis run test:mutation
 ```
 
-CI note for chat integration tests:
+Chat integration tests note:
 
-- Chat integration tests that require Cloudflare AI/Vectorize are skipped in CI by default.
-- To enable them, set $RUN_AI_INTEGRATION_TESTS=true in the workflow environment.
+- Chat integration tests that require Cloudflare AI/Vectorize are skipped by default.
+- To enable them (locally or in CI), set $RUN_AI_INTEGRATION_TESTS=true.
 
 ### Rate limiting headers
 
