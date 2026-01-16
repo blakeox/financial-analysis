@@ -1,48 +1,88 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Typecheck and lint after edits",
-      "type": "shell",
-      "command": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint",
-      "problemMatcher": ["$tsc", "$eslint - stylish"]
-    },
-    {
-      "label": "Install deps (no frozen)",
-      "type": "shell",
-      "command": "pnpm install --no-frozen-lockfile",
-      "problemMatcher": ["$tsc"],
-      "group": "build"
-    },
-    {
-      "label": "Typecheck, lint, test",
-      "type": "shell",
-      "command": "pnpm typecheck && pnpm lint && pnpm test",
-      "problemMatcher": ["$tsc", "$eslint - stylish"],
-      "group": "build"
-    },
-    {
-      "label": "Typecheck again",
-      "type": "shell",
-      "command": "pnpm --filter @financial-analysis/web-worker typecheck && pnpm --filter @financial-analysis/api typecheck && pnpm --filter @financial-analysis/analysis typecheck",
-      "problemMatcher": ["$tsc"],
-      "group": "build"
-    },
-    {
-      "label": "Install new lint deps",
-      "type": "shell",
-      "command": "pnpm install --no-frozen-lockfile",
-      "group": "build"
-    },
-    {
-      "label": "Rebuild app for updated nav markup",
-      "type": "shell",
-      "command": "pnpm -w --filter @financial-analysis/web build"
-    },
-    {
-      "label": "Typecheck and lint after edits",
-      "type": "shell",
-      "command": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint"
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Typecheck and lint after edits",
+			"type": "shell",
+			"command": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint",
+			"problemMatcher": [
+				"$tsc",
+				"$eslint - stylish"
+			]
+		},
+		{
+			"label": "Install deps (no frozen)",
+			"type": "shell",
+			"command": "pnpm install --no-frozen-lockfile",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Typecheck, lint, test",
+			"type": "shell",
+			"command": "pnpm typecheck && pnpm lint && pnpm test",
+			"problemMatcher": [
+				"$tsc",
+				"$eslint - stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Typecheck again",
+			"type": "shell",
+			"command": "pnpm --filter @financial-analysis/web-worker typecheck && pnpm --filter @financial-analysis/api typecheck && pnpm --filter @financial-analysis/analysis typecheck",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Install new lint deps",
+			"type": "shell",
+			"command": "pnpm install --no-frozen-lockfile",
+			"group": "build"
+		},
+		{
+			"label": "Rebuild app for updated nav markup",
+			"type": "shell",
+			"command": "pnpm -w --filter @financial-analysis/web build"
+		},
+		{
+			"label": "Typecheck and lint after edits",
+			"type": "shell",
+			"command": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint"
+		},
+		{
+			"label": "Analysis coverage summary",
+			"type": "shell",
+			"command": "pnpm --filter @financial-analysis/analysis test:coverage && node -e \"const fs=require('fs');const p='packages/analysis/coverage/coverage-final.json';const d=JSON.parse(fs.readFileSync(p,'utf8'));const pct=(c,t)=>t?100*c/t:100;const sumc=o=>{if(!o)return[0,0];if(Array.isArray(o)){let tot=0,cov=0;for(const e of o){if(Array.isArray(e)){for(const n of e){tot++;if(n>0)cov++;}}else{tot++;if(e>0)cov++;}}return[cov,tot];}const keys=Object.keys(o);let cov=0;for(const k of keys)if(o[k]>0)cov++;return[cov,keys.length];};let totS=[0,0],totB=[0,0],totF=[0,0],totL=[0,0];const rows=[];for(const [fn,c] of Object.entries(d)){const [sC,sT]=sumc(c.s);const [bC,bT]=sumc(c.b);const [fC,fT]=sumc(c.f);const [lC,lT]=sumc(c.l);totS[0]+=sC;totS[1]+=sT;totB[0]+=bC;totB[1]+=bT;totF[0]+=fC;totF[1]+=fT;totL[0]+=lC;totL[1]+=lT;rows.push([pct(sC,sT),sT,pct(bC,bT),pct(fC,fT),pct(lC,lT),fn]);}rows.sort((a,b)=>a[0]-b[0]||b[1]-a[1]);console.log('packages/analysis coverage totals (from coverage-final.json):');console.log(`- statements: ${pct(totS[0],totS[1]).toFixed(2)}% (${totS[0]}/${totS[1]})`);console.log(`- branches:   ${pct(totB[0],totB[1]).toFixed(2)}% (${totB[0]}/${totB[1]})`);console.log(`- functions:  ${pct(totF[0],totF[1]).toFixed(2)}% (${totF[0]}/${totF[1]})`);console.log(`- lines:      ${pct(totL[0],totL[1]).toFixed(2)}% (${totL[0]}/${totL[1]})`);console.log('\\nLowest statement coverage files (min 20 statements):');let shown=0;for(const r of rows){if(r[1]<20)continue;const rel=r[5].includes('/packages/analysis/')?r[5].split('/packages/analysis/')[1]:r[5];console.log(`- ${r[0].toFixed(2)}% s | ${r[2].toFixed(2)}% b | ${r[3].toFixed(2)}% f | ${r[4].toFixed(2)}% l | s=${r[1]} | ${rel}`);if(++shown>=12)break;}\""
+		},
+		{
+			"label": "Analysis coverage summary to file",
+			"type": "shell",
+			"command": "mkdir -p tmp && (pnpm --filter @financial-analysis/analysis test:coverage >/dev/null 2>&1 || exit 1) && node -e \"const fs=require('fs');const p='packages/analysis/coverage/coverage-final.json';const d=JSON.parse(fs.readFileSync(p,'utf8'));const pct=(c,t)=>t?100*c/t:100;const sumc=o=>{if(!o)return[0,0];if(Array.isArray(o)){let tot=0,cov=0;for(const e of o){if(Array.isArray(e)){for(const n of e){tot++;if(n>0)cov++;}}else{tot++;if(e>0)cov++;}}return[cov,tot];}const keys=Object.keys(o);let cov=0;for(const k of keys)if(o[k]>0)cov++;return[cov,keys.length];};let totS=[0,0],totB=[0,0],totF=[0,0],totL=[0,0];const rows=[];for(const [fn,c] of Object.entries(d)){const [sC,sT]=sumc(c.s);const [bC,bT]=sumc(c.b);const [fC,fT]=sumc(c.f);const [lC,lT]=sumc(c.l);totS[0]+=sC;totS[1]+=sT;totB[0]+=bC;totB[1]+=bT;totF[0]+=fC;totF[1]+=fT;totL[0]+=lC;totL[1]+=lT;rows.push([pct(sC,sT),sT,pct(bC,bT),pct(fC,fT),pct(lC,lT),fn]);}rows.sort((a,b)=>a[0]-b[0]||b[1]-a[1]);let out='packages/analysis coverage totals (from coverage-final.json):\\n';out+=`- statements: ${pct(totS[0],totS[1]).toFixed(2)}% (${totS[0]}/${totS[1]})\\n`;out+=`- branches:   ${pct(totB[0],totB[1]).toFixed(2)}% (${totB[0]}/${totB[1]})\\n`;out+=`- functions:  ${pct(totF[0],totF[1]).toFixed(2)}% (${totF[0]}/${totF[1]})\\n`;out+=`- lines:      ${pct(totL[0],totL[1]).toFixed(2)}% (${totL[0]}/${totL[1]})\\n\\n`;out+='Lowest statement coverage files (min 20 statements):\\n';let shown=0;for(const r of rows){if(r[1]<20)continue;const rel=r[5].includes('/packages/analysis/')?r[5].split('/packages/analysis/')[1]:r[5];out+=`- ${r[0].toFixed(2)}% s | ${r[2].toFixed(2)}% b | ${r[3].toFixed(2)}% f | ${r[4].toFixed(2)}% l | s=${r[1]} | ${rel}\\n`;if(++shown>=20)break;}fs.writeFileSync('tmp/analysis-coverage-summary.txt',out);\" && echo \"WROTE tmp/analysis-coverage-summary.txt\""
+		},
+		{
+			"label": "Parse analysis coverage to file",
+			"type": "shell",
+			"command": "mkdir -p tmp && node -e \"const fs=require('fs');const p='packages/analysis/coverage/coverage-final.json';const d=JSON.parse(fs.readFileSync(p,'utf8'));const pct=(c,t)=>t?100*c/t:100;const sumc=o=>{if(!o)return[0,0];if(Array.isArray(o)){let tot=0,cov=0;for(const e of o){if(Array.isArray(e)){for(const n of e){tot++;if(n>0)cov++;}}else{tot++;if(e>0)cov++;}}return[cov,tot];}const keys=Object.keys(o);let cov=0;for(const k of keys)if(o[k]>0)cov++;return[cov,keys.length];};let totS=[0,0],totB=[0,0],totF=[0,0],totL=[0,0];const rows=[];for(const [fn,c] of Object.entries(d)){const [sC,sT]=sumc(c.s);const [bC,bT]=sumc(c.b);const [fC,fT]=sumc(c.f);const [lC,lT]=sumc(c.l);totS[0]+=sC;totS[1]+=sT;totB[0]+=bC;totB[1]+=bT;totF[0]+=fC;totF[1]+=fT;totL[0]+=lC;totL[1]+=lT;rows.push([pct(sC,sT),sT,pct(bC,bT),pct(fC,fT),pct(lC,lT),fn]);}rows.sort((a,b)=>a[0]-b[0]||b[1]-a[1]);let out='packages/analysis coverage totals (from coverage-final.json):\\n';out+=`- statements: ${pct(totS[0],totS[1]).toFixed(2)}% (${totS[0]}/${totS[1]})\\n`;out+=`- branches:   ${pct(totB[0],totB[1]).toFixed(2)}% (${totB[0]}/${totB[1]})\\n`;out+=`- functions:  ${pct(totF[0],totF[1]).toFixed(2)}% (${totF[0]}/${totF[1]})\\n`;out+=`- lines:      ${pct(totL[0],totL[1]).toFixed(2)}% (${totL[0]}/${totL[1]})\\n\\n`;out+='Lowest statement coverage files (min 20 statements):\\n';let shown=0;for(const r of rows){if(r[1]<20)continue;const rel=r[5].includes('/packages/analysis/')?r[5].split('/packages/analysis/')[1]:r[5];out+=`- ${r[0].toFixed(2)}% s | ${r[2].toFixed(2)}% b | ${r[3].toFixed(2)}% f | ${r[4].toFixed(2)}% l | s=${r[1]} | ${rel}\\n`;if(++shown>=25)break;}fs.writeFileSync('tmp/analysis-coverage-summary.txt',out);console.log('WROTE tmp/analysis-coverage-summary.txt');\""
+		},
+		{
+			"label": "Print analysis coverage summary",
+			"type": "shell",
+			"command": "node scripts/print-analysis-coverage-summary.mjs"
+		},
+		{
+			"label": "Regenerate analysis coverage",
+			"type": "shell",
+			"command": "rm -rf packages/analysis/coverage && pnpm --filter @financial-analysis/analysis test:coverage >/dev/null 2>&1 && wc -c packages/analysis/coverage/coverage-final.json"
+		},
+		{
+			"label": "Analysis test:coverage (foreground)",
+			"type": "shell",
+			"command": "pnpm --filter @financial-analysis/analysis test:coverage"
+		}
+	]
 }
