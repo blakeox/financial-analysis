@@ -127,6 +127,9 @@ const response = await fetch('/api/mcp', {
 # Run all tests
 pnpm run test
 
+# Run smoke tests (fast API subset)
+pnpm run test:smoke
+
 # Run tests with coverage
 pnpm run test --coverage
 
