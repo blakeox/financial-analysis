@@ -26,7 +26,11 @@ interface ChatResponse {
   error?: string;
 }
 
-describe('Chat Endpoint Integration Tests', () => {
+const isCi = process.env.CI === 'true';
+const shouldRunAIIntegration = !isCi || process.env.RUN_AI_INTEGRATION_TESTS === 'true';
+const describeChat = shouldRunAIIntegration ? describe : describe.skip;
+
+describeChat('Chat Endpoint Integration Tests', () => {
   let worker: Unstable_DevWorker;
 
   beforeAll(async () => {

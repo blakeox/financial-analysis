@@ -135,7 +135,23 @@ pnpm run test --watch
 
 # Run specific test file
 pnpm run test lease.test.ts
+
+# Faster test modes
+pnpm run test:fast
+pnpm run test:slow
+pnpm run test:flaky
 ```
+
+Mutation testing (analysis package):
+
+```bash
+pnpm --filter @financial-analysis/analysis run test:mutation
+```
+
+CI note for chat integration tests:
+
+- Chat integration tests that require Cloudflare AI/Vectorize are skipped in CI by default.
+- To enable them, set $RUN_AI_INTEGRATION_TESTS=true in the workflow environment.
 
 ### Rate limiting headers
 
