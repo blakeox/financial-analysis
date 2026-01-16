@@ -22,6 +22,11 @@ import {
   type SecurityContext,
 } from '../lib';
 import { canCreateOrchestrator, createLLMOrchestrator } from '../services/llm-service-factory';
+import {
+  createStructuredSSEStream,
+  createStreamingSSEStream,
+  buildSSEHeaders,
+} from './chat-sse-helpers';
 
 export function registerChatRoutes(router: RouterType) {
   // ---- Simple contextual chat endpoint (AI Orchestrator) ----
@@ -533,53 +538,35 @@ export function registerChatRoutes(router: RouterType) {
           enableFunctionCalling,
         };
 
-        const stream = orchestrator.stream(orchestratorRequest);
-        
         // Commit security context (increment counters)
         await commitSecurityContext(env, securityContext, undefined, true);
 
         const encoder = new TextEncoder();
+        let readable: ReadableStream;
 
-        const readable = new ReadableStream({
-          async start(controller) {
-            try {
-              for await (const chunk of stream) {
-                const sseMessage = `data: ${JSON.stringify({ token: chunk })}\n\n`;
-                controller.enqueue(encoder.encode(sseMessage));
-              }
-              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-              controller.close();
-            } catch (err) {
-              // Fallback: If AI fails (e.g. local dev) but user asks for tools
-              if (
-                availableTools.length > 0 &&
-                /tools|help|capabilities|what can you do/i.test(message || '')
-              ) {
-                const toolList = formatToolList(availableTools);
-                const errorMessage = err instanceof Error ? err.message : String(err);
-
-                const fallbackResponse = `I'm currently running in offline mode (Error: ${errorMessage}), but I can still help you with the following tools:\n\n${toolList}\n\nPlease try asking specifically about one of these topics.`;
-
-                // Stream the fallback response
-                const sseMessage = `data: ${JSON.stringify({ token: fallbackResponse })}\n\n`;
-                controller.enqueue(encoder.encode(sseMessage));
-                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-                controller.close();
-                return;
-              }
-
-              controller.error(err);
-            }
-          },
-        });
+        // Route to appropriate handler based on function calling flag
+        if (enableFunctionCalling) {
+          // Structured mode: Execute tools and return structured results
+          const result = await orchestrator.handle(orchestratorRequest);
+          readable = createStructuredSSEStream(
+            encoder,
+            result.response,
+            result.functionCallingResults
+          );
+        } else {
+          // Streaming mode: Stream text tokens only
+          const stream = orchestrator.stream(orchestratorRequest);
+          readable = createStreamingSSEStream(encoder, stream, {
+            availableTools,
+            message: message || '',
+            formatToolList,
+          });
+        }
 
         return new Response(readable, {
-          headers: {
-            ...buildChatHeaders(env, requestContext.requestId, requestContext.correlationId),
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-          },
+          headers: buildSSEHeaders(
+            buildChatHeaders(env, requestContext.requestId, requestContext.correlationId)
+          ),
         });
       } catch (error) {
         logError(requestContext, error instanceof Error ? error : new Error(String(error)));

@@ -837,18 +837,39 @@ class ChatPanel {
       this.showThinking();
 
       let fullResponse = '';
+      let appliedModelChanges = false;
       
       // Use streaming transport
       await this.transport.stream(payload, (chunk) => {
-        if (fullResponse.length === 0) {
-          this.hideThinking();
+        // Handle structured function calling results
+        if (typeof chunk === 'object' && chunk.functionCallingResults) {
+          const { modelChanges } = chunk.functionCallingResults;
+          if (modelChanges && typeof modelChanges === 'object') {
+            console.log('[ChatPanel] Received modelChanges:', modelChanges);
+            this.applyModelChanges(modelChanges);
+            appliedModelChanges = true;
+          }
+          return;
         }
-        fullResponse += chunk;
-        this.updateLastAssistantMessage(fullResponse);
+
+        // Handle text tokens
+        if (typeof chunk === 'string') {
+          if (fullResponse.length === 0) {
+            this.hideThinking();
+          }
+          fullResponse += chunk;
+          this.updateLastAssistantMessage(fullResponse);
+        }
       });
 
       // Ensure thinking is hidden if it wasn't already
       this.hideThinking();
+
+      // If model changes were applied, add a confirmation message
+      if (appliedModelChanges && !fullResponse) {
+        fullResponse = 'Updated the financial model with your changes.';
+        this.updateLastAssistantMessage(fullResponse);
+      }
 
       // Update memory with the full response
       chatMemory.addConversationEntry(
@@ -863,6 +884,31 @@ class ChatPanel {
     } catch (error) {
       this.handleFailedResponse(error);
     }
+  }
+
+  /**
+   * Apply model changes from function calling results
+   */
+  private applyModelChanges(modelChanges: Record<string, unknown>): void {
+    console.log('[ChatPanel] Applying model changes:', modelChanges);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const [fieldId, value] of Object.entries(modelChanges)) {
+      if (value !== null && value !== undefined) {
+        const stringValue = String(value);
+        const result = this.updateFormField(fieldId, stringValue);
+        if (result.success) {
+          successCount++;
+          console.log(`[ChatPanel] ✓ Updated ${fieldId} = ${stringValue}`);
+        } else {
+          failCount++;
+          console.warn(`[ChatPanel] ✗ Failed to update ${fieldId}`);
+        }
+      }
+    }
+
+    console.log(`[ChatPanel] Model changes applied: ${successCount} succeeded, ${failCount} failed`);
   }
 
   /**

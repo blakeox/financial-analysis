@@ -10,7 +10,7 @@ export type ChatTransportConfig = {
 
 export type ChatTransport = {
   send(payload: ChatRequestPayload): Promise<ChatResponsePayload>;
-  stream(payload: ChatRequestPayload, onChunk: (chunk: string) => void): Promise<void>;
+  stream(payload: ChatRequestPayload, onChunk: (chunk: any) => void): Promise<void>;
 };
 
 const delay = (ms: number): Promise<void> =>
@@ -136,6 +136,8 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
               const parsed = JSON.parse(data);
               if (parsed.token) {
                 onChunk(parsed.token);
+              } else if (parsed.functionCallingResults) {
+                onChunk(parsed);
               }
             } catch (e) {
               console.warn('Failed to parse SSE message:', e);
@@ -152,6 +154,8 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
               const parsed = JSON.parse(data);
               if (parsed.token) {
                 onChunk(parsed.token);
+              } else if (parsed.functionCallingResults) {
+                onChunk(parsed);
               }
             } catch (e) {
               console.warn('Failed to parse SSE message:', e);
