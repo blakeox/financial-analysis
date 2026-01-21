@@ -58,7 +58,7 @@
     "undici": "^7.16.0",
     "vite": "7.3.0",
     "vitest": "4.0.9",
-    "wrangler": "^4.50.0"
+    "wrangler": "^4.59.1"
   },
   "engines": {
     "node": ">=18.0.0"
