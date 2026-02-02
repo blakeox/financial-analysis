@@ -1,0 +1,3426 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
+{
+  "components": {
+    "parameters": {},
+    "schemas": {
+      "AmortizationAnalysisResult": {
+        "properties": {
+          "monthlyPayment": {
+            "type": "number",
+          },
+          "schedule": {
+            "items": {
+              "properties": {
+                "balance": {
+                  "type": "number",
+                },
+                "interest": {
+                  "type": "number",
+                },
+                "month": {
+                  "type": "number",
+                },
+                "payment": {
+                  "type": "number",
+                },
+                "principal": {
+                  "type": "number",
+                },
+              },
+              "required": [
+                "month",
+                "payment",
+                "principal",
+                "interest",
+                "balance",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "totalInterest": {
+            "type": "number",
+          },
+          "totalPayments": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "monthlyPayment",
+          "totalPayments",
+          "totalInterest",
+          "schedule",
+        ],
+        "type": "object",
+      },
+      "AutoLoanAnalysisResult": {
+        "properties": {
+          "comparison": {
+            "properties": {
+              "loanVsLease": {
+                "properties": {
+                  "breakEvenPoint": {
+                    "type": "number",
+                  },
+                  "monthlyPaymentDifference": {
+                    "type": "number",
+                  },
+                  "reasoning": {
+                    "items": {
+                      "type": "string",
+                    },
+                    "type": "array",
+                  },
+                  "recommendation": {
+                    "enum": [
+                      "loan",
+                      "lease",
+                      "depends",
+                    ],
+                    "type": "string",
+                  },
+                  "totalCostDifference": {
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "monthlyPaymentDifference",
+                  "totalCostDifference",
+                  "breakEvenPoint",
+                  "recommendation",
+                  "reasoning",
+                ],
+                "type": "object",
+              },
+            },
+            "required": [
+              "loanVsLease",
+            ],
+            "type": "object",
+          },
+          "insights": {
+            "items": {
+              "type": "string",
+            },
+            "type": "array",
+          },
+          "leaseAnalysis": {
+            "properties": {
+              "buyoutCost": {
+                "type": "number",
+              },
+              "effectiveRate": {
+                "type": "number",
+              },
+              "endDate": {
+                "type": "string",
+              },
+              "monthlyPayment": {
+                "type": "number",
+              },
+              "totalCost": {
+                "type": "number",
+              },
+              "totalCostIfPurchased": {
+                "type": "number",
+              },
+              "totalPayments": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "monthlyPayment",
+              "totalPayments",
+              "totalCost",
+              "effectiveRate",
+              "endDate",
+              "buyoutCost",
+              "totalCostIfPurchased",
+            ],
+            "type": "object",
+          },
+          "loanAnalysis": {
+            "properties": {
+              "effectiveRate": {
+                "type": "number",
+              },
+              "monthlyPayment": {
+                "type": "number",
+              },
+              "paymentSchedule": {
+                "items": {
+                  "properties": {
+                    "cumulativeInterest": {
+                      "type": "number",
+                    },
+                    "interestPayment": {
+                      "type": "number",
+                    },
+                    "paymentDate": {
+                      "type": "string",
+                    },
+                    "paymentNumber": {
+                      "type": "number",
+                    },
+                    "principalPayment": {
+                      "type": "number",
+                    },
+                    "remainingBalance": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "paymentNumber",
+                    "paymentDate",
+                    "principalPayment",
+                    "interestPayment",
+                    "remainingBalance",
+                    "cumulativeInterest",
+                  ],
+                  "type": "object",
+                },
+                "type": "array",
+              },
+              "payoffDate": {
+                "type": "string",
+              },
+              "totalCost": {
+                "type": "number",
+              },
+              "totalInterest": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "monthlyPayment",
+              "totalInterest",
+              "totalCost",
+              "effectiveRate",
+              "payoffDate",
+              "paymentSchedule",
+            ],
+            "type": "object",
+          },
+          "metadata": {
+            "properties": {
+              "assumptions": {
+                "additionalProperties": {
+                  "nullable": true,
+                },
+                "type": "object",
+              },
+              "calculatedAt": {
+                "type": "string",
+              },
+              "methodology": {
+                "type": "string",
+              },
+              "version": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "calculatedAt",
+              "version",
+              "methodology",
+              "assumptions",
+            ],
+            "type": "object",
+          },
+          "recommendations": {
+            "items": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                },
+                "category": {
+                  "type": "string",
+                },
+                "description": {
+                  "type": "string",
+                },
+                "impact": {
+                  "type": "string",
+                },
+                "priority": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low",
+                  ],
+                  "type": "string",
+                },
+              },
+              "required": [
+                "category",
+                "priority",
+                "description",
+                "impact",
+                "action",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "refinancingAnalysis": {
+            "properties": {
+              "bestScenario": {
+                "properties": {
+                  "monthlySavings": {
+                    "type": "number",
+                  },
+                  "rate": {
+                    "type": "number",
+                  },
+                  "totalSavings": {
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "rate",
+                  "monthlySavings",
+                  "totalSavings",
+                ],
+                "type": "object",
+              },
+              "scenarios": {
+                "items": {
+                  "properties": {
+                    "breakEvenMonths": {
+                      "type": "number",
+                    },
+                    "monthlySavings": {
+                      "type": "number",
+                    },
+                    "newMonthlyPayment": {
+                      "type": "number",
+                    },
+                    "newRate": {
+                      "type": "number",
+                    },
+                    "recommendation": {
+                      "enum": [
+                        "refinance",
+                        "keep-current",
+                      ],
+                      "type": "string",
+                    },
+                    "totalSavings": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "newRate",
+                    "newMonthlyPayment",
+                    "monthlySavings",
+                    "totalSavings",
+                    "breakEvenMonths",
+                    "recommendation",
+                  ],
+                  "type": "object",
+                },
+                "type": "array",
+              },
+            },
+            "required": [
+              "scenarios",
+              "bestScenario",
+            ],
+            "type": "object",
+          },
+          "tcoAnalysis": {
+            "properties": {
+              "breakdown": {
+                "properties": {
+                  "depreciation": {
+                    "type": "number",
+                  },
+                  "fees": {
+                    "type": "number",
+                  },
+                  "fuel": {
+                    "type": "number",
+                  },
+                  "insurance": {
+                    "type": "number",
+                  },
+                  "interest": {
+                    "type": "number",
+                  },
+                  "loanPayments": {
+                    "type": "number",
+                  },
+                  "maintenance": {
+                    "type": "number",
+                  },
+                  "registration": {
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "loanPayments",
+                  "interest",
+                  "maintenance",
+                  "fuel",
+                  "insurance",
+                  "registration",
+                  "depreciation",
+                  "fees",
+                ],
+                "type": "object",
+              },
+              "costPerMile": {
+                "type": "number",
+              },
+              "costPerMonth": {
+                "type": "number",
+              },
+              "ownershipYears": {
+                "type": "number",
+              },
+              "residualValue": {
+                "type": "number",
+              },
+              "totalCostOfOwnership": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "ownershipYears",
+              "totalCostOfOwnership",
+              "costPerMile",
+              "costPerMonth",
+              "breakdown",
+              "residualValue",
+            ],
+            "type": "object",
+          },
+        },
+        "required": [
+          "loanAnalysis",
+          "insights",
+          "recommendations",
+          "metadata",
+        ],
+        "type": "object",
+      },
+      "ChatRequest": {
+        "properties": {
+          "messages": {
+            "items": {
+              "properties": {
+                "content": {
+                  "type": "string",
+                },
+                "role": {
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant",
+                  ],
+                  "type": "string",
+                },
+              },
+              "required": [
+                "role",
+                "content",
+              ],
+              "type": "object",
+            },
+            "minItems": 1,
+            "type": "array",
+          },
+          "model": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "messages",
+        ],
+        "type": "object",
+      },
+      "ChatResponse": {
+        "properties": {
+          "content": {
+            "type": "string",
+          },
+          "model": {
+            "type": "string",
+          },
+          "role": {
+            "enum": [
+              "assistant",
+            ],
+            "type": "string",
+          },
+        },
+        "required": [
+          "role",
+          "content",
+        ],
+        "type": "object",
+      },
+      "EbitdaForecastResponse": {
+        "description": "EBITDA forecast result",
+        "properties": {
+          "forecast": {
+            "items": {
+              "description": "Per-month forecast output",
+              "properties": {
+                "amortization": {
+                  "example": 750,
+                  "type": "number",
+                },
+                "billableHours": {
+                  "example": 300,
+                  "type": "number",
+                },
+                "costOfGoodsSold": {
+                  "example": 0,
+                  "type": "number",
+                },
+                "depreciation": {
+                  "example": 1500,
+                  "type": "number",
+                },
+                "ebit": {
+                  "example": 147750,
+                  "type": "number",
+                },
+                "ebitda": {
+                  "example": 150000,
+                  "type": "number",
+                },
+                "ebitdaMargin": {
+                  "example": 71.4,
+                  "type": "number",
+                },
+                "ebt": {
+                  "example": 147450,
+                  "type": "number",
+                },
+                "employeeCosts": {
+                  "example": 20000,
+                  "type": "number",
+                },
+                "employeeCount": {
+                  "example": 2,
+                  "type": "number",
+                },
+                "grossProfit": {
+                  "example": 210000,
+                  "type": "number",
+                },
+                "interestExpense": {
+                  "example": 300,
+                  "type": "number",
+                },
+                "marginPercent": {
+                  "example": 50,
+                  "type": "number",
+                },
+                "month": {
+                  "example": 1,
+                  "type": "number",
+                },
+                "netIncome": {
+                  "example": 110587.5,
+                  "type": "number",
+                },
+                "operatingExpenses": {
+                  "example": 60000,
+                  "type": "number",
+                },
+                "revenue": {
+                  "example": 210000,
+                  "type": "number",
+                },
+                "taxes": {
+                  "example": 36862.5,
+                  "type": "number",
+                },
+                "year": {
+                  "example": 2025,
+                  "type": "number",
+                },
+              },
+              "required": [
+                "month",
+                "year",
+                "revenue",
+                "costOfGoodsSold",
+                "grossProfit",
+                "operatingExpenses",
+                "ebitda",
+                "depreciation",
+                "amortization",
+                "ebit",
+                "interestExpense",
+                "ebt",
+                "taxes",
+                "netIncome",
+                "billableHours",
+                "employeeCosts",
+                "employeeCount",
+                "marginPercent",
+                "ebitdaMargin",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "scenario": {
+            "properties": {
+              "description": {
+                "type": "string",
+              },
+              "economicFactors": {
+                "properties": {
+                  "seasonalityFactors": {
+                    "items": {
+                      "type": "number",
+                    },
+                    "type": "array",
+                  },
+                },
+                "type": "object",
+              },
+              "forecastPeriodMonths": {
+                "type": "number",
+              },
+              "name": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "name",
+              "forecastPeriodMonths",
+            ],
+            "type": "object",
+          },
+          "summary": {
+            "properties": {
+              "averageEbitdaMargin": {
+                "type": "number",
+              },
+              "ebitdaGrowth": {
+                "type": "number",
+              },
+              "finalEmployeeCount": {
+                "type": "number",
+              },
+              "revenueGrowth": {
+                "type": "number",
+              },
+              "totalEbitda": {
+                "type": "number",
+              },
+              "totalEmployeeCosts": {
+                "type": "number",
+              },
+              "totalOperatingExpenses": {
+                "type": "number",
+              },
+              "totalRevenue": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "totalRevenue",
+              "totalEbitda",
+              "averageEbitdaMargin",
+              "totalEmployeeCosts",
+              "totalOperatingExpenses",
+              "finalEmployeeCount",
+              "revenueGrowth",
+              "ebitdaGrowth",
+            ],
+            "type": "object",
+          },
+        },
+        "required": [
+          "scenario",
+          "forecast",
+          "summary",
+        ],
+        "type": "object",
+      },
+      "EbitdaScenarioInput": {
+        "description": "EBITDA forecast scenario input",
+        "properties": {
+          "additionalExpenses": {
+            "default": [],
+            "example": [],
+            "items": {
+              "description": "Additional expense",
+              "properties": {
+                "amount": {
+                  "example": 20000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "category": {
+                  "enum": [
+                    "fixed",
+                    "variable",
+                    "semi-variable",
+                  ],
+                  "example": "fixed",
+                  "type": "string",
+                },
+                "description": {
+                  "example": "Additional office rent",
+                  "type": "string",
+                },
+                "frequency": {
+                  "enum": [
+                    "monthly",
+                    "quarterly",
+                    "annually",
+                  ],
+                  "example": "monthly",
+                  "type": "string",
+                },
+                "growthRate": {
+                  "default": 0,
+                  "example": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "type": "number",
+                },
+                "id": {
+                  "example": "exp-1",
+                  "type": "string",
+                },
+                "isRecurring": {
+                  "default": true,
+                  "example": true,
+                  "type": "boolean",
+                },
+                "name": {
+                  "example": "New Office Space",
+                  "type": "string",
+                },
+                "startMonth": {
+                  "default": 1,
+                  "example": 6,
+                  "maximum": 60,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+              },
+              "required": [
+                "id",
+                "name",
+                "category",
+                "amount",
+                "frequency",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "billableHoursGrowthRate": {
+            "default": 0,
+            "example": 0.01,
+            "maximum": 10,
+            "minimum": -1,
+            "type": "number",
+          },
+          "currentEmployees": {
+            "example": [],
+            "items": {
+              "description": "Employee details",
+              "properties": {
+                "benefits": {
+                  "default": 0,
+                  "example": 15000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "billableHoursPerMonth": {
+                  "default": 160,
+                  "example": 150,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "department": {
+                  "example": "Consulting",
+                  "type": "string",
+                },
+                "hourlyRate": {
+                  "example": 175,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "id": {
+                  "example": "emp-1",
+                  "type": "string",
+                },
+                "isActive": {
+                  "default": true,
+                  "example": true,
+                  "type": "boolean",
+                },
+                "name": {
+                  "example": "Senior Consultant",
+                  "type": "string",
+                },
+                "role": {
+                  "example": "Senior Consultant",
+                  "type": "string",
+                },
+                "salary": {
+                  "example": 100000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "startDate": {
+                  "example": "2024-01-01T00:00:00Z",
+                  "format": "date-time",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "id",
+                "name",
+                "role",
+                "department",
+                "hourlyRate",
+                "salary",
+                "startDate",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "currentMonthlyFinancials": {
+            "example": [
+              {
+                "amortization": 750,
+                "costOfGoodsSold": 0,
+                "depreciation": 1500,
+                "interestExpense": 300,
+                "month": 12,
+                "operatingExpenses": 50000,
+                "revenue": 200000,
+                "taxes": 12000,
+                "year": 2024,
+              },
+            ],
+            "items": {
+              "description": "Monthly baseline financials",
+              "properties": {
+                "amortization": {
+                  "default": 0,
+                  "example": 750,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "costOfGoodsSold": {
+                  "default": 0,
+                  "example": 0,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "depreciation": {
+                  "default": 0,
+                  "example": 1500,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "interestExpense": {
+                  "default": 0,
+                  "example": 300,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "month": {
+                  "example": 12,
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+                "operatingExpenses": {
+                  "example": 50000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "revenue": {
+                  "example": 200000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "taxes": {
+                  "default": 0,
+                  "example": 12000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "year": {
+                  "example": 2024,
+                  "minimum": 2020,
+                  "type": "integer",
+                },
+              },
+              "required": [
+                "month",
+                "year",
+                "revenue",
+                "operatingExpenses",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "description": {
+            "example": "EBITDA forecast with seasonality",
+            "type": "string",
+          },
+          "economicFactors": {
+            "properties": {
+              "competitionFactor": {
+                "default": 1,
+                "example": 1,
+                "maximum": 2,
+                "minimum": 0,
+                "type": "number",
+              },
+              "marketGrowth": {
+                "default": 0,
+                "example": 0,
+                "maximum": 1,
+                "minimum": -1,
+                "type": "number",
+              },
+              "seasonalityFactors": {
+                "example": [
+                  0.8,
+                  0.85,
+                  1.1,
+                  1.15,
+                  1.05,
+                  0.95,
+                  0.75,
+                  0.8,
+                  1.2,
+                  1.25,
+                  1.1,
+                  0.9,
+                ],
+                "items": {
+                  "maximum": 5,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "type": "array",
+              },
+            },
+            "type": "object",
+          },
+          "forecastPeriodMonths": {
+            "default": 12,
+            "example": 12,
+            "maximum": 60,
+            "minimum": 1,
+            "type": "integer",
+          },
+          "inflationRate": {
+            "default": 0.03,
+            "example": 0.03,
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number",
+          },
+          "name": {
+            "example": "Seasonal Consulting Business",
+            "type": "string",
+          },
+          "newEmployees": {
+            "default": [],
+            "example": [],
+            "items": {
+              "description": "Employee details",
+              "properties": {
+                "benefits": {
+                  "default": 0,
+                  "example": 15000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "billableHoursPerMonth": {
+                  "default": 160,
+                  "example": 150,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "department": {
+                  "example": "Consulting",
+                  "type": "string",
+                },
+                "hourlyRate": {
+                  "example": 175,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "id": {
+                  "example": "emp-1",
+                  "type": "string",
+                },
+                "isActive": {
+                  "default": true,
+                  "example": true,
+                  "type": "boolean",
+                },
+                "name": {
+                  "example": "Senior Consultant",
+                  "type": "string",
+                },
+                "role": {
+                  "example": "Senior Consultant",
+                  "type": "string",
+                },
+                "salary": {
+                  "example": 100000,
+                  "minimum": 0,
+                  "type": "number",
+                },
+                "startDate": {
+                  "example": "2024-01-01T00:00:00Z",
+                  "format": "date-time",
+                  "type": "string",
+                },
+                "startMonth": {
+                  "maximum": 60,
+                  "minimum": 1,
+                  "type": "integer",
+                },
+              },
+              "required": [
+                "id",
+                "name",
+                "role",
+                "department",
+                "hourlyRate",
+                "salary",
+                "startDate",
+                "startMonth",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "operatingExpenseGrowthRate": {
+            "default": 0,
+            "example": 0.015,
+            "maximum": 1,
+            "minimum": -1,
+            "type": "number",
+          },
+          "revenueGrowthRate": {
+            "default": 0,
+            "example": 0.03,
+            "maximum": 10,
+            "minimum": -1,
+            "type": "number",
+          },
+        },
+        "required": [
+          "name",
+          "currentMonthlyFinancials",
+          "currentEmployees",
+        ],
+        "type": "object",
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "properties": {
+              "code": {
+                "type": "string",
+              },
+              "message": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "message",
+              "code",
+            ],
+            "type": "object",
+          },
+        },
+        "required": [
+          "error",
+        ],
+        "type": "object",
+      },
+      "FinancialInput": {
+        "properties": {
+          "annualRate": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number",
+          },
+          "principal": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "number",
+          },
+          "residualValue": {
+            "default": 0,
+            "minimum": 0,
+            "type": "number",
+          },
+          "termMonths": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "integer",
+          },
+        },
+        "required": [
+          "principal",
+          "annualRate",
+          "termMonths",
+        ],
+        "type": "object",
+      },
+      "Health": {
+        "properties": {
+          "environment": {
+            "type": "string",
+          },
+          "status": {
+            "enum": [
+              "ok",
+            ],
+            "type": "string",
+          },
+          "timestamp": {
+            "type": "string",
+          },
+          "version": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "status",
+          "timestamp",
+          "environment",
+          "version",
+        ],
+        "type": "object",
+      },
+      "LeaseAnalysisResult": {
+        "properties": {
+          "monthlyPayment": {
+            "type": "number",
+          },
+          "schedule": {
+            "items": {
+              "properties": {
+                "balance": {
+                  "type": "number",
+                },
+                "interest": {
+                  "type": "number",
+                },
+                "month": {
+                  "type": "number",
+                },
+                "payment": {
+                  "type": "number",
+                },
+                "principal": {
+                  "type": "number",
+                },
+              },
+              "required": [
+                "month",
+                "payment",
+                "principal",
+                "interest",
+                "balance",
+              ],
+              "type": "object",
+            },
+            "type": "array",
+          },
+          "totalInterest": {
+            "type": "number",
+          },
+          "totalPayments": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "monthlyPayment",
+          "totalPayments",
+          "totalInterest",
+          "schedule",
+        ],
+        "type": "object",
+      },
+      "StorageDeleteResponse": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+          },
+          "key": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+          "deleted",
+        ],
+        "type": "object",
+      },
+      "StorageStatus": {
+        "properties": {
+          "approxBytes": {
+            "type": "number",
+          },
+          "bucket": {
+            "enum": [
+              "configured",
+              "absent",
+            ],
+            "type": "string",
+          },
+          "hardLimit": {
+            "type": "number",
+          },
+          "locked": {
+            "type": "boolean",
+          },
+          "softLimit": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "bucket",
+          "approxBytes",
+          "softLimit",
+          "hardLimit",
+          "locked",
+        ],
+        "type": "object",
+      },
+      "StorageUploadResponse": {
+        "properties": {
+          "etag": {
+            "nullable": true,
+            "type": "string",
+          },
+          "key": {
+            "type": "string",
+          },
+          "size": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "key",
+          "etag",
+          "size",
+        ],
+        "type": "object",
+      },
+      "StorageUsage": {
+        "properties": {
+          "hardLimit": {
+            "type": "number",
+          },
+          "locked": {
+            "type": "boolean",
+          },
+          "maxObjectSize": {
+            "type": "number",
+          },
+          "softLimit": {
+            "type": "number",
+          },
+          "timestamp": {
+            "type": "string",
+          },
+          "usedBytes": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "usedBytes",
+          "softLimit",
+          "hardLimit",
+          "maxObjectSize",
+          "locked",
+          "timestamp",
+        ],
+        "type": "object",
+      },
+      "Version": {
+        "properties": {
+          "commit": {
+            "type": "string",
+          },
+          "environment": {
+            "type": "string",
+          },
+          "service": {
+            "type": "string",
+          },
+          "timestamp": {
+            "type": "string",
+          },
+          "version": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "service",
+          "version",
+          "environment",
+          "commit",
+          "timestamp",
+        ],
+        "type": "object",
+      },
+    },
+  },
+  "info": {
+    "description": "Cloudflare Workers API for financial analysis with MCP integration",
+    "title": "Financial Analysis API",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "environment": {
+                      "type": "string",
+                    },
+                    "status": {
+                      "enum": [
+                        "ok",
+                      ],
+                      "type": "string",
+                    },
+                    "timestamp": {
+                      "type": "string",
+                    },
+                    "version": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "status",
+                    "timestamp",
+                    "environment",
+                    "version",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "API health status",
+          },
+        },
+      },
+    },
+    "/ping": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "Lightweight uptime check",
+          },
+        },
+      },
+    },
+    "/v1/api/analysis": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "enum": [
+                "lease",
+                "amortization",
+                "cashflow",
+                "ebitda-forecast",
+                "auto-loan-analysis",
+              ],
+              "type": "string",
+            },
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "environment": {
+                      "type": "string",
+                    },
+                    "message": {
+                      "type": "string",
+                    },
+                    "requestedType": {
+                      "enum": [
+                        "lease",
+                        "amortization",
+                        "cashflow",
+                        "ebitda-forecast",
+                        "auto-loan-analysis",
+                      ],
+                      "type": "string",
+                    },
+                    "version": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "message",
+                    "version",
+                    "environment",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Analysis API base route",
+          },
+        },
+      },
+    },
+    "/v1/api/analysis/amortization": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "annualRate": {
+                    "type": "number",
+                  },
+                  "principal": {
+                    "type": "number",
+                  },
+                  "termMonths": {
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "principal",
+                  "annualRate",
+                  "termMonths",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "monthlyPayment": {
+                      "type": "number",
+                    },
+                    "schedule": {
+                      "items": {
+                        "properties": {
+                          "balance": {
+                            "type": "number",
+                          },
+                          "interest": {
+                            "type": "number",
+                          },
+                          "month": {
+                            "type": "number",
+                          },
+                          "payment": {
+                            "type": "number",
+                          },
+                          "principal": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "month",
+                          "payment",
+                          "principal",
+                          "interest",
+                          "balance",
+                        ],
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                    "totalInterest": {
+                      "type": "number",
+                    },
+                    "totalPayments": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "monthlyPayment",
+                    "totalPayments",
+                    "totalInterest",
+                    "schedule",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Amortization analysis result",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+        },
+      },
+    },
+    "/v1/api/analysis/auto-loan-analysis": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "analysis": {
+                    "properties": {
+                      "includeLeaseComparison": {
+                        "default": true,
+                        "type": "boolean",
+                      },
+                      "includePaymentSchedule": {
+                        "default": true,
+                        "type": "boolean",
+                      },
+                      "includeRefinancingAnalysis": {
+                        "default": true,
+                        "type": "boolean",
+                      },
+                      "includeTCOAnalysis": {
+                        "default": true,
+                        "type": "boolean",
+                      },
+                      "ownershipYears": {
+                        "default": 5,
+                        "maximum": 10,
+                        "minimum": 1,
+                        "type": "number",
+                      },
+                      "refinancingRates": {
+                        "default": [
+                          0.03,
+                          0.04,
+                          0.05,
+                          0.06,
+                        ],
+                        "items": {
+                          "type": "number",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "leaseTerms": {
+                    "properties": {
+                      "acquisitionFee": {
+                        "default": 1000,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "dispositionFee": {
+                        "default": 400,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "leaseAmount": {
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "moneyFactor": {
+                        "maximum": 0.01,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "residualValue": {
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "securityDeposit": {
+                        "default": 0,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "termMonths": {
+                        "maximum": 48,
+                        "minimum": 24,
+                        "type": "number",
+                      },
+                    },
+                    "required": [
+                      "leaseAmount",
+                      "moneyFactor",
+                      "termMonths",
+                      "residualValue",
+                    ],
+                    "type": "object",
+                  },
+                  "loanTerms": {
+                    "properties": {
+                      "fees": {
+                        "properties": {
+                          "documentationFee": {
+                            "default": 500,
+                            "minimum": 0,
+                            "type": "number",
+                          },
+                          "otherFees": {
+                            "default": 0,
+                            "minimum": 0,
+                            "type": "number",
+                          },
+                          "registrationFee": {
+                            "default": 200,
+                            "minimum": 0,
+                            "type": "number",
+                          },
+                          "titleFee": {
+                            "default": 100,
+                            "minimum": 0,
+                            "type": "number",
+                          },
+                        },
+                        "type": "object",
+                      },
+                      "interestRate": {
+                        "maximum": 0.5,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "loanAmount": {
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "salesTaxRate": {
+                        "default": 0.08,
+                        "maximum": 0.2,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "termMonths": {
+                        "maximum": 84,
+                        "minimum": 12,
+                        "type": "number",
+                      },
+                    },
+                    "required": [
+                      "loanAmount",
+                      "interestRate",
+                      "termMonths",
+                      "fees",
+                    ],
+                    "type": "object",
+                  },
+                  "tcoParameters": {
+                    "properties": {
+                      "annualMileage": {
+                        "default": 12000,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "depreciationRate": {
+                        "default": 0.15,
+                        "maximum": 1,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "fuelCostPerGallon": {
+                        "default": 3.5,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "insuranceCostPerYear": {
+                        "default": 1200,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "maintenanceCostPerYear": {
+                        "default": 1000,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "mpg": {
+                        "default": 25,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "registrationCostPerYear": {
+                        "default": 100,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "vehicle": {
+                    "properties": {
+                      "downPayment": {
+                        "default": 0,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "make": {
+                        "type": "string",
+                      },
+                      "model": {
+                        "type": "string",
+                      },
+                      "msrp": {
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "negotiatedPrice": {
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "tradeInValue": {
+                        "default": 0,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "year": {
+                        "maximum": 2028,
+                        "minimum": 1990,
+                        "type": "number",
+                      },
+                    },
+                    "required": [
+                      "make",
+                      "model",
+                      "year",
+                      "msrp",
+                      "negotiatedPrice",
+                    ],
+                    "type": "object",
+                  },
+                },
+                "required": [
+                  "vehicle",
+                  "loanTerms",
+                  "analysis",
+                  "tcoParameters",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "comparison": {
+                      "properties": {
+                        "loanVsLease": {
+                          "properties": {
+                            "breakEvenPoint": {
+                              "type": "number",
+                            },
+                            "monthlyPaymentDifference": {
+                              "type": "number",
+                            },
+                            "reasoning": {
+                              "items": {
+                                "type": "string",
+                              },
+                              "type": "array",
+                            },
+                            "recommendation": {
+                              "enum": [
+                                "loan",
+                                "lease",
+                                "depends",
+                              ],
+                              "type": "string",
+                            },
+                            "totalCostDifference": {
+                              "type": "number",
+                            },
+                          },
+                          "required": [
+                            "monthlyPaymentDifference",
+                            "totalCostDifference",
+                            "breakEvenPoint",
+                            "recommendation",
+                            "reasoning",
+                          ],
+                          "type": "object",
+                        },
+                      },
+                      "required": [
+                        "loanVsLease",
+                      ],
+                      "type": "object",
+                    },
+                    "insights": {
+                      "items": {
+                        "type": "string",
+                      },
+                      "type": "array",
+                    },
+                    "leaseAnalysis": {
+                      "properties": {
+                        "buyoutCost": {
+                          "type": "number",
+                        },
+                        "effectiveRate": {
+                          "type": "number",
+                        },
+                        "endDate": {
+                          "type": "string",
+                        },
+                        "monthlyPayment": {
+                          "type": "number",
+                        },
+                        "totalCost": {
+                          "type": "number",
+                        },
+                        "totalCostIfPurchased": {
+                          "type": "number",
+                        },
+                        "totalPayments": {
+                          "type": "number",
+                        },
+                      },
+                      "required": [
+                        "monthlyPayment",
+                        "totalPayments",
+                        "totalCost",
+                        "effectiveRate",
+                        "endDate",
+                        "buyoutCost",
+                        "totalCostIfPurchased",
+                      ],
+                      "type": "object",
+                    },
+                    "loanAnalysis": {
+                      "properties": {
+                        "effectiveRate": {
+                          "type": "number",
+                        },
+                        "monthlyPayment": {
+                          "type": "number",
+                        },
+                        "paymentSchedule": {
+                          "items": {
+                            "properties": {
+                              "cumulativeInterest": {
+                                "type": "number",
+                              },
+                              "interestPayment": {
+                                "type": "number",
+                              },
+                              "paymentDate": {
+                                "type": "string",
+                              },
+                              "paymentNumber": {
+                                "type": "number",
+                              },
+                              "principalPayment": {
+                                "type": "number",
+                              },
+                              "remainingBalance": {
+                                "type": "number",
+                              },
+                            },
+                            "required": [
+                              "paymentNumber",
+                              "paymentDate",
+                              "principalPayment",
+                              "interestPayment",
+                              "remainingBalance",
+                              "cumulativeInterest",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
+                        },
+                        "payoffDate": {
+                          "type": "string",
+                        },
+                        "totalCost": {
+                          "type": "number",
+                        },
+                        "totalInterest": {
+                          "type": "number",
+                        },
+                      },
+                      "required": [
+                        "monthlyPayment",
+                        "totalInterest",
+                        "totalCost",
+                        "effectiveRate",
+                        "payoffDate",
+                        "paymentSchedule",
+                      ],
+                      "type": "object",
+                    },
+                    "metadata": {
+                      "properties": {
+                        "assumptions": {
+                          "additionalProperties": {
+                            "nullable": true,
+                          },
+                          "type": "object",
+                        },
+                        "calculatedAt": {
+                          "type": "string",
+                        },
+                        "methodology": {
+                          "type": "string",
+                        },
+                        "version": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "calculatedAt",
+                        "version",
+                        "methodology",
+                        "assumptions",
+                      ],
+                      "type": "object",
+                    },
+                    "recommendations": {
+                      "items": {
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                          },
+                          "category": {
+                            "type": "string",
+                          },
+                          "description": {
+                            "type": "string",
+                          },
+                          "impact": {
+                            "type": "string",
+                          },
+                          "priority": {
+                            "enum": [
+                              "high",
+                              "medium",
+                              "low",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "required": [
+                          "category",
+                          "priority",
+                          "description",
+                          "impact",
+                          "action",
+                        ],
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                    "refinancingAnalysis": {
+                      "properties": {
+                        "bestScenario": {
+                          "properties": {
+                            "monthlySavings": {
+                              "type": "number",
+                            },
+                            "rate": {
+                              "type": "number",
+                            },
+                            "totalSavings": {
+                              "type": "number",
+                            },
+                          },
+                          "required": [
+                            "rate",
+                            "monthlySavings",
+                            "totalSavings",
+                          ],
+                          "type": "object",
+                        },
+                        "scenarios": {
+                          "items": {
+                            "properties": {
+                              "breakEvenMonths": {
+                                "type": "number",
+                              },
+                              "monthlySavings": {
+                                "type": "number",
+                              },
+                              "newMonthlyPayment": {
+                                "type": "number",
+                              },
+                              "newRate": {
+                                "type": "number",
+                              },
+                              "recommendation": {
+                                "enum": [
+                                  "refinance",
+                                  "keep-current",
+                                ],
+                                "type": "string",
+                              },
+                              "totalSavings": {
+                                "type": "number",
+                              },
+                            },
+                            "required": [
+                              "newRate",
+                              "newMonthlyPayment",
+                              "monthlySavings",
+                              "totalSavings",
+                              "breakEvenMonths",
+                              "recommendation",
+                            ],
+                            "type": "object",
+                          },
+                          "type": "array",
+                        },
+                      },
+                      "required": [
+                        "scenarios",
+                        "bestScenario",
+                      ],
+                      "type": "object",
+                    },
+                    "tcoAnalysis": {
+                      "properties": {
+                        "breakdown": {
+                          "properties": {
+                            "depreciation": {
+                              "type": "number",
+                            },
+                            "fees": {
+                              "type": "number",
+                            },
+                            "fuel": {
+                              "type": "number",
+                            },
+                            "insurance": {
+                              "type": "number",
+                            },
+                            "interest": {
+                              "type": "number",
+                            },
+                            "loanPayments": {
+                              "type": "number",
+                            },
+                            "maintenance": {
+                              "type": "number",
+                            },
+                            "registration": {
+                              "type": "number",
+                            },
+                          },
+                          "required": [
+                            "loanPayments",
+                            "interest",
+                            "maintenance",
+                            "fuel",
+                            "insurance",
+                            "registration",
+                            "depreciation",
+                            "fees",
+                          ],
+                          "type": "object",
+                        },
+                        "costPerMile": {
+                          "type": "number",
+                        },
+                        "costPerMonth": {
+                          "type": "number",
+                        },
+                        "ownershipYears": {
+                          "type": "number",
+                        },
+                        "residualValue": {
+                          "type": "number",
+                        },
+                        "totalCostOfOwnership": {
+                          "type": "number",
+                        },
+                      },
+                      "required": [
+                        "ownershipYears",
+                        "totalCostOfOwnership",
+                        "costPerMile",
+                        "costPerMonth",
+                        "breakdown",
+                        "residualValue",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "loanAnalysis",
+                    "insights",
+                    "recommendations",
+                    "metadata",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Auto loan analysis result",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+        },
+      },
+    },
+    "/v1/api/analysis/ebitda-forecast": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "additionalExpenses": [
+                  {
+                    "amount": 18000,
+                    "category": "fixed",
+                    "description": "Office lease",
+                    "frequency": "monthly",
+                    "growthRate": 0,
+                    "id": "exp-1",
+                    "isRecurring": true,
+                    "name": "Headquarters Lease",
+                    "startMonth": 1,
+                  },
+                  {
+                    "amount": 9000,
+                    "category": "semi-variable",
+                    "description": "Core hosting costs",
+                    "frequency": "monthly",
+                    "growthRate": 0.01,
+                    "id": "exp-2",
+                    "isRecurring": true,
+                    "name": "Cloud Infrastructure",
+                    "startMonth": 1,
+                  },
+                ],
+                "billableHoursGrowthRate": 0,
+                "currentEmployees": [
+                  {
+                    "benefits": 25000,
+                    "billableHoursPerMonth": 0,
+                    "department": "Engineering",
+                    "hourlyRate": 0,
+                    "id": "emp-1",
+                    "isActive": true,
+                    "name": "Lead Engineer",
+                    "role": "Engineer",
+                    "salary": 160000,
+                    "startDate": "2025-01-01T00:00:00Z",
+                  },
+                ],
+                "currentMonthlyFinancials": [
+                  {
+                    "amortization": 0,
+                    "costOfGoodsSold": 0,
+                    "depreciation": 2000,
+                    "interestExpense": 0,
+                    "month": 1,
+                    "operatingExpenses": 45000,
+                    "revenue": 120000,
+                    "taxes": 0,
+                    "year": 2025,
+                  },
+                  {
+                    "amortization": 0,
+                    "costOfGoodsSold": 0,
+                    "depreciation": 2000,
+                    "interestExpense": 0,
+                    "month": 2,
+                    "operatingExpenses": 46000,
+                    "revenue": 125000,
+                    "taxes": 0,
+                    "year": 2025,
+                  },
+                ],
+                "description": "12‑month forecast with moderate growth and seasonality",
+                "economicFactors": {
+                  "competitionFactor": 1,
+                  "marketGrowth": 0,
+                  "seasonalityFactors": [
+                    1,
+                    1,
+                    1.05,
+                    1.07,
+                    1.1,
+                    1.05,
+                    0.95,
+                    0.9,
+                    1.05,
+                    1.1,
+                    1.08,
+                    1.02,
+                  ],
+                },
+                "forecastPeriodMonths": 12,
+                "inflationRate": 0.03,
+                "name": "Baseline SaaS Plan",
+                "newEmployees": [],
+                "operatingExpenseGrowthRate": 0.01,
+                "revenueGrowthRate": 0.04,
+              },
+              "schema": {
+                "description": "EBITDA forecast scenario input",
+                "properties": {
+                  "additionalExpenses": {
+                    "default": [],
+                    "example": [],
+                    "items": {
+                      "description": "Additional expense",
+                      "properties": {
+                        "amount": {
+                          "example": 20000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "category": {
+                          "enum": [
+                            "fixed",
+                            "variable",
+                            "semi-variable",
+                          ],
+                          "example": "fixed",
+                          "type": "string",
+                        },
+                        "description": {
+                          "example": "Additional office rent",
+                          "type": "string",
+                        },
+                        "frequency": {
+                          "enum": [
+                            "monthly",
+                            "quarterly",
+                            "annually",
+                          ],
+                          "example": "monthly",
+                          "type": "string",
+                        },
+                        "growthRate": {
+                          "default": 0,
+                          "example": 0,
+                          "maximum": 1,
+                          "minimum": -1,
+                          "type": "number",
+                        },
+                        "id": {
+                          "example": "exp-1",
+                          "type": "string",
+                        },
+                        "isRecurring": {
+                          "default": true,
+                          "example": true,
+                          "type": "boolean",
+                        },
+                        "name": {
+                          "example": "New Office Space",
+                          "type": "string",
+                        },
+                        "startMonth": {
+                          "default": 1,
+                          "example": 6,
+                          "maximum": 60,
+                          "minimum": 1,
+                          "type": "integer",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "category",
+                        "amount",
+                        "frequency",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
+                  },
+                  "billableHoursGrowthRate": {
+                    "default": 0,
+                    "example": 0.01,
+                    "maximum": 10,
+                    "minimum": -1,
+                    "type": "number",
+                  },
+                  "currentEmployees": {
+                    "example": [],
+                    "items": {
+                      "description": "Employee details",
+                      "properties": {
+                        "benefits": {
+                          "default": 0,
+                          "example": 15000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "billableHoursPerMonth": {
+                          "default": 160,
+                          "example": 150,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "department": {
+                          "example": "Consulting",
+                          "type": "string",
+                        },
+                        "hourlyRate": {
+                          "example": 175,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "id": {
+                          "example": "emp-1",
+                          "type": "string",
+                        },
+                        "isActive": {
+                          "default": true,
+                          "example": true,
+                          "type": "boolean",
+                        },
+                        "name": {
+                          "example": "Senior Consultant",
+                          "type": "string",
+                        },
+                        "role": {
+                          "example": "Senior Consultant",
+                          "type": "string",
+                        },
+                        "salary": {
+                          "example": 100000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "startDate": {
+                          "example": "2024-01-01T00:00:00Z",
+                          "format": "date-time",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "role",
+                        "department",
+                        "hourlyRate",
+                        "salary",
+                        "startDate",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
+                  },
+                  "currentMonthlyFinancials": {
+                    "example": [
+                      {
+                        "amortization": 750,
+                        "costOfGoodsSold": 0,
+                        "depreciation": 1500,
+                        "interestExpense": 300,
+                        "month": 12,
+                        "operatingExpenses": 50000,
+                        "revenue": 200000,
+                        "taxes": 12000,
+                        "year": 2024,
+                      },
+                    ],
+                    "items": {
+                      "description": "Monthly baseline financials",
+                      "properties": {
+                        "amortization": {
+                          "default": 0,
+                          "example": 750,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "costOfGoodsSold": {
+                          "default": 0,
+                          "example": 0,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "depreciation": {
+                          "default": 0,
+                          "example": 1500,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "interestExpense": {
+                          "default": 0,
+                          "example": 300,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "month": {
+                          "example": 12,
+                          "maximum": 12,
+                          "minimum": 1,
+                          "type": "integer",
+                        },
+                        "operatingExpenses": {
+                          "example": 50000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "revenue": {
+                          "example": 200000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "taxes": {
+                          "default": 0,
+                          "example": 12000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "year": {
+                          "example": 2024,
+                          "minimum": 2020,
+                          "type": "integer",
+                        },
+                      },
+                      "required": [
+                        "month",
+                        "year",
+                        "revenue",
+                        "operatingExpenses",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
+                  },
+                  "description": {
+                    "example": "EBITDA forecast with seasonality",
+                    "type": "string",
+                  },
+                  "economicFactors": {
+                    "properties": {
+                      "competitionFactor": {
+                        "default": 1,
+                        "example": 1,
+                        "maximum": 2,
+                        "minimum": 0,
+                        "type": "number",
+                      },
+                      "marketGrowth": {
+                        "default": 0,
+                        "example": 0,
+                        "maximum": 1,
+                        "minimum": -1,
+                        "type": "number",
+                      },
+                      "seasonalityFactors": {
+                        "example": [
+                          0.8,
+                          0.85,
+                          1.1,
+                          1.15,
+                          1.05,
+                          0.95,
+                          0.75,
+                          0.8,
+                          1.2,
+                          1.25,
+                          1.1,
+                          0.9,
+                        ],
+                        "items": {
+                          "maximum": 5,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "forecastPeriodMonths": {
+                    "default": 12,
+                    "example": 12,
+                    "maximum": 60,
+                    "minimum": 1,
+                    "type": "integer",
+                  },
+                  "inflationRate": {
+                    "default": 0.03,
+                    "example": 0.03,
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "name": {
+                    "example": "Seasonal Consulting Business",
+                    "type": "string",
+                  },
+                  "newEmployees": {
+                    "default": [],
+                    "example": [],
+                    "items": {
+                      "description": "Employee details",
+                      "properties": {
+                        "benefits": {
+                          "default": 0,
+                          "example": 15000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "billableHoursPerMonth": {
+                          "default": 160,
+                          "example": 150,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "department": {
+                          "example": "Consulting",
+                          "type": "string",
+                        },
+                        "hourlyRate": {
+                          "example": 175,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "id": {
+                          "example": "emp-1",
+                          "type": "string",
+                        },
+                        "isActive": {
+                          "default": true,
+                          "example": true,
+                          "type": "boolean",
+                        },
+                        "name": {
+                          "example": "Senior Consultant",
+                          "type": "string",
+                        },
+                        "role": {
+                          "example": "Senior Consultant",
+                          "type": "string",
+                        },
+                        "salary": {
+                          "example": 100000,
+                          "minimum": 0,
+                          "type": "number",
+                        },
+                        "startDate": {
+                          "example": "2024-01-01T00:00:00Z",
+                          "format": "date-time",
+                          "type": "string",
+                        },
+                        "startMonth": {
+                          "maximum": 60,
+                          "minimum": 1,
+                          "type": "integer",
+                        },
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "role",
+                        "department",
+                        "hourlyRate",
+                        "salary",
+                        "startDate",
+                        "startMonth",
+                      ],
+                      "type": "object",
+                    },
+                    "type": "array",
+                  },
+                  "operatingExpenseGrowthRate": {
+                    "default": 0,
+                    "example": 0.015,
+                    "maximum": 1,
+                    "minimum": -1,
+                    "type": "number",
+                  },
+                  "revenueGrowthRate": {
+                    "default": 0,
+                    "example": 0.03,
+                    "maximum": 10,
+                    "minimum": -1,
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "name",
+                  "currentMonthlyFinancials",
+                  "currentEmployees",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "forecast": [
+                    {
+                      "amortization": 0,
+                      "billableHours": 0,
+                      "costOfGoodsSold": 0,
+                      "depreciation": 2000,
+                      "ebit": 73000,
+                      "ebitda": 75000,
+                      "ebitdaMargin": 62.5,
+                      "ebt": 73000,
+                      "employeeCosts": 15333.33,
+                      "employeeCount": 1,
+                      "grossProfit": 120000,
+                      "interestExpense": 0,
+                      "marginPercent": 62.5,
+                      "month": 1,
+                      "netIncome": 73000,
+                      "operatingExpenses": 45000,
+                      "revenue": 120000,
+                      "taxes": 0,
+                      "year": 2025,
+                    },
+                  ],
+                  "scenario": {
+                    "economicFactors": {
+                      "seasonalityFactors": [
+                        1,
+                        1,
+                        1.05,
+                        1.07,
+                        1.1,
+                        1.05,
+                        0.95,
+                        0.9,
+                        1.05,
+                        1.1,
+                        1.08,
+                        1.02,
+                      ],
+                    },
+                    "forecastPeriodMonths": 12,
+                    "name": "Baseline SaaS Plan",
+                  },
+                  "summary": {
+                    "averageEbitdaMargin": 62.5,
+                    "ebitdaGrowth": 0,
+                    "finalEmployeeCount": 1,
+                    "revenueGrowth": 0,
+                    "totalEbitda": 75000,
+                    "totalEmployeeCosts": 15333.33,
+                    "totalOperatingExpenses": 45000,
+                    "totalRevenue": 120000,
+                  },
+                },
+                "schema": {
+                  "description": "EBITDA forecast result",
+                  "properties": {
+                    "forecast": {
+                      "items": {
+                        "description": "Per-month forecast output",
+                        "properties": {
+                          "amortization": {
+                            "example": 750,
+                            "type": "number",
+                          },
+                          "billableHours": {
+                            "example": 300,
+                            "type": "number",
+                          },
+                          "costOfGoodsSold": {
+                            "example": 0,
+                            "type": "number",
+                          },
+                          "depreciation": {
+                            "example": 1500,
+                            "type": "number",
+                          },
+                          "ebit": {
+                            "example": 147750,
+                            "type": "number",
+                          },
+                          "ebitda": {
+                            "example": 150000,
+                            "type": "number",
+                          },
+                          "ebitdaMargin": {
+                            "example": 71.4,
+                            "type": "number",
+                          },
+                          "ebt": {
+                            "example": 147450,
+                            "type": "number",
+                          },
+                          "employeeCosts": {
+                            "example": 20000,
+                            "type": "number",
+                          },
+                          "employeeCount": {
+                            "example": 2,
+                            "type": "number",
+                          },
+                          "grossProfit": {
+                            "example": 210000,
+                            "type": "number",
+                          },
+                          "interestExpense": {
+                            "example": 300,
+                            "type": "number",
+                          },
+                          "marginPercent": {
+                            "example": 50,
+                            "type": "number",
+                          },
+                          "month": {
+                            "example": 1,
+                            "type": "number",
+                          },
+                          "netIncome": {
+                            "example": 110587.5,
+                            "type": "number",
+                          },
+                          "operatingExpenses": {
+                            "example": 60000,
+                            "type": "number",
+                          },
+                          "revenue": {
+                            "example": 210000,
+                            "type": "number",
+                          },
+                          "taxes": {
+                            "example": 36862.5,
+                            "type": "number",
+                          },
+                          "year": {
+                            "example": 2025,
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "month",
+                          "year",
+                          "revenue",
+                          "costOfGoodsSold",
+                          "grossProfit",
+                          "operatingExpenses",
+                          "ebitda",
+                          "depreciation",
+                          "amortization",
+                          "ebit",
+                          "interestExpense",
+                          "ebt",
+                          "taxes",
+                          "netIncome",
+                          "billableHours",
+                          "employeeCosts",
+                          "employeeCount",
+                          "marginPercent",
+                          "ebitdaMargin",
+                        ],
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                    "scenario": {
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                        },
+                        "economicFactors": {
+                          "properties": {
+                            "seasonalityFactors": {
+                              "items": {
+                                "type": "number",
+                              },
+                              "type": "array",
+                            },
+                          },
+                          "type": "object",
+                        },
+                        "forecastPeriodMonths": {
+                          "type": "number",
+                        },
+                        "name": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "name",
+                        "forecastPeriodMonths",
+                      ],
+                      "type": "object",
+                    },
+                    "summary": {
+                      "properties": {
+                        "averageEbitdaMargin": {
+                          "type": "number",
+                        },
+                        "ebitdaGrowth": {
+                          "type": "number",
+                        },
+                        "finalEmployeeCount": {
+                          "type": "number",
+                        },
+                        "revenueGrowth": {
+                          "type": "number",
+                        },
+                        "totalEbitda": {
+                          "type": "number",
+                        },
+                        "totalEmployeeCosts": {
+                          "type": "number",
+                        },
+                        "totalOperatingExpenses": {
+                          "type": "number",
+                        },
+                        "totalRevenue": {
+                          "type": "number",
+                        },
+                      },
+                      "required": [
+                        "totalRevenue",
+                        "totalEbitda",
+                        "averageEbitdaMargin",
+                        "totalEmployeeCosts",
+                        "totalOperatingExpenses",
+                        "finalEmployeeCount",
+                        "revenueGrowth",
+                        "ebitdaGrowth",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "scenario",
+                    "forecast",
+                    "summary",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "EBITDA forecast result",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+        },
+      },
+    },
+    "/v1/api/analysis/lease": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "annualRate": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "principal": {
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "residualValue": {
+                    "default": 0,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "termMonths": {
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "type": "integer",
+                  },
+                },
+                "required": [
+                  "principal",
+                  "annualRate",
+                  "termMonths",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "monthlyPayment": {
+                      "type": "number",
+                    },
+                    "schedule": {
+                      "items": {
+                        "properties": {
+                          "balance": {
+                            "type": "number",
+                          },
+                          "interest": {
+                            "type": "number",
+                          },
+                          "month": {
+                            "type": "number",
+                          },
+                          "payment": {
+                            "type": "number",
+                          },
+                          "principal": {
+                            "type": "number",
+                          },
+                        },
+                        "required": [
+                          "month",
+                          "payment",
+                          "principal",
+                          "interest",
+                          "balance",
+                        ],
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                    "totalInterest": {
+                      "type": "number",
+                    },
+                    "totalPayments": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "monthlyPayment",
+                    "totalPayments",
+                    "totalInterest",
+                    "schedule",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Lease analysis result",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+        },
+      },
+    },
+    "/v1/chat": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "messages": {
+                    "items": {
+                      "properties": {
+                        "content": {
+                          "type": "string",
+                        },
+                        "role": {
+                          "enum": [
+                            "system",
+                            "user",
+                            "assistant",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "role",
+                        "content",
+                      ],
+                      "type": "object",
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                  },
+                  "model": {
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "messages",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "content": {
+                      "type": "string",
+                    },
+                    "model": {
+                      "type": "string",
+                    },
+                    "role": {
+                      "enum": [
+                        "assistant",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "role",
+                    "content",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Assistant reply (uses Workers AI when configured, otherwise a deterministic response)",
+          },
+          "400": {
+            "description": "Bad request",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+        },
+      },
+    },
+    "/v1/storage/object/{key}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "deleted": {
+                      "type": "boolean",
+                    },
+                    "key": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "key",
+                    "deleted",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Object deleted",
+          },
+          "400": {
+            "description": "Invalid key",
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                        },
+                        "message": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "message",
+                        "code",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "error",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Storage not configured",
+          },
+        },
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "format": "binary",
+                "type": "string",
+              },
+            },
+          },
+          "description": "Binary object data. You must provide Content-Length (or X-Content-Length) header to indicate size. Max object size and quota limits enforced.",
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "etag": {
+                      "nullable": true,
+                      "type": "string",
+                    },
+                    "key": {
+                      "type": "string",
+                    },
+                    "size": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "key",
+                    "etag",
+                    "size",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Object stored successfully",
+          },
+          "400": {
+            "description": "Invalid key or Content-Length",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                        },
+                        "message": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "message",
+                        "code",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "error",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Quota locked or soft limit reached",
+          },
+          "411": {
+            "description": "Content-Length required",
+          },
+          "413": {
+            "description": "Object too large",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                        },
+                        "message": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "message",
+                        "code",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "error",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Storage not configured",
+          },
+        },
+      },
+    },
+    "/v1/storage/reconcile": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "locked": {
+                      "type": "boolean",
+                    },
+                    "scanned": {
+                      "type": "number",
+                    },
+                    "timestamp": {
+                      "type": "string",
+                    },
+                    "usedBytes": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "usedBytes",
+                    "locked",
+                    "scanned",
+                    "timestamp",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Reconciled usage and lock state",
+          },
+          "401": {
+            "description": "Unauthorized",
+          },
+        },
+      },
+    },
+    "/v1/storage/status": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "approxBytes": {
+                      "type": "number",
+                    },
+                    "bucket": {
+                      "enum": [
+                        "configured",
+                        "absent",
+                      ],
+                      "type": "string",
+                    },
+                    "hardLimit": {
+                      "type": "number",
+                    },
+                    "locked": {
+                      "type": "boolean",
+                    },
+                    "softLimit": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "bucket",
+                    "approxBytes",
+                    "softLimit",
+                    "hardLimit",
+                    "locked",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Storage quota status for the configured R2 bucket",
+          },
+        },
+      },
+    },
+    "/v1/storage/usage": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "hardLimit": {
+                      "type": "number",
+                    },
+                    "locked": {
+                      "type": "boolean",
+                    },
+                    "maxObjectSize": {
+                      "type": "number",
+                    },
+                    "softLimit": {
+                      "type": "number",
+                    },
+                    "timestamp": {
+                      "type": "string",
+                    },
+                    "usedBytes": {
+                      "type": "number",
+                    },
+                  },
+                  "required": [
+                    "usedBytes",
+                    "softLimit",
+                    "hardLimit",
+                    "maxObjectSize",
+                    "locked",
+                    "timestamp",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Current approximate usage and thresholds",
+          },
+        },
+      },
+    },
+    "/version": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "commit": {
+                      "type": "string",
+                    },
+                    "environment": {
+                      "type": "string",
+                    },
+                    "service": {
+                      "type": "string",
+                    },
+                    "timestamp": {
+                      "type": "string",
+                    },
+                    "version": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "service",
+                    "version",
+                    "environment",
+                    "commit",
+                    "timestamp",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Service version and environment metadata",
+          },
+        },
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://example.workers.dev",
+    },
+  ],
+  "tags": [
+    {
+      "description": "Health and monitoring",
+      "name": "health",
+    },
+    {
+      "description": "Financial analysis endpoints",
+      "name": "analysis",
+    },
+    {
+      "description": "R2 storage guardrails and operations",
+      "name": "storage",
+    },
+  ],
+}
+`;

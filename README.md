@@ -127,6 +127,9 @@ const response = await fetch('/api/mcp', {
 # Run all tests
 pnpm run test
 
+# Run smoke tests (fast API subset)
+pnpm run test:smoke
+
 # Run tests with coverage
 pnpm run test --coverage
 
@@ -140,6 +143,9 @@ pnpm run test lease.test.ts
 pnpm run test:fast
 pnpm run test:slow
 pnpm run test:flaky
+
+# Update OpenAPI snapshot
+node scripts/generate-openapi-snapshot.mjs
 ```
 
 Mutation testing (analysis package):
@@ -152,6 +158,11 @@ Chat integration tests note:
 
 - Chat integration tests that require Cloudflare AI/Vectorize are skipped by default.
 - To enable them (locally or in CI), set $RUN_AI_INTEGRATION_TESTS=true.
+
+Flaky test tagging:
+
+- Use "@flaky" in the test name to opt into the flaky suite.
+- Run with `pnpm run test:flaky`.
 
 ### Rate limiting headers
 

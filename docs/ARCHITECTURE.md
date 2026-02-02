@@ -36,6 +36,14 @@ docs              # Documentation (API, Architecture, etc.)
 - No side effects: functions accept plain data, return computed objects.
 - Golden tests + numeric drift tolerance defend against regression.
 
+## Testing workflows
+
+- Smoke suite: `pnpm run test:smoke` runs a fast API subset.
+- Flaky suite: tag tests with "@flaky" and run `pnpm run test:flaky`.
+- OpenAPI snapshot: `node scripts/generate-openapi-snapshot.mjs` updates the approved snapshot.
+- Mutation testing (analysis): `pnpm --filter @financial-analysis/analysis run test:mutation`.
+- Coverage: nightly workflow uploads analysis coverage.
+
 ## OpenAPI & Contracts
 
 - OpenAPI spec generated in the API worker (`getOpenApiDocument`).

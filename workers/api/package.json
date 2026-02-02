@@ -15,6 +15,7 @@
     "build": "tsc --noEmit",
     "pretest": "pnpm --filter @financial-analysis/analysis run build",
     "test": "vitest run --config ./vitest.config.mjs",
+    "test:smoke": "vitest run --config ./vitest.config.mjs --include src/__tests__/openapi*.test.ts --include src/__tests__/health-headers.test.ts --include src/__tests__/ping-version.test.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
