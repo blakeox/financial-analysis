@@ -11,7 +11,7 @@ Advanced financial analysis tooling with LLM-powered insights, built with modern
 - **API Monetization**: Full Stripe integration for subscription management and usage-based billing
 - **Authentication**: Secure API key system with tier-based quotas and rate limiting
 - **LLM Integration**: MCP (Model Context Protocol) server for AI-powered insights
-- **Cloudflare Stack**: Workers API, D1 database, R2 storage, KV sessions
+- **Cloudflare Stack**: Workers API, Project Think agent runtime, AI Search retrieval, D1 database, R2 storage, KV sessions
 - **Modern UI**: Astro frontend with Tailwind CSS and React components
 - **Type Safety**: Full TypeScript coverage with strict type checking
 - **Testing**: Comprehensive unit tests with Vitest and coverage reporting
@@ -21,7 +21,7 @@ Advanced financial analysis tooling with LLM-powered insights, built with modern
 ```text
 financial-analysis/
 ├── apps/web/          # Astro frontend application
-├── workers/api/       # Cloudflare Workers API with MCP server
+├── workers/api/       # Cloudflare Workers API with MCP server + Project Think agent + AI Search retrieval
 ├── packages/analysis/ # Deterministic financial calculation engines
 ├── packages/tools/    # MCP tool modules for LLM integration
 ├── packages/ui/       # Shared React components with Tailwind
@@ -79,6 +79,7 @@ Requirements:
 5. **Open your browser**
    - Frontend: `http://localhost:4321`
    - API Worker: Check terminal output for local worker URL
+   - Agent UI: `http://localhost:4321/agent`
 
 ## 📖 Usage
 
@@ -120,6 +121,16 @@ const response = await fetch('/api/mcp', {
   }),
 });
 ```
+
+### AI Search-backed retrieval
+
+- The API worker now prefers Cloudflare AI Search for knowledge retrieval when the `AI_SEARCH` binding and `AI_SEARCH_INSTANCE_NAME` are configured.
+- If the AI Search instance is missing but `AI_SEARCH_SOURCE_DOMAIN` is set, the worker will attempt to create the crawler-backed instance on first use.
+- If AI Search is unavailable or returns no useful results, the existing Vectorize/R2 cache path remains the fallback.
+- The Project Think `/agent` experience uses the same retrieval layer through the `searchFanalyxKnowledge` tool.
+- Knowledge refresh is now queue-backed via the `KNOWLEDGE_JOBS` binding. `POST /v1/admin/knowledge/reindex` enqueues a background reindex instead of doing it inline, and the midnight cron also enqueues a scheduled refresh when the queue is configured.
+- Browser Rendering is now wired into the same retrieval flow via the `BROWSER` binding and `@cloudflare/puppeteer`, so queued refreshes can capture rendered HTML for selected Fanalyx routes before AI Search and cache warming run.
+- `GET /v1/admin/knowledge/status` now reports Queue backlog, AI Search instance status/recent jobs, and Browser Rendering configuration so the Cloudflare knowledge pipeline is operationally visible.
 
 ## 🧪 Testing
 

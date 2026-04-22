@@ -14,6 +14,10 @@ ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Comma-separated MIME type prefixes allowed for uploads. Tighten as needed per env.
 # Example covers PDFs and modern Office docs (docx/xlsx/pptx via vnd.openxmlformats).
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
+AI_SEARCH_INSTANCE_NAME = "fanalyx-site"
+AI_SEARCH_SOURCE_DOMAIN = "https://fanalyx.com"
+BROWSER_RENDERING_ENABLED = "true"
+BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 
 [triggers]
 # Reconcile approximate R2 usage hourly to enforce soft-limit lock/unlock.
@@ -37,9 +41,24 @@ binding = "DOCUMENTS"
 bucket_name = "financial-analysis-documents"
 preview_bucket_name = "financial-analysis-documents"
 
+[[queues.producers]]
+binding = "KNOWLEDGE_JOBS"
+queue = "fanalyx-knowledge-jobs"
+
+[[queues.consumers]]
+queue = "fanalyx-knowledge-jobs"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+
 [[durable_objects.bindings]]
 name = "SESSION_DO"
 class_name = "SessionDO"
+script_name = "fanalyx-api"
+
+[[durable_objects.bindings]]
+name = "FinancialAnalysisAgent"
+class_name = "FinancialAnalysisAgent"
 script_name = "fanalyx-api"
 
 # Analytics Engine for security event tracking
@@ -51,10 +70,18 @@ binding = "ANALYTICS"
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
 
+[[ai_search_namespaces]]
+binding = "AI_SEARCH"
+namespace = "default"
+remote = true
+
 # Workers AI binding
 [ai]
 binding = "AI"
 gateway = { id = "fanalyx-chat", skip_cache = false, cache_ttl = 3600 }
+
+[browser]
+binding = "BROWSER"
 
 # Development configuration
 [dev]
@@ -74,6 +101,10 @@ ANALYSIS_CACHE_TTL_SECONDS = 0
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
+AI_SEARCH_INSTANCE_NAME = "fanalyx-site"
+AI_SEARCH_SOURCE_DOMAIN = "https://fanalyx.com"
+BROWSER_RENDERING_ENABLED = "true"
+BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 
 [env.preview.triggers]
 crons = ["0 * * * *"]
@@ -91,9 +122,24 @@ id = "2b02898694364a2693681466265c912d"
 binding = "DOCUMENTS"
 bucket_name = "financial-analysis-documents"
 
+[[env.preview.queues.producers]]
+binding = "KNOWLEDGE_JOBS"
+queue = "fanalyx-knowledge-jobs-preview"
+
+[[env.preview.queues.consumers]]
+queue = "fanalyx-knowledge-jobs-preview"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+
 [[env.preview.durable_objects.bindings]]
 name = "SESSION_DO"
 class_name = "SessionDO"
+script_name = "fanalyx-api"
+
+[[env.preview.durable_objects.bindings]]
+name = "FinancialAnalysisAgent"
+class_name = "FinancialAnalysisAgent"
 script_name = "fanalyx-api"
 
 [[env.preview.analytics_engine_datasets]]
@@ -103,8 +149,15 @@ binding = "ANALYTICS"
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
 
+[[env.preview.ai_search_namespaces]]
+binding = "AI_SEARCH"
+namespace = "default"
+
 [env.preview.ai]
 binding = "AI"
+
+[env.preview.browser]
+binding = "BROWSER"
 
 # Production environment
 [env.production]
@@ -117,6 +170,10 @@ ANALYSIS_CACHE_TTL_SECONDS = 0
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Consider making this stricter in production if business rules require fewer types.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
+AI_SEARCH_INSTANCE_NAME = "fanalyx-site"
+AI_SEARCH_SOURCE_DOMAIN = "https://fanalyx.com"
+BROWSER_RENDERING_ENABLED = "true"
+BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 
 [env.production.triggers]
 crons = ["0 * * * *"]
@@ -134,9 +191,24 @@ id = "2b02898694364a2693681466265c912d"
 binding = "DOCUMENTS"
 bucket_name = "financial-analysis-documents"
 
+[[env.production.queues.producers]]
+binding = "KNOWLEDGE_JOBS"
+queue = "fanalyx-knowledge-jobs-production"
+
+[[env.production.queues.consumers]]
+queue = "fanalyx-knowledge-jobs-production"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+
 [[env.production.durable_objects.bindings]]
 name = "SESSION_DO"
 class_name = "SessionDO"
+script_name = "fanalyx-api-production"
+
+[[env.production.durable_objects.bindings]]
+name = "FinancialAnalysisAgent"
+class_name = "FinancialAnalysisAgent"
 script_name = "fanalyx-api-production"
 
 [[env.production.analytics_engine_datasets]]
@@ -146,8 +218,15 @@ binding = "ANALYTICS"
 binding = "VECTORIZE"
 index_name = "financial-analysis-autorag"
 
+[[env.production.ai_search_namespaces]]
+binding = "AI_SEARCH"
+namespace = "default"
+
 [env.production.ai]
 binding = "AI"
+
+[env.production.browser]
+binding = "BROWSER"
 
 # Stripe configuration (secrets - set via: wrangler secret put STRIPE_SECRET_KEY --env production)
 # STRIPE_SECRET_KEY = "sk_live_..."
@@ -161,3 +240,7 @@ binding = "AI"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["SessionDO"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["FinancialAnalysisAgent"]

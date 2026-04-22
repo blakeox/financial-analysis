@@ -70,18 +70,21 @@ describe('ContextManager', () => {
   });
 
   it('includes AutoRAG content when available', async () => {
-    const mockSearch = vi.fn().mockResolvedValue([
-      {
-        url: 'https://example.com/doc1',
-        content: 'This is relevant content from the website.',
-        metadata: { title: 'Relevant Doc' }
-      }
-    ]);
+    const mockSearchWithSource = vi.fn().mockResolvedValue({
+      documents: [
+        {
+          url: 'https://example.com/doc1',
+          content: 'This is relevant content from the website.',
+          metadata: { title: 'Relevant Doc' }
+        }
+      ],
+      source: 'ai-search',
+    });
     
     // Setup the mock implementation
     vi.mocked(DocumentCache).mockImplementation(function() {
       return {
-        search: mockSearch
+        searchWithSource: mockSearchWithSource
       } as unknown as DocumentCache;
     });
 
@@ -94,10 +97,11 @@ describe('ContextManager', () => {
       enableAutoRAG: true
     });
 
-    expect(mockSearch).toHaveBeenCalledWith('Tell me about the website content', 3);
+    expect(mockSearchWithSource).toHaveBeenCalledWith('Tell me about the website content', 3);
     expect(result.prompt).toContain('Relevant information from our website');
     expect(result.prompt).toContain('This is relevant content from the website');
     expect(result.prompt).toContain('Relevant Doc');
+    expect(result.metadata?.autoragSource).toBe('ai-search');
   });
 
   it('includes currentModel in Additional Context', async () => {

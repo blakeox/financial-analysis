@@ -76,7 +76,19 @@ export class LLMOrchestrator {
 
   constructor(
     ai: Ai,
-    env: Pick<Env, 'KV' | 'DOCUMENTS' | 'VECTORIZE' | 'AI_GATEWAY_ID'>
+    env: Pick<
+      Env,
+      | 'KV'
+      | 'DOCUMENTS'
+      | 'VECTORIZE'
+      | 'BROWSER'
+      | 'BROWSER_RENDERING_ENABLED'
+      | 'BROWSER_RENDERING_PATH_PREFIXES'
+      | 'AI_GATEWAY_ID'
+      | 'AI_SEARCH'
+      | 'AI_SEARCH_INSTANCE_NAME'
+      | 'AI_SEARCH_SOURCE_DOMAIN'
+    >
   ) {
     // Initialize services
     const cache = env.KV ? new IntelligentCacheImpl(env.KV) : undefined;
@@ -112,6 +124,25 @@ export class LLMOrchestrator {
     }
     if (env.KV) {
       docCacheConfig.kv = env.KV;
+      hasDocCacheConfig = true;
+    }
+    if (env.BROWSER) {
+      docCacheConfig.browser = env.BROWSER;
+      docCacheConfig.browserRenderingEnabled = env.BROWSER_RENDERING_ENABLED === 'true';
+      if (env.BROWSER_RENDERING_PATH_PREFIXES) {
+        docCacheConfig.browserRenderingPathPrefixes = env.BROWSER_RENDERING_PATH_PREFIXES
+          .split(',')
+          .map((prefix) => prefix.trim())
+          .filter(Boolean);
+      }
+      hasDocCacheConfig = true;
+    }
+    if (env.AI_SEARCH && env.AI_SEARCH_INSTANCE_NAME) {
+      docCacheConfig.aiSearchNamespace = env.AI_SEARCH;
+      docCacheConfig.aiSearchInstanceName = env.AI_SEARCH_INSTANCE_NAME;
+      if (env.AI_SEARCH_SOURCE_DOMAIN) {
+        docCacheConfig.aiSearchSourceDomain = env.AI_SEARCH_SOURCE_DOMAIN;
+      }
       hasDocCacheConfig = true;
     }
 

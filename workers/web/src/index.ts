@@ -67,6 +67,7 @@ export default {
       pathname === '/openapi.json' ||
       pathname === '/docs' ||
       pathname === '/mcp' ||
+      pathname.startsWith('/agents/') ||
       pathname.startsWith('/v1/') ||
       pathname.startsWith('/api/');
 
@@ -100,7 +101,7 @@ export default {
       } as RequestInit);
 
       try {
-      const apiRes = await fetch(apiReq);
+        const apiRes = await fetch(apiReq);
         console.log('API response:', {
           status: apiRes.status,
           statusText: apiRes.statusText,
@@ -108,28 +109,33 @@ export default {
           bodyUsed: apiRes.bodyUsed,
         });
 
-      const headers = new Headers(apiRes.headers);
-      headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      headers.set('Access-Control-Allow-Origin', '*');
-      if (isDev) {
-        headers.set('x-dev-proxy', 'web->api');
-      }
-      
-      // For streaming endpoints, preserve the streaming response
-      const isStreamingEndpoint = pathname.includes('/stream');
-      if (isStreamingEndpoint) {
-        // Don't set CSP/security headers that might interfere with streaming
-        headers.set('Content-Type', 'text/event-stream');
-        headers.set('Cache-Control', 'no-cache');
-        headers.set('Connection', 'keep-alive');
-        // Pass through the body directly
+        const isWebSocketUpgrade = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
+        if (isWebSocketUpgrade || apiRes.status === 101) {
+          return apiRes;
+        }
+
+        const headers = new Headers(apiRes.headers);
+        headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        headers.set('Access-Control-Allow-Origin', '*');
+        if (isDev) {
+          headers.set('x-dev-proxy', 'web->api');
+        }
+
+        // For streaming endpoints, preserve the streaming response
+        const isStreamingEndpoint = pathname.includes('/stream');
+        if (isStreamingEndpoint) {
+          // Don't set CSP/security headers that might interfere with streaming
+          headers.set('Content-Type', 'text/event-stream');
+          headers.set('Cache-Control', 'no-cache');
+          headers.set('Connection', 'keep-alive');
+          // Pass through the body directly
+          return new Response(apiRes.body, { status: apiRes.status, headers });
+        }
+
+        for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
+          headers.set(key, value);
+        }
         return new Response(apiRes.body, { status: apiRes.status, headers });
-      }
-      
-      for (const [key, value] of Object.entries(getSecurityHeaders(env))) {
-        headers.set(key, value);
-      }
-      return new Response(apiRes.body, { status: apiRes.status, headers });
       } catch (error) {
         console.error('API proxy error:', error);
         const details = error instanceof Error ? error.message : String(error);
