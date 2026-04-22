@@ -17,9 +17,10 @@
     "rebuild:ui": "pnpm --filter @financial-analysis/ui run build",
     "clean:vite:web": "rm -rf apps/web/node_modules/.vite",
     "test": "pnpm --recursive --sort --workspace-concurrency=1 run test",
+    "test:smoke": "pnpm --filter @financial-analysis/api run test:smoke",
     "test:fast": "pnpm --filter @financial-analysis/analysis run test:fast && pnpm --filter \"!@financial-analysis/analysis\" run test",
     "test:slow": "pnpm --filter @financial-analysis/analysis run test:slow",
-    "test:flaky": "pnpm --recursive --sort --workspace-concurrency=1 run test -- --retry=3",
+    "test:flaky": "pnpm --recursive --sort --workspace-concurrency=1 run test -- --retry=3 --grep @flaky",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive exec prettier --check .",
@@ -58,7 +59,7 @@
     "undici": "^7.16.0",
     "vite": "7.3.0",
     "vitest": "4.0.9",
-    "wrangler": "^4.50.0"
+    "wrangler": "^4.84.1"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -1,14 +1,14 @@
-name: Mutation Tests (Analysis)
+name: Coverage
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: mutation-${{ github.workflow }}-${{ github.ref }}
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  mutation-tests:
+  analysis-coverage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,5 +29,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run mutation tests (analysis)
-        run: pnpm --filter @financial-analysis/analysis test:mutation
+      - name: Run analysis coverage
+        run: pnpm --filter @financial-analysis/analysis run test:coverage
+
+      - name: Upload coverage (Codecov)
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/analysis/coverage/coverage-final.json
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

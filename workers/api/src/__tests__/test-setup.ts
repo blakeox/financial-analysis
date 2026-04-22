@@ -1,5 +1,9 @@
 import { afterAll, beforeEach, vi } from 'vitest';
 
+vi.mock('../agents/FinancialAnalysisAgent', () => ({
+  FinancialAnalysisAgent: class FinancialAnalysisAgent {},
+}));
+
 const fixedNow = new Date('2024-01-01T00:00:00.000Z').getTime();
 let nowSpy: ReturnType<typeof vi.spyOn> | null = null;
 

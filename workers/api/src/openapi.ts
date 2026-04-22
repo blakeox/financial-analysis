@@ -716,6 +716,85 @@ registry.registerPath({
   },
 });
 
+registry.registerPath({
+  method: 'post',
+  path: '/v1/admin/knowledge/reindex',
+  request: {
+    body: {
+      description: 'Queue a knowledge reindex job for AI Search and fallback cache warming.',
+      content: {
+        'application/json': {
+          schema: z.object({
+            paths: z.array(z.string()).max(50).optional(),
+            warmCache: z.boolean().optional(),
+            delaySeconds: z.number().int().min(0).max(900).optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    202: {
+      description: 'Knowledge reindex job accepted for background processing',
+      content: {
+        'application/json': {
+          schema: z.object({
+            status: z.literal('enqueued'),
+            backlogCount: z.number(),
+            queuedAt: z.string(),
+            source: z.literal('manual'),
+            warmCache: z.boolean(),
+            pathCount: z.number(),
+          }),
+        },
+      },
+    },
+    400: { description: 'Invalid request body' },
+    401: { description: 'Unauthorized' },
+    415: { description: 'Unsupported Media Type' },
+    503: { description: 'Knowledge reindex queue not configured' },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/admin/knowledge/status',
+  responses: {
+    200: {
+      description: 'Current status of the Cloudflare-backed knowledge pipeline',
+      content: {
+        'application/json': {
+          schema: z.object({
+            queue: z.object({
+              configured: z.boolean(),
+              backlogCount: z.number().nullable(),
+              backlogBytes: z.number().nullable(),
+              oldestMessageTimestamp: z.string().nullable(),
+              error: z.string().optional(),
+            }),
+            aiSearch: z.object({
+              configured: z.boolean(),
+              instanceName: z.string().nullable(),
+              available: z.boolean(),
+              info: z.unknown().nullable(),
+              stats: z.unknown().nullable(),
+              recentJobs: z.array(z.unknown()),
+              error: z.string().optional(),
+            }),
+            browserRendering: z.object({
+              configured: z.boolean(),
+              enabled: z.boolean(),
+              pathPrefixes: z.array(z.string()),
+            }),
+            timestamp: z.string(),
+          }),
+        },
+      },
+    },
+    401: { description: 'Unauthorized' },
+  },
+});
+
 // Upload object: body is binary; requires Content-Length or X-Content-Length header (documented)
 registry.registerPath({
   method: 'put',

@@ -10,11 +10,12 @@ function makeEnv({
   apiDevOrigin?: string;
   apiProdOrigin?: string;
 }) {
-  const fetchSpy = vi.fn(async (_req: Request) =>
-    new Response('<html><body>ASSETS</body></html>', {
-      status: 200,
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-    })
+  const fetchSpy = vi.fn(
+    async (_req: Request) =>
+      new Response('<html><body>ASSETS</body></html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      })
   );
 
   const env: {
@@ -143,6 +144,58 @@ describe('web worker dev proxy', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('x-dev-proxy')).toBe('web->api');
     expect(await res.json()).toEqual({ response: 'Hello!' });
+
+    globalFetch.mockRestore();
+  });
+
+  it('forwards /agents/ requests to API in development', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'development',
+      apiDevOrigin: 'http://127.0.0.1:8787',
+    });
+
+    const req = new Request('https://example.com/agents/financial-analysis-agent/default', {
+      method: 'GET',
+    });
+
+    const apiResponse = new Response(JSON.stringify({ ok: 'agent' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(apiResponse);
+
+    const res = await web.fetch(req, env as never, ctx);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-dev-proxy')).toBe('web->api');
+    expect(await res.json()).toEqual({ ok: 'agent' });
+
+    globalFetch.mockRestore();
+  });
+
+  it('passes websocket upgrade responses through for /agents/ requests', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'development',
+      apiDevOrigin: 'http://127.0.0.1:8787',
+    });
+
+    const req = new Request('https://example.com/agents/financial-analysis-agent/default', {
+      method: 'GET',
+      headers: { Upgrade: 'websocket' },
+    });
+
+    const upgradeResponse = {
+      status: 101,
+      headers: new Headers(),
+      body: null,
+    } as Response;
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(upgradeResponse);
+
+    const res = await web.fetch(req, env as never, ctx);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(res).toBe(upgradeResponse);
 
     globalFetch.mockRestore();
   });

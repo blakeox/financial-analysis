@@ -35,7 +35,7 @@ export interface BuiltContext {
       hasConversationHistory: boolean;
       toolsAvailable: number;
       toolOutputsIncluded: number;
-      autoragSource?: 'cache' | 'live' | 'none';
+      autoragSource?: 'ai-search' | 'cache' | 'live' | 'none';
     } | undefined;
 }
 
@@ -201,12 +201,12 @@ export class ContextManager {
 
     // Retrieve website content via AutoRAG if enabled
     let websiteContent: string | undefined;
-    let autoragSource: 'cache' | 'live' | 'none' = 'none';
+    let autoragSource: 'ai-search' | 'cache' | 'live' | 'none' = 'none';
     
     if (builder.enableAutoRAG && this.documentCache) {
       try {
-        // Use semantic search to find relevant cached documents
-        const searchResults = await this.documentCache.search(message, 3);
+        // Prefer managed AI Search when configured, otherwise fall back to the legacy cache path.
+        const { documents: searchResults, source } = await this.documentCache.searchWithSource(message, 3);
         
         if (searchResults.length > 0) {
           // Format cached results
@@ -219,7 +219,7 @@ export class ContextManager {
             .join('\n\n');
           
           websiteContent = `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
-          autoragSource = 'cache';
+          autoragSource = source;
         }
       } catch (error) {
         // AutoRAG failed, continue without website content
