@@ -1,8 +1,6 @@
 name: Monitor R2 Quotas (prod)
 
 on:
-  schedule:
-    - cron: '30 8 * * *' # daily at 08:30 UTC
   workflow_dispatch:
 
 permissions:
