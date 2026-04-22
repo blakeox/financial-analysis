@@ -19,7 +19,7 @@ export interface Props {
 
 const {
   title,
-  description = "Fanalyx - Professional Financial Analysis Tools",
+  description = 'Fanalyx - Professional Financial Analysis Tools',
   canonical,
   image,
   showNav = true,
@@ -28,27 +28,28 @@ const {
   type,
 } = Astro.props as Props;
 
-  const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'Models', href: '/models' },
-    { label: 'Journey', href: '/journey' },
-    { label: 'Developers', href: '/developers' },
-    { label: 'Status', href: '/status' },
-  ];
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Models', href: '/models' },
+  { label: 'Journey', href: '/journey' },
+  { label: 'Agent', href: '/agent' },
+  { label: 'Developers', href: '/developers' },
+  { label: 'Status', href: '/status' },
+];
 
 // Determine current context for tool analysis panel
 function getCurrentContext(pathname: string): string {
   const path = pathname.split('/')[1] || '';
-  
+
   // Check for journey pages first
   if (path === 'journey') {
     const journeyId = pathname.split('/')[2] || '';
     return `journey-${journeyId}`;
   }
-  
+
   // Direct page mappings
   const contextMap: Record<string, string> = {
-    'amortization': 'amortization',
+    amortization: 'amortization',
     'lease-analysis': 'lease',
     'commercial-real-estate-lease': 'lease',
     'ebitda-forecasting': 'ebitda',
@@ -56,16 +57,16 @@ function getCurrentContext(pathname: string): string {
     'debt-payoff': 'debt-payoff',
     'savings-goal': 'savings-goal',
     'student-loans': 'student-loans',
-    'retirement': 'retirement',
-    'budget': 'budget',
+    retirement: 'retirement',
+    budget: 'budget',
     'bond-pricing': 'bond-pricing',
     'options-pricing': 'options-pricing',
     'cash-flow': 'cash-flow',
-    'models': 'models',
-    'journey': 'general',
+    models: 'models',
+    journey: 'general',
     '': 'general',
   };
-  
+
   return contextMap[path] || 'general';
 }
 
@@ -78,26 +79,26 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    
+
     <!-- Theme Colors for Mobile Browsers -->
     <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: dark)" />
     <meta name="msapplication-TileColor" content="#3b82f6" />
-    
+
     <!-- Icons and App Manifest -->
     <link rel="icon" type="image/png" href="/fanalyx_favicon.png" sizes="512x512" />
     <link rel="apple-touch-icon" href="/fanalyx_favicon.png" />
     <link rel="manifest" href="/manifest.json" />
-    
+
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
-    
+
     <!-- Generator Meta -->
     <meta name="generator" content={Astro.generator} />
-    
+
     <!-- SEO Meta Tags -->
     <SEO
       title={title}
@@ -111,23 +112,27 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     />
 
     <!-- Google AdSense (prod only) -->
-    {import.meta.env.PROD && (
-      <script
-        is:inline
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
-        crossorigin="anonymous"
-      ></script>
-    )}
+    {
+      import.meta.env.PROD && (
+        <script
+          is:inline
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1672390365903308"
+          crossorigin="anonymous"
+        />
+      )
+    }
 
     {/* Cloudflare Web Analytics (optional) */}
-    {import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (
-      <script
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN}"}`}
-      ></script>
-    )}
+    {
+      import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN}"}`}
+        />
+      )
+    }
 
     <!-- Tailwind CSS -->
     <script is:inline>
@@ -138,8 +143,9 @@ const currentContext = getCurrentContext(Astro.url.pathname);
       }
     </script>
 
-      {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
-      {import.meta.env.PROD && (
+    {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
+    {
+      import.meta.env.PROD && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -151,32 +157,34 @@ const currentContext = getCurrentContext(Astro.url.pathname);
           <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
           <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         </>
-      )}
+      )
+    }
 
-      {/* Dev: force system font to avoid font-swap metric shifts */}
-      {import.meta.env.DEV && (
-        <script is:inline>
-          {"document.documentElement.dataset.devFontSans='system';"}
-        </script>
-      )}
+    {/* Dev: force system font to avoid font-swap metric shifts */}
+    {
+      import.meta.env.DEV && (
+        <script is:inline>{"document.documentElement.dataset.devFontSans='system';"}</script>
+      )
+    }
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen font-sans">
     <!-- Skip Link (visually hidden until focus) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    
 
     <!-- Header / Navigation -->
-    {showNav && (
-      <div id="site-header">
-  <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Fanalyx" />
-      </div>
-    )}
+    {
+      showNav && (
+        <div id="site-header">
+          <ModernNavBar links={navLinks} currentPath={Astro.url.pathname} brand="Fanalyx" />
+        </div>
+      )
+    }
 
-      {/* Spacer to reserve header height and prevent content jump (h-16 = 4rem) */}
-      <div aria-hidden="true" class="h-16" />
+    {/* Spacer to reserve header height and prevent content jump (h-16 = 4rem) */}
+    <div aria-hidden="true" class="h-16"></div>
 
     <!-- Main Content -->
-      <main id="main-content" tabindex="-1" class="flex-1">
+    <main id="main-content" tabindex="-1" class="flex-1">
       <slot />
     </main>
 

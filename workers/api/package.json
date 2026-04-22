@@ -23,25 +23,32 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.2.0",
+    "@cloudflare/ai-chat": "^0.4.6",
     "@cloudflare/ai-utils": "^1.0.1",
-    "@cloudflare/workers-types": "^4.20251125.0",
+    "@cloudflare/puppeteer": "^1.1.0",
+    "@cloudflare/shell": "^0.3.3",
+    "@cloudflare/think": "^0.3.0",
+    "@cloudflare/workers-types": "^4.20260422.1",
     "@financial-analysis/analysis": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
+    "agents": "^0.11.4",
+    "ai": "^6.0.168",
     "itty-router": "^5.0.22",
+    "workers-ai-provider": "^3.1.11",
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.50.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
     "miniflare": "^4.20251217.0",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "vitest": "4.0.9",
-    "wrangler": "^4.50.0"
+    "wrangler": "^4.84.1"
   }
 }

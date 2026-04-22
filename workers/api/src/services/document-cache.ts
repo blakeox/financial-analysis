@@ -1,10 +1,17 @@
 /**
- * Document Cache Service - AutoRAG Implementation
+ * Document Cache Service - AI Search / AutoRAG Implementation
  * Stores website content with 7-day freshness tolerance
- * Uses R2 for storage and Vectorize for semantic search
+ * Prefers AI Search when configured and falls back to R2 + Vectorize search.
  */
 
-import type { VectorizeIndex, Ai } from '@cloudflare/workers-types';
+import type {
+  Ai,
+  AiSearchInstance,
+  AiSearchJobInfo,
+  AiSearchNamespace,
+  VectorizeIndex,
+} from '@cloudflare/workers-types';
+import { renderPageToHtml } from './browser-render';
 
 const FRESHNESS_DAYS = 7;
 const FRESHNESS_MS = FRESHNESS_DAYS * 24 * 60 * 60 * 1000;
@@ -28,6 +35,12 @@ export interface DocumentCacheConfig {
   vectorize?: VectorizeIndex;
   kv?: KVNamespace;
   ai?: Ai;
+  browser?: Fetcher;
+  browserRenderingEnabled?: boolean;
+  browserRenderingPathPrefixes?: string[];
+  aiSearchNamespace?: AiSearchNamespace;
+  aiSearchInstanceName?: string;
+  aiSearchSourceDomain?: string;
 }
 
 export interface FetchResult {
@@ -43,12 +56,25 @@ export class DocumentCache {
   private vectorize: VectorizeIndex | undefined;
   private kv: KVNamespace | undefined;
   private ai: Ai | undefined;
+  private browser: Fetcher | undefined;
+  private browserRenderingEnabled: boolean;
+  private browserRenderingPathPrefixes: string[];
+  private aiSearchNamespace: AiSearchNamespace | undefined;
+  private aiSearchInstanceName: string | undefined;
+  private aiSearchSourceDomain: string | undefined;
+  private aiSearchInstancePromise: Promise<AiSearchInstance | null> | undefined;
 
   constructor(config: DocumentCacheConfig) {
     this.r2 = config.r2Bucket;
     this.vectorize = config.vectorize;
     this.kv = config.kv;
     this.ai = config.ai;
+    this.browser = config.browser;
+    this.browserRenderingEnabled = config.browserRenderingEnabled ?? false;
+    this.browserRenderingPathPrefixes = config.browserRenderingPathPrefixes ?? [];
+    this.aiSearchNamespace = config.aiSearchNamespace;
+    this.aiSearchInstanceName = config.aiSearchInstanceName;
+    this.aiSearchSourceDomain = config.aiSearchSourceDomain;
   }
 
   /**
@@ -75,6 +101,19 @@ export class DocumentCache {
     this.store(url, liveContent).catch(err => {
       console.warn('Failed to cache document:', err);
     });
+
+    return {
+      content: liveContent,
+      source: 'live',
+      isFresh: true,
+      fetchedAt: Date.now(),
+      url,
+    };
+  }
+
+  async refresh(url: string, metadata?: CachedDocument['metadata']): Promise<FetchResult> {
+    const liveContent = await this.fetchLive(url);
+    await this.store(url, liveContent, metadata);
 
     return {
       content: liveContent,
@@ -132,8 +171,21 @@ export class DocumentCache {
    * Search cached documents by semantic similarity
    */
   async search(query: string, limit = 5): Promise<CachedDocument[]> {
+    const { documents } = await this.searchWithSource(query, limit);
+    return documents;
+  }
+
+  async searchWithSource(
+    query: string,
+    limit = 5
+  ): Promise<{ documents: CachedDocument[]; source: 'ai-search' | 'cache' | 'none' }> {
+    const aiSearchDocuments = await this.searchAiSearch(query, limit);
+    if (aiSearchDocuments.length > 0) {
+      return { documents: aiSearchDocuments, source: 'ai-search' };
+    }
+
     if (!this.vectorize) {
-      return [];
+      return { documents: [], source: 'none' };
     }
 
     try {
@@ -158,10 +210,13 @@ export class DocumentCache {
         }
       }
 
-      return documents;
+      return {
+        documents,
+        source: documents.length > 0 ? 'cache' : 'none',
+      };
     } catch (error) {
       console.error('Vector search failed:', error);
-      return [];
+      return { documents: [], source: 'none' };
     }
   }
 
@@ -204,6 +259,13 @@ export class DocumentCache {
    */
   private async fetchLive(url: string): Promise<string> {
     try {
+      if (this.shouldUseBrowserRendering(url)) {
+        return await renderPageToHtml({
+          binding: this.browser as Fetcher,
+          url,
+        });
+      }
+
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'FinancialAnalysis-AutoRAG/1.0',
@@ -225,6 +287,39 @@ export class DocumentCache {
     } catch (error) {
       console.error('Live fetch failed:', error);
       throw new Error(`Failed to fetch ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  private shouldUseBrowserRendering(url: string): boolean {
+    if (!this.browser || !this.browserRenderingEnabled) {
+      return false;
+    }
+
+    const sourceDomain = this.aiSearchSourceDomain;
+    if (!sourceDomain) {
+      return false;
+    }
+
+    try {
+      const targetUrl = new URL(url);
+      const sourceUrl = new URL(sourceDomain);
+      if (targetUrl.origin !== sourceUrl.origin) {
+        return false;
+      }
+
+      if (targetUrl.pathname.endsWith('.json') || targetUrl.pathname.endsWith('.xml')) {
+        return false;
+      }
+
+      if (this.browserRenderingPathPrefixes.length === 0) {
+        return true;
+      }
+
+      return this.browserRenderingPathPrefixes.some((prefix) =>
+        targetUrl.pathname.startsWith(prefix)
+      );
+    } catch {
+      return false;
     }
   }
 
@@ -269,6 +364,131 @@ export class DocumentCache {
       console.error('Failed to index document:', error);
       // Don't throw - indexing is optional
     }
+  }
+
+  private async searchAiSearch(query: string, limit: number): Promise<CachedDocument[]> {
+    const instance = await this.ensureAiSearchInstance();
+    if (!instance) {
+      return [];
+    }
+
+    try {
+      const result = await instance.search({
+        query,
+        ai_search_options: {
+          retrieval: {
+            retrieval_type: 'hybrid',
+            keyword_match_mode: 'or',
+            max_num_results: limit,
+            context_expansion: 1,
+            return_on_failure: true,
+          },
+        },
+      });
+
+      return result.chunks.slice(0, limit).map((chunk) => {
+        const title =
+          typeof chunk.item.metadata?.title === 'string'
+            ? chunk.item.metadata.title
+            : this.deriveTitleFromKey(chunk.item.key);
+        const fetchedAt = chunk.item.timestamp ?? Date.now();
+
+        return {
+          url: this.resolveAiSearchUrl(chunk.item.key),
+          content: chunk.text,
+          contentHash: chunk.id,
+          fetchedAt,
+          expiresAt: fetchedAt + FRESHNESS_MS,
+          metadata: {
+            title,
+            wordCount: chunk.text.split(/\s+/).filter(Boolean).length,
+          },
+        };
+      });
+    } catch (error) {
+      console.warn('AI Search query failed, falling back to Vectorize cache:', error);
+      return [];
+    }
+  }
+
+  private async ensureAiSearchInstance(): Promise<AiSearchInstance | null> {
+    if (!this.aiSearchNamespace || !this.aiSearchInstanceName) {
+      return null;
+    }
+
+    if (!this.aiSearchInstancePromise) {
+      const namespace = this.aiSearchNamespace;
+      const instanceName = this.aiSearchInstanceName;
+      const sourceDomain = this.aiSearchSourceDomain;
+
+      this.aiSearchInstancePromise = (async () => {
+        const instance = namespace.get(instanceName);
+
+        try {
+          await instance.info();
+          return instance;
+        } catch (lookupError) {
+          if (!sourceDomain) {
+            console.warn('AI Search instance is unavailable and no source domain is configured.', lookupError);
+            return null;
+          }
+
+          try {
+            return await namespace.create({
+              id: instanceName,
+              type: 'web-crawler',
+              source: sourceDomain,
+              index_method: { vector: true, keyword: true },
+              fusion_method: 'rrf',
+              retrieval_options: {
+                keyword_match_mode: 'or',
+              },
+              reranking: true,
+              rewrite_query: true,
+              max_num_results: 10,
+              cache: true,
+            });
+          } catch (createError) {
+            console.warn('AI Search instance provisioning failed.', createError);
+            return null;
+          }
+        }
+      })();
+    }
+
+    return this.aiSearchInstancePromise;
+  }
+
+  async triggerAiSearchReindex(description?: string): Promise<AiSearchJobInfo | null> {
+    const instance = await this.ensureAiSearchInstance();
+    if (!instance) {
+      return null;
+    }
+
+    return instance.jobs.create(description ? { description } : undefined);
+  }
+
+  private resolveAiSearchUrl(key: string): string {
+    if (/^https?:\/\//i.test(key)) {
+      return key;
+    }
+
+    const sourceDomain = this.aiSearchSourceDomain?.replace(/\/$/, '');
+    if (!sourceDomain) {
+      return key;
+    }
+
+    if (key.startsWith('/')) {
+      return `${sourceDomain}${key}`;
+    }
+
+    return `${sourceDomain}/${key}`;
+  }
+
+  private deriveTitleFromKey(key: string): string {
+    const normalized = key.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+    const segments = normalized.split('/').filter(Boolean);
+    return segments[segments.length - 1] || 'AI Search Result';
   }
 
   /**

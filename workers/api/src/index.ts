@@ -1,136 +1,137 @@
+import { routeAgentRequest } from 'agents';
 import {
-    AccountsPayableOptimizationInputSchema,
-    AccountsPayableOptimizer,
-    AccountsReceivableAgingAnalyzer,
-    AccountsReceivableAgingInputSchema,
-    AmortizationAnalyzer,
+  AccountsPayableOptimizationInputSchema,
+  AccountsPayableOptimizer,
+  AccountsReceivableAgingAnalyzer,
+  AccountsReceivableAgingInputSchema,
+  AmortizationAnalyzer,
   type AmortizationResultItem,
-    AmortizationInputSchema,
-    AutoLoanAnalysisEngine,
-    AutoLoanAnalysisInputSchema,
-    BondPricingAnalyzer,
-    BondPricingInputSchema,
-    BusinessExpansionLoanInputSchema,
-    BusinessExpansionLoanJourney,
-    BusinessFinancialHealthAnalyzer,
-    BusinessFinancialHealthInputSchema,
-    BusinessLoanScenariosAnalyzer,
-    BusinessLoanScenariosInputSchema,
-    BusinessSuccessionPlanningCalculator,
-    BusinessSuccessionPlanningInputSchema,
-    CapitalStructureInputSchema,
-    CapitalStructureOptimizer,
-    CarLeaseVsBuyCalculator,
-    CarLeaseVsBuyInputSchema,
-    CashFlowAnalysisInputSchema,
-    CashFlowAnalyzer,
-    CCAValuationEngine,
-    CCAValuationInputSchema,
-    CharitableGivingInputSchema,
-    CharitableGivingOptimizer,
-    CollegeSavingsInputSchema,
-    CollegeSavingsPlanner,
-    CreditRiskAnalyzer,
-    CreditRiskInputSchema,
-    CreditScoreImpactAnalyzer,
-    CreditScoreImpactInputSchema,
-    CryptocurrencyTaxCalculator,
-    // Specialized/Advanced Models
-    CryptocurrencyTaxInputSchema,
-    DebtCapacityCalculator,
-    DebtCapacityInputSchema,
-    DepreciationCalculator,
-    DepreciationInputSchema,
-    DisabilityInsuranceAnalyzer,
-    DisabilityInsuranceInputSchema,
-    DSCRCalculator,
-    DSCRInputSchema,
-    EbitdaForecaster,
-    EmergencyFundCalculator,
-    EmergencyFundInputSchema,
-    EmployeeStockOptionsInputSchema,
-    EmployeeStockOptionsValuator,
-    EmployerMatch401kInputSchema,
-    EmployerMatch401kOptimizer,
-    EnhancedLeaseAnalyzer,
-    EnhancedLeaseInputSchema,
-    EquipmentLeaseVsBuyCalculator,
-    EquipmentLeaseVsBuyInputSchema,
-    EstatePlanningCalculator,
-    EstatePlanningInputSchema,
-    FinancialInputSchema,
-    FinancialJourneyAnalysisEngine,
-    FinancialJourneyInputSchema,
-    FinancialRatioAnalyzer,
-    FinancialRatioAnalyzerInputSchema,
-    FIRECalculator,
-    FIRECalculatorInputSchema,
-    FiveTwoNineOptimizer,
-    FiveTwoNineOptimizerInputSchema,
-    FranchiseROICalculator,
-    FranchiseROIInputSchema,
-    HELOCAnalyzer,
-    HELOCInputSchema,
-    HomeBuyingAffordabilityCalculator,
-    HomeBuyingAffordabilityInputSchema,
-    // New Personal Finance Models
-    HSAOptimizationInputSchema,
-    HSAOptimizer,
-    InsuranceNeedsCalculator,
-    InsuranceNeedsInputSchema,
-    InternationalTaxPlanningOptimizer,
-    InternationalTaxPlanningInputSchema,
-    // New Business Finance Models
-    InventoryOptimizationInputSchema,
-    InventoryOptimizer,
-    InvestmentPortfolioAnalyzer,
-    InvestmentPortfolioInputSchema,
-    LBOInputSchema,
-    LBOModel,
-    LeaseAnalyzer,
-    LifeInsuranceReassessmentCalculator,
-    LifeInsuranceReassessmentInputSchema,
-    LongTermCareCalculator,
-    LongTermCareInputSchema,
-    MAAnalysisEngine,
-    MAAnalysisInputSchema,
-    NetWorthInputSchema,
-    NetWorthTracker,
-    OneZeroThreeOneExchangeAnalyzer,
-    OneZeroThreeOneExchangeInputSchema,
-    OptionsPricingAnalyzer,
-    OptionsPricingInputSchema,
-    PortfolioOptimizationInputSchema,
-    PortfolioOptimizer,
-    ProjectFinanceAnalyzer,
-    ProjectFinanceInputSchema,
-    RealEstateInvestmentAnalyzer,
-    RealEstateInvestmentInputSchema,
-    RefinancingCalculator,
-    RefinancingInputSchema,
-    RetirementPlanningEngine,
-    RetirementPlanningInputSchema,
-    RevenueRecognitionCalculator,
-    RevenueRecognitionInputSchema,
-    RothVsTraditionalIRACalculator,
-    RothVsTraditionalIRAInputSchema,
-    ScenarioInputSchema,
-    SocialSecurityInputSchema,
-    SocialSecurityOptimizer,
-    StartupFinancialModel,
-    StartupFinancialModelInputSchema,
-    SupplyChainFinanceInputSchema,
-    SupplyChainFinanceOptimizer,
-    TaxLossHarvestingInputSchema,
-    TaxLossHarvestingOptimizer,
-    TaxOptimizationInputSchema,
-    TaxOptimizationPlanner,
-    VaRCalculator,
-    VaRInputSchema,
-    WACCAnalyzer,
-    WACCInputSchema,
-    WorkingCapitalInputSchema,
-    WorkingCapitalOptimizer,
+  AmortizationInputSchema,
+  AutoLoanAnalysisEngine,
+  AutoLoanAnalysisInputSchema,
+  BondPricingAnalyzer,
+  BondPricingInputSchema,
+  BusinessExpansionLoanInputSchema,
+  BusinessExpansionLoanJourney,
+  BusinessFinancialHealthAnalyzer,
+  BusinessFinancialHealthInputSchema,
+  BusinessLoanScenariosAnalyzer,
+  BusinessLoanScenariosInputSchema,
+  BusinessSuccessionPlanningCalculator,
+  BusinessSuccessionPlanningInputSchema,
+  CapitalStructureInputSchema,
+  CapitalStructureOptimizer,
+  CarLeaseVsBuyCalculator,
+  CarLeaseVsBuyInputSchema,
+  CashFlowAnalysisInputSchema,
+  CashFlowAnalyzer,
+  CCAValuationEngine,
+  CCAValuationInputSchema,
+  CharitableGivingInputSchema,
+  CharitableGivingOptimizer,
+  CollegeSavingsInputSchema,
+  CollegeSavingsPlanner,
+  CreditRiskAnalyzer,
+  CreditRiskInputSchema,
+  CreditScoreImpactAnalyzer,
+  CreditScoreImpactInputSchema,
+  CryptocurrencyTaxCalculator,
+  // Specialized/Advanced Models
+  CryptocurrencyTaxInputSchema,
+  DebtCapacityCalculator,
+  DebtCapacityInputSchema,
+  DepreciationCalculator,
+  DepreciationInputSchema,
+  DisabilityInsuranceAnalyzer,
+  DisabilityInsuranceInputSchema,
+  DSCRCalculator,
+  DSCRInputSchema,
+  EbitdaForecaster,
+  EmergencyFundCalculator,
+  EmergencyFundInputSchema,
+  EmployeeStockOptionsInputSchema,
+  EmployeeStockOptionsValuator,
+  EmployerMatch401kInputSchema,
+  EmployerMatch401kOptimizer,
+  EnhancedLeaseAnalyzer,
+  EnhancedLeaseInputSchema,
+  EquipmentLeaseVsBuyCalculator,
+  EquipmentLeaseVsBuyInputSchema,
+  EstatePlanningCalculator,
+  EstatePlanningInputSchema,
+  FinancialInputSchema,
+  FinancialJourneyAnalysisEngine,
+  FinancialJourneyInputSchema,
+  FinancialRatioAnalyzer,
+  FinancialRatioAnalyzerInputSchema,
+  FIRECalculator,
+  FIRECalculatorInputSchema,
+  FiveTwoNineOptimizer,
+  FiveTwoNineOptimizerInputSchema,
+  FranchiseROICalculator,
+  FranchiseROIInputSchema,
+  HELOCAnalyzer,
+  HELOCInputSchema,
+  HomeBuyingAffordabilityCalculator,
+  HomeBuyingAffordabilityInputSchema,
+  // New Personal Finance Models
+  HSAOptimizationInputSchema,
+  HSAOptimizer,
+  InsuranceNeedsCalculator,
+  InsuranceNeedsInputSchema,
+  InternationalTaxPlanningOptimizer,
+  InternationalTaxPlanningInputSchema,
+  // New Business Finance Models
+  InventoryOptimizationInputSchema,
+  InventoryOptimizer,
+  InvestmentPortfolioAnalyzer,
+  InvestmentPortfolioInputSchema,
+  LBOInputSchema,
+  LBOModel,
+  LeaseAnalyzer,
+  LifeInsuranceReassessmentCalculator,
+  LifeInsuranceReassessmentInputSchema,
+  LongTermCareCalculator,
+  LongTermCareInputSchema,
+  MAAnalysisEngine,
+  MAAnalysisInputSchema,
+  NetWorthInputSchema,
+  NetWorthTracker,
+  OneZeroThreeOneExchangeAnalyzer,
+  OneZeroThreeOneExchangeInputSchema,
+  OptionsPricingAnalyzer,
+  OptionsPricingInputSchema,
+  PortfolioOptimizationInputSchema,
+  PortfolioOptimizer,
+  ProjectFinanceAnalyzer,
+  ProjectFinanceInputSchema,
+  RealEstateInvestmentAnalyzer,
+  RealEstateInvestmentInputSchema,
+  RefinancingCalculator,
+  RefinancingInputSchema,
+  RetirementPlanningEngine,
+  RetirementPlanningInputSchema,
+  RevenueRecognitionCalculator,
+  RevenueRecognitionInputSchema,
+  RothVsTraditionalIRACalculator,
+  RothVsTraditionalIRAInputSchema,
+  ScenarioInputSchema,
+  SocialSecurityInputSchema,
+  SocialSecurityOptimizer,
+  StartupFinancialModel,
+  StartupFinancialModelInputSchema,
+  SupplyChainFinanceInputSchema,
+  SupplyChainFinanceOptimizer,
+  TaxLossHarvestingInputSchema,
+  TaxLossHarvestingOptimizer,
+  TaxOptimizationInputSchema,
+  TaxOptimizationPlanner,
+  VaRCalculator,
+  VaRInputSchema,
+  WACCAnalyzer,
+  WACCInputSchema,
+  WorkingCapitalInputSchema,
+  WorkingCapitalOptimizer,
 } from '@financial-analysis/analysis';
 import { handleMCPRequest } from '@financial-analysis/tools';
 import { Router } from 'itty-router';
@@ -139,29 +140,31 @@ import { getOpenApiDocument } from './openapi';
 import type { Env } from './types';
 // Lib barrel export consolidates helpers in one place for tidy imports
 import {
-    adjustApproxBytes,
-    attachRateLimitHeaders,
-    buildDefaultHeaders,
-    checkRateLimit,
-    getAllCircuitStates,
-    getAnalysisCacheTtl,
-    getApproxBytes,
-    getCorsHeaders,
-    getDefaultCache,
-    getMaxJsonBytes,
-    getSecurityHeaders,
-    getThresholds,
-    isQuotaLocked,
-    reconcileBucketUsage,
-    setQuotaLocked,
-    sha256Hex,
-    stableStringify,
-    withErrorHandler,
-    type RateLimitInfo,
+  adjustApproxBytes,
+  attachRateLimitHeaders,
+  buildDefaultHeaders,
+  checkRateLimit,
+  getAllCircuitStates,
+  getAnalysisCacheTtl,
+  getApproxBytes,
+  getCorsHeaders,
+  getDefaultCache,
+  getMaxJsonBytes,
+  getSecurityHeaders,
+  getThresholds,
+  isQuotaLocked,
+  reconcileBucketUsage,
+  setQuotaLocked,
+  sha256Hex,
+  stableStringify,
+  withErrorHandler,
+  type RateLimitInfo,
 } from './lib';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
+import { enqueueKnowledgeReindex, handleKnowledgeQueue } from './services/knowledge-reindex';
+import { getKnowledgePipelineStatus } from './services/knowledge-status';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -179,6 +182,12 @@ function hasControlChars(s: string): boolean {
     if ((code >= 0 && code <= 31) || code === 127) return true;
   }
   return false;
+}
+
+function isAuthorizedAdminRequest(request: Request, env: Env): boolean {
+  const auth = request.headers.get('authorization') || '';
+  const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
+  return Boolean(env.ADMIN_API_TOKEN) && token === env.ADMIN_API_TOKEN;
 }
 
 // LEGACY: retrieveWebsiteContext removed - AutoRAG handled in ContextManager now
@@ -566,10 +575,10 @@ registerAnalyticsRoutes(router);
 
 // API Key Management endpoints
 import {
-    createAuthErrorResponse,
-    trackApiUsage,
-    validateApiKey,
-    type ApiKeyInfo,
+  createAuthErrorResponse,
+  trackApiUsage,
+  validateApiKey,
+  type ApiKeyInfo,
 } from './lib/auth';
 import { createApiKey, getKeyUsage, listApiKeys, revokeApiKey } from './routes/api-keys';
 
@@ -787,6 +796,12 @@ router.options('/v1/*', (_req: Request, env: Env) => {
   headers.set('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
   return new Response(null, { headers });
 });
+router.options('/agents/*', (_req: Request, env: Env) => {
+  const headers = new Headers(getCorsHeaders(env));
+  headers.set('Allow', 'GET, POST, OPTIONS');
+  headers.set('Access-Control-Max-Age', '86400');
+  return new Response(null, { headers });
+});
 router.options('/openapi.json', (_req: Request, env: Env) => {
   const headers = new Headers(getCorsHeaders(env));
   headers.set('Allow', 'GET, OPTIONS');
@@ -849,9 +864,7 @@ router.get(
 router.post(
   '/v1/storage/reconcile',
   withErrorHandler(async (request: Request, env: Env) => {
-    const auth = request.headers.get('authorization') || '';
-    const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
-    if (!env.ADMIN_API_TOKEN || token !== env.ADMIN_API_TOKEN) {
+    if (!isAuthorizedAdminRequest(request, env)) {
       return new Response(
         JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
         { status: 401, headers: buildDefaultHeaders(env) }
@@ -867,6 +880,122 @@ router.post(
       }),
       { status: 200, headers: buildDefaultHeaders(env) }
     );
+  })
+);
+
+const KnowledgeReindexRequestSchema = z.object({
+  paths: z.array(z.string().min(1)).max(50).optional(),
+  warmCache: z.boolean().optional(),
+  delaySeconds: z.number().int().min(0).max(900).optional(),
+});
+
+router.post(
+  '/v1/admin/knowledge/reindex',
+  withErrorHandler(async (request: Request, env: Env) => {
+    if (!isAuthorizedAdminRequest(request, env)) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
+        { status: 401, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    if (!env.KNOWLEDGE_JOBS) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Knowledge reindex queue is not configured',
+            code: 'NO_QUEUE',
+          },
+        }),
+        { status: 503, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const contentType = request.headers.get('content-type') || '';
+    if (contentType && !contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Content-Type must be application/json',
+            code: 'INVALID_CONTENT_TYPE',
+          },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const rawBody = await request.text();
+    let requestBody: unknown = {};
+    if (rawBody.trim()) {
+      try {
+        requestBody = JSON.parse(rawBody);
+      } catch {
+        return new Response(
+          JSON.stringify({ error: { message: 'Invalid JSON body', code: 'BAD_REQUEST' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+    }
+
+    const parsed = KnowledgeReindexRequestSchema.safeParse(requestBody);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Invalid reindex request',
+            code: 'BAD_REQUEST',
+            issues: parsed.error.issues.map((issue) => ({
+              path: issue.path.join('.'),
+              message: issue.message,
+              code: issue.code,
+            })),
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const result = await enqueueKnowledgeReindex(env, {
+      source: 'manual',
+      ...(request.headers.get('X-Request-ID')
+        ? { requestId: request.headers.get('X-Request-ID') as string }
+        : {}),
+      ...(parsed.data.paths ? { paths: parsed.data.paths } : {}),
+      ...(parsed.data.warmCache !== undefined ? { warmCache: parsed.data.warmCache } : {}),
+      ...(parsed.data.delaySeconds !== undefined
+        ? { delaySeconds: parsed.data.delaySeconds }
+        : {}),
+    });
+
+    return new Response(
+      JSON.stringify({
+        status: 'enqueued',
+        backlogCount: result.backlogCount,
+        queuedAt: result.message.requestedAt,
+        source: result.message.source,
+        warmCache: result.message.warmCache ?? true,
+        pathCount: result.message.paths?.length ?? 0,
+      }),
+      { status: 202, headers: buildDefaultHeaders(env) }
+    );
+  })
+);
+
+router.get(
+  '/v1/admin/knowledge/status',
+  withErrorHandler(async (request: Request, env: Env) => {
+    if (!isAuthorizedAdminRequest(request, env)) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
+        { status: 401, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const status = await getKnowledgePipelineStatus(env);
+    return new Response(JSON.stringify(status), {
+      status: 200,
+      headers: buildDefaultHeaders(env),
+    });
   })
 );
 
@@ -1088,7 +1217,13 @@ router.get(
     const type = url.searchParams.get('type');
 
     // Basic validation for analysis type
-    const validTypes = ['lease', 'amortization', 'cashflow', 'ebitda-forecast', 'auto-loan-analysis'];
+    const validTypes = [
+      'lease',
+      'amortization',
+      'cashflow',
+      'ebitda-forecast',
+      'auto-loan-analysis',
+    ];
     if (type && !validTypes.includes(type)) {
       throw new Error(`Invalid analysis type. Must be one of: ${validTypes.join(', ')}`);
     }
@@ -3035,8 +3170,10 @@ createAnalysisEndpoint('/api/analyze-hsa-optimization', HSAOptimizationInputSche
   HSAOptimizer.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-roth-vs-traditional-ira', RothVsTraditionalIRAInputSchema, (input) =>
-  RothVsTraditionalIRACalculator.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-roth-vs-traditional-ira',
+  RothVsTraditionalIRAInputSchema,
+  (input) => RothVsTraditionalIRACalculator.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-tax-loss-harvesting', TaxLossHarvestingInputSchema, (input) =>
@@ -3055,12 +3192,16 @@ createAnalysisEndpoint('/api/analyze-long-term-care', LongTermCareInputSchema, (
   LongTermCareCalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-disability-insurance', DisabilityInsuranceInputSchema, (input) =>
-  DisabilityInsuranceAnalyzer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-disability-insurance',
+  DisabilityInsuranceInputSchema,
+  (input) => DisabilityInsuranceAnalyzer.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-life-insurance-reassessment', LifeInsuranceReassessmentInputSchema, (input) =>
-  LifeInsuranceReassessmentCalculator.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-life-insurance-reassessment',
+  LifeInsuranceReassessmentInputSchema,
+  (input) => LifeInsuranceReassessmentCalculator.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-529-optimizer', FiveTwoNineOptimizerInputSchema, (input) =>
@@ -3072,44 +3213,58 @@ createAnalysisEndpoint('/api/analyze-credit-score-impact', CreditScoreImpactInpu
 );
 
 // New Business Finance Models
-createAnalysisEndpoint('/api/analyze-inventory-optimization', InventoryOptimizationInputSchema, (input) =>
-  InventoryOptimizer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-inventory-optimization',
+  InventoryOptimizationInputSchema,
+  (input) => InventoryOptimizer.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-accounts-receivable-aging', AccountsReceivableAgingInputSchema, (input) =>
-  AccountsReceivableAgingAnalyzer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-accounts-receivable-aging',
+  AccountsReceivableAgingInputSchema,
+  (input) => AccountsReceivableAgingAnalyzer.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-financial-ratio-analyzer', FinancialRatioAnalyzerInputSchema, (input) =>
-  FinancialRatioAnalyzer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-financial-ratio-analyzer',
+  FinancialRatioAnalyzerInputSchema,
+  (input) => FinancialRatioAnalyzer.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-depreciation', DepreciationInputSchema, (input) =>
   DepreciationCalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-equipment-lease-vs-buy', EquipmentLeaseVsBuyInputSchema, (input) =>
-  EquipmentLeaseVsBuyCalculator.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-equipment-lease-vs-buy',
+  EquipmentLeaseVsBuyInputSchema,
+  (input) => EquipmentLeaseVsBuyCalculator.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-revenue-recognition', RevenueRecognitionInputSchema, (input) =>
   RevenueRecognitionCalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-employee-stock-options', EmployeeStockOptionsInputSchema, (input) =>
-  EmployeeStockOptionsValuator.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-employee-stock-options',
+  EmployeeStockOptionsInputSchema,
+  (input) => EmployeeStockOptionsValuator.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-franchise-roi', FranchiseROIInputSchema, (input) =>
   FranchiseROICalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-startup-financial-model', StartupFinancialModelInputSchema, (input) =>
-  StartupFinancialModel.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-startup-financial-model',
+  StartupFinancialModelInputSchema,
+  (input) => StartupFinancialModel.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-accounts-payable-optimization', AccountsPayableOptimizationInputSchema, (input) =>
-  AccountsPayableOptimizer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-accounts-payable-optimization',
+  AccountsPayableOptimizationInputSchema,
+  (input) => AccountsPayableOptimizer.analyze(input)
 );
 
 // Specialized/Advanced Models
@@ -3117,20 +3272,26 @@ createAnalysisEndpoint('/api/analyze-cryptocurrency-tax', CryptocurrencyTaxInput
   CryptocurrencyTaxCalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-international-tax-planning', InternationalTaxPlanningInputSchema, (input) =>
-  InternationalTaxPlanningOptimizer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-international-tax-planning',
+  InternationalTaxPlanningInputSchema,
+  (input) => InternationalTaxPlanningOptimizer.analyze(input)
 );
 
 createAnalysisEndpoint('/api/analyze-1031-exchange', OneZeroThreeOneExchangeInputSchema, (input) =>
   OneZeroThreeOneExchangeAnalyzer.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-business-succession-planning', BusinessSuccessionPlanningInputSchema, (input) =>
-  BusinessSuccessionPlanningCalculator.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-business-succession-planning',
+  BusinessSuccessionPlanningInputSchema,
+  (input) => BusinessSuccessionPlanningCalculator.analyze(input)
 );
 
-createAnalysisEndpoint('/api/analyze-supply-chain-finance', SupplyChainFinanceInputSchema, (input) =>
-  SupplyChainFinanceOptimizer.analyze(input)
+createAnalysisEndpoint(
+  '/api/analyze-supply-chain-finance',
+  SupplyChainFinanceInputSchema,
+  (input) => SupplyChainFinanceOptimizer.analyze(input)
 );
 
 // Multi-Model Scenario Analysis (uses MCP tool)
@@ -3209,7 +3370,8 @@ export default {
     if (
       request.url.includes('/api/') ||
       request.url.includes('/mcp') ||
-      request.url.includes('/v1/chat')
+      request.url.includes('/v1/chat') ||
+      request.url.includes('/agents/')
     ) {
       rateInfo = await checkRateLimit(request, env);
       if (!rateInfo.allowed) {
@@ -3232,7 +3394,15 @@ export default {
       }
     }
 
-    let response = await router.fetch(request, env, ctx);
+    const agentResponse = await routeAgentRequest(request, env);
+    let response = agentResponse ?? (await router.fetch(request, env, ctx));
+
+    const isWebSocketUpgrade = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
+    const upgradedResponse = (response as Response & { webSocket?: WebSocket }).webSocket;
+    if (isWebSocketUpgrade || response.status === 101 || upgradedResponse) {
+      logRequest(request, env, startTime, requestId);
+      return response;
+    }
 
     const newHeaders = new Headers(response.headers);
     newHeaders.set('X-Request-ID', requestId);
@@ -3262,6 +3432,18 @@ export default {
         m.handleDailyLogAnalysis(env)
       );
       ctx.waitUntil(logAnalysisPromise);
+
+      if (env.KNOWLEDGE_JOBS) {
+        const knowledgeReindexPromise = enqueueKnowledgeReindex(env, {
+          source: 'scheduled',
+          warmCache: true,
+        });
+        ctx.waitUntil(knowledgeReindexPromise);
+
+        if (env.ENVIRONMENT === 'test') {
+          await knowledgeReindexPromise;
+        }
+      }
     }
 
     // Hourly reconciliation of approximate bucket usage
@@ -3273,7 +3455,11 @@ export default {
       await reconcilePromise;
     }
   },
+  async queue(batch: MessageBatch<import('./types').KnowledgeReindexMessage>, env: Env) {
+    await handleKnowledgeQueue(batch, env);
+  },
 };
 
 // Export Durable Objects
 export { SessionDO } from './durable-objects/SessionDO';
+export { FinancialAnalysisAgent } from './agents/FinancialAnalysisAgent';

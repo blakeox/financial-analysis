@@ -1,166 +1,251 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const title = "Developer API - Financial Analysis | REST API for Financial Calculators";
-const description = "Access powerful financial calculation engines via our REST API. Deterministic, tested, and edge-deployed for low latency worldwide. Free tier with 1,000 requests/month.";
-const keywords = "financial api, rest api, financial calculator api, amortization api, loan calculation api, developer tools, financial data api, json api";
+const title = 'Developer API - Financial Analysis | REST API for Financial Calculators';
+const description =
+  'Access powerful financial calculation engines via our REST API. Deterministic, tested, and edge-deployed for low latency worldwide. Free tier with 1,000 requests/month.';
+const keywords =
+  'financial api, rest api, financial calculator api, amortization api, loan calculation api, developer tools, financial data api, json api';
 
 const baseUrl = 'https://fanalyx.com';
 const currentUrl = `${baseUrl}${Astro.url.pathname}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
+      '@type': 'BreadcrumbList',
+      itemListElement: [
         {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": baseUrl
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
         },
         {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Developer API",
-          "item": currentUrl
-        }
-      ]
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Developer API',
+          item: currentUrl,
+        },
+      ],
     },
     {
-      "@type": "WebAPI",
-      "name": "Fanalyx Financial Analysis API",
-      "description": description,
-      "documentation": `${baseUrl}/developers`,
-      "provider": {
-        "@type": "Organization",
-        "name": "Fanalyx",
-        "url": baseUrl
+      '@type': 'WebAPI',
+      name: 'Fanalyx Financial Analysis API',
+      description: description,
+      documentation: `${baseUrl}/developers`,
+      provider: {
+        '@type': 'Organization',
+        name: 'Fanalyx',
+        url: baseUrl,
       },
-      "potentialAction": {
-        "@type": "Action",
-        "name": "Get API Key",
-        "target": `${baseUrl}/dashboard`
-      }
-    }
-  ]
+      potentialAction: {
+        '@type': 'Action',
+        name: 'Get API Key',
+        target: `${baseUrl}/dashboard`,
+      },
+    },
+  ],
 };
 ---
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
-	<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-	
-	<!-- Breadcrumb Navigation -->
-	<nav class="max-w-5xl mx-auto px-4 py-4" aria-label="Breadcrumb">
-		<ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-			<li><a href="/" class="hover:text-blue-600">Home</a></li>
-			<li><span aria-hidden="true">/</span></li>
-			<li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Developer API</span></li>
-		</ol>
-	</nav>
-	
-	<div class="max-w-5xl mx-auto px-4 py-8">
-		<!-- Hero Section -->
-		<div class="mb-12">
-			<h1 class="text-4xl font-bold mb-4">Developer API</h1>
-			<p class="text-xl text-gray-600 dark:text-gray-400">
-				Access powerful financial calculation engines via our REST API. 
-				Deterministic, tested, and edge-deployed for low latency worldwide.
-			</p>
-		</div>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
 
-		<!-- Developer Resources Cards -->
-		<div class="grid md:grid-cols-3 gap-6 mb-12">
-			<!-- API Keys -->
-			<a href="#api-keys" class="block group">
-				<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
-					<div class="flex items-center mb-4">
-<div class="p-3 bg-blue-600 dark:bg-blue-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300">
-						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-						</svg>
-					</div>
-						<h2 class="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h2>
-					</div>
-					<p class="text-gray-600 dark:text-gray-300 mb-4">
-						Get your free API key and start building immediately.
-					</p>
-					<div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-						<span>Get Started →</span>
-					</div>
-				</div>
-			</a>
+  <!-- Breadcrumb Navigation -->
+  <nav class="max-w-5xl mx-auto px-4 py-4" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+      <li><a href="/" class="hover:text-blue-600">Home</a></li>
+      <li><span aria-hidden="true">/</span></li>
+      <li>
+        <span class="text-gray-900 dark:text-white font-medium" aria-current="page"
+          >Developer API</span>
+      </li>
+    </ol>
+  </nav>
 
-			<!-- Pricing -->
-			<a href="/pricing" class="block group">
-				<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
-					<div class="flex items-center mb-4">
-<div class="p-3 bg-violet-600 dark:bg-violet-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300">
-						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-					</div>
-						<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Pricing</h2>
-					</div>
-					<p class="text-gray-600 dark:text-gray-300 mb-4">
-						Free tier with 1,000 requests/month. Scale as you grow.
-					</p>
-					<div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-						<span>View Plans →</span>
-					</div>
-				</div>
-			</a>
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Hero Section -->
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">Developer API</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">
+        Access powerful financial calculation engines via our REST API. Deterministic, tested, and
+        edge-deployed for low latency worldwide.
+      </p>
+    </div>
 
-			<!-- Dashboard -->
-			<a href="/dashboard" class="block group">
-				<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-teal-200 dark:border-teal-700 hover:border-teal-400 dark:hover:border-teal-500">
-					<div class="flex items-center mb-4">
-						<div class="p-3 bg-teal-600 dark:bg-teal-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300">
-							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-							</svg>
-						</div>
-						<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
-					</div>
-					<p class="text-gray-600 dark:text-gray-300 mb-4">
-						Monitor usage, manage keys, and view analytics.
-					</p>
-					<div class="flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-						<span>Open Dashboard →</span>
-					</div>
-				</div>
-			</a>
-		</div>
+    <div
+      class="mb-10 rounded-2xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-900 dark:bg-blue-950/40"
+    >
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+        New during Agents Week
+      </p>
+      <h2 class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+        Try the new Project Think-powered Fanalyx Agent
+      </h2>
+      <p class="mt-3 max-w-3xl text-gray-700 dark:text-gray-300">
+        We now expose a first-class Cloudflare agent runtime in the app with persistent sessions and
+        deterministic finance tools.
+      </p>
+      <a
+        href="/agent"
+        class="mt-4 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+      >
+        Open the agent
+      </a>
+    </div>
 
-		<!-- Quick Start -->
-		<section class="mb-12" id="api-keys">
-			<h2 class="text-3xl font-bold mb-4">Quick Start</h2>
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-				<h3 class="text-xl font-semibold mb-3">1. Get Your API Key</h3>
-				<p class="mb-4">Sign up for a free developer account to get your API key:</p>
-				<a 
-					href="/api/signup" 
-					class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-				>
-					Get Free API Key
-				</a>
-			</div>
+    <!-- Developer Resources Cards -->
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <!-- API Keys -->
+      <a href="#api-keys" class="block group">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500"
+        >
+          <div class="flex items-center mb-4">
+            <div
+              class="p-3 bg-blue-600 dark:bg-blue-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h2>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Get your free API key and start building immediately.
+          </p>
+          <div
+            class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+          >
+            <span>Get Started →</span>
+          </div>
+        </div>
+      </a>
 
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-				<h3 class="text-xl font-semibold mb-3">2. Make Your First Request</h3>
-				
-				<!-- Language Tabs -->
-				<div class="flex gap-2 mb-4" role="tablist">
-					<button class="code-tab px-4 py-2 rounded bg-blue-600 text-white font-semibold" data-lang="curl">cURL</button>
-					<button class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600" data-lang="javascript">JavaScript</button>
-					<button class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600" data-lang="python">Python</button>
-					<button class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600" data-lang="typescript">TypeScript</button>
-				</div>
+      <!-- Pricing -->
+      <a href="/pricing" class="block group">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500"
+        >
+          <div class="flex items-center mb-4">
+            <div
+              class="p-3 bg-violet-600 dark:bg-violet-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Pricing</h2>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Free tier with 1,000 requests/month. Scale as you grow.
+          </p>
+          <div
+            class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+          >
+            <span>View Plans →</span>
+          </div>
+        </div>
+      </a>
 
-				<!-- cURL -->
-				<pre class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto" data-lang="curl"><code>curl -X POST https://fanalyx.com/v1/api/analysis/amortization \
+      <!-- Dashboard -->
+      <a href="/dashboard" class="block group">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border-2 border-teal-200 dark:border-teal-700 hover:border-teal-400 dark:hover:border-teal-500"
+        >
+          <div class="flex items-center mb-4">
+            <div
+              class="p-3 bg-teal-600 dark:bg-teal-500 rounded-lg mr-4 group-hover:scale-110 transition-transform duration-300"
+            >
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Monitor usage, manage keys, and view analytics.
+          </p>
+          <div
+            class="flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+          >
+            <span>Open Dashboard →</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Quick Start -->
+    <section class="mb-12" id="api-keys">
+      <h2 class="text-3xl font-bold mb-4">Quick Start</h2>
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">1. Get Your API Key</h3>
+        <p class="mb-4">Sign up for a free developer account to get your API key:</p>
+        <a
+          href="/api/signup"
+          class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Get Free API Key
+        </a>
+      </div>
+
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">2. Make Your First Request</h3>
+
+        <!-- Language Tabs -->
+        <div class="flex gap-2 mb-4" role="tablist">
+          <button
+            class="code-tab px-4 py-2 rounded bg-blue-600 text-white font-semibold"
+            data-lang="curl">cURL</button
+          >
+          <button
+            class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
+            data-lang="javascript">JavaScript</button
+          >
+          <button
+            class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
+            data-lang="python">Python</button
+          >
+          <button
+            class="code-tab px-4 py-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
+            data-lang="typescript">TypeScript</button
+          >
+        </div>
+
+        <!-- cURL -->
+        <pre
+          class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto"
+          data-lang="curl"><code>curl -X POST https://fanalyx.com/v1/api/analysis/amortization \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '&lbrace;
@@ -170,8 +255,10 @@ const structuredData = {
     "startDate": "2025-01-01"
   &rbrace;'</code></pre>
 
-				<!-- JavaScript -->
-				<pre class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden" data-lang="javascript"><code>const response = await fetch('https://fanalyx.com/v1/api/analysis/amortization', &lbrace;
+        <!-- JavaScript -->
+        <pre
+          class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden"
+          data-lang="javascript"><code>const response = await fetch('https://fanalyx.com/v1/api/analysis/amortization', &lbrace;
   method: 'POST',
   headers: &lbrace;
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -188,8 +275,10 @@ const structuredData = {
 const data = await response.json();
 console.log(data);</code></pre>
 
-				<!-- Python -->
-				<pre class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden" data-lang="python"><code>import requests
+        <!-- Python -->
+        <pre
+          class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden"
+          data-lang="python"><code>import requests
 
 response = requests.post(
     'https://fanalyx.com/v1/api/analysis/amortization',
@@ -208,8 +297,10 @@ response = requests.post(
 data = response.json()
 print(data)</code></pre>
 
-				<!-- TypeScript -->
-				<pre class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden" data-lang="typescript"><code>import type &lbrace; AmortizationInput, AmortizationResult &rbrace; from '@fanalyx/sdk';
+        <!-- TypeScript -->
+        <pre
+          class="code-block bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto hidden"
+          data-lang="typescript"><code>import type &lbrace; AmortizationInput, AmortizationResult &rbrace; from '@fanalyx/sdk';
 
 const input: AmortizationInput = &lbrace;
   principal: 300000,
@@ -228,407 +319,451 @@ const response = await fetch('https://fanalyx.com/v1/api/analysis/amortization',
 &rbrace;);
 
 const result: AmortizationResult = await response.json();</code></pre>
-			</div>
+      </div>
 
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-				<h3 class="text-xl font-semibold mb-3">3. Try the Interactive Playground</h3>
-				<p class="mb-4">Test endpoints directly in your browser without an API key:</p>
-				<a 
-					href="/playground" 
-					class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-				>
-					Open API Playground
-				</a>
-			</div>
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">3. Try the Interactive Playground</h3>
+        <p class="mb-4">Test endpoints directly in your browser without an API key:</p>
+        <a
+          href="/playground"
+          class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Open API Playground
+        </a>
+      </div>
 
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
-				<h3 class="text-xl font-semibold mb-3">4. Explore the API</h3>
-				<p class="mb-4">View interactive documentation and try all endpoints:</p>
-				<a 
-					href="/docs" 
-					class="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-				>
-					View OpenAPI Documentation →
-				</a>
-			</div>
-		</section>
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-3">4. Explore the API</h3>
+        <p class="mb-4">View interactive documentation and try all endpoints:</p>
+        <a href="/docs" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          View OpenAPI Documentation →
+        </a>
+      </div>
+    </section>
 
-	<script is:inline>
-	// Code tab switching
-	document.addEventListener('DOMContentLoaded', () => {
-		const tabs = document.querySelectorAll('.code-tab');
-		const blocks = document.querySelectorAll('.code-block');
-		
-		tabs.forEach(tab => {
-			tab.addEventListener('click', () => {
-				const lang = tab.dataset.lang;
-				
-				// Update tab styles
-				tabs.forEach(t => {
-					if (t.dataset.lang === lang) {
-						t.classList.remove('bg-gray-700', 'text-gray-300');
-						t.classList.add('bg-blue-600', 'text-white');
-					} else {
-						t.classList.remove('bg-blue-600', 'text-white');
-						t.classList.add('bg-gray-700', 'text-gray-300');
-					}
-				});
-				
-				// Show corresponding code block
-				blocks.forEach(block => {
-					if (block.dataset.lang === lang) {
-						block.classList.remove('hidden');
-					} else {
-						block.classList.add('hidden');
-					}
-				});
-			});
-		});
-	});
-	</script>		<!-- API Tiers -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-6">API Tiers</h2>
-			<div class="grid md:grid-cols-3 gap-6">
-				<!-- Free Tier -->
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-2xl font-bold mb-2">Free</h3>
-					<div class="text-3xl font-bold mb-4">$0<span class="text-lg text-gray-600 dark:text-gray-400">/month</span></div>
-					<ul class="space-y-2 mb-6">
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>1,000 requests/month</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>All calculation endpoints</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Basic support</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>OpenAPI documentation</span>
-						</li>
-					</ul>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						Perfect for testing and small projects
-					</p>
-				</div>
+    <script is:inline>
+      // Code tab switching
+      document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.code-tab');
+        const blocks = document.querySelectorAll('.code-block');
 
-				<!-- Pro Tier -->
-				<div class="border-2 border-blue-600 rounded-lg p-6 relative">
-					<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-						Popular
-					</div>
-					<h3 class="text-2xl font-bold mb-2">Pro</h3>
-					<div class="text-3xl font-bold mb-4">$49<span class="text-lg text-gray-600 dark:text-gray-400">/month</span></div>
-					<ul class="space-y-2 mb-6">
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>50,000 requests/month</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>All calculation endpoints</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Priority support</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Higher rate limits</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Usage analytics</span>
-						</li>
-					</ul>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						For production applications
-					</p>
-				</div>
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const lang = tab.dataset.lang;
 
-				<!-- Enterprise Tier -->
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-2xl font-bold mb-2">Enterprise</h3>
-					<div class="text-3xl font-bold mb-4">Custom</div>
-					<ul class="space-y-2 mb-6">
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Unlimited requests</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Custom endpoints</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>Dedicated support</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>SLA guarantee</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-green-600 mr-2">✓</span>
-							<span>White-label options</span>
-						</li>
-					</ul>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						For large-scale deployments
-					</p>
-				</div>
-			</div>
-		</section>
+            // Update tab styles
+            tabs.forEach((t) => {
+              if (t.dataset.lang === lang) {
+                t.classList.remove('bg-gray-700', 'text-gray-300');
+                t.classList.add('bg-blue-600', 'text-white');
+              } else {
+                t.classList.remove('bg-blue-600', 'text-white');
+                t.classList.add('bg-gray-700', 'text-gray-300');
+              }
+            });
 
-		<!-- Available Endpoints -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-6">Available Endpoints</h2>
-			<div class="space-y-4">
-				<!-- Amortization -->
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<div class="flex items-center justify-between mb-2">
-						<h3 class="text-xl font-semibold">Loan Amortization</h3>
-						<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono">
-							POST /v1/api/analysis/amortization
-						</span>
-					</div>
-					<p class="text-gray-600 dark:text-gray-400 mb-3">
-						Calculate loan amortization schedules with principal, interest, and balance breakdowns.
-					</p>
-					<details class="text-sm">
-						<summary class="cursor-pointer font-semibold text-gray-700 dark:text-gray-300">View Example</summary>
-						<pre class="bg-gray-900 text-gray-100 p-4 rounded mt-2 overflow-x-auto"><code>&lbrace;
+            // Show corresponding code block
+            blocks.forEach((block) => {
+              if (block.dataset.lang === lang) {
+                block.classList.remove('hidden');
+              } else {
+                block.classList.add('hidden');
+              }
+            });
+          });
+        });
+      });
+    </script>
+    <!-- API Tiers -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">API Tiers</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Free Tier -->
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-2xl font-bold mb-2">Free</h3>
+          <div class="text-3xl font-bold mb-4">
+            $0<span class="text-lg text-gray-600 dark:text-gray-400">/month</span>
+          </div>
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>1,000 requests/month</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>All calculation endpoints</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Basic support</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>OpenAPI documentation</span>
+            </li>
+          </ul>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Perfect for testing and small projects
+          </p>
+        </div>
+
+        <!-- Pro Tier -->
+        <div class="border-2 border-blue-600 rounded-lg p-6 relative">
+          <div
+            class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold"
+          >
+            Popular
+          </div>
+          <h3 class="text-2xl font-bold mb-2">Pro</h3>
+          <div class="text-3xl font-bold mb-4">
+            $49<span class="text-lg text-gray-600 dark:text-gray-400">/month</span>
+          </div>
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>50,000 requests/month</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>All calculation endpoints</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Priority support</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Higher rate limits</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Usage analytics</span>
+            </li>
+          </ul>
+          <p class="text-sm text-gray-600 dark:text-gray-400">For production applications</p>
+        </div>
+
+        <!-- Enterprise Tier -->
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+          <div class="text-3xl font-bold mb-4">Custom</div>
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Unlimited requests</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Custom endpoints</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>Dedicated support</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>SLA guarantee</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-600 mr-2">✓</span>
+              <span>White-label options</span>
+            </li>
+          </ul>
+          <p class="text-sm text-gray-600 dark:text-gray-400">For large-scale deployments</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available Endpoints -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Available Endpoints</h2>
+      <div class="space-y-4">
+        <!-- Amortization -->
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold">Loan Amortization</h3>
+            <span
+              class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono"
+            >
+              POST /v1/api/analysis/amortization
+            </span>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-3">
+            Calculate loan amortization schedules with principal, interest, and balance breakdowns.
+          </p>
+          <details class="text-sm">
+            <summary class="cursor-pointer font-semibold text-gray-700 dark:text-gray-300"
+              >View Example</summary
+            >
+            <pre
+              class="bg-gray-900 text-gray-100 p-4 rounded mt-2 overflow-x-auto"><code>&lbrace;
   "principal": 300000,
   "annualRate": 0.045,
   "years": 30,
   "startDate": "2025-01-01"
 &rbrace;</code></pre>
-					</details>
-				</div>
+          </details>
+        </div>
 
-				<!-- Lease Analysis -->
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<div class="flex items-center justify-between mb-2">
-						<h3 class="text-xl font-semibold">Lease Analysis</h3>
-						<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono">
-							POST /v1/api/analysis/lease
-						</span>
-					</div>
-					<p class="text-gray-600 dark:text-gray-400 mb-3">
-						Analyze lease vs buy decisions with NPV, IRR, and cashflow projections.
-					</p>
-					<details class="text-sm">
-						<summary class="cursor-pointer font-semibold text-gray-700 dark:text-gray-300">View Example</summary>
-						<pre class="bg-gray-900 text-gray-100 p-4 rounded mt-2 overflow-x-auto"><code>&lbrace;
+        <!-- Lease Analysis -->
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold">Lease Analysis</h3>
+            <span
+              class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono"
+            >
+              POST /v1/api/analysis/lease
+            </span>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-3">
+            Analyze lease vs buy decisions with NPV, IRR, and cashflow projections.
+          </p>
+          <details class="text-sm">
+            <summary class="cursor-pointer font-semibold text-gray-700 dark:text-gray-300"
+              >View Example</summary
+            >
+            <pre
+              class="bg-gray-900 text-gray-100 p-4 rounded mt-2 overflow-x-auto"><code>&lbrace;
   "assetCost": 50000,
   "monthlyLease": 1200,
   "leaseTerm": 36,
   "residualValue": 20000,
   "discountRate": 0.05
 &rbrace;</code></pre>
-					</details>
-				</div>
+          </details>
+        </div>
 
-				<!-- EBITDA Forecasting -->
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<div class="flex items-center justify-between mb-2">
-						<h3 class="text-xl font-semibold">EBITDA Forecasting</h3>
-						<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono">
-							POST /v1/api/analysis/ebitda
-						</span>
-					</div>
-					<p class="text-gray-600 dark:text-gray-400 mb-3">
-						Generate financial forecasts with revenue, expenses, and EBITDA projections.
-					</p>
-				</div>
+        <!-- EBITDA Forecasting -->
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold">EBITDA Forecasting</h3>
+            <span
+              class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded text-sm font-mono"
+            >
+              POST /v1/api/analysis/ebitda
+            </span>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-3">
+            Generate financial forecasts with revenue, expenses, and EBITDA projections.
+          </p>
+        </div>
 
-				<!-- More Models -->
-				<div class="bg-blue-50 dark:bg-blue-950 rounded-lg p-6">
-					<h3 class="text-lg font-semibold mb-2">Plus 6 More Models</h3>
-					<ul class="grid md:grid-cols-2 gap-2 text-gray-700 dark:text-gray-300">
-						<li>• Savings Goal Calculator</li>
-						<li>• Auto Loan Analysis</li>
-						<li>• Retirement Planning</li>
-						<li>• Budget Optimization</li>
-						<li>• Debt Payoff Strategy</li>
-						<li>• Student Loan Analysis</li>
-					</ul>
-					<a href="/docs" class="text-blue-600 dark:text-blue-400 hover:underline text-sm mt-3 inline-block">
-						View all endpoints in API docs →
-					</a>
-				</div>
-			</div>
-		</section>
+        <!-- More Models -->
+        <div class="bg-blue-50 dark:bg-blue-950 rounded-lg p-6">
+          <h3 class="text-lg font-semibold mb-2">Plus 6 More Models</h3>
+          <ul class="grid md:grid-cols-2 gap-2 text-gray-700 dark:text-gray-300">
+            <li>• Savings Goal Calculator</li>
+            <li>• Auto Loan Analysis</li>
+            <li>• Retirement Planning</li>
+            <li>• Budget Optimization</li>
+            <li>• Debt Payoff Strategy</li>
+            <li>• Student Loan Analysis</li>
+          </ul>
+          <a
+            href="/docs"
+            class="text-blue-600 dark:text-blue-400 hover:underline text-sm mt-3 inline-block"
+          >
+            View all endpoints in API docs →
+          </a>
+        </div>
+      </div>
+    </section>
 
-		<!-- Features -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-6">Why Use Our API?</h2>
-			<div class="grid md:grid-cols-2 gap-6">
-				<div class="flex">
-					<div class="text-3xl mr-4">⚡</div>
-					<div>
-						<h3 class="text-xl font-semibold mb-2">Edge Deployed</h3>
-						<p class="text-gray-600 dark:text-gray-400">
-							Running on Cloudflare's global network for ultra-low latency from anywhere in the world.
-						</p>
-					</div>
-				</div>
+    <!-- Features -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Why Use Our API?</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="flex">
+          <div class="text-3xl mr-4">⚡</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Edge Deployed</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Running on Cloudflare's global network for ultra-low latency from anywhere in the
+              world.
+            </p>
+          </div>
+        </div>
 
-				<div class="flex">
-					<div class="text-3xl mr-4">🔒</div>
-					<div>
-						<h3 class="text-xl font-semibold mb-2">Secure & Tested</h3>
-						<p class="text-gray-600 dark:text-gray-400">
-							All calculations are deterministic, unit tested, and validated against golden test cases.
-						</p>
-					</div>
-				</div>
+        <div class="flex">
+          <div class="text-3xl mr-4">🔒</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Secure & Tested</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              All calculations are deterministic, unit tested, and validated against golden test
+              cases.
+            </p>
+          </div>
+        </div>
 
-				<div class="flex">
-					<div class="text-3xl mr-4">📊</div>
-					<div>
-						<h3 class="text-xl font-semibold mb-2">Fully Documented</h3>
-						<p class="text-gray-600 dark:text-gray-400">
-							Complete OpenAPI specification with interactive examples and TypeScript types.
-						</p>
-					</div>
-				</div>
+        <div class="flex">
+          <div class="text-3xl mr-4">📊</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Fully Documented</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Complete OpenAPI specification with interactive examples and TypeScript types.
+            </p>
+          </div>
+        </div>
 
-				<div class="flex">
-					<div class="text-3xl mr-4">🎯</div>
-					<div>
-						<h3 class="text-xl font-semibold mb-2">Type-Safe</h3>
-						<p class="text-gray-600 dark:text-gray-400">
-							Strict input validation with Zod schemas and detailed error messages.
-						</p>
-					</div>
-				</div>
-			</div>
-		</section>
+        <div class="flex">
+          <div class="text-3xl mr-4">🎯</div>
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Type-Safe</h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Strict input validation with Zod schemas and detailed error messages.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-		<!-- Authentication -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Authentication</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-4">
-				All API requests require authentication using your API key in the Authorization header:
-			</p>
-			<pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto mb-4"><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-			<div class="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-				<p class="text-sm text-yellow-800 dark:text-yellow-200">
-					<strong>Security Note:</strong> Never expose your API key in client-side code. 
-					Always make API requests from your backend server.
-				</p>
-			</div>
-		</section>
+    <!-- Authentication -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Authentication</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">
+        All API requests require authentication using your API key in the Authorization header:
+      </p>
+      <pre
+        class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto mb-4"><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+      <div
+        class="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4"
+      >
+        <p class="text-sm text-yellow-800 dark:text-yellow-200">
+          <strong>Security Note:</strong> Never expose your API key in client-side code. Always make API
+          requests from your backend server.
+        </p>
+      </div>
+    </section>
 
-		<!-- Rate Limits -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Rate Limits</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-4">
-				All requests include rate limit headers:
-			</p>
-			<pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto mb-4"><code>X-RateLimit-Limit: 1000
+    <!-- Rate Limits -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Rate Limits</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">All requests include rate limit headers:</p>
+      <pre
+        class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto mb-4"><code>X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
 X-RateLimit-Reset: 1735689600</code></pre>
-			<table class="w-full border border-gray-300 dark:border-gray-700">
-				<thead class="bg-gray-100 dark:bg-gray-800">
-					<tr>
-						<th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Tier</th>
-						<th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Requests/Month</th>
-						<th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Requests/Second</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Free</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">1,000</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">1</td>
-					</tr>
-					<tr>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Pro</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">50,000</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">10</td>
-					</tr>
-					<tr>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Enterprise</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Unlimited</td>
-						<td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Custom</td>
-					</tr>
-				</tbody>
-			</table>
-		</section>
+      <table class="w-full border border-gray-300 dark:border-gray-700">
+        <thead class="bg-gray-100 dark:bg-gray-800">
+          <tr>
+            <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Tier</th>
+            <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left"
+              >Requests/Month</th
+            >
+            <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left"
+              >Requests/Second</th
+            >
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Free</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">1,000</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">1</td>
+          </tr>
+          <tr>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Pro</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">50,000</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">10</td>
+          </tr>
+          <tr>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Enterprise</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Unlimited</td>
+            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">Custom</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-		<!-- Error Reference -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Error Reference</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-6">
-				All errors follow a consistent format with actionable error codes:
-			</p>
-			
-			<div class="bg-gray-900 text-gray-100 p-4 rounded mb-6 overflow-x-auto">
-				<code>&lbrace;
-  "error": "INVALID_INPUT",
-  "message": "Principal must be a positive number",
-  "code": 400,
-  "field": "principal",
-  "docs": "https://fanalyx.com/docs/errors/INVALID_INPUT"
-&rbrace;</code>
-			</div>
+    <!-- Error Reference -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Error Reference</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-6">
+        All errors follow a consistent format with actionable error codes:
+      </p>
 
-			<div class="space-y-4">
-				<details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
-					<summary class="cursor-pointer font-semibold text-lg">400 - INVALID_INPUT</summary>
-					<div class="mt-3 text-gray-700 dark:text-gray-300">
-						<p class="mb-2"><strong>Cause:</strong> Request body doesn't match schema (missing fields, wrong types, invalid values)</p>
-						<p class="mb-2"><strong>Solution:</strong> Check the `field` property and ensure your input matches the endpoint requirements</p>
-						<p class="text-sm text-gray-600 dark:text-gray-400">Common examples: negative principal, invalid date format, missing required field</p>
-					</div>
-				</details>
+      <div class="bg-gray-900 text-gray-100 p-4 rounded mb-6 overflow-x-auto">
+        <code
+          >&lbrace; "error": "INVALID_INPUT", "message": "Principal must be a positive number",
+          "code": 400, "field": "principal", "docs": "https://fanalyx.com/docs/errors/INVALID_INPUT"
+          &rbrace;</code
+        >
+      </div>
 
-				<details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
-					<summary class="cursor-pointer font-semibold text-lg">401 - UNAUTHORIZED</summary>
-					<div class="mt-3 text-gray-700 dark:text-gray-300">
-						<p class="mb-2"><strong>Cause:</strong> Missing or invalid API key</p>
-						<p class="mb-2"><strong>Solution:</strong> Include `Authorization: Bearer YOUR_API_KEY` header with valid key</p>
-						<p class="text-sm text-gray-600 dark:text-gray-400">Check your API key at /dashboard or generate a new one</p>
-					</div>
-				</details>
+      <div class="space-y-4">
+        <details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
+          <summary class="cursor-pointer font-semibold text-lg">400 - INVALID_INPUT</summary>
+          <div class="mt-3 text-gray-700 dark:text-gray-300">
+            <p class="mb-2">
+              <strong>Cause:</strong> Request body doesn't match schema (missing fields, wrong types,
+              invalid values)
+            </p>
+            <p class="mb-2">
+              <strong>Solution:</strong> Check the `field` property and ensure your input matches the
+              endpoint requirements
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Common examples: negative principal, invalid date format, missing required field
+            </p>
+          </div>
+        </details>
 
-				<details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
-					<summary class="cursor-pointer font-semibold text-lg">429 - RATE_LIMIT_EXCEEDED</summary>
-					<div class="mt-3 text-gray-700 dark:text-gray-300">
-						<p class="mb-2"><strong>Cause:</strong> Too many requests in time window</p>
-						<p class="mb-2"><strong>Solution:</strong> Check `X-RateLimit-Reset` header and retry after that timestamp</p>
-						<p class="text-sm text-gray-600 dark:text-gray-400">Consider upgrading to Pro tier for higher limits</p>
-					</div>
-				</details>
+        <details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
+          <summary class="cursor-pointer font-semibold text-lg">401 - UNAUTHORIZED</summary>
+          <div class="mt-3 text-gray-700 dark:text-gray-300">
+            <p class="mb-2"><strong>Cause:</strong> Missing or invalid API key</p>
+            <p class="mb-2">
+              <strong>Solution:</strong> Include `Authorization: Bearer YOUR_API_KEY` header with valid
+              key
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Check your API key at /dashboard or generate a new one
+            </p>
+          </div>
+        </details>
 
-				<details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
-					<summary class="cursor-pointer font-semibold text-lg">500 - INTERNAL_ERROR</summary>
-					<div class="mt-3 text-gray-700 dark:text-gray-300">
-						<p class="mb-2"><strong>Cause:</strong> Unexpected server error</p>
-						<p class="mb-2"><strong>Solution:</strong> Retry with exponential backoff. If persists, contact support</p>
-						<p class="text-sm text-gray-600 dark:text-gray-400">Include the `X-Request-ID` header value when reporting issues</p>
-					</div>
-				</details>
-			</div>
-		</section>
+        <details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
+          <summary class="cursor-pointer font-semibold text-lg">429 - RATE_LIMIT_EXCEEDED</summary>
+          <div class="mt-3 text-gray-700 dark:text-gray-300">
+            <p class="mb-2"><strong>Cause:</strong> Too many requests in time window</p>
+            <p class="mb-2">
+              <strong>Solution:</strong> Check `X-RateLimit-Reset` header and retry after that timestamp
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Consider upgrading to Pro tier for higher limits
+            </p>
+          </div>
+        </details>
 
-		<!-- SDK & Client Libraries -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">SDKs & Client Libraries</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-6">
-				Official SDKs provide type-safe wrappers and handle authentication automatically:
-			</p>
-			
-			<div class="grid md:grid-cols-2 gap-6">
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">TypeScript/JavaScript</h3>
-					<pre class="bg-gray-900 text-gray-100 p-3 rounded text-sm mb-3"><code>npm install @fanalyx/sdk</code></pre>
-					<pre class="bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-x-auto"><code>import Fanalyx from '@fanalyx/sdk';
+        <details class="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
+          <summary class="cursor-pointer font-semibold text-lg">500 - INTERNAL_ERROR</summary>
+          <div class="mt-3 text-gray-700 dark:text-gray-300">
+            <p class="mb-2"><strong>Cause:</strong> Unexpected server error</p>
+            <p class="mb-2">
+              <strong>Solution:</strong> Retry with exponential backoff. If persists, contact support
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Include the `X-Request-ID` header value when reporting issues
+            </p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- SDK & Client Libraries -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">SDKs & Client Libraries</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-6">
+        Official SDKs provide type-safe wrappers and handle authentication automatically:
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">TypeScript/JavaScript</h3>
+          <pre
+            class="bg-gray-900 text-gray-100 p-3 rounded text-sm mb-3"><code>npm install @fanalyx/sdk</code></pre>
+          <pre
+            class="bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-x-auto"><code>import Fanalyx from '@fanalyx/sdk';
 
 const client = new Fanalyx(&lbrace;
   apiKey: process.env.FANALYX_API_KEY
@@ -639,13 +774,20 @@ const result = await client.amortization(&lbrace;
   annualRate: 0.045,
   years: 30
 &rbrace;);</code></pre>
-					<a href="https://github.com/blakeox/fanalyx-sdk-js" class="text-blue-600 dark:text-blue-400 hover:underline text-sm" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
-				</div>
+          <a
+            href="https://github.com/blakeox/fanalyx-sdk-js"
+            class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+            target="_blank"
+            rel="noopener noreferrer">View on GitHub →</a
+          >
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">Python</h3>
-					<pre class="bg-gray-900 text-gray-100 p-3 rounded text-sm mb-3"><code>pip install fanalyx</code></pre>
-					<pre class="bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-x-auto"><code>from fanalyx import Fanalyx
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">Python</h3>
+          <pre
+            class="bg-gray-900 text-gray-100 p-3 rounded text-sm mb-3"><code>pip install fanalyx</code></pre>
+          <pre
+            class="bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-x-auto"><code>from fanalyx import Fanalyx
 
 client = Fanalyx(
     api_key=os.environ['FANALYX_API_KEY']
@@ -656,46 +798,64 @@ result = client.amortization(
     annual_rate=0.045,
     years=30
 )</code></pre>
-					<a href="https://github.com/blakeox/fanalyx-sdk-python" class="text-blue-600 dark:text-blue-400 hover:underline text-sm" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
-				</div>
-			</div>
+          <a
+            href="https://github.com/blakeox/fanalyx-sdk-python"
+            class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+            target="_blank"
+            rel="noopener noreferrer">View on GitHub →</a
+          >
+        </div>
+      </div>
 
-			<div class="mt-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-				<p class="text-sm text-blue-800 dark:text-blue-200">
-					<strong>Generate your own:</strong> Download our <a href="/openapi.json" class="underline">OpenAPI spec</a> and use 
-					<a href="https://openapi-generator.tech" class="underline" target="_blank" rel="noopener">OpenAPI Generator</a> to create clients in Go, Ruby, PHP, and more.
-				</p>
-			</div>
-		</section>
+      <div
+        class="mt-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+      >
+        <p class="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Generate your own:</strong> Download our <a href="/openapi.json" class="underline"
+            >OpenAPI spec</a
+          > and use
+          <a href="https://openapi-generator.tech" class="underline" target="_blank" rel="noopener"
+            >OpenAPI Generator</a
+          > to create clients in Go, Ruby, PHP, and more.
+        </p>
+      </div>
+    </section>
 
-		<!-- Webhooks -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Webhooks</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-6">
-				Receive real-time notifications for events like calculations completing or quota warnings:
-			</p>
+    <!-- Webhooks -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Webhooks</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-6">
+        Receive real-time notifications for events like calculations completing or quota warnings:
+      </p>
 
-			<div class="mb-6">
-				<h3 class="text-xl font-semibold mb-3">Available Events</h3>
-				<ul class="space-y-2 text-gray-700 dark:text-gray-300">
-					<li class="flex items-start">
-						<code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3">calculation.completed</code>
-						<span>Fired when an async calculation finishes</span>
-					</li>
-					<li class="flex items-start">
-						<code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3">quota.warning</code>
-						<span>Fired at 80% quota usage</span>
-					</li>
-					<li class="flex items-start">
-						<code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3">quota.exceeded</code>
-						<span>Fired when quota limit is reached</span>
-					</li>
-				</ul>
-			</div>
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3">Available Events</h3>
+        <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+          <li class="flex items-start">
+            <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3"
+              >calculation.completed</code
+            >
+            <span>Fired when an async calculation finishes</span>
+          </li>
+          <li class="flex items-start">
+            <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3"
+              >quota.warning</code
+            >
+            <span>Fired at 80% quota usage</span>
+          </li>
+          <li class="flex items-start">
+            <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm mr-3"
+              >quota.exceeded</code
+            >
+            <span>Fired when quota limit is reached</span>
+          </li>
+        </ul>
+      </div>
 
-			<div class="mb-6">
-				<h3 class="text-xl font-semibold mb-3">Webhook Signature Verification</h3>
-				<pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto"><code>const crypto = require('crypto');
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3">Webhook Signature Verification</h3>
+        <pre
+          class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto"><code>const crypto = require('crypto');
 
 function verifyWebhook(payload, signature, secret) &lbrace;
   const hash = crypto
@@ -716,317 +876,381 @@ const isValid = verifyWebhook(
 if (!isValid) &lbrace;
   return res.status(401).send('Invalid signature');
 &rbrace;</code></pre>
-			</div>
-		</section>
+      </div>
+    </section>
 
-		<!-- Performance Tips -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Performance Optimization</h2>
-			<div class="grid md:grid-cols-2 gap-6">
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">🚀 Use HTTP/2</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						All endpoints support HTTP/2 multiplexing. Make parallel requests over a single connection for better performance.
-					</p>
-				</div>
+    <!-- Performance Tips -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Performance Optimization</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">🚀 Use HTTP/2</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            All endpoints support HTTP/2 multiplexing. Make parallel requests over a single
+            connection for better performance.
+          </p>
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">💾 Cache Responses</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						Calculation results are deterministic. Cache them by input hash to avoid redundant requests.
-					</p>
-					<pre class="bg-gray-900 text-gray-100 p-2 rounded text-xs"><code>ETag: "abc123"
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">💾 Cache Responses</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            Calculation results are deterministic. Cache them by input hash to avoid redundant
+            requests.
+          </p>
+          <pre
+            class="bg-gray-900 text-gray-100 p-2 rounded text-xs"><code>ETag: "abc123"
 Cache-Control: public, max-age=31536000</code></pre>
-				</div>
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">🔄 Batch Requests</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						For multiple calculations, use batch endpoints (coming soon) or make concurrent requests.
-					</p>
-				</div>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">🔄 Batch Requests</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            For multiple calculations, use batch endpoints (coming soon) or make concurrent
+            requests.
+          </p>
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">🗜️ Enable Compression</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						Include `Accept-Encoding: gzip` header to reduce response size by ~70%.
-					</p>
-				</div>
-			</div>
-		</section>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">🗜️ Enable Compression</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            Include `Accept-Encoding: gzip` header to reduce response size by ~70%.
+          </p>
+        </div>
+      </div>
+    </section>
 
-		<!-- Use Cases & Tutorials -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Use Cases & Tutorials</h2>
-			<div class="space-y-4">
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-2">🏠 Build a Mortgage Calculator</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						Create a full-featured mortgage calculator with amortization schedules, payment breakdowns, and affordability analysis.
-					</p>
-					<a href="/tutorials/mortgage-calculator" class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a>
-				</div>
+    <!-- Use Cases & Tutorials -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Use Cases & Tutorials</h2>
+      <div class="space-y-4">
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-2">🏠 Build a Mortgage Calculator</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            Create a full-featured mortgage calculator with amortization schedules, payment
+            breakdowns, and affordability analysis.
+          </p>
+          <a
+            href="/tutorials/mortgage-calculator"
+            class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a
+          >
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-2">Financial Planning Dashboard</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						Build a comprehensive financial planning app with retirement projections, savings goals, and debt payoff strategies.
-					</p>
-					<a href="/tutorials/financial-dashboard" class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a>
-				</div>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-2">Financial Planning Dashboard</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            Build a comprehensive financial planning app with retirement projections, savings goals,
+            and debt payoff strategies.
+          </p>
+          <a
+            href="/tutorials/financial-dashboard"
+            class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a
+          >
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-2">Auto Loan Comparison Tool</h3>
-					<p class="text-gray-700 dark:text-gray-300 mb-3">
-						Help users compare financing options with side-by-side loan analysis and total cost calculations.
-					</p>
-					<a href="/tutorials/loan-comparison" class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a>
-				</div>
-			</div>
-		</section>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-2">Auto Loan Comparison Tool</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            Help users compare financing options with side-by-side loan analysis and total cost
+            calculations.
+          </p>
+          <a
+            href="/tutorials/loan-comparison"
+            class="text-blue-600 dark:text-blue-400 hover:underline">Read tutorial →</a
+          >
+        </div>
+      </div>
+    </section>
 
-		<!-- Testing Sandbox -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Testing Sandbox</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-6">
-				Use test API keys for development and CI/CD without consuming your quota:
-			</p>
+    <!-- Testing Sandbox -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Testing Sandbox</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-6">
+        Use test API keys for development and CI/CD without consuming your quota:
+      </p>
 
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-				<h3 class="text-lg font-semibold mb-3">Test API Key</h3>
-				<code class="bg-gray-900 text-gray-100 px-3 py-2 rounded block">test_sk_1234567890abcdef</code>
-				<p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
-					Test keys return mock data and don't count toward rate limits. Perfect for unit tests and CI/CD pipelines.
-				</p>
-			</div>
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-3">Test API Key</h3>
+        <code class="bg-gray-900 text-gray-100 px-3 py-2 rounded block"
+          >test_sk_1234567890abcdef</code
+        >
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+          Test keys return mock data and don't count toward rate limits. Perfect for unit tests and
+          CI/CD pipelines.
+        </p>
+      </div>
 
-			<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-				<h3 class="text-lg font-semibold mb-3">Example Test Response</h3>
-				<pre class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto text-sm"><code>&lbrace;
+      <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+        <h3 class="text-lg font-semibold mb-3">Example Test Response</h3>
+        <pre
+          class="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto text-sm"><code>&lbrace;
   "test": true,
   "payment": 1520.06,
   "totalInterest": 247221.60,
   "schedule": [/* mock data */]
 &rbrace;</code></pre>
-			</div>
-		</section>
+      </div>
+    </section>
 
-		<!-- API Changelog -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">API Changelog</h2>
-			<div class="space-y-4">
-				<div class="border-l-4 border-blue-600 pl-4">
-					<div class="flex items-center gap-2 mb-2">
-						<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm font-mono">v1.2.0</span>
-						<span class="text-gray-600 dark:text-gray-400">2025-10-22</span>
-					</div>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-1">
-						<li>✨ Added webhook support for async calculations</li>
-						<li>✨ New `/v1/api/analysis/budget` endpoint</li>
-						<li>🐛 Fixed rounding issues in amortization schedule</li>
-					</ul>
-				</div>
+    <!-- API Changelog -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">API Changelog</h2>
+      <div class="space-y-4">
+        <div class="border-l-4 border-blue-600 pl-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm font-mono"
+              >v1.2.0</span
+            >
+            <span class="text-gray-600 dark:text-gray-400">2025-10-22</span>
+          </div>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-1">
+            <li>✨ Added webhook support for async calculations</li>
+            <li>✨ New `/v1/api/analysis/budget` endpoint</li>
+            <li>🐛 Fixed rounding issues in amortization schedule</li>
+          </ul>
+        </div>
 
-				<div class="border-l-4 border-green-600 pl-4">
-					<div class="flex items-center gap-2 mb-2">
-						<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-sm font-mono">v1.1.0</span>
-						<span class="text-gray-600 dark:text-gray-400">2025-10-01</span>
-					</div>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-1">
-						<li>✨ Added EBITDA forecasting endpoint</li>
-						<li>⚡ Improved response times by 40%</li>
-						<li>📚 Enhanced OpenAPI documentation</li>
-					</ul>
-				</div>
+        <div class="border-l-4 border-green-600 pl-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-sm font-mono"
+              >v1.1.0</span
+            >
+            <span class="text-gray-600 dark:text-gray-400">2025-10-01</span>
+          </div>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-1">
+            <li>✨ Added EBITDA forecasting endpoint</li>
+            <li>⚡ Improved response times by 40%</li>
+            <li>📚 Enhanced OpenAPI documentation</li>
+          </ul>
+        </div>
 
-				<div class="border-l-4 border-gray-600 pl-4">
-					<div class="flex items-center gap-2 mb-2">
-						<span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono">v1.0.0</span>
-						<span class="text-gray-600 dark:text-gray-400">2025-09-15</span>
-					</div>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-1">
-						<li>Initial API release</li>
-						<li>9 financial calculation endpoints</li>
-						<li>OpenAPI specification</li>
-					</ul>
-				</div>
-			</div>
+        <div class="border-l-4 border-gray-600 pl-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono"
+              >v1.0.0</span
+            >
+            <span class="text-gray-600 dark:text-gray-400">2025-09-15</span>
+          </div>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-1">
+            <li>Initial API release</li>
+            <li>9 financial calculation endpoints</li>
+            <li>OpenAPI specification</li>
+          </ul>
+        </div>
+      </div>
 
-			<a href="/changelog" class="text-blue-600 dark:text-blue-400 hover:underline mt-4 inline-block">View full changelog →</a>
-		</section>
+      <a
+        href="/changelog"
+        class="text-blue-600 dark:text-blue-400 hover:underline mt-4 inline-block"
+        >View full changelog →</a
+      >
+    </section>
 
-		<!-- Pricing Calculator -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Pricing Calculator</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-6">
-				Estimate your monthly costs based on expected usage:
-			</p>
-			
-			<div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
-				<label class="block mb-4">
-					<span class="text-gray-700 dark:text-gray-300 font-semibold">Expected monthly requests:</span>
-					<input 
-						type="range" 
-						id="pricing-slider" 
-						min="0" 
-						max="100000" 
-						step="1000" 
-						value="5000"
-						class="w-full mt-2"
-					/>
-					<div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
-						<span>0</span>
-						<span id="request-count">5,000</span>
-						<span>100k</span>
-					</div>
-				</label>
+    <!-- Pricing Calculator -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Pricing Calculator</h2>
+      <p class="text-gray-700 dark:text-gray-300 mb-6">
+        Estimate your monthly costs based on expected usage:
+      </p>
 
-				<div class="bg-white dark:bg-gray-900 rounded-lg p-6 mt-4">
-					<div class="text-3xl font-bold mb-2">
-						<span id="estimated-price">$0</span><span class="text-lg text-gray-600 dark:text-gray-400">/month</span>
-					</div>
-					<p class="text-gray-600 dark:text-gray-400" id="recommended-tier">Recommended: Free Tier</p>
-				</div>
-			</div>
-		</section>
+      <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
+        <label class="block mb-4">
+          <span class="text-gray-700 dark:text-gray-300 font-semibold"
+            >Expected monthly requests:</span
+          >
+          <input
+            type="range"
+            id="pricing-slider"
+            min="0"
+            max="100000"
+            step="1000"
+            value="5000"
+            class="w-full mt-2"
+          />
+          <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <span>0</span>
+            <span id="request-count">5,000</span>
+            <span>100k</span>
+          </div>
+        </label>
 
-		<!-- Community -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Community & Support</h2>
-			<div class="grid md:grid-cols-3 gap-6">
-				<a href="https://discord.gg/fanalyx" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center" target="_blank" rel="noopener noreferrer">
-					<div class="text-4xl mb-3">💬</div>
-					<h3 class="text-xl font-semibold mb-2">Discord Community</h3>
-					<p class="text-gray-600 dark:text-gray-400 text-sm">
-						Chat with developers and get help
-					</p>
-				</a>
+        <div class="bg-white dark:bg-gray-900 rounded-lg p-6 mt-4">
+          <div class="text-3xl font-bold mb-2">
+            <span id="estimated-price">$0</span><span
+              class="text-lg text-gray-600 dark:text-gray-400">/month</span
+            >
+          </div>
+          <p class="text-gray-600 dark:text-gray-400" id="recommended-tier">
+            Recommended: Free Tier
+          </p>
+        </div>
+      </div>
+    </section>
 
-				<a href="https://github.com/blakeox/financial-analysis/discussions" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center" target="_blank" rel="noopener noreferrer">
-					<div class="text-4xl mb-3">🗨️</div>
-					<h3 class="text-xl font-semibold mb-2">GitHub Discussions</h3>
-					<p class="text-gray-600 dark:text-gray-400 text-sm">
-						Ask questions and share ideas
-					</p>
-				</a>
+    <!-- Community -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Community & Support</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <a
+          href="https://discord.gg/fanalyx"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="text-4xl mb-3">💬</div>
+          <h3 class="text-xl font-semibold mb-2">Discord Community</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">Chat with developers and get help</p>
+        </a>
 
-				<a href="/showcase" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center">
-					<div class="text-4xl mb-3">⭐</div>
-					<h3 class="text-xl font-semibold mb-2">User Showcase</h3>
-					<p class="text-gray-600 dark:text-gray-400 text-sm">
-						See what others are building
-					</p>
-				</a>
-			</div>
-		</section>
+        <a
+          href="https://github.com/blakeox/financial-analysis/discussions"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="text-4xl mb-3">🗨️</div>
+          <h3 class="text-xl font-semibold mb-2">GitHub Discussions</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">Ask questions and share ideas</p>
+        </a>
 
-		<!-- Security & Compliance -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Security & Compliance</h2>
-			<div class="grid md:grid-cols-2 gap-6">
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">🔒 Data Security</h3>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-2">
-						<li>• All data encrypted in transit (TLS 1.3)</li>
-						<li>• No calculation data stored after response</li>
-						<li>• API keys hashed with bcrypt</li>
-						<li>• Regular security audits</li>
-					</ul>
-				</div>
+        <a
+          href="/showcase"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors text-center"
+        >
+          <div class="text-4xl mb-3">⭐</div>
+          <h3 class="text-xl font-semibold mb-2">User Showcase</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">See what others are building</p>
+        </a>
+      </div>
+    </section>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">✅ Compliance</h3>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-2">
-						<li>• GDPR compliant</li>
-						<li>• CCPA compliant</li>
-						<li>• SOC 2 Type II (in progress)</li>
-						<li>• PCI DSS compliant infrastructure</li>
-					</ul>
-				</div>
+    <!-- Security & Compliance -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Security & Compliance</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">🔒 Data Security</h3>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-2">
+            <li>• All data encrypted in transit (TLS 1.3)</li>
+            <li>• No calculation data stored after response</li>
+            <li>• API keys hashed with bcrypt</li>
+            <li>• Regular security audits</li>
+          </ul>
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">📜 Data Retention</h3>
-					<p class="text-gray-700 dark:text-gray-300">
-						We retain metadata (timestamps, request counts) for 90 days. Calculation inputs and results are not logged or stored.
-					</p>
-				</div>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">✅ Compliance</h3>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-2">
+            <li>• GDPR compliant</li>
+            <li>• CCPA compliant</li>
+            <li>• SOC 2 Type II (in progress)</li>
+            <li>• PCI DSS compliant infrastructure</li>
+          </ul>
+        </div>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-3">🛡️ Best Practices</h3>
-					<ul class="text-gray-700 dark:text-gray-300 space-y-2">
-						<li>• Rotate API keys quarterly</li>
-						<li>• Use environment variables</li>
-						<li>• Implement request signing</li>
-						<li>• Monitor for anomalies</li>
-					</ul>
-				</div>
-			</div>
-		</section>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">📜 Data Retention</h3>
+          <p class="text-gray-700 dark:text-gray-300">
+            We retain metadata (timestamps, request counts) for 90 days. Calculation inputs and
+            results are not logged or stored.
+          </p>
+        </div>
 
-		<!-- Support -->
-		<section class="mb-12">
-			<h2 class="text-3xl font-bold mb-4">Support & Resources</h2>
-			<div class="grid md:grid-cols-2 gap-6">
-				<a href="/docs" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-					<h3 class="text-xl font-semibold mb-2">📖 API Documentation</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						Interactive OpenAPI documentation with live examples
-					</p>
-				</a>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-3">🛡️ Best Practices</h3>
+          <ul class="text-gray-700 dark:text-gray-300 space-y-2">
+            <li>• Rotate API keys quarterly</li>
+            <li>• Use environment variables</li>
+            <li>• Implement request signing</li>
+            <li>• Monitor for anomalies</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-				<a href="/openapi.json" download class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-					<h3 class="text-xl font-semibold mb-2">📥 Download OpenAPI Spec</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						Import into Postman, Insomnia, or generate clients
-					</p>
-				</a>
+    <!-- Support -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold mb-4">Support & Resources</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <a
+          href="/docs"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors"
+        >
+          <h3 class="text-xl font-semibold mb-2">📖 API Documentation</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Interactive OpenAPI documentation with live examples
+          </p>
+        </a>
 
-				<a href="https://github.com/blakeox/financial-analysis" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors" target="_blank" rel="noopener noreferrer">
-					<h3 class="text-xl font-semibold mb-2">💻 GitHub Repository</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						View source code, examples, and contribute
-					</p>
-				</a>
+        <a
+          href="/openapi.json"
+          download
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors"
+        >
+          <h3 class="text-xl font-semibold mb-2">📥 Download OpenAPI Spec</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Import into Postman, Insomnia, or generate clients
+          </p>
+        </a>
 
-				<a href="mailto:support@fanalyx.com" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-					<h3 class="text-xl font-semibold mb-2">📧 Email Support</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						Get help from our team: support@fanalyx.com
-					</p>
-				</a>
+        <a
+          href="https://github.com/blakeox/financial-analysis"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <h3 class="text-xl font-semibold mb-2">💻 GitHub Repository</h3>
+          <p class="text-gray-600 dark:text-gray-400">View source code, examples, and contribute</p>
+        </a>
 
-				<div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-					<h3 class="text-xl font-semibold mb-2">🔔 Status Updates</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						Check API health and uptime at <a href="/status" class="text-blue-600 dark:text-blue-400 hover:underline">/status</a>
-					</p>
-				</div>
+        <a
+          href="mailto:support@fanalyx.com"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors"
+        >
+          <h3 class="text-xl font-semibold mb-2">📧 Email Support</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Get help from our team: support@fanalyx.com
+          </p>
+        </a>
 
-				<a href="/dashboard" class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-					<h3 class="text-xl font-semibold mb-2">📊 Usage Dashboard</h3>
-					<p class="text-gray-600 dark:text-gray-400">
-						Monitor your API usage, quotas, and analytics
-					</p>
-				</a>
-			</div>
-		</section>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-2">🔔 Status Updates</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Check API health and uptime at <a
+              href="/status"
+              class="text-blue-600 dark:text-blue-400 hover:underline">/status</a
+            >
+          </p>
+        </div>
 
-		<!-- CTA -->
-		<section class="bg-linear-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white text-center">
-			<h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-			<p class="text-xl mb-6 opacity-90">
-				Sign up for a free API key and start building today
-			</p>
-			<a 
-				href="/api/signup" 
-				class="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-			>
-				Get Your Free API Key
-			</a>
-		</section>
-	</div>
+        <a
+          href="/dashboard"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 hover:border-blue-500 transition-colors"
+        >
+          <h3 class="text-xl font-semibold mb-2">📊 Usage Dashboard</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Monitor your API usage, quotas, and analytics
+          </p>
+        </a>
+      </div>
+    </section>
 
-	<script type="module" is:inline>
-		import '../scripts/_shared/developers.client.ts';
-	</script>
+    <!-- CTA -->
+    <section class="bg-linear-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white text-center">
+      <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+      <p class="text-xl mb-6 opacity-90">Sign up for a free API key and start building today</p>
+      <a
+        href="/api/signup"
+        class="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+      >
+        Get Your Free API Key
+      </a>
+    </section>
+  </div>
+
+  <script type="module" is:inline>
+    import '../scripts/_shared/developers.client.ts';
+  </script>
 </Layout>
