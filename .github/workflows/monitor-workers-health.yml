@@ -1,8 +1,6 @@
 name: Monitor Workers Health (prod)
 
 on:
-  schedule:
-    - cron: '0 8 * * *' # daily at 08:00 UTC
   workflow_dispatch:
 
 permissions:
