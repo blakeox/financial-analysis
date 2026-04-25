@@ -1,5 +1,13 @@
 import { afterAll, beforeEach, vi } from 'vitest';
 
+const defaultRouteAgentRequest = vi.hoisted(() => vi.fn(async () => null));
+
+// Keep the Node Vitest lane from importing the Cloudflare-only agents runtime
+// unless a specific test overrides this mock with its own expectations.
+vi.mock('agents', () => ({
+  routeAgentRequest: defaultRouteAgentRequest,
+}));
+
 vi.mock('../agents/FinancialAnalysisAgent', () => ({
   FinancialAnalysisAgent: class FinancialAnalysisAgent {},
 }));

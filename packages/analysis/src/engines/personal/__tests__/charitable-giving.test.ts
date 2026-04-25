@@ -48,10 +48,11 @@ describe('CharitableGivingOptimizer', () => {
     expect(result.projectedImpact.immediateTaxBenefit).toBeGreaterThanOrEqual(0);
   });
 
-  it.skip('should compare giving methods when requested', () => {
-    // const result = CharitableGivingOptimizer.analyze(baseInput);
-    // expect(result.methodComparison).toBeDefined();
-    // expect(Array.isArray(result.methodComparison)).toBe(true);
+  it('should compare giving methods when requested', () => {
+    const result = CharitableGivingOptimizer.analyze(baseInput);
+    expect(result.methodComparison).toBeDefined();
+    expect(Array.isArray(result.methodComparison)).toBe(true);
+    expect(result.methodComparison?.length).toBeGreaterThan(1);
   });
 
   it('should provide recommendations', () => {
@@ -92,4 +93,3 @@ describe('CharitableGivingOptimizer', () => {
     });
   });
 });
-

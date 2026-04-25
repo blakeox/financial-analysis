@@ -66,7 +66,7 @@ describe('LongTermCareCalculator', () => {
     expect(Array.isArray(result.recommendations)).toBe(true);
   });
 
-  it.skip('should include probability analysis when requested', () => {
+  it('should include probability analysis when requested', () => {
     const result = LongTermCareCalculator.analyze(baseInput) as any;
     expect(result.probabilityAnalysis).toBeDefined();
   });
@@ -152,4 +152,3 @@ describe('LongTermCareCalculator', () => {
     expect(result.selfFundingAnalysis.coveragePercentage).toBe(100);
   });
 });
-

@@ -67,7 +67,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle>Storage Usage</CardTitle>
-          {data?.locked && (
+          {displayData?.locked && (
             <span
               data-testid="storage-locked-badge"
               className="inline-flex items-center rounded-md bg-red-100 text-red-700 text-xs font-medium px-2 py-1"
