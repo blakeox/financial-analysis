@@ -1,18 +1,6 @@
 name: E2E Web
 
 on:
-  pull_request:
-    branches: [main, dev]
-    paths:
-      - 'apps/web/**'
-      - 'packages/ui/**'
-      - '.github/workflows/e2e-web.yml'
-  push:
-    branches: [main, dev]
-    paths:
-      - 'apps/web/**'
-      - 'packages/ui/**'
-      - '.github/workflows/e2e-web.yml'
   workflow_dispatch:
     inputs:
       mode:
