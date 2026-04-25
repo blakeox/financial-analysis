@@ -10,6 +10,16 @@ import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 
+type CohortAnalysisRow = UnitEconomicsResult['cohortAnalysis'][number];
+
+const isHealthKey = (
+  value: string
+): value is 'excellent' | 'good' | 'needs-improvement' | 'critical' =>
+  value === 'excellent' ||
+  value === 'good' ||
+  value === 'needs-improvement' ||
+  value === 'critical';
+
 /**
  * Parse form data into UnitEconomicsInput
  */
@@ -119,17 +129,22 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     good: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700',
     'needs-improvement': 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
     critical: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700',
-  };
+  } as const;
   
   const healthLabels = {
     excellent: '🌟 Excellent',
     good: '✅ Good',
     'needs-improvement': '⚠️ Needs Improvement',
     critical: '🚨 Critical',
-  };
+  } as const;
   
-  const healthColor = healthColors[result.summary.overallHealth];
-  const healthLabel = healthLabels[result.summary.overallHealth];
+  const overallHealthValue = result.summary.overallHealth;
+  const overallHealth: keyof typeof healthLabels =
+    typeof overallHealthValue === 'string' && isHealthKey(overallHealthValue)
+      ? overallHealthValue
+      : 'critical';
+  const healthColor = healthColors[overallHealth];
+  const healthLabel = healthLabels[overallHealth];
   
   // Build detailed results
   resultsContainer.innerHTML = `
@@ -244,7 +259,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
             </tr>
           </thead>
           <tbody>
-            ${result.cohortAnalysis.slice(0, 24).map((cohort) => `
+            ${result.cohortAnalysis.slice(0, 24).map((cohort: CohortAnalysisRow) => `
               <tr class="border-b border-gray-100 dark:border-gray-800 ${cohort.cumulativeProfit >= 0 ? 'bg-green-50 dark:bg-green-900/10' : ''}">
                 <td class="py-2 px-3 text-gray-900 dark:text-white">${cohort.month}</td>
                 <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${cohort.customersRemaining.toFixed(1)}</td>
@@ -267,7 +282,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
         <ul class="space-y-2">
-          ${result.insights.map(insight => `
+          ${result.insights.map((insight: string) => `
             <li class="text-gray-700 dark:text-gray-300">${insight}</li>
           `).join('')}
         </ul>
@@ -279,7 +294,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-6 border-l-4 border-red-500">
         <h4 class="text-lg font-semibold mb-4 text-red-900 dark:text-red-100">⚠️ Warnings</h4>
         <ul class="space-y-2">
-          ${result.warnings.map(warning => `
+          ${result.warnings.map((warning: string) => `
             <li class="text-red-700 dark:text-red-300">${warning}</li>
           `).join('')}
         </ul>
@@ -291,7 +306,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
         <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Recommendations</h4>
         <ul class="space-y-2">
-          ${result.recommendations.map(rec => `
+          ${result.recommendations.map((rec: string) => `
             <li class="text-gray-700 dark:text-gray-300">${rec}</li>
           `).join('')}
         </ul>
@@ -400,4 +415,3 @@ if (typeof window !== 'undefined') {
     }
   });
 }
-

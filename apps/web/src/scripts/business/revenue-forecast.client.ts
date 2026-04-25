@@ -10,6 +10,9 @@ import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 
+type RevenueForecastMonth = RevenueForecastResult['monthlyForecasts'][number];
+type RevenueForecastStreamSummary = RevenueForecastResult['streamBreakdown'][number];
+
 /**
  * Collect revenue streams from form
  */
@@ -118,11 +121,11 @@ export const displayResults = (result: RevenueForecastResult): void => {
             </tr>
           </thead>
           <tbody>
-            ${result.monthlyForecasts.map((month) => `
+            ${result.monthlyForecasts.map((month: RevenueForecastMonth) => `
               <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="py-2 px-3 text-gray-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
-                ${Object.values(month.revenueByStream).map(rev => `
-                  <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(rev)}</td>
+                ${Object.values(month.revenueByStream).map((rev) => `
+                  <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
                 `).join('')}
                 <td class="text-right py-2 px-3 text-gray-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
                 ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${month.customers.toFixed(0)}</td>` : ''}
@@ -133,7 +136,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
             `).join('')}
             <tr class="border-t-2 border-gray-300 dark:border-gray-600 font-semibold">
               <td class="py-3 px-3 text-gray-900 dark:text-white">TOTAL</td>
-              ${result.streamBreakdown.map(stream => `
+              ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => `
                 <td class="text-right py-3 px-3 text-gray-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
               `).join('')}
               <td class="text-right py-3 px-3 text-gray-900 dark:text-white text-lg">${formatCurrency(result.summary.totalForecastRevenue)}</td>
@@ -153,7 +156,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue Stream Breakdown</h4>
       <div class="space-y-4">
-        ${result.streamBreakdown.map(stream => {
+        ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => {
           const widthPercent = Math.min(100, Math.max(10, stream.percentOfTotal));
           return `
             <div>
@@ -208,7 +211,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
       <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
         <ul class="space-y-2">
-          ${result.insights.map(insight => `
+          ${result.insights.map((insight: string) => `
             <li class="text-gray-700 dark:text-gray-300">${insight}</li>
           `).join('')}
         </ul>
@@ -220,7 +223,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
       <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 mb-6 border-l-4 border-yellow-500">
         <h4 class="text-lg font-semibold mb-4 text-yellow-900 dark:text-yellow-100">⚠️ Risks & Considerations</h4>
         <ul class="space-y-2">
-          ${result.risks.map(risk => `
+          ${result.risks.map((risk: string) => `
             <li class="text-yellow-800 dark:text-yellow-200">${risk}</li>
           `).join('')}
         </ul>
@@ -232,7 +235,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
       <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
         <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Growth Recommendations</h4>
         <ul class="space-y-2">
-          ${result.recommendations.map(rec => `
+          ${result.recommendations.map((rec: string) => `
             <li class="text-gray-700 dark:text-gray-300">${rec}</li>
           `).join('')}
         </ul>
@@ -379,4 +382,3 @@ if (typeof window !== 'undefined') {
     }
   });
 }
-

@@ -194,6 +194,7 @@ type ScreenRefs = {
   error: HTMLElement | null;
   errorMessage: HTMLElement | null;
   results: HTMLElement | null;
+  resultsSection?: HTMLElement | null;
 };
 
 type ExtendedInsights = {
@@ -457,9 +458,11 @@ export const handleSubmit = async (form: HTMLFormElement, refs?: ScreenRefs): Pr
   }
 
   // Hide previous results
-  const resultsSection = refs?.results || document.getElementById('results-section');
+  const successBanner = refs?.results || document.getElementById('results');
+  const resultsSection = refs?.resultsSection || document.getElementById('results-section');
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
+  successBanner?.classList.add('hidden');
   resultsSection?.classList.add('hidden');
   resultsContainer?.classList.add('hidden');
   summaryCards?.classList.add('hidden');
@@ -579,6 +582,7 @@ export const handleSubmit = async (form: HTMLFormElement, refs?: ScreenRefs): Pr
     });
 
     // Show results
+    successBanner?.classList.remove('hidden');
     resultsSection?.classList.remove('hidden');
     resultsContainer?.classList.remove('hidden');
     summaryCards?.classList.remove('hidden');
@@ -648,6 +652,7 @@ const initStudentLoansPage = (): void => {
     error: document.getElementById('error'),
     errorMessage: document.getElementById('error-message'),
     results: document.getElementById('results'),
+    resultsSection: document.getElementById('results-section'),
   };
 
   form.addEventListener('submit', (event) => {
@@ -666,9 +671,11 @@ const initStudentLoansPage = (): void => {
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      const successBanner = document.getElementById('results');
       const resultsSection = document.getElementById('results-section');
       const resultsContainer = document.getElementById('results-container');
       const summaryCards = document.getElementById('summary-cards');
+      successBanner?.classList.add('hidden');
       resultsSection?.classList.add('hidden');
       resultsContainer?.classList.add('hidden');
       summaryCards?.classList.add('hidden');

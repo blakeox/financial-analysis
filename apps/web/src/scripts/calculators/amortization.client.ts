@@ -254,14 +254,18 @@ const buildClientComprehensiveAnalysis = (
     schedule.length || clampNumber(input.termMonths) || clampNumber(result.schedule.length);
   const years = termMonths / 12;
   const annualRate = clampNumber(input.annualRate);
-  const totalPMI = safeRound(sumBy(schedule, (item) => clampNumber(item.pmi ?? 0)));
+  const totalPMI = safeRound(sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.pmi ?? 0)));
   const totalExtraPayments = safeRound(
-    sumBy(schedule, (item) => clampNumber(item.extraPayment ?? 0))
+    sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.extraPayment ?? 0))
   );
   const paymentToIncomeRatio =
     ASSUMED_MONTHLY_INCOME > 0 ? monthlyPayment / ASSUMED_MONTHLY_INCOME : 0;
-  const firstYearInterest = safeRound(sumBy(schedule.slice(0, 12), (item) => item.interest || 0));
-  const lastYearInterest = safeRound(sumBy(schedule.slice(-12), (item) => item.interest || 0));
+  const firstYearInterest = safeRound(
+    sumBy(schedule.slice(0, 12), (item: AmortizationResultItem) => item.interest || 0)
+  );
+  const lastYearInterest = safeRound(
+    sumBy(schedule.slice(-12), (item: AmortizationResultItem) => item.interest || 0)
+  );
 
   let highestInterestShare = 0;
   let highestInterestMonth = schedule[0]?.month ?? 1;
