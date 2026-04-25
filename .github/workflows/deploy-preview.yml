@@ -2,21 +2,6 @@ name: Deploy Preview (API + Web)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [dev]
-    paths:
-      - 'apps/web/**'
-      - 'workers/api/**'
-      - 'workers/web/**'
-      - 'packages/analysis/**'
-      - 'packages/tools/**'
-      - 'packages/ui/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - '.github/workflows/deploy-preview.yml'
-      - 'workers/api/wrangler.toml'
-      - 'workers/web/wrangler.toml'
 
 concurrency:
   group: deploy-preview-${{ github.ref }}

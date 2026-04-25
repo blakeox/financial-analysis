@@ -1,18 +1,6 @@
 name: Coverage
 
 on:
-  pull_request:
-    branches: [main, dev]
-    paths:
-      - 'apps/web/**'
-      - 'packages/analysis/**'
-      - '.github/workflows/coverage.yml'
-  push:
-    branches: [main, dev]
-    paths:
-      - 'apps/web/**'
-      - 'packages/analysis/**'
-      - '.github/workflows/coverage.yml'
   workflow_dispatch:
 
 concurrency:
