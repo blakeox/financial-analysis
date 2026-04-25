@@ -12,6 +12,12 @@ import {
   validateTestEnvironment,
 } from '../../../scripts/test-runner.mjs';
 
+type RunnerSuite = NonNullable<ReturnType<typeof selectTestSuites>[number]>;
+
+function getSuites(args: string[]): RunnerSuite[] {
+  return selectTestSuites(args) as RunnerSuite[];
+}
+
 describe('test runner Playwright target detection', () => {
   it('returns an explicit spec path when one is provided', () => {
     expect(
@@ -43,7 +49,7 @@ describe('test runner Playwright target detection', () => {
   });
 
   it('can select only critical suites', () => {
-    const suites = selectTestSuites(['--critical-only']);
+    const suites = getSuites(['--critical-only']);
     expect(suites.every((suite) => suite.critical)).toBe(true);
     expect(suites.map((suite) => suite.id)).toEqual([
       'test-layout',
@@ -54,11 +60,11 @@ describe('test runner Playwright target detection', () => {
   });
 
   it('can select an explicit suite by id', () => {
-    expect(selectTestSuites(['--suite', 'chat']).map((suite) => suite.id)).toEqual(['chat']);
+    expect(getSuites(['--suite', 'chat']).map((suite) => suite.id)).toEqual(['chat']);
   });
 
   it('can build a focused Playwright target run with preflights', () => {
-    const suites = selectTestSuites(['--playwright', 'tests/chat']);
+    const suites = getSuites(['--playwright', 'tests/chat']);
     expect(suites.map((suite) => suite.id)).toEqual([
       'test-layout',
       'typecheck-tests',
@@ -68,21 +74,21 @@ describe('test runner Playwright target detection', () => {
   });
 
   it('can build a repeated Playwright target run for flake checks', () => {
-    const suites = selectTestSuites(['--playwright', 'tests/chat', '--repeat-each', '3']);
-    expect(suites.at(-1)?.command).toBe(
+    const suites = getSuites(['--playwright', 'tests/chat', '--repeat-each', '3']);
+    expect(suites.at(-1)!.command).toBe(
       'pnpm exec playwright test --repeat-each=3 --workers=1 tests/chat'
     );
   });
 
   it('can pin a targeted Playwright repro to a matrix project', () => {
-    const suites = selectTestSuites(['--playwright', 'tests/chat', '--project', 'chromium']);
-    expect(suites.at(-1)?.command).toBe(
+    const suites = getSuites(['--playwright', 'tests/chat', '--project', 'chromium']);
+    expect(suites.at(-1)!.command).toBe(
       'PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project=chromium tests/chat'
     );
   });
 
   it('includes Playwright typecheck in the default suite selection', () => {
-    expect(selectTestSuites([]).map((suite) => suite.id)).toEqual([
+    expect(getSuites([]).map((suite) => suite.id)).toEqual([
       'test-layout',
       'typecheck-tests',
       'unit',
@@ -124,18 +130,25 @@ describe('test runner Playwright target detection', () => {
     expect(
       summarizeExecutedSuites(
         [{ suite: 'Playwright Typecheck', passed: true, output: '', duration: 1 }],
-        selectTestSuites([])
+        getSuites([])
       )
     ).toEqual(['Playwright Typecheck: Static type safety for Playwright specs and helpers']);
   });
 
   it('formats a discoverable suite catalog', () => {
-    expect(formatSuiteCatalog(selectTestSuites([]))).toContain(
+    expect(formatSuiteCatalog(getSuites([]))).toContain(
       '- test-layout [default, critical]: Detect duplicate Playwright spec basenames before heavier test stages run'
     );
     expect(
       formatSuiteCatalog([
-        { id: 'chat', description: 'Chat checks', critical: false, defaultSelected: false },
+        {
+          id: 'chat',
+          name: 'Chat Regression Tests',
+          command: 'pnpm run test:chat',
+          description: 'Chat checks',
+          critical: false,
+          defaultSelected: false,
+        },
       ])
     ).toBe('- chat: Chat checks');
   });
