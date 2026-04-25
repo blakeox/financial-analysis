@@ -135,28 +135,30 @@ const response = await fetch('/api/mcp', {
 ## 🧪 Testing
 
 ```bash
-# Run all tests
+# Run all workspace tests
 pnpm run test
 
-# Run smoke tests (fast API subset)
+# Fast API smoke checks (health, version, OpenAPI generation, contract, snapshot)
 pnpm run test:smoke
 
-# Run tests with coverage
-pnpm run test --coverage
-
-# Run tests in watch mode
-pnpm run test --watch
-
-# Run specific test file
-pnpm run test lease.test.ts
-
-# Faster test modes
+# Faster workspace modes
 pnpm run test:fast
 pnpm run test:slow
 pnpm run test:flaky
 
-# Update OpenAPI snapshot
-node scripts/generate-openapi-snapshot.mjs
+# Web app quality lanes
+pnpm --filter @financial-analysis/web run test:ci:smoke
+pnpm --filter @financial-analysis/web run test:ci:smoke:matrix
+pnpm --filter @financial-analysis/web run test:ci:full
+pnpm --filter @financial-analysis/web run test:e2e:smoke:matrix
+
+# Web app focused commands
+pnpm --filter @financial-analysis/web run test:coverage
+pnpm --filter @financial-analysis/web run test:suites
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/chat
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/chat --project=firefox
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/chat --json-summary=test-results/runner/chat.json
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/chat --repeat-each=3
 ```
 
 Mutation testing (analysis package):
@@ -167,13 +169,73 @@ pnpm --filter @financial-analysis/analysis run test:mutation
 
 Chat integration tests note:
 
-- Chat integration tests that require Cloudflare AI/Vectorize are skipped by default.
-- To enable them (locally or in CI), set $RUN_AI_INTEGRATION_TESTS=true.
+- API chat integration with real Cloudflare AI is opt-in and runs as a dedicated lane:
+
+```bash
+pnpm run test:chat:integration:api
+```
+
+- That command sets `RUN_AI_INTEGRATION_TESTS=true` and expects working Cloudflare AI bindings. It fails if the environment falls back to offline or unconfigured chat behavior.
 
 Flaky test tagging:
 
 - Use "@flaky" in the test name to opt into the flaky suite.
 - Run with `pnpm run test:flaky`.
+- For web Playwright repros, use the custom runner repeat mode:
+
+```bash
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/site/site-basic.spec.ts --project=chromium --repeat-each=3
+```
+
+### Web app testing workflow
+
+The `apps/web` package now has three main layers:
+
+```bash
+# Fast structural + type + unit + smoke browser lane
+pnpm --filter @financial-analysis/web run test:ci:smoke
+
+# Cross-browser smoke lane for PRs, manual workflow dispatch, or local browser confidence
+pnpm --filter @financial-analysis/web run test:ci:smoke:matrix
+
+# Browser-only smoke matrix
+pnpm --filter @financial-analysis/web run test:e2e:smoke:matrix
+
+# Full lane with coverage gate + cross-browser matrix
+pnpm --filter @financial-analysis/web run test:ci:full
+
+# Discover available runner suites
+pnpm --filter @financial-analysis/web run test:suites
+```
+
+Useful focused web commands:
+
+```bash
+# Unit coverage with enforced thresholds and artifacts
+pnpm --filter @financial-analysis/web run test:coverage
+
+# Canonical grouped Playwright folders
+pnpm --filter @financial-analysis/web run test:e2e:chat
+pnpm --filter @financial-analysis/web run test:e2e:nav
+pnpm --filter @financial-analysis/web run test:e2e:site
+pnpm --filter @financial-analysis/web run test:e2e:auto-lease
+pnpm --filter @financial-analysis/web run test:e2e:lease-analysis
+
+# Target any canonical Playwright path with preflights
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/status/status-page.spec.ts
+
+# Pin a focused repro to a specific Playwright project
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/site/site-basic.spec.ts --project=webkit
+
+# Persist a machine-readable runner report for CI or triage
+pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwright tests/site/site-basic.spec.ts --json-summary=test-results/runner/smoke.json
+```
+
+Notes:
+
+- `test:layout` prevents duplicate Playwright spec basenames in `apps/web/tests`.
+- `typecheck:tests` statically checks Playwright specs/helpers before browser runs.
+- `test:coverage` currently gates the web logic/framework modules that already have strong Vitest protection; expand that scope as more app logic gets dedicated tests.
 
 ### Rate limiting headers
 

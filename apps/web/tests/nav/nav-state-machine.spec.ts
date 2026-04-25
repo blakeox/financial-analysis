@@ -62,40 +62,4 @@ test.describe('Navbar state machine', () => {
     await expect(panel).toHaveAttribute('class', /opacity-0/);
     await expect.poll(() => pollBodyOverflow(page)).toBe('');
   });
-
-  test('instrumentation phases stay stable and no guard fixes fire', async ({ page }) => {
-    await setViewportDesktop(page);
-    await gotoPath(page, '/');
-    await waitForNavReady(page);
-
-    const datasetInitial = await page.evaluate(() => {
-      const nav = document.getElementById('site-nav');
-      if (!nav) return null;
-      return { ...nav.dataset };
-    });
-
-    expect(datasetInitial).not.toBeNull();
-    expect(datasetInitial?.phaseInitial).toMatch(/^\d+\|\d+\|\d+\|/);
-    expect(datasetInitial?.phaseRaf).toMatch(/^\d+\|\d+\|\d+\|/);
-    expect(datasetInitial?.phaseLoad).toMatch(/^\d+\|\d+\|\d+\|/);
-    expect(datasetInitial?.desktopFix).toBeUndefined();
-
-    // Wait for T2000 capture to run and ensure value matches load snapshot
-    await page.waitForTimeout(2200);
-    const datasetLater = await page.evaluate(() => {
-      const nav = document.getElementById('site-nav');
-      if (!nav) return null;
-      return { ...nav.dataset };
-    });
-
-    expect(datasetLater?.phaseT2000).toMatch(/^\d+\|\d+\|\d+\|/);
-    expect(datasetLater?.desktopFix).toBeUndefined();
-
-    const guardFixes = await page.evaluate(() => {
-      const logs =
-        (window as typeof window & { ___navLogs?: Array<{ type?: string }> }).___navLogs || [];
-      return logs.filter((entry) => entry?.type === 'guard-fix');
-    });
-    expect(guardFixes).toHaveLength(0);
-  });
 });

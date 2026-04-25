@@ -9,15 +9,14 @@ test.describe('Navbar theme persistence', () => {
 
     const getDark = () => page.evaluate(() => document.documentElement.classList.contains('dark'));
     const before = await getDark();
+    const expectedTheme = before ? 'light' : 'dark';
 
     await page.getByRole('button', { name: 'Toggle color theme' }).click();
-    await page.waitForTimeout(150);
-    const afterClick = await getDark();
-    expect(afterClick).toBe(!before);
+    await expect.poll(getDark).toBe(!before);
 
     // Verify localStorage set
-    const themeValue = await page.evaluate(() => localStorage.getItem('theme'));
-    expect(themeValue === 'dark' || themeValue === 'light').toBeTruthy();
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('theme'))).toBe(expectedTheme);
+    const afterClick = await getDark();
 
     // Reload preserves
     await page.reload();

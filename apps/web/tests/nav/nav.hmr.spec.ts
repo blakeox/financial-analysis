@@ -42,37 +42,48 @@ test.describe('Navbar dev HMR stability', () => {
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
-    // tests/ -> apps/web
-    const webRoot = dirname(__dirname);
+    // tests/nav -> apps/web
+    const webRoot = dirname(dirname(__dirname));
     const globalCss = join(webRoot, 'src', 'styles', 'global.css');
 
     // Append a harmless comment to trigger HMR
-    const stamp = `/* hmr-ping-${Date.now()} */\n`;
+    const token = `hmr-ping-${Date.now()}`;
+    const stamp = `:root { --hmr-ping: ${token}; }\n`;
     const original = await fs.readFile(globalCss, 'utf8');
-    await fs.appendFile(globalCss, `\n${stamp}`);
+    try {
+      await fs.appendFile(globalCss, `\n${stamp}`);
 
-    // Wait for HMR to propagate and settle
-    await page.waitForTimeout(800);
+      await expect
+        .poll(async () => {
+          try {
+            return await page.evaluate(() =>
+              getComputedStyle(document.documentElement).getPropertyValue('--hmr-ping').trim()
+            );
+          } catch {
+            return '';
+          }
+        })
+        .toBe(token);
 
-    const after = await sample(
-      async () => {
-        return page.evaluate(() => ({
-          display: getComputedStyle(document.querySelector('#site-nav .desktop-nav') as HTMLElement)
-            .display,
-          visibility: getComputedStyle(document.querySelector('#site-nav') as HTMLElement)
-            .visibility,
-        }));
-      },
-      25,
-      1000
-    );
+      const after = await sample(
+        async () => {
+          return page.evaluate(() => ({
+            display: getComputedStyle(document.querySelector('#site-nav .desktop-nav') as HTMLElement)
+              .display,
+            visibility: getComputedStyle(document.querySelector('#site-nav') as HTMLElement)
+              .visibility,
+          }));
+        },
+        25,
+        1000
+      );
 
-    // Revert file to avoid dirty workspace
-    await fs.writeFile(globalCss, original);
-
-    const displays = new Set([...before, ...after].map((s) => s.display));
-    const vis = new Set([...before, ...after].map((s) => s.visibility));
-    expect(displays).toEqual(new Set(['flex']));
-    expect(vis).toEqual(new Set(['visible']));
+      const displays = new Set([...before, ...after].map((s) => s.display));
+      const vis = new Set([...before, ...after].map((s) => s.visibility));
+      expect(displays).toEqual(new Set(['flex']));
+      expect(vis).toEqual(new Set(['visible']));
+    } finally {
+      await fs.writeFile(globalCss, original);
+    }
   });
 });

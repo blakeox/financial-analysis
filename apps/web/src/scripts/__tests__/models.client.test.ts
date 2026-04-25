@@ -1,5 +1,16 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('@financial-analysis/tools', () => ({
+  appEventBus: {
+    emit: vi.fn(),
+    on: vi.fn(() => () => undefined),
+  },
+}));
+
+vi.mock('../chat/chat-context', () => ({
+  publishChatContext: vi.fn(),
+}));
+
 type InteractionType = 'pointer' | 'keyboard' | 'programmatic';
 
 type ModelMetadata = {

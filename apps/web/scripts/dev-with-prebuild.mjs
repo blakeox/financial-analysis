@@ -1,5 +1,6 @@
 import process from 'node:process';
 import { spawnSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +21,7 @@ const run = (command, args, cwd) => {
 
 run('pnpm', ['--filter', '@financial-analysis/analysis', 'build'], repoRoot);
 run('pnpm', ['--filter', '@financial-analysis/ui', 'build'], repoRoot);
+rmSync(resolve(webDir, 'node_modules/.vite'), { recursive: true, force: true });
 
 const rawArgs = process.argv.slice(2);
 const astroArgs = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs;

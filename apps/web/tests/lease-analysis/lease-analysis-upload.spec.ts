@@ -1,230 +1,109 @@
 import { expect, test } from '@playwright/test';
+import { mockLeaseAnalysis, openLeaseAnalysis } from './helpers';
 
-test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock successful file upload
-    await page.route('**/v1/api/upload/lease', async (route) => {
-      await route.fulfill({
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-        json: {
-          success: true,
-          key: 'uploads/test-doc-123.pdf',
-          fileName: 'test-lease.pdf',
-          fileSize: 1024,
-          contentType: 'application/pdf'
-        },
-      });
-    });
+test.describe('Lease analysis upload browser contracts', () => {
+  test('uploads a PDF through the current direct-extraction endpoint and auto-applies the result', async ({
+    page,
+  }) => {
+    await mockLeaseAnalysis(page);
 
-    // Mock successful document extraction
-    await page.route('**/v1/api/extract/lease', async (route) => {
+    let extractionRequest: Record<string, unknown> | null = null;
+    await page.route('**/v1/api/extract/lease-direct', async (route) => {
+      extractionRequest = (route.request().postDataJSON() as Record<string, unknown> | null) ?? {};
+
       await route.fulfill({
         status: 200,
         headers: { 'content-type': 'application/json' },
         json: {
           success: true,
           extractedData: {
-            confidence: {
-              overall: 0.85,
-              financial: 0.92,
-              property: 0.78,
-            },
-            leaseTerm: 60,
-            baseRent: 2500,
+            leaseType: 'office-nnn',
+            leaseTerm: 84,
+            baseRent: 12000,
             escalationType: 'percentage',
-            escalationRate: 0.03,
-            securityDeposit: 5000,
-            squareFootage: 1200,
-            cam: 300,
-            taxes: 200,
-            insurance: 150,
-            utilities: 250,
+            escalationRate: 0.035,
+            securityDeposit: 24000,
+            cam: 3000,
+            taxes: 2000,
+            insurance: 800,
+            utilities: 1500,
           },
         },
       });
     });
 
-    await page.goto('/lease-analysis');
-    // Wait for React component to hydrate
-    await page.waitForLoadState('networkidle');
-  });
+    await openLeaseAnalysis(page);
 
-  test('drag and drop file upload visual feedback', async ({ page }) => {
-    // Select the upload area container by its distinctive classes
-    const uploadArea = page.locator('.border-2.border-dashed.rounded-lg.touch-manipulation');
-    
-    // Initial state should show default styling
-    await expect(uploadArea).toBeVisible();
-    await expect(uploadArea).toContainText('Drag & drop your lease document here');
-    
-    // Test file input click
-    const fileInput = page.locator('input[type="file"]');
-    await expect(fileInput).toBeHidden(); // Should be visually hidden but present
-  });
-
-  test('AI extraction preview and apply functionality', async ({ page }) => {
-    // Upload a mock file
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    const uploadButton = page.getByRole('button', { name: /choose file/i });
-    await uploadButton.click();
-    const fileChooser = await fileChooserPromise;
-    
-    // Create a mock PDF file
-    await fileChooser.setFiles({
-      name: 'test-lease.pdf',
+    await page.getByLabel('Upload lease document').setInputFiles({
+      name: 'office-lease.pdf',
       mimeType: 'application/pdf',
       buffer: Buffer.from('mock pdf content'),
     });
 
-    // Wait for extraction preview to appear
-    await expect(page.locator('text=AI Extraction Preview')).toBeVisible({ timeout: 10000 });
-    
-  // Check confidence indicators (three gauges)
-  await expect(page.getByText('Overall')).toBeVisible();
-  // Verify key sections render
-  await expect(page.getByText(/Basic Terms/i)).toBeVisible();
-  await expect(page.getByText(/Additional Costs/i)).toBeVisible();
+    await expect(page.getByText('Document processed successfully!')).toBeVisible();
+    await expect(page.getByText('Form populated with extracted data')).toBeVisible();
+    await expect(page.getByText('AI Extraction Preview')).not.toBeVisible();
 
-    const applyButton = page.getByRole('button', { name: /apply to form/i });
-  await expect(applyButton).toBeVisible();
+    expect(extractionRequest).toMatchObject({
+      fileName: 'office-lease.pdf',
+      fileType: 'application/pdf',
+      documentType: 'pdf',
+    });
 
-  // Test Apply to Form functionality
-    await applyButton.click();
-    
-    // Wait for preview dismissal to ensure form state updates before checking fields
-    await expect(page.locator('text=AI Extraction Preview')).not.toBeVisible({ timeout: 10000 });
-
-    // Verify data was applied to form fields (check that term field has a value)
-    const termInput = page.getByLabel('Lease Term (Months)');
-    await expect(termInput).toHaveValue(/\d+/);
+    await expect(page.locator('select').first()).toHaveValue('office-nnn');
+    await expect(page.getByLabel('Monthly Base Rent')).toHaveValue('12000');
+    await expect(page.getByLabel('Lease Term (Months)')).toHaveValue('84');
   });
 
-  test('AI extraction preview dismiss functionality', async ({ page }) => {
-    // Upload mock file
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    const uploadButton = page.getByRole('button', { name: /choose file/i });
-    await uploadButton.click();
-    const fileChooser = await fileChooserPromise;
-    
-    await fileChooser.setFiles({
-      name: 'test-lease.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from('mock pdf content'),
+  test('rejects unsupported file types before any extraction request is sent', async ({ page }) => {
+    await mockLeaseAnalysis(page);
+
+    let extractionCalled = false;
+    await page.route('**/v1/api/extract/lease-direct', async (route) => {
+      extractionCalled = true;
+      await route.abort();
     });
 
-    // Wait for preview
-    await expect(page.getByText(/AI Extraction Preview/i)).toBeVisible({ timeout: 10000 });
-    
-    // Click dismiss/close button
-    const dismissButton = page.getByRole('button', { name: /close|dismiss/i }).first();
-    await dismissButton.click();
-    
-    // Preview should be hidden
-    await expect(page.getByText(/AI Extraction Preview/i)).not.toBeVisible();
-  });
+    await openLeaseAnalysis(page);
 
-  test('file upload error handling', async ({ page }) => {
-    // Mock API error response for extraction
-    await page.route('**/v1/api/extract/lease', async (route) => {
-      await route.fulfill({
-        status: 400,
-        headers: { 'content-type': 'application/json' },
-        json: {
-          success: false,
-          error: 'Unable to extract lease data from document',
-        },
-      });
-    });
-
-    // Upload file
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.click('button:has-text("Choose File")');
-    const fileChooser = await fileChooserPromise;
-    
-    await fileChooser.setFiles({
-      name: 'invalid-file.txt',
-      mimeType: 'text/plain',
-      buffer: Buffer.from('not a lease document'),
-    });
-
-    // Should show error message somewhere on page
-    await expect(page.getByText(/unable|error|failed/i)).toBeVisible({ timeout: 10000 });
-    
-    // Preview should not appear
-    await expect(page.getByText(/AI Extraction Preview/i)).not.toBeVisible();
-  });
-
-  test('upload progress indicator', async ({ page }) => {
-    // Mock slow extraction to see progress
-    await page.route('**/v1/api/extract/lease', async (route) => {
-      // Delay response to simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await route.fulfill({
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-        json: {
-          success: true,
-          extractedData: {
-            confidence: { overall: 0.85, financial: 0.92, property: 0.78 },
-            leaseTerm: 60,
-            baseRent: 2500,
-          },
-        },
-      });
-    });
-
-    // Upload file
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    const uploadButton = page.getByRole('button', { name: /choose file/i });
-    await uploadButton.click();
-    const fileChooser = await fileChooserPromise;
-    
-    await fileChooser.setFiles({
-      name: 'test-lease.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from('mock pdf content'),
-    });
-
-    // Should show some processing indicator (spinner, progress, etc)
-    const processingIndicator = page.locator('.animate-spin, [class*="processing"], [class*="loading"]').first();
-    // Give it a moment to appear
-    await page.waitForTimeout(100);
-    const indicatorVisible = await processingIndicator.isVisible().catch(() => false);
-    
-    // Eventually should show success
-    if (indicatorVisible) {
-      await expect(processingIndicator).toBeVisible();
-    }
-
-    await expect(page.getByText(/AI Extraction Preview|success|complete/i)).toBeVisible({ timeout: 15000 });
-  });
-
-  test('file type validation', async ({ page }) => {
-    // Mock upload endpoint to reject invalid file type
-    await page.route('**/v1/api/upload/lease', async (route) => {
-      await route.fulfill({
-        status: 400,
-        headers: { 'content-type': 'application/json' },
-        json: {
-          error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.'
-        },
-      });
-    });
-
-    // Try to upload invalid file type
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    const uploadButton = page.getByRole('button', { name: /choose file/i });
-    await uploadButton.click();
-    const fileChooser = await fileChooserPromise;
-    
-    await fileChooser.setFiles({
-      name: 'image.jpg',
+    await page.getByLabel('Upload lease document').setInputFiles({
+      name: 'photo.jpg',
       mimeType: 'image/jpeg',
-      buffer: Buffer.from('fake image content'),
+      buffer: Buffer.from('not a lease'),
     });
 
-    // Should show file type error
-    await expect(page.getByText(/invalid.*file.*type|please upload.*pdf/i)).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByText('Invalid file type. Please upload a PDF, Word document, or text file.').first()
+    ).toBeVisible();
+    expect(extractionCalled).toBe(false);
+  });
+
+  test('surfaces extraction failures from the current endpoint without stale preview UI', async ({
+    page,
+  }) => {
+    await mockLeaseAnalysis(page);
+
+    let extractionCalls = 0;
+    await page.route('**/v1/api/extract/lease-direct', async (route) => {
+      extractionCalls += 1;
+      await route.fulfill({
+        status: 500,
+        headers: { 'content-type': 'text/plain' },
+        body: 'Extraction service unavailable',
+      });
+    });
+
+    await openLeaseAnalysis(page);
+
+    await page.getByLabel('Upload lease document').setInputFiles({
+      name: 'failed-lease.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('mock pdf content'),
+    });
+
+    await expect.poll(() => extractionCalls).toBe(1);
+    await expect(page.getByText('AI Extraction Preview')).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Choose File' })).toBeVisible();
+    await expect(page.getByText('Document processed successfully!')).not.toBeVisible();
   });
 });

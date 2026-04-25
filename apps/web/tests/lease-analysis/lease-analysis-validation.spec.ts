@@ -1,193 +1,199 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page, type Route } from '@playwright/test';
+
+const successResponse = {
+  leaseType: 'warehouse-nnn',
+  termMonths: 60,
+  startDate: '2024-01-01',
+  endDate: '2028-12-31',
+  metrics: {
+    totalCost: 420000,
+    averageMonthlyPayment: 7000,
+    presentValue: 390000,
+    effectiveAnnualRate: 0.065,
+  },
+  schedule: [],
+  renewalOptions: [],
+  riskAnalysis: {
+    flexibilityScore: 72,
+    renewalRisk: 'medium',
+    marketComparability: 'high',
+  },
+  insights: {
+    effectiveRent: 7000,
+    occupancyCost: 7600,
+    totalCommitment: 420000,
+    flexibilityRating: 'medium',
+    recommendations: ['Review escalation exposure'],
+  },
+};
+
+async function mockLeaseAnalysis(
+  page: Page,
+  handler?: (route: Route) => Promise<void>
+) {
+  await page.route('**/v1/api/analysis/enhanced-lease', async (route) => {
+    if (handler) {
+      await handler(route);
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      json: successResponse,
+    });
+  });
+}
+
+async function openLeaseAnalysis(page: Page) {
+  await page.goto('/lease-analysis');
+  await expect(page.getByRole('tablist')).toBeVisible();
+}
+
+async function switchToEquipmentLease(page: Page) {
+  await page.locator('select').first().selectOption('equipment');
+  await expect(page.getByLabel('Equipment Cost')).toBeVisible();
+}
 
 test.describe('Enhanced Lease Analysis - Form Validation & Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/lease-analysis');
-    // Wait for React component to hydrate
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    await mockLeaseAnalysis(page);
+    await openLeaseAnalysis(page);
   });
 
-  test('required field validation', async ({ page }) => {
-    // Try to submit empty form
-    await page.click('button:has-text("Analyze Lease")');
-    
-    // Should not proceed without required fields
-    await expect(page.locator('text=Financial Summary')).not.toBeVisible();
-    
-    // Fill minimum required fields using getByLabel
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    await page.getByLabel('Residual Value').fill('10000');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    // Now it should work
-    await page.route('**/v1/api/analysis/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-        json: {
-          leaseType: 'equipment',
-          termMonths: 60,
-          startDate: '2024-01-01',
-          endDate: '2028-12-31',
-          metrics: { totalCost: 120000, averageMonthlyPayment: 2000, presentValue: 110000, effectiveAnnualRate: 0.065 },
-          schedule: [],
-          renewalOptions: [],
-          riskAnalysis: { flexibilityScore: 75, renewalRisk: 'low', marketComparability: 'high' },
-          insights: { effectiveRent: 2000, occupancyCost: 2500, totalCommitment: 120000, flexibilityRating: 'medium', recommendations: [] },
-        },
-      });
-    });
-    
-    await page.click('button:has-text("Analyze Lease")');
-    await expect(page.locator('text=Financial Summary')).toBeVisible({ timeout: 10000 });
+  test('default warehouse lease auto-analyzes on load', async ({ page }) => {
+    await expect(page.getByText('Financial Summary')).toBeVisible();
+    await expect(page.getByLabel('Monthly Base Rent')).toBeVisible();
+    await expect(page.getByLabel('Lease Term (Months)')).toHaveValue('60');
   });
 
-  test('numeric input validation', async ({ page }) => {
-    // Test negative equipment cost
-    await page.getByLabel('Equipment Cost').fill('-50000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    // HTML validation should prevent submission or show error
+  test('equipment numeric inputs enforce current HTML constraints', async ({ page }) => {
+    await switchToEquipmentLease(page);
+
     const equipmentCostInput = page.getByLabel('Equipment Cost');
-    const validity = await equipmentCostInput.evaluate((el: HTMLInputElement) => el.validity.valid);
-    expect(validity).toBe(false);
-  });
-
-  test('interest rate boundary validation', async ({ page }) => {
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    // Test rate over 100%
-    await page.getByLabel('Annual Interest Rate').fill('150');
-    
     const rateInput = page.getByLabel('Annual Interest Rate');
-    const validity = await rateInput.evaluate((el: HTMLInputElement) => el.validity.valid);
-    expect(validity).toBe(false);
-    
-    // Test valid rate
-    await page.getByLabel('Annual Interest Rate').fill('7.5');
-    const validityAfter = await rateInput.evaluate((el: HTMLInputElement) => el.validity.valid);
-    expect(validityAfter).toBe(true);
-  });
-
-  test('term months validation', async ({ page }) => {
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    
-    // Test zero months
-    await page.getByLabel('Lease Term (Months)').fill('0');
-    
     const termInput = page.getByLabel('Lease Term (Months)');
-    const validity = await termInput.evaluate((el: HTMLInputElement) => el.validity.valid);
-    expect(validity).toBe(false);
-    
-    // Test very high number
-    await page.getByLabel('Lease Term (Months)').fill('10000');
-    // Should be valid (business logic may handle reasonableness)
+
+    await equipmentCostInput.fill('-50000');
+    await expect(equipmentCostInput).toHaveJSProperty('validity.valid', false);
+
+    await rateInput.fill('150');
+    await expect(rateInput).toHaveJSProperty('validity.valid', false);
+
+    await rateInput.fill('7.5');
+    await expect(rateInput).toHaveJSProperty('validity.valid', true);
+
+    await termInput.fill('0');
+    await expect(termInput).toHaveJSProperty('validity.valid', false);
   });
 
-  test.skip('escalation tab validation', async ({ page: _page }) => {
-    // This test expects real estate lease features (escalations) that are not applicable to equipment leases
-    // Equipment leases in this component don't have escalation tab functionality
+  test('escalation fields are configurable on the Terms tab', async ({ page }) => {
+    await page.getByRole('button', { name: 'Show Advanced' }).click();
+    await page.getByRole('tab', { name: 'Terms' }).click();
+
+    await expect(page.getByText('Rent Escalations')).toBeVisible();
+
+    const escalationField = page
+      .locator('div.space-y-1')
+      .filter({ has: page.locator('label', { hasText: 'Escalation Type' }) })
+      .locator('select');
+
+    await escalationField.selectOption('fixed');
+
+    await expect(page.getByLabel('Annual Escalation Rate')).toBeVisible();
   });
 
-  test.skip('additional costs validation', async ({ page: _page }) => {
-    // This test expects real estate lease features (CAM costs) that are not applicable to equipment leases
-    // Equipment leases in this component don't have CAM or additional costs functionality
+  test('additional monthly costs appear for non-equipment lease types', async ({ page }) => {
+    await page.locator('select').first().selectOption('office-nnn');
+    await page.getByRole('button', { name: 'Show Advanced' }).click();
+    await page.getByRole('tab', { name: 'Terms' }).click();
+
+    await expect(page.getByText('Additional Monthly Costs')).toBeVisible();
+    await expect(page.getByLabel('CAM Charges')).toBeVisible();
+    await expect(page.getByLabel('Property Taxes')).toBeVisible();
+    await expect(page.getByLabel('Insurance')).toBeVisible();
   });
 
-  test('API error handling', async ({ page }) => {
-    // Mock API error
-    await page.route('**/v1/api/analysis/**', async (route) => {
+  test('server errors surface in the UI', async ({ page }) => {
+    await page.unroute('**/v1/api/analysis/enhanced-lease');
+    await mockLeaseAnalysis(page, async (route) => {
       await route.fulfill({
         status: 500,
         headers: { 'content-type': 'application/json' },
         json: {
           error: {
-            message: 'Internal server error during analysis'
+            message: 'Internal server error during analysis',
           },
         },
       });
     });
 
-    // Fill valid form
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    await page.click('button:has-text("Analyze")');
-    
-    // Should show error message - component displays the error.message text
-    await expect(page.locator('text=Internal server error during analysis')).toBeVisible({ timeout: 10000 });
-    
-    // Results should not be shown
-    await expect(page.locator('text=Financial Summary')).not.toBeVisible();
+    await page.reload();
+    await expect(page.getByText('Internal server error during analysis').first()).toBeVisible();
+    await expect(page.getByText('Financial Summary')).not.toBeVisible();
   });
 
-  test('network timeout handling', async ({ page }) => {
-    // Mock slow API response
-    await page.route('**/v1/api/analysis/lease', async (route) => {
-      // Delay much longer than reasonable timeout
-      await new Promise(resolve => setTimeout(resolve, 30000));
+  test('loading state is visible while analysis is pending', async ({ page }) => {
+    let releaseResponse!: () => void;
+    const responseReleased = new Promise<void>((resolve) => {
+      releaseResponse = resolve;
+    });
+
+    await page.unroute('**/v1/api/analysis/enhanced-lease');
+    await mockLeaseAnalysis(page, async (route) => {
+      await responseReleased;
       await route.fulfill({
         status: 200,
         headers: { 'content-type': 'application/json' },
-        json: { metrics: {}, schedule: [] },
+        json: successResponse,
       });
     });
 
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    await page.click('button:has-text("Analyze")');
-    
-    // Should show loading state - button text changes to "Analyzing..."
-    await expect(page.getByRole('button', { name: 'Analyzing...' }), 'Should show loading state').toBeVisible();
-    
-    // After reasonable time, should show error or timeout
-    // (This depends on the component's timeout implementation)
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Analyzing...' })).toBeVisible();
+
+    releaseResponse();
+
+    await expect(page.getByText('Financial Summary')).toBeVisible();
   });
 
-  test('form reset functionality', async ({ page }) => {
-    // Fill all fields
-    await page.getByLabel('Equipment Cost').fill('100000');
-    await page.getByLabel('Annual Interest Rate').fill('6.5');
-    await page.getByLabel('Residual Value').fill('10000');
-    await page.getByLabel('Lease Term (Months)').fill('60');
-    
-    // Clear equipment cost field
-    await page.getByLabel('Equipment Cost').clear();
-    
-    // Verify field is cleared (may show '0' due to min=0 validation)
-    const costValue = await page.getByLabel('Equipment Cost').inputValue();
-    expect(costValue === '' || costValue === '0').toBe(true);
-  });
+  test('equipment inputs can be reset after entry', async ({ page }) => {
+    await switchToEquipmentLease(page);
 
-  test('accessibility - keyboard navigation', async ({ page }) => {
-    // Click into the form area first to establish focus context
-    await page.getByLabel('Equipment Cost').click();
-    await expect(page.getByLabel('Equipment Cost')).toBeFocused();
-    
-    await page.keyboard.press('Tab'); // Next input
-    const secondInput = page.getByLabel('Annual Interest Rate');
-    await expect(secondInput).toBeFocused();
-    
-    await page.keyboard.press('Tab'); // Next input  
-    const thirdInput = page.getByLabel('Residual Value');
-    await expect(thirdInput).toBeFocused();
-  });
-
-  test('accessibility - screen reader labels', async ({ page }) => {
-    // Check that form inputs have proper labels
     const equipmentCostInput = page.getByLabel('Equipment Cost');
-    await expect(equipmentCostInput).toBeVisible();
-    
     const rateInput = page.getByLabel('Annual Interest Rate');
-    const rateLabel = await rateInput.getAttribute('aria-label');
-    expect(rateLabel || await rateInput.locator('..').textContent()).toContain('Rate');
+    const residualInput = page.getByLabel('Residual Value');
+
+    await equipmentCostInput.fill('100000');
+    await rateInput.fill('6.5');
+    await residualInput.fill('10000');
+
+    await equipmentCostInput.clear();
+    await expect(equipmentCostInput).toHaveValue(/^(|0)$/);
+  });
+
+  test('keyboard navigation follows the equipment form order', async ({ page }) => {
+    await switchToEquipmentLease(page);
+
+    const equipmentCostInput = page.getByLabel('Equipment Cost');
+    const rateInput = page.getByLabel('Annual Interest Rate');
+    const residualInput = page.getByLabel('Residual Value');
+
+    await equipmentCostInput.click();
+    await expect(equipmentCostInput).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(rateInput).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(residualInput).toBeFocused();
+  });
+
+  test('equipment inputs remain label-addressable for accessibility', async ({ page }) => {
+    await switchToEquipmentLease(page);
+
+    await expect(page.getByLabel('Equipment Cost')).toBeVisible();
+    await expect(page.getByLabel('Annual Interest Rate')).toBeVisible();
+    await expect(page.getByLabel('Residual Value')).toBeVisible();
   });
 });

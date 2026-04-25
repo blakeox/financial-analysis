@@ -21,6 +21,7 @@
     "test:fast": "pnpm --filter @financial-analysis/analysis run test:fast && pnpm --filter \"!@financial-analysis/analysis\" run test",
     "test:slow": "pnpm --filter @financial-analysis/analysis run test:slow",
     "test:flaky": "pnpm --recursive --sort --workspace-concurrency=1 run test -- --retry=3 --grep @flaky",
+    "test:chat:integration:api": "pnpm --filter @financial-analysis/api run test:chat:integration",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive exec prettier --check .",
