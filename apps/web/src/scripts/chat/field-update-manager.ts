@@ -11,6 +11,7 @@ type FieldUpdateCallbacks = {
   updateField(fieldId: string, value: string): { success: boolean; previousValue?: string };
   captureOutputs(): SerializedContext | null;
   getFieldDisplayName(fieldId: string): string;
+  requestRecalculation(): boolean;
 };
 
 export class FieldUpdateManager {
@@ -52,8 +53,11 @@ export class FieldUpdateManager {
       summarySections.push(resultsSummary);
     }
 
+    const recalculationTriggered = this.callbacks.requestRecalculation();
     summarySections.push(
-      'Re-run the calculation whenever you\'d like me to refresh the analysis with these values.'
+      recalculationTriggered
+        ? 'I’m recalculating now so the refreshed result lands in the results rail.'
+        : 'I updated the field, but this page did not expose a calculator form to re-run automatically.'
     );
 
     return summarySections.join('\n\n');
@@ -272,4 +276,3 @@ export class FieldUpdateManager {
     return cleaned.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }
-

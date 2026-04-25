@@ -175,39 +175,3 @@ export async function verifyFieldUpdate(
   return value === expectedValue || value.includes(expectedValue);
 }
 
-/**
- * List of all major pages to test
- */
-export const TEST_PAGES = [
-  // Home and main pages
-  { path: '/', name: 'Home', type: 'home' },
-  { path: '/models', name: 'Models', type: 'models' },
-  { path: '/calculators', name: 'Calculators', type: 'list' },
-  
-  // Calculator pages
-  { path: '/amortization', name: 'Amortization', type: 'calculator' },
-  { path: '/ebitda-forecasting', name: 'EBITDA Forecasting', type: 'calculator' },
-  { path: '/lease-analysis', name: 'Lease Analysis', type: 'calculator' },
-  { path: '/calculator/pricing-strategy', name: 'Pricing Strategy', type: 'calculator' },
-  { path: '/calculator/auto-loan', name: 'Auto Loan', type: 'calculator' },
-  { path: '/calculator/retirement', name: 'Retirement', type: 'calculator' },
-  { path: '/calculator/savings-goal', name: 'Savings Goal', type: 'calculator' },
-  { path: '/calculator/debt-payoff', name: 'Debt Payoff', type: 'calculator' },
-  { path: '/calculator/student-loans', name: 'Student Loans', type: 'calculator' },
-  { path: '/calculator/budget', name: 'Budget', type: 'calculator' },
-  
-  // Journey pages
-  { path: '/journey/startup-planning', name: 'Startup Planning', type: 'journey' },
-  { path: '/journey/home-buying', name: 'Home Buying', type: 'journey' },
-  { path: '/journey/young-professional', name: 'Young Professional', type: 'journey' },
-  { path: '/journey/family-planning', name: 'Family Planning', type: 'journey' },
-  { path: '/journey/business-growth', name: 'Business Growth', type: 'journey' },
-  
-  // Journey step pages
-  { path: '/journey/home-buying/step/financial-snapshot', name: 'Financial Snapshot', type: 'journey-step' },
-  { path: '/journey/home-buying/step/goal-planning', name: 'Goal Planning', type: 'journey-step' },
-  { path: '/journey/young-professional/step/financial-snapshot', name: 'Financial Snapshot', type: 'journey-step' },
-  { path: '/journey/startup-planning/step/initial-capital-investment', name: 'Initial Capital Investment', type: 'journey-step' },
-  { path: '/journey/startup-planning/step/startup-budget', name: 'Startup Budget', type: 'journey-step' },
-] as const;
-

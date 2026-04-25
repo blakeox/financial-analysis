@@ -4,26 +4,26 @@ import Layout from '../layouts/Layout.astro';
 
 const title = 'Fanalyx Agent | Cloudflare Project Think';
 const description =
-  'Use the Fanalyx Project Think agent for persistent financial conversations backed by deterministic amortization and lease analysis tools.';
+  'Use the Fanalyx Project Think agent as a persistent workspace for longer-running financial conversations backed by deterministic amortization and lease analysis tools.';
 const keywords =
   'cloudflare agents, project think, financial analysis agent, amortization agent, lease analysis agent';
 ---
 
-<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
+<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} showChat={false}>
   <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
     <div class="mb-8 max-w-3xl">
       <p
         class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300"
       >
-        Agents Week update
+        Advanced workspace
       </p>
       <h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-        Persistent financial chat, now on Cloudflare Project Think
+        Persistent financial workspace for ongoing analysis
       </h1>
       <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
-        This is the new Fanalyx agent runtime. It keeps its own Cloudflare Durable Object-backed
-        session, uses deterministic finance tools for calculations, and sits alongside the legacy
-        enhanced chat without replacing it.
+        Use this when you want a longer-running thread that survives page reloads. For calculator
+        work, Fanalyx now keeps guidance alongside the result so most users can stay inside the
+        model page instead of bouncing to a separate chat surface.
       </p>
     </div>
 

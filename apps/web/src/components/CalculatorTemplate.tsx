@@ -50,6 +50,7 @@ export interface FormFieldConfig {
   helpText?: string;
   advancedOnly?: boolean; // If true, field is hidden in Basic mode
   default?: string | number | boolean;
+  assistantAliases?: string[];
 }
 
 // Predefined calculator configurations - only including calculators with existing client scripts
@@ -97,6 +98,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         step: 0.01,
         required: true,
+        assistantAliases: ['loan amount', 'amount', 'principal', 'mortgage amount'],
       },
       {
         id: 'annualRate',
@@ -107,6 +109,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 50,
         step: 0.01,
         required: true,
+        assistantAliases: ['interest', 'interest rate', 'rate', 'apr'],
       },
       {
         id: 'termMonths',
@@ -117,6 +120,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 600,
         required: true,
         helpText: 'Common: 360 (30yr), 180 (15yr), 60 (5yr)',
+        assistantAliases: ['term', 'loan term', 'mortgage term'],
       },
       {
         id: 'extraPayment',
@@ -125,6 +129,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Extra Monthly Payment ($) (Optional)',
         min: 0,
         step: 0.01,
+        assistantAliases: ['extra payment', 'extra', 'extra monthly payment'],
       },
     ],
     clientScript: 'amortization',
@@ -176,6 +181,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         step: 0.01,
         required: true,
+        assistantAliases: ['price', 'car price', 'vehicle price', 'purchase price'],
       },
       {
         id: 'downPayment',
@@ -184,6 +190,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Down Payment',
         min: 0,
         step: 0.01,
+        assistantAliases: ['down payment', 'cash down'],
       },
       {
         id: 'interestRate',
@@ -194,6 +201,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 30,
         step: 0.01,
         required: true,
+        assistantAliases: ['interest', 'interest rate', 'rate', 'apr'],
       },
       {
         id: 'loanTerm',
@@ -201,6 +209,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         type: 'select',
         label: 'Loan Term (months)',
         required: true,
+        assistantAliases: ['term', 'loan term', 'months'],
         options: [
           { value: '12', label: '12 months (1 year)' },
           { value: '24', label: '24 months (2 years)' },
@@ -261,6 +270,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 18,
         max: 100,
         required: true,
+        assistantAliases: ['current age', 'age'],
       },
       {
         id: 'retirementAge',
@@ -270,6 +280,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 50,
         max: 100,
         required: true,
+        assistantAliases: ['retirement age', 'retire at'],
       },
       {
         id: 'annualIncome',
@@ -279,6 +290,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         step: 0.01,
         required: true,
+        assistantAliases: ['income', 'annual income', 'salary'],
       },
       {
         id: 'returnRate',
@@ -289,6 +301,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 20,
         step: 0.1,
         required: true,
+        assistantAliases: ['return rate', 'growth rate', 'rate of return'],
       },
     ],
     clientScript: 'retirement',
@@ -340,6 +353,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         step: 0.01,
         required: true,
+        assistantAliases: ['goal', 'goal amount', 'target'],
       },
       {
         id: 'currentSavings',
@@ -348,6 +362,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Current Savings ($)',
         min: 0,
         step: 0.01,
+        assistantAliases: ['current savings', 'starting savings', 'savings'],
       },
       {
         id: 'targetDate',
@@ -358,6 +373,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 50,
         step: 0.1,
         required: true,
+        assistantAliases: ['target date', 'timeframe', 'years', 'timeline'],
       },
       {
         id: 'interestRate',
@@ -368,6 +384,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 20,
         step: 0.1,
         required: true,
+        assistantAliases: ['interest', 'interest rate', 'rate'],
       },
       {
         id: 'inflationRate',
@@ -377,6 +394,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         max: 10,
         step: 0.1,
+        assistantAliases: ['inflation', 'inflation rate'],
       },
     ],
     clientScript: 'savings-goal',
@@ -497,6 +515,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         min: 0,
         step: 0.01,
         required: true,
+        assistantAliases: ['loan balance', 'balance', 'student loan balance'],
       },
       {
         id: 'interestRate',
@@ -507,6 +526,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         max: 20,
         step: 0.01,
         required: true,
+        assistantAliases: ['interest', 'interest rate', 'rate'],
       },
       {
         id: 'annualIncome',
@@ -515,6 +535,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Annual Income ($)',
         min: 0,
         step: 0.01,
+        assistantAliases: ['income', 'annual income', 'salary'],
       },
       {
         id: 'familySize',
@@ -523,6 +544,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         label: 'Family Size',
         min: 1,
         max: 20,
+        assistantAliases: ['family size', 'household size'],
       },
       {
         id: 'repaymentPlan',
@@ -530,6 +552,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         type: 'select',
         label: 'Repayment Plan',
         required: true,
+        assistantAliases: ['plan', 'repayment plan'],
         options: [
           { value: 'standard', label: 'Standard (10 years)' },
           { value: 'extended', label: 'Extended (25 years)' },
@@ -811,7 +834,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
     breadcrumbs: [
       { name: 'Home', href: '/' },
       { name: 'Models', href: '/models' },
-      { name: 'M&A Analysis', href: '/ma-analysis' },
+      { name: 'M&A Analysis', href: '/calculator/ma-analysis' },
     ],
     formFields: [
       {
@@ -2958,6 +2981,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 0.01,
         required: true,
         helpText: 'Your total cost to produce one unit',
+        assistantAliases: ['cost', 'cost per unit', 'unit cost'],
       },
       {
         id: 'targetMargin',
@@ -2970,6 +2994,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 1,
         required: true,
         helpText: 'Desired profit margin for cost-plus pricing',
+        assistantAliases: ['margin', 'target margin', 'profit margin'],
       },
       {
         id: 'marketPrice',
@@ -2981,6 +3006,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 0.01,
         required: true,
         helpText: 'What competitors charge for similar products',
+        assistantAliases: ['competitor price', 'market price', 'price'],
       },
       {
         id: 'valueToCustomer',
@@ -2992,6 +3018,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 0.01,
         required: true,
         helpText: 'Economic value your product creates for customers',
+        assistantAliases: ['value to customer', 'customer value'],
       },
       {
         id: 'unitsSoldMonthly',
@@ -3003,6 +3030,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 1,
         required: true,
         helpText: 'Current or expected monthly sales volume',
+        assistantAliases: ['units sold', 'units sold monthly', 'units', 'monthly volume'],
       },
       {
         id: 'priceElasticity',
@@ -3015,6 +3043,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         step: 0.1,
         required: true,
         helpText: '% demand change per % price change (1.0 = elastic, 0.5 = inelastic)',
+        assistantAliases: ['elasticity', 'price elasticity'],
       },
     ],
     clientScript: 'pricing-strategy',

@@ -3,6 +3,8 @@
  * Maps calculator IDs to context information including examples and field mappings
  */
 
+import { CALCULATOR_CONFIGS, type FormFieldConfig } from '../../components/CalculatorTemplate';
+
 export type CalculatorContextKey =
   | 'amortization'
   | 'auto-loan'
@@ -43,6 +45,45 @@ export interface CalculatorContext {
   fieldMappings?: Record<string, string>; // Maps user-friendly names to form field IDs
 }
 
+function normalizeFieldAlias(alias: string): string {
+  return alias
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/[%$]/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function buildFieldMappingsFromConfig(calculatorId: string): Record<string, string> | undefined {
+  const config = CALCULATOR_CONFIGS[calculatorId];
+  if (!config) {
+    return undefined;
+  }
+
+  const mappings: Record<string, string> = {};
+
+  const aliasesForField = (field: FormFieldConfig): string[] => {
+    const aliases = new Set<string>([
+      field.id,
+      field.name,
+      field.label,
+      ...(field.assistantAliases ?? []),
+    ]);
+
+    return Array.from(aliases)
+      .map((alias) => normalizeFieldAlias(alias))
+      .filter(Boolean);
+  };
+
+  for (const field of config.formFields) {
+    for (const alias of aliasesForField(field)) {
+      mappings[alias] = field.id;
+    }
+  }
+
+  return Object.keys(mappings).length > 0 ? mappings : undefined;
+}
+
 /**
  * Calculator context definitions with AI assistant examples
  */
@@ -57,15 +98,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Show a 20-year term',
       'What if I put 20% down?',
     ],
-    fieldMappings: {
-      'interest': 'interest-rate',
-      'interest rate': 'interest-rate',
-      'rate': 'interest-rate',
-      'term': 'loan-term',
-      'loan amount': 'loan-amount',
-      'amount': 'loan-amount',
-      'down payment': 'down-payment',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('amortization'),
   },
   
   'auto-loan': {
@@ -77,14 +110,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Change interest to 3.9%',
       'What if trade-in is $10,000?',
     ],
-    fieldMappings: {
-      'price': 'vehicle-price',
-      'car price': 'vehicle-price',
-      'interest': 'interest-rate',
-      'term': 'loan-term',
-      'down payment': 'down-payment',
-      'trade-in': 'trade-in-value',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('auto-loan'),
   },
   
   'retirement': {
@@ -96,12 +122,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Change retirement age to 65',
       'What if I save $500 monthly?',
     ],
-    fieldMappings: {
-      'current age': 'current-age',
-      'retirement age': 'retirement-age',
-      'monthly savings': 'monthly-contribution',
-      'current savings': 'current-balance',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('retirement'),
   },
   
   'savings-goal': {
@@ -113,12 +134,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Change timeframe to 5 years',
       'What if I save $800 monthly?',
     ],
-    fieldMappings: {
-      'goal': 'savings-goal',
-      'target': 'savings-goal',
-      'monthly': 'monthly-contribution',
-      'timeframe': 'target-years',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('savings-goal'),
   },
   
   'debt-payoff': {
@@ -141,11 +157,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Change interest to 5.5%',
       'Compare standard vs income-driven plans',
     ],
-    fieldMappings: {
-      'balance': 'loan-balance',
-      'interest': 'interest-rate',
-      'income': 'annual-income',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('student-loans'),
   },
   
   'budget': {
@@ -248,18 +260,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Change cost per unit to $30',
       'What if competitor price is $75?',
     ],
-    fieldMappings: {
-      'margin': 'targetMargin',
-      'target margin': 'targetMargin',
-      'cost': 'costPerUnit',
-      'cost per unit': 'costPerUnit',
-      'competitor price': 'marketPrice',
-      'market price': 'marketPrice',
-      'units sold': 'unitsSoldMonthly',
-      'units': 'unitsSoldMonthly',
-      'elasticity': 'priceElasticity',
-      'price elasticity': 'priceElasticity',
-    },
+    fieldMappings: buildFieldMappingsFromConfig('pricing-strategy'),
   },
   
   'ebitda': {
@@ -561,12 +562,16 @@ export function parseFieldUpdate(message: string, context: CalculatorContextKey)
   for (const pattern of patterns) {
     const match = message.match(pattern);
     if (match) {
-      const fieldName = match[1].trim().toLowerCase();
+      const fieldName = normalizeFieldAlias(match[1]);
       const value = match[2].trim();
       
-      // Find matching field ID
-      for (const [friendlyName, fieldId] of Object.entries(contextDef.fieldMappings)) {
-        if (fieldName.includes(friendlyName.toLowerCase())) {
+      // Prefer the most specific alias when several match the same phrase.
+      const sortedMappings = Object.entries(contextDef.fieldMappings).sort(
+        ([left], [right]) => normalizeFieldAlias(right).length - normalizeFieldAlias(left).length
+      );
+
+      for (const [friendlyName, fieldId] of sortedMappings) {
+        if (fieldName.includes(normalizeFieldAlias(friendlyName))) {
           return {
             field: fieldId,
             value: value,

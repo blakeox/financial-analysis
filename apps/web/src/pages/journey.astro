@@ -37,7 +37,7 @@ const faqSchema = {
       "name": "Can I customize scenarios or skip certain models?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes! Each scenario includes both required and optional models. Required models are essential for the scenario's success, while optional models provide additional insights. You can complete models in any order and revisit them as needed. The chatbot will guide you through the optimal sequence."
+        "text": "Yes! Each scenario includes both required and optional models. Required models are essential for the scenario's success, while optional models provide additional insights. You can complete models in any order and revisit them as needed. Each step shows the recommended sequence and the next useful analysis to run."
       }
     },
     {
@@ -45,7 +45,7 @@ const faqSchema = {
       "name": "How long does a complete scenario analysis take?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Scenario duration varies by complexity: Personal finance scenarios (2-4 hours), Business finance scenarios (2-5 hours). You can complete scenarios over multiple sessions - your progress is automatically saved and the chatbot remembers where you left off."
+        "text": "Scenario duration varies by complexity: Personal finance scenarios (2-4 hours), Business finance scenarios (2-5 hours). You can complete scenarios over multiple sessions, and your progress is saved so you can return where you left off."
       }
     }
   ]
@@ -53,7 +53,7 @@ const faqSchema = {
 
 ---
 
-<Layout title="Multi-Model Financial Analysis" description="Comprehensive personal and business financial planning scenarios combining multiple analysis tools for complete financial insights" keywords="financial planning, multi-model analysis, personal finance scenarios, business finance scenarios, financial journey, financial roadmap" canonical={Astro.url.href}>
+<Layout title="Multi-Model Financial Analysis" description="Comprehensive personal and business financial planning scenarios combining multiple analysis tools for complete financial insights" keywords="financial planning, multi-model analysis, personal finance scenarios, business finance scenarios, financial journey, financial roadmap" canonical={Astro.url.href} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
   <div class="container mx-auto px-4 py-8">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
@@ -90,8 +90,7 @@ const faqSchema = {
           Comprehensive financial planning scenarios that combine multiple analysis tools for complete insights
         </p>
         <p class="text-gray-500 dark:text-gray-500 max-w-3xl mx-auto">
-          Choose a scenario that matches your life stage and financial goals. Each scenario guides you through a sequence of related analyses, 
-          with our AI chatbot providing personalized recommendations and insights throughout your journey.
+          Choose a scenario that matches your life stage and financial goals. Each scenario guides you through a sequence of related analyses and shows the next model to run at each stage.
         </p>
       </div>
 
@@ -466,7 +465,7 @@ const faqSchema = {
               <span class="text-2xl">2️⃣</span>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Complete Analysis Models</h3>
-            <p class="text-gray-600 dark:text-gray-400">Work through each analysis model in the recommended sequence. Our AI chatbot provides personalized guidance and insights throughout.</p>
+            <p class="text-gray-600 dark:text-gray-400">Work through each analysis model in the recommended sequence, then review the takeaways attached to each completed step.</p>
           </div>
           <div class="text-center">
             <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">

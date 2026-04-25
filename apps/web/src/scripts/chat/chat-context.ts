@@ -40,6 +40,7 @@ export function publishChatContext(
   const win = window as Window & {
     updateChatContext?: (label: string | null, data: unknown) => void;
     __chatContextBridge__?: (label: string | null, data: unknown) => void;
+    __legacyChatContextEventBridgeInstalled__?: boolean;
   };
 
   const legacyUpdater = win.updateChatContext;
@@ -75,6 +76,7 @@ export function installChatContextBridge(): void {
   const win = window as Window & {
     updateChatContext?: (label: string | null, data: unknown) => void;
     __chatContextBridge__?: (label: string | null, data: unknown) => void;
+    __legacyChatContextEventBridgeInstalled__?: boolean;
   };
 
   const bridge = (label: string | null, data: unknown) => {
@@ -85,11 +87,39 @@ export function installChatContextBridge(): void {
 
   // Avoid overriding if the bridge is already installed
   if (win.updateChatContext === bridge) {
-    return;
+    if (win.__legacyChatContextEventBridgeInstalled__) {
+      return;
+    }
   }
 
   win.updateChatContext = bridge;
   win.__chatContextBridge__ = bridge;
+
+  if (!win.__legacyChatContextEventBridgeInstalled__) {
+    window.addEventListener('chat-context-update', (event: Event) => {
+      if (!(event instanceof CustomEvent)) {
+        return;
+      }
+
+      const detail = event.detail as
+        | {
+            context?: string | null;
+            contextKey?: string | null;
+            label?: string | null;
+            contextLabel?: string | null;
+            data?: SerializedContext | null;
+            contextData?: SerializedContext | null;
+          }
+        | undefined;
+
+      const contextKey = detail?.contextKey ?? detail?.context ?? null;
+      const label = detail?.label ?? detail?.contextLabel ?? null;
+      const data = detail?.data ?? detail?.contextData ?? null;
+
+      publishChatContext(contextKey, label, data, 'legacy');
+    });
+    win.__legacyChatContextEventBridgeInstalled__ = true;
+  }
 }
 
 export { CHAT_CONTEXT_EVENT };

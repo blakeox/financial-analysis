@@ -293,7 +293,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set interest rate to 4.5"', () => {
       const result = parseFieldUpdate('Set interest rate to 4.5', context);
       expect(result).not.toBeNull();
-      expect(result?.field).toBe('interest-rate');
+      expect(result?.field).toBe('annualRate');
       expect(result?.value).toBe('4.5');
       expect(result?.fieldLabel).toMatch(/interest|rate/i);
     });
@@ -301,7 +301,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Change rate to 5.5%"', () => {
       const result = parseFieldUpdate('Change rate to 5.5%', context);
       expect(result).toEqual({
-        field: 'interest-rate',
+        field: 'annualRate',
         value: '5.5%',
         fieldLabel: 'rate',
       });
@@ -310,7 +310,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set loan amount to 350000"', () => {
       const result = parseFieldUpdate('Set loan amount to 350000', context);
       expect(result).toEqual({
-        field: 'loan-amount',
+        field: 'principal',
         value: '350000',
         fieldLabel: 'loan amount',
       });
@@ -319,7 +319,7 @@ describe('Field Update Parsing', () => {
     it('should parse "What if term was 20"', () => {
       const result = parseFieldUpdate('What if term was 20', context);
       expect(result).toEqual({
-        field: 'loan-term',
+        field: 'termMonths',
         value: '20',
         fieldLabel: 'term',
       });
@@ -332,7 +332,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set car price to 35000"', () => {
       const result = parseFieldUpdate('Set car price to 35000', context);
       expect(result).not.toBeNull();
-      expect(result?.field).toBe('vehicle-price');
+      expect(result?.field).toBe('vehiclePrice');
       expect(result?.value).toBe('35000');
       expect(result?.fieldLabel).toMatch(/price/i);
     });
@@ -340,19 +340,15 @@ describe('Field Update Parsing', () => {
     it('should parse "Change interest to 3.9"', () => {
       const result = parseFieldUpdate('Change interest to 3.9', context);
       expect(result).toEqual({
-        field: 'interest-rate',
+        field: 'interestRate',
         value: '3.9',
         fieldLabel: 'interest',
       });
     });
 
-    it('should parse "Set trade-in to 10000"', () => {
+    it('should return null for "Set trade-in to 10000" when no matching field exists', () => {
       const result = parseFieldUpdate('Set trade-in to 10000', context);
-      expect(result).toEqual({
-        field: 'trade-in-value',
-        value: '10000',
-        fieldLabel: 'trade-in',
-      });
+      expect(result).toBeNull();
     });
   });
 
@@ -362,7 +358,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set current age to 30"', () => {
       const result = parseFieldUpdate('Set current age to 30', context);
       expect(result).toEqual({
-        field: 'current-age',
+        field: 'currentAge',
         value: '30',
         fieldLabel: 'current age',
       });
@@ -371,19 +367,15 @@ describe('Field Update Parsing', () => {
     it('should parse "Change retirement age to 65"', () => {
       const result = parseFieldUpdate('Change retirement age to 65', context);
       expect(result).toEqual({
-        field: 'retirement-age',
+        field: 'retirementAge',
         value: '65',
         fieldLabel: 'retirement age',
       });
     });
 
-    it('should parse "Set monthly savings to 500"', () => {
+    it('should return null for "Set monthly savings to 500" when no matching field exists', () => {
       const result = parseFieldUpdate('Set monthly savings to 500', context);
-      expect(result).toEqual({
-        field: 'monthly-contribution',
-        value: '500',
-        fieldLabel: 'monthly savings',
-      });
+      expect(result).toBeNull();
     });
   });
 
@@ -393,7 +385,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set balance to 45000"', () => {
       const result = parseFieldUpdate('Set balance to 45000', context);
       expect(result).toEqual({
-        field: 'loan-balance',
+        field: 'loanBalance',
         value: '45000',
         fieldLabel: 'balance',
       });
@@ -402,7 +394,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Change interest to 5.5"', () => {
       const result = parseFieldUpdate('Change interest to 5.5', context);
       expect(result).toEqual({
-        field: 'interest-rate',
+        field: 'interestRate',
         value: '5.5',
         fieldLabel: 'interest',
       });
@@ -411,7 +403,7 @@ describe('Field Update Parsing', () => {
     it('should parse "Set income to 50000"', () => {
       const result = parseFieldUpdate('Set income to 50000', context);
       expect(result).toEqual({
-        field: 'annual-income',
+        field: 'annualIncome',
         value: '50000',
         fieldLabel: 'income',
       });
@@ -543,9 +535,8 @@ describe('Calculator Context Completeness', () => {
       const amortization = CALCULATOR_CONTEXTS['amortization'];
       const fieldMappings = getFieldMappings(amortization);
       expect(Object.keys(fieldMappings).length).toBeGreaterThanOrEqual(4);
-      expect(fieldMappings['interest rate']).toBe('interest-rate');
-      expect(fieldMappings['loan amount']).toBe('loan-amount');
+      expect(fieldMappings['interest rate']).toBe('annualRate');
+      expect(fieldMappings['loan amount']).toBe('principal');
     });
   });
 });
-
