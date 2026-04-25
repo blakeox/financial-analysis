@@ -18,7 +18,7 @@ import {
   formatPercent as formatPercentDecimal,
   formatMonths,
 } from '../utils/calculator-utilities';
-import type { AmortizationComprehensiveAnalysis } from './amortization.client';
+import type { AmortizationComprehensiveAnalysis } from './calculators/amortization.client';
 
 type AnalysisChatContext = {
   summary?: string;
@@ -370,4 +370,3 @@ declare global {
     amortizationAnalysisData?: AmortizationComprehensiveAnalysis;
   }
 }
-

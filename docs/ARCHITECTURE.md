@@ -38,7 +38,7 @@ docs              # Documentation (API, Architecture, etc.)
 
 ## Testing workflows
 
-- Smoke suite: `pnpm run test:smoke` runs a fast API subset.
+- Smoke suite: `pnpm run test:smoke` runs a fast API subset covering health/version handlers plus OpenAPI generation, contract, and snapshot checks.
 - Flaky suite: tag tests with "@flaky" and run `pnpm run test:flaky`.
 - OpenAPI snapshot: `node scripts/generate-openapi-snapshot.mjs` updates the approved snapshot.
 - Mutation testing (analysis): `pnpm --filter @financial-analysis/analysis run test:mutation`.

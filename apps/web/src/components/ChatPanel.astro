@@ -1,36 +1,47 @@
 ---
-// Chat panel script will be loaded inline to ensure proper initialization
+export interface Props {
+  variant?: 'global' | 'embedded';
+}
+
+const { variant = 'global' } = Astro.props as Props;
+const isEmbedded = variant === 'embedded';
 ---
 
 <!-- VS Code-style chat panel component for contextual model assistance -->
 <div
   id="chat-panel"
   class="chat-panel"
-  role="dialog"
-  aria-modal="true"
+  data-chat-variant={variant}
+  role={isEmbedded ? 'region' : 'dialog'}
+  aria-modal={isEmbedded ? undefined : 'true'}
   aria-labelledby="chat-panel-title"
-  aria-hidden="true"
+  aria-hidden={isEmbedded ? 'false' : 'true'}
 >
   <div class="chat-header">
     <div class="chat-title" id="chat-panel-title">
-      <span>AI Assistant</span>
+      <span>{isEmbedded ? 'Guided analysis' : 'Site guide'}</span>
       <span class="context-indicator" id="context-indicator"></span>
     </div>
-    <button id="chat-close" class="chat-close" type="button" aria-label="Close chat panel">
-      <svg width="16" height="16" viewBox="0 0 16 16">
-        <path fill="currentColor" d="m8.746 8 3.1-3.1a.527.527 0 1 0-.746-.746L8 7.254l-3.1-3.1a.527.527 0 1 0-.746.746l3.1 3.1-3.1 3.1a.527.527 0 1 0 .746.746l3.1-3.1 3.1 3.1a.527.527 0 1 0 .746-.746L8.746 8Z"/>
-      </svg>
-      <span class="sr-only">Close chat</span>
-    </button>
+    {!isEmbedded && (
+      <button id="chat-close" class="chat-close" type="button" aria-label="Close chat panel">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <path fill="currentColor" d="m8.746 8 3.1-3.1a.527.527 0 1 0-.746-.746L8 7.254l-3.1-3.1a.527.527 0 0 0-.746.746l3.1 3.1-3.1 3.1a.527.527 0 1 0 .746.746l3.1-3.1 3.1 3.1a.527.527 0 1 0 .746-.746L8.746 8Z"/>
+        </svg>
+        <span class="sr-only">Close chat</span>
+      </button>
+    )}
   </div>
+
+  <div id="assistant-status" class="assistant-status hidden" aria-live="polite"></div>
   
   <div class="chat-content">
     <div id="chat-messages" class="chat-messages">
       <div class="system-message">
-        <p>Hi — I can help with loans, savings, and quick financial analyses.</p>
+        <p>{isEmbedded ? 'Calculate once, then ask me to explain the result, compare scenarios, or update the form in plain English.' : 'Hi — I can explain this page, point you to the right workflow, and answer questions about the tools available here.'}</p>
         <ul>
-          <li>"Set interest to 4.5%"</li>
-          <li>"Show a 20-year amortization"</li>
+          <li>{isEmbedded ? '"What changed my payment the most?"' : '"Which model should I start with for this goal?"'}</li>
+          <li>{isEmbedded ? '"Compare this with a 20-year term"' : '"What does this page help me do?"'}</li>
+          <li>{isEmbedded ? '"Raise the loan amount to $400,000"' : '"Where should I go for a lease or amortization analysis?"'}</li>
         </ul>
       </div>
     </div>
@@ -43,13 +54,13 @@
         <span class="thinking-text">AI is thinking...</span>
       </div>
       <form id="chat-form" class="chat-input-wrapper">
-        <textarea 
-          id="chat-input" 
-          class="chat-input" 
-          placeholder="Ask about the current model..."
-          rows="1"
-          maxlength="2000"
-          aria-label="Chat message input"
+          <textarea 
+            id="chat-input" 
+            class="chat-input" 
+            placeholder={isEmbedded ? 'After you calculate, ask what changed, compare scenarios, or update fields in plain English...' : 'Ask about this page, workflow, or available tools...'}
+            rows="1"
+            maxlength="2000"
+            aria-label="Chat message input"
           aria-describedby="chat-char-counter"
         ></textarea>
         <div class="input-controls">
@@ -72,23 +83,25 @@
   </div>
 </div>
 
-<button
-  id="chat-toggle"
-  class="chat-toggle"
-  type="button"
-  title="Open AI Assistant"
-  aria-label="Open AI assistant"
-  aria-controls="chat-panel"
-  aria-expanded="false"
->
-  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path
-      fill="currentColor"
-      d="M5 4c-1.657 0-3 1.343-3 3v6c0 1.657 1.343 3 3 3h2.382a1 1 0 01.707.293l2.828 2.828A1 1 0 0012 18.828V17h7c1.657 0 3-1.343 3-3V7c0-1.657-1.343-3-3-3H5zm0 2h14a1 1 0 011 1v7a1 1 0 01-1 1H11a1 1 0 00-1 1v1.586l-1.414-1.414A1 1 0 008.172 14H5a1 1 0 01-1-1V7a1 1 0 011-1zm2 3a1 1 0 000 2h8a1 1 0 000-2H7zm0 3a1 1 0 000 2h5a1 1 0 000-2H7z"
-    />
-  </svg>
-  <span class="sr-only">Toggle AI assistant</span>
-</button>
+{!isEmbedded && (
+  <button
+    id="chat-toggle"
+    class="chat-toggle"
+    type="button"
+    title="Open site guide"
+    aria-label="Open site guide"
+    aria-controls="chat-panel"
+    aria-expanded="false"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M5 4c-1.657 0-3 1.343-3 3v6c0 1.657 1.343 3 3 3h2.382a1 1 0 01.707.293l2.828 2.828A1 1 0 0012 18.828V17h7c1.657 0 3-1.343 3-3V7c0-1.657-1.343-3-3-3H5zm0 2h14a1 1 0 011 1v7a1 1 0 01-1 1H11a1 1 0 00-1 1v1.586l-1.414-1.414A1 1 0 008.172 14H5a1 1 0 01-1-1V7a1 1 0 011-1zm2 3a1 1 0 000 2h8a1 1 0 000-2H7zm0 3a1 1 0 000 2h5a1 1 0 000-2H7z"
+      />
+    </svg>
+    <span class="sr-only">Toggle site guide</span>
+  </button>
+)}
 
 <style>
   .sr-only {
@@ -131,6 +144,29 @@
     pointer-events: auto;
     visibility: visible;
   }
+
+  .chat-panel[data-chat-variant='embedded'] {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-height: 32rem;
+    background: #fff;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 1.5rem;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+    transform: none;
+    pointer-events: auto;
+    visibility: visible;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', Arial, sans-serif;
+    font-size: 14px;
+    z-index: auto;
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] {
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+    box-shadow: none;
+  }
   
   .chat-header {
     padding: 12px 16px;
@@ -140,6 +176,16 @@
     align-items: center;
     justify-content: space-between;
   }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-header {
+    padding: 18px 20px 14px;
+    background: transparent;
+    border-bottom: 1px solid rgb(226 232 240);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .chat-header {
+    border-bottom-color: rgb(51 65 85);
+  }
   
   .chat-title {
     display: flex;
@@ -147,6 +193,15 @@
     gap: 8px;
     color: var(--vscode-sideBarTitle-foreground, #cccccc);
     font-weight: 600;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-title {
+    color: rgb(15 23 42);
+    font-size: 0.95rem;
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .chat-title {
+    color: rgb(248 250 252);
   }
   
   .chat-icon {
@@ -160,6 +215,16 @@
     border-radius: 10px;
     font-size: 11px;
     font-weight: normal;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .context-indicator {
+    background: rgb(219 234 254);
+    color: rgb(30 64 175);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .context-indicator {
+    background: rgb(30 41 59);
+    color: rgb(191 219 254);
   }
   
   .chat-close {
@@ -184,6 +249,40 @@
     min-height: 0;
     overflow: hidden;
   }
+
+  .assistant-status {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--vscode-sideBar-border, #333);
+    background: var(--vscode-editorWidget-background, #252526);
+    color: var(--vscode-editor-foreground, #d4d4d4);
+  }
+
+  .assistant-status.is-info {
+    border-left: 3px solid #3b82f6;
+  }
+
+  .assistant-status.is-success {
+    border-left: 3px solid #16a34a;
+  }
+
+  .assistant-status.is-error {
+    border-left: 3px solid #dc2626;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .assistant-status {
+    padding: 10px 20px;
+    border-bottom-color: rgb(226 232 240);
+    background: rgb(248 250 252);
+    color: rgb(51 65 85);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .assistant-status {
+    border-bottom-color: rgb(51 65 85);
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+  }
   
   .chat-messages {
     flex: 1;
@@ -191,6 +290,10 @@
     overflow-x: hidden;
     padding: 16px;
     min-height: 0;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-messages {
+    padding: 20px;
   }
   
   .system-message {
@@ -200,6 +303,84 @@
     padding: 12px;
     margin-bottom: 16px;
     color: var(--vscode-editor-foreground, #d4d4d4);
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .system-message {
+    background: rgb(248 250 252);
+    border-color: rgb(226 232 240);
+    border-radius: 1rem;
+    color: rgb(30 41 59);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .system-message {
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+    color: rgb(226 232 240);
+  }
+
+  .system-message p {
+    margin: 0 0 0.75rem;
+  }
+
+  .system-message ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .system-message li + li {
+    margin-top: 0.35rem;
+  }
+
+  .suggested-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  .suggested-prompt {
+    border: 1px solid rgb(191 219 254);
+    background: rgb(239 246 255);
+    color: rgb(30 64 175);
+    border-radius: 9999px;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .suggested-prompt:hover {
+    background: rgb(219 234 254);
+    border-color: rgb(147 197 253);
+    transform: translateY(-1px);
+  }
+
+  .suggested-prompt:focus-visible {
+    outline: 2px solid rgb(37 99 235);
+    outline-offset: 2px;
+  }
+
+  .suggested-prompt[data-kind='primary'] {
+    background: linear-gradient(135deg, rgb(37 99 235), rgb(79 70 229));
+    border-color: transparent;
+    color: #fff;
+  }
+
+  .suggested-prompt[data-kind='primary']:hover {
+    background: linear-gradient(135deg, rgb(29 78 216), rgb(67 56 202));
+  }
+
+  .dark .suggested-prompt {
+    background: rgb(30 41 59);
+    border-color: rgb(51 65 85);
+    color: rgb(191 219 254);
+  }
+
+  .dark .suggested-prompt:hover {
+    background: rgb(51 65 85);
+    border-color: rgb(71 85 105);
   }
   
   .system-message p {
@@ -363,6 +544,17 @@
   .chat-input-container {
     border-top: 1px solid var(--vscode-sideBar-border, #333);
   }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-input-container {
+    border-top: 1px solid rgb(226 232 240);
+    background: rgb(255 255 255);
+    padding: 16px 20px 20px;
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .chat-input-container {
+    border-top-color: rgb(51 65 85);
+    background: rgb(15 23 42);
+  }
   
   .chat-input-wrapper {
     padding: 12px 16px;
@@ -384,6 +576,27 @@
     min-height: 20px;
     max-height: 100px;
     width: 100%;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-input {
+    background: rgb(248 250 252);
+    border-color: rgb(203 213 225);
+    border-radius: 1rem;
+    color: rgb(15 23 42);
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-input::placeholder {
+    color: rgb(100 116 139);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .chat-input {
+    background: rgb(15 23 42);
+    border-color: rgb(71 85 105);
+    color: rgb(248 250 252);
+  }
+
+  .dark .chat-panel[data-chat-variant='embedded'] .chat-input::placeholder {
+    color: rgb(148 163 184);
   }
   
   .chat-input:focus {
@@ -420,6 +633,16 @@
     align-items: center;
     transition: background 0.2s;
     flex-shrink: 0;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-send {
+    background: linear-gradient(135deg, rgb(37 99 235), rgb(79 70 229));
+    border: none;
+    color: #fff;
+  }
+
+  .chat-panel[data-chat-variant='embedded'] .chat-send:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgb(29 78 216), rgb(67 56 202));
   }
   
   .chat-send:hover:not(:disabled) {

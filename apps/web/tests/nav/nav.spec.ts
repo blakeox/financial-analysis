@@ -1,35 +1,49 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-// Basic stability test for the modern navbar staying visible after initial paint.
-// This guards against regression where nav children disappear post-hydration.
-
-test.describe('Navbar visibility', () => {
-  test('navbar persists after delay', async ({ page }) => {
+test.describe('Navbar core contracts', () => {
+  test('desktop nav exposes the primary routes and updates the active link on navigation', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto('/');
-
-    // Wait for initial network idle / layout settle
-    await page.waitForTimeout(300);
 
     const nav = page.locator('#site-nav');
     await expect(nav).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Home' }).first()).toBeVisible();
 
-    // Capture initial link text content
-    const initialLinks = await nav.locator('a').allTextContents();
-    expect(initialLinks.length).toBeGreaterThan(0);
+    const modelsLink = nav.locator('.desktop-nav a[href="/models"]');
+    await expect(modelsLink).toBeVisible();
+    await expect(modelsLink).not.toHaveAttribute('aria-current', 'page');
 
-    // Wait a bit longer to detect disappearance (existing bug scenario)
-    await page.waitForTimeout(1800);
+    await modelsLink.click();
+    await expect(page).toHaveURL(/\/models\/?$/);
 
-    await expect(nav).toBeVisible();
-    const laterLinks = await nav.locator('a').allTextContents();
-    expect(laterLinks.length).toBeGreaterThan(0);
+    const activeModelsLink = page.locator('#site-nav .desktop-nav a[href="/models"]');
+    await expect(activeModelsLink).toHaveAttribute('aria-current', 'page');
+    await expect(activeModelsLink).toBeVisible();
+  });
 
-    // Ensure at least one overlapping link label remained (not fully replaced with empty)
-    const overlap = initialLinks.filter((l) => laterLinks.includes(l));
-    expect(overlap.length).toBeGreaterThan(0);
+  test('mobile menu reveals route links and closes after choosing one', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
 
-    // Height should remain non-trivial
-    const height = await nav.evaluate((el) => (el as HTMLElement).offsetHeight);
-    expect(height).toBeGreaterThan(30);
+    const toggle = page.getByTestId('nav-mobile-toggle');
+    const panel = page.getByTestId('nav-mobile-panel');
+
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toHaveClass(/opacity-0/);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(panel).toHaveClass(/opacity-100/);
+
+    const modelsLink = panel.locator('a[data-mobile-link][href="/models"]');
+    await expect(modelsLink).toBeVisible();
+    await modelsLink.click();
+
+    await expect(page).toHaveURL(/\/models\/?$/);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toHaveClass(/opacity-0/);
   });
 });

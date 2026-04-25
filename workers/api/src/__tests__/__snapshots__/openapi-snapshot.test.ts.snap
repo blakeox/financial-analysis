@@ -1351,6 +1351,212 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
         },
       },
     },
+    "/v1/admin/knowledge/reindex": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "delaySeconds": {
+                    "maximum": 900,
+                    "minimum": 0,
+                    "type": "integer",
+                  },
+                  "paths": {
+                    "items": {
+                      "type": "string",
+                    },
+                    "maxItems": 50,
+                    "type": "array",
+                  },
+                  "warmCache": {
+                    "type": "boolean",
+                  },
+                },
+                "type": "object",
+              },
+            },
+          },
+          "description": "Queue a knowledge reindex job for AI Search and fallback cache warming.",
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "backlogCount": {
+                      "type": "number",
+                    },
+                    "pathCount": {
+                      "type": "number",
+                    },
+                    "queuedAt": {
+                      "type": "string",
+                    },
+                    "source": {
+                      "enum": [
+                        "manual",
+                      ],
+                      "type": "string",
+                    },
+                    "status": {
+                      "enum": [
+                        "enqueued",
+                      ],
+                      "type": "string",
+                    },
+                    "warmCache": {
+                      "type": "boolean",
+                    },
+                  },
+                  "required": [
+                    "status",
+                    "backlogCount",
+                    "queuedAt",
+                    "source",
+                    "warmCache",
+                    "pathCount",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Knowledge reindex job accepted for background processing",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "401": {
+            "description": "Unauthorized",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+          "503": {
+            "description": "Knowledge reindex queue not configured",
+          },
+        },
+      },
+    },
+    "/v1/admin/knowledge/status": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "aiSearch": {
+                      "properties": {
+                        "available": {
+                          "type": "boolean",
+                        },
+                        "configured": {
+                          "type": "boolean",
+                        },
+                        "error": {
+                          "type": "string",
+                        },
+                        "info": {
+                          "nullable": true,
+                        },
+                        "instanceName": {
+                          "nullable": true,
+                          "type": "string",
+                        },
+                        "recentJobs": {
+                          "items": {
+                            "nullable": true,
+                          },
+                          "type": "array",
+                        },
+                        "stats": {
+                          "nullable": true,
+                        },
+                      },
+                      "required": [
+                        "configured",
+                        "instanceName",
+                        "available",
+                        "recentJobs",
+                      ],
+                      "type": "object",
+                    },
+                    "browserRendering": {
+                      "properties": {
+                        "configured": {
+                          "type": "boolean",
+                        },
+                        "enabled": {
+                          "type": "boolean",
+                        },
+                        "pathPrefixes": {
+                          "items": {
+                            "type": "string",
+                          },
+                          "type": "array",
+                        },
+                      },
+                      "required": [
+                        "configured",
+                        "enabled",
+                        "pathPrefixes",
+                      ],
+                      "type": "object",
+                    },
+                    "queue": {
+                      "properties": {
+                        "backlogBytes": {
+                          "nullable": true,
+                          "type": "number",
+                        },
+                        "backlogCount": {
+                          "nullable": true,
+                          "type": "number",
+                        },
+                        "configured": {
+                          "type": "boolean",
+                        },
+                        "error": {
+                          "type": "string",
+                        },
+                        "oldestMessageTimestamp": {
+                          "nullable": true,
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "configured",
+                        "backlogCount",
+                        "backlogBytes",
+                        "oldestMessageTimestamp",
+                      ],
+                      "type": "object",
+                    },
+                    "timestamp": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "queue",
+                    "aiSearch",
+                    "browserRendering",
+                    "timestamp",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Current status of the Cloudflare-backed knowledge pipeline",
+          },
+          "401": {
+            "description": "Unauthorized",
+          },
+        },
+      },
+    },
     "/v1/api/analysis": {
       "get": {
         "parameters": [

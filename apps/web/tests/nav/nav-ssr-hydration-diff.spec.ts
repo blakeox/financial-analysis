@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForNavReady } from '../_shared/nav';
 
 // Compares the server-rendered nav HTML to hydrated DOM after scripts run.
 // Ensures link count, order, and text remain stable (allowing whitespace normalization).
@@ -22,8 +23,7 @@ test.describe('Navbar SSR vs Hydration diff', () => {
       return el ? el.outerHTML : '';
     });
 
-    await page.waitForLoadState('load');
-    await page.waitForTimeout(100); // small buffer
+    await waitForNavReady(page);
 
     const hydratedHtml = await page.evaluate(() => {
       const el = document.querySelector('nav');

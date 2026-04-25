@@ -9,6 +9,9 @@ import { AdvancedErrorRecovery } from '../_shared/advanced-error-recovery';
 import { EnhancedChatPanel } from '../chat/enhanced-chat-panel';
 import { PerformanceDashboard } from '../_shared/performance-dashboard';
 
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
 // Mock DOM elements with proper IDs
 const createMockElements = () => {
   // Clear any existing elements
@@ -120,6 +123,8 @@ describe('Chatbot Integration Tests', () => {
       enableMessageHistory: true,
     });
     vi.clearAllMocks();
+    consoleWarnSpy.mockImplementation(() => undefined);
+    consoleErrorSpy.mockImplementation(() => undefined);
   });
 
   afterEach(() => {

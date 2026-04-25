@@ -6,15 +6,10 @@ Improved the chat response quality test suite with better error handling, robust
 
 ## Improvements Made
 
-### 1. Fixed `test.skip()` Usage
-**Problem**: Tests were using `test.skip()` incorrectly inside test functions.
+### 1. Removed skip-on-404 route drift
+**Problem**: The old dynamic suite treated missing pages as a test-framework feature by skipping 404s.
 
-**Solution**: Updated all tests to use conditional `test.skip()` with proper conditions:
-```typescript
-const is404 = title.includes('404') || title.includes('Not Found') || 
-              (await page.locator('body').textContent())?.includes('404');
-test.skip(is404, `Page ${path} returns 404`);
-```
+**Solution**: Delete the dynamic all-pages suite and keep focused suites that assert the current product contract on supported chat surfaces.
 
 ### 2. Enhanced `sendChatMessage()` Helper
 **Improvements**:
@@ -73,23 +68,21 @@ import { ... } from './helpers/chat-test-helpers.js';
 - Proper wait conditions instead of fixed delays
 - Timeout handling with fallbacks
 
-### 404 Page Handling
-- Proper detection of 404 pages
-- Tests skip gracefully when pages don't exist
-- Clear skip messages for debugging
+### Route Handling
+- Focused suites target real, supported chat surfaces
+- Unsupported or intentionally chat-free pages are covered by explicit contract tests
+- The framework now fails on real drift instead of hiding it behind 404 skips
 
 ## Files Modified
 
-1. `apps/web/tests/chat-response-quality-all-pages.spec.ts`
-   - Fixed `test.skip()` usage throughout
-   - Improved 404 detection
-   - Better error messages
-
-2. `apps/web/tests/helpers/chat-test-helpers.ts`
+1. `apps/web/tests/helpers/chat-test-helpers.ts`
    - Enhanced `sendChatMessage()` with proper waits
    - Improved `getSystemMessage()` with fallbacks
    - Better `isHelpfulResponse()` validation
    - Added error handling throughout
+
+2. The old dynamic all-pages chat suite
+   - Removed because it encoded stale route assumptions and skip-based false confidence
 
 ## Known Issues
 
@@ -132,6 +125,5 @@ pnpm lint tests/chat-response-quality*.ts tests/helpers/chat-test-helpers.ts
 1. **More Reliable**: Better error handling prevents flaky tests
 2. **Better Debugging**: Clear skip messages and error handling
 3. **More Robust**: Proper waits instead of fixed timeouts
-4. **Easier Maintenance**: Reusable helpers with good error handling
-5. **Production Ready**: Tests are ready for CI/CD once build issues resolved
-
+4. **Easier Maintenance**: Reusable helpers with good error handling and no fake route inventory
+5. **Higher Signal**: Failures now mean contract drift, not that the suite guessed the wrong page list

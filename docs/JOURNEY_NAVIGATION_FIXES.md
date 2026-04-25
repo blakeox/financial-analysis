@@ -29,13 +29,7 @@ Standardized all journey step pages to use the correct pattern:
 - `apps/web/src/pages/journey/[scenario]/step/growth-planning.astro`
 
 ## Testing
-Created comprehensive navigation tests in `apps/web/tests/journey-navigation.spec.ts`:
-
-- Tests navigation links for all journey step pages
-- Verifies correct next/previous buttons on each step
-- Tests complete navigation flow through journeys
-- Tests back navigation functionality
-- Covers all 6 journeys and all step combinations
+The original dedicated `apps/web/tests/journey-navigation.spec.ts` lane was later removed during test-framework hardening because it had drifted from the current product. Maintained browser regression coverage now lives in `apps/web/tests/journeys/journey-e2e.spec.ts`, which protects the current `/journey` and `/journey-analysis/:scenario` route/state contracts instead of the old broad step-navigation theater.
 
 ## Affected Journeys
 
@@ -68,4 +62,3 @@ All journey pages build successfully:
 ✅ All journeys now have working navigation
 ✅ All step pages build correctly
 ✅ Navigation tests added for future regression prevention
-

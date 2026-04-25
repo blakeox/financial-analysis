@@ -49,7 +49,7 @@ const structuredData = {
 };
 ---
 
-<Layout title={`${currentScenario.name} - Financial Journey`} description={currentScenario.description} keywords={`financial journey, ${currentScenario.name.toLowerCase()}, financial planning, ${currentScenario.complexity.toLowerCase()} finance`}>
+<Layout title={`${currentScenario.name} - Financial Journey`} description={currentScenario.description} keywords={`financial journey, ${currentScenario.name.toLowerCase()}, financial planning, ${currentScenario.complexity.toLowerCase()} finance`} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <main id="main-content" class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto px-4 py-8">
@@ -160,7 +160,7 @@ const structuredData = {
         <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">💡 Pro Tip</h4>
           <p class="text-blue-800 dark:text-blue-200 text-sm">
-            Complete the required models first, then move on to optional ones. Our AI chatbot will guide you through each step and provide personalized insights based on your results.
+            Complete the required models first, then move on to optional ones. Each completed step adds result-specific takeaways so you can decide what to change next.
           </p>
         </div>
       </div>

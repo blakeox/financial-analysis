@@ -10,6 +10,9 @@ import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 
+type BusinessValuationMethod = BusinessValuationResult['methods'][number];
+type BusinessValuationAdjustment = BusinessValuationResult['adjustments'][number];
+
 /**
  * Parse form data into BusinessValuationInput
  */
@@ -116,7 +119,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
         Primary method: <strong>${result.summary.mostRelevantMethod}</strong>
       </p>
       <div class="space-y-4">
-        ${result.methods.map(method => `
+        ${result.methods.map((method: BusinessValuationMethod) => `
           <div class="border-l-4 ${method.confidence === 'high' ? 'border-green-500' : method.confidence === 'medium' ? 'border-yellow-500' : 'border-gray-400'} pl-4">
             <div class="flex justify-between items-start mb-1">
               <h5 class="font-semibold text-gray-900 dark:text-white">${method.name}</h5>
@@ -165,7 +168,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Valuation Adjustments</h4>
         <div class="space-y-3">
-          ${result.adjustments.map(adj => `
+          ${result.adjustments.map((adj: BusinessValuationAdjustment) => `
             <div class="flex items-start justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
               <div class="flex-1">
                 <h5 class="font-medium text-gray-900 dark:text-white ${
@@ -195,7 +198,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
       <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
         <ul class="space-y-2">
-          ${result.insights.map(insight => `
+          ${result.insights.map((insight: string) => `
             <li class="text-gray-700 dark:text-gray-300">${insight}</li>
           `).join('')}
         </ul>
@@ -207,7 +210,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
       <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-6 border-l-4 border-red-500">
         <h4 class="text-lg font-semibold mb-4 text-red-900 dark:text-red-100">⚠️ Important Considerations</h4>
         <ul class="space-y-2">
-          ${result.warnings.map(warning => `
+          ${result.warnings.map((warning: string) => `
             <li class="text-red-700 dark:text-red-300">${warning}</li>
           `).join('')}
         </ul>
@@ -219,7 +222,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
       <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Ways to Increase Value</h4>
         <ul class="space-y-2">
-          ${result.recommendations.map(rec => `
+          ${result.recommendations.map((rec: string) => `
             <li class="text-gray-700 dark:text-gray-300">${rec}</li>
           `).join('')}
         </ul>
@@ -302,4 +305,3 @@ if (typeof window !== 'undefined') {
     }
   });
 }
-

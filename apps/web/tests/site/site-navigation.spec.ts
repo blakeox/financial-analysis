@@ -1,34 +1,57 @@
 import { test, expect } from '@playwright/test';
 
-// High-level navigation flows using visible CTAs (not nav appearance/behavior)
-
-test.describe('Site navigation flow', () => {
-  test('Home → Models → Analysis → Status via CTAs', async ({ page }) => {
-    // Home
+test.describe('Site navigation contract', () => {
+  test('desktop nav exposes the current public site routes', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Financial Analysis/i);
 
-  // Click Explore Models CTA (unique hero button by accessible name)
-  const exploreModels = page.getByRole('link', { name: /Explore Models/i });
-  await expect(exploreModels).toBeVisible();
-  await exploreModels.click();
+    const desktopNav = page.locator('[data-testid="nav-desktop"]');
+    await expect(desktopNav).toBeVisible();
+    await expect(desktopNav.getByRole('link', { name: 'Home' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+    await expect(desktopNav.getByRole('link', { name: 'Models' })).toHaveAttribute(
+      'href',
+      '/models'
+    );
+    await expect(desktopNav.getByRole('link', { name: 'Journey' })).toHaveAttribute(
+      'href',
+      '/journey'
+    );
+    await expect(desktopNav.getByRole('link', { name: 'Agent' })).toHaveAttribute(
+      'href',
+      '/agent'
+    );
+    await expect(desktopNav.getByRole('link', { name: 'Developers' })).toHaveAttribute(
+      'href',
+      '/developers'
+    );
+    await expect(desktopNav.getByRole('link', { name: 'Status' })).toHaveAttribute(
+      'href',
+      '/status'
+    );
+  });
 
-    // Models
-    await expect(page).toHaveURL(/\/models$/);
-    await expect(page.locator('h1')).toContainText(/Financial Models/i);
+  test('homepage CTA leads to models and featured lease analysis leads to its live route', async ({
+    page,
+  }) => {
+    await page.goto('/');
 
-    // Click Analyze Loan (amortization) CTA
-    const analyzeLoan = page.locator('a[href^="/amortization"], a[href^="/analysis"]').first();
-    await expect(analyzeLoan).toBeVisible();
-    await analyzeLoan.click();
+    await page.getByRole('link', { name: 'Browse Calculators' }).click();
+    await expect(page).toHaveURL(/\/models\/?$/);
 
-    // Analysis
-    await expect(page).toHaveURL(/\/(analysis|amortization)/);
-    await expect(page.locator('#analysis-form')).toBeVisible();
+    await page.locator('[data-model="Enhanced Lease Analysis"] a[href="/lease-analysis"]').click();
+    await expect(page).toHaveURL(/\/lease-analysis\/?$/);
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Enhanced Lease Analysis/i })
+    ).toBeVisible();
+  });
 
-    // Navigate to Status via location bar or a direct link if present
-    await page.goto('/status');
-    await expect(page).toHaveURL(/\/status$/);
-    await expect(page.locator('h1')).toContainText(/Status|System Status/i);
+  test('status link navigates directly to the current status page', async ({ page }) => {
+    await page.goto('/models');
+
+    await page.locator('[data-testid="nav-desktop"]').getByRole('link', { name: 'Status' }).click();
+    await expect(page).toHaveURL(/\/status\/?$/);
+    await expect(page.getByRole('heading', { level: 1, name: /System Status/i })).toBeVisible();
   });
 });

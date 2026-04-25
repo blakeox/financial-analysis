@@ -12,7 +12,6 @@ export default defineConfig({
       '**/dist/**',
       '**/.{git,cache,output,wrangler}/**',
       '**/*.d.ts',
-      'src/__tests__/miniflare-test.test.ts',
     ],
     // Reduce parallel execution to avoid KV database locking
     pool: 'forks',

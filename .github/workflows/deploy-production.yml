@@ -2,6 +2,11 @@ name: Deploy Production (API + Web)
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: Confirm this is an intentional production redeploy from main
+        required: true
+        type: boolean
 
 concurrency:
   group: deploy-production
@@ -12,7 +17,9 @@ permissions:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_production == true
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: production
       url: https://fanalyx.com

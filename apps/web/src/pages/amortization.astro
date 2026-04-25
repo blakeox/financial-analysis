@@ -1,6 +1,11 @@
 ---
-import Analysis from './analysis.astro';
+import IndividualCalculatorPage from '../components/IndividualCalculatorPage.astro';
+import { CALCULATOR_CONFIGS } from '../components/CalculatorTemplate.tsx';
 ---
 
-<!-- Alias route for discoverability: renders the Analysis page under /amortization -->
-<Analysis />
+<!-- Alias route for discoverability: renders the modern calculator workflow under /amortization -->
+<IndividualCalculatorPage
+  calculatorId="amortization"
+  title={CALCULATOR_CONFIGS.amortization.title}
+  description={CALCULATOR_CONFIGS.amortization.description}
+/>

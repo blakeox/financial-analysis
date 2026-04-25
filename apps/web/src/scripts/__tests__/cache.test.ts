@@ -3,11 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import * as formHandling from '../mortgage-scenario-planning/form-handling';
 import {
   getCachedResults,
   cacheResults,
   clearCache,
   loadCachedResults,
+  saveScenario,
   getSavedScenarios,
   deleteSavedScenario,
 } from '../mortgage-scenario-planning/cache';
@@ -16,6 +18,9 @@ import type { MortgageScenarioPlanningInput, Scenario } from '../mortgage-scenar
 
 // Mock alert globally
 vi.stubGlobal('alert', vi.fn());
+vi.stubGlobal('prompt', vi.fn());
+
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -93,7 +98,7 @@ describe('Mortgage Scenario Planning - Cache', () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    consoleWarnSpy.mockClear();
   });
 
   describe('cacheResults', () => {
@@ -255,18 +260,50 @@ describe('Mortgage Scenario Planning - Cache', () => {
   });
 
   describe('saveScenario', () => {
-    // Note: saveScenario requires HTMLFormElement + prompt() which are difficult to mock
-    // in happy-dom. These tests are skipped - the function is integration-tested via e2e.
-    it.skip('should save a new scenario', () => {
-      // Would require mocking FormData, prompt, and parseFormInput
+    beforeEach(() => {
+      vi.spyOn(formHandling, 'parseFormInput').mockReturnValue(mockInput);
     });
 
-    it.skip('should append to existing scenarios', () => {
-      // Would require mocking FormData, prompt, and parseFormInput
+    const createForm = () => {
+      const form = document.createElement('form');
+      form.innerHTML = '<input name="homePrice" value="400000" />';
+      return form as HTMLFormElement;
+    };
+
+    it('should save a new scenario', () => {
+      vi.mocked(prompt).mockReturnValueOnce('Primary plan');
+
+      saveScenario(createForm());
+
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        SAVED_SCENARIOS_KEY,
+        expect.any(String)
+      );
+      expect(alert).toHaveBeenCalledWith('Scenario "Primary plan" saved successfully!');
     });
 
-    it.skip('should return the saved scenario with id', () => {
-      // Would require mocking FormData, prompt, and parseFormInput
+    it('should append to existing scenarios', () => {
+      vi.mocked(prompt).mockReturnValueOnce('Second plan');
+      localStorageMock.getItem.mockReturnValueOnce(
+        JSON.stringify([
+          { id: 1, name: 'First', input: mockInput, savedAt: new Date().toISOString() },
+        ])
+      );
+
+      saveScenario(createForm());
+
+      const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+      expect(savedData).toHaveLength(2);
+      expect(savedData[1].name).toBe('Second plan');
+    });
+
+    it('should skip saving when the prompt is cancelled', () => {
+      vi.mocked(prompt).mockReturnValueOnce('');
+
+      saveScenario(createForm());
+
+      expect(localStorageMock.setItem).not.toHaveBeenCalled();
+      expect(alert).not.toHaveBeenCalled();
     });
   });
 

@@ -21,6 +21,7 @@
     "test:fast": "pnpm --filter @financial-analysis/analysis run test:fast && pnpm --filter \"!@financial-analysis/analysis\" run test",
     "test:slow": "pnpm --filter @financial-analysis/analysis run test:slow",
     "test:flaky": "pnpm --recursive --sort --workspace-concurrency=1 run test -- --retry=3 --grep @flaky",
+    "test:chat:integration:api": "pnpm --filter @financial-analysis/api run test:chat:integration",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive exec prettier --check .",
@@ -56,8 +57,8 @@
     "prettier": "^3.7.4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "undici": "^7.16.0",
-    "vite": "7.3.0",
+    "undici": "^7.24.0",
+    "vite": "7.3.2",
     "vitest": "4.0.9",
     "wrangler": "^4.84.1"
   },
@@ -68,9 +69,15 @@
   "pnpm": {
     "overrides": {
       "js-yaml": ">=4.1.1",
-      "astro@<5.15.9": ">=5.15.9",
-      "astro@<5.15.8": ">=5.15.8",
-      "mdast-util-to-hast@>=13.0.0 <13.2.1": ">=13.2.1"
+      "astro@<5.18.1": ">=5.18.1",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": ">=13.2.1",
+      "brace-expansion@<1.1.13": ">=1.1.13",
+      "brace-expansion@>=2.0.0 <2.0.3": ">=2.0.3",
+      "@isaacs/brace-expansion@<=5.0.0": ">=5.0.1",
+      "picomatch@<2.3.2": ">=2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4",
+      "minimatch@<3.1.4": ">=3.1.4",
+      "minimatch@>=9.0.0 <9.0.7": ">=9.0.7"
     }
   }
 }

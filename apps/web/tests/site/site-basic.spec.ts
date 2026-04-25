@@ -1,50 +1,60 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-// Basic smoke tests for key routes and content
+test.describe('Site route contract', () => {
+  test('home page renders the current hero and primary CTA', async ({ page }) => {
+    const response = await page.goto('/');
 
-test.describe('Site basic routes', () => {
-  test('home page loads with title and header', async ({ page }) => {
-    await page.goto('/');
-    await expect(page).toHaveTitle(/Financial Analysis/i);
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL('/');
+    await expect(page).toHaveTitle(/Fanalyx|Financial Calculators/i);
     await expect(page.locator('#site-nav')).toContainText(/Fanalyx/i);
-    await expect(page.locator('main')).toBeVisible();
-  });
-
-  test('models page lists models and CTAs', async ({ page }) => {
-    await page.goto('/models');
-    await expect(page).toHaveTitle(/Financial Models/i);
-    await expect(page.locator('h1')).toContainText(/Financial Models/i);
-    // Check for at least two model cards
-    const cards = page.locator('main .grid > *');
-    await expect(await cards.count()).toBeGreaterThan(1);
-
-    // CTAs exist (choose a single element to satisfy strict mode)
-    await expect(page.locator('a[href^="/analysis"]').first()).toBeVisible();
-    await expect(page.locator('a[href^="/amortization"]').first()).toBeVisible();
-
-    // Verify EBITDA Forecasting model card is present and accessible
-    await expect(page.locator('a[href="/ebitda-forecasting"]')).toBeVisible();
-    await expect(page.locator('div[data-model="EBITDA Forecasting"]')).toContainText(
-      /EBITDA Forecasting/i
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Free Financial Calculators & AI Insights/i })
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Browse Calculators' })).toHaveAttribute(
+      'href',
+      '/models'
     );
   });
 
-  test('analysis page form present', async ({ page }) => {
-    await page.goto('/analysis');
-    await expect(page.locator('#analysis-form')).toBeVisible();
-    await expect(page.locator('#analyze-btn')).toBeVisible();
+  test('models page exposes current category and featured model entry points', async ({ page }) => {
+    const response = await page.goto('/models');
+
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/models\/?$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Financial Models' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Explore Personal Tools/i })).toHaveAttribute(
+      'href',
+      '/models/personal'
+    );
+    await expect(page.getByRole('link', { name: /Explore Business Tools/i })).toHaveAttribute(
+      'href',
+      '/models/business'
+    );
+
+    const leaseAnalysisCard = page.locator('[data-model="Enhanced Lease Analysis"]');
+    await expect(leaseAnalysisCard).toContainText(/Enhanced Lease Analysis/i);
+    await expect(leaseAnalysisCard.locator('a[href="/lease-analysis"]')).toBeVisible();
   });
 
-  test('ebitda-forecasting page loads with dashboard', async ({ page }) => {
-    await page.goto('/ebitda-forecasting');
-    await expect(page).toHaveTitle(/EBITDA Forecasting/i);
-    await expect(page.locator('h1')).toContainText(/EBITDA Forecasting/i);
-    await expect(page.locator('main')).toBeVisible();
+  test('analysis route keeps the lease analysis alias contract', async ({ page }) => {
+    const response = await page.goto('/analysis');
+
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/analysis\/?$/);
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Enhanced Lease Analysis/i })
+    ).toBeVisible();
+    await expect(page.getByText(/Analyze lease vs buy scenarios/i)).toBeVisible();
   });
 
-  test('status page returns content', async ({ page }) => {
-    await page.goto('/status');
-    await expect(page.locator('main')).toBeVisible();
-    await expect(page.locator('body')).toContainText(/Status|OK|Healthy/i);
+  test('status page renders current system status content', async ({ page }) => {
+    const response = await page.goto('/status');
+
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/status\/?$/);
+    await expect(page.getByRole('heading', { level: 1, name: /System Status/i })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Notes' })).toBeVisible();
+    await expect(page.getByText(/Usage refreshes automatically every 30 seconds\./i)).toBeVisible();
   });
 });

@@ -2,8 +2,6 @@ name: Deploy Preview (API + Web)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [dev]
 
 concurrency:
   group: deploy-preview-${{ github.ref }}

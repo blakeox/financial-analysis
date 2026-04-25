@@ -99,10 +99,7 @@ describe('LeaseTool', () => {
       ).toThrow();
     });
 
-    // NOTE: Zero interest rate causes division by zero in LeaseAnalyzer formula.
-    // This is a known limitation - the formula denom = 1 - (1+r)^-n = 0 when r=0.
-    // Skipping until LeaseAnalyzer handles this edge case.
-    it.skip('handles zero interest rate', async () => {
+    it('handles zero interest rate', async () => {
       const result = await LeaseTool.execute({
         principal: 36000,
         annualRate: 0,

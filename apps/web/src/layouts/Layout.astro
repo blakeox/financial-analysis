@@ -12,6 +12,8 @@ export interface Props {
   canonical?: string;
   image?: string;
   showNav?: boolean;
+  showChat?: boolean;
+  showToolAnalysis?: boolean;
   keywords?: string;
   noindex?: boolean;
   type?: 'website' | 'article' | 'product';
@@ -23,6 +25,8 @@ const {
   canonical,
   image,
   showNav = true,
+  showChat = true,
+  showToolAnalysis = true,
   keywords,
   noindex,
   type,
@@ -192,10 +196,10 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <Footer client:only="react" />
 
     <!-- Chat Panel -->
-    <ChatPanel />
+    {showChat && <ChatPanel />}
 
     <!-- Tool Analysis Panel -->
-    <ToolAnalysisPanel client:only="react" currentContext={currentContext} />
+    {showToolAnalysis && <ToolAnalysisPanel client:only="react" currentContext={currentContext} />}
 
     <slot name="pageScripts" />
   </body>
