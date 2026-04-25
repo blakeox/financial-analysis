@@ -255,6 +255,276 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     promptHint: 'Budget optimization and expense tracking',
   },
 
+  // Expanded Financial Planning, Tax, and Business Tools
+  analyze_1031_exchange: {
+    keywords: ['1031', 'exchange', 'like-kind'],
+    category: 'tax',
+    promptHint:
+      'Analyze 1031 like-kind exchange opportunities with tax deferral calculations, identification rules, and replacement property analysis',
+  },
+  analyze_401k_match: {
+    keywords: ['401k', 'match', 'employer'],
+    category: 'retirement',
+    promptHint:
+      'Maximize 401(k) employer match, analyze vesting schedule, optimize contribution strategy, and calculate tax benefits',
+  },
+  analyze_529_optimizer: {
+    keywords: ['529', 'optimizer', 'college', 'education'],
+    category: 'retirement',
+    promptHint:
+      'Optimize 529 plan contributions, compare state plans, analyze financial aid impact, and project education funding',
+  },
+  analyze_accounts_payable_optimization: {
+    keywords: ['accounts', 'payable', 'optimization'],
+    category: 'business',
+    promptHint:
+      'Optimize accounts payable with early payment discounts, payment term analysis, cash flow optimization, and vendor relationship management',
+  },
+  analyze_accounts_receivable_aging: {
+    keywords: ['accounts', 'receivable', 'aging'],
+    category: 'business',
+    promptHint:
+      'Analyze accounts receivable aging, calculate DSO, forecast bad debt, optimize collection strategies, and improve credit policy',
+  },
+  analyze_auto_loan_analysis: {
+    keywords: ['auto', 'loan', 'analysis'],
+    category: 'loan',
+    promptHint:
+      'Run a comprehensive auto loan analysis with optional lease comparison, refinancing scenarios, total cost of ownership (TCO), and a detailed payment schedule',
+  },
+  analyze_business_expansion_loan: {
+    keywords: ['business', 'expansion', 'loan'],
+    category: 'loan',
+    promptHint:
+      'Comprehensive business expansion loan analysis including debt capacity assessment, cash flow projections with loan payments, DSCR analysis, risk assessment, loan term optimization, and scenario analysis for businesses seeking growth financing',
+  },
+  analyze_business_succession_planning: {
+    keywords: ['business', 'succession', 'planning'],
+    category: 'business',
+    promptHint:
+      'Business succession planning with valuation, buy-sell agreements, estate tax planning, gifting strategies, and transition scenarios',
+  },
+  analyze_capital_structure: {
+    keywords: ['capital', 'structure'],
+    category: 'business',
+    promptHint:
+      'Optimize capital structure with WACC optimization, optimal debt/equity ratio, credit rating impact, and dividend policy analysis',
+  },
+  analyze_car_lease_vs_buy: {
+    keywords: ['car', 'lease', 'vs', 'buy'],
+    category: 'loan',
+    promptHint:
+      'Compare car leasing vs buying with total cost analysis, mileage considerations, early termination scenarios, and opportunity cost',
+  },
+  analyze_charitable_giving: {
+    keywords: ['charitable', 'giving'],
+    category: 'tax',
+    promptHint:
+      'Optimize charitable giving strategies with donor-advised funds, QCDs, appreciated securities, and tax deduction maximization',
+  },
+  analyze_credit_risk: {
+    keywords: ['credit', 'risk'],
+    category: 'business',
+    promptHint:
+      'Credit risk analysis with Probability of Default (PD), Loss Given Default (LGD), Expected Loss (EL), and stress testing',
+  },
+  analyze_credit_score_impact: {
+    keywords: ['credit', 'score', 'impact'],
+    category: 'loan',
+    promptHint:
+      'Analyze credit score impact of actions, project score changes, optimize credit utilization, and provide improvement recommendations',
+  },
+  analyze_cryptocurrency_tax: {
+    keywords: ['cryptocurrency', 'tax'],
+    category: 'tax',
+    promptHint:
+      'Calculate cryptocurrency tax obligations with FIFO/LIFO/HIFO methods, wash sale analysis, staking/mining income, and DeFi transactions',
+  },
+  analyze_depreciation: {
+    keywords: ['depreciation'],
+    category: 'business',
+    promptHint:
+      'Calculate depreciation using multiple methods (straight-line, declining balance, MACRS, Section 179, bonus depreciation) with tax impact analysis',
+  },
+  analyze_disability_insurance: {
+    keywords: ['disability', 'insurance'],
+    category: 'insurance',
+    promptHint:
+      'Analyze disability insurance needs, assess coverage gaps, compare own-occupation vs any-occupation definitions, and optimize policy selection',
+  },
+  analyze_emergency_fund: {
+    keywords: ['emergency', 'fund'],
+    category: 'budgeting',
+    promptHint:
+      'Calculate emergency fund target, build timeline, withdrawal scenarios, and savings recommendations',
+  },
+  analyze_employee_stock_options: {
+    keywords: ['employee', 'stock', 'options'],
+    category: 'investment',
+    promptHint:
+      'Value employee stock options with Black-Scholes, analyze tax implications (ISO vs NSO), optimize exercise strategies, and project scenarios',
+  },
+  analyze_equipment_lease_vs_buy: {
+    keywords: ['equipment', 'lease', 'vs', 'buy'],
+    category: 'loan',
+    promptHint:
+      'Compare equipment leasing vs purchasing with tax implications, NPV/IRR analysis, and cash flow comparison',
+  },
+  analyze_estate_planning: {
+    keywords: ['estate', 'planning'],
+    category: 'tax',
+    promptHint: 'Estate tax planning, inheritance projections, trust analysis, and gift tax optimization',
+  },
+  analyze_financial_ratios: {
+    keywords: ['financial', 'ratios'],
+    category: 'business',
+    promptHint:
+      'Comprehensive financial ratio analysis with liquidity, profitability, efficiency, leverage, and market ratios with industry benchmarking',
+  },
+  analyze_fire_calculator: {
+    keywords: ['fire', 'calculator'],
+    category: 'retirement',
+    promptHint:
+      'Calculate Financial Independence (FIRE) number, retirement date, Coast FIRE, Barista FIRE, and savings strategies',
+  },
+  analyze_franchise_roi: {
+    keywords: ['franchise', 'roi'],
+    category: 'business',
+    promptHint:
+      'Analyze franchise investment ROI with initial costs, ongoing fees, revenue projections, break-even analysis, and profitability scenarios',
+  },
+  analyze_heloc: {
+    keywords: ['heloc', 'home', 'equity'],
+    category: 'loan',
+    promptHint:
+      'Analyze Home Equity Line of Credit (HELOC) options, compare to refinancing and personal loans, calculate payments, tax implications, and risk assessment',
+  },
+  analyze_hsa_optimization: {
+    keywords: ['hsa', 'optimization', 'health', 'savings'],
+    category: 'retirement',
+    promptHint:
+      'Maximize Health Savings Account tax benefits with triple tax advantage analysis, contribution limits, retirement healthcare planning, and tax savings projections',
+  },
+  analyze_international_tax_planning: {
+    keywords: ['international', 'tax', 'planning'],
+    category: 'tax',
+    promptHint:
+      'International tax planning with foreign tax credits, tax treaties, transfer pricing, controlled foreign corporations, and BEPS compliance',
+  },
+  analyze_inventory_optimization: {
+    keywords: ['inventory', 'optimization'],
+    category: 'business',
+    promptHint:
+      'Optimize inventory levels with EOQ, safety stock calculations, ABC analysis, reorder points, and total cost optimization',
+  },
+  analyze_lbo: {
+    keywords: ['lbo', 'leveraged', 'buyout'],
+    category: 'valuation',
+    promptHint:
+      'Leveraged buyout analysis with IRR, MOIC, debt paydown, exit scenarios, and risk assessment',
+  },
+  analyze_life_insurance_reassessment: {
+    keywords: ['life', 'insurance', 'reassessment'],
+    category: 'insurance',
+    promptHint:
+      'Reassess life insurance coverage needs, analyze coverage gaps, optimize policies, and compare term vs permanent insurance',
+  },
+  analyze_long_term_care: {
+    keywords: ['long', 'term', 'care'],
+    category: 'insurance',
+    promptHint:
+      'Analyze long-term care insurance needs, compare self-funding vs insurance, assess hybrid strategies, and estimate lifetime care costs',
+  },
+  analyze_net_worth: {
+    keywords: ['net', 'worth'],
+    category: 'budgeting',
+    promptHint:
+      'Track net worth over time with asset/liability breakdown, projections, milestones, and debt analysis',
+  },
+  analyze_portfolio_optimization: {
+    keywords: ['portfolio', 'optimization'],
+    category: 'investment',
+    promptHint:
+      'Portfolio optimization with mean-variance optimization, efficient frontier, asset allocation, and rebalancing recommendations',
+  },
+  analyze_project_finance: {
+    keywords: ['project', 'finance'],
+    category: 'business',
+    promptHint:
+      'Project finance analysis with NPV, IRR, payback period, sensitivity analysis, and risk assessment',
+  },
+  analyze_real_estate_investment: {
+    keywords: ['real', 'estate', 'investment'],
+    category: 'investment',
+    promptHint:
+      'Real estate investment analysis with cap rate, cash-on-cash return, NOI, IRR, and projected returns',
+  },
+  analyze_refinancing: {
+    keywords: ['refinancing'],
+    category: 'loan',
+    promptHint:
+      'Comprehensive mortgage refinancing analysis with break-even point, interest savings, payment comparison, and net benefit calculation',
+  },
+  analyze_retirement_planning: {
+    keywords: ['retirement', 'planning'],
+    category: 'retirement',
+    promptHint:
+      'Advanced retirement planning analysis including multi-account projections, Social Security optimization, tax-advantaged strategies, withdrawal strategies, healthcare cost planning, and estate planning considerations',
+  },
+  analyze_revenue_recognition: {
+    keywords: ['revenue', 'recognition'],
+    category: 'business',
+    promptHint:
+      'ASC 606 compliant revenue recognition analysis with performance obligation allocation, deferred revenue, and contract asset calculations',
+  },
+  analyze_roth_vs_traditional_ira: {
+    keywords: ['roth', 'vs', 'traditional', 'ira', 'conversion'],
+    category: 'retirement',
+    promptHint:
+      'Compare Roth vs Traditional IRA strategies with tax bracket analysis, conversion scenarios, and withdrawal optimization',
+  },
+  analyze_social_security: {
+    keywords: ['social', 'security'],
+    category: 'retirement',
+    promptHint:
+      'Optimize Social Security claiming strategy with break-even analysis, spousal benefits, survivor benefits, and lifetime benefit projections',
+  },
+  analyze_startup_financial_model: {
+    keywords: ['startup', 'financial', 'model'],
+    category: 'business',
+    promptHint:
+      'Comprehensive startup financial model with revenue projections, burn rate, runway, unit economics, and funding scenarios',
+  },
+  analyze_supply_chain_finance: {
+    keywords: ['supply', 'chain', 'finance'],
+    category: 'business',
+    promptHint:
+      'Optimize supply chain finance with dynamic discounting, reverse factoring, inventory financing, and working capital optimization',
+  },
+  analyze_tax_loss_harvesting: {
+    keywords: ['tax', 'loss', 'harvesting'],
+    category: 'tax',
+    promptHint:
+      'Identify tax-loss harvesting opportunities, calculate tax savings, analyze wash sale rules, and optimize capital gains offset',
+  },
+  analyze_var: {
+    keywords: ['var', 'value-at-risk', 'risk'],
+    category: 'investment',
+    promptHint:
+      'Value at Risk (VaR) calculation using historical, parametric, or Monte Carlo methods with stress testing and backtesting',
+  },
+  analyze_working_capital: {
+    keywords: ['working', 'capital'],
+    category: 'business',
+    promptHint:
+      'Working capital optimization with cash conversion cycle, liquidity analysis, and optimization recommendations',
+  },
+  calculate_wacc: {
+    keywords: ['wacc', 'discount', 'rate'],
+    category: 'valuation',
+    promptHint: 'Calculate Weighted Average Cost of Capital (WACC)',
+  },
+
   // Journey & Scenario Tools
   analyze_financial_journey: {
     keywords: ['financial journey', 'milestones', 'life events', 'seed round', 'series a', 'funding', 'startup'],
