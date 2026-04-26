@@ -957,18 +957,19 @@ declare global {
 // Initialize scenario manager when DOM is loaded
 function initializeScenarioManager() {
   console.log('Multi-model scenarios script loaded');
-  (window as any).scenarioManager = new MultiModelScenarioManager();
-  console.log('Scenario manager initialized:', window.scenarioManager);
+  const scenarioManager = new MultiModelScenarioManager();
+  Object.assign(window, { scenarioManager });
+  console.log('Scenario manager initialized:', scenarioManager);
 
   // Make functions globally available
   window.selectScenario = (scenarioId: string) => {
     console.log('selectScenario called with:', scenarioId);
-    window.scenarioManager.selectScenario(scenarioId);
+    scenarioManager.selectScenario(scenarioId);
   };
 
   window.clearScenarioSelection = () => {
     console.log('clearScenarioSelection called');
-    window.scenarioManager.clearScenarioSelection();
+    scenarioManager.clearScenarioSelection();
   };
 
   console.log('Global functions registered');

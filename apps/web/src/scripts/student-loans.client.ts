@@ -15,6 +15,8 @@ type StudentLoanInput = {
   loanType: LoanType;
 };
 
+type LoanSummary = StudentLoanResult['summary']['loanSummaries'][number];
+
 // Forgiveness Program Eligibility
 interface ForgivenessEligibility {
   pslf: { eligible: boolean; requirements: string[]; timeline: string };
@@ -350,9 +352,9 @@ export const displayResults = (
           result.summary.loanSummaries && result.summary.loanSummaries.length > 0
             ? result.summary.loanSummaries
                 .slice()
-                .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
+                .sort((a: LoanSummary, b: LoanSummary) => a.monthsToPayoff - b.monthsToPayoff)
                 .map(
-                  (loan, index) => `
+                  (loan: LoanSummary, index: number) => `
                 <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
                   <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${loan.name}</span>
                   <span class="text-gray-600 dark:text-gray-400">${loan.monthsToPayoff} months</span>

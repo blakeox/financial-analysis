@@ -75,14 +75,14 @@ describe('test runner Playwright target detection', () => {
 
   it('can build a repeated Playwright target run for flake checks', () => {
     const suites = getSuites(['--playwright', 'tests/chat', '--repeat-each', '3']);
-    expect(suites.at(-1)!.command).toBe(
+    expect(suites.at(-1)?.command).toBe(
       'pnpm exec playwright test --repeat-each=3 --workers=1 tests/chat'
     );
   });
 
   it('can pin a targeted Playwright repro to a matrix project', () => {
     const suites = getSuites(['--playwright', 'tests/chat', '--project', 'chromium']);
-    expect(suites.at(-1)!.command).toBe(
+    expect(suites.at(-1)?.command).toBe(
       'PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project=chromium tests/chat'
     );
   });

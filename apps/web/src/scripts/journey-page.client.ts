@@ -393,8 +393,9 @@ class JourneyPageManager {
 // Initialize when DOM is ready
 function initializeJourneyPage() {
   console.log('Journey page script loaded');
-  (window as any).journeyManager = new JourneyPageManager();
-  console.log('Journey manager initialized:', window.journeyManager);
+  const journeyManager = new JourneyPageManager();
+  Object.assign(window, { journeyManager });
+  console.log('Journey manager initialized:', journeyManager);
 }
 
 // Check if DOM is already loaded

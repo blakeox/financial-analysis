@@ -330,7 +330,7 @@ export const renderAutoLoanResults = (
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             ${earlyPayoffScenarios
-              .map((scenario) => {
+              .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;
                 const yearsLabel = `${years} year${years !== 1 ? 's' : ''}`;
                 return `

@@ -415,7 +415,7 @@ class JourneyNavigationManager {
 const journeyNavigationManager = new JourneyNavigationManager();
 
 // Export for external access
-(window as any).journeyNavigationManager = journeyNavigationManager;
+Object.assign(window, { journeyNavigationManager });
 
 // Export types for TypeScript
 export { JourneyNavigationManager };

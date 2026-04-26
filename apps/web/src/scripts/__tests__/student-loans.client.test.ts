@@ -74,7 +74,7 @@ const createMockStudentLoanResult = (
       ...baseSummary,
       ...summaryOverrides,
       loanSummaries: overrideLoanSummaries
-        ? overrideLoanSummaries.map((loan, index) => ({
+        ? overrideLoanSummaries.map((loan: Partial<StudentLoanResult['summary']['loanSummaries'][number]>, index: number) => ({
             name: loan.name ?? `Student Loan ${index + 1}`,
             loanType: loan.loanType ?? 'federal_unsubsidized',
             originalBalance: loan.originalBalance ?? '50000.00',

@@ -217,7 +217,7 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       <ul class="space-y-3">
         ${result.recommendations
           .map(
-            (rec) => `
+            (rec: string) => `
           <li class="flex items-start gap-3">
             <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
             <span class="text-gray-700 dark:text-gray-300">${rec}</span>

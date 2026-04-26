@@ -19,6 +19,9 @@ type CollectedDebt = {
   minimumPayment: number;
 };
 
+type DebtSummary = DebtPayoffResult['summary']['debtSummaries'][number];
+type TimelineEntry = { name: string; monthsToPayoff: number };
+
 // Credit Score Impact Calculator
 interface CreditScoreImpact {
   currentEstimate: number;
@@ -174,15 +177,15 @@ export const describeSavings = (
 };
 
 export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strategy): string => {
-  const timelineEntries: Array<{ name: string; monthsToPayoff: number }> = [];
+  const timelineEntries: TimelineEntry[] = [];
   const summary =
     primaryStrategy === result.summary.strategy ? result.summary : result.alternativeStrategy;
 
   if (summary) {
     summary.debtSummaries
       .slice()
-      .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
-      .forEach((debt) => {
+       .sort((a: DebtSummary, b: DebtSummary) => a.monthsToPayoff - b.monthsToPayoff)
+       .forEach((debt: DebtSummary) => {
         if (Number.isFinite(debt.monthsToPayoff)) {
           timelineEntries.push({ name: debt.name, monthsToPayoff: debt.monthsToPayoff });
         }
@@ -191,7 +194,7 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
 
   return timelineEntries
     .map(
-      (entry, index) => `
+      (entry: TimelineEntry, index: number) => `
         <div class="flex justify-between items-center text-sm">
           <span class="font-medium">${index + 1}. ${entry.name}</span>
           <span class="text-gray-600 dark:text-gray-400">Month ${entry.monthsToPayoff}</span>
@@ -359,9 +362,9 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
       <div class="space-y-3">
         ${primary.debtSummaries
           .slice()
-          .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
+          .sort((a: DebtSummary, b: DebtSummary) => a.monthsToPayoff - b.monthsToPayoff)
           .map(
-            (debt, index) => `
+            (debt: DebtSummary, index: number) => `
             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
               <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${debt.name}</span>
               <span class="text-gray-600 dark:text-gray-400">${formatMonths(debt.monthsToPayoff)}</span>
