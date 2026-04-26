@@ -135,6 +135,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     {
       import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (
         <script
+          is:inline
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN}"}`}
