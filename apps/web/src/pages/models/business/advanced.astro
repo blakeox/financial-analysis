@@ -1,5 +1,7 @@
 ---
+import Breadcrumbs from '../../../components/site/Breadcrumbs.astro';
 import ClientScriptLoader from '../../../components/ClientScriptLoader.tsx';
+import PageHero from '../../../components/site/PageHero.astro';
 import Layout from '../../../layouts/Layout.astro';
 
 const keywords = "business financial models, DCF analysis, comparable company analysis, M&A analysis, capital structure optimization, project finance, valuation models, financial modeling tools, enterprise finance";
@@ -175,42 +177,21 @@ const faqSchema = {
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
   
-  <div class="container mx-auto px-4 py-8">
-    <!-- Breadcrumb Navigation -->
-    <nav class="mb-8">
-      <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-        <li><a href="/" class="hover:text-blue-600 dark:hover:text-blue-400">Home</a></li>
-        <li class="flex items-center">
-          <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-          </svg>
-          <a href="/models" class="hover:text-blue-600 dark:hover:text-blue-400">Models</a>
-        </li>
-        <li class="flex items-center">
-          <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-          </svg>
-          <a href="/models/business" class="hover:text-blue-600 dark:hover:text-blue-400">Business Finance</a>
-        </li>
-        <li class="flex items-center">
-          <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-gray-900 dark:text-white font-medium">Advanced Models</span>
-        </li>
-      </ol>
-    </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'Advanced Models' },
+    ]}
+  />
 
-    <!-- Page Header -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-        Advanced Business Financial Models
-      </h1>
-      <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-        Professional-grade financial modeling tools for investment banking, private equity, and corporate finance. 
-        Enterprise-level calculators with comprehensive analysis and detailed reporting.
-      </p>
-    </div>
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Advanced models"
+      title="Advanced Business Financial Models"
+      description="Professional-grade financial modeling tools for investment banking, private equity, and corporate finance."
+    />
 
     <!-- Model Categories -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

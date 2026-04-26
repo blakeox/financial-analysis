@@ -1,4 +1,7 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 import { AnalyticsDashboard } from '@financial-analysis/ui';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
@@ -11,17 +14,16 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
   keywords="analytics dashboard, api monitoring, performance metrics"
   noindex={true}
 >
-  <div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-        Analytics Dashboard
-      </h1>
-      <p class="text-lg text-gray-600 dark:text-gray-300">
-        Real-time monitoring of page interactions and API performance
-      </p>
-    </div>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Analytics' }]} />
 
-    <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Analytics"
+      title="Analytics Dashboard"
+      description="Real-time monitoring of page interactions and API performance."
+    />
+
+    <div class="fa-highlight-card mb-6">
       <h2 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
         📊 What's Being Tracked
       </h2>
@@ -34,13 +36,13 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
       </ul>
     </div>
 
-    <!-- Analytics Dashboard Component -->
     <div id="analytics-dashboard">
-      <AnalyticsDashboard client:load autoRefresh={true} refreshInterval={5000} />
+      <SurfaceCard>
+        <AnalyticsDashboard client:load autoRefresh={true} refreshInterval={5000} />
+      </SurfaceCard>
     </div>
 
-    <!-- Usage Instructions -->
-    <div class="mt-8 p-6 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <SurfaceCard className="mt-8">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
         💡 How to Use Analytics in Your App
       </h2>
@@ -114,10 +116,9 @@ const analysis = monitor.getAnalysis();
 console.log(analysis.successRate, analysis.averageDuration);`}</code></pre>
         </div>
       </div>
-    </div>
+    </SurfaceCard>
 
-    <!-- Test Actions -->
-  <div class="mt-8 p-6 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+  <div class="mt-8 fa-highlight-card">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
         🧪 Test Analytics Tracking
       </h2>

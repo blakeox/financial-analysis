@@ -1,4 +1,5 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import Layout from '../layouts/Layout.astro';
 
 const baseUrl = 'https://fanalyx.com';
@@ -6,97 +7,134 @@ const currentUrl = `${baseUrl}${Astro.url.pathname}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
-        { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": currentUrl }
-      ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Privacy Policy', item: currentUrl },
+      ],
     },
     {
-      "@type": "WebPage",
-      "name": "Privacy Policy",
-      "description": "Learn how Fanalyx protects your privacy and handles your data.",
-      "url": currentUrl,
-      "isPartOf": { "@type": "WebSite", "name": "Fanalyx", "url": baseUrl }
-    }
-  ]
+      '@type': 'WebPage',
+      name: 'Privacy Policy',
+      description: 'Learn how Fanalyx protects your privacy and handles your data.',
+      url: currentUrl,
+      isPartOf: { '@type': 'WebSite', name: 'Fanalyx', url: baseUrl },
+    },
+  ],
 };
 ---
 
-<Layout 
-  title="Privacy Policy - Financial Analysis" 
+<Layout
+  title="Privacy Policy - Fanalyx"
   description="Learn how Fanalyx protects your privacy. All calculator data stays in your browser - we never store your financial information. View our complete data protection and cookie policy."
   canonical={Astro.url.href}
   keywords="privacy policy, data protection, financial data privacy, user privacy, GDPR, data collection, cookie policy, no data storage"
   type="article"
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="max-w-4xl mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Privacy Policy</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-16 max-w-4xl">
+
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Privacy Policy' }]} />
+
+  <div class="fa-page-shell-narrow">
+    <div>
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Privacy Policy</h1>
       <p class="text-gray-600 dark:text-gray-400 mb-8">Last updated: October 22, 2025</p>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-8">
+      <div class="fa-prose-card space-y-8">
         <!-- Introduction -->
         <section>
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">1. Introduction</h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Welcome to Financial Analysis Tools ("we," "our," or "us"). We are committed to protecting your privacy 
-            and ensuring transparency about how we collect, use, and share your information. This Privacy Policy 
-            explains our practices regarding data collection and use when you visit our website.
+            Welcome to Fanalyx ("we," "our," or "us"). We are committed to protecting your privacy
+            and ensuring transparency about how we collect, use, and share your information. This
+            Privacy Policy explains our practices regarding data collection and use when you visit
+            our website.
           </p>
         </section>
 
         <!-- Information We Collect -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">2. Information We Collect</h2>
-          
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">2.1 Information You Provide</h3>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            2. Information We Collect
+          </h2>
+
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            2.1 Information You Provide
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            <strong>Calculator Inputs:</strong> All financial calculations are performed entirely in your browser. 
-            We do not collect, store, or transmit any of the financial data you enter into our calculators 
-            (such as loan amounts, interest rates, income, expenses, etc.). This data remains on your device.
+            <strong>Calculator Inputs:</strong> All financial calculations are performed entirely in your
+            browser. We do not collect, store, or transmit any of the financial data you enter into our
+            calculators (such as loan amounts, interest rates, income, expenses, etc.). This data remains
+            on your device.
           </p>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">2.2 Automatically Collected Information</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            2.2 Automatically Collected Information
+          </h3>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li><strong>Usage Data:</strong> We collect information about how you interact with our website, including pages visited, features used, and time spent on pages.</li>
-            <li><strong>Device Information:</strong> We collect information about the device you use to access our site, including browser type, operating system, and IP address.</li>
-            <li><strong>Cookies and Similar Technologies:</strong> We use cookies and similar tracking technologies to enhance your experience and analyze site usage.</li>
+            <li>
+              <strong>Usage Data:</strong> We collect information about how you interact with our website,
+              including pages visited, features used, and time spent on pages.
+            </li>
+            <li>
+              <strong>Device Information:</strong> We collect information about the device you use to
+              access our site, including browser type, operating system, and IP address.
+            </li>
+            <li>
+              <strong>Cookies and Similar Technologies:</strong> We use cookies and similar tracking technologies
+              to enhance your experience and analyze site usage.
+            </li>
           </ul>
         </section>
 
         <!-- Google AdSense -->
-        <section class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">3. Third-Party Advertising (Google AdSense)</h2>
-          
+        <section
+          class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800"
+        >
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            3. Third-Party Advertising (Google AdSense)
+          </h2>
+
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            We use <strong>Google AdSense</strong> to display advertisements on our website. Google AdSense uses cookies 
-            and other tracking technologies to serve ads based on your prior visits to our website or other websites on the Internet.
+            We use <strong>Google AdSense</strong> to display advertisements on our website. Google AdSense
+            uses cookies and other tracking technologies to serve ads based on your prior visits to our
+            website or other websites on the Internet.
           </p>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">3.1 How Google AdSense Works</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            3.1 How Google AdSense Works
+          </h3>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4 mb-4">
-            <li>Google uses cookies to serve ads based on your previous visits to this site and other sites</li>
-            <li>Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet</li>
-            <li>Users may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">Google Ads Settings</a></li>
-            <li>Users may opt out of third-party vendor's use of cookies by visiting <a href="http://www.aboutads.info/choices/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">aboutads.info</a></li>
+            <li>
+              Google uses cookies to serve ads based on your previous visits to this site and other
+              sites
+            </li>
+            <li>
+              Google's use of advertising cookies enables it and its partners to serve ads based on
+              your visit to our site and/or other sites on the Internet
+            </li>
+            <li>
+              Users may opt out of personalized advertising by visiting <a
+                href="https://www.google.com/settings/ads"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer">Google Ads Settings</a>
+            </li>
+            <li>
+              Users may opt out of third-party vendor's use of cookies by visiting <a
+                href="http://www.aboutads.info/choices/"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer">aboutads.info</a>
+            </li>
           </ul>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">3.2 Data Collected by Google AdSense</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            3.2 Data Collected by Google AdSense
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             Google may collect the following types of information:
           </p>
@@ -108,14 +146,21 @@ const structuredData = {
           </ul>
 
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            For more information about Google's privacy practices, please review the 
-            <a href="https://policies.google.com/privacy" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.
+            For more information about Google's privacy practices, please review the
+            <a
+              href="https://policies.google.com/privacy"
+              class="text-blue-600 dark:text-blue-400 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer">Google Privacy Policy</a
+            >.
           </p>
         </section>
 
         <!-- How We Use Information -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">4. How We Use Information</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            4. How We Use Information
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             We use the information we collect to:
           </p>
@@ -130,96 +175,164 @@ const structuredData = {
 
         <!-- Data Security -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">5. Data Security</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            5. Data Security
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We implement appropriate technical and organizational measures to protect your information. However, 
-            please note that no method of transmission over the Internet or electronic storage is 100% secure. 
-            Since all financial calculations are performed locally in your browser, your sensitive financial data 
-            never leaves your device.
+            We implement appropriate technical and organizational measures to protect your
+            information. However, please note that no method of transmission over the Internet or
+            electronic storage is 100% secure. Since all financial calculations are performed
+            locally in your browser, your sensitive financial data never leaves your device.
           </p>
         </section>
 
         <!-- Your Rights and Choices -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Your Rights and Choices</h2>
-          
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">6.1 Cookie Management</h3>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            6. Your Rights and Choices
+          </h2>
+
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            6.1 Cookie Management
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             You can control and manage cookies in various ways:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4 mb-4">
             <li>Browser settings: Most browsers allow you to refuse or accept cookies</li>
-            <li>Opt-out tools: Use the opt-out tools provided by Google and other advertising networks</li>
+            <li>
+              Opt-out tools: Use the opt-out tools provided by Google and other advertising networks
+            </li>
             <li>Do Not Track: We respond to Do Not Track (DNT) signals</li>
           </ul>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">6.2 Personalized Advertising</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            6.2 Personalized Advertising
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             You can opt out of personalized advertising by:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li>Visiting <a href="https://www.google.com/settings/ads" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">Google Ads Settings</a></li>
-            <li>Using the <a href="http://www.aboutads.info/choices/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">Digital Advertising Alliance opt-out tool</a></li>
-            <li>Using the <a href="http://www.youronlinechoices.eu/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">European Interactive Digital Advertising Alliance opt-out tool</a> (for users in the EU)</li>
+            <li>
+              Visiting <a
+                href="https://www.google.com/settings/ads"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer">Google Ads Settings</a>
+            </li>
+            <li>
+              Using the <a
+                href="http://www.aboutads.info/choices/"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer">Digital Advertising Alliance opt-out tool</a>
+            </li>
+            <li>
+              Using the <a
+                href="http://www.youronlinechoices.eu/"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                >European Interactive Digital Advertising Alliance opt-out tool</a
+              > (for users in the EU)
+            </li>
           </ul>
         </section>
 
         <!-- International Data Transfers -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. International Data Transfers</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            7. International Data Transfers
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Our services are hosted on Cloudflare Workers, which may process data in various locations globally. 
-            Google AdSense may also transfer and process data internationally. When we transfer data internationally, 
-            we ensure appropriate safeguards are in place to protect your information.
+            Our services are hosted on Cloudflare Workers, which may process data in various
+            locations globally. Google AdSense may also transfer and process data internationally.
+            When we transfer data internationally, we ensure appropriate safeguards are in place to
+            protect your information.
           </p>
         </section>
 
         <!-- Children's Privacy -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. Children's Privacy</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            8. Children's Privacy
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Our services are not directed to children under the age of 13 (or 16 in the European Economic Area). 
-            We do not knowingly collect personal information from children. If you believe we have collected 
-            information from a child, please contact us immediately.
+            Our services are not directed to children under the age of 13 (or 16 in the European
+            Economic Area). We do not knowingly collect personal information from children. If you
+            believe we have collected information from a child, please contact us immediately.
           </p>
         </section>
 
         <!-- GDPR and CCPA Compliance -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. GDPR and CCPA Rights</h2>
-          
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">9.1 For European Users (GDPR)</h3>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            9. GDPR and CCPA Rights
+          </h2>
+
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            9.1 For European Users (GDPR)
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             If you are located in the European Economic Area, you have the following rights:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4 mb-4">
-            <li><strong>Right to access:</strong> You can request information about the personal data we hold about you</li>
-            <li><strong>Right to rectification:</strong> You can request correction of inaccurate data</li>
-            <li><strong>Right to erasure:</strong> You can request deletion of your personal data</li>
-            <li><strong>Right to restrict processing:</strong> You can request that we limit how we use your data</li>
-            <li><strong>Right to data portability:</strong> You can request a copy of your data in a machine-readable format</li>
-            <li><strong>Right to object:</strong> You can object to processing of your personal data</li>
+            <li>
+              <strong>Right to access:</strong> You can request information about the personal data we
+              hold about you
+            </li>
+            <li>
+              <strong>Right to rectification:</strong> You can request correction of inaccurate data
+            </li>
+            <li>
+              <strong>Right to erasure:</strong> You can request deletion of your personal data
+            </li>
+            <li>
+              <strong>Right to restrict processing:</strong> You can request that we limit how we use
+              your data
+            </li>
+            <li>
+              <strong>Right to data portability:</strong> You can request a copy of your data in a machine-readable
+              format
+            </li>
+            <li>
+              <strong>Right to object:</strong> You can object to processing of your personal data
+            </li>
           </ul>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">9.2 For California Users (CCPA)</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            9.2 For California Users (CCPA)
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             If you are a California resident, you have the following rights:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li><strong>Right to know:</strong> You can request information about the personal data we collect</li>
-            <li><strong>Right to delete:</strong> You can request deletion of your personal data</li>
-            <li><strong>Right to opt-out:</strong> You can opt out of the sale of your personal data (note: we do not sell personal data)</li>
-            <li><strong>Right to non-discrimination:</strong> You will not receive discriminatory treatment for exercising your privacy rights</li>
+            <li>
+              <strong>Right to know:</strong> You can request information about the personal data we collect
+            </li>
+            <li>
+              <strong>Right to delete:</strong> You can request deletion of your personal data
+            </li>
+            <li>
+              <strong>Right to opt-out:</strong> You can opt out of the sale of your personal data (note:
+              we do not sell personal data)
+            </li>
+            <li>
+              <strong>Right to non-discrimination:</strong> You will not receive discriminatory treatment
+              for exercising your privacy rights
+            </li>
           </ul>
         </section>
 
         <!-- Changes to This Policy -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. Changes to This Privacy Policy</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            10. Changes to This Privacy Policy
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We may update this Privacy Policy from time to time. We will notify you of any changes by posting the 
-            new Privacy Policy on this page and updating the "Last updated" date. We encourage you to review this 
-            Privacy Policy periodically for any changes.
+            We may update this Privacy Policy from time to time. We will notify you of any changes
+            by posting the new Privacy Policy on this page and updating the "Last updated" date. We
+            encourage you to review this Privacy Policy periodically for any changes.
           </p>
         </section>
 
@@ -227,23 +340,39 @@ const structuredData = {
         <section class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Contact Us</h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            If you have any questions about this Privacy Policy or our data practices, please contact us at:
+            If you have any questions about this Privacy Policy or our data practices, please
+            contact us at:
           </p>
-          <div class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-600">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-600"
+          >
             <p class="text-gray-700 dark:text-gray-300 font-mono text-sm">
-              Email: privacy@financial-analysis.tools
+              Email: privacy@fanalyx.com
             </p>
           </div>
         </section>
 
         <!-- Summary Box -->
-        <section class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800">
+        <section
+          class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800"
+        >
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">📝 Key Takeaways</h3>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li><strong>Your financial data stays on your device</strong> - We don't collect or store calculator inputs</li>
-            <li><strong>We use Google AdSense</strong> - Ads are displayed based on cookies and browsing history</li>
-            <li><strong>You have control</strong> - You can opt out of personalized ads and manage cookies</li>
-            <li><strong>We're transparent</strong> - This policy clearly explains what data we collect and why</li>
+            <li>
+              <strong>Your financial data stays on your device</strong> - We don't collect or store calculator
+              inputs
+            </li>
+            <li>
+              <strong>We use Google AdSense</strong> - Ads are displayed based on cookies and browsing
+              history
+            </li>
+            <li>
+              <strong>You have control</strong> - You can opt out of personalized ads and manage cookies
+            </li>
+            <li>
+              <strong>We're transparent</strong> - This policy clearly explains what data we collect and
+              why
+            </li>
             <li><strong>Your rights matter</strong> - We respect GDPR and CCPA privacy rights</li>
           </ul>
         </section>
@@ -251,7 +380,7 @@ const structuredData = {
 
       <!-- Back to Home Link -->
       <div class="mt-8 text-center">
-        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+        <a href="/" class="fa-inline-link">
           ← Back to Home
         </a>
       </div>

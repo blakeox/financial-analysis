@@ -1,4 +1,7 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const title = 'Developer Dashboard - Financial Analysis API';
@@ -7,16 +10,16 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
 ---
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} noindex={true}>
-  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="mt-2 text-gray-600">Manage your API subscription and monitor usage</p>
-      </div>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
 
-      <!-- Account Info -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <div class="fa-page-shell">
+      <PageHero
+        eyebrow="Account"
+        title="Dashboard"
+        description="Manage your API subscription, view usage, and handle billing from one shared workspace."
+      />
+
+      <SurfaceCard className="mb-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
         <div class="grid md:grid-cols-2 gap-4">
           <div>
@@ -28,10 +31,10 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
             <p class="mt-1 text-gray-600 font-mono text-sm" id="customer-id">Loading...</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- Current Plan -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="current-plan">
+      <div id="current-plan">
+      <SurfaceCard className="mb-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
           <button 
@@ -46,20 +49,21 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p class="mt-2 text-gray-600">Loading plan details...</p>
         </div>
+      </SurfaceCard>
       </div>
 
-      <!-- Usage Stats -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="usage-stats">
+      <div id="usage-stats">
+      <SurfaceCard className="mb-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage This Month</h2>
         
         <div class="text-center py-8">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p class="mt-2 text-gray-600">Loading usage data...</p>
         </div>
+      </SurfaceCard>
       </div>
 
-      <!-- API Keys -->
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <SurfaceCard>
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold text-gray-900">API Keys</h2>
           <a 
@@ -76,35 +80,30 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
             <p class="mt-2 text-gray-600">Loading API keys...</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- Quick Actions -->
       <div class="mt-8 grid md:grid-cols-3 gap-6">
         <a 
           href="/pricing" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">Upgrade Plan</h3>
-          <p class="text-gray-600 text-sm">Get more requests and higher rate limits</p>
+          <SurfaceCard title="Upgrade Plan" description="Get more requests and higher rate limits." className="h-full" />
         </a>
         
         <a 
           href="/developers" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">API Documentation</h3>
-          <p class="text-gray-600 text-sm">Learn how to integrate the API</p>
+          <SurfaceCard title="API Documentation" description="Learn how to integrate the API." className="h-full" />
         </a>
         
         <a 
           href="mailto:support@fanalyx.com" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">Get Support</h3>
-          <p class="text-gray-600 text-sm">Contact us for help or questions</p>
+          <SurfaceCard title="Get Support" description="Contact us for help or questions." className="h-full" />
         </a>
       </div>
-    </div>
   </div>
 </Layout>
 

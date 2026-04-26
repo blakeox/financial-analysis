@@ -1,5 +1,8 @@
 ---
 import { CALCULATOR_CONFIGS } from '../components/CalculatorTemplate.tsx';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const calculators = Object.values(CALCULATOR_CONFIGS);
@@ -54,49 +57,39 @@ const structuredData = {
   keywords={keywords}
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Header -->
-      <div class="mb-12 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Financial Calculators
-        </h1>
-        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Professional-grade financial analysis tools to help you make informed decisions about mortgages, loans, retirement, savings, and more.
-        </p>
-      </div>
 
-      <!-- Calculator Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
+
+  <div class="fa-page-shell">
+      <PageHero
+        eyebrow="Calculators"
+        title="Financial Calculators"
+        description="Professional-grade financial analysis tools to help you evaluate mortgages, loans, retirement, savings, debt payoff, and other everyday decisions."
+      />
+
+      <div class="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
         {calculators.map((calculator) => (
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div class="p-6">
-              <!-- Icon and Title -->
-              <div class="flex items-center mb-4">
-                <span class="text-3xl mr-3">{calculator.icon}</span>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                  {calculator.title}
-                </h2>
-              </div>
-              
-              <!-- Description -->
-              <p class="text-gray-600 dark:text-gray-300 mb-4">
-                {calculator.description}
-              </p>
-              
-              <!-- Keywords -->
-              <div class="mb-4">
-                <div class="flex flex-wrap gap-2">
-                  {calculator.keywords.slice(0, 3).map((keyword) => (
-                    <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <!-- Action Button -->
+          <SurfaceCard className="h-full">
+            <div class="flex items-center mb-4">
+              <span class="mr-3 text-3xl">{calculator.icon}</span>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                {calculator.title}
+              </h2>
+            </div>
+
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              {calculator.description}
+            </p>
+
+            <div class="mb-4 flex flex-wrap gap-2">
+              {calculator.keywords.slice(0, 3).map((keyword) => (
+                <span class="rounded-full bg-violet-50 px-2 py-1 text-xs text-violet-700">
+                  {keyword}
+                </span>
+              ))}
+            </div>
+
+            <div class="mt-auto pt-2">
               <a 
                 href={`/calculator/${calculator.id}`}
                 class={`inline-flex items-center justify-center w-full px-4 py-2 font-medium rounded-lg transition-colors duration-200 ${
@@ -114,12 +107,11 @@ const structuredData = {
                 </svg>
               </a>
             </div>
-          </div>
+          </SurfaceCard>
         ))}
       </div>
 
-      <!-- Features Section -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-12">
+      <SurfaceCard className="mb-12">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
           Why Choose Our Financial Calculators?
         </h2>
@@ -152,10 +144,9 @@ const structuredData = {
             <p class="text-gray-600 dark:text-gray-300">All calculations happen in your browser. No data is stored or transmitted.</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- CTA Section -->
-      <div class="text-center">
+      <div class="fa-highlight-card text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           Ready to Take Control of Your Finances?
         </h2>
@@ -165,18 +156,17 @@ const structuredData = {
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a 
             href="/journey/young-professional"
-            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-primary"
           >
             Start Financial Journey
           </a>
           <a 
             href="/models"
-            class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-secondary"
           >
             Browse All Models
           </a>
         </div>
       </div>
-    </div>
   </div>
 </Layout>

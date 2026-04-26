@@ -1,6 +1,9 @@
 ---
 import AdSense from '../components/AdSense.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 ---
@@ -60,15 +63,25 @@ import Layout from '../layouts/Layout.astro';
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Personal Finance', href: '/models/personal' },
+      { label: 'Financial Journey' },
+    ]}
+  />
+
+  <div class="fa-page-shell">
     <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Financial Journey Planner</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Comprehensive multi-stage financial planning with personalized recommendations and progress tracking
-      </p>
+      <PageHero
+        eyebrow="Planner"
+        title="Financial Journey Planner"
+        description="Comprehensive multi-stage financial planning with personalized recommendations and progress tracking."
+      />
 
       <!-- Financial Journey Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <SurfaceCard className="mb-8">
         <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
 
         <form id="financial-journey-form" class="space-y-6">
@@ -288,12 +301,14 @@ import Layout from '../layouts/Layout.astro';
             </button>
           </div>
         </form>
-      </div>
+      </SurfaceCard>
 
       <!-- Results Section -->
-      <div id="journey-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Financial Journey Plan</h2>
-        <div id="journey-results-content" class="space-y-4"></div>
+      <div id="journey-results" class="hidden">
+        <SurfaceCard className="mb-8">
+          <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Financial Journey Plan</h2>
+          <div id="journey-results-content" class="space-y-4"></div>
+        </SurfaceCard>
       </div>
 
       <!-- AdSense -->

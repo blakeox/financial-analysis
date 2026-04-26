@@ -1,4 +1,5 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import Layout from '../layouts/Layout.astro';
 
 const baseUrl = 'https://fanalyx.com';
@@ -6,65 +7,63 @@ const currentUrl = `${baseUrl}${Astro.url.pathname}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
-        { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": currentUrl }
-      ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Terms of Service', item: currentUrl },
+      ],
     },
     {
-      "@type": "WebPage",
-      "name": "Terms of Service",
-      "description": "Terms of Service for Fanalyx financial calculators.",
-      "url": currentUrl,
-      "isPartOf": { "@type": "WebSite", "name": "Fanalyx", "url": baseUrl }
-    }
-  ]
+      '@type': 'WebPage',
+      name: 'Terms of Service',
+      description: 'Terms of Service for Fanalyx financial calculators.',
+      url: currentUrl,
+      isPartOf: { '@type': 'WebSite', name: 'Fanalyx', url: baseUrl },
+    },
+  ],
 };
 ---
 
-<Layout 
-  title="Terms of Service - Financial Analysis" 
+<Layout
+  title="Terms of Service - Fanalyx"
   description="Terms of Service for Fanalyx financial calculators. Free to use, no account required. Review our disclaimer, liability limitations, and user responsibilities for our 29 financial tools."
   canonical={Astro.url.href}
   keywords="terms of service, terms and conditions, user agreement, service terms, legal terms, free calculator terms, financial disclaimer"
   type="article"
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="max-w-4xl mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Terms of Service</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-16 max-w-4xl">
+
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Terms of Service' }]} />
+
+  <div class="fa-page-shell-narrow">
+    <div>
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Terms of Service</h1>
       <p class="text-gray-600 dark:text-gray-400 mb-8">Last updated: October 22, 2025</p>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-8">
+      <div class="fa-prose-card space-y-8">
         <!-- Introduction -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">1. Acceptance of Terms</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            1. Acceptance of Terms
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            By accessing and using Financial Analysis Tools (the "Service"), you accept and agree to be bound by 
-            the terms and provision of this agreement. If you do not agree to these Terms of Service, please do 
-            not use the Service.
+            By accessing and using Fanalyx (the "Service"), you accept and agree to be bound by the
+            terms and provision of this agreement. If you do not agree to these Terms of Service,
+            please do not use the Service.
           </p>
         </section>
 
         <!-- Service Description -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">2. Service Description</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            2. Service Description
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            Financial Analysis Tools provides online financial calculators and analysis tools, including but not limited to:
+            Fanalyx provides online financial calculators and analysis tools, including but not
+            limited to:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
             <li>Loan and mortgage calculators</li>
@@ -76,25 +75,44 @@ const structuredData = {
         </section>
 
         <!-- Disclaimer -->
-        <section class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">3. Financial Disclaimer</h2>
+        <section
+          class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800"
+        >
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            3. Financial Disclaimer
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            <strong>IMPORTANT:</strong> The calculations and information provided by this Service are for 
-            informational purposes only and should not be considered professional financial advice.
+            <strong>IMPORTANT:</strong> The calculations and information provided by this Service are
+            for informational purposes only and should not be considered professional financial advice.
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li><strong>Not Financial Advice:</strong> We are not financial advisors, and nothing on this Service should be construed as financial, investment, tax, or legal advice.</li>
-            <li><strong>No Guarantee of Accuracy:</strong> While we strive for accuracy, we do not guarantee that all calculations or information are error-free or complete.</li>
-            <li><strong>Consult Professionals:</strong> Always consult with qualified financial, tax, and legal professionals before making any financial decisions.</li>
-            <li><strong>Your Responsibility:</strong> You are solely responsible for verifying all calculations and using them appropriately for your situation.</li>
+            <li>
+              <strong>Not Financial Advice:</strong> We are not financial advisors, and nothing on this
+              Service should be construed as financial, investment, tax, or legal advice.
+            </li>
+            <li>
+              <strong>No Guarantee of Accuracy:</strong> While we strive for accuracy, we do not guarantee
+              that all calculations or information are error-free or complete.
+            </li>
+            <li>
+              <strong>Consult Professionals:</strong> Always consult with qualified financial, tax, and
+              legal professionals before making any financial decisions.
+            </li>
+            <li>
+              <strong>Your Responsibility:</strong> You are solely responsible for verifying all calculations
+              and using them appropriately for your situation.
+            </li>
           </ul>
         </section>
 
         <!-- Use of Service -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">4. Acceptable Use</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            4. Acceptable Use
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            You agree to use the Service only for lawful purposes and in accordance with these Terms. You agree NOT to:
+            You agree to use the Service only for lawful purposes and in accordance with these
+            Terms. You agree NOT to:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
             <li>Use the Service in any way that violates any applicable law or regulation</li>
@@ -108,84 +126,123 @@ const structuredData = {
 
         <!-- Data and Privacy -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">5. Your Data and Privacy</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            5. Your Data and Privacy
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            <strong>Client-Side Processing:</strong> All financial calculations are performed entirely in your 
-            web browser. We do not collect, store, or transmit any of the financial data you enter into our calculators.
+            <strong>Client-Side Processing:</strong> All financial calculations are performed entirely
+            in your web browser. We do not collect, store, or transmit any of the financial data you enter
+            into our calculators.
           </p>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            For information about how we collect and use other types of data (such as usage analytics and advertising data), 
-            please review our <a href="/privacy" class="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>.
+            For information about how we collect and use other types of data (such as usage
+            analytics and advertising data), please review our <a
+              href="/privacy"
+              class="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a
+            >.
           </p>
         </section>
 
         <!-- Intellectual Property -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Intellectual Property Rights</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            6. Intellectual Property Rights
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            The Service and its original content, features, and functionality are owned by Financial Analysis Tools 
-            and are protected by international copyright, trademark, patent, trade secret, and other intellectual 
-            property laws.
+            The Service and its original content, features, and functionality are owned by Fanalyx
+            and are protected by international copyright, trademark, patent, trade secret, and other
+            intellectual property laws.
           </p>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            You may not copy, modify, distribute, sell, or lease any part of our Service or software without our 
-            express written permission.
+            You may not copy, modify, distribute, sell, or lease any part of our Service or software
+            without our express written permission.
           </p>
         </section>
 
         <!-- Third-Party Services -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. Third-Party Services and Advertising</h2>
-          
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">7.1 Google AdSense</h3>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            7. Third-Party Services and Advertising
+          </h2>
+
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            7.1 Google AdSense
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            Our Service uses Google AdSense to display advertisements. Google's use of advertising cookies enables 
-            it and its partners to serve ads based on your visit to our site and/or other sites on the Internet.
+            Our Service uses Google AdSense to display advertisements. Google's use of advertising
+            cookies enables it and its partners to serve ads based on your visit to our site and/or
+            other sites on the Internet.
           </p>
 
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">7.2 Third-Party Links</h3>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">
+            7.2 Third-Party Links
+          </h3>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Our Service may contain links to third-party websites or services that are not owned or controlled by us. 
-            We have no control over, and assume no responsibility for, the content, privacy policies, or practices 
-            of any third-party websites or services.
+            Our Service may contain links to third-party websites or services that are not owned or
+            controlled by us. We have no control over, and assume no responsibility for, the
+            content, privacy policies, or practices of any third-party websites or services.
           </p>
         </section>
 
         <!-- Limitation of Liability -->
-        <section class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 border border-red-200 dark:border-red-800">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. Limitation of Liability</h2>
+        <section
+          class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 border border-red-200 dark:border-red-800"
+        >
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            8. Limitation of Liability
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             <strong>TO THE MAXIMUM EXTENT PERMITTED BY LAW:</strong>
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li>The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied</li>
+            <li>
+              The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind,
+              either express or implied
+            </li>
             <li>We do not warrant that the Service will be uninterrupted, secure, or error-free</li>
-            <li>We do not warrant the accuracy, reliability, or completeness of any calculations or information</li>
-            <li>We shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages</li>
-            <li>This includes damages for loss of profits, revenue, data, or business opportunities</li>
-            <li>Our total liability shall not exceed $100 or the amount you paid to us in the last 12 months (if any)</li>
+            <li>
+              We do not warrant the accuracy, reliability, or completeness of any calculations or
+              information
+            </li>
+            <li>
+              We shall not be liable for any direct, indirect, incidental, special, consequential,
+              or punitive damages
+            </li>
+            <li>
+              This includes damages for loss of profits, revenue, data, or business opportunities
+            </li>
+            <li>
+              Our total liability shall not exceed $100 or the amount you paid to us in the last 12
+              months (if any)
+            </li>
           </ul>
         </section>
 
         <!-- Indemnification -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. Indemnification</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            9. Indemnification
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            You agree to indemnify, defend, and hold harmless Financial Analysis Tools and its officers, directors, 
-            employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including 
-            reasonable attorney's fees, arising out of or in any way connected with your access to or use of the Service, 
-            or your violation of these Terms.
+            You agree to indemnify, defend, and hold harmless Fanalyx and its officers, directors,
+            employees, and agents from and against any claims, liabilities, damages, losses, and
+            expenses, including reasonable attorney's fees, arising out of or in any way connected
+            with your access to or use of the Service, or your violation of these Terms.
           </p>
         </section>
 
         <!-- Service Availability -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. Service Availability and Modifications</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            10. Service Availability and Modifications
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             We reserve the right to:
           </p>
           <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2 ml-4">
-            <li>Modify or discontinue the Service (or any part thereof) temporarily or permanently</li>
+            <li>
+              Modify or discontinue the Service (or any part thereof) temporarily or permanently
+            </li>
             <li>Refuse service to anyone for any reason at any time</li>
             <li>Update, change, or discontinue any content, feature, or functionality</li>
             <li>Impose limits on certain features or restrict access to parts of the Service</li>
@@ -196,51 +253,63 @@ const structuredData = {
         <section>
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Termination</h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We may terminate or suspend your access to the Service immediately, without prior notice or liability, 
-            for any reason, including but not limited to breach of these Terms. Upon termination, your right to 
-            use the Service will immediately cease.
+            We may terminate or suspend your access to the Service immediately, without prior notice
+            or liability, for any reason, including but not limited to breach of these Terms. Upon
+            termination, your right to use the Service will immediately cease.
           </p>
         </section>
 
         <!-- Governing Law -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">12. Governing Law and Jurisdiction</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            12. Governing Law and Jurisdiction
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            These Terms shall be governed by and construed in accordance with the laws of the United States, 
-            without regard to its conflict of law provisions. Any disputes arising from these Terms or the Service 
-            shall be resolved in the courts located in the United States.
+            These Terms shall be governed by and construed in accordance with the laws of the United
+            States, without regard to its conflict of law provisions. Any disputes arising from
+            these Terms or the Service shall be resolved in the courts located in the United States.
           </p>
         </section>
 
         <!-- Severability -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">13. Severability</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            13. Severability
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            If any provision of these Terms is held to be unenforceable or invalid, such provision will be changed 
-            and interpreted to accomplish the objectives of such provision to the greatest extent possible under 
-            applicable law, and the remaining provisions will continue in full force and effect.
+            If any provision of these Terms is held to be unenforceable or invalid, such provision
+            will be changed and interpreted to accomplish the objectives of such provision to the
+            greatest extent possible under applicable law, and the remaining provisions will
+            continue in full force and effect.
           </p>
         </section>
 
         <!-- Changes to Terms -->
         <section>
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">14. Changes to These Terms</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            14. Changes to These Terms
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We reserve the right to modify or replace these Terms at any time. We will provide notice of any 
-            material changes by posting the new Terms on this page and updating the "Last updated" date. Your 
-            continued use of the Service after any changes constitutes acceptance of the new Terms.
+            We reserve the right to modify or replace these Terms at any time. We will provide
+            notice of any material changes by posting the new Terms on this page and updating the
+            "Last updated" date. Your continued use of the Service after any changes constitutes
+            acceptance of the new Terms.
           </p>
         </section>
 
         <!-- Contact -->
         <section class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">15. Contact Information</h2>
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            15. Contact Information
+          </h2>
           <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
             If you have any questions about these Terms, please contact us at:
           </p>
-          <div class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-600">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-600"
+          >
             <p class="text-gray-700 dark:text-gray-300 font-mono text-sm">
-              Email: legal@financial-analysis.tools
+              Email: legal@fanalyx.com
             </p>
           </div>
         </section>
@@ -248,7 +317,7 @@ const structuredData = {
 
       <!-- Back to Home Link -->
       <div class="mt-8 text-center">
-        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+        <a href="/" class="fa-inline-link">
           ← Back to Home
         </a>
       </div>

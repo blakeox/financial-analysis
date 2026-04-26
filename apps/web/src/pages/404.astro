@@ -1,4 +1,7 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const baseUrl = 'https://fanalyx.com';
@@ -29,34 +32,19 @@ const structuredData = {
   noindex={true}
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-16">
-    <div class="max-w-2xl text-center">
-      <!-- 404 Header -->
-      <div class="mb-8">
-        <h1 class="text-8xl font-bold text-blue-600 dark:text-blue-400 mb-4">404</h1>
-        <h2 class="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
-          Page Not Found
-        </h2>
-        <p class="text-lg text-gray-600 dark:text-gray-400">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: '404' }]} />
+
+  <div class="fa-page-shell-narrow">
+      <div class="text-center mb-10">
+        <div class="mb-4 text-8xl font-bold text-violet-600">404</div>
+        <PageHero
+          title="Page Not Found"
+          description="The page you're looking for doesn't exist or has been moved."
+          actions={[{ href: '/', label: 'Go to Homepage' }]}
+        />
       </div>
-      
-      <!-- Call to Action -->
-      <div class="mb-12">
-        <a 
-          href="/" 
-          class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
-        >
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          Go to Homepage
-        </a>
-      </div>
-      
-      <!-- Popular Calculators -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+
+      <SurfaceCard>
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Popular Financial Calculators
         </h3>
@@ -90,16 +78,13 @@ const structuredData = {
             <div class="text-sm font-medium text-gray-900 dark:text-white">Lease Analysis</div>
           </a>
         </div>
-      </div>
-      
-      <!-- Additional Links -->
+      </SurfaceCard>
+
       <div class="mt-8 text-sm text-gray-600 dark:text-gray-400">
         Or explore our 
-        <a href="/models" class="text-blue-600 hover:underline">full calculator suite</a>, 
-        <a href="/journey" class="text-blue-600 hover:underline">financial journeys</a>, or
-        <a href="/sitemap-index.xml" class="text-blue-600 hover:underline">browse sitemap</a>
+        <a href="/models" class="fa-inline-link">full calculator suite</a>, 
+        <a href="/journey" class="fa-inline-link">financial journeys</a>, or
+        <a href="/sitemap-index.xml" class="fa-inline-link">browse sitemap</a>
       </div>
-    </div>
   </div>
 </Layout>
-

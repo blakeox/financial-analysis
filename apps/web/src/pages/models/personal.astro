@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ClientScriptLoader from '../../components/ClientScriptLoader.tsx';
+import Breadcrumbs from '../../components/site/Breadcrumbs.astro';
+import PageHero from '../../components/site/PageHero.astro';
 
 const keywords = "personal finance, mortgage calculator, retirement planning, auto loan calculator, debt payoff, savings goal calculator, student loan calculator, budget planner, amortization calculator";
 const enhancedDescription = "Free personal finance calculators and planning tools for mortgages, retirement, auto loans, debt payoff, savings goals, student loans, and budgeting. Professional-grade financial modeling made simple.";
@@ -143,57 +145,28 @@ const faqSchema = {
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <!-- FAQ Schema -->
   <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Breadcrumb Navigation -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
-      <div class="container mx-auto px-4 py-3">
-        <ol class="flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="/" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
-              <span itemprop="name">Home</span>
-            </a>
-            <meta itemprop="position" content="1" />
-          </li>
-          <li class="text-gray-400 dark:text-gray-600">/</li>
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="/models" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" itemprop="item">
-              <span itemprop="name">Models</span>
-            </a>
-            <meta itemprop="position" content="2" />
-          </li>
-          <li class="text-gray-400 dark:text-gray-600">/</li>
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <span class="text-gray-900 dark:text-white font-medium" itemprop="name">Personal Finance</span>
-            <meta itemprop="position" content="3" />
-          </li>
-        </ol>
-      </div>
-    </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Personal Finance' },
+    ]}
+  />
 
+  <div class="fa-page-shell">
     <!-- Main Content Container with Chat Panel Integration -->
     <div id="main-container" class="transition-all duration-300 ease-in-out">
-      <div class="container mx-auto px-4 py-16">
-        <!-- Header Section -->
-        <div class="text-center mb-16">
-          <div class="flex items-center justify-center mb-4">
-            <a href="/models" class="mr-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-              </svg>
-            </a>
-            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">
-              Personal Finance Models
-            </h1>
-          </div>
-          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Financial planning tools for individuals and families. Calculate mortgages, plan for retirement, and analyze personal investments.
-          </p>
-          <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-            </svg>
-            <span>Open a model, calculate once, then use guided analysis to compare scenarios and change inputs.</span>
-          </div>
+      <div class="mx-auto max-w-7xl">
+        <PageHero
+          eyebrow="Models"
+          title="Personal Finance Models"
+          description="Financial planning tools for individuals and families. Calculate mortgages, plan for retirement, and analyze personal investments."
+        />
+        <div class="mb-16 flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+          <span>Open a model, calculate once, then use guided analysis to compare scenarios and change inputs.</span>
         </div>
 
         <!-- Personal Finance Models Grid -->

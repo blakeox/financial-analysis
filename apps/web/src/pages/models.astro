@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 
 const keywords = "financial models, personal finance calculator, business finance tools, mortgage calculator, retirement planning, lease analysis, EBITDA calculator, financial planning";
 const description = "Free financial models and calculators. Choose personal finance tools for mortgages, retirement, and investments or business finance for commercial real estate, lease analysis, and EBITDA forecasting.";
@@ -54,85 +57,51 @@ const structuredData = {
 
 <Layout title="Financial Models" description={description} keywords={keywords} canonical={Astro.url.href} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Financial Models</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Main Content Container with Chat Panel Integration -->
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Financial Models' }]} />
+
+  <div class="fa-page-shell">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
-      <div class="container mx-auto px-4 py-16">
-        <!-- Header Section -->
-        <div class="text-center mb-16">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Financial Models
-          </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Choose between personal finance tools or business analysis models. Each is designed for precision and powered by deterministic calculations.
-          </p>
-          <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-            </svg>
-            <span>Pick a model, run the numbers, then use guided analysis to compare scenarios and change inputs.</span>
-          </div>
+        <PageHero
+          eyebrow="Models"
+          title="Financial Models"
+          description="Choose between personal finance tools or business analysis models. Each is designed for precision and backed by deterministic calculations."
+        />
+
+        <div class="mb-16 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+          <span>Pick a model, run the numbers, then use guided analysis to compare scenarios and change inputs.</span>
         </div>
 
-        <!-- Category Selection -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16" role="main">
-          
-          <!-- Personal Finance Category -->
-          <a href="/models/personal" class="block group">
-            <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Personal Finance</h2>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families.
-              </p>
-              <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Personal Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
+        <div class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2" role="main">
+          <a
+            href="/models/personal"
+            aria-label="Explore Personal Tools"
+            class="block transition hover:-translate-y-1"
+          >
+            <SurfaceCard
+              title="Personal Finance"
+              description="Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families."
+              className="h-full bg-gradient-to-br from-blue-50 to-indigo-50"
+            >
+              <span class="fa-inline-link mt-6 inline-flex">Explore Personal Tools</span>
+            </SurfaceCard>
           </a>
 
-          <!-- Business Finance Category -->
-          <a href="/models/business" class="block group">
-            <div class="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Business Finance</h2>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools.
-              </p>
-              <div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Business Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
+          <a
+            href="/models/business"
+            aria-label="Explore Business Tools"
+            class="block transition hover:-translate-y-1"
+          >
+            <SurfaceCard
+              title="Business Finance"
+              description="Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools."
+              className="h-full bg-gradient-to-br from-violet-50 to-purple-50"
+            >
+              <span class="fa-inline-link mt-6 inline-flex">Explore Business Tools</span>
+            </SurfaceCard>
           </a>
-
         </div>
 
         <!-- AdSense: Between categories and features -->
@@ -339,8 +308,6 @@ const structuredData = {
             </div>
           </div>
         </div>
-      </div>
-    </div>
   </div>
 
   <ClientScriptLoader client:load slot="pageScripts" name="models" />

@@ -6,7 +6,10 @@
 // - Mobile hamburger with slide-down panel
 // - Active link highlighting via underline
 // - Accessible semantics & aria attributes
-export interface NavLink { href: string; label: string }
+export interface NavLink {
+  href: string;
+  label: string;
+}
 export interface Props {
   links: NavLink[];
   currentPath?: string;
@@ -15,70 +18,135 @@ export interface Props {
 
 const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.props;
 ---
-<nav id="site-nav" data-testid="nav-root" class="modern-nav fixed top-0 inset-x-0 z-50 print:relative print:backdrop-filter-none print:bg-white">
-  <div class="max-w-6xl mx-auto h-16 px-3 sm:px-5 lg:px-6 flex items-center justify-between nav-inner relative">
+
+<nav
+  id="site-nav"
+  data-testid="nav-root"
+  class="modern-nav fixed inset-x-0 top-0 z-50 print:relative print:backdrop-filter-none print:bg-white"
+>
+  <div
+    class="nav-inner relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+  >
     <!-- Brand -->
-  <a href="/" class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 rounded-md relative z-10" aria-label="Home">
-      <img
-        src="/fanalyx_favicon.png"
-        alt="Fanalyx logo"
-        width="36"
-        height="36"
-        class="brand-mark inline-flex h-9 w-9 rounded-md object-cover shadow ring-2 ring-cyan-400/50 dark:ring-cyan-500/50"
-        decoding="async"
-      />
-      <span class="font-semibold tracking-tight text-gray-900 dark:text-white text-sm sm:text-base select-none">{brand}</span>
+    <a
+      href="/"
+      class="group relative z-10 flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
+      aria-label="Home"
+    >
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span
+        class="select-none text-base font-semibold tracking-[-0.03em] text-gray-900 dark:text-white"
+      >
+        {brand}
+      </span>
     </a>
 
     <!-- Desktop Navigation (center-aligned) -->
-    <ul class="desktop-nav hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" data-testid="nav-desktop">
-      {links.map(link => {
-        const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
-        return (
-          <li>
-            <a
-              href={link.href}
-              data-testid="nav-desktop-link"
-              class={`desktop-nav-link relative nav-link focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 transition-colors hover:text-gray-900 dark:hover:text-white ${active ? 'text-gray-900 dark:text-white active' : 'text-gray-600 dark:text-gray-300'}`}
-              aria-current={active ? 'page' : undefined}
-            >
-              <span>{link.label}</span>
-            </a>
-          </li>
-        );
-      })}
+    <ul
+      class="desktop-nav absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex"
+      data-testid="nav-desktop"
+    >
+      {
+        links.map((link) => {
+          const active =
+            link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
+          return (
+            <li>
+              <a
+                href={link.href}
+                data-testid="nav-desktop-link"
+                class={`desktop-nav-link relative nav-link rounded-xl px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 ${active ? 'active text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
+                aria-current={active ? 'page' : undefined}
+              >
+                <span>{link.label}</span>
+              </a>
+            </li>
+          );
+        })
+      }
     </ul>
 
-  <!-- Right side / Mobile toggle -->
-  <div class="flex items-center gap-1 sm:gap-2 relative z-10">
+    <!-- Right side / Mobile toggle -->
+    <div class="relative z-10 flex items-center gap-2">
+      <a
+        href="/dashboard"
+        class="hidden rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-violet-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-violet-400/10 dark:hover:text-white lg:inline-flex"
+      >
+        Log In
+      </a>
+      <a
+        href="/agent"
+        class="hidden items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-violet-700 px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(109,74,255,0.34)] lg:inline-flex"
+      >
+        Get Started Free
+      </a>
       <!-- Theme Toggle -->
       <button
         id="theme-toggle"
         data-testid="nav-theme-toggle"
         type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/60 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-200 dark:hover:bg-gray-800"
         aria-label="Toggle color theme"
       >
         <span class="sr-only">Toggle theme</span>
-        <svg class="sun-icon h-5 w-5 block dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2m18 0h2M6.34 17.66l1.42-1.42M16.24 8.76l1.42-1.42"/></svg>
-        <svg class="moon-icon h-5 w-5 hidden dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg
+          class="sun-icon block h-5 w-5 dark:hidden"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="5"></circle>
+          <path
+            d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2m18 0h2M6.34 17.66l1.42-1.42M16.24 8.76l1.42-1.42"
+          ></path>
+        </svg>
+        <svg
+          class="moon-icon hidden h-5 w-5 dark:block"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+        </svg>
       </button>
       <!-- Search Trigger -->
       <button
         id="search-toggle"
         data-testid="nav-search-toggle"
         type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/60 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-200 dark:hover:bg-gray-800"
         aria-label="Open search"
       >
         <span class="sr-only">Open search</span>
-        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        <svg
+          class="h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
       </button>
       <button
         id="nav-toggle"
         data-testid="nav-mobile-toggle"
         type="button"
-        class="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-300/70 dark:border-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 bg-white/60 dark:bg-gray-800/60 transition"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-600 transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
         aria-label="Toggle navigation menu"
         aria-controls="mobile-nav-panel"
         aria-expanded="false"
@@ -102,41 +170,109 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
     aria-label="Mobile navigation"
     data-testid="nav-mobile-panel"
   >
-    <div class="px-4 pt-3 pb-6 bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm shadow-sm rounded-b-lg shadow-gray-900/5 dark:shadow-black/40">
-  <ul class="flex flex-col gap-1">
-        {links.filter(l => l.href !== '/status').map(link => {
-          const active = link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
-          return (
-            <li>
-              <a
-                href={link.href}
-                class={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${active ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-400/10' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'}`}
-                aria-current={active ? 'page' : undefined}
-                data-mobile-link
-              >{link.label}</a>
-            </li>
-          );
-        })}
+    <div
+      class="mx-4 rounded-[24px] border border-gray-200/80 bg-white/96 px-4 pb-5 pt-3 shadow-[0_18px_50px_rgba(9,14,36,0.08)] backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/96 dark:shadow-black/40"
+    >
+      <ul class="flex flex-col gap-1">
+        {
+          links
+            .filter((l) => l.href !== '/status')
+            .map((link) => {
+              const active =
+                link.href === '/' ? currentPath === '/' : currentPath.startsWith(link.href);
+              return (
+                <li>
+                  <a
+                    href={link.href}
+                    class={`block rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${active ? 'bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'}`}
+                    aria-current={active ? 'page' : undefined}
+                    data-mobile-link
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })
+        }
       </ul>
+      <a
+        href="/dashboard"
+        class="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white"
+      >
+        Log In
+      </a>
+      <a
+        href="/agent"
+        class="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-violet-700 px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)] transition hover:-translate-y-0.5"
+      >
+        Get Started Free
+      </a>
     </div>
   </div>
 </nav>
 
 <!-- Search Overlay -->
-<div id="search-overlay" data-testid="nav-search-overlay" class="fixed inset-0 z-70 hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60" aria-modal="true" role="dialog" aria-label="Site search" data-search-overlay>
+<div
+  id="search-overlay"
+  data-testid="nav-search-overlay"
+  class="fixed inset-0 z-70 hidden items-start justify-center pt-28 bg-black/40 backdrop-blur-sm dark:bg-black/60"
+  aria-modal="true"
+  role="dialog"
+  aria-label="Site search"
+  data-search-overlay
+>
   <div class="w-full max-w-xl mx-auto px-4">
-    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
+    <div
+      class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden"
+    >
       <div class="flex items-center px-4 h-14 gap-3">
-        <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="search-input" type="text" placeholder="Search (placeholder)…" class="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400" aria-label="Search input" />
-  <button type="button" id="search-close" data-testid="nav-search-close" aria-label="Close search" class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <svg
+          class="h-5 w-5 text-gray-500 dark:text-gray-400"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          ><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg
+        >
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search calculators, pages, and examples…"
+          class="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400"
+          aria-label="Search input"
+        />
+        <button
+          type="button"
+          id="search-close"
+          data-testid="nav-search-close"
+          aria-label="Close search"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg
+          >
           <span class="sr-only">Close search</span>
         </button>
       </div>
-      <div class="border-t border-gray-100 dark:border-gray-800 p-4 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+      <div
+        class="border-t border-gray-100 dark:border-gray-800 p-4 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between"
+      >
         <span>Type to search (not wired yet)</span>
-        <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-[10px] font-medium">Esc</kbd>
+        <kbd
+          class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-[10px] font-medium"
+          >Esc</kbd
+        >
       </div>
     </div>
   </div>
@@ -147,200 +283,343 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
 
 <script is:inline>
   // Progressive enhancement: mobile menu, theme toggle, search overlay, scroll elevation
-  (function(){
-      const toggle = document.querySelector('[data-nav-toggle]');
-      const panel = document.querySelector('[data-mobile-panel]');
-      const themeToggle = document.getElementById('theme-toggle');
-      const searchToggle = document.getElementById('search-toggle');
-      const searchOverlay = document.querySelector('[data-search-overlay]');
-      const searchInput = document.getElementById('search-input');
-      const searchClose = document.getElementById('search-close');
-  const live = document.getElementById('live-region');
-  const nav = document.getElementById('site-nav');
+  (function () {
+    const toggle = document.querySelector('[data-nav-toggle]');
+    const panel = document.querySelector('[data-mobile-panel]');
+    const themeToggle = document.getElementById('theme-toggle');
+    const searchToggle = document.getElementById('search-toggle');
+    const searchOverlay = document.querySelector('[data-search-overlay]');
+    const searchInput = document.getElementById('search-input');
+    const searchClose = document.getElementById('search-close');
+    const live = document.getElementById('live-region');
+    const nav = document.getElementById('site-nav');
     const inner = nav?.querySelector('.nav-inner');
-      // Lightweight persistent guard logs for field debugging
-      const win = window;
-      if(!('___navLogs' in win)) { try { Object.defineProperty(win,'___navLogs',{ value: [], writable: true, configurable: true }); } catch{} }
-      const pushLog = (type, details) => {
-        try {
-          const entry = { ts: Date.now(), type, details };
-          win.___navLogs.push(entry);
-          if(win.___navLogs.length > 200) win.___navLogs.splice(0, win.___navLogs.length - 200);
-        } catch{}
-      };
-      // --- Snapshot Instrumentation (diagnostic) ---
-      // Capture structural stability over time in data attributes without console noise
-      const recordPhase = (phase) => {
-        if(!nav) return;
-        const desktopLinks = nav.querySelectorAll('.desktop-nav a').length;
-        const mobileLinks = nav.querySelectorAll('[data-mobile-link]').length;
-        const htmlLen = nav.innerHTML.length;
-        const desktopNav = nav.querySelector('.desktop-nav');
-        let display = '';
-        try { if(desktopNav) display = getComputedStyle(desktopNav).display; } catch {}
-        nav.dataset[`phase${phase}`] = `${desktopLinks}|${mobileLinks}|${htmlLen}|${display}`;
-      };
-      // Initial sync capture (before any raf)
-      recordPhase('Initial');
-      // Proactively ensure desktop links are visible at >=md
-      ensureDesktopVisible('init');
-      requestAnimationFrame(()=>{
-        recordPhase('Raf');
-        ensureDesktopVisible('raf');
-        try { nav?.setAttribute('data-ready','1'); } catch {}
-      });
-      // Ensure Load/T2000 phases are recorded even if this script runs after load
-      const onLoadPhases = () => {
-        try { recordPhase('Load'); } catch{}
-        try { ensureDesktopVisible('load'); } catch{}
-        try { setTimeout(()=>{ recordPhase('T2000'); ensureDesktopVisible('t2000'); }, 2000); } catch{}
-      };
-      if (document.readyState === 'complete') {
-        onLoadPhases();
-      } else {
-        window.addEventListener('load', onLoadPhases, { once:true });
-      }
-      // Guard: detect unexpected hidden desktop nav on large screens (>=768px)
-      function ensureDesktopVisible(reason) {
-        try {
-          if(!nav) return;
-          const el = nav.querySelector('.desktop-nav');
-          if(!el) return;
-          const w = window.innerWidth;
-          if(w < 768) return; // below breakpoint it's allowed to be hidden
-          const cs = getComputedStyle(el);
-          if(cs.display === 'none') {
-            // Attempt repair & log forensic data once per event
-            if(!nav.dataset.desktopFix){ nav.dataset.desktopFix = '0'; }
-            const fixCount = parseInt(nav.dataset.desktopFix||'0',10)+1;
-            nav.dataset.desktopFix = String(fixCount);
-            // Collect candidate stylesheet rules
-            const offenders = [];
-            for(const ss of document.styleSheets){
-              let rules; try { rules = ss.cssRules; } catch { continue; }
-              if(!rules) continue;
-              for(const r of rules){
-                try {
-                  if(r instanceof CSSStyleRule && r.selectorText && r.selectorText.includes('.desktop-nav')){
-                    const d = r.style && r.style.display;
-                    offenders.push({selector: r.selectorText, display: d||'', snippet: (r.cssText||'').slice(0,160)});
-                  }
-                } catch {}
-              }
-            }
-            // Force visibility (inline style has high precedence over normal utility ordering)
-            el.style.display = 'flex';
-            pushLog('guard-fix', { reason, fixCount, width: w, className: el.className, offenders });
-            console.groupCollapsed(`[nav-guard] Forced desktop-nav display:flex (reason=${reason}, fix #${fixCount})`);
-            console.log('viewportWidth', w);
-            console.log('elementClasses', el.className);
-            console.log('inlineStyleAfter', el.getAttribute('style'));
-            console.table(offenders);
+    // Lightweight persistent guard logs for field debugging
+    const win = window;
+    if (!('___navLogs' in win)) {
+      try {
+        Object.defineProperty(win, '___navLogs', { value: [], writable: true, configurable: true });
+      } catch {}
+    }
+    const pushLog = (type, details) => {
+      try {
+        const entry = { ts: Date.now(), type, details };
+        win.___navLogs.push(entry);
+        if (win.___navLogs.length > 200) win.___navLogs.splice(0, win.___navLogs.length - 200);
+      } catch {}
+    };
+    // --- Snapshot Instrumentation (diagnostic) ---
+    // Capture structural stability over time in data attributes without console noise
+    const recordPhase = (phase) => {
+      if (!nav) return;
+      const desktopLinks = nav.querySelectorAll('.desktop-nav a').length;
+      const mobileLinks = nav.querySelectorAll('[data-mobile-link]').length;
+      const htmlLen = nav.innerHTML.length;
+      const desktopNav = nav.querySelector('.desktop-nav');
+      let display = '';
+      try {
+        if (desktopNav) display = getComputedStyle(desktopNav).display;
+      } catch {}
+      nav.dataset[`phase${phase}`] = `${desktopLinks}|${mobileLinks}|${htmlLen}|${display}`;
+    };
+    // Initial sync capture (before any raf)
+    recordPhase('Initial');
+    // Proactively ensure desktop links are visible at >=md
+    ensureDesktopVisible('init');
+    requestAnimationFrame(() => {
+      recordPhase('Raf');
+      ensureDesktopVisible('raf');
+      try {
+        nav?.setAttribute('data-ready', '1');
+      } catch {}
+    });
+    // Ensure Load/T2000 phases are recorded even if this script runs after load
+    const onLoadPhases = () => {
+      try {
+        recordPhase('Load');
+      } catch {}
+      try {
+        ensureDesktopVisible('load');
+      } catch {}
+      try {
+        setTimeout(() => {
+          recordPhase('T2000');
+          ensureDesktopVisible('t2000');
+        }, 2000);
+      } catch {}
+    };
+    if (document.readyState === 'complete') {
+      onLoadPhases();
+    } else {
+      window.addEventListener('load', onLoadPhases, { once: true });
+    }
+    // Guard: detect unexpected hidden desktop nav on large screens (>=768px)
+    function ensureDesktopVisible(reason) {
+      try {
+        if (!nav) return;
+        const el = nav.querySelector('.desktop-nav');
+        if (!el) return;
+        const w = window.innerWidth;
+        if (w < 768) return; // below breakpoint it's allowed to be hidden
+        const cs = getComputedStyle(el);
+        if (cs.display === 'none') {
+          // Attempt repair & log forensic data once per event
+          if (!nav.dataset.desktopFix) {
+            nav.dataset.desktopFix = '0';
           }
-        } catch {}
-      };
-      // Theme toggle
-      const applyTheme = (mode) => {
-        const root = document.documentElement;
-        const dark = mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        root.classList.toggle('dark', dark);
-      };
-      const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
-      if(stored) applyTheme(stored);
-      themeToggle?.addEventListener('click', ()=>{
+          const fixCount = parseInt(nav.dataset.desktopFix || '0', 10) + 1;
+          nav.dataset.desktopFix = String(fixCount);
+          // Collect candidate stylesheet rules
+          const offenders = [];
+          for (const ss of document.styleSheets) {
+            let rules;
+            try {
+              rules = ss.cssRules;
+            } catch {
+              continue;
+            }
+            if (!rules) continue;
+            for (const r of rules) {
+              try {
+                if (
+                  r instanceof CSSStyleRule &&
+                  r.selectorText &&
+                  r.selectorText.includes('.desktop-nav')
+                ) {
+                  const d = r.style && r.style.display;
+                  offenders.push({
+                    selector: r.selectorText,
+                    display: d || '',
+                    snippet: (r.cssText || '').slice(0, 160),
+                  });
+                }
+              } catch {}
+            }
+          }
+          // Force visibility (inline style has high precedence over normal utility ordering)
+          el.style.display = 'flex';
+          pushLog('guard-fix', { reason, fixCount, width: w, className: el.className, offenders });
+          console.groupCollapsed(
+            `[nav-guard] Forced desktop-nav display:flex (reason=${reason}, fix #${fixCount})`
+          );
+          console.log('viewportWidth', w);
+          console.log('elementClasses', el.className);
+          console.log('inlineStyleAfter', el.getAttribute('style'));
+          console.table(offenders);
+        }
+      } catch {}
+    }
+    // Theme toggle
+    const applyTheme = (mode) => {
+      const root = document.documentElement;
+      const dark =
+        mode === 'dark' ||
+        (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.classList.toggle('dark', dark);
+    };
+    const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+    if (stored) applyTheme(stored);
+    themeToggle?.addEventListener(
+      'click',
+      () => {
         const root = document.documentElement;
         const dark = root.classList.contains('dark');
         const next = dark ? 'light' : 'dark';
         localStorage.setItem('theme', next);
         applyTheme(next);
         announce(`Theme switched to ${next}`);
-      }, { passive: true });
+      },
+      { passive: true }
+    );
 
-      // Live region announcements
-      const announce = (msg) => { try { if(!live) return; live.textContent = ''; setTimeout(()=>{ live.textContent = String(msg||''); }, 1); } catch{} };
+    // Live region announcements
+    const announce = (msg) => {
+      try {
+        if (!live) return;
+        live.textContent = '';
+        setTimeout(() => {
+          live.textContent = String(msg || '');
+        }, 1);
+      } catch {}
+    };
 
-      // Search overlay logic
-      let lastFocus = null;
-      const openSearch = () => {
-        if(!searchOverlay) return; lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-        searchOverlay.classList.remove('hidden');
-        searchOverlay.classList.add('flex');
-        document.body.style.overflow='hidden';
-        requestAnimationFrame(()=> searchInput?.focus());
-        announce('Search opened');
-      };
-      const closeSearch = () => {
-        if(!searchOverlay) return; searchOverlay.classList.add('hidden'); searchOverlay.classList.remove('flex'); document.body.style.overflow='';
-        lastFocus?.focus(); announce('Search closed');
-      };
-      if (searchToggle && searchOverlay) {
-        searchToggle.addEventListener('click', openSearch, { passive: true });
-      }
-      if (searchClose && searchOverlay) {
-        searchClose.addEventListener('click', closeSearch, { passive: true });
-      }
-      if (searchOverlay) {
-        searchOverlay.addEventListener('click', (e)=>{ if(e.target === searchOverlay) closeSearch(); });
-      }
-
-      // Global key handlers
-      document.addEventListener('keydown', (e)=>{ 
-        if(e.key==='Escape'){ try{ closePanel(); }catch{} try{ closeSearch(); }catch{} }
-        if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); openSearch(); }
+    // Search overlay logic
+    let lastFocus = null;
+    const openSearch = () => {
+      if (!searchOverlay) return;
+      lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      searchOverlay.classList.remove('hidden');
+      searchOverlay.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => searchInput?.focus());
+      announce('Search opened');
+    };
+    const closeSearch = () => {
+      if (!searchOverlay) return;
+      searchOverlay.classList.add('hidden');
+      searchOverlay.classList.remove('flex');
+      document.body.style.overflow = '';
+      lastFocus?.focus();
+      announce('Search closed');
+    };
+    if (searchToggle && searchOverlay) {
+      searchToggle.addEventListener('click', openSearch, { passive: true });
+    }
+    if (searchClose && searchOverlay) {
+      searchClose.addEventListener('click', closeSearch, { passive: true });
+    }
+    if (searchOverlay) {
+      searchOverlay.addEventListener('click', (e) => {
+        if (e.target === searchOverlay) closeSearch();
       });
-        // Animate bars into X
-  function openPanel(){ try { if(!panel) return; toggle?.setAttribute('aria-expanded','true'); panel.classList.remove('pointer-events-none','opacity-0','-translate-y-2'); panel.classList.add('opacity-100'); document.body.style.overflow='hidden'; stabilizePanel('open'); announce('Menu opened'); } catch{} }
-  function closePanel(){ try { if(!panel) return; toggle?.setAttribute('aria-expanded','false'); panel.classList.add('pointer-events-none','opacity-0','-translate-y-2'); panel.classList.remove('opacity-100'); document.body.style.overflow=''; stabilizePanel('closed'); announce('Menu closed'); } catch{} }
-      if(toggle){
-        toggle.addEventListener('click', ()=>{
-          const expanded = toggle.getAttribute('aria-expanded') === 'true';
-          if(expanded) closePanel(); else openPanel();
-        }, { passive: true });
-      }
-      let elevated = false;
-      const onScroll = () => {
-        const y = window.scrollY;
-        if(y > 8 && !elevated){
-          nav?.classList.add('is-scrolled');
-          elevated = true;
-        } else if(y <= 8 && elevated){
-          nav?.classList.remove('is-scrolled');
-          elevated = false;
-        }
-        // Keep mobile panel aligned to header height if open
-        try { if(toggle && toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; } } catch{}
-      };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
-  window.addEventListener('resize', () => { try { ensureDesktopVisible('resize'); if(toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement){ const h = inner && inner.getBoundingClientRect ? Math.round(inner.getBoundingClientRect().height||64) : 64; panel.style.top = `${h}px`; if(window.innerWidth >= 768){ closePanel(); } } } catch{} }, { passive: true });
+    }
 
-      // Stabilize mobile panel after toggles to counteract late class mutations
-      function stabilizePanel(state){
+    // Global key handlers
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
         try {
-          const wantOpen = state === 'open';
-          const fix = () => {
-            if(!panel) return;
-            const has = (c) => panel.classList.contains(c);
-            let changed = false;
-            if(wantOpen){
-              if(has('pointer-events-none')) { panel.classList.remove('pointer-events-none'); changed = true; }
-              if(has('opacity-0')) { panel.classList.remove('opacity-0'); changed = true; }
-              if(!has('opacity-100')) { panel.classList.add('opacity-100'); changed = true; }
-              if(has('-translate-y-2')) { panel.classList.remove('-translate-y-2'); changed = true; }
-            } else {
-              if(!has('pointer-events-none')) { panel.classList.add('pointer-events-none'); changed = true; }
-              if(!has('opacity-0')) { panel.classList.add('opacity-0'); changed = true; }
-              if(has('opacity-100')) { panel.classList.remove('opacity-100'); changed = true; }
-              if(!has('-translate-y-2')) { panel.classList.add('-translate-y-2'); changed = true; }
-            }
-            if(changed) pushLog('panel-guard-fix', { state: state, className: panel.className });
-          };
-          // Run a few times after the frame to catch late mutations
-          setTimeout(fix, 32);
-          setTimeout(fix, 120);
-          setTimeout(fix, 260);
-        } catch{}
+          closePanel();
+        } catch {}
+        try {
+          closeSearch();
+        } catch {}
       }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+    });
+    // Animate bars into X
+    function openPanel() {
+      try {
+        if (!panel) return;
+        toggle?.setAttribute('aria-expanded', 'true');
+        panel.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-2');
+        panel.classList.add('opacity-100');
+        document.body.style.overflow = 'hidden';
+        stabilizePanel('open');
+        announce('Menu opened');
+      } catch {}
+    }
+    function closePanel() {
+      try {
+        if (!panel) return;
+        toggle?.setAttribute('aria-expanded', 'false');
+        panel.classList.add('pointer-events-none', 'opacity-0', '-translate-y-2');
+        panel.classList.remove('opacity-100');
+        document.body.style.overflow = '';
+        stabilizePanel('closed');
+        announce('Menu closed');
+      } catch {}
+    }
+    if (toggle) {
+      toggle.addEventListener(
+        'click',
+        () => {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          if (expanded) closePanel();
+          else openPanel();
+        },
+        { passive: true }
+      );
+    }
+    let elevated = false;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > 8 && !elevated) {
+        nav?.classList.add('is-scrolled');
+        elevated = true;
+      } else if (y <= 8 && elevated) {
+        nav?.classList.remove('is-scrolled');
+        elevated = false;
+      }
+      // Keep mobile panel aligned to header height if open
+      try {
+        if (
+          toggle &&
+          toggle.getAttribute('aria-expanded') === 'true' &&
+          panel instanceof HTMLElement
+        ) {
+          const h =
+            inner && inner.getBoundingClientRect
+              ? Math.round(inner.getBoundingClientRect().height || 64)
+              : 64;
+          panel.style.top = `${h}px`;
+        }
+      } catch {}
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    window.addEventListener(
+      'resize',
+      () => {
+        try {
+          ensureDesktopVisible('resize');
+          if (toggle.getAttribute('aria-expanded') === 'true' && panel instanceof HTMLElement) {
+            const h =
+              inner && inner.getBoundingClientRect
+                ? Math.round(inner.getBoundingClientRect().height || 64)
+                : 64;
+            panel.style.top = `${h}px`;
+            if (window.innerWidth >= 768) {
+              closePanel();
+            }
+          }
+        } catch {}
+      },
+      { passive: true }
+    );
+
+    // Stabilize mobile panel after toggles to counteract late class mutations
+    function stabilizePanel(state) {
+      try {
+        const wantOpen = state === 'open';
+        const fix = () => {
+          if (!panel) return;
+          const has = (c) => panel.classList.contains(c);
+          let changed = false;
+          if (wantOpen) {
+            if (has('pointer-events-none')) {
+              panel.classList.remove('pointer-events-none');
+              changed = true;
+            }
+            if (has('opacity-0')) {
+              panel.classList.remove('opacity-0');
+              changed = true;
+            }
+            if (!has('opacity-100')) {
+              panel.classList.add('opacity-100');
+              changed = true;
+            }
+            if (has('-translate-y-2')) {
+              panel.classList.remove('-translate-y-2');
+              changed = true;
+            }
+          } else {
+            if (!has('pointer-events-none')) {
+              panel.classList.add('pointer-events-none');
+              changed = true;
+            }
+            if (!has('opacity-0')) {
+              panel.classList.add('opacity-0');
+              changed = true;
+            }
+            if (has('opacity-100')) {
+              panel.classList.remove('opacity-100');
+              changed = true;
+            }
+            if (!has('-translate-y-2')) {
+              panel.classList.add('-translate-y-2');
+              changed = true;
+            }
+          }
+          if (changed) pushLog('panel-guard-fix', { state: state, className: panel.className });
+        };
+        // Run a few times after the frame to catch late mutations
+        setTimeout(fix, 32);
+        setTimeout(fix, 120);
+        setTimeout(fix, 260);
+      } catch {}
+    }
   })();
 </script>
-
