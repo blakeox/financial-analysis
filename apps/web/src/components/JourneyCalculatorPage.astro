@@ -1,4 +1,5 @@
 ---
+import Breadcrumbs from './site/Breadcrumbs.astro';
 import Layout from '../layouts/Layout.astro';
 import AdSense from './AdSense.astro';
 import { CALCULATOR_CONFIGS, generateFormHTMLWithValidation } from './CalculatorTemplate.tsx';
@@ -85,8 +86,15 @@ const journeyContextScript = `
   showChat={false}
   showToolAnalysis={false}
 >
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: backLabel, href: backHref },
+      { label: config.title },
+    ]}
+  />
+
+  <main class="fa-page-shell">
       <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
         <div class="space-y-6">
           <WorkflowPageIntro
@@ -170,7 +178,6 @@ const journeyContextScript = `
 
         <WorkflowSupportRail modelType={config.analysisType} />
       </div>
-    </div>
 
     <div class="ad-container mx-auto mt-6 max-w-4xl">
       <AdSense slot="3456789012" />

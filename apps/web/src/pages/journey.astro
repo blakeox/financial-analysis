@@ -1,5 +1,8 @@
 ---
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 // ChatPanel is now in Layout.astro
 
@@ -55,7 +58,9 @@ const faqSchema = {
 
 <Layout title="Multi-Model Financial Analysis" description="Comprehensive personal and business financial planning scenarios combining multiple analysis tools for complete financial insights" keywords="financial planning, multi-model analysis, personal finance scenarios, business finance scenarios, financial journey, financial roadmap" canonical={Astro.url.href} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
-  <div class="container mx-auto px-4 py-8">
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Multi-Model Analysis' }]} />
+
+  <div class="fa-page-shell">
     <!-- Structured Data: Breadcrumbs + SoftwareApplication -->
     <script type="application/ld+json" is:inline>
       {JSON.stringify({
@@ -83,16 +88,12 @@ const faqSchema = {
         },
       })}
     </script>
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-4">Multi-Model Financial Analysis</h1>
-        <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
-          Comprehensive financial planning scenarios that combine multiple analysis tools for complete insights
-        </p>
-        <p class="text-gray-500 dark:text-gray-500 max-w-3xl mx-auto">
-          Choose a scenario that matches your life stage and financial goals. Each scenario guides you through a sequence of related analyses and shows the next model to run at each stage.
-        </p>
-      </div>
+    <div class="mx-auto max-w-6xl">
+      <PageHero
+        eyebrow="Journey"
+        title="Multi-Model Financial Analysis"
+        description="Choose a scenario that matches your life stage and financial goals. Each scenario guides you through a sequence of related analyses and shows the next model to run at each stage."
+      />
 
       <!-- Category Tabs -->
       <div class="flex justify-center mb-8">
@@ -433,7 +434,8 @@ const faqSchema = {
       </div>
 
       <!-- Selected Scenario Information -->
-      <div id="selected-scenario-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 mb-8">
+      <div id="selected-scenario-info" class="hidden">
+        <SurfaceCard className="mb-8">
         <div class="flex items-center justify-between mb-6">
           <h2 id="selected-scenario-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
           <button 
@@ -447,10 +449,11 @@ const faqSchema = {
         <div id="scenario-models">
           <!-- Models will be populated here -->
         </div>
+        </SurfaceCard>
       </div>
 
       <!-- How It Works Section -->
-      <div class="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-8 mb-8">
+      <div class="fa-highlight-card mb-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">How Multi-Model Analysis Works</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">

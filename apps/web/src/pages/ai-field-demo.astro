@@ -1,5 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 ---
 
 <Layout 
@@ -7,14 +10,18 @@ import Layout from '../layouts/Layout.astro';
   description="Demonstration of AI field highlighting functionality"
   noindex={true}
 >
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          AI Field Highlighting Demo
-        </h1>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'AI Field Demo' }]} />
+
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Demo"
+      title="AI Field Highlighting Demo"
+      description="A sandbox for testing AI-driven field updates, visual highlights, and validation feedback patterns."
+    />
+
+    <div class="mx-auto max-w-4xl">
+      <SurfaceCard className="mb-8">
+        <div class="mt-4">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Test AI Field Highlighting
           </h2>
@@ -142,9 +149,10 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
         </div>
-        
-        <!-- Feature Description -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      </SurfaceCard>
+
+      <SurfaceCard>
+        <div class="mt-4">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Features
           </h2>
@@ -199,9 +207,9 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
     </div>
-  </main>
+  </div>
 
   <script>
     // Demo functionality

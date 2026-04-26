@@ -3,6 +3,7 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import LegacyToolShell from '../components/site/LegacyToolShell.astro';
 ---
 
 <Layout 
@@ -60,14 +61,18 @@ import Layout from '../layouts/Layout.astro';
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Multi-Model Scenario Analysis</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Coordinate multiple financial models for comprehensive scenario planning and analysis
-      </p>
-
-      <!-- Scenario Analysis Form -->
+  <LegacyToolShell
+    eyebrow="Business finance"
+    title="Multi-Model Scenario Analysis"
+    description="Coordinate multiple financial models for comprehensive scenario planning and analysis"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'Scenario Analysis' }
+    ]}
+  >
+<!-- Scenario Analysis Form -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Scenario Selection</h2>
 
@@ -162,8 +167,7 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- AdSense -->
       <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-    </div>
-  </div>
+  </LegacyToolShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="scenario-analysis" />
 </Layout>

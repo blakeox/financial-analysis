@@ -1,4 +1,7 @@
 ---
+import Breadcrumbs from '../../components/site/Breadcrumbs.astro';
+import PageHero from '../../components/site/PageHero.astro';
+import SurfaceCard from '../../components/site/SurfaceCard.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getJourneyData } from '../../utils/journeyData';
 import JourneyAnalysisResults from '../../components/JourneyAnalysisResults.tsx';
@@ -82,47 +85,29 @@ const journeyScript = `
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{journey.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">Analysis</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: journey.name, href: `/journey/${scenario}` },
+      { label: 'Analysis' },
+    ]}
+  />
 
+  <main class="fa-page-shell">
       <!-- Journey Completion Header -->
-      <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-8 mb-8">
+      <div class="fa-highlight-card mb-8">
         <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            🎉 Journey Complete!
-          </h1>
-          <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">
-            You've successfully completed the <strong>{journey.name}</strong> financial journey
-          </p>
+          <PageHero
+            eyebrow="Journey complete"
+            title="🎉 Journey Complete!"
+            description={`You've successfully completed the ${journey.name} financial journey`}
+          />
           <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z" clip-rule="evenodd" />
@@ -133,7 +118,7 @@ const journeyScript = `
       </div>
 
       <!-- Journey Summary -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <SurfaceCard className="mb-8">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Journey Summary</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {journey.models.map((model, index) => (
@@ -149,7 +134,7 @@ const journeyScript = `
             </div>
           ))}
         </div>
-      </div>
+      </SurfaceCard>
 
       <!-- AI-Powered Analysis -->
       <JourneyAnalysisResults 
@@ -159,7 +144,7 @@ const journeyScript = `
       />
 
       <!-- Action Buttons -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <SurfaceCard>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">What's Next?</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <a 
@@ -181,8 +166,7 @@ const journeyScript = `
             Browse Individual Calculators
           </a>
         </div>
-      </div>
-    </div>
+      </SurfaceCard>
   </main>
 
   <!-- Client Scripts -->

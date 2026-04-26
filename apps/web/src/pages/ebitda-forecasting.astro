@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
 import AdSense from '../components/AdSense.astro';
@@ -59,23 +61,26 @@ import AdSense from '../components/AdSense.astro';
       }
     ]}
   />
-  <div class="container mx-auto px-4 py-8">
-    
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2">EBITDA Forecasting</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Generate comprehensive financial forecasts for service industry scenario planning
-      </p>
-
-      <!-- React Dashboard Component -->
+  <LegacyToolShell
+    eyebrow="Business finance"
+    title="EBITDA Forecasting"
+    description="Generate comprehensive financial forecasts for service industry scenario planning"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'EBITDA Forecasting' }
+    ]}
+  >
+    <SurfaceCard className="mb-8">
       <div id="ebitda-dashboard-container" data-testid="ebitda-dashboard">
         <EbitdaDashboard client:only="react" />
       </div>
+    </SurfaceCard>
 
-      <!-- AdSense: After dashboard ad -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-    </div>
-  </div>
+    <!-- AdSense: After dashboard ad -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </LegacyToolShell>
   
   <!-- ChatPanel is now in Layout.astro - no need to include it here -->
 </Layout>

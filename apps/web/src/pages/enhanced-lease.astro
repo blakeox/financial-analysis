@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 
 const title = "Enhanced Lease Analysis Calculator | Fanalyx";
 const description = "Advanced lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations. Free professional lease calculator for commercial and equipment leases.";
@@ -39,27 +41,20 @@ const structuredData = {
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Enhanced Lease Analysis</span></li>
-    </ol>
-  </nav>
-  
-  <main class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-        Enhanced Lease Analysis Calculator
-      </h1>
-      <p class="text-slate-600 dark:text-slate-400">
-        Professional lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations.
-      </p>
-    </div>
-    <div id="enhanced-lease-container"></div>
-  </main>
+  <LegacyToolShell
+    eyebrow="Lease analysis"
+    title="Enhanced Lease Analysis Calculator"
+    description="Professional lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations."
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Lease Analysis', href: '/lease-analysis' },
+      { label: 'Enhanced Lease Analysis' }
+    ]}
+  >
+    <SurfaceCard>
+      <div id="enhanced-lease-container"></div>
+    </SurfaceCard>
+  </LegacyToolShell>
 </Layout>
 
 <script>
