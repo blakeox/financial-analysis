@@ -27,7 +27,7 @@
     "@cloudflare/ai-chat": "^0.4.6",
     "@cloudflare/ai-utils": "^1.0.1",
     "@cloudflare/puppeteer": "^1.1.0",
-    "@cloudflare/shell": "^0.3.3",
+    "@cloudflare/shell": "^0.3.4",
     "@cloudflare/think": "^0.3.0",
     "@cloudflare/workers-types": "^4.20260422.1",
     "@financial-analysis/analysis": "workspace:*",

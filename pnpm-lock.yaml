@@ -379,11 +379,11 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       '@cloudflare/shell':
-        specifier: ^0.3.3
-        version: 0.3.3(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
+        specifier: ^0.3.4
+        version: 0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
       '@cloudflare/think':
         specifier: ^0.3.0
-        version: 0.3.0(@cloudflare/codemode@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(@cloudflare/shell@0.3.3(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(agents@0.11.4)(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
+        version: 0.3.0(@cloudflare/codemode@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(@cloudflare/shell@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(agents@0.11.4)(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
       '@cloudflare/workers-types':
         specifier: ^4.20260422.1
         version: 4.20260422.1
@@ -904,8 +904,8 @@ packages:
     resolution: {integrity: sha512-lN10En49avRDQvz8Gpv/WiIoGvjjDiP6P+v2y9bA6rfPT5WHfnlg2O6MwjHc1POm8A9LXf1sMdgrsdW8xWapOw==}
     engines: {node: '>=18'}
 
-  '@cloudflare/shell@0.3.3':
-    resolution: {integrity: sha512-2k2Fg7r7L2DCYpDy9RKqt/+O+4TqJdddwhynzOAZiwMUNtwdDcQeVwDW04f1FKeeLTvUQxvgTe4fax31y9Hg4g==}
+  '@cloudflare/shell@0.3.4':
+    resolution: {integrity: sha512-XJeSU5F9ZMHmIasonC8g3zfHpbeYI9fSCsw/ZBepiOnP900ZFfl8y/Kt4FjZAfoaOFi1VsU2LZDPdttOSSACqw==}
 
   '@cloudflare/think@0.3.0':
     resolution: {integrity: sha512-ctcSpokhcM0uymq9QpA26TxgV/PFTU+MXBm/8pDcGl+ArahLLyxUqoSH5+gnovENZ4rjflhXPH82SJumZSCn+g==}
@@ -4000,6 +4000,7 @@ packages:
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   github-slugger@2.0.0:
@@ -4284,8 +4285,8 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  isomorphic-git@1.37.5:
-    resolution: {integrity: sha512-wek54c5uFvd3WsxewLWt6h0GXKWQh0P8rRXns9bN1rHNjcgCb3+0lmyAsP594NeTtQFeCJQVS9b0kjbkD1l5qg==}
+  isomorphic-git@1.37.6:
+    resolution: {integrity: sha512-qr1NFCPsVTZ6YGqTXw0CzamnsHyH9QQ1OTEfeXIweSljRUMzuHFCJdUn0wc6OcjtTDns6knxjPb7N6LmJeftOA==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -6142,6 +6143,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -7010,19 +7012,19 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@cloudflare/shell@0.3.3(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)':
+  '@cloudflare/shell@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)':
     dependencies:
       '@cloudflare/codemode': 0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
-      isomorphic-git: 1.37.5
+      isomorphic-git: 1.37.6
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - '@tanstack/ai'
       - ai
       - zod
 
-  '@cloudflare/think@0.3.0(@cloudflare/codemode@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(@cloudflare/shell@0.3.3(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(agents@0.11.4)(ai@6.0.168(zod@4.2.1))(zod@4.2.1)':
+  '@cloudflare/think@0.3.0(@cloudflare/codemode@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(@cloudflare/shell@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(agents@0.11.4)(ai@6.0.168(zod@4.2.1))(zod@4.2.1)':
     dependencies:
-      '@cloudflare/shell': 0.3.3(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
+      '@cloudflare/shell': 0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1)
       agents: 0.11.4(@ai-sdk/react@3.0.170(react@19.2.0)(zod@4.2.1))(@babel/core@7.28.5)(@babel/runtime@7.28.4)(@cloudflare/ai-chat@0.4.6)(@cloudflare/codemode@0.3.4(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.2.1))(ai@6.0.168(zod@4.2.1))(zod@4.2.1))(@cloudflare/workers-types@4.20260422.1)(ai@6.0.168(zod@4.2.1))(react@19.2.0)(rolldown@1.0.0-rc.16)(vite@7.3.2(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6)(yaml@2.8.2))(zod@4.2.1)
       ai: 6.0.168(zod@4.2.1)
       zod: 4.2.1
@@ -10375,7 +10377,7 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isomorphic-git@1.37.5:
+  isomorphic-git@1.37.6:
     dependencies:
       async-lock: 1.4.1
       clean-git-ref: 2.0.1
