@@ -34,7 +34,7 @@
     "@financial-analysis/tools": "workspace:*",
     "agents": "^0.11.4",
     "ai": "^6.0.168",
-    "itty-router": "^5.0.22",
+    "itty-router": "^5.0.23",
     "workers-ai-provider": "^3.1.11",
     "zod": "^4.2.1"
   },
