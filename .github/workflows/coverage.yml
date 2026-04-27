@@ -33,7 +33,7 @@ jobs:
         run: pnpm --filter @financial-analysis/analysis run test:coverage
 
       - name: Upload coverage (Codecov)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: packages/analysis/coverage/coverage-final.json
           fail_ci_if_error: false
@@ -73,7 +73,7 @@ jobs:
         run: pnpm --filter @financial-analysis/web run test:coverage
 
       - name: Upload web coverage (Codecov)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: apps/web/coverage/vitest/lcov.info
           fail_ci_if_error: false
