@@ -279,7 +279,7 @@ const displayResults = (result: SavingsGoalResults): void => {
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Savings Milestones
       </h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Track your progress toward your goal</p>
+      <p class="fa-script-copy-muted mb-4">Track your progress toward your goal</p>
       
       <!-- Visual Progress Bar -->
       <div class="mb-6">
@@ -310,9 +310,9 @@ const displayResults = (result: SavingsGoalResults): void => {
                 <span class="text-xl">${achieved ? '✅' : '⏳'}</span>
                 <span class="font-semibold text-gray-900 dark:text-white">${milestone.percent}%</span>
               </div>
-              <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${formatCurrency(milestone.amount)}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">${milestone.date}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">${milestone.months} months</p>
+              <p class="fa-script-note mb-1">${formatCurrency(milestone.amount)}</p>
+              <p class="fa-script-note">${milestone.date}</p>
+              <p class="fa-script-note">${milestone.months} months</p>
             </div>
           `;
         }).join('')}
@@ -326,10 +326,10 @@ const displayResults = (result: SavingsGoalResults): void => {
           <span class="text-2xl">🧠</span>
           <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Strategy Guidance</h3>
-            ${result.goalTypeLabel ? `<p class="text-sm text-gray-500 dark:text-gray-400">Optimized for ${result.goalTypeLabel}</p>` : ''}
+            ${result.goalTypeLabel ? `<p class="fa-script-copy-subtle">Optimized for ${result.goalTypeLabel}</p>` : ''}
           </div>
         </div>
-        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${result.goalStrategy}</p>
+        <p class="fa-script-copy-strong leading-relaxed">${result.goalStrategy}</p>
       </div>
       ` : ''}
     
@@ -339,8 +339,8 @@ const displayResults = (result: SavingsGoalResults): void => {
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Target Date</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">When you'll reach your goal</p>
+            <span class="fa-script-label">Target Date</span>
+            <p class="fa-script-copy-subtle">When you'll reach your goal</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.targetDate}</span>
@@ -349,8 +349,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Months to Goal</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Time remaining</p>
+            <span class="fa-script-label">Months to Goal</span>
+            <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.monthsToGoal} months</span>
@@ -359,8 +359,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Years to Goal</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Time remaining</p>
+            <span class="fa-script-label">Years to Goal</span>
+            <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.yearsToGoal.toFixed(1)} years</span>
@@ -369,8 +369,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Effective Annual Return</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">After inflation</p>
+            <span class="fa-script-label">Effective Annual Return</span>
+            <p class="fa-script-copy-subtle">After inflation</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-green-600 dark:text-green-400">${formatPercent(result.effectiveAnnualReturn)}</span>
@@ -385,8 +385,8 @@ const displayResults = (result: SavingsGoalResults): void => {
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Final Balance</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total amount saved</p>
+            <span class="fa-script-label">Final Balance</span>
+            <p class="fa-script-copy-subtle">Total amount saved</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.finalBalance)}</span>
@@ -395,8 +395,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Total Contributions</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Amount you'll contribute</p>
+            <span class="fa-script-label">Total Contributions</span>
+            <p class="fa-script-copy-subtle">Amount you'll contribute</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.totalContributions)}</span>
@@ -405,8 +405,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Interest Earned</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Growth from investments</p>
+            <span class="fa-script-label">Interest Earned</span>
+            <p class="fa-script-copy-subtle">Growth from investments</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(result.totalInterestEarned)}</span>
@@ -415,8 +415,8 @@ const displayResults = (result: SavingsGoalResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Goal Achievement</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Status</p>
+            <span class="fa-script-label">Goal Achievement</span>
+            <p class="fa-script-copy-subtle">Status</p>
           </div>
           <div class="text-right">
             <span class="font-semibold ${result.goalAchieved ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${result.goalAchieved ? 'Achieved' : 'Not Achieved'}</span>

@@ -3,65 +3,71 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
-import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Insurance Needs Calculator - Life, Disability & Long-Term Care Analysis | Fanalyx" 
+<Layout
+  title="Insurance Needs Calculator - Life, Disability & Long-Term Care Analysis | Fanalyx"
   description="Comprehensive insurance needs analysis for life insurance, disability insurance, and long-term care. Calculate coverage gaps, optimize premiums, and assess risk. Professional insurance planning made simple."
   keywords="insurance needs calculator, life insurance, disability insurance, long-term care insurance, insurance coverage, insurance planning, insurance analysis"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Personal Finance', url: '/models/personal' },
-      { name: 'Insurance Needs', url: '/insurance-needs' }
-    ]}
-  />
-  
-  <StructuredData 
-    type="software" 
-    softwareApp={{
-      name: 'Insurance Needs Calculator',
-      description: 'Professional insurance needs analysis tool for life insurance, disability insurance, and long-term care planning with coverage gap analysis and premium optimization.',
-      category: 'FinanceApplication',
-      rating: 4.7,
-      ratingCount: 190
-    }}
-  />
-  
-  <StructuredData 
-    type="faq" 
-    faqs={[
-      {
-        question: 'How much life insurance do I need?',
-        answer: 'Life insurance needs depend on income replacement, debt payoff, education funding, final expenses, and legacy goals. A common rule of thumb is 10-15x annual income, but our calculator provides a personalized analysis based on your specific financial situation and goals.'
-      },
-      {
-        question: 'What is disability insurance and do I need it?',
-        answer: 'Disability insurance replaces a portion of your income if you become unable to work due to illness or injury. It\'s especially important for high earners and those without substantial savings. Most people should have coverage equal to 60-70% of their income.'
-      },
-      {
-        question: 'When should I consider long-term care insurance?',
-        answer: 'Long-term care insurance helps cover costs of assisted living, nursing home care, or in-home care. Consider it in your 50s or 60s when premiums are more affordable. It\'s especially important if you don\'t have significant assets to self-insure.'
-      },
-      {
-        question: 'What is the difference between term and whole life insurance?',
-        answer: 'Term life insurance provides coverage for a specific period (10, 20, 30 years) at lower premiums. Whole life insurance provides permanent coverage with a cash value component but higher premiums. Term is typically better for most people\'s needs.'
-      },
-      {
-        question: 'How do I know if I have an insurance coverage gap?',
-        answer: 'A coverage gap exists when your current insurance is insufficient to meet your financial obligations and goals. Our calculator analyzes your income replacement needs, debt, education funding, and other goals to identify any gaps in your coverage.'
-      }
+      { name: 'Insurance Needs', url: '/insurance-needs' },
     ]}
   />
 
-  <LegacyToolShell
+  <StructuredData
+    type="software"
+    softwareApp={{
+      name: 'Insurance Needs Calculator',
+      description:
+        'Professional insurance needs analysis tool for life insurance, disability insurance, and long-term care planning with coverage gap analysis and premium optimization.',
+      category: 'FinanceApplication',
+      rating: 4.7,
+      ratingCount: 190,
+    }}
+  />
+
+  <StructuredData
+    type="faq"
+    faqs={[
+      {
+        question: 'How much life insurance do I need?',
+        answer:
+          'Life insurance needs depend on income replacement, debt payoff, education funding, final expenses, and legacy goals. A common rule of thumb is 10-15x annual income, but our calculator provides a personalized analysis based on your specific financial situation and goals.',
+      },
+      {
+        question: 'What is disability insurance and do I need it?',
+        answer:
+          "Disability insurance replaces a portion of your income if you become unable to work due to illness or injury. It's especially important for high earners and those without substantial savings. Most people should have coverage equal to 60-70% of their income.",
+      },
+      {
+        question: 'When should I consider long-term care insurance?',
+        answer:
+          "Long-term care insurance helps cover costs of assisted living, nursing home care, or in-home care. Consider it in your 50s or 60s when premiums are more affordable. It's especially important if you don't have significant assets to self-insure.",
+      },
+      {
+        question: 'What is the difference between term and whole life insurance?',
+        answer:
+          "Term life insurance provides coverage for a specific period (10, 20, 30 years) at lower premiums. Whole life insurance provides permanent coverage with a cash value component but higher premiums. Term is typically better for most people's needs.",
+      },
+      {
+        question: 'How do I know if I have an insurance coverage gap?',
+        answer:
+          'A coverage gap exists when your current insurance is insufficient to meet your financial obligations and goals. Our calculator analyzes your income replacement needs, debt, education funding, and other goals to identify any gaps in your coverage.',
+      },
+    ]}
+  />
+
+  <ToolPageShell
     eyebrow="Personal finance"
     title="Insurance Needs Calculator"
     description="Estimate coverage needs, income replacement, and policy tradeoffs with a clearer planning view"
@@ -69,253 +75,291 @@ import LegacyToolShell from '../components/site/LegacyToolShell.astro';
       { label: 'Home', href: '/' },
       { label: 'Models', href: '/models' },
       { label: 'Personal Finance', href: '/models/personal' },
-      { label: 'Insurance Needs' }
+      { label: 'Insurance Needs' },
     ]}
   >
-<!-- Insurance Needs Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+    <!-- Insurance Needs Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Personal Information</h2>
 
-        <form id="insurance-needs-form" class="space-y-6">
-          <!-- Personal Info Section -->
+      <form id="insurance-needs-form" class="space-y-6">
+        <!-- Personal Info Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="age"
+              class="fa-field-label mb-2"
+            >
+              Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              min="18"
+              max="100"
+              class="fa-input-surface w-full"
+              placeholder="35"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="maritalStatus"
+              class="fa-field-label mb-2"
+            >
+              Marital Status
+            </label>
+            <select
+              id="maritalStatus"
+              name="maritalStatus"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="single">Single</option>
+              <option value="married">Married</option>
+              <option value="divorced">Divorced</option>
+              <option value="widowed">Widowed</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="dependents"
+              class="fa-field-label mb-2"
+            >
+              Number of Dependents
+            </label>
+            <input
+              type="number"
+              id="dependents"
+              name="dependents"
+              min="0"
+              max="20"
+              value="0"
+              class="fa-input-surface w-full"
+            />
+          </div>
+
+          <div>
+            <label
+              for="annualIncome"
+              class="fa-field-label mb-2"
+            >
+              Annual Income ($)
+            </label>
+            <input
+              type="number"
+              id="annualIncome"
+              name="annualIncome"
+              min="0"
+              step="1000"
+              class="fa-input-surface w-full"
+              placeholder="100000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="netWorth"
+              class="fa-field-label mb-2"
+            >
+              Net Worth ($)
+            </label>
+            <input
+              type="number"
+              id="netWorth"
+              name="netWorth"
+              min="0"
+              step="1000"
+              class="fa-input-surface w-full"
+              placeholder="500000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="healthStatus"
+              class="fa-field-label mb-2"
+            >
+              Health Status
+            </label>
+            <select
+              id="healthStatus"
+              name="healthStatus"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="excellent">Excellent</option>
+              <option value="good" selected>Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Current Coverage Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">
+            Current Insurance Coverage
+          </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Age
-              </label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                min="18"
-                max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="35"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Marital Status
-              </label>
-              <select
-                id="maritalStatus"
-                name="maritalStatus"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
+              <label
+                for="lifeInsurance"
+                class="fa-field-label mb-2"
               >
-                <option value="">Select...</option>
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="dependents" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Number of Dependents
+                Life Insurance Coverage ($)
               </label>
               <input
                 type="number"
-                id="dependents"
-                name="dependents"
+                id="lifeInsurance"
+                name="lifeInsurance"
                 min="0"
-                max="20"
+                step="10000"
                 value="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="fa-input-surface w-full"
               />
             </div>
 
             <div>
-              <label for="annualIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Annual Income ($)
-              </label>
-              <input
-                type="number"
-                id="annualIncome"
-                name="annualIncome"
-                min="0"
-                step="1000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="netWorth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Net Worth ($)
-              </label>
-              <input
-                type="number"
-                id="netWorth"
-                name="netWorth"
-                min="0"
-                step="1000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="500000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="healthStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Health Status
-              </label>
-              <select
-                id="healthStatus"
-                name="healthStatus"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
+              <label
+                for="disabilityInsurance"
+                class="fa-field-label mb-2"
               >
-                <option value="excellent">Excellent</option>
-                <option value="good" selected>Good</option>
-                <option value="fair">Fair</option>
-                <option value="poor">Poor</option>
-              </select>
+                Disability Insurance Coverage ($/month)
+              </label>
+              <input
+                type="number"
+                id="disabilityInsurance"
+                name="disabilityInsurance"
+                min="0"
+                step="100"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="longTermCareInsurance"
+                class="fa-field-label mb-2"
+              >
+                Long-Term Care Insurance Coverage ($)
+              </label>
+              <input
+                type="number"
+                id="longTermCareInsurance"
+                name="longTermCareInsurance"
+                min="0"
+                step="10000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
             </div>
           </div>
+        </div>
 
-          <!-- Current Coverage Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Current Insurance Coverage</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="lifeInsurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Life Insurance Coverage ($)
-                </label>
-                <input
-                  type="number"
-                  id="lifeInsurance"
-                  name="lifeInsurance"
-                  min="0"
-                  step="10000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+        <!-- Goals Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Insurance Goals</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                for="incomeReplacementYears"
+                class="fa-field-label mb-2"
+              >
+                Income Replacement Years
+              </label>
+              <input
+                type="number"
+                id="incomeReplacementYears"
+                name="incomeReplacementYears"
+                min="1"
+                max="50"
+                value="10"
+                class="fa-input-surface w-full"
+              />
+            </div>
 
-              <div>
-                <label for="disabilityInsurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Disability Insurance Coverage ($/month)
-                </label>
-                <input
-                  type="number"
-                  id="disabilityInsurance"
-                  name="disabilityInsurance"
-                  min="0"
-                  step="100"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+            <div>
+              <label
+                for="educationFunding"
+                class="fa-field-label mb-2"
+              >
+                Education Funding Needed ($)
+              </label>
+              <input
+                type="number"
+                id="educationFunding"
+                name="educationFunding"
+                min="0"
+                step="10000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
 
-              <div>
-                <label for="longTermCareInsurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Long-Term Care Insurance Coverage ($)
-                </label>
-                <input
-                  type="number"
-                  id="longTermCareInsurance"
-                  name="longTermCareInsurance"
-                  min="0"
-                  step="10000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+            <div>
+              <label
+                for="debtPayoff"
+                class="fa-field-label mb-2"
+              >
+                Debt to Pay Off ($)
+              </label>
+              <input
+                type="number"
+                id="debtPayoff"
+                name="debtPayoff"
+                min="0"
+                step="1000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="finalExpenses"
+                class="fa-field-label mb-2"
+              >
+                Final Expenses ($)
+              </label>
+              <input
+                type="number"
+                id="finalExpenses"
+                name="finalExpenses"
+                min="0"
+                step="1000"
+                value="10000"
+                class="fa-input-surface w-full"
+              />
             </div>
           </div>
+        </div>
 
-          <!-- Goals Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Insurance Goals</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="incomeReplacementYears" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Income Replacement Years
-                </label>
-                <input
-                  type="number"
-                  id="incomeReplacementYears"
-                  name="incomeReplacementYears"
-                  min="1"
-                  max="50"
-                  value="10"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Analyze Insurance Needs </button>
+        </div>
+      </form>
+    </div>
 
-              <div>
-                <label for="educationFunding" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Education Funding Needed ($)
-                </label>
-                <input
-                  type="number"
-                  id="educationFunding"
-                  name="educationFunding"
-                  min="0"
-                  step="10000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+    <!-- Results Section -->
+    <div id="insurance-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        Insurance Needs Analysis
+      </h2>
+      <div id="insurance-results-content" class="space-y-4"></div>
+    </div>
 
-              <div>
-                <label for="debtPayoff" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Debt to Pay Off ($)
-                </label>
-                <input
-                  type="number"
-                  id="debtPayoff"
-                  name="debtPayoff"
-                  min="0"
-                  step="1000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="finalExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Final Expenses ($)
-                </label>
-                <input
-                  type="number"
-                  id="finalExpenses"
-                  name="finalExpenses"
-                  min="0"
-                  step="1000"
-                  value="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Analyze Insurance Needs
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Results Section -->
-      <div id="insurance-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Insurance Needs Analysis</h2>
-        <div id="insurance-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-  </LegacyToolShell>
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="insurance-needs" />
 </Layout>

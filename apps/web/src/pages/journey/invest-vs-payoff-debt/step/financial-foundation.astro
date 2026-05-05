@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['invest-vs-payoff-debt'];
@@ -51,46 +52,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">🛡️</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="🛡️"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Financial Foundation Assessment -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Assess Your Financial Foundation</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Assess Your Financial Foundation</h2>
             
-            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="fa-callout-warning mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
                   <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -98,7 +73,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                  <p class="text-sm">
                     <strong>Critical First Step:</strong> Before deciding between investing and paying off debt, you need a solid financial foundation. Without an emergency fund, unexpected expenses could force you into more debt.
                   </p>
                 </div>
@@ -107,33 +82,33 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             
             <form id="financial-foundation-form" class="space-y-6">
               <!-- Emergency Fund Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🛡️ Emergency Fund Status</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🛡️ Emergency Fund Status</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Do you have an emergency fund? *
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="hasEmergencyFund" value="yes" class="mt-1 mr-3" required>
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, I have 3-6 months saved</span>
-                          <p class="text-xs text-gray-500">Great! You can proceed with the invest vs debt decision.</p>
+                          <span class="fa-list-copy-strong">Yes, I have 3-6 months saved</span>
+                          <p class="fa-help-copy">Great! You can proceed with the invest vs debt decision.</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="hasEmergencyFund" value="partial" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Partial (less than 3 months)</span>
-                          <p class="text-xs text-gray-500">Consider building emergency fund first before extra debt payments or investing.</p>
+                          <span class="fa-list-copy-strong">Partial (less than 3 months)</span>
+                          <p class="fa-help-copy">Consider building emergency fund first before extra debt payments or investing.</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="hasEmergencyFund" value="no" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No emergency fund</span>
-                          <p class="text-xs text-gray-500">Priority #1: Build emergency fund before making this decision.</p>
+                          <span class="fa-list-copy-strong">No emergency fund</span>
+                          <p class="fa-help-copy">Priority #1: Build emergency fund before making this decision.</p>
                         </div>
                       </label>
                     </div>
@@ -141,29 +116,29 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   <div id="emergency-fund-details" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label for="emergency-fund-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="emergency-fund-amount" class="fa-field-label mb-2">
                           Current Emergency Fund Amount ($)
                         </label>
                         <input 
                           type="number" 
                           id="emergency-fund-amount" 
                           name="emergencyFundAmount"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                           placeholder="5000"
                         />
                       </div>
                       <div>
-                        <label for="monthly-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="monthly-expenses" class="fa-field-label mb-2">
                           Monthly Expenses ($)
                         </label>
                         <input 
                           type="number" 
                           id="monthly-expenses" 
                           name="monthlyExpenses"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                           placeholder="3000"
                         />
-                        <p class="text-xs text-gray-500 mt-1">Used to calculate months of expenses covered</p>
+                         <p class="fa-help-copy mt-1">Used to calculate months of expenses covered</p>
                       </div>
                     </div>
                   </div>
@@ -171,52 +146,52 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Current Financial Situation -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Current Financial Situation</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">💰 Current Financial Situation</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label for="monthly-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-income" class="fa-field-label mb-2">
                       Monthly Income (After Tax) ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-income" 
                       name="monthlyIncome"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                       placeholder="5000"
                     />
                   </div>
                   <div>
-                    <label for="extra-money" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="extra-money" class="fa-field-label mb-2">
                       Extra Money Available Per Month ($) *
                     </label>
                     <input 
                       type="number" 
                       id="extra-money" 
                       name="extraMoney"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                       placeholder="500"
                       required
                     />
-                    <p class="text-xs text-gray-500 mt-1">Money available after all expenses and minimum debt payments</p>
+                     <p class="fa-help-copy mt-1">Money available after all expenses and minimum debt payments</p>
                   </div>
                 </div>
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" id="save-foundation-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="button" id="save-foundation-btn" class="fa-button-primary">
                   Save & Continue
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="foundation-results" class="hidden mt-8 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Financial Foundation Assessment</h3>
+            <div id="foundation-results" class="fa-highlight-card hidden mt-8 p-6">
+              <h3 class="fa-scenario-title mb-4">📊 Your Financial Foundation Assessment</h3>
               <div id="foundation-results-content" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -224,13 +199,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -240,7 +215,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -254,7 +229,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,7 +239,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,24 +254,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Why This Matters</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title mb-4">💡 Why This Matters</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>No Emergency Fund:</strong> Build 3-6 months of expenses before investing or paying extra on debt.</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Emergency Fund Ready:</strong> You can safely make the invest vs debt decision.</p>
               </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Extra Money:</strong> This is what you'll allocate between investing and debt payoff.</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">📋 Emergency Fund Guidelines</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-4">📋 Emergency Fund Guidelines</h3>
+            <div class="space-y-3 fa-list-copy">
               <p><strong>3-6 Months:</strong> Standard recommendation for most people</p>
               <p><strong>6-12 Months:</strong> If self-employed or in volatile industry</p>
               <p><strong>High-Interest Debt:</strong> Consider 1 month minimum, then tackle debt</p>
@@ -390,30 +365,30 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           if (foundationResultsContent) {
             foundationResultsContent.innerHTML = `
-            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+            <div class="fa-subcard">
               <div class="space-y-3 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Emergency Fund Status:</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">${hasEmergencyFund === 'yes' ? '✅ Ready' : hasEmergencyFund === 'partial' ? '⚠️ Partial' : '❌ Not Ready'}</span>
+                   <span class="fa-meta-copy">Emergency Fund Status:</span>
+                   <span class="fa-list-copy-strong">${hasEmergencyFund === 'yes' ? '✅ Ready' : hasEmergencyFund === 'partial' ? '⚠️ Partial' : '❌ Not Ready'}</span>
                 </div>
                 ${emergencyFundAmount > 0 ? `
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Emergency Fund Amount:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">$${emergencyFundAmount.toLocaleString()}</span>
+                     <span class="fa-meta-copy">Emergency Fund Amount:</span>
+                     <span class="fa-list-copy-strong">$${emergencyFundAmount.toLocaleString()}</span>
                   </div>
                   ${monthsCovered > 0 ? `
                     <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Months Covered:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white">${monthsCovered.toFixed(1)} months</span>
+                       <span class="fa-meta-copy">Months Covered:</span>
+                       <span class="fa-list-copy-strong">${monthsCovered.toFixed(1)} months</span>
                     </div>
                   ` : ''}
                 ` : ''}
                 <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Extra Money Available:</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">$${extraMoney.toLocaleString()}/month</span>
+                   <span class="fa-meta-copy">Extra Money Available:</span>
+                   <span class="fa-list-copy-strong">$${extraMoney.toLocaleString()}/month</span>
                 </div>
               </div>
-              <div class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div class="fa-highlight-card mt-4 p-3">
                 <p class="text-sm text-purple-800 dark:text-purple-200">${recommendation}</p>
               </div>
             </div>
@@ -501,4 +476,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     });
   </script>
 </Layout>
-

@@ -3,65 +3,71 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
-import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Home Buying Affordability Calculator - Mortgage & Home Purchase Planning | Fanalyx" 
+<Layout
+  title="Home Buying Affordability Calculator - Mortgage & Home Purchase Planning | Fanalyx"
   description="Comprehensive home buying affordability calculator with maximum price calculation, down payment strategies, closing cost analysis, debt-to-income ratios, and ongoing cost projections."
   keywords="home buying, home affordability, mortgage calculator, down payment calculator, home purchase, house affordability, mortgage planning, home buying calculator"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Personal Finance', url: '/models/personal' },
-      { name: 'Home Buying Affordability', url: '/home-buying-affordability' }
-    ]}
-  />
-  
-  <StructuredData 
-    type="software" 
-    softwareApp={{
-      name: 'Home Buying Affordability Calculator',
-      description: 'Comprehensive home buying affordability tool with maximum price calculation, down payment strategies, closing cost analysis, and debt-to-income ratio analysis.',
-      category: 'FinanceApplication',
-      rating: 4.8,
-      ratingCount: 200
-    }}
-  />
-  
-  <StructuredData 
-    type="faq" 
-    faqs={[
-      {
-        question: 'How much house can I afford?',
-        answer: 'Lenders typically use the 28/36 rule: housing costs should not exceed 28% of gross income, and total debt payments should not exceed 36%. Our calculator uses your income, debt payments, down payment, and credit score to determine your maximum affordable home price.'
-      },
-      {
-        question: 'How much should I put down on a house?',
-        answer: 'A 20% down payment is ideal as it avoids PMI (Private Mortgage Insurance) and gets better interest rates. However, many loans allow as little as 3-5% down. Our calculator shows the trade-offs between different down payment amounts and helps you find the optimal strategy.'
-      },
-      {
-        question: 'What are closing costs and how much are they?',
-        answer: 'Closing costs typically range from 2-5% of the home price and include loan origination fees, title insurance, appraisal, inspection, and prepaid expenses. Our calculator estimates closing costs and shows the total upfront cash needed to purchase a home.'
-      },
-      {
-        question: 'What is debt-to-income ratio and why does it matter?',
-        answer: 'Debt-to-income (DTI) ratio is your total monthly debt payments divided by gross monthly income. Lenders prefer DTI below 43%, with 36% or lower being ideal. A high DTI can limit your borrowing capacity or result in higher interest rates.'
-      },
-      {
-        question: 'How does credit score affect home buying?',
-        answer: 'Credit score directly impacts your mortgage interest rate. Scores above 760 get the best rates, while scores below 620 may face challenges getting approved. Our calculator adjusts interest rates based on your credit score to show realistic affordability.'
-      }
+      { name: 'Home Buying Affordability', url: '/home-buying-affordability' },
     ]}
   />
 
-  <LegacyToolShell
+  <StructuredData
+    type="software"
+    softwareApp={{
+      name: 'Home Buying Affordability Calculator',
+      description:
+        'Comprehensive home buying affordability tool with maximum price calculation, down payment strategies, closing cost analysis, and debt-to-income ratio analysis.',
+      category: 'FinanceApplication',
+      rating: 4.8,
+      ratingCount: 200,
+    }}
+  />
+
+  <StructuredData
+    type="faq"
+    faqs={[
+      {
+        question: 'How much house can I afford?',
+        answer:
+          'Lenders typically use the 28/36 rule: housing costs should not exceed 28% of gross income, and total debt payments should not exceed 36%. Our calculator uses your income, debt payments, down payment, and credit score to determine your maximum affordable home price.',
+      },
+      {
+        question: 'How much should I put down on a house?',
+        answer:
+          'A 20% down payment is ideal as it avoids PMI (Private Mortgage Insurance) and gets better interest rates. However, many loans allow as little as 3-5% down. Our calculator shows the trade-offs between different down payment amounts and helps you find the optimal strategy.',
+      },
+      {
+        question: 'What are closing costs and how much are they?',
+        answer:
+          'Closing costs typically range from 2-5% of the home price and include loan origination fees, title insurance, appraisal, inspection, and prepaid expenses. Our calculator estimates closing costs and shows the total upfront cash needed to purchase a home.',
+      },
+      {
+        question: 'What is debt-to-income ratio and why does it matter?',
+        answer:
+          'Debt-to-income (DTI) ratio is your total monthly debt payments divided by gross monthly income. Lenders prefer DTI below 43%, with 36% or lower being ideal. A high DTI can limit your borrowing capacity or result in higher interest rates.',
+      },
+      {
+        question: 'How does credit score affect home buying?',
+        answer:
+          'Credit score directly impacts your mortgage interest rate. Scores above 760 get the best rates, while scores below 620 may face challenges getting approved. Our calculator adjusts interest rates based on your credit score to show realistic affordability.',
+      },
+    ]}
+  />
+
+  <ToolPageShell
     eyebrow="Personal finance"
     title="Home Buying Affordability Calculator"
     description="Calculate how much house you can afford with comprehensive affordability analysis"
@@ -69,174 +75,197 @@ import LegacyToolShell from '../components/site/LegacyToolShell.astro';
       { label: 'Home', href: '/' },
       { label: 'Models', href: '/models' },
       { label: 'Personal Finance', href: '/models/personal' },
-      { label: 'Home Buying Affordability' }
+      { label: 'Home Buying Affordability' },
     ]}
   >
-<!-- Home Buying Affordability Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+    <!-- Home Buying Affordability Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Personal Information</h2>
 
-        <form id="home-buying-affordability-form" class="space-y-6">
-          <!-- Personal Info Section -->
+      <form id="home-buying-affordability-form" class="space-y-6">
+        <!-- Personal Info Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="age"
+              class="fa-field-label mb-2"
+            >
+              Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              min="18"
+              max="100"
+              class="fa-input-surface w-full"
+              placeholder="35"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="creditScore"
+              class="fa-field-label mb-2"
+            >
+              Credit Score
+            </label>
+            <input
+              type="number"
+              id="creditScore"
+              name="creditScore"
+              min="300"
+              max="850"
+              value="700"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Finances Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">
+            Financial Information
+          </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Age
+              <label
+                for="annualIncome"
+                class="fa-field-label mb-2"
+              >
+                Annual Income ($)
               </label>
               <input
                 type="number"
-                id="age"
-                name="age"
-                min="18"
-                max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="35"
+                id="annualIncome"
+                name="annualIncome"
+                min="0"
+                step="1000"
+                class="fa-input-surface w-full"
+                placeholder="100000"
                 required
               />
             </div>
 
             <div>
-              <label for="creditScore" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Credit Score
+              <label
+                for="monthlyDebtPayments"
+                class="fa-field-label mb-2"
+              >
+                Monthly Debt Payments ($)
               </label>
               <input
                 type="number"
-                id="creditScore"
-                name="creditScore"
-                min="300"
-                max="850"
-                value="700"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
+                id="monthlyDebtPayments"
+                name="monthlyDebtPayments"
+                min="0"
+                step="100"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="downPaymentAvailable"
+                class="fa-field-label mb-2"
+              >
+                Down Payment Available ($)
+              </label>
+              <input
+                type="number"
+                id="downPaymentAvailable"
+                name="downPaymentAvailable"
+                min="0"
+                step="1000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="emergencyFund"
+                class="fa-field-label mb-2"
+              >
+                Emergency Fund ($)
+              </label>
+              <input
+                type="number"
+                id="emergencyFund"
+                name="emergencyFund"
+                min="0"
+                step="1000"
+                value="0"
+                class="fa-input-surface w-full"
               />
             </div>
           </div>
+        </div>
 
-          <!-- Finances Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="annualIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Annual Income ($)
-                </label>
-                <input
-                  type="number"
-                  id="annualIncome"
-                  name="annualIncome"
-                  min="0"
-                  step="1000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="100000"
-                  required
-                />
-              </div>
+        <!-- Home Preferences Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Home Preferences</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                for="targetPrice"
+                class="fa-field-label mb-2"
+              >
+                Target Home Price ($)
+              </label>
+              <input
+                type="number"
+                id="targetPrice"
+                name="targetPrice"
+                min="0"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="500000"
+              />
+            </div>
 
-              <div>
-                <label for="monthlyDebtPayments" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Monthly Debt Payments ($)
-                </label>
-                <input
-                  type="number"
-                  id="monthlyDebtPayments"
-                  name="monthlyDebtPayments"
-                  min="0"
-                  step="100"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="downPaymentAvailable" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Down Payment Available ($)
-                </label>
-                <input
-                  type="number"
-                  id="downPaymentAvailable"
-                  name="downPaymentAvailable"
-                  min="0"
-                  step="1000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="emergencyFund" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Emergency Fund ($)
-                </label>
-                <input
-                  type="number"
-                  id="emergencyFund"
-                  name="emergencyFund"
-                  min="0"
-                  step="1000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+            <div>
+              <label
+                for="homeType"
+                class="fa-field-label mb-2"
+              >
+                Home Type
+              </label>
+              <select
+                id="homeType"
+                name="homeType"
+                class="fa-input-surface w-full"
+              >
+                <option value="single-family">Single Family</option>
+                <option value="condo">Condo</option>
+                <option value="townhouse">Townhouse</option>
+                <option value="multi-family">Multi-Family</option>
+              </select>
             </div>
           </div>
+        </div>
 
-          <!-- Home Preferences Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Home Preferences</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="targetPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Target Home Price ($)
-                </label>
-                <input
-                  type="number"
-                  id="targetPrice"
-                  name="targetPrice"
-                  min="0"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="500000"
-                />
-              </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Calculate Affordability </button>
+        </div>
+      </form>
+    </div>
 
-              <div>
-                <label for="homeType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Home Type
-                </label>
-                <select
-                  id="homeType"
-                  name="homeType"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="single-family">Single Family</option>
-                  <option value="condo">Condo</option>
-                  <option value="townhouse">Townhouse</option>
-                  <option value="multi-family">Multi-Family</option>
-                </select>
-              </div>
-            </div>
-          </div>
+    <!-- Results Section -->
+    <div id="home-buying-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        Home Buying Affordability Analysis
+      </h2>
+      <div id="home-buying-results-content" class="space-y-4"></div>
+    </div>
 
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Calculate Affordability
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Results Section -->
-      <div id="home-buying-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Home Buying Affordability Analysis</h2>
-        <div id="home-buying-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-  </LegacyToolShell>
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="home-buying-affordability" />
 </Layout>

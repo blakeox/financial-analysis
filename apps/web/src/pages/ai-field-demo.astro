@@ -22,10 +22,10 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
     <div class="mx-auto max-w-4xl">
       <SurfaceCard className="mb-8">
         <div class="mt-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 class="fa-panel-title mb-4">
             Test AI Field Highlighting
           </h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">
+          <p class="fa-meta-copy mb-6">
             Click the buttons below to simulate AI field changes. Watch how the fields highlight with smooth animations and AI indicators.
           </p>
           
@@ -33,7 +33,7 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
           <form id="demo-form" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="field-container">
-                <label for="loanAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="loanAmount" class="fa-field-label mb-2">
                   Loan Amount ($)
                 </label>
                 <input 
@@ -46,7 +46,7 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
               </div>
               
               <div class="field-container">
-                <label for="interestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="interestRate" class="fa-field-label mb-2">
                   Interest Rate (%)
                 </label>
                 <input 
@@ -60,7 +60,7 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
               </div>
               
               <div class="field-container">
-                <label for="loanTerm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="loanTerm" class="fa-field-label mb-2">
                   Loan Term (Years)
                 </label>
                 <select 
@@ -75,7 +75,7 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
               </div>
               
               <div class="field-container">
-                <label for="downPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="downPayment" class="fa-field-label mb-2">
                   Down Payment ($)
                 </label>
                 <input 
@@ -91,35 +91,35 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
           
           <!-- Demo Controls -->
           <div class="mt-8 space-y-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 class="fa-scenario-title">
               Demo Controls
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button 
                 id="highlight-loan-amount" 
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Update Loan Amount
               </button>
               
               <button 
                 id="highlight-interest-rate" 
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Update Interest Rate
               </button>
               
               <button 
                 id="highlight-loan-term" 
-                class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Update Loan Term
               </button>
               
               <button 
                 id="highlight-down-payment" 
-                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Update Down Payment
               </button>
@@ -128,21 +128,21 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button 
                 id="highlight-all-fields" 
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Update All Fields
               </button>
               
               <button 
                 id="test-validation-error" 
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-secondary"
               >
                 Test Validation Error
               </button>
               
               <button 
                 id="reset-fields" 
-                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors duration-200"
+                class="fa-button-secondary"
               >
                 Reset All Fields
               </button>
@@ -153,16 +153,16 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
 
       <SurfaceCard>
         <div class="mt-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 class="fa-panel-title mb-4">
             Features
           </h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="fa-scenario-title mb-2">
                 Visual Highlights
               </h3>
-              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+              <ul class="fa-scenario-copy space-y-1">
                 <li>• Smooth scaling animation (1.0x → 1.05x → 1.0x)</li>
                 <li>• Pulsing blue glow effect</li>
                 <li>• Border color transitions</li>
@@ -171,10 +171,10 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
             </div>
             
             <div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="fa-scenario-title mb-2">
                 AI Indicators
               </h3>
-              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+              <ul class="fa-scenario-copy space-y-1">
                 <li>• "AI" badge with gradient background</li>
                 <li>• Positioned at top-right of field</li>
                 <li>• Auto-disappears after animation</li>
@@ -183,10 +183,10 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
             </div>
             
             <div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="fa-scenario-title mb-2">
                 Persistent Marking
               </h3>
-              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+              <ul class="fa-scenario-copy space-y-1">
                 <li>• Left border accent on AI-modified fields</li>
                 <li>• Subtle background tint</li>
                 <li>• Enhanced focus styles</li>
@@ -195,10 +195,10 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
             </div>
             
             <div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="fa-scenario-title mb-2">
                 Integration
               </h3>
-              <ul class="text-gray-600 dark:text-gray-400 space-y-1">
+              <ul class="fa-scenario-copy space-y-1">
                 <li>• Event-driven updates</li>
                 <li>• Mutation observer for external changes</li>
                 <li>• Form validation triggers</li>
@@ -336,13 +336,13 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
         if (!button) return;
         const originalText = button.textContent;
         button.textContent = 'Reset Complete!';
-        button.classList.add('bg-green-600', 'hover:bg-green-700');
-        button.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        button.classList.add('fa-button-success-state');
+        button.classList.remove('fa-button-secondary');
         
         setTimeout(() => {
           button.textContent = originalText;
-          button.classList.remove('bg-green-600', 'hover:bg-green-700');
-          button.classList.add('bg-gray-600', 'hover:bg-gray-700');
+          button.classList.remove('fa-button-success-state');
+          button.classList.add('fa-button-secondary');
         }, 2000);
       });
     });

@@ -91,12 +91,12 @@ class JourneyAnalysisManager {
       </div>
       
       <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <h4 class="font-medium text-gray-900 dark:text-white mb-2">Completed Steps:</h4>
+        <h4 class="fa-script-title-sm mb-2">Completed Steps:</h4>
         <div class="flex flex-wrap gap-2">
           ${this.analysisData.completedSteps
             .map(
               (step) => `
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+            <span class="fa-badge-success">
               ${this.formatStepName(step)}
             </span>
           `
@@ -122,12 +122,12 @@ class JourneyAnalysisManager {
       <div class="space-y-3">
         <div class="flex justify-between items-center">
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-          <span class="text-sm text-gray-500 dark:text-gray-400">${percentage}%</span>
+          <span class="fa-script-copy-subtle">${percentage}%</span>
         </div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           ${completedSteps} of ${totalSteps} steps completed
         </div>
       </div>
@@ -317,7 +317,7 @@ class JourneyAnalysisManager {
           } rounded-r-lg">
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">${item.task}</p>
+                <p class="fa-script-title-sm">${item.task}</p>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Timeline: ${item.timeline}</p>
               </div>
               <span class="text-xs px-2 py-1 rounded-full ${
@@ -362,11 +362,11 @@ class JourneyAnalysisManager {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Analysis Error</h3>
-          <p class="text-gray-600 dark:text-gray-400">${message}</p>
+          <h3 class="fa-script-title text-lg mb-2">Analysis Error</h3>
+          <p class="fa-script-copy-muted">${message}</p>
           <button 
             onclick="location.reload()" 
-            class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            class="fa-button-info-md mt-4"
           >
             Try Again
           </button>

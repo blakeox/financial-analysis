@@ -101,15 +101,15 @@ export function initComprehensiveAnalysis() {
 
     // Update active tab styling
     analysisTabs.forEach((t) => {
-      t.classList.remove('active', 'bg-blue-500', 'text-white');
-      t.classList.add('text-gray-600', 'dark:text-gray-400');
+      t.classList.remove('active', 'fa-tab-active');
+      t.classList.add('fa-tab-inactive');
     });
 
     // Find and activate the correct tab
     const activeTab = document.querySelector(`[data-tab="${targetTab}"]`);
     if (activeTab) {
-      activeTab.classList.add('active', 'bg-blue-500', 'text-white');
-      activeTab.classList.remove('text-gray-600', 'dark:text-gray-400');
+      activeTab.classList.add('active', 'fa-tab-active');
+      activeTab.classList.remove('fa-tab-inactive');
       console.log(`Activated tab: ${targetTab}`);
     } else {
       console.warn(`Tab with data-tab="${targetTab}" not found`);

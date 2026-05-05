@@ -1,0 +1,48 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  currentStep: number;
+  totalSteps: number;
+  scenarioName: string;
+  icon?: string;
+  supportingText?: string;
+}
+
+const { title, description, currentStep, totalSteps, scenarioName, icon, supportingText } =
+  Astro.props as Props;
+
+const progress = totalSteps > 0 ? Math.min(100, Math.max(0, (currentStep / totalSteps) * 100)) : 0;
+---
+
+<section class="fa-card p-6">
+  <div class="flex items-start gap-4">
+    {icon && <span class="mt-0.5 text-3xl">{icon}</span>}
+    <div class="min-w-0 flex-1">
+      <span class="fa-eyebrow">Step {currentStep} of {totalSteps}</span>
+      <h1 class="fa-model-title mt-4 text-2xl">
+        {title}
+      </h1>
+      <p class="fa-scenario-copy mt-2 text-sm">{description}</p>
+      <p class="fa-meta-copy mt-2 text-sm">{scenarioName}</p>
+    </div>
+  </div>
+
+  {
+    supportingText && (
+      <p class="fa-list-copy mt-5 text-sm">{supportingText}</p>
+    )
+  }
+
+  <div class="fa-progress-panel mt-6 p-4">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="fa-scenario-title text-sm">Journey progress</h2>
+      <span class="fa-list-copy text-sm">
+        {Math.round(progress)}% complete
+      </span>
+    </div>
+    <div class="fa-progress-track mt-3">
+      <div class="fa-progress-bar" style={`width: ${progress}%`}></div>
+    </div>
+  </div>
+</section>

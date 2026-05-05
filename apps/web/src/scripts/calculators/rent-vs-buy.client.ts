@@ -499,34 +499,34 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
+              <span class="fa-script-copy-muted">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
               <span class="font-semibold">${formatCurrency(result.buy.monthlyPayment)}</span>
             </div>
             ${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total PMI Paid</span>
+              <span class="fa-script-copy-muted">Total PMI Paid</span>
               <span class="font-semibold text-orange-600 dark:text-orange-400">${formatCurrency(result.buy.breakdown.pmiCost)}</span>
             </div>
             ` : ''}
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.buy.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Home Equity</span>
+              <span class="fa-script-copy-muted">Home Equity</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.equity)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Invested Savings</span>
+              <span class="fa-script-copy-muted">Invested Savings</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.breakdown.opportunityCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.breakdown.taxBenefits)}</span>
             </div>
             ${result.buy.breakdown.capitalGainsTax && result.buy.breakdown.capitalGainsTax > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Capital Gains Tax</span>
+              <span class="fa-script-copy-muted">Capital Gains Tax</span>
               <span class="font-semibold text-red-600 dark:text-red-400">-${formatCurrency(result.buy.breakdown.capitalGainsTax)}</span>
             </div>
             ` : ''}
@@ -544,25 +544,25 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+              <span class="fa-script-copy-muted">Monthly Payment</span>
               <span class="font-semibold">${formatCurrency(result.rent.monthlyPayment)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.rent.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Investments</span>
+              <span class="fa-script-copy-muted">Investments</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.rent.equity)}</span>
             </div>
             ${result.rent.breakdown.securityDeposit && result.rent.breakdown.securityDeposit > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Security Deposit Opp. Cost</span>
+              <span class="fa-script-copy-muted">Security Deposit Opp. Cost</span>
               <span class="font-semibold text-orange-600 dark:text-orange-400">-${formatCurrency(result.rent.breakdown.securityDeposit)}</span>
             </div>
             ` : ''}
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold">$0</span>
             </div>
             <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
@@ -583,7 +583,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Buying Advantages</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Home appreciation: ${formatCurrency(result.buy.breakdown.appreciation)}</li>
             <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}${!result.buy.breakdown.shouldItemize ? ' ⚠️' : ''}</li>
             <li>✓ Equity built: ${formatCurrency(result.buy.equity)}</li>
@@ -594,7 +594,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
         
         <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Renting Advantages</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Invested capital: ${formatCurrency(result.rent.equity)}</li>
             <li>✓ Flexibility: Easy to move</li>
             <li>✓ No maintenance costs</li>
@@ -636,7 +636,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📉</span> Inflation-Adjusted Values (${input.inflationRate}% annual)
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
+      <p class="fa-script-copy-muted mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
@@ -696,7 +696,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </tbody>
         </table>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+      <p class="fa-script-note mt-3">
         Net Advantage shows whether buying (🏠) or renting (🏢) is ahead at each year point.
       </p>
     </div>
@@ -773,29 +773,29 @@ function initializeModeToggle(): void {
     const toggleKnob = toggle.querySelector('span');
     if (toggleKnob) {
       if (isAdvancedMode) {
-        toggle.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-        toggle.classList.add('bg-purple-600');
-        toggleKnob.classList.remove('translate-x-0');
-        toggleKnob.classList.add('translate-x-5');
+        toggle.classList.remove('fa-switch-inactive');
+        toggle.classList.add('fa-switch-active');
+        toggleKnob.classList.remove('fa-switch-knob-inactive');
+        toggleKnob.classList.add('fa-switch-knob-active');
       } else {
-        toggle.classList.remove('bg-purple-600');
-        toggle.classList.add('bg-gray-300', 'dark:bg-gray-600');
-        toggleKnob.classList.remove('translate-x-5');
-        toggleKnob.classList.add('translate-x-0');
+        toggle.classList.remove('fa-switch-active');
+        toggle.classList.add('fa-switch-inactive');
+        toggleKnob.classList.remove('fa-switch-knob-active');
+        toggleKnob.classList.add('fa-switch-knob-inactive');
       }
     }
     
     // Update label colors
     if (isAdvancedMode) {
-      basicLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
-      basicLabel.classList.add('text-gray-400', 'dark:text-gray-500');
-      advancedLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
-      advancedLabel.classList.add('text-purple-600', 'dark:text-purple-400');
+      basicLabel.classList.remove('fa-switch-label-active');
+      basicLabel.classList.add('fa-switch-label-inactive');
+      advancedLabel.classList.remove('fa-switch-label-inactive');
+      advancedLabel.classList.add('fa-switch-label-active');
     } else {
-      basicLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
-      basicLabel.classList.add('text-purple-600', 'dark:text-purple-400');
-      advancedLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
-      advancedLabel.classList.add('text-gray-400', 'dark:text-gray-500');
+      basicLabel.classList.remove('fa-switch-label-inactive');
+      basicLabel.classList.add('fa-switch-label-active');
+      advancedLabel.classList.remove('fa-switch-label-active');
+      advancedLabel.classList.add('fa-switch-label-inactive');
     }
     
     // Update ARIA
@@ -902,4 +902,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeRentVsBuy();
 }
-

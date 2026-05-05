@@ -167,19 +167,19 @@ export const displayResults = (result: UnitEconomicsResult): void => {
         <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Lifetime Value (LTV)</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Customer Lifetime Value</span>
+            <span class="fa-script-copy-muted">Customer Lifetime Value</span>
             <strong class="text-gray-900 dark:text-white">${formatCurrency(result.ltv)}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Customer Lifespan</span>
+            <span class="fa-script-copy-muted">Customer Lifespan</span>
             <strong class="text-gray-900 dark:text-white">${result.customerLifespanMonths.toFixed(1)} months</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Contribution Margin/Month</span>
+            <span class="fa-script-copy-muted">Contribution Margin/Month</span>
             <strong class="text-gray-900 dark:text-white">${formatCurrency(result.contributionMarginPerCustomer)}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Annualized Value</span>
+            <span class="fa-script-copy-muted">Annualized Value</span>
             <strong class="text-gray-900 dark:text-white">${formatCurrency(result.summary.annualizedCustomerValue)}</strong>
           </div>
         </div>
@@ -190,19 +190,19 @@ export const displayResults = (result: UnitEconomicsResult): void => {
         <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Acquisition Efficiency</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Customer Acquisition Cost</span>
+            <span class="fa-script-copy-muted">Customer Acquisition Cost</span>
             <strong class="text-gray-900 dark:text-white">${formatCurrency(result.cac)}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">LTV:CAC Ratio</span>
+            <span class="fa-script-copy-muted">LTV:CAC Ratio</span>
             <strong class="text-gray-900 dark:text-white">${result.ltvToCacRatio.toFixed(2)}:1</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Payback Period</span>
+            <span class="fa-script-copy-muted">Payback Period</span>
             <strong class="text-gray-900 dark:text-white">${result.paybackPeriodMonths.toFixed(1)} months</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600 dark:text-gray-400">Profit Per Customer</span>
+            <span class="fa-script-copy-muted">Profit Per Customer</span>
             <strong class="${result.summary.profitPerCustomer >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(result.summary.profitPerCustomer)}</strong>
           </div>
         </div>
@@ -214,19 +214,19 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Retention & Revenue</h4>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Retention Rate</p>
+          <p class="fa-script-copy-muted">Retention Rate</p>
           <p class="text-xl font-bold text-gray-900 dark:text-white">${result.retentionRate.toFixed(1)}%</p>
         </div>
         <div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Monthly Churn</p>
+          <p class="fa-script-copy-muted">Monthly Churn</p>
           <p class="text-xl font-bold text-gray-900 dark:text-white">${result.churnRate.toFixed(1)}%</p>
         </div>
         <div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">MRR</p>
+          <p class="fa-script-copy-muted">MRR</p>
           <p class="text-xl font-bold text-gray-900 dark:text-white">${formatCurrency(result.monthlyRecurringRevenue)}</p>
         </div>
         <div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">ARR</p>
+          <p class="fa-script-copy-muted">ARR</p>
           <p class="text-xl font-bold text-gray-900 dark:text-white">${formatCurrency(result.annualRecurringRevenue)}</p>
         </div>
       </div>
@@ -272,9 +272,9 @@ export const displayResults = (result: UnitEconomicsResult): void => {
           </tbody>
         </table>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
-        💡 Cohort starts with 100 customers. Green rows indicate cumulative profitability.
-      </p>
+       <p class="fa-script-note mt-4">
+         💡 Cohort starts with 100 customers. Green rows indicate cumulative profitability.
+       </p>
     </div>
     
     <!-- Insights -->
@@ -342,8 +342,8 @@ function renderBenchmark(
       <span class="text-gray-700 dark:text-gray-300">${label}</span>
       <div class="flex items-center gap-4">
         <div class="text-right">
-          <p class="text-sm text-gray-600 dark:text-gray-400">Your: ${benchmark.your.toFixed(1)}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Target: ${benchmark.target.toFixed(1)}</p>
+          <p class="fa-script-copy-muted">Your: ${benchmark.your.toFixed(1)}</p>
+          <p class="fa-script-copy-muted">Target: ${benchmark.target.toFixed(1)}</p>
         </div>
         <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[benchmark.status]}">
           ${statusIcons[benchmark.status]} ${benchmark.status.charAt(0).toUpperCase() + benchmark.status.slice(1)}

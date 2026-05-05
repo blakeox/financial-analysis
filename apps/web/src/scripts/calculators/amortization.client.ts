@@ -584,14 +584,14 @@ export const renderSummaryCards = (
       <p class="text-3xl font-bold">${toCurrency(monthlyPayment)}</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Interest</p>
+      <p class="fa-script-copy-subtle mb-2">Total Interest</p>
       <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${toCurrency(totalInterest)}</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${interestShare}% of total payments</p>
+      <p class="fa-script-note mt-1">${interestShare}% of total payments</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Paid</p>
+      <p class="fa-script-copy-subtle mb-2">Total Paid</p>
       <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">${toCurrency(totalPayments)}</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Over ${termMonths} months</p>
+      <p class="fa-script-note mt-1">Over ${termMonths} months</p>
     </div>
   `;
 };
@@ -603,7 +603,7 @@ export const renderChart = (
   if (!target) return;
   if (!Array.isArray(schedule) || schedule.length === 0) {
     target.innerHTML =
-      '<p class="text-sm text-gray-500 dark:text-gray-400">No chart data available.</p>';
+      '<p class="fa-script-copy-subtle">No chart data available.</p>';
     return;
   }
 
@@ -756,7 +756,7 @@ export const renderChart = (
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
         <div>
           <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Track payment breakdown and remaining balance over time</p>
+          <p class="fa-script-copy-muted">Track payment breakdown and remaining balance over time</p>
         </div>
         
         <!-- Enhanced Legend -->
@@ -829,7 +829,7 @@ export const renderChart = (
       
       <!-- Enhanced Chart Footer -->
       <div class="text-center pt-2">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
+        <p class="fa-script-copy-muted">
           <span class="font-semibold text-gray-700 dark:text-gray-300">${totalMonths} months</span> complete schedule • 
           <span class="font-medium text-emerald-600 dark:text-emerald-400">Left:</span> Payment components (Principal & Interest) • 
           <span class="font-medium text-blue-600 dark:text-blue-400">Right:</span> Remaining loan balance

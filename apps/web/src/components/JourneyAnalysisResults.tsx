@@ -515,15 +515,15 @@ export default function JourneyAnalysisResults({
       case 'low':
         return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
       default:
-        return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30';
+        return 'fa-chip-muted';
     }
   };
 
   if (loading) {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 ${className}`}>
+      <div className={`fa-card p-8 ${className}`}>
         <div className="text-center">
-          <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-blue-500 transition ease-in-out duration-150 cursor-not-allowed">
+          <div className="fa-button-primary cursor-not-allowed opacity-90">
             <svg
               className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
               xmlns="http://www.w3.org/2000/svg"
@@ -546,7 +546,7 @@ export default function JourneyAnalysisResults({
             </svg>
             Generating AI Analysis...
           </div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
+          <p className="mt-4 fa-meta-copy">
             Our AI is analyzing your journey data and generating personalized insights...
           </p>
         </div>
@@ -556,7 +556,7 @@ export default function JourneyAnalysisResults({
 
   if (error) {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 ${className}`}>
+      <div className={`fa-card p-8 ${className}`}>
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
             <svg
@@ -573,12 +573,9 @@ export default function JourneyAnalysisResults({
               ></path>
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Analysis Error</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
-          <button
-            onClick={generateJourneyAnalysis}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-          >
+          <h3 className="fa-scenario-title mb-2">Analysis Error</h3>
+          <p className="fa-meta-copy mb-4">{error}</p>
+          <button onClick={generateJourneyAnalysis} className="fa-button-primary">
             Try Again
           </button>
         </div>
@@ -609,39 +606,36 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-6">
             {/* Overall Score */}
-            <div className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
+            <div className="fa-highlight-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="fa-scenario-title">
                   Overall Journey Score
                 </h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(analysisData.overallScore)}`}
+                  className={`fa-chip-status ${getScoreColor(analysisData.overallScore)}`}
                 >
                   {analysisData.overallScore}/100
                 </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
-                <div
-                  ref={progressFillRef}
-                  className="bg-linear-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
-                ></div>
+              <div className="fa-progress-track mb-4 w-full">
+                <div ref={progressFillRef} className="fa-progress-bar"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white">Completion Time</div>
-                  <div className="text-gray-600 dark:text-gray-400">
+                  <div className="fa-scenario-title">Completion Time</div>
+                  <div className="fa-meta-copy">
                     {analysisData.completionTime}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white">Data Quality</div>
-                  <div className="text-gray-600 dark:text-gray-400 capitalize">
+                  <div className="fa-scenario-title">Data Quality</div>
+                  <div className="fa-meta-copy capitalize">
                     {analysisData.dataQuality}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white">Steps Completed</div>
-                  <div className="text-gray-600 dark:text-gray-400">
+                  <div className="fa-scenario-title">Steps Completed</div>
+                  <div className="fa-meta-copy">
                     {journeyData.models.length}
                   </div>
                 </div>
@@ -649,12 +643,12 @@ export default function JourneyAnalysisResults({
             </div>
 
             {/* AI Summary */}
-            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="fa-subcard p-6">
+              <h3 className="fa-scenario-title mb-4 flex items-center">
                 <span className="mr-2">🤖</span>
                 AI Analysis Summary
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="fa-list-copy leading-relaxed">
                 {analysisData.aiSummary}
               </p>
             </div>
@@ -665,12 +659,9 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-4">
             {analysisData.keyInsights.map((insight, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600"
-              >
+              <div key={index} className="fa-subcard p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <h3 className="fa-scenario-title flex items-center">
                     <span className="mr-2">{insight.icon}</span>
                     {insight.title}
                   </h3>
@@ -680,7 +671,7 @@ export default function JourneyAnalysisResults({
                     {insight.priority} priority
                   </span>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{insight.content}</p>
+                <p className="fa-list-copy">{insight.content}</p>
               </div>
             ))}
           </div>
@@ -690,12 +681,9 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-4">
             {analysisData.recommendations.map((rec, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600"
-              >
+              <div key={index} className="fa-subcard p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <h3 className="fa-scenario-title flex items-center">
                     <span className="mr-2">{rec.icon}</span>
                     {rec.title}
                   </h3>
@@ -705,7 +693,7 @@ export default function JourneyAnalysisResults({
                     {rec.priority} priority
                   </span>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{rec.content}</p>
+                <p className="fa-list-copy">{rec.content}</p>
               </div>
             ))}
           </div>
@@ -715,12 +703,9 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-4">
             {analysisData.riskFactors.map((risk, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600"
-              >
+              <div key={index} className="fa-subcard p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <h3 className="fa-scenario-title flex items-center">
                     <span className="mr-2">{risk.icon}</span>
                     {risk.title}
                   </h3>
@@ -730,7 +715,7 @@ export default function JourneyAnalysisResults({
                     {risk.priority} priority
                   </span>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{risk.content}</p>
+                <p className="fa-list-copy">{risk.content}</p>
               </div>
             ))}
           </div>
@@ -740,12 +725,9 @@ export default function JourneyAnalysisResults({
         return (
           <div className="space-y-4">
             {analysisData.nextSteps.map((step, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600"
-              >
+              <div key={index} className="fa-subcard p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <h3 className="fa-scenario-title flex items-center">
                     <span className="mr-2">{step.icon}</span>
                     {step.title}
                   </h3>
@@ -755,7 +737,7 @@ export default function JourneyAnalysisResults({
                     {step.priority} priority
                   </span>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{step.content}</p>
+                <p className="fa-list-copy">{step.content}</p>
               </div>
             ))}
           </div>
@@ -767,23 +749,20 @@ export default function JourneyAnalysisResults({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md ${className}`}>
+    <div className={`fa-card ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-6 fa-panel-divider">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <h2 className="fa-panel-title flex items-center text-2xl">
               <span className="mr-3">🤖</span>
               AI-Powered Journey Analysis
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="fa-meta-copy mt-1">
               Comprehensive analysis of your {journeyData.name} journey
             </p>
           </div>
-          <button
-            onClick={() => setAiChatOpen(!aiChatOpen)}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-          >
+          <button onClick={() => setAiChatOpen(!aiChatOpen)} className="fa-button-primary">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -798,7 +777,7 @@ export default function JourneyAnalysisResults({
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="fa-panel-divider">
         <nav className="flex space-x-8 px-6">
           {tabs.map((tab) => (
             <button
@@ -807,7 +786,7 @@ export default function JourneyAnalysisResults({
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  : 'border-transparent fa-tab-inactive'
               }`}
             >
               {tab.label}
@@ -822,16 +801,16 @@ export default function JourneyAnalysisResults({
       {/* AI Chat Modal */}
       {aiChatOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="fa-card max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+            <div className="p-6 fa-panel-divider">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="fa-scenario-title">
                   Ask AI About Your Journey
                 </h3>
                 <button
                   onClick={() => setAiChatOpen(false)}
                   aria-label="Close AI chat panel"
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="fa-shell-icon-button h-9 w-9"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -846,35 +825,33 @@ export default function JourneyAnalysisResults({
             </div>
             <div className="flex-1 p-6 overflow-y-auto">
               <div className="space-y-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                  <p className="text-blue-800 dark:text-blue-200 text-sm">
+                <div className="fa-highlight-card p-4">
+                  <p className="fa-list-copy text-sm">
                     💡 <strong>Suggested Questions:</strong>
                   </p>
-                  <ul className="mt-2 text-blue-700 dark:text-blue-300 text-sm space-y-1">
+                  <ul className="mt-2 fa-list-copy text-sm space-y-1">
                     <li>• "What should I focus on first based on my analysis?"</li>
                     <li>• "How can I improve my financial score?"</li>
                     <li>• "What are the biggest risks I should address?"</li>
                     <li>• "Can you explain the recommendations in more detail?"</li>
                   </ul>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <div className="fa-subcard p-4">
+                  <p className="fa-meta-copy text-sm">
                     🤖 AI Assistant: "I've analyzed your {journeyData.name} journey and I'm ready to
                     answer your questions. What would you like to know more about?"
                   </p>
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-6 fa-panel-divider-top">
               <div className="flex space-x-2">
                 <input
                   type="text"
                   placeholder="Ask a question about your journey analysis..."
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="fa-input-surface flex-1"
                 />
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
-                  Send
-                </button>
+                <button className="fa-button-primary">Send</button>
               </div>
             </div>
           </div>
@@ -883,8 +860,3 @@ export default function JourneyAnalysisResults({
     </div>
   );
 }
-
-
-
-
-

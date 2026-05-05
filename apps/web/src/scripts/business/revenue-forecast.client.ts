@@ -146,7 +146,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
           </tbody>
         </table>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+      <p class="fa-script-note mt-4">
         💡 Peak: ${result.summary.peakMonth.revenue.toFixed(0)} in month ${result.summary.peakMonth.month} | 
         Lowest: ${formatCurrency(result.summary.lowestMonth.revenue)} in month ${result.summary.lowestMonth.month}
       </p>
@@ -167,7 +167,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
               <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                 <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500" style="width: ${widthPercent}%"></div>
               </div>
-              <div class="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <div class="flex justify-between mt-1 fa-script-note">
                 <span>Avg: ${formatCurrency(stream.avgMonthlyRevenue)}/mo</span>
                 <span class="${stream.growth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
                   ${stream.growth >= 0 ? '+' : ''}${stream.growth.toFixed(1)}% growth
@@ -185,21 +185,21 @@ export const displayResults = (result: RevenueForecastResult): void => {
         <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Customer Growth Analysis</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Ending Customers</p>
+            <p class="fa-script-copy-muted">Ending Customers</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Net Growth</p>
+            <p class="fa-script-copy-muted">Net Growth</p>
             <p class="text-2xl font-bold ${result.customerMetrics.netCustomerGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
               ${result.customerMetrics.netCustomerGrowth >= 0 ? '+' : ''}${result.customerMetrics.netCustomerGrowth.toFixed(0)}
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Acquired</p>
+            <p class="fa-script-copy-muted">Total Acquired</p>
             <p class="text-2xl font-bold text-green-600 dark:text-green-400">+${result.customerMetrics.totalAcquired.toFixed(0)}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Churned</p>
+            <p class="fa-script-copy-muted">Total Churned</p>
             <p class="text-2xl font-bold text-red-600 dark:text-red-400">-${result.customerMetrics.totalChurned.toFixed(0)}</p>
           </div>
         </div>

@@ -1,60 +1,62 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
 
-const title = "Enhanced Lease Analysis Calculator | Fanalyx";
-const description = "Advanced lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations. Free professional lease calculator for commercial and equipment leases.";
-const keywords = "lease analysis, lease calculator, NPV calculator, lease vs buy, commercial lease, equipment lease, lease comparison, sensitivity analysis";
+const title = 'Enhanced Lease Analysis Calculator | Fanalyx';
+const description =
+  'Advanced lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations. Free professional lease calculator for commercial and equipment leases.';
+const keywords =
+  'lease analysis, lease calculator, NPV calculator, lease vs buy, commercial lease, equipment lease, lease comparison, sensitivity analysis';
 
 const baseUrl = 'https://fanalyx.com';
 const currentUrl = `${baseUrl}${Astro.url.pathname}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
-        { "@type": "ListItem", "position": 2, "name": "Enhanced Lease Analysis", "item": currentUrl }
-      ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Enhanced Lease Analysis', item: currentUrl },
+      ],
     },
     {
-      "@type": "SoftwareApplication",
-      "name": "Enhanced Lease Analysis Calculator",
-      "description": description,
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "Web",
-      "url": currentUrl,
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
-      }
-    }
-  ]
+      '@type': 'SoftwareApplication',
+      name: 'Enhanced Lease Analysis Calculator',
+      description: description,
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      url: currentUrl,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+    },
+  ],
 };
 ---
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  <LegacyToolShell
+  <ToolPageShell
     eyebrow="Lease analysis"
     title="Enhanced Lease Analysis Calculator"
     description="Professional lease analysis with sensitivity testing, lease-vs-buy comparison, and NPV calculations."
     items={[
       { label: 'Home', href: '/' },
       { label: 'Lease Analysis', href: '/lease-analysis' },
-      { label: 'Enhanced Lease Analysis' }
+      { label: 'Enhanced Lease Analysis' },
     ]}
   >
     <SurfaceCard>
       <div id="enhanced-lease-container"></div>
     </SurfaceCard>
-  </LegacyToolShell>
+  </ToolPageShell>
 </Layout>
 
 <script>
@@ -69,7 +71,7 @@ const structuredData = {
       createElement(LeaseAnalysisDashboard, {
         onAnalyze: (result) => {
           console.log('Enhanced lease analysis result:', result);
-        }
+        },
       })
     );
   }

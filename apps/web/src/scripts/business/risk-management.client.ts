@@ -252,39 +252,39 @@ class RiskCalculator {
     });
 
     resultsSection.innerHTML = `
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div class="fa-card">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Risk Analysis Results</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-red-900 dark:text-red-300 mb-2">Daily VaR</h3>
-            <p class="text-2xl font-bold text-red-900 dark:text-red-300">${formatter.format(results.valueAtRisk.daily)}</p>
+          <div class="fa-metric-card fa-metric-card-danger">
+            <h3 class="mb-2 text-lg font-semibold">Daily VaR</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.valueAtRisk.daily)}</p>
           </div>
           
-          <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-orange-900 dark:text-orange-300 mb-2">Weekly VaR</h3>
-            <p class="text-2xl font-bold text-orange-900 dark:text-orange-300">${formatter.format(results.valueAtRisk.weekly)}</p>
+          <div class="fa-metric-card fa-metric-card-warning">
+            <h3 class="mb-2 text-lg font-semibold">Weekly VaR</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.valueAtRisk.weekly)}</p>
           </div>
           
-          <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-yellow-900 dark:text-yellow-300 mb-2">Monthly VaR</h3>
-            <p class="text-2xl font-bold text-yellow-900 dark:text-yellow-300">${formatter.format(results.valueAtRisk.monthly)}</p>
+          <div class="fa-metric-card fa-metric-card-warning">
+            <h3 class="mb-2 text-lg font-semibold">Monthly VaR</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.valueAtRisk.monthly)}</p>
           </div>
           
-          <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-300 mb-2">Annual VaR</h3>
-            <p class="text-2xl font-bold text-purple-900 dark:text-purple-300">${formatter.format(results.valueAtRisk.annual)}</p>
+          <div class="fa-metric-card fa-metric-card-accent">
+            <h3 class="mb-2 text-lg font-semibold">Annual VaR</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.valueAtRisk.annual)}</p>
           </div>
           
-          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">Custom ${results.customTimeHorizon.days}-Day VaR</h3>
-            <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">${formatter.format(results.customTimeHorizon.valueAtRisk)}</p>
-            <p class="text-sm text-blue-700 dark:text-blue-200">ES: ${formatter.format(results.customTimeHorizon.expectedShortfall)}</p>
+          <div class="fa-metric-card fa-metric-card-info">
+            <h3 class="mb-2 text-lg font-semibold">Custom ${results.customTimeHorizon.days}-Day VaR</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.customTimeHorizon.valueAtRisk)}</p>
+            <p class="text-sm">ES: ${formatter.format(results.customTimeHorizon.expectedShortfall)}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <div class="fa-subcard">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Expected Shortfall</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
@@ -306,8 +306,8 @@ class RiskCalculator {
             </div>
           </div>
 
-          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">Custom ${results.customTimeHorizon.days}-Day Horizon</h3>
+          <div class="fa-metric-card fa-metric-card-info">
+            <h3 class="text-lg font-semibold mb-4">Custom ${results.customTimeHorizon.days}-Day Horizon</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
                 <span class="text-gray-600 dark:text-gray-400">VaR (${results.customTimeHorizon.days} days):</span>
@@ -320,7 +320,7 @@ class RiskCalculator {
             </div>
           </div>
           
-          <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <div class="fa-subcard">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Risk Metrics</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
@@ -343,7 +343,7 @@ class RiskCalculator {
           </div>
         </div>
 
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+        <div class="fa-subcard">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stress Test Scenarios</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center">
@@ -380,7 +380,7 @@ class RiskCalculator {
     const monteCarloHTML = `
       <div class="mt-8">
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Monte Carlo Simulation Results</h3>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+        <div class="fa-subcard">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Portfolio Value Distribution</h4>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="text-center">
@@ -404,7 +404,7 @@ class RiskCalculator {
               <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${formatter.format(simulation.percentiles.p95)}</p>
             </div>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-3 text-center">
+          <p class="fa-script-copy-muted mt-3 text-center">
             Based on ${simulation.scenarios.length.toLocaleString()} Monte Carlo simulations
           </p>
         </div>

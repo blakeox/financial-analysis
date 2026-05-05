@@ -115,7 +115,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
     <!-- Valuation Methods -->
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Valuation Methods Used</h4>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <p class="fa-script-copy-muted mb-4">
         Primary method: <strong>${result.summary.mostRelevantMethod}</strong>
       </p>
       <div class="space-y-4">
@@ -125,9 +125,9 @@ export const displayResults = (result: BusinessValuationResult): void => {
               <h5 class="font-semibold text-gray-900 dark:text-white">${method.name}</h5>
               <span class="text-lg font-bold text-gray-900 dark:text-white">${formatCurrency(method.value)}</span>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">${method.explanation}</p>
+            <p class="fa-script-copy-muted">${method.explanation}</p>
             <div class="flex items-center gap-4 mt-2">
-              <span class="text-xs text-gray-500 dark:text-gray-400">Weight: ${(method.weight * 100).toFixed(0)}%</span>
+              <span class="fa-script-note">Weight: ${(method.weight * 100).toFixed(0)}%</span>
               <span class="text-xs px-2 py-0.5 rounded ${
                 method.confidence === 'high' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
                 method.confidence === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
@@ -178,7 +178,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
                 }">
                   ${adj.impact === 'positive' ? '✅' : adj.impact === 'negative' ? '⚠️' : 'ℹ️'} ${adj.name}
                 </h5>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${adj.description}</p>
+                <p class="fa-script-copy-muted mt-1">${adj.description}</p>
               </div>
               <span class="ml-4 px-3 py-1 rounded-full text-sm font-semibold ${
                 adj.impact === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :

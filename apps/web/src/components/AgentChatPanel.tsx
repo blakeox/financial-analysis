@@ -117,7 +117,7 @@ export function AgentChatPanel() {
           submitMessage(input);
         }}
       >
-        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+        <label className="fa-field-label mb-2">
           Message
         </label>
         <div className="flex flex-col gap-3 md:flex-row">
@@ -130,7 +130,7 @@ export function AgentChatPanel() {
           <button
             type="submit"
             disabled={status === 'streaming' || input.trim().length === 0}
-            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="fa-button-info-panel disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === 'streaming' ? 'Working…' : 'Send'}
           </button>

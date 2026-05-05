@@ -220,7 +220,7 @@ class CCAnalysisCalculator {
             Your comparable company analysis is complete. Use the AI assistant to get detailed recommendations and valuation insights.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered CCA analysis and recommendations based on your specific situation.</p>
         </div>
       </div>

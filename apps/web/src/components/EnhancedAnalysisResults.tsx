@@ -291,7 +291,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
       case 'low':
         return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
       default:
-        return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20';
+        return 'fa-chip-muted';
     }
   };
 
@@ -304,7 +304,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
       case 'low':
         return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
       default:
-        return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20';
+        return 'fa-chip-muted';
     }
   };
 
@@ -322,10 +322,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 capitalize">
+                  <p className="fa-meta-copy text-sm capitalize">
                     {key.replace(/([A-Z])/g, ' $1').trim()}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="fa-panel-title text-2xl">
                     {key.toLowerCase().includes('rate') ||
                     key.toLowerCase().includes('percentage') ||
                     key.toLowerCase().includes('ratio')
@@ -338,7 +338,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                         : formatNumber(value)}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <div className="fa-icon-tile fa-icon-tile-lg fa-icon-tile-info">
                   <span className="text-xl">{getSummaryIcon(key)}</span>
                 </div>
               </div>
@@ -389,7 +389,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+        <h3 className="fa-scenario-title flex items-center">
           <span className="mr-2">💡</span>
           Key Insights
         </h3>
@@ -401,10 +401,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  <h4 className="fa-scenario-title mb-1">
                     {insight.title}
                   </h4>
-                  <p className="text-gray-700 dark:text-gray-300">{insight.description}</p>
+                  <p className="fa-list-copy">{insight.description}</p>
                 </div>
                 <div className="ml-4 flex items-center space-x-2">
                   <span
@@ -413,9 +413,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     {insight.impact.toUpperCase()}
                   </span>
                   {insight.actionable && (
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      ACTIONABLE
-                    </span>
+                      <span className="fa-chip fa-chip-accent">
+                        ACTIONABLE
+                      </span>
                   )}
                 </div>
               </div>
@@ -431,18 +431,15 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+        <h3 className="fa-scenario-title flex items-center">
           <span className="mr-2">🎯</span>
           Recommendations
         </h3>
         <div className="space-y-3">
           {analysis.recommendations.map((recommendation, index) => (
-            <div
-              key={index}
-              className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-            >
+            <div key={index} className="fa-subcard p-4">
               <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 dark:text-white">
+                <h4 className="fa-scenario-title">
                   {recommendation.title}
                 </h4>
                 <div className="flex items-center space-x-2">
@@ -451,13 +448,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   >
                     {recommendation.priority.toUpperCase()}
                   </span>
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                  <span className="fa-chip fa-chip-muted">
                     {recommendation.category.toUpperCase()}
                   </span>
                 </div>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-2">{recommendation.description}</p>
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+              <p className="fa-list-copy mb-2">{recommendation.description}</p>
+              <div className="flex items-center justify-between fa-meta-copy text-sm">
                 <span>Effort: {recommendation.effort}</span>
                 {recommendation.potentialSavings && (
                   <span className="font-medium text-green-600 dark:text-green-400">
@@ -477,15 +474,15 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+        <h3 className="fa-scenario-title flex items-center">
           <span className="mr-2">⚠️</span>
           Risk Assessment
         </h3>
-        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="fa-subcard p-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900 dark:text-white">Overall Risk Level</h4>
+            <h4 className="fa-scenario-title">Overall Risk Level</h4>
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getImpactColor(analysis.riskAssessment.overallRisk)}`}
+              className={`fa-chip-status ${getImpactColor(analysis.riskAssessment.overallRisk)}`}
             >
               {analysis.riskAssessment.overallRisk.toUpperCase()}
             </span>
@@ -494,9 +491,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
             {analysis.riskAssessment.factors.map((factor, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                className="flex items-center justify-between py-2 fa-panel-divider-soft last:border-b-0"
               >
-                <span className="text-gray-700 dark:text-gray-300">{factor.factor}</span>
+                <span className="fa-list-copy">{factor.factor}</span>
                 <div className="flex items-center space-x-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getImpactColor(factor.risk)}`}
@@ -517,7 +514,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+        <h3 className="fa-scenario-title flex items-center">
           <span className="mr-2">🚀</span>
           Optimization Opportunities
         </h3>
@@ -527,22 +524,22 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               key={index}
               className="p-4 bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700"
             >
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 className="fa-scenario-title mb-2">
                 {opportunity.area}
               </h4>
-              <p className="text-gray-700 dark:text-gray-300 mb-3">{opportunity.description}</p>
+              <p className="fa-list-copy mb-3">{opportunity.description}</p>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Current:</span>
-                  <p className="font-medium text-gray-900 dark:text-white">
+                  <span className="fa-meta-copy">Current:</span>
+                  <p className="fa-scenario-title">
                     {typeof opportunity.currentValue === 'number' && opportunity.currentValue > 1000
                       ? formatCurrency(opportunity.currentValue)
                       : formatNumber(opportunity.currentValue)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Optimized:</span>
-                  <p className="font-medium text-gray-900 dark:text-white">
+                  <span className="fa-meta-copy">Optimized:</span>
+                  <p className="fa-scenario-title">
                     {typeof opportunity.optimizedValue === 'number' &&
                     opportunity.optimizedValue > 1000
                       ? formatCurrency(opportunity.optimizedValue)
@@ -550,7 +547,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Improvement:</span>
+                  <span className="fa-meta-copy">Improvement:</span>
                   <p className="font-medium text-green-600 dark:text-green-400">
                     {formatCurrency(opportunity.potentialImprovement)}
                   </p>
@@ -577,7 +574,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-400">Generating analysis...</span>
+            <span className="ml-3 fa-meta-copy">Generating analysis...</span>
           </div>
         </CardContent>
       </Card>
@@ -591,7 +588,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl flex items-center">
+                <CardTitle className="fa-panel-title text-xl flex items-center">
                   <span className="mr-2">📊</span>
                   Comprehensive Analysis
                 </CardTitle>
@@ -604,7 +601,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                 type="button"
                 aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="fa-shell-icon-button h-9 w-9 transition-transform"
               >
                 <svg
                   className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -626,7 +623,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           {isExpanded && (
             <CardContent className="pt-0">
               {/* Tab Navigation */}
-              <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap gap-2 mb-6 fa-panel-divider">
                 {tabs.map((tab) => (
                   <button
                     type="button"
@@ -637,10 +634,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                       console.log('Tab clicked:', tab.id);
                       setActiveTab(tab.id);
                     }}
-                    className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
+                    className={`fa-tab-button cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
                       activeTab === tab.id
                         ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
+                        : 'fa-tab-inactive hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
                     }`}
                   >
                     <span className="mr-1">{tab.icon}</span>
@@ -653,10 +650,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               <div className="min-h-[400px] flex items-center justify-center">
                 <div className="text-center">
                   <div className="text-6xl mb-4">📊</div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="fa-scenario-title mb-2">
                     No Analysis Data Yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="fa-meta-copy mb-4">
                     Run an amortization calculation to see detailed insights, recommendations, and
                     risk assessment.
                   </p>
@@ -675,7 +672,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-xl flex items-center">
+              <CardTitle className="fa-panel-title text-xl flex items-center">
                 <span className="mr-2">📊</span>
                 Comprehensive Analysis
               </CardTitle>
@@ -688,7 +685,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               type="button"
               aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="fa-shell-icon-button h-9 w-9 transition-transform"
             >
               <svg
                 className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -710,8 +707,8 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         {isExpanded && (
           <CardContent className="pt-0">
             {/* Tab Navigation */}
-            <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
-                {tabs.map((tab) => (
+            <div className="flex flex-wrap gap-2 mb-6 fa-panel-divider">
+              {tabs.map((tab) => (
                 <button
                   type="button"
                   key={tab.id}
@@ -721,10 +718,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     console.log('Tab clicked:', tab.id);
                     setActiveTab(tab.id);
                   }}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
+                  className={`fa-tab-button cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
                     activeTab === tab.id
                       ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
+                      : 'fa-tab-inactive hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
                   }`}
                 >
                   <span className="mr-1">{tab.icon}</span>

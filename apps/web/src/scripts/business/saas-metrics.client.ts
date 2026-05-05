@@ -214,29 +214,29 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Monthly Churn Rate</h4>
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Monthly Churn Rate</h4>
           <p class="text-3xl font-bold ${result.churnRate <= 2 ? 'text-green-600 dark:text-green-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.churnRate.toFixed(1)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: <2% (excellent)</p>
+          <p class="fa-script-note mt-2">Target: <2% (excellent)</p>
         </div>
         
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">CAC Payback Period</h4>
+          <h4 class="fa-script-copy-muted font-semibold mb-2">CAC Payback Period</h4>
           <p class="text-3xl font-bold ${result.paybackPeriod <= 12 ? 'text-green-600 dark:text-green-400' : result.paybackPeriod <= 18 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.paybackPeriod.toFixed(1)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: <12 months</p>
+          <p class="fa-script-note mt-2">Target: <12 months</p>
         </div>
         
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Net Revenue Retention</h4>
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Net Revenue Retention</h4>
           <p class="text-3xl font-bold ${result.nrr >= 100 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.nrr.toFixed(0)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: >100% (with expansion)</p>
+          <p class="fa-script-note mt-2">Target: >100% (with expansion)</p>
         </div>
       </div>
       
       <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Rule of 40</h4>
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Rule of 40</h4>
         <div class="flex items-center gap-4">
           <p class="text-4xl font-bold ${result.ruleOf40 >= 40 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.ruleOf40.toFixed(1)}%</p>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-script-copy-muted">
             <p>Growth Rate: {input.revenueGrowthRate}%</p>
             <p>+ Profit Margin: ${result.profitMargin.toFixed(1)}%</p>
             <p class="font-semibold mt-1">${result.ruleOf40 >= 40 ? '✓ Target achieved (≥40%)' : '⚠️ Below target 40%'}</p>
@@ -251,7 +251,7 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       <div class="flex items-center gap-6 mb-4">
         <div class="text-center">
           <div class="text-6xl font-bold ${result.health.score >= 80 ? 'text-green-600 dark:text-green-400' : result.health.score >= 60 ? 'text-blue-600 dark:text-blue-400' : result.health.score >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.health.grade}</div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">${result.health.status}</p>
+          <p class="fa-script-copy-muted mt-2">${result.health.status}</p>
         </div>
         <div class="flex-1">
           <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-6">
@@ -337,4 +337,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeSaaSMetrics();
 }
-

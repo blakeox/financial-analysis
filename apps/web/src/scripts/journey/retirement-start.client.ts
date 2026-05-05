@@ -81,7 +81,7 @@ const renderResults = (
             : '<span class="text-red-600 font-semibold">⚠️ Consider increasing contributions</span>'
         }
       </p>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+      <p class="fa-script-copy-muted mt-2">
         ${
           meetsGoal
             ? 'Your projected savings will provide your target retirement income.'
@@ -107,13 +107,13 @@ const savePlan = (scenarioId: string, planData: Record<string, unknown>, button:
   localStorage.setItem(storageKey, JSON.stringify(journeyState));
 
   button.textContent = '✓ Saved!';
-  button.classList.remove('bg-green-600', 'hover:bg-green-700');
-  button.classList.add('bg-green-500');
+  button.classList.remove('fa-button-primary');
+  button.classList.add('fa-button-success-state');
 
   setTimeout(() => {
     button.textContent = 'Save Plan';
-    button.classList.remove('bg-green-500');
-    button.classList.add('bg-green-600', 'hover:bg-green-700');
+    button.classList.remove('fa-button-success-state');
+    button.classList.add('fa-button-primary');
   }, 2000);
 };
 

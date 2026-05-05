@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['invest-vs-payoff-debt'];
@@ -51,46 +52,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">⚖️</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="⚖️"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Strategy Comparison Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Compare Investment vs Debt Payoff Strategies</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Compare Investment vs Debt Payoff Strategies</h2>
             
-            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 mb-6">
+            <div class="fa-highlight-card mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
                   <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
@@ -112,13 +87,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -128,7 +103,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -142,7 +117,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +127,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,16 +142,16 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Strategy Comparison</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title text-lg mb-4">💡 Strategy Comparison</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Pay Debt First:</strong> Guaranteed return equal to your interest rate. Lower risk.</p>
               </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Invest First:</strong> Potential for higher returns, but market risk. Good if debt interest is low.</p>
               </div>
-              <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Hybrid (50/50):</strong> Balanced approach - reduces debt while building investments.</p>
               </div>
             </div>
@@ -218,7 +193,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         const container = document.getElementById('invest-vs-payoff-calculator-container');
         if (container) {
           container.innerHTML = `
-            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <div class="fa-highlight-card p-4">
               <p class="text-yellow-800 dark:text-yellow-200">
                 Calculator loading... If this persists, please <a href="/calculator/invest-vs-payoff-debt" class="underline">use the standalone calculator</a>.
               </p>
@@ -231,13 +206,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       const container = document.getElementById('invest-vs-payoff-calculator-container');
       if (container) {
         container.innerHTML = `
-          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+          <div class="fa-highlight-card p-6 mb-6">
             <p class="text-blue-800 dark:text-blue-200 mb-4">
               Use the comprehensive calculator to compare strategies:
             </p>
             <a 
               href="/calculator/invest-vs-payoff-debt" 
-              class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors duration-200"
+              class="fa-button-primary"
             >
               Open Calculator
               <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,4 +225,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     });
   </script>
 </Layout>
-

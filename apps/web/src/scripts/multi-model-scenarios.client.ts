@@ -802,13 +802,13 @@ export class MultiModelScenarioManager {
           <div class="flex items-center">
             <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
             <div>
-              <h4 class="font-medium text-gray-900 dark:text-white">${model.name}</h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">${model.description}</p>
+              <h4 class="fa-script-title-sm">${model.name}</h4>
+              <p class="fa-script-copy-muted">${model.description}</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            ${model.required ? '<span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">Required</span>' : ''}
-            <a href="${model.url}" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+            ${model.required ? '<span class="fa-badge-danger">Required</span>' : ''}
+            <a href="${model.url}" class="fa-button-info-compact">
               ${isCompleted ? 'Review' : 'Start'}
             </a>
           </div>
@@ -845,9 +845,9 @@ export class MultiModelScenarioManager {
     scenarioCards.forEach((card) => {
       const cardId = card.getAttribute('data-scenario');
       if (cardId === selectedId) {
-        card.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
+        card.classList.add('fa-scenario-card-selected');
       } else {
-        card.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+        card.classList.remove('fa-scenario-card-selected');
       }
     });
   }
@@ -887,7 +887,7 @@ export class MultiModelScenarioManager {
     // Clear visual state
     const scenarioCards = document.querySelectorAll('.scenario-card');
     scenarioCards.forEach((card) => {
-      card.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+      card.classList.remove('fa-scenario-card-selected');
     });
 
     // Clear chatbot context

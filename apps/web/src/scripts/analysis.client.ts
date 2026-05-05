@@ -113,32 +113,32 @@ const renderSummaryCards = (
         <p class="text-xs text-blue-100/90 mt-1">Rate: ${formatNumber(payload.annualRatePercent)}%</p>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total interest</p>
+      <div class="fa-subcard p-6">
+        <p class="fa-script-copy-subtle mb-2">Total interest</p>
         <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
           ${formatCurrency(result.totalInterest)}
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="fa-script-note mt-1">
           ${formatNumber(interestShare)}% of total payments
         </p>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total payments</p>
+      <div class="fa-subcard p-6">
+        <p class="fa-script-copy-subtle mb-2">Total payments</p>
         <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">
           ${formatCurrency(result.totalPayments)}
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="fa-script-note mt-1">
           Term: ${payload.termMonths} months
         </p>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Residual value</p>
+      <div class="fa-subcard p-6">
+        <p class="fa-script-copy-subtle mb-2">Residual value</p>
         <p class="text-2xl font-semibold text-sky-600 dark:text-sky-400">
           ${formatCurrency(payload.residualValue)}
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="fa-script-note mt-1">
           Principal financed: ${formatCurrency(payload.principal - payload.residualValue)}
         </p>
       </div>
@@ -149,7 +149,7 @@ const renderSummaryCards = (
 const renderScheduleTable = (schedule: LeaseScheduleEntry[], target: HTMLElement): void => {
   if (!schedule.length) {
     target.innerHTML = `
-      <div class="text-sm text-gray-500 dark:text-gray-400">
+      <div class="fa-script-copy-subtle">
         Lease schedule was not returned. Please try again with different inputs.
       </div>
     `;

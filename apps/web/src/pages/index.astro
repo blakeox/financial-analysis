@@ -168,61 +168,62 @@ const iconMarkup: Record<string, string> = {
     ]}
   />
 
-  <div class="landing-page text-[var(--color-navy)]">
+  <div class="landing-page fa-home-page">
     <main class="overflow-hidden">
       <section class="relative isolate px-4 pb-20 pt-32 sm:px-6 sm:pt-36 lg:px-8 lg:pb-28">
-        <div class="landing-glow" aria-hidden="true"></div>
+        <div class="fa-hero-glow" aria-hidden="true"></div>
         <div class="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
           <div class="relative z-10">
-            <p class="hero-badge">AI-Powered Financial Analysis</p>
-            <h1 class="hero-title mt-6 max-w-3xl">
+            <p class="fa-eyebrow">AI-Powered Financial Analysis</p>
+            <h1 class="fa-display fa-display-hero !mt-6 max-w-3xl">
               Ask anything.
               <br />
               Get <span class="text-[var(--color-purple)]">clear financial answers.</span>
             </h1>
-            <p
-              class="mt-6 max-w-2xl text-[1.05rem] leading-[1.7] text-[var(--color-muted-text)] sm:text-[1.08rem]"
-            >
+            <p class="fa-home-hero-copy mt-6 max-w-2xl sm:text-[1.08rem]">
               Fanalyx uses AI to run calculations, solve formulas, and explain financial concepts in
               plain English — so you can compare options and make decisions with more confidence.
             </p>
 
             <ul
-              class="mt-8 space-y-3 text-sm font-medium text-[var(--color-navy)] sm:text-[0.98rem]"
+              class="fa-home-emphasis-list mt-8 space-y-3 sm:text-[0.98rem]"
             >
               <li class="flex items-start gap-3">
-                <span class="check-icon">✓</span>
+                <span class="fa-check-badge">✓</span>
                 <span>Solve financial problems and formulas instantly</span>
               </li>
               <li class="flex items-start gap-3">
-                <span class="check-icon">✓</span>
+                <span class="fa-check-badge">✓</span>
                 <span>Get plain-English explanations of assumptions and results</span>
               </li>
               <li class="flex items-start gap-3">
-                <span class="check-icon">✓</span>
+                <span class="fa-check-badge">✓</span>
                 <span>Compare scenarios before making big decisions</span>
               </li>
             </ul>
 
             <div class="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <a href="/agent" class="primary-button inline-flex items-center justify-center">
+              <a href="/agent" class="fa-button-primary inline-flex items-center justify-center">
                 Try Fanalyx Free
               </a>
-              <a href="#examples" class="secondary-button inline-flex items-center justify-center">
+              <a
+                href="#examples"
+                class="fa-button-secondary inline-flex items-center justify-center"
+              >
                 See Examples
               </a>
             </div>
 
-            <p class="mt-4 text-sm text-[var(--color-muted-text)]">
+            <p class="fa-home-muted-copy mt-4">
               No credit card required · Start in seconds
             </p>
-            <p class="mt-2 text-sm text-[var(--color-soft-text)]">
+            <p class="fa-home-support-copy mt-2">
               Educational decision support only. Not financial advice.
             </p>
           </div>
 
           <div class="relative">
-            <div class="mockup-card relative overflow-hidden rounded-[32px] p-5 sm:p-6">
+            <div class="fa-card fa-card-elevated relative overflow-hidden rounded-[32px] p-5 sm:p-6">
               <div
                 class="browser-bar flex items-center justify-between rounded-[20px] border border-[var(--color-border)] bg-white/85 px-4 py-3"
               >
@@ -231,9 +232,7 @@ const iconMarkup: Record<string, string> = {
                   <span class="h-2.5 w-2.5 rounded-full bg-[rgba(109,74,255,0.34)]"></span>
                   <span class="h-2.5 w-2.5 rounded-full bg-[rgba(109,74,255,0.5)]"></span>
                 </div>
-                <span
-                  class="rounded-full border border-[var(--color-border)] bg-[var(--color-off-white)] px-3 py-1 text-xs font-semibold text-[var(--color-muted-text)]"
-                >
+                <span class="fa-home-browser-pill">
                   fanalyx.com
                 </span>
               </div>
@@ -243,8 +242,8 @@ const iconMarkup: Record<string, string> = {
               >
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="text-lg font-semibold text-[var(--color-navy)]">Hi Alex 👋</p>
-                    <p class="mt-1 text-sm text-[var(--color-muted-text)]">
+                    <p class="fa-home-greeting">Hi Alex 👋</p>
+                    <p class="fa-home-muted-copy mt-1">
                       What financial question can I help you with today?
                     </p>
                   </div>
@@ -257,26 +256,26 @@ const iconMarkup: Record<string, string> = {
 
                 <div class="mt-6 space-y-4">
                   <div
-                    class="user-bubble ml-auto max-w-[28rem] rounded-[22px] px-4 py-3 text-sm leading-6 text-[var(--color-navy)]"
+                    class="fa-chat-bubble-user fa-home-chat-question ml-auto max-w-[28rem] rounded-[22px] px-4 py-3"
                   >
                     If I invest $500 per month at a 7% annual return for 20 years, how much will I
                     have?
                   </div>
 
-                  <div class="response-card rounded-[24px] p-4 sm:p-5">
+                  <div class="fa-analysis-card rounded-[24px] p-4 sm:p-5">
                     <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                       <div class="max-w-md">
                         <p
-                          class="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-soft-text)]"
+                          class="fa-home-kicker"
                         >
                           Estimated future value
                         </p>
                         <p
-                          class="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[var(--color-navy)]"
+                          class="fa-home-stat-value mt-2"
                         >
                           $276,611
                         </p>
-                        <p class="mt-3 text-sm leading-6 text-[var(--color-muted-text)]">
+                        <p class="fa-home-card-copy mt-3 leading-6">
                           Assuming monthly contributions, monthly compounding, and a constant 7%
                           annual return.
                         </p>
@@ -286,7 +285,7 @@ const iconMarkup: Record<string, string> = {
                         class="chart-card min-w-[15rem] rounded-[20px] border border-[var(--color-border)] bg-[var(--color-off-white)] p-4"
                       >
                         <p
-                          class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-soft-text)]"
+                          class="fa-home-kicker-compact"
                         >
                           Growth trend
                         </p>
@@ -309,7 +308,7 @@ const iconMarkup: Record<string, string> = {
                           <circle cx="210" cy="8" r="5.5" fill="#6D4AFF"></circle>
                         </svg>
                         <div
-                          class="mt-2 flex items-center justify-between text-xs text-[var(--color-muted-text)]"
+                          class="fa-home-stat-meta mt-2 flex items-center justify-between"
                         >
                           <span>20 years</span>
                           <span class="font-semibold text-[var(--color-success)]"
@@ -324,10 +323,10 @@ const iconMarkup: Record<string, string> = {
                     >
                       <div class="flex items-center justify-between gap-4">
                         <div>
-                          <p class="text-sm font-semibold text-[var(--color-navy)]">
+                          <p class="fa-home-explainer-title">
                             How this was calculated
                           </p>
-                          <p class="mt-1 text-xs text-[var(--color-muted-text)]">
+                          <p class="fa-home-muted-copy-tight mt-1">
                             FV = P × [((1 + r/n)^(nt) - 1) / (r/n)]
                           </p>
                         </div>
@@ -342,7 +341,7 @@ const iconMarkup: Record<string, string> = {
                 </div>
 
                 <div
-                  class="mt-5 rounded-[20px] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-soft-text)]"
+                  class="fa-home-placeholder-card mt-5 rounded-[20px] border border-[var(--color-border)] bg-white px-4 py-3"
                 >
                   Ask a follow-up…
                 </div>
@@ -355,9 +354,9 @@ const iconMarkup: Record<string, string> = {
       <section id="features" class="scroll-mt-28 px-4 py-20 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-7xl">
           <div class="mx-auto max-w-3xl text-center">
-            <p class="section-eyebrow">Why Fanalyx</p>
-            <h2 class="section-title mt-4">Powerful AI for financial decisions</h2>
-            <p class="section-copy mt-5">
+            <p class="fa-eyebrow fa-eyebrow-soft">Why Fanalyx</p>
+            <h2 class="fa-display fa-display-section !mt-4">Powerful AI for financial decisions</h2>
+            <p class="fa-body-copy mt-5">
               Get accurate calculations, clear explanations, and practical insight without wrestling
               with spreadsheets.
             </p>
@@ -366,12 +365,12 @@ const iconMarkup: Record<string, string> = {
           <div class="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {
               featureCards.map((feature) => (
-                <article class="feature-card group">
-                  <div class="icon-shell" set:html={iconMarkup[feature.icon]} />
-                  <h3 class="mt-6 text-xl font-semibold tracking-[-0.03em] text-[var(--color-navy)]">
+                <article class="fa-card fa-card-interactive group p-8">
+                  <div class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent" set:html={iconMarkup[feature.icon]} />
+                  <h3 class="fa-home-card-title mt-6">
                     {feature.title}
                   </h3>
-                  <p class="mt-3 text-sm leading-7 text-[var(--color-muted-text)]">
+                  <p class="fa-home-card-copy mt-3">
                     {feature.description}
                   </p>
                 </article>
@@ -387,22 +386,22 @@ const iconMarkup: Record<string, string> = {
       >
         <div class="mx-auto max-w-7xl">
           <div class="mx-auto max-w-3xl text-center">
-            <p class="section-eyebrow">How it works</p>
-            <h2 class="section-title mt-4">How Fanalyx Works</h2>
-            <p class="section-copy mt-5">Three simple steps to get the insight you need.</p>
+            <p class="fa-eyebrow fa-eyebrow-soft">How it works</p>
+            <h2 class="fa-display fa-display-section !mt-4">How Fanalyx Works</h2>
+            <p class="fa-body-copy mt-5">Three simple steps to get the insight you need.</p>
           </div>
 
-          <div class="steps-grid mt-14 grid gap-6 lg:grid-cols-3">
+          <div class="fa-steps-grid-linked mt-14 grid gap-6 lg:grid-cols-3">
             {
               steps.map((step, index) => (
-                <article class="step-card relative rounded-[28px] border border-[var(--color-border)] bg-white/90 p-7 shadow-[0_18px_50px_rgba(9,14,36,0.07)]">
+                <article class="fa-card step-card relative p-7">
                   <div class="flex items-center gap-4">
-                    <span class="step-index">{index + 1}</span>
-                    <h3 class="text-xl font-semibold tracking-[-0.03em] text-[var(--color-navy)]">
+                    <span class="fa-step-badge">{index + 1}</span>
+                    <h3 class="fa-home-card-title">
                       {step.title}
                     </h3>
                   </div>
-                  <p class="mt-5 text-sm leading-7 text-[var(--color-muted-text)]">
+                  <p class="fa-home-card-copy mt-5">
                     {step.description}
                   </p>
                 </article>
@@ -415,14 +414,14 @@ const iconMarkup: Record<string, string> = {
       <section id="examples" class="scroll-mt-28 px-4 py-20 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-6xl">
           <div class="mx-auto max-w-3xl text-center">
-            <p class="section-eyebrow">Examples</p>
-            <h2 class="section-title mt-4">Examples of what you can ask</h2>
+            <p class="fa-eyebrow fa-eyebrow-soft">Examples</p>
+            <h2 class="fa-display fa-display-section !mt-4">Examples of what you can ask</h2>
           </div>
 
           <div class="mt-12 flex flex-wrap justify-center gap-3">
             {
               promptChips.map((prompt) => (
-                <a href="/agent" class="prompt-chip">
+                <a href="/agent" class="fa-chip fa-chip-muted fa-chip-lg fa-chip-interactive">
                   {prompt}
                 </a>
               ))
@@ -435,9 +434,11 @@ const iconMarkup: Record<string, string> = {
         <div class="mx-auto max-w-7xl">
           <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div class="max-w-2xl">
-              <p class="section-eyebrow">What it is good for</p>
-              <h2 class="section-title mt-4">Built for questions spreadsheets make annoying</h2>
-              <p class="section-copy mt-5">
+              <p class="fa-eyebrow fa-eyebrow-soft">What it is good for</p>
+              <h2 class="fa-display fa-display-section !mt-4">
+                Built for questions spreadsheets make annoying
+              </h2>
+              <p class="fa-body-copy mt-5">
                 Fanalyx is for the moments when you need to understand a financial choice, but do
                 not want to build a spreadsheet from scratch. Ask the question, adjust the
                 assumptions, and get a clear explanation of the math.
@@ -447,9 +448,9 @@ const iconMarkup: Record<string, string> = {
             <div class="grid gap-6 md:grid-cols-3">
               {
                 useCases.map((useCase, index) => (
-                  <article class="feature-card">
+                  <article class="fa-card fa-card-interactive p-8">
                     <div
-                      class="icon-shell"
+                      class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent"
                       set:html={
                         index === 0
                           ? iconMarkup.trending
@@ -458,10 +459,10 @@ const iconMarkup: Record<string, string> = {
                             : iconMarkup.brain
                       }
                     />
-                    <h3 class="mt-6 text-xl font-semibold tracking-[-0.03em] text-[var(--color-navy)]">
+                    <h3 class="fa-home-card-title mt-6">
                       {useCase.title}
                     </h3>
-                    <p class="mt-3 text-sm leading-7 text-[var(--color-muted-text)]">
+                    <p class="fa-home-card-copy mt-3">
                       {useCase.description}
                     </p>
                   </article>
@@ -475,16 +476,18 @@ const iconMarkup: Record<string, string> = {
       <section class="bg-[var(--color-lavender)] px-4 py-20 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-7xl">
           <div class="mx-auto max-w-3xl text-center">
-            <p class="section-eyebrow">Built carefully</p>
-            <h2 class="section-title mt-4">Built carefully for clearer financial thinking</h2>
+            <p class="fa-eyebrow fa-eyebrow-soft">Built carefully</p>
+            <h2 class="fa-display fa-display-section !mt-4">
+              Built carefully for clearer financial thinking
+            </h2>
           </div>
 
           <div class="mt-14 grid gap-6 md:grid-cols-3">
             {
               trustCards.map((card, index) => (
-                <article class="feature-card">
+                <article class="fa-card fa-card-interactive p-8">
                   <div
-                    class="icon-shell"
+                    class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent"
                     set:html={
                       index === 0
                         ? iconMarkup.calculator
@@ -493,10 +496,10 @@ const iconMarkup: Record<string, string> = {
                           : iconMarkup.sparkles
                     }
                   />
-                  <h3 class="mt-6 text-xl font-semibold tracking-[-0.03em] text-[var(--color-navy)]">
+                  <h3 class="fa-home-card-title mt-6">
                     {card.title}
                   </h3>
-                  <p class="mt-3 text-sm leading-7 text-[var(--color-muted-text)]">
+                  <p class="fa-home-card-copy mt-3">
                     {card.description}
                   </p>
                 </article>
@@ -505,7 +508,7 @@ const iconMarkup: Record<string, string> = {
           </div>
 
           <p
-            class="mx-auto mt-10 max-w-4xl text-center text-sm leading-7 text-[var(--color-muted-text)]"
+            class="fa-home-disclaimer mx-auto mt-10 max-w-4xl text-center"
           >
             Fanalyx provides educational analysis and decision support. It is not a financial
             advisor, broker, tax professional, or legal advisor. Always verify important decisions
@@ -516,18 +519,16 @@ const iconMarkup: Record<string, string> = {
 
       <section class="px-4 py-20 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-6xl">
-          <div
-            class="final-cta relative overflow-hidden rounded-[32px] px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14"
-          >
+          <div class="fa-cta-band relative overflow-hidden rounded-[32px] px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
             <div class="relative grid gap-10 lg:grid-cols-[1fr_0.92fr] lg:items-center">
               <div>
-                <p class="section-eyebrow !text-white/70">Start with one question</p>
-                <h2 class="hero-title mt-4 max-w-2xl text-white !text-[clamp(2.6rem,5vw,4.4rem)]">
+                <p class="fa-eyebrow fa-eyebrow-soft !text-white/70">Start with one question</p>
+                <h2 class="fa-display !mt-4 max-w-2xl !text-white">
                   Better questions.
                   <br />
                   Better financial decisions.
                 </h2>
-                <p class="mt-5 max-w-2xl text-base leading-8 text-white/78">
+                <p class="fa-home-cta-copy mt-5 max-w-2xl">
                   Start with one question and see how much clearer your options become.
                 </p>
               </div>
@@ -539,16 +540,16 @@ const iconMarkup: Record<string, string> = {
                     id="landing-email"
                     type="email"
                     placeholder="Enter your email"
-                    class="min-h-[58px] flex-1 rounded-[18px] border border-white/14 bg-white px-4 text-base text-[var(--color-navy)] outline-none ring-0 placeholder:text-[var(--color-soft-text)]"
+                    class="fa-home-input flex-1 text-base ring-0"
                   />
                   <a
                     href="/agent"
-                    class="primary-button inline-flex min-h-[58px] items-center justify-center whitespace-nowrap"
+                    class="fa-button-light inline-flex min-h-[58px] items-center justify-center whitespace-nowrap"
                   >
                     Try Fanalyx Free
                   </a>
                 </div>
-                <p class="mt-4 text-sm text-white/72">
+                <p class="fa-home-cta-note mt-4">
                   No credit card required · Educational decision support only
                 </p>
               </div>
@@ -562,58 +563,54 @@ const iconMarkup: Record<string, string> = {
       <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr_0.9fr_0.9fr]">
         <div class="max-w-sm">
           <a href="/" class="flex items-center gap-3" aria-label="Fanalyx home">
-            <span class="brand-icon flex h-11 w-11 items-center justify-center rounded-2xl">F</span>
-            <span class="text-lg font-semibold tracking-[-0.03em] text-[var(--color-navy)]">
+            <span class="fa-shell-brand-mark flex h-11 w-11 items-center justify-center rounded-2xl"
+              >F</span
+            >
+            <span class="fa-home-wordmark">
               Fanalyx
             </span>
           </a>
-          <p class="mt-5 text-sm leading-7 text-[var(--color-muted-text)]">
+          <p class="fa-home-disclaimer mt-5">
             AI-powered financial analysis for everyday decisions.
           </p>
         </div>
 
         <div>
-          <h2
-            class="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-soft-text)]"
-          >
+          <h2 class="fa-home-footer-heading">
             Product
           </h2>
-          <ul class="mt-5 space-y-3 text-sm text-[var(--color-muted-text)]">
-            <li><a href="#features" class="footer-link">Features</a></li>
-            <li><a href="#examples" class="footer-link">Examples</a></li>
-            <li><a href="/pricing" class="footer-link">Pricing</a></li>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="#features" class="fa-footer-link">Features</a></li>
+            <li><a href="#examples" class="fa-footer-link">Examples</a></li>
+            <li><a href="/pricing" class="fa-footer-link">Pricing</a></li>
           </ul>
         </div>
 
         <div>
-          <h2
-            class="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-soft-text)]"
-          >
+          <h2 class="fa-home-footer-heading">
             Company
           </h2>
-          <ul class="mt-5 space-y-3 text-sm text-[var(--color-muted-text)]">
-            <li><a href="#about" class="footer-link">About</a></li>
-            <li><a href="/blog" class="footer-link">Blog</a></li>
-            <li><a href="mailto:support@fanalyx.com" class="footer-link">Contact</a></li>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="#about" class="fa-footer-link">About</a></li>
+            <li><a href="/blog" class="fa-footer-link">Blog</a></li>
+            <li><a href="mailto:support@fanalyx.com" class="fa-footer-link">Contact</a></li>
           </ul>
         </div>
 
         <div>
-          <h2
-            class="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-soft-text)]"
-          >
+          <h2 class="fa-home-footer-heading">
             Legal
           </h2>
-          <ul class="mt-5 space-y-3 text-sm text-[var(--color-muted-text)]">
-            <li><a href="/privacy" class="footer-link">Privacy</a></li>
-            <li><a href="/terms" class="footer-link">Terms</a></li>
-            <li><a href="/disclaimer" class="footer-link">Disclaimer</a></li>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="/privacy" class="fa-footer-link">Privacy</a></li>
+            <li><a href="/terms" class="fa-footer-link">Terms</a></li>
+            <li><a href="/disclaimer" class="fa-footer-link">Disclaimer</a></li>
           </ul>
         </div>
       </div>
 
       <div class="mx-auto mt-12 max-w-7xl border-t border-[var(--color-border)] pt-6">
-        <p class="text-sm leading-7 text-[var(--color-muted-text)]">
+        <p class="fa-home-disclaimer">
           Fanalyx is for educational and informational purposes only and does not provide financial
           advice.
         </p>
@@ -652,216 +649,4 @@ const iconMarkup: Record<string, string> = {
     transition: all 180ms ease;
   }
 
-  .brand-icon {
-    background: linear-gradient(135deg, #6d4aff, #5636e8);
-    box-shadow: 0 14px 30px rgba(109, 74, 255, 0.24);
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: -0.05em;
-  }
-
-  .landing-nav-link:hover,
-  .footer-link:hover {
-    color: var(--color-navy);
-  }
-
-  .hero-badge,
-  .section-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    border: 1px solid #dcd3ff;
-    background: #f7f4ff;
-    color: var(--color-purple);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 0.5rem 0.9rem;
-    text-transform: uppercase;
-  }
-
-  .section-eyebrow {
-    border-color: rgba(109, 74, 255, 0.12);
-    background: rgba(255, 255, 255, 0.7);
-  }
-
-  .hero-title,
-  .section-title {
-    font-family: 'Fraunces', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.95;
-    color: var(--color-navy);
-  }
-
-  .hero-title {
-    font-size: clamp(3rem, 6vw, 5.75rem);
-  }
-
-  .section-title {
-    font-size: clamp(2.3rem, 4vw, 3.55rem);
-  }
-
-  .section-copy {
-    color: var(--color-muted-text);
-    font-size: 1.05rem;
-    line-height: 1.7;
-  }
-
-  .landing-glow {
-    position: absolute;
-    inset: -6rem auto auto 55%;
-    height: 28rem;
-    width: 28rem;
-    border-radius: 999px;
-    background: rgba(109, 74, 255, 0.15);
-    filter: blur(110px);
-    pointer-events: none;
-  }
-
-  .primary-button {
-    background: linear-gradient(135deg, #6d4aff, #5636e8);
-    border-radius: 12px;
-    box-shadow: 0 14px 32px rgba(109, 74, 255, 0.28);
-    color: white;
-    font-weight: 700;
-    padding: 0.95rem 1.35rem;
-  }
-
-  .primary-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 40px rgba(109, 74, 255, 0.34);
-  }
-
-  .secondary-button {
-    background: white;
-    border: 1px solid #e0ddea;
-    border-radius: 12px;
-    color: var(--color-navy);
-    font-weight: 700;
-    padding: 0.95rem 1.35rem;
-  }
-
-  .secondary-button:hover {
-    transform: translateY(-2px);
-    border-color: rgba(109, 74, 255, 0.32);
-    box-shadow: 0 14px 32px rgba(9, 14, 36, 0.08);
-  }
-
-  .check-icon {
-    display: inline-flex;
-    height: 1.5rem;
-    width: 1.5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    background: rgba(109, 74, 255, 0.12);
-    color: var(--color-purple);
-    flex: none;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-top: 0.1rem;
-  }
-
-  .mockup-card {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-border);
-    box-shadow: 0 24px 80px rgba(17, 24, 39, 0.12);
-  }
-
-  .user-bubble {
-    background: var(--color-purple-light);
-    border: 1px solid rgba(109, 74, 255, 0.12);
-  }
-
-  .response-card {
-    background: white;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 18px 50px rgba(9, 14, 36, 0.06);
-  }
-
-  .feature-card {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid var(--color-border);
-    border-radius: 24px;
-    box-shadow: 0 18px 50px rgba(9, 14, 36, 0.07);
-    padding: 2rem;
-  }
-
-  .feature-card:hover,
-  .prompt-chip:hover {
-    transform: translateY(-4px);
-  }
-
-  .icon-shell {
-    align-items: center;
-    background: #f1ecff;
-    border-radius: 16px;
-    color: var(--color-purple);
-    display: inline-flex;
-    height: 52px;
-    justify-content: center;
-    width: 52px;
-  }
-
-  .icon-shell :global(svg) {
-    height: 24px;
-    width: 24px;
-  }
-
-  .step-index {
-    align-items: center;
-    background: linear-gradient(135deg, #6d4aff, #5636e8);
-    border-radius: 999px;
-    color: white;
-    display: inline-flex;
-    font-size: 1rem;
-    font-weight: 700;
-    height: 3rem;
-    justify-content: center;
-    width: 3rem;
-    box-shadow: 0 12px 30px rgba(109, 74, 255, 0.24);
-  }
-
-  .prompt-chip {
-    background: white;
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    box-shadow: 0 8px 24px rgba(9, 14, 36, 0.04);
-    color: var(--color-navy);
-    display: inline-flex;
-    font-size: 0.95rem;
-    font-weight: 500;
-    padding: 0.8rem 1rem;
-  }
-
-  .prompt-chip:hover {
-    border-color: rgba(109, 74, 255, 0.34);
-    box-shadow: 0 12px 30px rgba(109, 74, 255, 0.12);
-  }
-
-  .final-cta {
-    background:
-      radial-gradient(circle at 20% 20%, rgba(109, 74, 255, 0.38), transparent 30%),
-      linear-gradient(135deg, #050816, #160b38);
-    color: white;
-  }
-
-  @media (min-width: 1024px) {
-    .steps-grid article:not(:last-child)::after {
-      border-top: 2px dotted rgba(109, 74, 255, 0.26);
-      content: '';
-      left: calc(100% - 0.5rem);
-      position: absolute;
-      top: 2.2rem;
-      width: 2.5rem;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .hero-title {
-      line-height: 1;
-    }
-  }
 </style>

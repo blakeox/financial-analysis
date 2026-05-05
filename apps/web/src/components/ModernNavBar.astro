@@ -33,7 +33,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
       class="group relative z-10 flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
       aria-label="Home"
     >
-      <span class="brand-mark" aria-hidden="true">F</span>
+      <span class="fa-shell-brand-mark" aria-hidden="true">F</span>
       <span
         class="select-none text-base font-semibold tracking-[-0.03em] text-gray-900 dark:text-white"
       >
@@ -55,7 +55,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
               <a
                 href={link.href}
                 data-testid="nav-desktop-link"
-                class={`desktop-nav-link relative nav-link rounded-xl px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 ${active ? 'active text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
+                class={`desktop-nav-link fa-shell-nav-link relative focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 ${active ? 'fa-shell-nav-link-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >
                 <span>{link.label}</span>
@@ -68,16 +68,10 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
 
     <!-- Right side / Mobile toggle -->
     <div class="relative z-10 flex items-center gap-2">
-      <a
-        href="/dashboard"
-        class="hidden rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-violet-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-violet-400/10 dark:hover:text-white lg:inline-flex"
-      >
+      <a href="/dashboard" class="fa-button-secondary hidden px-3 py-2 text-sm lg:inline-flex">
         Log In
       </a>
-      <a
-        href="/agent"
-        class="hidden items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-violet-700 px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(109,74,255,0.34)] lg:inline-flex"
-      >
+      <a href="/agent" class="fa-button-primary hidden px-4 py-3 text-sm lg:inline-flex">
         Get Started Free
       </a>
       <!-- Theme Toggle -->
@@ -85,7 +79,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         id="theme-toggle"
         data-testid="nav-theme-toggle"
         type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-200 dark:hover:bg-gray-800"
+        class="fa-shell-icon-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
         aria-label="Toggle color theme"
       >
         <span class="sr-only">Toggle theme</span>
@@ -124,7 +118,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         id="search-toggle"
         data-testid="nav-search-toggle"
         type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-200 dark:hover:bg-gray-800"
+        class="fa-shell-icon-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
         aria-label="Open search"
       >
         <span class="sr-only">Open search</span>
@@ -146,7 +140,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         id="nav-toggle"
         data-testid="nav-mobile-toggle"
         type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-300/70 bg-white/80 text-gray-600 transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 dark:border-gray-700/60 dark:bg-gray-800/70 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
+        class="fa-shell-icon-button h-11 w-11 fa-meta-copy md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
         aria-label="Toggle navigation menu"
         aria-controls="mobile-nav-panel"
         aria-expanded="false"
@@ -170,9 +164,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
     aria-label="Mobile navigation"
     data-testid="nav-mobile-panel"
   >
-    <div
-      class="mx-4 rounded-[24px] border border-gray-200/80 bg-white/96 px-4 pb-5 pt-3 shadow-[0_18px_50px_rgba(9,14,36,0.08)] backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/96 dark:shadow-black/40"
-    >
+    <div class="fa-shell-mobile-panel mx-4 px-4 pb-5 pt-3">
       <ul class="flex flex-col gap-1">
         {
           links
@@ -184,7 +176,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
                 <li>
                   <a
                     href={link.href}
-                    class={`block rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${active ? 'bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'}`}
+                    class={`fa-shell-mobile-link ${active ? 'fa-shell-mobile-link-active' : ''}`}
                     aria-current={active ? 'page' : undefined}
                     data-mobile-link
                   >
@@ -195,16 +187,10 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
             })
         }
       </ul>
-      <a
-        href="/dashboard"
-        class="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white"
-      >
+      <a href="/dashboard" class="fa-button-secondary mt-3 inline-flex w-full px-4 py-3 text-sm">
         Log In
       </a>
-      <a
-        href="/agent"
-        class="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-violet-700 px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)] transition hover:-translate-y-0.5"
-      >
+      <a href="/agent" class="fa-button-primary mt-3 inline-flex w-full px-4 py-3 text-sm">
         Get Started Free
       </a>
     </div>
@@ -222,12 +208,10 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
   data-search-overlay
 >
   <div class="w-full max-w-xl mx-auto px-4">
-    <div
-      class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden"
-    >
+    <div class="fa-shell-search-surface">
       <div class="flex items-center px-4 h-14 gap-3">
         <svg
-          class="h-5 w-5 text-gray-500 dark:text-gray-400"
+          class="h-5 w-5 fa-meta-copy"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           stroke="currentColor"
@@ -241,7 +225,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
           id="search-input"
           type="text"
           placeholder="Search calculators, pages, and examples…"
-          class="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400"
+          class="fa-shell-input flex-1 text-sm"
           aria-label="Search input"
         />
         <button
@@ -249,7 +233,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
           id="search-close"
           data-testid="nav-search-close"
           aria-label="Close search"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
+          class="fa-shell-icon-button h-9 w-9 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +250,7 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         </button>
       </div>
       <div
-        class="border-t border-gray-100 dark:border-gray-800 p-4 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between"
+        class="fa-panel-divider-top p-4 fa-meta-copy text-xs flex items-center justify-between"
       >
         <span>Type to search (not wired yet)</span>
         <kbd

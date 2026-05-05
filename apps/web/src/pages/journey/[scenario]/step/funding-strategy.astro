@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -121,129 +122,114 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   />
 
   <main class="fa-page-shell">
-<!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center mb-4">
-          <span class="text-4xl mr-3">💰</span>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Funding Strategy</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400">Step 3 of {currentScenario.models.length} - {currentScenario.name}</p>
-          </div>
-        </div>
-        <p class="text-gray-700 dark:text-gray-300 max-w-3xl">
-          Plan your funding milestones and runway to ensure sustainable growth. This step helps you understand when you'll need additional funding and how to prepare for it.
-        </p>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 of {currentScenario.models.length}</span>
-        </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
-        </div>
-      </div>
+          <JourneyStepHero
+            icon="💰"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+            supportingText={`Plan your funding milestones and runway to ensure sustainable growth. This step helps you understand when you'll need additional funding and how to prepare for it.`}
+          />
 
       <!-- Previous Steps Integration -->
-      <div id="previous-steps-integration" class="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 hidden">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Data from Previous Phases</h3>
+      <div id="previous-steps-integration" class="fa-integration-panel hidden">
+        <h3 class="fa-scenario-title mb-4">📊 Data from Previous Phases</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div id="capital-integration-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 1: Capital Investment</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Initial funding loaded</p>
+          <div id="capital-integration-display" class="fa-subcard hidden">
+            <h4 class="fa-scenario-title mb-2">Phase 1: Capital Investment</h4>
+            <p class="fa-meta-copy text-sm">Initial funding loaded</p>
           </div>
-          <div id="budget-integration-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 2: Budget Planning</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Revenue projections available</p>
+          <div id="budget-integration-display" class="fa-subcard hidden">
+            <h4 class="fa-scenario-title mb-2">Phase 2: Budget Planning</h4>
+            <p class="fa-meta-copy text-sm">Revenue projections available</p>
           </div>
         </div>
       </div>
 
       <!-- Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <div class="fa-card p-6 mb-8">
         <form id="funding-strategy-form" class="space-y-6">
           <!-- Funding Goals -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Funding Goals</h3>
+            <h3 class="fa-scenario-title mb-4">Funding Goals</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="nextFundingRound" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="nextFundingRound" class="fa-field-label mb-2">
                   Next Funding Round Amount <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="nextFundingRound" name="nextFundingRound" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="1000000" min="0" step="10000">
-                <p class="text-sm text-gray-500 mt-1">Amount you plan to raise in next round</p>
+                <p class="fa-help-copy mt-1">Amount you plan to raise in next round</p>
               </div>
               
               <div>
-                <label for="fundingTimeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="fundingTimeline" class="fa-field-label mb-2">
                   Funding Timeline (Months) <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="fundingTimeline" name="fundingTimeline" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="12" min="1" max="36" step="1">
-                <p class="text-sm text-gray-500 mt-1">When you plan to raise next round</p>
+                <p class="fa-help-copy mt-1">When you plan to raise next round</p>
               </div>
             </div>
           </div>
 
           <!-- Runway Analysis -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Runway Analysis</h3>
+            <h3 class="fa-scenario-title mb-4">Runway Analysis</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="currentBurnRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="currentBurnRate" class="fa-field-label mb-2">
                   Current Monthly Burn Rate <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="currentBurnRate" name="currentBurnRate" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="50000" min="0" step="1000">
-                <p class="text-sm text-gray-500 mt-1">Current monthly expenses minus revenue</p>
+                <p class="fa-help-copy mt-1">Current monthly expenses minus revenue</p>
               </div>
               
               <div>
-                <label for="projectedBurnRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="projectedBurnRate" class="fa-field-label mb-2">
                   Projected Burn Rate (6 months)
                 </label>
                 <input type="number" id="projectedBurnRate" name="projectedBurnRate"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="75000" min="0" step="1000">
-                <p class="text-sm text-gray-500 mt-1">Expected burn rate in 6 months</p>
+                <p class="fa-help-copy mt-1">Expected burn rate in 6 months</p>
               </div>
             </div>
           </div>
 
           <!-- Funding Sources -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Funding Sources</h3>
+            <h3 class="fa-scenario-title mb-4">Funding Sources</h3>
             <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="venture-capital" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Venture Capital</span>
+                  <span class="fa-list-copy">Venture Capital</span>
                 </label>
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="angel-investors" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Angel Investors</span>
+                  <span class="fa-list-copy">Angel Investors</span>
                 </label>
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="bank-loan" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Bank Loan</span>
+                  <span class="fa-list-copy">Bank Loan</span>
                 </label>
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="government-grant" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Government Grant</span>
+                  <span class="fa-list-copy">Government Grant</span>
                 </label>
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="crowdfunding" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Crowdfunding</span>
+                  <span class="fa-list-copy">Crowdfunding</span>
                 </label>
                 <label class="flex items-center">
                   <input type="checkbox" name="fundingSources" value="revenue-based" class="mr-2">
-                  <span class="text-gray-700 dark:text-gray-300">Revenue-Based</span>
+                  <span class="fa-list-copy">Revenue-Based</span>
                 </label>
               </div>
             </div>
@@ -251,32 +237,32 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           <!-- Milestones -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Key Milestones</h3>
+            <h3 class="fa-scenario-title mb-4">Key Milestones</h3>
             <div class="space-y-4">
               <div>
-                <label for="milestone1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="milestone1" class="fa-field-label mb-2">
                   Milestone 1 (3 months)
                 </label>
                 <textarea id="milestone1" name="milestone1" rows="2"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Launch MVP, acquire first 100 customers"></textarea>
               </div>
               
               <div>
-                <label for="milestone2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="milestone2" class="fa-field-label mb-2">
                   Milestone 2 (6 months)
                 </label>
                 <textarea id="milestone2" name="milestone2" rows="2"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Reach $50k MRR, expand team to 10 people"></textarea>
               </div>
               
               <div>
-                <label for="milestone3" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="milestone3" class="fa-field-label mb-2">
                   Milestone 3 (12 months)
                 </label>
                 <textarea id="milestone3" name="milestone3" rows="2"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Series A ready, $500k ARR"></textarea>
               </div>
             </div>
@@ -284,13 +270,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-4 mt-8">
-            <button type="button" id="calculate-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="calculate-btn" class="fa-button-primary">
               Calculate Funding Strategy
             </button>
-            <button type="button" id="save-funding-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="save-funding-btn" class="fa-button-primary">
               Save Funding Strategy
             </button>
-            <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="reset-btn" class="fa-button-secondary">
               Reset
             </button>
           </div>
@@ -298,43 +284,43 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       </div>
 
       <!-- Results Section -->
-      <div id="funding-results" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 hidden">
+      <div id="funding-results" class="fa-card p-6 mb-8 hidden">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Funding Strategy Analysis</h3>
+          <h3 class="fa-panel-title">Funding Strategy Analysis</h3>
         </div>
 
         <!-- Key Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Runway</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-info">Runway</h5>
             <p id="runway-metric" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
           </div>
-          <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Fundraising Timeline</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-success">Fundraising Timeline</h5>
             <p id="timeline-metric" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
           </div>
-          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Funding Needed</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-accent">Total Funding Needed</h5>
             <p id="funding-metric" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
           </div>
-          <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Monthly Burn Rate</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-warning">Monthly Burn Rate</h5>
             <p id="burn-rate-metric" class="text-2xl font-bold text-orange-600 dark:text-orange-400">--</p>
           </div>
         </div>
 
         <!-- Funding Timeline -->
         <div class="mb-6">
-          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Funding Timeline</h4>
+          <h4 class="fa-scenario-title mb-4">Funding Timeline</h4>
           <div id="timeline-display" class="space-y-4">
             <!-- Timeline items will be populated here -->
           </div>
         </div>
 
         <!-- Recommendations -->
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recommendations</h4>
-          <div id="recommendations" class="text-sm text-gray-700 dark:text-gray-300">
+        <div class="fa-subcard">
+          <h4 class="fa-scenario-title mb-2">Recommendations</h4>
+          <div id="recommendations" class="fa-list-copy text-sm">
             <!-- Recommendations will be populated here -->
           </div>
         </div>
@@ -343,14 +329,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       <!-- Navigation -->
       <div class="flex justify-between items-center">
         {journeyNav.previousStep ? (
-          <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={journeyNav.previousStep.url} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
             Previous: {journeyNav.previousStep.name}
           </a>
         ) : (
-          <a href={`/journey/${scenario}`} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={`/journey/${scenario}`} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -359,7 +345,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         )}
         
         {journeyNav.nextStep && (
-          <a href={journeyNav.nextStep.url} class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+          <a href={journeyNav.nextStep.url} class="fa-button-primary">
             Next: {journeyNav.nextStep.name}
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -453,11 +439,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         // Show success message
         saveBtn.textContent = '✓ Saved!';
         saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-        saveBtn.classList.add('bg-green-500');
+        saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Funding Strategy';
-          saveBtn.classList.remove('bg-green-500');
+          saveBtn.classList.remove('fa-button-success-state');
           saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
         }, 2000);
 
@@ -479,4 +465,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     }
   });
 </script>
-

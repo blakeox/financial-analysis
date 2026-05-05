@@ -197,37 +197,37 @@ const displayResults = (result: RiskResults): void => {
 
   // Render summary cards
   summaryCards.innerHTML = `
-    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-red-900 dark:text-red-100">Daily VaR</h5>
-      <p class="text-2xl font-bold text-red-600 dark:text-red-400">${formatCurrency(result.valueAtRisk.daily)}</p>
+    <div class="fa-metric-card fa-metric-card-danger">
+      <h5 class="text-sm font-medium">Daily VaR</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.daily)}</p>
     </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Weekly VaR</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatCurrency(result.valueAtRisk.weekly)}</p>
+    <div class="fa-metric-card fa-metric-card-warning">
+      <h5 class="text-sm font-medium">Weekly VaR</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.weekly)}</p>
     </div>
-    <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-yellow-900 dark:text-yellow-100">Monthly VaR</h5>
-      <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">${formatCurrency(result.valueAtRisk.monthly)}</p>
+    <div class="fa-metric-card fa-metric-card-warning">
+      <h5 class="text-sm font-medium">Monthly VaR</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.monthly)}</p>
     </div>
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Custom ${result.customTimeHorizon.days}-Day VaR</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</p>
+    <div class="fa-metric-card fa-metric-card-info">
+      <h5 class="text-sm font-medium">Custom ${result.customTimeHorizon.days}-Day VaR</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Sharpe Ratio</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.riskMetrics.sharpeRatio.toFixed(2)}</p>
+    <div class="fa-metric-card fa-metric-card-accent">
+      <h5 class="text-sm font-medium">Sharpe Ratio</h5>
+      <p class="text-2xl font-bold">${result.riskMetrics.sharpeRatio.toFixed(2)}</p>
     </div>
   `;
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <div class="fa-card mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Value at Risk Analysis</h3>
       
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Daily VaR</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Maximum expected loss in one day</p>
+            <span class="fa-script-label font-medium">Daily VaR</span>
+            <p class="fa-script-copy-subtle">Maximum expected loss in one day</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(result.valueAtRisk.daily)}</span>
@@ -236,8 +236,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Weekly VaR</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Maximum expected loss in one week</p>
+            <span class="fa-script-label font-medium">Weekly VaR</span>
+            <p class="fa-script-copy-subtle">Maximum expected loss in one week</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-orange-600 dark:text-orange-400">${formatCurrency(result.valueAtRisk.weekly)}</span>
@@ -246,8 +246,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Monthly VaR</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Maximum expected loss in one month</p>
+            <span class="fa-script-label font-medium">Monthly VaR</span>
+            <p class="fa-script-copy-subtle">Maximum expected loss in one month</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-yellow-600 dark:text-yellow-400">${formatCurrency(result.valueAtRisk.monthly)}</span>
@@ -256,8 +256,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Custom ${result.customTimeHorizon.days}-Day VaR</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">User-selected horizon</p>
+            <span class="fa-script-label font-medium">Custom ${result.customTimeHorizon.days}-Day VaR</span>
+            <p class="fa-script-copy-subtle">User-selected horizon</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</span>
@@ -267,8 +267,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Annual VaR</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Maximum expected loss in one year</p>
+            <span class="fa-script-label font-medium">Annual VaR</span>
+            <p class="fa-script-copy-subtle">Maximum expected loss in one year</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(result.valueAtRisk.annual)}</span>
@@ -277,14 +277,14 @@ const displayResults = (result: RiskResults): void => {
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <div class="fa-card mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Risk Metrics</h3>
       
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Sharpe Ratio</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Risk-adjusted return measure</p>
+            <span class="fa-script-label font-medium">Sharpe Ratio</span>
+            <p class="fa-script-copy-subtle">Risk-adjusted return measure</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.riskMetrics.sharpeRatio.toFixed(2)}</span>
@@ -293,8 +293,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Maximum Drawdown</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Largest peak-to-trough decline</p>
+            <span class="fa-script-label font-medium">Maximum Drawdown</span>
+            <p class="fa-script-copy-subtle">Largest peak-to-trough decline</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-red-600 dark:text-red-400">${formatPercent(result.riskMetrics.maxDrawdown)}</span>
@@ -303,8 +303,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Beta</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Market sensitivity measure</p>
+            <span class="fa-script-label font-medium">Beta</span>
+            <p class="fa-script-copy-subtle">Market sensitivity measure</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.riskMetrics.beta.toFixed(2)}</span>
@@ -313,8 +313,8 @@ const displayResults = (result: RiskResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Tracking Error</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Volatility of excess returns</p>
+            <span class="fa-script-label font-medium">Tracking Error</span>
+            <p class="fa-script-copy-subtle">Volatility of excess returns</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(result.riskMetrics.trackingError)}</span>
@@ -323,61 +323,61 @@ const displayResults = (result: RiskResults): void => {
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <div class="fa-card mb-8">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Stress Test Scenarios</h3>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <h4 class="font-medium text-red-900 dark:text-red-100 mb-2">Recession Scenario</h4>
-          <p class="text-2xl font-bold text-red-600 dark:text-red-400">${formatCurrency(result.stressTest.recession)}</p>
-          <p class="text-sm text-red-700 dark:text-red-300 mt-1">${formatPercent((result.stressTest.recession / 1000000) * 100)} impact</p>
+        <div class="fa-metric-card fa-metric-card-danger text-center">
+          <h4 class="mb-2 font-medium">Recession Scenario</h4>
+          <p class="text-2xl font-bold">${formatCurrency(result.stressTest.recession)}</p>
+          <p class="mt-1 text-sm">${formatPercent((result.stressTest.recession / 1000000) * 100)} impact</p>
         </div>
         
-        <div class="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-          <h4 class="font-medium text-yellow-900 dark:text-yellow-100 mb-2">Inflation Scenario</h4>
-          <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">${formatCurrency(result.stressTest.inflation)}</p>
-          <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">${formatPercent((result.stressTest.inflation / 1000000) * 100)} impact</p>
+        <div class="fa-metric-card fa-metric-card-warning text-center">
+          <h4 class="mb-2 font-medium">Inflation Scenario</h4>
+          <p class="text-2xl font-bold">${formatCurrency(result.stressTest.inflation)}</p>
+          <p class="mt-1 text-sm">${formatPercent((result.stressTest.inflation / 1000000) * 100)} impact</p>
         </div>
         
-        <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <h4 class="font-medium text-red-900 dark:text-red-100 mb-2">Market Crash</h4>
-          <p class="text-2xl font-bold text-red-600 dark:text-red-400">${formatCurrency(result.stressTest.marketCrash)}</p>
-          <p class="text-sm text-red-700 dark:text-red-300 mt-1">${formatPercent((result.stressTest.marketCrash / 1000000) * 100)} impact</p>
+        <div class="fa-metric-card fa-metric-card-danger text-center">
+          <h4 class="mb-2 font-medium">Market Crash</h4>
+          <p class="text-2xl font-bold">${formatCurrency(result.stressTest.marketCrash)}</p>
+          <p class="mt-1 text-sm">${formatPercent((result.stressTest.marketCrash / 1000000) * 100)} impact</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div class="fa-card">
       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Monte Carlo Simulation</h3>
       
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <h5 class="text-sm font-medium text-red-600 dark:text-red-400 mb-1">5th Percentile</h5>
-          <p class="text-lg font-bold text-red-600 dark:text-red-400">${formatCurrency(result.monteCarloSimulation.percentiles.p5)}</p>
+        <div class="fa-metric-card fa-metric-card-danger text-center">
+          <h5 class="mb-1 text-sm font-medium">5th Percentile</h5>
+          <p class="text-lg font-bold">${formatCurrency(result.monteCarloSimulation.percentiles.p5)}</p>
         </div>
         
-        <div class="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-          <h5 class="text-sm font-medium text-orange-600 dark:text-orange-400 mb-1">25th Percentile</h5>
-          <p class="text-lg font-bold text-orange-600 dark:text-orange-400">${formatCurrency(result.monteCarloSimulation.percentiles.p25)}</p>
+        <div class="fa-metric-card fa-metric-card-warning text-center">
+          <h5 class="mb-1 text-sm font-medium">25th Percentile</h5>
+          <p class="text-lg font-bold">${formatCurrency(result.monteCarloSimulation.percentiles.p25)}</p>
         </div>
         
-        <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h5 class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">50th Percentile</h5>
-          <p class="text-lg font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.monteCarloSimulation.percentiles.p50)}</p>
+        <div class="fa-metric-card fa-metric-card-info text-center">
+          <h5 class="mb-1 text-sm font-medium">50th Percentile</h5>
+          <p class="text-lg font-bold">${formatCurrency(result.monteCarloSimulation.percentiles.p50)}</p>
         </div>
         
-        <div class="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <h5 class="text-sm font-medium text-green-600 dark:text-green-400 mb-1">75th Percentile</h5>
-          <p class="text-lg font-bold text-green-600 dark:text-green-400">${formatCurrency(result.monteCarloSimulation.percentiles.p75)}</p>
+        <div class="fa-metric-card fa-metric-card-success text-center">
+          <h5 class="mb-1 text-sm font-medium">75th Percentile</h5>
+          <p class="text-lg font-bold">${formatCurrency(result.monteCarloSimulation.percentiles.p75)}</p>
         </div>
         
-        <div class="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-          <h5 class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">95th Percentile</h5>
-          <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.monteCarloSimulation.percentiles.p95)}</p>
+        <div class="fa-metric-card fa-metric-card-accent text-center">
+          <h5 class="mb-1 text-sm font-medium">95th Percentile</h5>
+          <p class="text-lg font-bold">${formatCurrency(result.monteCarloSimulation.percentiles.p95)}</p>
         </div>
       </div>
       
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
+      <p class="fa-script-copy-muted mt-4 text-center">
         Based on 10,000 Monte Carlo simulations
       </p>
     </div>

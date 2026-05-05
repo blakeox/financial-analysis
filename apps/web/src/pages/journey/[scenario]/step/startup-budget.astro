@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -109,187 +110,170 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   />
 
   <main class="fa-page-shell">
-<!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center mb-4">
-          <span class="text-4xl mr-3">🚀</span>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Startup Budget Planning</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400">Step 2 of {currentScenario.models.length} - {currentScenario.name}</p>
-          </div>
-        </div>
-        <p class="text-gray-700 dark:text-gray-300 max-w-3xl">
-          Create a comprehensive budget and cash flow projections for your startup. This foundation will help you understand your financial needs and plan for sustainable growth.
-        </p>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">2 of {currentScenario.models.length}</span>
-        </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div class="bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
-        </div>
-      </div>
+          <JourneyStepHero
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
       <!-- Capital Investment Integration -->
-      <div id="capital-integration" class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 hidden">
-        <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">💰 Capital Investment Integration</h3>
-        <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">
+      <div id="capital-integration" class="fa-highlight-card p-6 mb-8 hidden">
+        <h3 class="fa-scenario-title mb-4 text-lg">💰 Capital Investment Integration</h3>
+        <p class="fa-list-copy mb-4">
           💡 Your data from <strong>Phase 1: Initial Capital Investment</strong> is automatically integrated below to enhance your budget projections.
         </p>
         
         <!-- Key Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Total Investment</h4>
+          <div class="fa-subcard">
+            <h4 class="fa-field-label">Total Investment</h4>
             <p id="total-investment-display" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Equity Offered</h4>
+          <div class="fa-subcard">
+            <h4 class="fa-field-label">Equity Offered</h4>
             <p id="equity-offered-display" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Company Valuation</h4>
+          <div class="fa-subcard">
+            <h4 class="fa-field-label">Company Valuation</h4>
             <p id="company-valuation-display" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
           </div>
         </div>
 
         <!-- Investment Allocation Breakdown -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Investment Allocation Breakdown</h4>
+        <div class="fa-subcard">
+          <h4 class="fa-field-label mb-3">Investment Allocation Breakdown</h4>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Product Development</p>
-              <p id="allocation-product" class="text-lg font-semibold text-gray-900 dark:text-white">--</p>
+              <p class="fa-help-copy mb-1">Product Development</p>
+              <p id="allocation-product" class="fa-scenario-title">--</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Marketing & Sales</p>
-              <p id="allocation-marketing" class="text-lg font-semibold text-gray-900 dark:text-white">--</p>
+              <p class="fa-help-copy mb-1">Marketing & Sales</p>
+              <p id="allocation-marketing" class="fa-scenario-title">--</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Operations</p>
-              <p id="allocation-operations" class="text-lg font-semibold text-gray-900 dark:text-white">--</p>
+              <p class="fa-help-copy mb-1">Operations</p>
+              <p id="allocation-operations" class="fa-scenario-title">--</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Working Capital</p>
-              <p id="allocation-working" class="text-lg font-semibold text-gray-900 dark:text-white">--</p>
+              <p class="fa-help-copy mb-1">Working Capital</p>
+              <p id="allocation-working" class="fa-scenario-title">--</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <div class="fa-card p-6 mb-8">
         <form id="startup-budget-form" class="space-y-6">
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue Projections</h3>
+            <h3 class="fa-scenario-title mb-4">Revenue Projections</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="monthlyRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="monthlyRevenue" class="fa-field-label mb-2">
                   Expected Monthly Revenue <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="monthlyRevenue" name="monthlyRevenue" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="50000" min="0" step="1000">
-                <p class="text-sm text-gray-500 mt-1">Your projected monthly revenue in USD</p>
+                <p class="fa-help-copy mt-1">Your projected monthly revenue in USD</p>
               </div>
               
               <div>
-                <label for="growthRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="growthRate" class="fa-field-label mb-2">
                   Monthly Growth Rate <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="growthRate" name="growthRate" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="10" min="0" max="100" step="1">
-                <p class="text-sm text-gray-500 mt-1">Expected monthly growth percentage</p>
+                <p class="fa-help-copy mt-1">Expected monthly growth percentage</p>
               </div>
             </div>
           </div>
 
           <!-- Operating Expenses -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Operating Expenses</h3>
+            <h3 class="fa-scenario-title mb-4">Operating Expenses</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="salaries" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="salaries" class="fa-field-label mb-2">
                   Monthly Salaries <span class="text-red-500">*</span>
                 </label>
                 <input type="number" id="salaries" name="salaries" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="25000" min="0" step="1000">
-                <p class="text-sm text-gray-500 mt-1">Total monthly salary expenses</p>
+                <p class="fa-help-copy mt-1">Total monthly salary expenses</p>
               </div>
               
               <div>
-                <label for="officeRent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="officeRent" class="fa-field-label mb-2">
                   Office Rent & Utilities
                 </label>
                 <input type="number" id="officeRent" name="officeRent"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="5000" min="0" step="100">
-                <p class="text-sm text-gray-500 mt-1">Monthly office and utility costs</p>
+                <p class="fa-help-copy mt-1">Monthly office and utility costs</p>
               </div>
               
               <div>
-                <label for="marketing" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="marketing" class="fa-field-label mb-2">
                   Marketing & Advertising
                 </label>
                 <input type="number" id="marketing" name="marketing"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="5000" min="0" step="100">
-                <p class="text-sm text-gray-500 mt-1">Monthly marketing spend</p>
+                <p class="fa-help-copy mt-1">Monthly marketing spend</p>
               </div>
               
               <div>
-                <label for="otherExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="otherExpenses" class="fa-field-label mb-2">
                   Other Operating Expenses
                 </label>
                 <input type="number" id="otherExpenses" name="otherExpenses"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="3000" min="0" step="100">
-                <p class="text-sm text-gray-500 mt-1">Other monthly operating costs</p>
+                <p class="fa-help-copy mt-1">Other monthly operating costs</p>
               </div>
             </div>
           </div>
 
           <!-- Funding Information -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Funding Information</h3>
+            <h3 class="fa-scenario-title mb-4">Funding Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="initialFunding" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="initialFunding" class="fa-field-label mb-2">
                   Initial Funding Raised
                 </label>
                 <input type="number" id="initialFunding" name="initialFunding"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="500000" min="0" step="10000">
-                <p class="text-sm text-gray-500 mt-1">Total funding raised to date</p>
+                <p class="fa-help-copy mt-1">Total funding raised to date</p>
               </div>
               
               <div>
-                <label for="runwayMonths" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="runwayMonths" class="fa-field-label mb-2">
                   Desired Runway (Months)
                 </label>
                 <input type="number" id="runwayMonths" name="runwayMonths"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="18" min="1" max="60" step="1">
-                <p class="text-sm text-gray-500 mt-1">How many months of runway you want</p>
+                <p class="fa-help-copy mt-1">How many months of runway you want</p>
               </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-4 mt-8">
-            <button type="button" id="save-budget-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="save-budget-btn" class="fa-button-primary">
               Save Budget Plan
             </button>
-            <button type="button" id="projection-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="projection-btn" class="fa-button-primary">
               📊 Generate Projections
             </button>
-            <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="reset-btn" class="fa-button-secondary">
               Reset
             </button>
           </div>
@@ -297,20 +281,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       </div>
 
       <!-- Revenue Projections Results -->
-      <div id="projections-results" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 hidden">
+      <div id="projections-results" class="fa-card p-6 mb-8 hidden">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Revenue Projections</h3>
+          <h3 class="fa-panel-title">Revenue Projections</h3>
           <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Format:</label>
-              <select id="format-toggle" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <label class="fa-field-label">Format:</label>
+              <select id="format-toggle" class="fa-input-surface text-sm">
                 <option value="ebitda">EBITDA Format</option>
                 <option value="pnl">P&L Format</option>
               </select>
             </div>
             <div class="flex items-center space-x-2">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Timeline:</label>
-              <select id="timeline-toggle" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <label class="fa-field-label">Timeline:</label>
+              <select id="timeline-toggle" class="fa-input-surface text-sm">
                 <option value="1year">1 Year (Monthly)</option>
                 <option value="5year">5 Years (Annual)</option>
                 <option value="10year">10 Years (Annual)</option>
@@ -324,12 +308,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           <table id="projections-table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Period</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Revenue</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Expenses</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">EBITDA</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Net Income</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cumulative Cash</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Period</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Revenue</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Expenses</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">EBITDA</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Net Income</th>
+                <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Cumulative Cash</th>
               </tr>
             </thead>
             <tbody id="projections-tbody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -340,32 +324,32 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Projection Charts -->
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Revenue Growth</h4>
+          <div class="fa-subcard">
+            <h4 class="fa-scenario-title mb-4">Revenue Growth</h4>
             <canvas id="revenue-chart" width="400" height="200"></canvas>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cash Flow</h4>
+          <div class="fa-subcard">
+            <h4 class="fa-scenario-title mb-4">Cash Flow</h4>
             <canvas id="cashflow-chart" width="400" height="200"></canvas>
           </div>
         </div>
 
         <!-- Key Metrics -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Runway</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-info">Runway</h5>
             <p id="runway-metric" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
           </div>
-          <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Break-even Month</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-success">Break-even Month</h5>
             <p id="breakeven-metric" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
           </div>
-          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Peak Monthly Burn</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-accent">Peak Monthly Burn</h5>
             <p id="peak-burn-metric" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
           </div>
-          <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Year 1 Revenue</h5>
+          <div class="fa-highlight-card p-4">
+            <h5 class="fa-metric-label-warning">Year 1 Revenue</h5>
             <p id="year1-revenue-metric" class="text-2xl font-bold text-orange-600 dark:text-orange-400">--</p>
           </div>
         </div>
@@ -374,14 +358,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       <!-- Navigation -->
       <div class="flex justify-between items-center">
         {journeyNav.previousStep ? (
-          <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={journeyNav.previousStep.url} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
             Previous: {journeyNav.previousStep.name}
           </a>
         ) : (
-          <a href={`/journey/${scenario}`} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={`/journey/${scenario}`} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -390,7 +374,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         )}
         
         {journeyNav.nextStep && (
-          <a href={journeyNav.nextStep.url} class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+          <a href={journeyNav.nextStep.url} class="fa-button-primary">
             Next: {journeyNav.nextStep.name}
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -556,24 +540,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         
         if (format === 'ebitda') {
           row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${projection.period}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.revenue)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.expenses)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy-strong">${projection.period}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.revenue)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.expenses)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.ebitda >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(projection.ebitda)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.netIncome >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(projection.netIncome)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.cumulativeCash)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.cumulativeCash)}</td>
           `;
         } else {
           // P&L format - show more detailed breakdown
           const grossMargin = projection.revenue - (projection.expenses * 0.6); // Assume 60% COGS
           const operatingIncome = grossMargin - (projection.expenses * 0.4); // 40% operating expenses
           row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${projection.period}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.revenue)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.expenses)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy-strong">${projection.period}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.revenue)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.expenses)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm ${grossMargin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(grossMargin)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm ${operatingIncome >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(operatingIncome)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatCurrency(projection.cumulativeCash)}</td>
+            <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.cumulativeCash)}</td>
           `;
         }
         
@@ -717,11 +701,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         // Show success message
         saveBtn.textContent = '✓ Saved!';
         saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-        saveBtn.classList.add('bg-green-500');
+        saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Budget Plan';
-          saveBtn.classList.remove('bg-green-500');
+          saveBtn.classList.remove('fa-button-success-state');
           saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
         }, 2000);
 

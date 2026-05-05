@@ -180,7 +180,7 @@ const updateFeaturesList = (doc: Document, listElement: HTMLElement | null, feat
     ...features.map((featureText) => {
       const item = doc.createElement('li');
       item.textContent = featureText;
-      item.className = 'flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400';
+      item.className = 'flex items-center gap-2 fa-script-copy-muted';
       return item;
     })
   );

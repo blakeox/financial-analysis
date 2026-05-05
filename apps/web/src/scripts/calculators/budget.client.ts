@@ -136,35 +136,35 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🛡️</span> Emergency Fund Progress
       </h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${emergencyFund.recommendation}</p>
+      <p class="fa-script-copy-muted mb-4">${emergencyFund.recommendation}</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Fund</p>
+          <p class="fa-script-copy-muted mb-1">Current Fund</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.currentAmount)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
+          <p class="fa-script-note mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Target Fund</p>
+          <p class="fa-script-copy-muted mb-1">Target Fund</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.targetAmount)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.targetMonths} months</p>
+          <p class="fa-script-note mt-1">${emergencyFund.targetMonths} months</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Time to Complete</p>
+          <p class="fa-script-copy-muted mb-1">Time to Complete</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">At current savings</p>
+          <p class="fa-script-note mt-1">At current savings</p>
         </div>
       </div>
       
       <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
         <div class="flex justify-between text-sm mb-2">
-          <span class="text-gray-600 dark:text-gray-400">Progress</span>
+          <span class="fa-script-copy-muted">Progress</span>
           <span class="font-semibold text-gray-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
         </div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
           <div class="bg-linear-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
         </div>
-        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <div class="mt-2 flex justify-between fa-script-note">
           <span>$0</span>
           <span class="font-semibold">${formatCurrency(emergencyFund.currentAmount)}</span>
           <span>${formatCurrency(emergencyFund.targetAmount)}</span>
@@ -178,8 +178,8 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Needs (50%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Housing, utilities, food, transportation</p>
+            <span class="fa-script-label font-medium">Needs (50%)</span>
+            <p class="fa-script-copy-subtle">Housing, utilities, food, transportation</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(needs.current)}</span>
@@ -189,8 +189,8 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Wants (30%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Entertainment, dining, hobbies</p>
+            <span class="fa-script-label font-medium">Wants (30%)</span>
+            <p class="fa-script-copy-subtle">Entertainment, dining, hobbies</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(wants.current)}</span>
@@ -200,8 +200,8 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Savings (20%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Emergency fund, retirement, investments</p>
+            <span class="fa-script-label font-medium">Savings (20%)</span>
+            <p class="fa-script-copy-subtle">Emergency fund, retirement, investments</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(savings.current)}</span>

@@ -165,9 +165,9 @@ export function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📊</span> Visual Payment Breakdown
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">See how your annual payments split between principal and interest over time</p>
+      <p class="fa-script-copy-muted mb-4">See how your annual payments split between principal and interest over time</p>
       <canvas id="${canvasId}" class="w-full" style="max-width: 100%; height: 400px;"></canvas>
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-400">
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 fa-script-note">
         <div class="flex gap-2">
           <span>💡</span>
           <p>Interest payments decrease and principal payments increase over time</p>
@@ -354,9 +354,9 @@ export function renderTotalCostComparisonChart(scenarios: Scenario[]): string {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>💰</span> Total Cost Comparison
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Compare total costs including principal, interest, PMI, and closing costs</p>
+      <p class="fa-script-copy-muted mb-4">Compare total costs including principal, interest, PMI, and closing costs</p>
       <canvas id="${canvasId}" class="w-full" style="height: ${chartHeight}px;"></canvas>
-      <div class="mt-4 flex flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-400">
+      <div class="mt-4 flex flex-wrap gap-4 fa-script-note">
         <div class="flex items-center gap-2">
           <span class="inline-block w-3 h-3 rounded-full bg-green-500"></span>
           <span>Best Value (Lowest Total Cost)</span>
@@ -462,7 +462,7 @@ export function renderPayoffTimelineChart(scenarios: Scenario[]): string {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>⏳</span> Payoff Timeline Comparison
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">See how long each scenario takes to pay off your mortgage</p>
+      <p class="fa-script-copy-muted mb-4">See how long each scenario takes to pay off your mortgage</p>
       <canvas id="${canvasId}" class="w-full" style="height: 200px;"></canvas>
     </div>
   `;
@@ -637,9 +637,9 @@ export function renderEquityGrowthChart(scenarios: Scenario[]): string {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Equity Growth Over Time
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Watch your home equity build as you pay down the mortgage</p>
+      <p class="fa-script-copy-muted mb-4">Watch your home equity build as you pay down the mortgage</p>
       <canvas id="${canvasId}" class="w-full" style="height: 320px;"></canvas>
-      <div class="mt-4 text-xs text-gray-600 dark:text-gray-400">
+      <div class="mt-4 fa-script-note">
         <p>💡 Higher down payments and extra payments accelerate equity building</p>
       </div>
     </div>
@@ -751,7 +751,7 @@ export function renderMonthlyBreakdownCharts(scenarios: Scenario[]): string {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🥧</span> Monthly Payment Breakdown
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">See where your monthly payment goes for each scenario</p>
+      <p class="fa-script-copy-muted mb-4">See where your monthly payment goes for each scenario</p>
       <div class="grid grid-cols-2 ${displayScenarios.length > 2 ? 'md:grid-cols-4' : 'md:grid-cols-2'} gap-6">
         ${charts}
       </div>

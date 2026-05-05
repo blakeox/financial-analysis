@@ -178,13 +178,13 @@ const initGoalPlanningCalculator = () => {
       localStorage.setItem(journeyStateKey, JSON.stringify(journeyState));
 
       saveBtn.textContent = '✓ Saved!';
-      saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-      saveBtn.classList.add('bg-green-500');
+      saveBtn.classList.remove('fa-button-primary');
+      saveBtn.classList.add('fa-button-success-state');
 
       setTimeout(() => {
         saveBtn.textContent = 'Save Goals';
-        saveBtn.classList.remove('bg-green-500');
-        saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('fa-button-success-state');
+        saveBtn.classList.add('fa-button-primary');
       }, 2000);
 
       window.dispatchEvent(

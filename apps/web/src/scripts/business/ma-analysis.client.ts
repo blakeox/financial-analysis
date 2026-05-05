@@ -446,19 +446,19 @@ function displayResults(result: unknown): void {
           <h3 class="text-lg font-semibold mb-2">Accretion / Dilution (Summary)</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Year 1</div>
+              <div class="fa-script-copy-muted font-medium">Year 1</div>
               <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.year1Accretion
               )}</div>
             </div>
             <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Year 3</div>
+              <div class="fa-script-copy-muted font-medium">Year 3</div>
               <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.year3Accretion
               )}</div>
             </div>
             <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Average</div>
+              <div class="fa-script-copy-muted font-medium">Average</div>
               <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.averageAccretion
               )}</div>
@@ -478,15 +478,15 @@ function displayResults(result: unknown): void {
         <h3 class="text-lg font-semibold mb-2">Deal Overview</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Deal Size</div>
+            <div class="fa-script-copy-muted font-medium">Deal Size</div>
             <div class="text-xl font-bold text-gray-900 dark:text-white">${(r?.transactionSummary?.dealSize || 'N/A').toString()}</div>
           </div>
           <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Premium</div>
+            <div class="fa-script-copy-muted font-medium">Premium</div>
             <div class="text-xl font-bold text-gray-900 dark:text-white">${premiumText}</div>
           </div>
           <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Enterprise Value</div>
+            <div class="fa-script-copy-muted font-medium">Enterprise Value</div>
             <div class="text-xl font-bold text-gray-900 dark:text-white">${evText}</div>
           </div>
         </div>

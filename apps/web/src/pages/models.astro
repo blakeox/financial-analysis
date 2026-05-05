@@ -67,7 +67,7 @@ const structuredData = {
           description="Choose between personal finance tools or business analysis models. Each is designed for precision and backed by deterministic calculations."
         />
 
-        <div class="mb-16 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <div class="fa-model-intro mb-16">
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
           </svg>
@@ -78,12 +78,12 @@ const structuredData = {
           <a
             href="/models/personal"
             aria-label="Explore Personal Tools"
-            class="block transition hover:-translate-y-1"
+            class="block"
           >
             <SurfaceCard
               title="Personal Finance"
               description="Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families."
-              className="h-full bg-gradient-to-br from-blue-50 to-indigo-50"
+              className="h-full fa-card-interactive bg-gradient-to-br from-blue-50 to-indigo-50"
             >
               <span class="fa-inline-link mt-6 inline-flex">Explore Personal Tools</span>
             </SurfaceCard>
@@ -92,12 +92,12 @@ const structuredData = {
           <a
             href="/models/business"
             aria-label="Explore Business Tools"
-            class="block transition hover:-translate-y-1"
+            class="block"
           >
             <SurfaceCard
               title="Business Finance"
               description="Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools."
-              className="h-full bg-gradient-to-br from-violet-50 to-purple-50"
+              className="h-full fa-card-interactive bg-gradient-to-br from-violet-50 to-purple-50"
             >
               <span class="fa-inline-link mt-6 inline-flex">Explore Business Tools</span>
             </SurfaceCard>
@@ -109,39 +109,39 @@ const structuredData = {
 
         <!-- Featured Models -->
         <section class="max-w-5xl mx-auto mb-16">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-8">
+          <h2 class="fa-display fa-display-section !mt-0 mb-8">
             Featured Financial Models
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Amortization Calculator -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="Amortization Calculator">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                  <h3 class="fa-model-title">
                     Amortization Calculator
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Generate detailed payment schedules, compare principal versus interest, and model extra payment strategies.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Payment schedules
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Principal vs interest breakdown
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -150,7 +150,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/calculator/amortization"
-                  class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Calculator
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -161,34 +161,34 @@ const structuredData = {
             </div>
 
             <!-- Enhanced Lease Analysis -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-violet-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="Enhanced Lease Analysis">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300">
+                  <h3 class="fa-model-title">
                     Enhanced Lease Analysis
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Evaluate lease scenarios, run sensitivity analyses, and compare lease-versus-buy outcomes with AI-assisted workflows.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Lease scenario evaluation
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Sensitivity analysis
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -197,7 +197,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/lease-analysis"
-                  class="inline-flex items-center px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Analysis
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -208,34 +208,34 @@ const structuredData = {
             </div>
 
             <!-- EBITDA Forecasting -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="EBITDA Forecasting">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                  <h3 class="fa-model-title">
                     EBITDA Forecasting
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Service industry financial projections with deterministic controls for revenue, staffing, and expense scenarios.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Revenue forecasting
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Staffing & expense planning
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <div class="fa-model-feature">
                     <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -244,7 +244,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/ebitda-forecasting"
-                  class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Forecaster
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -257,12 +257,12 @@ const structuredData = {
         </section>
 
         <!-- Active Model Section -->
-        <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <div id="selected-model-info" class="fa-card hidden p-6 mb-8">
           <div class="flex items-center justify-between mb-4">
-            <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+            <h2 id="selected-model-title" class="fa-model-title"></h2>
             <button 
               onclick="clearSelection()"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              class="fa-icon-button-ghost"
               title="Clear selection"
               aria-label="Clear model selection"
             >
@@ -271,9 +271,9 @@ const structuredData = {
               </svg>
             </button>
           </div>
-          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
+          <p id="selected-model-description" class="fa-model-description !mb-4 !mt-0"></p>
           <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500 dark:text-gray-400">Run the model first, then use guided analysis to interpret the result or decide what to change next.</span>
+            <span class="fa-meta-copy">Run the model first, then use guided analysis to interpret the result or decide what to change next.</span>
             <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -282,17 +282,17 @@ const structuredData = {
 
         <!-- Call to Action -->
         <div class="text-center">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div class="fa-card p-8">
+            <h2 class="fa-display fa-display-section !mt-0 mb-4">
               Guided analysis after every calculation
             </h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">
+            <p class="fa-card-copy !mt-0 mb-6">
               Start with a calculator, get the result first, then use guided follow-up prompts to understand the outcome, compare scenarios, and decide what to change next.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/calculator/amortization"
-                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Start with Amortization
                 <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -301,7 +301,7 @@ const structuredData = {
               </a>
               <a
                 href="/status"
-                class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                class="fa-button-secondary"
               >
                 API Status
               </a>

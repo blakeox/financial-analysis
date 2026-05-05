@@ -222,26 +222,26 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       <div class="space-y-3">
         <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300">Self-Employment Tax (15.3%)</span>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Social Security + Medicare on 92.35% of profit</p>
+            <span class="fa-script-label">Self-Employment Tax (15.3%)</span>
+            <p class="fa-script-note">Social Security + Medicare on 92.35% of profit</p>
           </div>
           <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(result.taxes.selfEmploymentTax)}</span>
         </div>
         
         <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Federal Income Tax</span>
+          <span class="fa-script-label">Federal Income Tax</span>
           <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(result.taxes.federalIncomeTax)}</span>
         </div>
         
         <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">State Income Tax</span>
+          <span class="fa-script-label">State Income Tax</span>
           <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(result.taxes.stateIncomeTax)}</span>
         </div>
         
         <div class="flex justify-between items-center py-2 border-t-2 border-gray-300 dark:border-gray-600 pt-3">
           <div>
             <span class="text-gray-900 dark:text-white font-semibold">Total Annual Taxes</span>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Effective rate: ${result.taxes.effectiveTaxRate.toFixed(1)}%</p>
+            <p class="fa-script-note">Effective rate: ${result.taxes.effectiveTaxRate.toFixed(1)}%</p>
           </div>
           <span class="font-bold text-red-600 dark:text-red-400">${formatCurrency(result.taxes.totalTaxes)}</span>
         </div>
@@ -266,22 +266,22 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       
       <div class="space-y-3">
         <div class="flex justify-between py-2">
-          <span class="text-gray-700 dark:text-gray-300">Gross Revenue (Annual)</span>
+          <span class="fa-script-label">Gross Revenue (Annual)</span>
           <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.gross.annualRevenue)}</span>
         </div>
         
         <div class="flex justify-between py-2">
-          <span class="text-gray-700 dark:text-gray-300">Business Expenses</span>
+          <span class="fa-script-label">Business Expenses</span>
           <span class="font-semibold text-red-600 dark:text-red-400">- ${formatCurrency(result.expenses.annualExpenses)}</span>
         </div>
         
         <div class="flex justify-between py-2 border-t border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300 font-medium">Net Profit (Before Tax)</span>
+          <span class="fa-script-label font-medium">Net Profit (Before Tax)</span>
           <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.netIncome.annualNet)}</span>
         </div>
         
         <div class="flex justify-between py-2">
-          <span class="text-gray-700 dark:text-gray-300">Total Taxes</span>
+          <span class="fa-script-label">Total Taxes</span>
           <span class="font-semibold text-red-600 dark:text-red-400">- ${formatCurrency(result.taxes.totalTaxes)}</span>
         </div>
         
@@ -300,26 +300,26 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Gross Hourly</p>
+          <p class="fa-script-copy-muted mb-1">Gross Hourly</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(result.gross.hourlyRate)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Before expenses & taxes</p>
+          <p class="fa-script-note mt-1">Before expenses & taxes</p>
         </div>
         
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Net Hourly</p>
+          <p class="fa-script-copy-muted mb-1">Net Hourly</p>
           <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.netIncome.hourlyNetRate)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">After expenses</p>
+          <p class="fa-script-note mt-1">After expenses</p>
         </div>
         
         <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">True Hourly Rate</p>
+          <p class="fa-script-copy-muted mb-1">True Hourly Rate</p>
           <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.afterTax.hourlyAfterTaxRate)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">After all taxes</p>
+          <p class="fa-script-note mt-1">After all taxes</p>
         </div>
       </div>
       
       <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg">
-        <p class="text-sm text-gray-700 dark:text-gray-300">
+        <p class="fa-script-copy-strong">
           💡 <strong>Reality Check:</strong> You're actually earning <strong>${formatCurrency(result.afterTax.hourlyAfterTaxRate)}/hour</strong> after accounting for all expenses and taxes. 
           This is ${result.afterTax.takeHomePercent.toFixed(0)}% of your gross hourly rate.
         </p>
@@ -336,7 +336,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Equivalent W-2 Salary</h4>
           <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">${formatCurrency(result.comparison.w2Equivalent)}</p>
-          <p class="text-sm text-gray-700 dark:text-gray-300">
+          <p class="fa-script-copy-strong">
             A W-2 job paying ${formatCurrency(result.comparison.w2Equivalent)}/year would give you similar take-home pay
             (but you'd only pay ~7.65% FICA instead of 15.3% SE tax)
           </p>
@@ -344,10 +344,10 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
         
         <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Don't Forget Benefits!</h4>
-          <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+          <p class="fa-script-copy-strong mb-2">
             W-2 jobs typically include benefits worth ~25% of salary:
           </p>
-          <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <ul class="fa-script-copy-strong space-y-1">
             <li>• Health insurance: ~$8,000-$20,000/year</li>
             <li>• 401(k) match: 3-6% of salary</li>
             <li>• Paid time off: 2-4 weeks/year</li>
@@ -360,7 +360,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
         
         <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">✓ Freelance Advantages</h4>
-          <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <ul class="fa-script-copy-strong space-y-1">
             <li>• Flexibility and autonomy</li>
             <li>• Unlimited income potential</li>
             <li>• Business expense deductions</li>
@@ -377,7 +377,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
         <span>💡</span> Tax-Saving Tips
       </h2>
       
-      <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+      <div class="fa-script-copy-strong space-y-3">
         <div class="flex gap-2">
           <span>✓</span>
           <p><strong>Maximize Deductions:</strong> Track ALL business expenses - home office, equipment, software, mileage (67¢/mile in 2024), meals with clients (50% deductible).</p>
@@ -486,4 +486,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeSideHustle();
 }
-

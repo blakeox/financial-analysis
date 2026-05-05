@@ -98,8 +98,8 @@ const journeyScript = `
       <!-- Journey Completion Header -->
       <div class="fa-highlight-card mb-8">
         <div class="text-center">
-          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <div class="fa-icon-tile fa-icon-tile-lg fa-icon-tile-success mx-auto mb-4">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
           </div>
@@ -108,7 +108,7 @@ const journeyScript = `
             title="🎉 Journey Complete!"
             description={`You've successfully completed the ${journey.name} financial journey`}
           />
-          <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
+          <div class="fa-chip fa-chip-success text-sm">
             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z" clip-rule="evenodd" />
             </svg>
@@ -119,12 +119,12 @@ const journeyScript = `
 
       <!-- Journey Summary -->
       <SurfaceCard className="mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Journey Summary</h2>
+        <h2 class="fa-panel-title mb-4">Journey Summary</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {journey.models.map((model, index) => (
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h3 class="font-medium text-gray-900 dark:text-white mb-2">{model.name}</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{model.description}</p>
+            <div class="fa-highlight-card">
+              <h3 class="fa-scenario-title mb-2">{model.name}</h3>
+              <p class="fa-meta-copy mb-2 text-sm">{model.description}</p>
               <div class="flex items-center text-sm text-green-600 dark:text-green-400">
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z" clip-rule="evenodd" />
@@ -145,11 +145,11 @@ const journeyScript = `
 
       <!-- Action Buttons -->
       <SurfaceCard>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">What's Next?</h2>
+        <h2 class="fa-panel-title mb-4">What's Next?</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <a 
             href="/journey" 
-            class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-primary justify-center"
           >
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -158,7 +158,7 @@ const journeyScript = `
           </a>
           <a 
             href="/models" 
-            class="inline-flex items-center justify-center px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-secondary justify-center"
           >
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>

@@ -102,7 +102,7 @@ class FinancialJourneyCalculator {
             Your financial journey plan is complete. Use the AI assistant to get detailed recommendations and next steps.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered financial journey recommendations and personalized action plans.</p>
         </div>
       </div>

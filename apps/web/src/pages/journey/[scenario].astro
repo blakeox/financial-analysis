@@ -71,10 +71,10 @@ const structuredData = {
             title={currentScenario.name}
             description={currentScenario.description}
           />
-          <p class="fa-body-lg -mt-2">{currentScenario.ageRange}</p>
-          <div class="mt-4 flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+          <p class="fa-meta-copy -mt-2">{currentScenario.ageRange}</p>
+          <div class="fa-meta-copy mt-4 flex items-center space-x-6">
             <div class="flex items-center">
-              <span class="mr-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <span class="fa-chip fa-chip-accent mr-2">
                 {currentScenario.complexity}
               </span>
               <span class="flex items-center">
@@ -90,40 +90,40 @@ const structuredData = {
 
       <!-- Journey Progress -->
       <SurfaceCard className="mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Journey Progress</h2>
+        <h2 class="fa-panel-title mb-4">Journey Progress</h2>
         <div class="grid grid-cols-3 gap-4 mb-4">
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">0</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Completed</div>
+            <div class="fa-model-title text-2xl">0</div>
+            <div class="fa-meta-copy text-sm">Completed</div>
           </div>
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">{currentScenario.models.length}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Total Steps</div>
+            <div class="fa-model-title text-2xl">{currentScenario.models.length}</div>
+            <div class="fa-meta-copy text-sm">Total Steps</div>
           </div>
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">0%</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Progress</div>
+            <div class="fa-model-title text-2xl">0%</div>
+            <div class="fa-meta-copy text-sm">Progress</div>
           </div>
         </div>
       </SurfaceCard>
 
       <!-- Analysis Models -->
       <SurfaceCard className="mb-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Analysis Models</h3>
+        <h3 class="fa-panel-title mb-6">Analysis Models</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentScenario.models.map((model, index) => (
-            <a href={model.url} class="block border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <a href={model.url} class="fa-card block p-6 transition-transform duration-200 hover:-translate-y-1">
               <div class="flex items-start mb-4">
-                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">
+                <div class="fa-chip fa-chip-accent h-8 w-8 justify-center rounded-full p-0 mr-3">
                   {index + 1}
                 </div>
                 <div class="flex-1">
-                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{model.name}</h4>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">{model.description}</p>
-                  <span class={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                  <h4 class="fa-scenario-title mb-2">{model.name}</h4>
+                  <p class="fa-meta-copy mb-3 text-sm">{model.description}</p>
+                  <span class={`fa-chip ${
                     model.required 
-                      ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' 
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                      ? 'fa-chip-danger' 
+                      : 'fa-chip-muted'
                   }`}>
                     {model.required ? 'Required' : 'Optional'}
                   </span>
@@ -136,20 +136,20 @@ const structuredData = {
 
       <!-- Workflow Steps -->
       <SurfaceCard className="mb-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Workflow Steps</h3>
+        <h3 class="fa-panel-title mb-6">Workflow Steps</h3>
         <div class="space-y-4">
           {currentScenario.workflow.map((step, index) => (
             <div class="flex items-start">
-              <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">
+              <div class="fa-chip fa-chip-muted h-8 w-8 justify-center rounded-full p-0 mr-4 flex-shrink-0">
                 {index + 1}
               </div>
-              <p class="text-gray-700 dark:text-gray-300 pt-1">{step}</p>
+              <p class="fa-list-copy pt-1">{step}</p>
             </div>
           ))}
         </div>
-        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">💡 Pro Tip</h4>
-          <p class="text-blue-800 dark:text-blue-200 text-sm">
+        <div class="fa-highlight-card mt-6">
+          <h4 class="fa-scenario-title mb-2">💡 Pro Tip</h4>
+          <p class="fa-list-copy text-sm">
             Complete the required models first, then move on to optional ones. Each completed step adds result-specific takeaways so you can decide what to change next.
           </p>
         </div>
@@ -160,7 +160,7 @@ const structuredData = {
         <form action={`/journey/${scenario}/step/${currentScenario.models[0].id}`} method="get">
           <button
             type="submit"
-            class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            class="fa-button-primary text-lg"
           >
             <span class="mr-2">{currentScenario.icon}</span>
             Start Your Journey
@@ -169,7 +169,7 @@ const structuredData = {
             </svg>
           </button>
         </form>
-        <p class="text-gray-600 dark:text-gray-400 mt-4">
+        <p class="fa-meta-copy mt-4">
           Begin with the first step: <strong>{currentScenario.models[0].name}</strong>
         </p>
       </div>

@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -70,71 +71,45 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">🎯</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-linear-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="🎯"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           {scenario === 'home-buying' ? (
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Compare Mortgage Scenarios</h2>
+            <div class="fa-card p-6 mb-6">
+              <h2 class="fa-panel-title mb-6">Compare Mortgage Scenarios</h2>
               
               <form id="mortgage-comparison-form" data-journey-scenario-id={journeyNav.scenarioId} class="space-y-6">
                 <!-- Base Loan Information -->
-                <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏠 Base Loan Information</h3>
+                <div class="fa-panel-divider pb-6">
+                  <h3 class="fa-scenario-title mb-4">🏠 Base Loan Information</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="home-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="home-price" class="fa-field-label mb-2">
                         Home Price ($) *
                       </label>
                       <input 
                         type="number" 
                         id="home-price" 
                         name="homePrice"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="400000"
                         required
                       />
                     </div>
                     <div>
-                      <label for="loan-term" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="loan-term" class="fa-field-label mb-2">
                         Loan Term (years) *
                       </label>
                       <select 
                         id="loan-term" 
                         name="loanTerm"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         required
                       >
                         <option value="15">15 years</option>
@@ -145,24 +120,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </div>
 
                 <!-- Scenario 1: Current Plan -->
-                <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💼 Scenario 1: Current Plan</h3>
+                <div class="fa-panel-divider pb-6">
+                  <h3 class="fa-scenario-title mb-4">💼 Scenario 1: Current Plan</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="scenario1-down" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="scenario1-down" class="fa-field-label mb-2">
                         Down Payment ($) *
                       </label>
                       <input 
                         type="number" 
                         id="scenario1-down" 
                         name="scenario1Down"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="80000"
                         required
                       />
                     </div>
                     <div>
-                      <label for="scenario1-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="scenario1-rate" class="fa-field-label mb-2">
                         Interest Rate (%) *
                       </label>
                       <input 
@@ -170,7 +145,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                         id="scenario1-rate" 
                         name="scenario1Rate"
                         step="0.01"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="7.5"
                         required
                       />
@@ -180,23 +155,23 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
                 <!-- Scenario 2: Alternative Option -->
                 <div class="pb-6">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Scenario 2: Alternative Option</h3>
+                  <h3 class="fa-scenario-title mb-4">💰 Scenario 2: Alternative Option</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="scenario2-down" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="scenario2-down" class="fa-field-label mb-2">
                         Down Payment ($) *
                       </label>
                       <input 
                         type="number" 
                         id="scenario2-down" 
                         name="scenario2Down"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="100000"
                         required
                       />
                     </div>
                     <div>
-                      <label for="scenario2-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="scenario2-rate" class="fa-field-label mb-2">
                         Interest Rate (%) *
                       </label>
                       <input 
@@ -204,7 +179,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                         id="scenario2-rate" 
                         name="scenario2Rate"
                         step="0.01"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="6.75"
                         required
                       />
@@ -213,70 +188,70 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <button type="button" id="compare-mortgages-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                  <button type="button" id="compare-mortgages-btn" class="fa-button-primary">
                     Compare Scenarios
                   </button>
-                  <button type="button" id="save-compare-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  <button type="button" id="save-compare-btn" class="fa-button-primary">
                     Save Comparison
                   </button>
-                  <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                  <button type="button" id="reset-btn" class="fa-button-secondary">
                     Reset Form
                   </button>
                 </div>
               </form>
 
               <!-- Results Section -->
-              <div id="comparison-results" class="hidden mt-8 p-6 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Mortgage Comparison Results</h3>
+              <div id="comparison-results" class="fa-highlight-card hidden mt-8 p-6">
+                <h3 class="fa-scenario-title mb-4">📊 Mortgage Comparison Results</h3>
                 <div id="comparison-content">
                   <!-- Results will be populated by JavaScript -->
                 </div>
               </div>
             </div>
           ) : (
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Plan Your Financial Goals</h2>
+            <div class="fa-card p-6 mb-6">
+              <h2 class="fa-panel-title mb-6">Plan Your Financial Goals</h2>
               
               <form id="goal-planning-form" data-journey-scenario-id={journeyNav.scenarioId} class="space-y-6">
               <!-- Short-term Goals (1-2 years) -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏃‍♂️ Short-term Goals (1-2 years)</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🏃‍♂️ Short-term Goals (1-2 years)</h3>
                 <div class="space-y-4">
                   <div>
-                    <label for="short-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="short-term-goal-1" class="fa-field-label mb-2">
                       Goal 1: What do you want to achieve?
                     </label>
                     <input 
                       type="text" 
                       id="short-term-goal-1" 
                       name="shortTermGoal1"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="e.g., Build emergency fund, pay off credit card debt"
                     />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="short-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="short-term-cost-1" class="fa-field-label mb-2">
                         Estimated Cost ($)
                       </label>
                       <input 
                         type="number" 
                         id="short-term-cost-1" 
                         name="shortTermCost1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="5000"
                       />
                     </div>
                     <div>
-                      <label for="short-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="short-term-timeline-1" class="fa-field-label mb-2">
                         Timeline (months)
                       </label>
                       <input 
                         type="number" 
                         id="short-term-timeline-1" 
                         name="shortTermTimeline1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="12"
                       />
                     </div>
@@ -285,43 +260,43 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Medium-term Goals (3-5 years) -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🚗 Medium-term Goals (3-5 years)</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🚗 Medium-term Goals (3-5 years)</h3>
                 <div class="space-y-4">
                   <div>
-                    <label for="medium-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="medium-term-goal-1" class="fa-field-label mb-2">
                       Goal 1: What's your next big milestone?
                     </label>
                     <input 
                       type="text" 
                       id="medium-term-goal-1" 
                       name="mediumTermGoal1"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="e.g., Buy a car, save for home down payment, travel"
                     />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="medium-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="medium-term-cost-1" class="fa-field-label mb-2">
                         Estimated Cost ($)
                       </label>
                       <input 
                         type="number" 
                         id="medium-term-cost-1" 
                         name="mediumTermCost1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="25000"
                       />
                     </div>
                     <div>
-                      <label for="medium-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="medium-term-timeline-1" class="fa-field-label mb-2">
                         Timeline (years)
                       </label>
                       <input 
                         type="number" 
                         id="medium-term-timeline-1" 
                         name="mediumTermTimeline1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="3"
                       />
                     </div>
@@ -330,43 +305,43 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Long-term Goals (5+ years) -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏠 Long-term Goals (5+ years)</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🏠 Long-term Goals (5+ years)</h3>
                 <div class="space-y-4">
                   <div>
-                    <label for="long-term-goal-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="long-term-goal-1" class="fa-field-label mb-2">
                       Goal 1: What's your dream?
                     </label>
                     <input 
                       type="text" 
                       id="long-term-goal-1" 
                       name="longTermGoal1"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="e.g., Buy a home, start a business, early retirement"
                     />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label for="long-term-cost-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="long-term-cost-1" class="fa-field-label mb-2">
                         Estimated Cost ($)
                       </label>
                       <input 
                         type="number" 
                         id="long-term-cost-1" 
                         name="longTermCost1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="100000"
                       />
                     </div>
                     <div>
-                      <label for="long-term-timeline-1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="long-term-timeline-1" class="fa-field-label mb-2">
                         Timeline (years)
                       </label>
                       <input 
                         type="number" 
                         id="long-term-timeline-1" 
                         name="longTermTimeline1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="10"
                       />
                     </div>
@@ -376,69 +351,69 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Priority and Strategy Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Goal Priority & Strategy</h3>
+                <h3 class="fa-scenario-title mb-4">🎯 Goal Priority & Strategy</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Which goal is most important to you right now?
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="priorityGoal" value="short-term" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Short-term goal</span>
-                          <p class="text-xs text-gray-500">Focus on immediate needs and quick wins</p>
+                          <span class="fa-list-copy-strong">Short-term goal</span>
+                          <p class="fa-help-copy">Focus on immediate needs and quick wins</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="priorityGoal" value="medium-term" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Medium-term goal</span>
-                          <p class="text-xs text-gray-500">Balance current needs with future planning</p>
+                          <span class="fa-list-copy-strong">Medium-term goal</span>
+                          <p class="fa-help-copy">Balance current needs with future planning</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="priorityGoal" value="long-term" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Long-term goal</span>
-                          <p class="text-xs text-gray-500">Focus on building wealth for the future</p>
+                          <span class="fa-list-copy-strong">Long-term goal</span>
+                          <p class="fa-help-copy">Focus on building wealth for the future</p>
                         </div>
                       </label>
                     </div>
                   </div>
                   <div>
-                    <label for="monthly-savings-budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-savings-budget" class="fa-field-label mb-2">
                       How much can you allocate to goals monthly? ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-savings-budget" 
                       name="monthlySavingsBudget"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="800"
                     />
-                    <p class="text-sm text-gray-500 mt-1">This is separate from emergency fund and retirement savings</p>
+                    <p class="fa-help-copy mt-1">This is separate from emergency fund and retirement savings</p>
                   </div>
                 </div>
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="submit" id="calculate-goals-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="submit" id="calculate-goals-btn" class="fa-button-primary">
                   Calculate Goal Timeline
                 </button>
-                <button type="button" id="save-goals-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="save-goals-btn" class="fa-button-primary">
                   Save Goals
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden mt-8 p-6 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Goal Timeline</h3>
+            <div id="results-section" class="fa-highlight-card hidden mt-8 p-6">
+              <h3 class="fa-scenario-title mb-4">📊 Your Goal Timeline</h3>
               <div id="goal-results" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -447,13 +422,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           )}
 
           <!-- Journey Navigation -->
-          <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-journey-nav-panel">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -463,7 +438,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -477,7 +452,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -487,7 +462,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -502,27 +477,27 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">🎯 Goal Setting Tips</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title mb-4 text-lg">🎯 Goal Setting Tips</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>SMART Goals:</strong> Specific, Measurable, Achievable, Relevant, Time-bound.</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Start Small:</strong> Break big goals into smaller milestones.</p>
               </div>
-              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Review Regularly:</strong> Adjust goals as life changes.</p>
               </div>
-              <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Celebrate Wins:</strong> Acknowledge progress along the way.</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">💡 Goal Categories</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-4 text-lg">💡 Goal Categories</h3>
+            <div class="space-y-3 fa-list-copy">
               <p><strong>Financial Security:</strong> Emergency fund, debt payoff</p>
               <p><strong>Major Purchases:</strong> Car, home, education</p>
               <p><strong>Life Experiences:</strong> Travel, hobbies, family</p>

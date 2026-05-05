@@ -137,8 +137,8 @@ const displayResults = (result: MAResults): void => {
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Transaction Value</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total consideration paid</p>
+            <span class="fa-script-label">Transaction Value</span>
+            <p class="fa-script-copy-subtle">Total consideration paid</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.transactionValue)}</span>
@@ -147,8 +147,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Enterprise Value</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total business value</p>
+            <span class="fa-script-label">Enterprise Value</span>
+            <p class="fa-script-copy-subtle">Total business value</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.enterpriseValue)}</span>
@@ -157,8 +157,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Premium Paid</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Above current market price</p>
+            <span class="fa-script-label">Premium Paid</span>
+            <p class="fa-script-copy-subtle">Above current market price</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(result.premiumPercentage)}</span>
@@ -167,8 +167,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">EPS Impact</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Earnings per share change</p>
+            <span class="fa-script-label">EPS Impact</span>
+            <p class="fa-script-copy-subtle">Earnings per share change</p>
           </div>
           <div class="text-right">
             <span class="font-semibold ${accretionClass}">${accretionIcon} ${formatPercent(result.epsAccretionPercentage)}</span>
@@ -183,8 +183,8 @@ const displayResults = (result: MAResults): void => {
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Total Synergies</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Revenue + Cost synergies</p>
+            <span class="fa-script-label">Total Synergies</span>
+            <p class="fa-script-copy-subtle">Revenue + Cost synergies</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.totalSynergies)}</span>
@@ -193,8 +193,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Combined Revenue</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Post-merger revenue</p>
+            <span class="fa-script-label">Combined Revenue</span>
+            <p class="fa-script-copy-subtle">Post-merger revenue</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.combinedRevenue)}</span>
@@ -203,8 +203,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Combined EBITDA</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Post-merger EBITDA</p>
+            <span class="fa-script-label">Combined EBITDA</span>
+            <p class="fa-script-copy-subtle">Post-merger EBITDA</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.combinedEBITDA)}</span>
@@ -213,8 +213,8 @@ const displayResults = (result: MAResults): void => {
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Leverage Ratio</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Debt to EBITDA ratio</p>
+            <span class="fa-script-label">Leverage Ratio</span>
+            <p class="fa-script-copy-subtle">Debt to EBITDA ratio</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.leverageRatio.toFixed(1)}x</span>

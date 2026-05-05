@@ -27,8 +27,8 @@ const journeyData = getJourneyData();
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
             <div>
-              <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Privacy First</h3>
-              <p class="text-sm text-blue-800 dark:text-blue-200">
+              <h3 class="fa-callout-title-info mb-1">Privacy First</h3>
+              <p class="fa-callout-copy-info">
                 All your data is stored locally in your browser. We don't collect, store, or transmit any personal information to our servers.
               </p>
             </div>
@@ -38,31 +38,31 @@ const journeyData = getJourneyData();
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
           <SurfaceCard>
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Active Journeys</h2>
+            <h2 class="fa-panel-title mb-6">Active Journeys</h2>
             
             <!-- Journey Cards -->
             <div id="active-journeys" class="space-y-4">
               {Object.entries(journeyData).slice(0, 3).map(([journeyId, journey]) => (
-                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="fa-subcard hover:shadow-md transition-shadow">
                   <div class="flex items-start">
                     <div class="flex-shrink-0">
                       <span class="text-3xl">{journey.icon}</span>
                     </div>
                     <div class="ml-4 flex-1">
                       <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{journey.name}</h3>
-                        <a href={`/journey/${journeyId}`} 
-                           class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
+                        <h3 class="fa-scenario-title">{journey.name}</h3>
+                         <a href={`/journey/${journeyId}`} 
+                           class="fa-inline-link text-sm">
                           View →
                         </a>
                       </div>
-                      <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{journey.description}</p>
+                      <p class="fa-meta-copy mb-3">{journey.description}</p>
                       
                       <!-- Progress Bar -->
                       <div class="mb-2">
                         <div class="flex items-center justify-between mb-1">
-                          <span class="text-xs text-gray-500 dark:text-gray-400">Progress</span>
-                          <span class="text-xs text-gray-500 dark:text-gray-400" id={`progress-${journeyId}`}>0%</span>
+                          <span class="fa-meta-copy text-xs">Progress</span>
+                          <span class="fa-meta-copy text-xs" id={`progress-${journeyId}`}>0%</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
@@ -72,7 +72,7 @@ const journeyData = getJourneyData();
                       </div>
                       
                       <!-- Journey Info -->
-                      <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                      <div class="flex items-center space-x-4 fa-meta-copy text-xs">
                         <span>{journey.models.length} steps</span>
                         <span>{journey.complexity}</span>
                         <span>{journey.duration}</span>
@@ -86,20 +86,20 @@ const journeyData = getJourneyData();
             <!-- Start New Journey -->
             <div class="mt-6">
               <a href="/journey" 
-                 class="block rounded-lg bg-gray-100 px-4 py-3 text-center transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
-                <span class="text-gray-700 dark:text-gray-300 font-medium">+ Start a New Journey</span>
+                 class="fa-button-secondary w-full justify-center">
+                <span>+ Start a New Journey</span>
               </a>
             </div>
           </SurfaceCard>
 
           <SurfaceCard className="mt-6">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Recent Calculations</h2>
+            <h2 class="fa-panel-title mb-6">Recent Calculations</h2>
             
             <div id="recent-calculations" class="space-y-3">
-              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div class="text-center py-8 fa-meta-copy">
                 <span class="text-4xl mb-2 block">📈</span>
                 <p>No recent calculations yet</p>
-                <a href="/models" class="text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block">
+                <a href="/models" class="fa-inline-link mt-2 inline-block">
                   Explore Calculators →
                 </a>
               </div>
@@ -109,54 +109,54 @@ const journeyData = getJourneyData();
 
         <div class="lg:col-span-1">
           <SurfaceCard className="mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+            <h2 class="fa-panel-title mb-4">Quick Actions</h2>
             <div class="space-y-3">
               <a href="/models" 
-                 class="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
                 <span class="text-2xl mr-3">🧮</span>
                 <div>
-                  <div class="font-medium text-gray-900 dark:text-white">Use a Calculator</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">Quick calculations</div>
+                  <div class="fa-scenario-title">Use a Calculator</div>
+                  <div class="fa-meta-copy text-sm">Quick calculations</div>
                 </div>
               </a>
               
               <a href="/journey" 
-                 class="flex items-center p-3 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors">
+                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
                 <span class="text-2xl mr-3">🗺️</span>
                 <div>
-                  <div class="font-medium text-gray-900 dark:text-white">Start a Journey</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">Complete planning</div>
+                  <div class="fa-scenario-title">Start a Journey</div>
+                  <div class="fa-meta-copy text-sm">Complete planning</div>
                 </div>
               </a>
               
               <a href="/models/personal" 
-                 class="flex items-center p-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
+                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
                 <span class="text-2xl mr-3">💼</span>
                 <div>
-                  <div class="font-medium text-gray-900 dark:text-white">Personal Finance</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">Personal tools</div>
+                  <div class="fa-scenario-title">Personal Finance</div>
+                  <div class="fa-meta-copy text-sm">Personal tools</div>
                 </div>
               </a>
               
               <a href="/models/business" 
-                 class="flex items-center p-3 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors">
+                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
                 <span class="text-2xl mr-3">🏢</span>
                 <div>
-                  <div class="font-medium text-gray-900 dark:text-white">Business Finance</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">Business tools</div>
+                  <div class="fa-scenario-title">Business Finance</div>
+                  <div class="fa-meta-copy text-sm">Business tools</div>
                 </div>
               </a>
             </div>
           </SurfaceCard>
 
-          <SurfaceCard className="bg-gradient-to-br from-indigo-50 to-purple-50">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <SurfaceCard>
+            <h2 class="fa-panel-title mb-4 flex items-center">
               <span class="text-2xl mr-2">🤖</span>
               AI Recommendations
             </h2>
             
             <div id="ai-recommendations" class="space-y-3">
-              <div class="text-sm text-gray-600 dark:text-gray-300">
+              <div class="fa-list-copy text-sm">
                 <div class="flex items-start">
                   <span class="text-lg mr-2">💡</span>
                   <p>Complete your first journey to get personalized AI recommendations</p>
@@ -218,15 +218,15 @@ const journeyData = getJourneyData();
       
       if (recentContainer && recentCalculations.length > 0) {
         recentContainer.innerHTML = recentCalculations.slice(0, 5).map(calc => `
-          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div class="fa-subcard flex items-center justify-between">
             <div class="flex items-center">
               <span class="text-2xl mr-3">${calc.icon || '🧮'}</span>
               <div>
-                <div class="font-medium text-gray-900 dark:text-white">${calc.title}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">${new Date(calc.timestamp).toLocaleDateString()}</div>
+                <div class="fa-scenario-title">${calc.title}</div>
+                <div class="fa-meta-copy text-sm">${new Date(calc.timestamp).toLocaleDateString()}</div>
               </div>
             </div>
-            <a href="${calc.url}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">View →</a>
+            <a href="${calc.url}" class="fa-inline-link text-sm">View →</a>
           </div>
         `).join('');
       }
@@ -275,11 +275,11 @@ const journeyData = getJourneyData();
       }
 
       recommendationsContainer.innerHTML = recommendations.map(rec => `
-        <div class="flex items-start p-3 bg-white dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow">
+        <div class="fa-subcard flex items-start hover:shadow-md transition-shadow">
           <span class="text-2xl mr-3">${rec.icon}</span>
           <div class="flex-1">
-            <p class="text-sm text-gray-900 dark:text-white">${rec.text}</p>
-            <a href="${rec.action}" class="text-blue-600 dark:text-blue-400 hover:underline text-xs mt-1 inline-block">
+            <p class="fa-list-copy">${rec.text}</p>
+            <a href="${rec.action}" class="fa-inline-link text-xs mt-1 inline-block">
               Go there →
             </a>
           </div>

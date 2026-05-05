@@ -88,7 +88,7 @@ class OptionsPricingCalculator {
             Your options pricing analysis is complete. Use the AI assistant to get detailed recommendations and Greeks analysis.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered options analysis and strategy recommendations based on your specific situation.</p>
         </div>
       </div>

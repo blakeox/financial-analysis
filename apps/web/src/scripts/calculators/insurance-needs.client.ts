@@ -129,7 +129,7 @@ class InsuranceNeedsCalculator {
             Your insurance needs analysis is complete. Use the AI assistant to get detailed recommendations and coverage gap analysis.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered insurance recommendations based on your specific situation.</p>
         </div>
       </div>

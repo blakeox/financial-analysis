@@ -162,7 +162,7 @@ const faqSchema = {
           title="Personal Finance Models"
           description="Financial planning tools for individuals and families. Calculate mortgages, plan for retirement, and analyze personal investments."
         />
-        <div class="mb-16 flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <div class="fa-model-intro mb-16">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
           </svg>
@@ -173,35 +173,35 @@ const faqSchema = {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="main">
           
           <!-- Residential Mortgage -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Residential Mortgage"
             onclick="selectModel(this, 'residential-mortgage')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   Residential Mortgage
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Home loan amortization with PITI (Principal, Interest, Taxes, Insurance), APR analysis, and total cost of ownership calculations
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   PITI calculations (Principal, Interest, Taxes, Insurance)
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   APR & closing cost analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -210,7 +210,7 @@ const faqSchema = {
               </div>
               <a
                 href="/calculator/amortization"
-                class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Model
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,42 +221,42 @@ const faqSchema = {
           </div>
 
           <!-- Rent vs Buy Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Rent vs Buy Calculator"
             onclick="selectModel(this, 'rent-vs-buy')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   Rent vs Buy Calculator
                 </h3>
-                <div class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-accent">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Should you rent or buy a home? Compare 5+ year financial outcomes including equity building, tax benefits, opportunity costs, and break-even analysis.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Side-by-side rent vs buy comparison
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Tax benefits and opportunity cost analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Break-even point calculator
                 </div>
               </div>
-              <a href="/calculator/rent-vs-buy" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold group-hover:translate-x-2 transition-transform">
+              <a href="/calculator/rent-vs-buy" class="fa-inline-link inline-flex items-center font-semibold">
                 Calculate Now
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -266,42 +266,42 @@ const faqSchema = {
           </div>
 
           <!-- Invest vs Pay Off Debt -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Invest vs Pay Off Debt"
             onclick="selectModel(this, 'invest-vs-payoff-debt')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                <h3 class="fa-model-title">
                   Invest vs Pay Off Debt
                 </h3>
-                <div class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-accent">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Should you use extra money to pay off debt or invest it? Compare guaranteed returns from debt payoff vs potential investment gains with risk analysis.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Guaranteed vs expected returns comparison
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Employer match optimization
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   3 strategies: pay debt, invest, or hybrid
                 </div>
               </div>
-              <a href="/calculator/invest-vs-payoff-debt" class="inline-flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold group-hover:translate-x-2 transition-transform">
+              <a href="/calculator/invest-vs-payoff-debt" class="fa-inline-link inline-flex items-center font-semibold">
                 Calculate Now
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -311,42 +311,42 @@ const faqSchema = {
           </div>
 
           <!-- Side Hustle Income Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-yellow-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Side Hustle Income"
             onclick="selectModel(this, 'side-hustle-income')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300">
+                <h3 class="fa-model-title">
                   Side Hustle Income Calculator
                 </h3>
-                <div class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-warning">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Calculate your true after-tax income from freelance or gig work. Includes self-employment tax (15.3%), quarterly estimated taxes, and business expense deductions.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   True hourly rate after all taxes
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Quarterly estimated tax calculator
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   W-2 salary equivalent comparison
                 </div>
               </div>
-              <a href="/calculator/side-hustle-income" class="inline-flex items-center text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-semibold group-hover:translate-x-2 transition-transform">
+              <a href="/calculator/side-hustle-income" class="fa-inline-link inline-flex items-center font-semibold">
                 Calculate Now
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -356,42 +356,42 @@ const faqSchema = {
           </div>
 
           <!-- Credit Card Payoff Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Credit Card Payoff"
             onclick="selectModel(this, 'credit-card-payoff')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300">
+                <h3 class="fa-model-title">
                   Credit Card Payoff Calculator
                 </h3>
-                <div class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-danger">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Optimize credit card debt payoff with balance transfer analysis, 0% APR offers, credit utilization impact, and escape the minimum payment trap.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Balance transfer savings analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Credit utilization & score impact
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Minimum payment trap warning
                 </div>
               </div>
-              <a href="/calculator/credit-card-payoff" class="inline-flex items-center text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-semibold group-hover:translate-x-2 transition-transform">
+              <a href="/calculator/credit-card-payoff" class="fa-inline-link inline-flex items-center font-semibold">
                 Calculate Now
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -401,35 +401,35 @@ const faqSchema = {
           </div>
 
           <!-- Mortgage Scenario Planner -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Mortgage Scenario Planner"
             onclick="selectModel(this, 'mortgage-scenario-planning')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
+                <h3 class="fa-model-title">
                   Mortgage Scenario Planner
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Compare multiple mortgage options with different rates, down payments, and early payoff strategies. Includes refinancing scenarios to find your best deal.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Compare 2+ mortgage scenarios side-by-side
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Early payoff analysis with extra payments
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -438,7 +438,7 @@ const faqSchema = {
               </div>
               <a
                 href="/calculator/mortgage-scenario-planning"
-                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -449,35 +449,35 @@ const faqSchema = {
           </div>
 
           <!-- Auto Loan Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Auto Loan Calculator"
             onclick="selectModel(this, 'auto-loan')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                <h3 class="fa-model-title">
                   Auto Loan Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Vehicle loan analysis with trade-in value, sales tax, registration fees, and early payoff scenarios. Includes GAP insurance and extended warranty options.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Trade-in value & negative equity
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Sales tax, fees, rebates
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -486,7 +486,7 @@ const faqSchema = {
               </div>
               <a
                 href="/auto-loan"
-                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -497,35 +497,35 @@ const faqSchema = {
           </div>
 
           <!-- Debt Payoff Optimizer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-teal-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Debt Payoff Optimizer"
             onclick="selectModel(this, 'debt-payoff')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-teal-600 dark:text-teal-400 group-hover:text-teal-700 dark:group-hover:text-teal-300">
+                <h3 class="fa-model-title">
                   Debt Payoff Optimizer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Compare avalanche vs snowball debt payoff strategies with month-by-month schedules. Includes balance transfer analysis with intro rate calculations to maximize interest savings.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Avalanche vs snowball strategy comparison
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Balance transfer offer evaluation
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -534,7 +534,7 @@ const faqSchema = {
               </div>
               <a
                 href="/debt-payoff"
-                class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Optimizer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -545,35 +545,35 @@ const faqSchema = {
           </div>
 
           <!-- Savings Goal Planner -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-cyan-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Savings Goal Planner"
             onclick="selectModel(this, 'savings-goal')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-cyan-600 dark:text-cyan-400 group-hover:text-cyan-700 dark:group-hover:text-cyan-300">
+                <h3 class="fa-model-title">
                   Savings Goal Planner
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Plan and track progress toward financial goals with compound interest calculations, inflation adjustments, and alternative scenarios.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Compound interest with monthly compounding
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Inflation-adjusted projections
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -582,7 +582,7 @@ const faqSchema = {
               </div>
               <a
                 href="/savings-goal"
-                class="inline-flex items-center px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,35 +593,35 @@ const faqSchema = {
           </div>
 
           <!-- Student Loan Analyzer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Student Loan Analyzer"
             onclick="selectModel(this, 'student-loan')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
+                <h3 class="fa-model-title">
                   Student Loan Analyzer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Optimize student loan repayment with avalanche/snowball strategies, income-driven repayment plans (IBR, PAYE, REPAYE), and refinancing analysis.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Multiple payoff strategies (avalanche, snowball, standard)
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Income-driven repayment plans with forgiveness
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -630,7 +630,7 @@ const faqSchema = {
               </div>
               <a
                 href="/student-loans"
-                class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Analyzer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -641,35 +641,35 @@ const faqSchema = {
           </div>
 
           <!-- Retirement Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-pink-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Retirement Calculator"
             onclick="selectModel(this, 'retirement')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300">
+                <h3 class="fa-model-title">
                   Retirement Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Project retirement savings across multiple accounts (401k, IRA, Roth) with employer match optimization, tax advantages, and withdrawal strategies.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Multi-account retirement projections
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Employer match optimization analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -678,7 +678,7 @@ const faqSchema = {
               </div>
               <a
                 href="/retirement"
-                class="inline-flex items-center px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-pink-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -689,35 +689,35 @@ const faqSchema = {
           </div>
 
           <!-- Budget Optimizer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Budget Optimizer"
             onclick="selectModel(this, 'budget')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                <h3 class="fa-model-title">
                   Budget Optimizer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Analyze spending patterns with 50/30/20 rule, calculate financial health score, optimize budget allocations, and track debt-to-income ratio.
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   50/30/20 budget rule analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Financial health score (0-100)
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -726,7 +726,7 @@ const faqSchema = {
               </div>
               <a
                 href="/budget"
-                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Optimizer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -737,35 +737,35 @@ const faqSchema = {
           </div>
 
           <!-- Tax Optimization Planner -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-amber-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Tax Optimization Planner"
             onclick="selectModel(this, 'tax-optimization')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300">
+                <h3 class="fa-model-title">
                   Tax Optimization Planner
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive tax planning with tax-loss harvesting, Roth vs Traditional IRA analysis, capital gains optimization, and charitable giving strategies
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Tax-loss harvesting strategies
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Roth vs Traditional IRA analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -774,7 +774,7 @@ const faqSchema = {
               </div>
               <a
                 href="/tax-optimization"
-                class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -785,35 +785,35 @@ const faqSchema = {
           </div>
 
           <!-- Insurance Needs Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-rose-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Insurance Needs Calculator"
             onclick="selectModel(this, 'insurance-needs')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300">
+                <h3 class="fa-model-title">
                   Insurance Needs Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive insurance needs analysis for life, disability, and long-term care with coverage gap analysis
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Life insurance needs calculation
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Disability insurance analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -822,7 +822,7 @@ const faqSchema = {
               </div>
               <a
                 href="/insurance-needs"
-                class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-rose-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -833,35 +833,35 @@ const faqSchema = {
           </div>
 
           <!-- College Savings Planner -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="College Savings Planner"
             onclick="selectModel(this, 'college-savings')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
+                <h3 class="fa-model-title">
                   College Savings Planner
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive education funding optimization with 529 plans, Coverdell ESAs, financial aid impact, and multiple children planning
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   529 plan optimization
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Financial aid impact analysis
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -870,7 +870,7 @@ const faqSchema = {
               </div>
               <a
                 href="/college-savings"
-                class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -881,35 +881,35 @@ const faqSchema = {
           </div>
 
           <!-- Home Buying Affordability -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Home Buying Affordability"
             onclick="selectModel(this, 'home-buying-affordability')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
+                <h3 class="fa-model-title">
                   Home Buying Affordability
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive home purchase planning with maximum price calculation, down payment strategies, and closing cost analysis
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Maximum affordable price calculation
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Down payment strategies
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -918,7 +918,7 @@ const faqSchema = {
               </div>
               <a
                 href="/home-buying-affordability"
-                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -929,35 +929,35 @@ const faqSchema = {
           </div>
 
           <!-- Investment Portfolio Analyzer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Investment Portfolio Analyzer"
             onclick="selectModel(this, 'investment-portfolio')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                <h3 class="fa-model-title">
                   Investment Portfolio Analyzer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive portfolio analysis with allocation analysis, rebalancing recommendations, and diversification assessment
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Current vs target allocation
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Rebalancing recommendations
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -966,7 +966,7 @@ const faqSchema = {
               </div>
               <a
                 href="/investment-portfolio"
-                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Analyzer
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -977,35 +977,35 @@ const faqSchema = {
           </div>
 
           <!-- Retirement Planning Engine -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-pink-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Retirement Planning Engine"
             onclick="selectModel(this, 'retirement-planning')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300">
+                <h3 class="fa-model-title">
                   Retirement Planning Engine
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   Available
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Advanced retirement planning with multi-account projections, Social Security optimization, and withdrawal strategies
               </p>
               <div class="space-y-3 mb-6">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Multi-account retirement projections
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
                   Social Security optimization
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div class="fa-model-feature">
                   <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
@@ -1014,7 +1014,7 @@ const faqSchema = {
               </div>
               <a
                 href="/retirement-planning"
-                class="inline-flex items-center px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-pink-500"
+                class="fa-button-primary w-full justify-center"
               >
                 Open Planner
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1025,22 +1025,22 @@ const faqSchema = {
           </div>
 
           <!-- Social Security Optimizer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Social Security Optimizer"
             onclick="selectModel(this, 'social-security')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   Social Security Optimizer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Optimize your Social Security claiming strategy with break-even analysis, spousal benefits, and lifetime projections
               </p>
-              <a href="/calculator/social-security" class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/social-security" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1050,22 +1050,22 @@ const faqSchema = {
           </div>
 
           <!-- HELOC Analyzer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="HELOC Analyzer"
             onclick="selectModel(this, 'heloc')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
+                <h3 class="fa-model-title">
                   HELOC Analyzer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Analyze Home Equity Line of Credit options and compare to refinancing and personal loans
               </p>
-              <a href="/calculator/heloc" class="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/heloc" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1075,22 +1075,22 @@ const faqSchema = {
           </div>
 
           <!-- Refinancing Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Refinancing Calculator"
             onclick="selectModel(this, 'refinancing')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   Refinancing Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Comprehensive mortgage refinancing analysis with break-even point and interest savings
               </p>
-              <a href="/calculator/refinancing" class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/refinancing" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1100,22 +1100,22 @@ const faqSchema = {
           </div>
 
           <!-- FIRE Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-orange-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="FIRE Calculator"
             onclick="selectModel(this, 'fire-calculator')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300">
+                <h3 class="fa-model-title">
                   FIRE Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Calculate Financial Independence (FIRE) number, retirement date, Coast FIRE, and Barista FIRE
               </p>
-              <a href="/calculator/fire-calculator" class="inline-flex items-center px-4 py-2 bg-orange-700 hover:bg-orange-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/fire-calculator" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1125,22 +1125,22 @@ const faqSchema = {
           </div>
 
           <!-- Estate Planning Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Estate Planning Calculator"
             onclick="selectModel(this, 'estate-planning')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                <h3 class="fa-model-title">
                   Estate Planning Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Estate tax planning, inheritance projections, and trust analysis
               </p>
-              <a href="/calculator/estate-planning" class="inline-flex items-center px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/estate-planning" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1150,22 +1150,22 @@ const faqSchema = {
           </div>
 
           <!-- Emergency Fund Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Emergency Fund Calculator"
             onclick="selectModel(this, 'emergency-fund')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300">
+                <h3 class="fa-model-title">
                   Emergency Fund Calculator
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Calculate emergency fund target, build timeline, and withdrawal scenarios
               </p>
-              <a href="/calculator/emergency-fund" class="inline-flex items-center px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/emergency-fund" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1175,22 +1175,22 @@ const faqSchema = {
           </div>
 
           <!-- Net Worth Tracker -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Net Worth Tracker"
             onclick="selectModel(this, 'net-worth')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300">
+                <h3 class="fa-model-title">
                   Net Worth Tracker
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Track net worth over time with asset/liability breakdown and projections
               </p>
-              <a href="/calculator/net-worth" class="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/net-worth" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1200,22 +1200,22 @@ const faqSchema = {
           </div>
 
           <!-- 401(k) Employer Match Optimizer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="401(k) Employer Match Optimizer"
             onclick="selectModel(this, '401k-match')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   401(k) Employer Match Optimizer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Maximize 401(k) employer match and optimize contribution strategy
               </p>
-              <a href="/calculator/401k-match" class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/401k-match" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1225,22 +1225,22 @@ const faqSchema = {
           </div>
 
           <!-- HSA Optimization -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="HSA Optimization"
             onclick="selectModel(this, 'hsa-optimization')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                <h3 class="fa-model-title">
                   HSA Optimization
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Maximize Health Savings Account tax benefits with triple tax advantage analysis, contribution limits, and retirement healthcare planning
               </p>
-              <a href="/calculator/hsa-optimization" class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/hsa-optimization" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1250,22 +1250,22 @@ const faqSchema = {
           </div>
 
           <!-- Roth vs Traditional IRA -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-indigo-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Roth vs Traditional IRA"
             onclick="selectModel(this, 'roth-vs-traditional-ira')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
+                <h3 class="fa-model-title">
                   Roth vs Traditional IRA
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Compare Roth vs Traditional IRA strategies with tax bracket analysis, conversion scenarios, and withdrawal optimization
               </p>
-              <a href="/calculator/roth-vs-traditional-ira" class="inline-flex items-center px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/roth-vs-traditional-ira" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1275,22 +1275,22 @@ const faqSchema = {
           </div>
 
           <!-- Tax Loss Harvesting -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Tax Loss Harvesting"
             onclick="selectModel(this, 'tax-loss-harvesting')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                <h3 class="fa-model-title">
                   Tax Loss Harvesting
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Identify tax-loss harvesting opportunities, calculate tax savings, analyze wash sale rules, and optimize capital gains offset
               </p>
-              <a href="/calculator/tax-loss-harvesting" class="inline-flex items-center px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/tax-loss-harvesting" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1300,22 +1300,22 @@ const faqSchema = {
           </div>
 
           <!-- Charitable Giving -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-pink-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Charitable Giving"
             onclick="selectModel(this, 'charitable-giving')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300">
+                <h3 class="fa-model-title">
                   Charitable Giving
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Optimize charitable giving strategies with donor-advised funds, QCDs, appreciated securities, and tax deduction maximization
               </p>
-              <a href="/calculator/charitable-giving" class="inline-flex items-center px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/charitable-giving" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1325,22 +1325,22 @@ const faqSchema = {
           </div>
 
           <!-- Car Lease vs Buy -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-yellow-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Car Lease vs Buy"
             onclick="selectModel(this, 'car-lease-vs-buy')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300">
+                <h3 class="fa-model-title">
                   Car Lease vs Buy
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Compare car leasing vs buying with total cost analysis, mileage considerations, early termination scenarios, and opportunity cost
               </p>
-              <a href="/calculator/car-lease-vs-buy" class="inline-flex items-center px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/car-lease-vs-buy" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1350,22 +1350,22 @@ const faqSchema = {
           </div>
 
           <!-- Long-Term Care -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-teal-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Long-Term Care"
             onclick="selectModel(this, 'long-term-care')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-teal-600 dark:text-teal-400 group-hover:text-teal-700 dark:group-hover:text-teal-300">
+                <h3 class="fa-model-title">
                   Long-Term Care
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Analyze long-term care insurance needs, compare self-funding vs insurance, assess hybrid strategies, and estimate lifetime care costs
               </p>
-              <a href="/calculator/long-term-care" class="inline-flex items-center px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/long-term-care" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1375,22 +1375,22 @@ const faqSchema = {
           </div>
 
           <!-- Disability Insurance -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-cyan-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Disability Insurance"
             onclick="selectModel(this, 'disability-insurance')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-cyan-600 dark:text-cyan-400 group-hover:text-cyan-700 dark:group-hover:text-cyan-300">
+                <h3 class="fa-model-title">
                   Disability Insurance
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Analyze disability insurance needs, assess coverage gaps, compare own-occupation vs any-occupation definitions, and optimize policy selection
               </p>
-              <a href="/calculator/disability-insurance" class="inline-flex items-center px-4 py-2 bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/disability-insurance" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1400,22 +1400,22 @@ const faqSchema = {
           </div>
 
           <!-- Life Insurance Reassessment -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-rose-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Life Insurance Reassessment"
             onclick="selectModel(this, 'life-insurance-reassessment')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300">
+                <h3 class="fa-model-title">
                   Life Insurance Reassessment
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Reassess life insurance coverage needs, analyze coverage gaps, optimize policies, and compare term vs permanent insurance
               </p>
-              <a href="/calculator/life-insurance-reassessment" class="inline-flex items-center px-4 py-2 bg-rose-700 hover:bg-rose-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/life-insurance-reassessment" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1425,22 +1425,22 @@ const faqSchema = {
           </div>
 
           <!-- 529 Plan Optimizer -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="529 Plan Optimizer"
             onclick="selectModel(this, '529-optimizer')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                <h3 class="fa-model-title">
                   529 Plan Optimizer
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Optimize 529 plan contributions, compare state plans, analyze financial aid impact, and project education funding
               </p>
-              <a href="/calculator/529-optimizer" class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/529-optimizer" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1450,22 +1450,22 @@ const faqSchema = {
           </div>
 
           <!-- Credit Score Impact -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-slate-500 group cursor-pointer model-card"
+          <div class="fa-model-card group cursor-pointer model-card"
             data-model="Credit Score Impact"
             onclick="selectModel(this, 'credit-score-impact')">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-semibold text-slate-600 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300">
+                <h3 class="fa-model-title">
                   Credit Score Impact
                 </h3>
-                <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                <div class="fa-chip fa-chip-success">
                   New
                 </div>
               </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">
+              <p class="fa-model-description">
                 Analyze credit score impact of actions, project score changes, optimize credit utilization, and provide improvement recommendations
               </p>
-              <a href="/calculator/credit-score-impact" class="inline-flex items-center px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center">
+              <a href="/calculator/credit-score-impact" class="fa-button-primary w-full justify-center">
                 Open Calculator
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1477,12 +1477,12 @@ const faqSchema = {
         </div>
 
         <!-- Active Model Section -->
-        <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <div id="selected-model-info" class="fa-card hidden p-6 mb-8">
           <div class="flex items-center justify-between mb-4">
-            <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+            <h2 id="selected-model-title" class="fa-panel-title text-2xl"></h2>
             <button 
               onclick="clearSelection()"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              class="fa-icon-button-ghost"
               title="Clear selection"
               aria-label="Clear model selection"
             >
@@ -1491,9 +1491,9 @@ const faqSchema = {
               </svg>
             </button>
           </div>
-          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
+          <p id="selected-model-description" class="fa-scenario-copy mb-4"></p>
           <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500 dark:text-gray-400">Guided analysis works best after you run the numbers and want to compare or change something.</span>
+            <span class="fa-meta-copy text-sm">Guided analysis works best after you run the numbers and want to compare or change something.</span>
             <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -1502,17 +1502,17 @@ const faqSchema = {
 
         <!-- Call to Action -->
         <div class="text-center">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div class="fa-card p-8">
+            <h2 class="fa-panel-title text-2xl mb-4">
               Result-first guidance for every model
             </h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">
+            <p class="fa-model-description">
               Start with a calculator, review the result, then ask focused follow-up questions to understand what changed and which scenario to try next.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/calculator/amortization"
-                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Start with Amortization
                 <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1521,7 +1521,7 @@ const faqSchema = {
               </a>
               <a
                 href="/status"
-                class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                class="fa-button-secondary"
               >
                 API Status
               </a>

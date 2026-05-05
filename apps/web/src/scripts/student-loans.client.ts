@@ -314,8 +314,8 @@ export const displayResults = (
       <div class="space-y-4">
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Total Amount Paid</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Principal + Interest</p>
+            <span class="fa-script-label font-medium">Total Amount Paid</span>
+            <p class="fa-script-copy-subtle">Principal + Interest</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.summary.totalAmountPaid)}</span>
@@ -324,8 +324,8 @@ export const displayResults = (
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Interest Rate</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Annual percentage rate</p>
+            <span class="fa-script-label font-medium">Interest Rate</span>
+            <p class="fa-script-copy-subtle">Annual percentage rate</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${weightedAverageRate}</span>
@@ -334,8 +334,8 @@ export const displayResults = (
         
         <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Payoff Time</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total months to pay off</p>
+            <span class="fa-script-label font-medium">Payoff Time</span>
+            <p class="fa-script-copy-subtle">Total months to pay off</p>
           </div>
           <div class="text-right">
             <span class="font-semibold text-gray-900 dark:text-white">${result.summary.totalMonthsToPayoff} months (${(result.summary.totalMonthsToPayoff / 12).toFixed(1)} years)</span>
@@ -356,13 +356,13 @@ export const displayResults = (
                 .map(
                   (loan: LoanSummary, index: number) => `
                 <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                  <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${loan.name}</span>
-                  <span class="text-gray-600 dark:text-gray-400">${loan.monthsToPayoff} months</span>
+                  <span class="fa-script-title-sm">${index + 1}. ${loan.name}</span>
+                  <span class="fa-script-copy-muted">${loan.monthsToPayoff} months</span>
                 </div>
               `
                 )
                 .join('')
-            : '<div class="text-gray-500 dark:text-gray-400">No loan details available</div>'
+            : '<div class="fa-script-copy-subtle">No loan details available</div>'
         }
       </div>
     </div>
@@ -405,8 +405,8 @@ export const displayResults = (
               ${program.eligible ? 'Eligible' : 'Not Eligible'}
             </span>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">Timeline: ${program.timeline}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Potential Savings: ${formatCurrency(savingsAmount)}</p>
+          <p class="fa-script-copy-strong mb-2">Timeline: ${program.timeline}</p>
+          <p class="fa-script-copy-strong">Potential Savings: ${formatCurrency(savingsAmount)}</p>
         </div>`;
         }).join('')}
       </div>
@@ -421,21 +421,21 @@ export const displayResults = (
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Current Loan</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Rate: ${refinance.current.rate.toFixed(2)}%</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Payment: ${formatCurrency(refinance.current.payment)}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Total Cost: ${formatCurrency(refinance.current.totalCost)}</p>
+          <p class="fa-script-copy-strong">Rate: ${refinance.current.rate.toFixed(2)}%</p>
+          <p class="fa-script-copy-strong">Payment: ${formatCurrency(refinance.current.payment)}</p>
+          <p class="fa-script-copy-strong">Total Cost: ${formatCurrency(refinance.current.totalCost)}</p>
         </div>
         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Refinanced Loan</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Rate: ${refinance.refinanced.rate.toFixed(2)}%</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Payment: ${formatCurrency(refinance.refinanced.payment)}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Total Cost: ${formatCurrency(refinance.refinanced.totalCost)}</p>
+          <p class="fa-script-copy-strong">Rate: ${refinance.refinanced.rate.toFixed(2)}%</p>
+          <p class="fa-script-copy-strong">Payment: ${formatCurrency(refinance.refinanced.payment)}</p>
+          <p class="fa-script-copy-strong">Total Cost: ${formatCurrency(refinance.refinanced.totalCost)}</p>
         </div>
       </div>
       <div class="mt-4">
         <p class="text-base font-semibold text-gray-900 dark:text-white">${refinance.recommendation}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Monthly Savings: ${formatCurrency(refinance.costDifference)}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-300">Total Savings: ${formatCurrency(refinance.savings)}</p>
+        <p class="fa-script-copy-strong mt-1">Monthly Savings: ${formatCurrency(refinance.costDifference)}</p>
+        <p class="fa-script-copy-strong">Total Savings: ${formatCurrency(refinance.savings)}</p>
         ${
           refinance.warnings.length > 0
             ? `<ul class="mt-3 space-y-1 text-sm text-orange-600 dark:text-orange-300">

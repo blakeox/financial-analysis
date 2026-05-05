@@ -377,14 +377,14 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-sm text-gray-700 dark:text-gray-300">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}
         
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Cash Flow Best Practices</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>• Invoice immediately (don't wait to bill)</li>
             <li>• Offer discounts for early payment (2% net 10)</li>
             <li>• Use payment terms that match your collection to payment gap</li>
@@ -478,4 +478,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeCashFlowForecast();
 }
-

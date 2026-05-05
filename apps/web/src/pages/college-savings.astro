@@ -3,65 +3,71 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
-import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="College Savings Planner - 529 Plan & Education Funding Calculator | Fanalyx" 
+<Layout
+  title="College Savings Planner - 529 Plan & Education Funding Calculator | Fanalyx"
   description="Comprehensive college savings planner with 529 plan optimization, Coverdell ESA analysis, financial aid impact, multiple children planning, and tax-advantaged savings strategies."
   keywords="college savings, 529 plan, education funding, college planning, Coverdell ESA, financial aid, college cost calculator, education savings"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Personal Finance', url: '/models/personal' },
-      { name: 'College Savings', url: '/college-savings' }
-    ]}
-  />
-  
-  <StructuredData 
-    type="software" 
-    softwareApp={{
-      name: 'College Savings Planner',
-      description: 'Comprehensive college savings planning tool with 529 plan optimization, Coverdell ESA analysis, financial aid impact, and multiple children planning.',
-      category: 'FinanceApplication',
-      rating: 4.7,
-      ratingCount: 170
-    }}
-  />
-  
-  <StructuredData 
-    type="faq" 
-    faqs={[
-      {
-        question: 'What is a 529 plan and how does it work?',
-        answer: 'A 529 plan is a tax-advantaged savings plan designed to encourage saving for future education costs. Contributions grow tax-free, and withdrawals are tax-free when used for qualified education expenses. Many states offer tax deductions or credits for 529 contributions.'
-      },
-      {
-        question: 'How much should I save for college?',
-        answer: 'College costs vary by type: public colleges average $25,000/year, private colleges $55,000/year, and Ivy League schools $80,000/year. Our calculator projects future costs with inflation and helps you determine how much to save based on your children\'s ages and college type preferences.'
-      },
-      {
-        question: 'What is the difference between a 529 plan and Coverdell ESA?',
-        answer: '529 plans have higher contribution limits ($300,000+ per beneficiary) and can be used for K-12 and college expenses. Coverdell ESAs have lower limits ($2,000/year) but offer more investment flexibility. Both offer tax-free growth for qualified education expenses.'
-      },
-      {
-        question: 'How does saving for college affect financial aid?',
-        answer: '529 plans owned by parents are assessed at up to 5.64% for financial aid purposes, while student-owned assets are assessed at 20%. Grandparent-owned 529s don\'t count in FAFSA but distributions count as student income. Our calculator helps optimize savings strategies to minimize financial aid impact.'
-      },
-      {
-        question: 'Can I use 529 plans for multiple children?',
-        answer: 'Yes! You can change the beneficiary of a 529 plan to another family member. If one child doesn\'t use all the funds, you can transfer the remainder to another child. Our calculator helps plan for multiple children with different college timelines and costs.'
-      }
+      { name: 'College Savings', url: '/college-savings' },
     ]}
   />
 
-  <LegacyToolShell
+  <StructuredData
+    type="software"
+    softwareApp={{
+      name: 'College Savings Planner',
+      description:
+        'Comprehensive college savings planning tool with 529 plan optimization, Coverdell ESA analysis, financial aid impact, and multiple children planning.',
+      category: 'FinanceApplication',
+      rating: 4.7,
+      ratingCount: 170,
+    }}
+  />
+
+  <StructuredData
+    type="faq"
+    faqs={[
+      {
+        question: 'What is a 529 plan and how does it work?',
+        answer:
+          'A 529 plan is a tax-advantaged savings plan designed to encourage saving for future education costs. Contributions grow tax-free, and withdrawals are tax-free when used for qualified education expenses. Many states offer tax deductions or credits for 529 contributions.',
+      },
+      {
+        question: 'How much should I save for college?',
+        answer:
+          "College costs vary by type: public colleges average $25,000/year, private colleges $55,000/year, and Ivy League schools $80,000/year. Our calculator projects future costs with inflation and helps you determine how much to save based on your children's ages and college type preferences.",
+      },
+      {
+        question: 'What is the difference between a 529 plan and Coverdell ESA?',
+        answer:
+          '529 plans have higher contribution limits ($300,000+ per beneficiary) and can be used for K-12 and college expenses. Coverdell ESAs have lower limits ($2,000/year) but offer more investment flexibility. Both offer tax-free growth for qualified education expenses.',
+      },
+      {
+        question: 'How does saving for college affect financial aid?',
+        answer:
+          "529 plans owned by parents are assessed at up to 5.64% for financial aid purposes, while student-owned assets are assessed at 20%. Grandparent-owned 529s don't count in FAFSA but distributions count as student income. Our calculator helps optimize savings strategies to minimize financial aid impact.",
+      },
+      {
+        question: 'Can I use 529 plans for multiple children?',
+        answer:
+          "Yes! You can change the beneficiary of a 529 plan to another family member. If one child doesn't use all the funds, you can transfer the remainder to another child. Our calculator helps plan for multiple children with different college timelines and costs.",
+      },
+    ]}
+  />
+
+  <ToolPageShell
     eyebrow="Personal finance"
     title="College Savings Calculator"
     description="Project education costs, monthly savings needs, and 529-style contribution strategies"
@@ -69,159 +75,177 @@ import LegacyToolShell from '../components/site/LegacyToolShell.astro';
       { label: 'Home', href: '/' },
       { label: 'Models', href: '/models' },
       { label: 'Personal Finance', href: '/models/personal' },
-      { label: 'College Savings' }
+      { label: 'College Savings' },
     ]}
   >
-<!-- College Savings Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Family Information</h2>
+    <!-- College Savings Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Family Information</h2>
 
-        <form id="college-savings-form" class="space-y-6">
-          <!-- Family Info Section -->
+      <form id="college-savings-form" class="space-y-6">
+        <!-- Family Info Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="numberOfChildren"
+              class="fa-field-label mb-2"
+            >
+              Number of Children
+            </label>
+            <input
+              type="number"
+              id="numberOfChildren"
+              name="numberOfChildren"
+              min="1"
+              max="10"
+              value="1"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="stateOfResidence"
+              class="fa-field-label mb-2"
+            >
+              State of Residence
+            </label>
+            <input
+              type="text"
+              id="stateOfResidence"
+              name="stateOfResidence"
+              class="fa-input-surface w-full"
+              placeholder="CA"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="maritalStatus"
+              class="fa-field-label mb-2"
+            >
+              Marital Status
+            </label>
+            <select
+              id="maritalStatus"
+              name="maritalStatus"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="single">Single</option>
+              <option value="married" selected>Married</option>
+              <option value="divorced">Divorced</option>
+              <option value="widowed">Widowed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Current Savings Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Current Savings</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="numberOfChildren" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Number of Children
+              <label
+                for="total529Balance"
+                class="fa-field-label mb-2"
+              >
+                529 Plan Balance ($)
               </label>
               <input
                 type="number"
-                id="numberOfChildren"
-                name="numberOfChildren"
-                min="1"
-                max="10"
-                value="1"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
+                id="total529Balance"
+                name="total529Balance"
+                min="0"
+                step="1000"
+                value="0"
+                class="fa-input-surface w-full"
               />
             </div>
 
             <div>
-              <label for="stateOfResidence" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                State of Residence
+              <label
+                for="monthlyContribution"
+                class="fa-field-label mb-2"
+              >
+                Monthly Contribution ($)
               </label>
               <input
-                type="text"
-                id="stateOfResidence"
-                name="stateOfResidence"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="CA"
-                required
+                type="number"
+                id="monthlyContribution"
+                name="monthlyContribution"
+                min="0"
+                step="100"
+                value="500"
+                class="fa-input-surface w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Goals Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Savings Goals</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                for="targetCoverage"
+                class="fa-field-label mb-2"
+              >
+                Target Coverage (%)
+              </label>
+              <input
+                type="number"
+                id="targetCoverage"
+                name="targetCoverage"
+                min="0"
+                max="100"
+                step="5"
+                value="100"
+                class="fa-input-surface w-full"
               />
             </div>
 
             <div>
-              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Marital Status
+              <label
+                for="riskTolerance"
+                class="fa-field-label mb-2"
+              >
+                Risk Tolerance
               </label>
               <select
-                id="maritalStatus"
-                name="maritalStatus"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                id="riskTolerance"
+                name="riskTolerance"
+                class="fa-input-surface w-full"
                 required
               >
-                <option value="single">Single</option>
-                <option value="married" selected>Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
+                <option value="conservative">Conservative</option>
+                <option value="moderate" selected>Moderate</option>
+                <option value="aggressive">Aggressive</option>
               </select>
             </div>
           </div>
+        </div>
 
-          <!-- Current Savings Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Current Savings</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="total529Balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  529 Plan Balance ($)
-                </label>
-                <input
-                  type="number"
-                  id="total529Balance"
-                  name="total529Balance"
-                  min="0"
-                  step="1000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Analyze College Savings </button>
+        </div>
+      </form>
+    </div>
 
-              <div>
-                <label for="monthlyContribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Monthly Contribution ($)
-                </label>
-                <input
-                  type="number"
-                  id="monthlyContribution"
-                  name="monthlyContribution"
-                  min="0"
-                  step="100"
-                  value="500"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
+    <!-- Results Section -->
+    <div id="college-savings-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        College Savings Analysis
+      </h2>
+      <div id="college-savings-results-content" class="space-y-4"></div>
+    </div>
 
-          <!-- Goals Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Savings Goals</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="targetCoverage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Target Coverage (%)
-                </label>
-                <input
-                  type="number"
-                  id="targetCoverage"
-                  name="targetCoverage"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value="100"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="riskTolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Risk Tolerance
-                </label>
-                <select
-                  id="riskTolerance"
-                  name="riskTolerance"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="conservative">Conservative</option>
-                  <option value="moderate" selected>Moderate</option>
-                  <option value="aggressive">Aggressive</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Analyze College Savings
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Results Section -->
-      <div id="college-savings-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">College Savings Analysis</h2>
-        <div id="college-savings-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-  </LegacyToolShell>
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="college-savings" />
 </Layout>

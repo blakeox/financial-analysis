@@ -99,7 +99,7 @@ const clearFieldErrors = (form: HTMLFormElement) => {
   const invalidFields = form.querySelectorAll('[data-field-error="true"]');
   invalidFields.forEach((field) => {
     field.removeAttribute('data-field-error');
-    field.classList.remove('border-red-500', 'focus:ring-red-500');
+    field.classList.remove('fa-field-error');
     field.setAttribute('aria-invalid', 'false');
   });
 };
@@ -122,7 +122,7 @@ export const applyFieldErrors = (
     }
     field.setAttribute('data-field-error', 'true');
     field.setAttribute('aria-invalid', 'true');
-    field.classList.add('border-red-500', 'focus:ring-red-500');
+    field.classList.add('fa-field-error');
   });
 };
 

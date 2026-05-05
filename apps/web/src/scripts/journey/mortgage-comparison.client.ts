@@ -116,7 +116,7 @@ const initMortgageComparison = async () => {
               <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💼 Scenario 1</h4>
               ${
                 winner === 'scenario1'
-                  ? '<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-medium">Best Value</span>'
+                  ? '<span class="fa-badge-success">Best Value</span>'
                   : ''
               }
             </div>
@@ -155,7 +155,7 @@ const initMortgageComparison = async () => {
               <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💰 Scenario 2</h4>
               ${
                 winner === 'scenario2'
-                  ? '<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-medium">Best Value</span>'
+                  ? '<span class="fa-badge-success">Best Value</span>'
                   : ''
               }
             </div>
@@ -195,7 +195,7 @@ const initMortgageComparison = async () => {
               <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                 ${formatCurrency(Math.abs(monthlySavings))}
               </div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">
+              <div class="fa-script-copy-muted">
                 Monthly ${monthlySavings >= 0 ? 'Savings' : 'Difference'}
               </div>
             </div>
@@ -203,7 +203,7 @@ const initMortgageComparison = async () => {
               <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
                 ${formatCurrency(Math.abs(totalInterestSavings))}
               </div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">
+              <div class="fa-script-copy-muted">
                 Interest ${totalInterestSavings >= 0 ? 'Saved' : 'Difference'}
               </div>
             </div>
@@ -211,7 +211,7 @@ const initMortgageComparison = async () => {
               <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                 ${formatCurrency(Math.abs(totalCostSavings))}
               </div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">
+              <div class="fa-script-copy-muted">
                 Total ${totalCostSavings >= 0 ? 'Saved' : 'Difference'}
               </div>
             </div>
@@ -266,13 +266,13 @@ const initMortgageComparison = async () => {
       localStorage.setItem(storageKey, JSON.stringify(journeyState));
 
       saveBtn.textContent = '✓ Saved!';
-      saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-      saveBtn.classList.add('bg-green-500');
+      saveBtn.classList.remove('fa-button-primary');
+      saveBtn.classList.add('fa-button-success-state');
 
       setTimeout(() => {
         saveBtn.textContent = 'Save Comparison';
-        saveBtn.classList.remove('bg-green-500');
-        saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('fa-button-success-state');
+        saveBtn.classList.add('fa-button-primary');
       }, 2000);
     });
   }

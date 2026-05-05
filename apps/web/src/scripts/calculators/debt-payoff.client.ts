@@ -265,25 +265,25 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Credit Score Impact Projection
       </h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Estimated improvement as you pay off debt</p>
+      <p class="fa-script-copy-muted mb-4">Estimated improvement as you pay off debt</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Estimate</p>
+          <p class="fa-script-copy-muted mb-1">Current Estimate</p>
           <p class="text-3xl font-bold ${creditScore.currentEstimate < 650 ? 'text-red-600 dark:text-red-400' : creditScore.currentEstimate < 700 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">${creditScore.currentEstimate}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${creditScore.currentEstimate < 580 ? 'Poor' : creditScore.currentEstimate < 650 ? 'Fair' : creditScore.currentEstimate < 700 ? 'Good' : 'Excellent'}</p>
+          <p class="fa-script-note mt-1">${creditScore.currentEstimate < 580 ? 'Poor' : creditScore.currentEstimate < 650 ? 'Fair' : creditScore.currentEstimate < 700 ? 'Good' : 'Excellent'}</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center flex items-center justify-center">
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Projected Improvement</p>
+            <p class="fa-script-copy-muted mb-1">Projected Improvement</p>
             <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">+${creditScore.projectedImprovement}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">points</p>
+            <p class="fa-script-note mt-1">points</p>
           </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Debt-Free Score</p>
+          <p class="fa-script-copy-muted mb-1">Debt-Free Score</p>
           <p class="text-3xl font-bold text-green-600 dark:text-green-400">${creditScore.finalEstimate}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Excellent</p>
+          <p class="fa-script-note mt-1">Excellent</p>
         </div>
       </div>
       
@@ -292,20 +292,20 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
         <div class="space-y-3">
           <div>
             <div class="flex justify-between text-sm mb-1">
-              <span class="text-gray-600 dark:text-gray-400">Credit Utilization</span>
+               <span class="fa-script-copy-muted">Credit Utilization</span>
               <span class="font-semibold">${creditScore.factors.creditUtilization.current}% → ${creditScore.factors.creditUtilization.projected}%</span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div class="bg-blue-600 h-2 rounded-full" style="width: ${Math.min(100, creditScore.factors.creditUtilization.current)}%"></div>
             </div>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${creditScore.factors.creditUtilization.impact}</p>
+             <p class="fa-script-note mt-1">${creditScore.factors.creditUtilization.impact}</p>
           </div>
           <div>
             <div class="flex justify-between text-sm mb-1">
-              <span class="text-gray-600 dark:text-gray-400">Payment History</span>
+               <span class="fa-script-copy-muted">Payment History</span>
               <span class="font-semibold">${creditScore.factors.paymentHistory.current}% → ${creditScore.factors.paymentHistory.projected}%</span>
             </div>
-            <p class="text-xs text-gray-600 dark:text-gray-400">${creditScore.factors.paymentHistory.impact}</p>
+             <p class="fa-script-note">${creditScore.factors.paymentHistory.impact}</p>
           </div>
         </div>
       </div>
@@ -320,38 +320,38 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
           <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Avalanche Method</h4>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+               <span class="fa-script-copy-muted">Time to Payoff:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A'}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+               <span class="fa-script-copy-muted">Total Interest:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalInterestPaid) : 'N/A'}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+               <span class="fa-script-copy-muted">Total Paid:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalAmountPaid) : 'N/A'}</span>
             </div>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">Pays highest interest debts first</p>
+          <p class="fa-script-copy-muted mt-3">Pays highest interest debts first</p>
         </div>
         
         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Snowball Method</h4>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
+               <span class="fa-script-copy-muted">Time to Payoff:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A'}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
+               <span class="fa-script-copy-muted">Total Interest:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalInterestPaid) : 'N/A'}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
+               <span class="fa-script-copy-muted">Total Paid:</span>
               <span class="font-semibold text-gray-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalAmountPaid) : 'N/A'}</span>
             </div>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">Pays smallest debts first</p>
+          <p class="fa-script-copy-muted mt-3">Pays smallest debts first</p>
         </div>
       </div>
     </div>
@@ -367,7 +367,7 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
             (debt: DebtSummary, index: number) => `
             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
               <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${debt.name}</span>
-              <span class="text-gray-600 dark:text-gray-400">${formatMonths(debt.monthsToPayoff)}</span>
+              <span class="fa-script-copy-muted">${formatMonths(debt.monthsToPayoff)}</span>
             </div>
           `
           )

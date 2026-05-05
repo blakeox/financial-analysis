@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -70,129 +71,103 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">📊</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-linear-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="📊"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Financial Snapshot Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Your Financial Snapshot</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Your Financial Snapshot</h2>
             
             <form id="financial-snapshot-form" class="space-y-6">
               <!-- Income Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💰 Income</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">💰 Income</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="annual-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="annual-income" class="fa-field-label mb-2">
                       Annual Gross Income ($) *
                     </label>
                     <input 
                       type="number" 
                       id="annual-income" 
                       name="annualIncome"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="65000"
                       required
                     />
-                    <p class="text-sm text-gray-500 mt-1">Your total annual income before taxes</p>
+                    <p class="fa-help-copy mt-1">Your total annual income before taxes</p>
                   </div>
                   <div>
-                    <label for="monthly-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-income" class="fa-field-label mb-2">
                       Monthly Take-Home Pay ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-income" 
                       name="monthlyIncome"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="4500"
                     />
-                    <p class="text-sm text-gray-500 mt-1">After taxes and deductions</p>
+                    <p class="fa-help-copy mt-1">After taxes and deductions</p>
                   </div>
                 </div>
               </div>
 
               <!-- Assets Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏦 Assets</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🏦 Assets</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="checking-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="checking-balance" class="fa-field-label mb-2">
                       Checking Account ($)
                     </label>
                     <input 
                       type="number" 
                       id="checking-balance" 
                       name="checkingBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="2500"
                     />
                   </div>
                   <div>
-                    <label for="savings-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="savings-balance" class="fa-field-label mb-2">
                       Savings Account ($)
                     </label>
                     <input 
                       type="number" 
                       id="savings-balance" 
                       name="savingsBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="5000"
                     />
                   </div>
                   <div>
-                    <label for="investment-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="investment-balance" class="fa-field-label mb-2">
                       Investment Accounts ($)
                     </label>
                     <input 
                       type="number" 
                       id="investment-balance" 
                       name="investmentBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="retirement-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="retirement-balance" class="fa-field-label mb-2">
                       401(k) / Retirement ($)
                     </label>
                     <input 
                       type="number" 
                       id="retirement-balance" 
                       name="retirementBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
@@ -200,54 +175,54 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Debt Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💳 Debt</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">💳 Debt</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="student-loan-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="student-loan-balance" class="fa-field-label mb-2">
                       Student Loan Balance ($)
                     </label>
                     <input 
                       type="number" 
                       id="student-loan-balance" 
                       name="studentLoanBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="25000"
                     />
                   </div>
                   <div>
-                    <label for="credit-card-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="credit-card-balance" class="fa-field-label mb-2">
                       Credit Card Debt ($)
                     </label>
                     <input 
                       type="number" 
                       id="credit-card-balance" 
                       name="creditCardBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="car-loan-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="car-loan-balance" class="fa-field-label mb-2">
                       Car Loan Balance ($)
                     </label>
                     <input 
                       type="number" 
                       id="car-loan-balance" 
                       name="carLoanBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="other-debt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="other-debt" class="fa-field-label mb-2">
                       Other Debt ($)
                     </label>
                     <input 
                       type="number" 
                       id="other-debt" 
                       name="otherDebt"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
@@ -256,47 +231,47 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Goals Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Financial Goals</h3>
+                <h3 class="fa-scenario-title mb-4">🎯 Financial Goals</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       What are your top 3 financial priorities? (Select all that apply)
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="emergency-fund" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Build emergency fund</span>
+                        <span class="fa-list-copy">Build emergency fund</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="pay-off-debt" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Pay off student loans</span>
+                        <span class="fa-list-copy">Pay off student loans</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="retirement" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Start retirement savings</span>
+                        <span class="fa-list-copy">Start retirement savings</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="home" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Save for home down payment</span>
+                        <span class="fa-list-copy">Save for home down payment</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="travel" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Save for travel</span>
+                        <span class="fa-list-copy">Save for travel</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="goals" value="career" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Invest in career development</span>
+                        <span class="fa-list-copy">Invest in career development</span>
                       </label>
                     </div>
                   </div>
                   <div>
-                    <label for="timeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="timeline" class="fa-field-label mb-2">
                       What's your timeline for achieving these goals?
                     </label>
                     <select 
                       id="timeline" 
                       name="timeline"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                     >
                       <option value="">Select timeline</option>
                       <option value="1-year">1 year</option>
@@ -309,11 +284,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="submit" id="save-snapshot-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="submit" id="save-snapshot-btn" class="fa-button-primary">
                   Save Financial Snapshot
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
@@ -321,13 +296,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-journey-nav-panel">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -337,7 +312,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -351,7 +326,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-success flex-1 sm:flex-none"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +336,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-success flex-1 sm:flex-none"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,24 +351,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Tips</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title text-lg mb-4">💡 Tips</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Be Honest:</strong> Accurate information helps create better financial plans.</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Don't Worry:</strong> This is just a starting point - we'll help you improve!</p>
               </div>
-              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Estimate:</strong> If you're not sure of exact amounts, make your best guess.</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">🎯 Why This Matters</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title text-lg mb-4">🎯 Why This Matters</h3>
+            <p class="fa-meta-copy">
               Understanding your current financial situation is the foundation of good financial planning. 
               This snapshot will help us create personalized strategies for your debt, savings, and investment goals.
             </p>
@@ -446,11 +421,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           // Show success message
           saveBtn.textContent = '✓ Saved!';
           saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-          saveBtn.classList.add('bg-green-500');
+          saveBtn.classList.add('fa-button-success-state');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save Financial Snapshot';
-            saveBtn.classList.remove('bg-green-500');
+            saveBtn.classList.remove('fa-button-success-state');
             saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
           }, 2000);
 

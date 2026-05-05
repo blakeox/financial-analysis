@@ -53,136 +53,197 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
   />
 
   <main class="fa-page-shell">
-      <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
-        <div class="space-y-6">
-          <WorkflowPageIntro
-            backHref={backHref}
-            backLabel={backLabel}
-            title={config.title}
-            description={config.description}
-            icon={config.icon}
-            badgeText={config.category === 'personal' ? 'Personal Finance' : 'Business Finance'}
-            badgeTone="slate"
-          />
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-6">
+        <WorkflowPageIntro
+          backHref={backHref}
+          backLabel={backLabel}
+          title={config.title}
+          description={config.description}
+          icon={config.icon}
+          badgeText={config.category === 'personal' ? 'Personal Finance' : 'Business Finance'}
+          badgeTone="slate"
+        />
 
-          <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div id="calculator-form-container">
-              <Fragment set:html={formHTML} />
+        <section class="fa-card p-6">
+          <div id="calculator-form-container">
+            <Fragment set:html={formHTML} />
+          </div>
+
+          <div id="loading" class="hidden py-8 text-center">
+            <div class="fa-button-primary cursor-not-allowed opacity-90">
+              <svg
+                class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Calculating...
             </div>
+          </div>
 
-            <div id="loading" class="hidden py-8 text-center">
-              <div class="inline-flex cursor-not-allowed items-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold leading-6 text-white shadow transition duration-150 ease-in-out">
-                <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <div id="error" class="fa-callout-danger hidden mb-6">
+            <div class="flex">
+              <div class="shrink-0">
+                <svg
+                  class="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd"></path>
                 </svg>
-                Calculating...
+              </div>
+              <div class="ml-3">
+                <h3 class="fa-callout-title-danger">Error</h3>
+                <div class="mt-2 fa-callout-copy-danger">
+                  <p id="error-message"></p>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div id="error" class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <div id="results" class="hidden">
+            <div class="fa-callout-success mb-6">
               <div class="flex">
                 <div class="shrink-0">
-                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
-                  <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                    <p id="error-message"></p>
+                  <h3 class="fa-callout-title-success">
+                    Analysis Complete
+                  </h3>
+                  <div class="mt-2 fa-callout-copy-success">
+                    <p>
+                      Your {config.title.toLowerCase()} analysis is ready. Review the results in the rail.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div id="results" class="hidden">
-              <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-                <div class="flex">
-                  <div class="shrink-0">
-                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800 dark:text-green-200">Analysis Complete</h3>
-                    <div class="mt-2 text-sm text-green-700 dark:text-green-300">
-                      <p>Your {config.title.toLowerCase()} analysis is ready. Review the results in the rail.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {journeySuggestions && journeySuggestions.length > 0 && (
-            <section class="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 dark:border-blue-700 dark:from-blue-900/20 dark:to-indigo-900/20">
+        {
+          journeySuggestions && journeySuggestions.length > 0 && (
+            <section class="fa-highlight-card p-6">
               <div class="flex items-start">
                 <div class="shrink-0">
                   <span class="text-3xl">{journeySuggestions[0].journeyIcon}</span>
                 </div>
                 <div class="ml-4 flex-1">
-                  <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Want a Complete Plan?</h3>
-                  <p class="mb-4 text-gray-600 dark:text-gray-300">
-                    {config.title} is part of the <strong>{journeySuggestions[0].journeyName}</strong>. Complete the full journey to get integrated insights and a comprehensive financial plan.
+                  <h3 class="fa-scenario-title mb-2">
+                    Want a Complete Plan?
+                  </h3>
+                  <p class="fa-scenario-copy mb-4">
+                    {config.title} is part of the{' '}
+                    <strong>{journeySuggestions[0].journeyName}</strong>. Complete the full journey
+                    to get integrated insights and a comprehensive financial plan.
                   </p>
                   <div class="flex flex-wrap gap-3">
                     <a
                       href={`/journey/${journeySuggestions[0].journeyId}`}
-                      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
+                      class="fa-button-primary"
                     >
                       <span class="mr-2">Start Journey</span>
                       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
                       </svg>
                     </a>
                   </div>
                 </div>
               </div>
             </section>
-          )}
+          )
+        }
 
-          <div id="amortization-chart-container" class="hidden">
-            <div class="rounded-lg bg-white p-5 shadow-md dark:bg-gray-800">
-              <h2 class="mb-4 text-lg font-semibold">Payment Breakdown Chart</h2>
-              <div id="amortization-chart"></div>
-            </div>
-          </div>
-
-          <div id="amortization-table-container" class="hidden">
-            <div class="rounded-lg bg-white p-5 shadow-md dark:bg-gray-800">
-              <h2 class="mb-4 text-lg font-semibold">Amortization Schedule</h2>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Month</th>
-                      <th class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Payment</th>
-                      <th class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Principal</th>
-                      <th class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Interest</th>
-                      <th class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Balance</th>
-                      <th class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Cumulative Interest</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-body" class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <div id="amortization-chart-container" class="hidden">
+          <div class="fa-card p-5">
+            <h2 class="fa-panel-title text-lg mb-4">Payment Breakdown Chart</h2>
+            <div id="amortization-chart"></div>
           </div>
         </div>
 
-        <WorkflowSupportRail modelType={config.analysisType}>
-          <Fragment slot="results-content">
-            <div id="results-content">
-              <div id="summary-cards" class="grid grid-cols-1 gap-6 md:grid-cols-2">
-              </div>
-              <div id="results-container" class="mt-6 hidden">
-              </div>
+        <div id="amortization-table-container" class="hidden">
+          <div class="fa-card p-5">
+            <h2 class="fa-panel-title text-lg mb-4">Amortization Schedule</h2>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th
+                      class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Month</th
+                    >
+                    <th
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Payment</th
+                    >
+                    <th
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Principal</th
+                    >
+                    <th
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Interest</th
+                    >
+                    <th
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Balance</th
+                    >
+                    <th
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                      >Cumulative Interest</th
+                    >
+                  </tr>
+                </thead>
+                <tbody
+                  id="table-body"
+                  class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                >
+                </tbody>
+              </table>
             </div>
-          </Fragment>
-        </WorkflowSupportRail>
+          </div>
+        </div>
       </div>
+
+      <WorkflowSupportRail modelType={config.analysisType}>
+        <Fragment slot="results-content">
+          <div id="results-content">
+            <div id="summary-cards" class="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
+            <div id="results-container" class="mt-6 hidden"></div>
+          </div>
+        </Fragment>
+      </WorkflowSupportRail>
+    </div>
 
     <div class="ad-container mx-auto mt-6 max-w-4xl">
       <AdSense slot="3456789012" />
@@ -276,8 +337,15 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
     }
 
     @keyframes aiBadgePulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.9; }
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
     }
   </style>
 </Layout>

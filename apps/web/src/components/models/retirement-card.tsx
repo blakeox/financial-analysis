@@ -12,29 +12,29 @@ export function RetirementCard({ className = '' }: ModelCardProps) {
           <div className="rounded-lg bg-purple-100 p-2.5 dark:bg-purple-900/50">
             <PiggyBank className="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="fa-model-title text-xl">
             Retirement Calculator
           </h3>
         </div>
-        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <p className="fa-model-description mb-4 text-sm">
           Project retirement savings across multiple accounts (401k, IRA, Roth)
           with employer match optimization, tax advantages, and withdrawal
           strategies.
         </p>
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
-            Multi-Account
-          </span>
-          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
-            Employer Match
-          </span>
-          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
-            Tax Analysis
-          </span>
-        </div>
-        <div className="mt-4 flex items-center text-sm font-medium text-purple-600 group-hover:text-purple-700 dark:text-purple-400 dark:group-hover:text-purple-300">
-          Try it →
-        </div>
+           <span className="fa-model-card-chip bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+             Multi-Account
+           </span>
+           <span className="fa-model-card-chip bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+             Employer Match
+           </span>
+           <span className="fa-model-card-chip bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+             Tax Analysis
+           </span>
+         </div>
+         <div className="fa-model-card-cta text-purple-600 group-hover:text-purple-700 dark:text-purple-400 dark:group-hover:text-purple-300">
+           Try it →
+         </div>
       </div>
     </a>
   );

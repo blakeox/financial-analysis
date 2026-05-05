@@ -39,14 +39,14 @@ const renderPricingCards = (pricing: PricingTier[]) => {
       const supportLevel = safeTier === 'free' ? 'Community' : safeTier === 'pro' ? 'Email' : 'Priority';
 
       const badge = isPopular
-        ? '<div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2"><span class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span></div>'
+        ? '<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"><span class="fa-chip fa-chip-accent">Most Popular</span></div>'
         : '';
 
       const buttonLabel = safeTier === 'free' ? 'Current Plan' : 'Subscribe Now';
       const disabledAttrs = safeTier === 'free' ? 'disabled' : '';
       const buttonClasses = [
-        'mt-8 w-full text-white py-3 px-6 rounded-lg font-semibold transition-colors',
-        isPopular ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-800 hover:bg-gray-900',
+        isPopular ? 'fa-button-primary' : 'fa-button-secondary',
+        'mt-8 w-full justify-center',
         safeTier === 'free' ? 'opacity-50 cursor-not-allowed' : '',
       ]
         .filter(Boolean)
@@ -57,7 +57,7 @@ const renderPricingCards = (pricing: PricingTier[]) => {
         : '';
 
       return `
-        <div class="relative bg-white rounded-2xl shadow-xl ${isPopular ? 'ring-2 ring-indigo-600 scale-105' : ''}">
+        <div class="fa-card relative h-full ${isPopular ? 'ring-2 ring-indigo-600 -translate-y-1' : ''}">
           ${badge}
           <div class="p-8">
             <h3 class="text-2xl font-bold text-gray-900 capitalize">${name}</h3>
@@ -111,7 +111,7 @@ const renderDefaultPricing = () => {
   const container = getPricingContainer();
   if (!container) return;
   container.innerHTML = `
-    <div class="col-span-3 text-center py-12">
+    <div class="fa-card col-span-3 text-center py-12">
       <p class="text-gray-600">Unable to load pricing. Please try again later.</p>
     </div>
   `;

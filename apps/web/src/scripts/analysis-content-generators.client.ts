@@ -90,7 +90,7 @@ export function generateInsights(
     insightsList.innerHTML = data.insights
       .map(
         (insight: Insight) => `
-        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
@@ -99,16 +99,16 @@ export function generateInsights(
             <div class="flex items-center space-x-2 ml-4">
               <span class="px-2 py-1 text-xs rounded-full ${
                 insight.impact === 'high'
-                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  ? 'fa-chip fa-chip-danger'
                   : insight.impact === 'medium'
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    ? 'fa-chip fa-chip-warning'
+                    : 'fa-chip fa-chip-success'
               }">
                 ${insight.impact.toUpperCase()}
               </span>
               ${
                 insight.actionable
-                  ? '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">ACTIONABLE</span>'
+                  ? '<span class="px-2 py-1 text-xs rounded-full fa-chip fa-chip-accent">ACTIONABLE</span>'
                   : ''
               }
             </div>
@@ -166,13 +166,13 @@ export function generateInsights(
   insightsList.innerHTML = insights
     .map(
       (insight) => `
-    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+    <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
           <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${insight.description}</p>
         </div>
-        <span class="inline-block px-2 py-1 text-xs rounded-full ${insight.impact === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+        <span class="inline-block px-2 py-1 text-xs rounded-full ${insight.impact === 'high' ? 'fa-chip fa-chip-danger' : 'fa-chip fa-chip-warning'}">
           ${insight.impact} impact
         </span>
       </div>
@@ -197,7 +197,7 @@ export function generateRecommendations(
     recommendationsList.innerHTML = data.recommendations
       .map(
         (rec: RecommendationData) => `
-        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
@@ -206,14 +206,14 @@ export function generateRecommendations(
                 <div class="flex space-x-2">
                   <span class="px-2 py-1 text-xs rounded-full ${
                     rec.priority === 'high'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      ? 'fa-chip fa-chip-danger'
                       : rec.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        ? 'fa-chip fa-chip-warning'
+                        : 'fa-chip fa-chip-success'
                   }">
                     ${rec.priority} priority
                   </span>
-                  <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <span class="px-2 py-1 text-xs rounded-full fa-chip fa-chip-accent">
                     ${rec.effort} effort
                   </span>
                 </div>
@@ -304,17 +304,17 @@ export function generateRecommendations(
   recommendationsList.innerHTML = recommendations
     .map(
       (rec) => `
-    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+    <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
           <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${rec.description}</p>
           <div class="flex items-center justify-between">
             <div class="flex space-x-2">
-              <span class="px-2 py-1 text-xs rounded-full ${rec.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">
+              <span class="px-2 py-1 text-xs rounded-full ${rec.priority === 'high' ? 'fa-chip fa-chip-danger' : rec.priority === 'medium' ? 'fa-chip fa-chip-warning' : 'fa-chip fa-chip-success'}">
                 ${rec.priority} priority
               </span>
-              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <span class="px-2 py-1 text-xs rounded-full fa-chip fa-chip-accent">
                 ${rec.effort} effort
               </span>
             </div>
@@ -342,15 +342,15 @@ export function generateRiskAssessment(
     const overall = data.riskAssessment.overallRisk || 'low';
     const factors = Array.isArray(data.riskAssessment.factors) ? data.riskAssessment.factors : [];
     riskAssessment.innerHTML = `
-      <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+      <div class="fa-subcard p-4">
         <div class="flex items-center justify-between mb-4">
           <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Level</h4>
           <span class="px-3 py-1 text-sm rounded-full ${
             overall === 'high'
-              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+              ? 'fa-chip fa-chip-danger'
               : overall === 'medium'
-                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                ? 'fa-chip fa-chip-warning'
+                : 'fa-chip fa-chip-success'
           }">
             ${overall.toUpperCase()} RISK
           </span>
@@ -360,7 +360,7 @@ export function generateRiskAssessment(
             .map(
               (factor: RiskFactor) => `
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">${factor.factor}</span>
+                  <span class="fa-script-copy-muted">${factor.factor}</span>
                   <span class="text-sm font-medium ${
                     factor.risk === 'high'
                       ? 'text-red-600 dark:text-red-400'
@@ -425,10 +425,10 @@ export function generateRiskAssessment(
       : 'low';
 
   riskAssessment.innerHTML = `
-    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+    <div class="fa-subcard p-4">
       <div class="flex items-center justify-between mb-4">
         <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Assessment</h4>
-        <span class="px-3 py-1 text-sm rounded-full ${overallRisk === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : overallRisk === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">
+        <span class="px-3 py-1 text-sm rounded-full ${overallRisk === 'high' ? 'fa-chip fa-chip-danger' : overallRisk === 'medium' ? 'fa-chip fa-chip-warning' : 'fa-chip fa-chip-success'}">
           ${overallRisk.toUpperCase()} RISK
         </span>
       </div>
@@ -437,7 +437,7 @@ export function generateRiskAssessment(
           .map(
             (factor) => `
               <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600 dark:text-gray-400">${factor.factor}</span>
+                <span class="fa-script-copy-muted">${factor.factor}</span>
                 <span class="text-sm font-medium ${factor.risk === 'high' ? 'text-red-600 dark:text-red-400' : factor.risk === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
                   ${factor.description}
                 </span>
@@ -476,7 +476,7 @@ export function generateOptimizationOpportunities(
     optimizationOpportunities.innerHTML = data.optimizationOpportunities
       .map(
         (opp: Optimization) => `
-        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
@@ -531,7 +531,7 @@ export function generateOptimizationOpportunities(
   optimizationOpportunities.innerHTML = opportunities
     .map(
       (opp) => `
-    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+    <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
@@ -572,4 +572,3 @@ if (typeof window !== 'undefined') {
 }
 
 export {};
-

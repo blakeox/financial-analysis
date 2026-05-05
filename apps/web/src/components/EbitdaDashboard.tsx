@@ -194,11 +194,11 @@ export function EbitdaDashboard() {
                   />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="fa-panel-title text-3xl">
                 EBITDA Forecasting Dashboard
               </h2>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+            <p className="fa-model-description text-lg">
               Configure your business parameters and generate comprehensive financial forecasts
             </p>
             {state.results && (
@@ -215,24 +215,24 @@ export function EbitdaDashboard() {
                 const monthlyLeasePayments = state.leases.filter(l=>l.isActive).reduce((s,l)=> s + (l.monthlyPayment||0),0);
                 const monthlyOpExBaseline = state.expenseTypes.filter(e=>e.isActive).reduce((s,e)=> s + (e.currentMonthlyAmount||0),0) + monthlyLeasePayments;
                 const format = (v:number) => v.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0});
-                const chipBase = 'rounded-lg p-3 bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col';
+                const chipBase = 'fa-stat-chip';
                 return (
                   <>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Active Employees</span>
-                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{employeeCount}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Active Employees</span>
+                      <span className="fa-scenario-title text-lg">{employeeCount}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Monthly Depreciation</span>
-                      <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">{format(monthlyDepreciation)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Monthly Depreciation</span>
+                      <span className="fa-metric-value-info">{format(monthlyDepreciation)}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Lease Payments / Mo</span>
-                      <span className="text-lg font-semibold text-indigo-700 dark:text-indigo-300">{format(monthlyLeasePayments)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Lease Payments / Mo</span>
+                      <span className="fa-metric-value-secondary">{format(monthlyLeasePayments)}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Baseline OpEx / Mo</span>
-                      <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">{format(monthlyOpExBaseline)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Baseline OpEx / Mo</span>
+                      <span className="fa-metric-value-accent">{format(monthlyOpExBaseline)}</span>
                     </div>
                   </>
                 );
@@ -256,7 +256,7 @@ export function EbitdaDashboard() {
             <Button
               onClick={generateForecast}
               disabled={!hasValidData() || state.isLoading}
-              className="min-w-[160px] bg-blue-600 hover:bg-blue-700"
+              className="fa-button-info-tone min-w-[160px]"
             >
               {state.isLoading ? (
                 <>
@@ -327,13 +327,13 @@ export function EbitdaDashboard() {
       {!state.results && (
         <>
           {/* Module selector to add sections on demand */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <div className="fa-card p-6 mb-6">
             <ModuleSelector activeModules={activeModules} onAddModule={handleAddModule} />
           </div>
 
           {/* Progress Indicator */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="fa-card p-6">
+            <h3 className="fa-scenario-title mb-4">
               Setup Progress
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -353,7 +353,7 @@ export function EbitdaDashboard() {
                 >
                   💰
                 </div>
-                <div className="text-sm font-medium">Revenue Data</div>
+                <div className="fa-list-copy-strong">Revenue Data</div>
               </div>
               <div
                 className={`text-center p-3 rounded-lg border ${
@@ -369,7 +369,7 @@ export function EbitdaDashboard() {
                 >
                   👥
                 </div>
-                <div className="text-sm font-medium">Employees ({state.employees.length})</div>
+                <div className="fa-list-copy-strong">Employees ({state.employees.length})</div>
               </div>
               <div
                 className={`text-center p-3 rounded-lg border ${
@@ -385,11 +385,11 @@ export function EbitdaDashboard() {
                 >
                   📊
                 </div>
-                <div className="text-sm font-medium">Expenses ({state.expenseTypes.length})</div>
+                <div className="fa-list-copy-strong">Expenses ({state.expenseTypes.length})</div>
               </div>
               <div className="text-center p-3 rounded-lg border bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <div className="text-2xl mb-2 text-blue-600">⚙️</div>
-                <div className="text-sm font-medium">Scenario Config</div>
+                <div className="fa-list-copy-strong">Scenario Config</div>
               </div>
             </div>
           </div>
@@ -397,7 +397,7 @@ export function EbitdaDashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <div className="space-y-8">
               {activeModules.includes('financials') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -429,7 +429,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('scenario') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -465,7 +465,7 @@ export function EbitdaDashboard() {
 
             <div className="space-y-8">
               {activeModules.includes('employees') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -493,7 +493,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('expenses') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
@@ -524,7 +524,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('fixed-assets') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -585,7 +585,7 @@ export function EbitdaDashboard() {
 
       {/* Enhanced Help Text */}
       {!state.results && !hasValidData() && (
-        <Card className="border-2 border-dashed border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10">
+        <Card className="fa-highlight-card border-2 border-dashed border-blue-200 dark:border-blue-800">
           <CardContent className="p-8">
             <div className="text-center space-y-6">
               <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
@@ -604,24 +604,24 @@ export function EbitdaDashboard() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                <h3 className="fa-callout-title-info text-xl mb-2">
                   Welcome to EBITDA Forecasting
                 </h3>
-                <p className="text-blue-700 dark:text-blue-300 text-lg leading-relaxed">
+                <p className="fa-callout-copy-info text-lg leading-relaxed">
                   Let's create your financial forecast in a few simple steps
                 </p>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-blue-200 dark:border-blue-700">
+              <div className="fa-subcard p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
                   <div className="flex items-start space-x-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                       1
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Revenue Data
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Enter monthly revenue
                       </div>
                     </div>
@@ -631,10 +631,10 @@ export function EbitdaDashboard() {
                       2
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Add Employees
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Salary & billable hours
                       </div>
                     </div>
@@ -644,10 +644,10 @@ export function EbitdaDashboard() {
                       3
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Expense Types
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Monthly amounts
                       </div>
                     </div>
@@ -657,8 +657,8 @@ export function EbitdaDashboard() {
                       4
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">Configure</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-scenario-title">Configure</div>
+                      <div className="fa-meta-copy text-sm">
                         Scenario settings
                       </div>
                     </div>
@@ -668,8 +668,8 @@ export function EbitdaDashboard() {
                       ✓
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">Generate</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Your forecast</div>
+                      <div className="fa-scenario-title">Generate</div>
+                      <div className="fa-meta-copy text-sm">Your forecast</div>
                     </div>
                   </div>
                 </div>

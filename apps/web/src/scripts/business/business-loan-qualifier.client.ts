@@ -441,14 +441,14 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
                 </p>
               </div>
               <div class="text-right">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Approval Odds</p>
+                <p class="fa-script-copy-muted">Approval Odds</p>
                 <p class="text-lg font-bold ${loan.approvalOddsPercent >= 70 ? 'text-green-600 dark:text-green-400' : loan.approvalOddsPercent >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${loan.approvalOddsPercent}%</p>
               </div>
             </div>
             
             ${loan.issues.length > 0 ? `
               <div class="mb-3 space-y-1">
-                ${loan.issues.map(issue => `<p class="text-sm text-gray-700 dark:text-gray-300">${issue}</p>`).join('')}
+                ${loan.issues.map(issue => `<p class="fa-script-copy-strong">${issue}</p>`).join('')}
               </div>
             ` : ''}
             
@@ -486,7 +486,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
           <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">DSCR</h4>
           <p class="text-3xl font-bold ${result.dscr >= 1.5 ? 'text-green-600 dark:text-green-400' : result.dscr >= 1.25 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.dscr.toFixed(2)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Debt Service Coverage Ratio</p>
+          <p class="fa-script-note mt-2">Debt Service Coverage Ratio</p>
           <p class="text-xs mt-1">${result.dscr >= 1.5 ? '✓ Excellent (≥1.5)' : result.dscr >= 1.25 ? '✓ Acceptable (≥1.25)' : '❌ Too Low (<1.25)'}</p>
         </div>
         
@@ -494,7 +494,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
           <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">LTV Ratio</h4>
           <p class="text-3xl font-bold ${result.ltv <= 75 ? 'text-green-600 dark:text-green-400' : result.ltv <= 90 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.ltv.toFixed(1)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Loan-to-Value Ratio</p>
+          <p class="fa-script-note mt-2">Loan-to-Value Ratio</p>
           <p class="text-xs mt-1">${result.ltv <= 75 ? '✓ Excellent (≤75%)' : result.ltv <= 90 ? '✓ Acceptable (≤90%)' : '❌ Too High (>90%)'}</p>
         </div>
         ` : ''}
@@ -502,14 +502,14 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
           <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Debt-to-Income</h4>
           <p class="text-3xl font-bold ${result.debtToIncome <= 30 ? 'text-green-600 dark:text-green-400' : result.debtToIncome <= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.debtToIncome.toFixed(1)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Total Debt / Revenue</p>
+          <p class="fa-script-note mt-2">Total Debt / Revenue</p>
           <p class="text-xs mt-1">${result.debtToIncome <= 30 ? '✓ Healthy (<30%)' : result.debtToIncome <= 50 ? '⚠️ Moderate (30-50%)' : '❌ High (>50%)'}</p>
         </div>
       </div>
       
       <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4">
         <h4 class="font-semibold text-gray-900 dark:text-white mb-2">What These Mean</h4>
-        <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+        <ul class="space-y-2 fa-script-copy-strong">
           <li><strong>DSCR (Debt Service Coverage Ratio):</strong> Your annual net income divided by total annual debt payments. Lenders want 1.25+ (meaning you earn $1.25 for every $1 of debt payments).</li>
           <li><strong>LTV (Loan-to-Value):</strong> Loan amount as percentage of collateral value. Lower is better - shows you have skin in the game.</li>
           <li><strong>Debt-to-Income:</strong> Total debt payments as percentage of revenue. Shows how much of your revenue goes to debt.</li>
@@ -525,7 +525,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-sm text-gray-700 dark:text-gray-300">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}
@@ -613,4 +613,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeLoanQualifier();
 }
-

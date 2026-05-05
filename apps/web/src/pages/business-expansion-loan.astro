@@ -3,65 +3,71 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
-import LegacyToolShell from '../components/site/LegacyToolShell.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Business Expansion Loan Journey - Loan Analysis & Planning Tool | Fanalyx" 
+<Layout
+  title="Business Expansion Loan Journey - Loan Analysis & Planning Tool | Fanalyx"
   description="Comprehensive business expansion loan analysis with debt capacity assessment, cash flow projections, DSCR analysis, risk assessment, and loan term optimization for businesses seeking growth financing."
   keywords="business loan, expansion loan, commercial loan, SBA loan, business financing, debt capacity, DSCR, business cash flow, loan analysis, commercial lending"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Business Finance', url: '/models/business' },
-      { name: 'Business Expansion Loan', url: '/business-expansion-loan' }
-    ]}
-  />
-  
-  <StructuredData 
-    type="software" 
-    softwareApp={{
-      name: 'Business Expansion Loan Journey',
-      description: 'Comprehensive business expansion loan analysis with debt capacity assessment, cash flow projections, DSCR analysis, and risk assessment.',
-      category: 'FinanceApplication',
-      rating: 4.9,
-      ratingCount: 220
-    }}
-  />
-  
-  <StructuredData 
-    type="faq" 
-    faqs={[
-      {
-        question: 'What is debt service coverage ratio (DSCR) and why is it important?',
-        answer: 'DSCR measures a business\'s ability to service debt by comparing EBITDA to annual debt payments. Lenders typically require DSCR of 1.25x or higher. A ratio below 1.0x means the business cannot cover debt payments, while higher ratios indicate stronger debt capacity.'
-      },
-      {
-        question: 'How much can my business borrow for expansion?',
-        answer: 'Debt capacity depends on EBITDA, existing debt, cash flow, and lender requirements. Our calculator analyzes your financial health, projects cash flow with loan payments, and recommends a safe borrowing amount based on DSCR and debt-to-EBITDA ratios.'
-      },
-      {
-        question: 'What loan types are available for business expansion?',
-        answer: 'Common options include term loans (fixed payments), lines of credit (flexible drawdown), SBA loans (government-backed with favorable terms), equipment financing (secured by equipment), and commercial mortgages (for real estate). Each has different rates, terms, and requirements.'
-      },
-      {
-        question: 'How do I know if my business is ready for expansion financing?',
-        answer: 'Key indicators include: DSCR above 1.25x, strong cash flow, low existing debt-to-EBITDA ratio, established business history (2+ years), good credit score, and realistic revenue projections. Our analysis evaluates all these factors and provides a readiness score.'
-      },
-      {
-        question: 'What are the risks of taking on expansion debt?',
-        answer: 'Risks include cash flow strain, inability to service debt if revenue projections fall short, reduced financial flexibility, potential collateral requirements, and impact on credit. Our tool assesses these risks and provides mitigation strategies.'
-      }
+      { name: 'Business Expansion Loan', url: '/business-expansion-loan' },
     ]}
   />
 
-  <LegacyToolShell
+  <StructuredData
+    type="software"
+    softwareApp={{
+      name: 'Business Expansion Loan Journey',
+      description:
+        'Comprehensive business expansion loan analysis with debt capacity assessment, cash flow projections, DSCR analysis, and risk assessment.',
+      category: 'FinanceApplication',
+      rating: 4.9,
+      ratingCount: 220,
+    }}
+  />
+
+  <StructuredData
+    type="faq"
+    faqs={[
+      {
+        question: 'What is debt service coverage ratio (DSCR) and why is it important?',
+        answer:
+          "DSCR measures a business's ability to service debt by comparing EBITDA to annual debt payments. Lenders typically require DSCR of 1.25x or higher. A ratio below 1.0x means the business cannot cover debt payments, while higher ratios indicate stronger debt capacity.",
+      },
+      {
+        question: 'How much can my business borrow for expansion?',
+        answer:
+          'Debt capacity depends on EBITDA, existing debt, cash flow, and lender requirements. Our calculator analyzes your financial health, projects cash flow with loan payments, and recommends a safe borrowing amount based on DSCR and debt-to-EBITDA ratios.',
+      },
+      {
+        question: 'What loan types are available for business expansion?',
+        answer:
+          'Common options include term loans (fixed payments), lines of credit (flexible drawdown), SBA loans (government-backed with favorable terms), equipment financing (secured by equipment), and commercial mortgages (for real estate). Each has different rates, terms, and requirements.',
+      },
+      {
+        question: 'How do I know if my business is ready for expansion financing?',
+        answer:
+          'Key indicators include: DSCR above 1.25x, strong cash flow, low existing debt-to-EBITDA ratio, established business history (2+ years), good credit score, and realistic revenue projections. Our analysis evaluates all these factors and provides a readiness score.',
+      },
+      {
+        question: 'What are the risks of taking on expansion debt?',
+        answer:
+          'Risks include cash flow strain, inability to service debt if revenue projections fall short, reduced financial flexibility, potential collateral requirements, and impact on credit. Our tool assesses these risks and provides mitigation strategies.',
+      },
+    ]}
+  />
+
+  <ToolPageShell
     eyebrow="Business finance"
     title="Business Expansion Loan Journey"
     description="Comprehensive analysis for businesses considering loans for expansion, growth, or capital needs"
@@ -69,377 +75,436 @@ import LegacyToolShell from '../components/site/LegacyToolShell.astro';
       { label: 'Home', href: '/' },
       { label: 'Models', href: '/models' },
       { label: 'Business Finance', href: '/models/business' },
-      { label: 'Business Expansion Loan' }
+      { label: 'Business Expansion Loan' },
     ]}
   >
-<!-- Business Expansion Loan Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Business Information</h2>
+    <!-- Business Expansion Loan Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Business Information</h2>
 
-        <form id="business-expansion-loan-form" class="space-y-6">
-          <!-- Business Info Section -->
+      <form id="business-expansion-loan-form" class="space-y-6">
+        <!-- Business Info Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="businessName"
+              class="fa-field-label mb-2"
+            >
+              Business Name
+            </label>
+            <input
+              type="text"
+              id="businessName"
+              name="businessName"
+              class="fa-input-surface w-full"
+              placeholder="ABC Company Inc."
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="industry"
+              class="fa-field-label mb-2"
+            >
+              Industry
+            </label>
+            <input
+              type="text"
+              id="industry"
+              name="industry"
+              class="fa-input-surface w-full"
+              placeholder="Technology"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="yearsInBusiness"
+              class="fa-field-label mb-2"
+            >
+              Years in Business
+            </label>
+            <input
+              type="number"
+              id="yearsInBusiness"
+              name="yearsInBusiness"
+              min="0"
+              max="100"
+              class="fa-input-surface w-full"
+              placeholder="5"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="businessType"
+              class="fa-field-label mb-2"
+            >
+              Business Type
+            </label>
+            <select
+              id="businessType"
+              name="businessType"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="llc">LLC</option>
+              <option value="corporation">Corporation</option>
+              <option value="s-corp">S-Corp</option>
+              <option value="partnership">Partnership</option>
+              <option value="sole-proprietorship">Sole Proprietorship</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="employeeCount"
+              class="fa-field-label mb-2"
+            >
+              Number of Employees
+            </label>
+            <input
+              type="number"
+              id="employeeCount"
+              name="employeeCount"
+              min="0"
+              max="10000"
+              class="fa-input-surface w-full"
+              placeholder="25"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Current Financials Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">
+            Current Financial Situation
+          </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="businessName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Business Name
-              </label>
-              <input
-                type="text"
-                id="businessName"
-                name="businessName"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="ABC Company Inc."
-                required
-              />
-            </div>
-
-            <div>
-              <label for="industry" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Industry
-              </label>
-              <input
-                type="text"
-                id="industry"
-                name="industry"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Technology"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="yearsInBusiness" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Years in Business
+              <label
+                for="annualRevenue"
+                class="fa-field-label mb-2"
+              >
+                Annual Revenue ($)
               </label>
               <input
                 type="number"
-                id="yearsInBusiness"
-                name="yearsInBusiness"
+                id="annualRevenue"
+                name="annualRevenue"
                 min="0"
-                max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="5"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="1000000"
                 required
               />
             </div>
 
             <div>
-              <label for="businessType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Business Type
+              <label
+                for="annualEBITDA"
+                class="fa-field-label mb-2"
+              >
+                Annual EBITDA ($)
+              </label>
+              <input
+                type="number"
+                id="annualEBITDA"
+                name="annualEBITDA"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="200000"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="currentDebt"
+                class="fa-field-label mb-2"
+              >
+                Current Debt ($)
+              </label>
+              <input
+                type="number"
+                id="currentDebt"
+                name="currentDebt"
+                min="0"
+                step="10000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="monthlyDebtPayments"
+                class="fa-field-label mb-2"
+              >
+                Monthly Debt Payments ($)
+              </label>
+              <input
+                type="number"
+                id="monthlyDebtPayments"
+                name="monthlyDebtPayments"
+                min="0"
+                step="1000"
+                value="0"
+                class="fa-input-surface w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="cashOnHand"
+                class="fa-field-label mb-2"
+              >
+                Cash on Hand ($)
+              </label>
+              <input
+                type="number"
+                id="cashOnHand"
+                name="cashOnHand"
+                min="0"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="100000"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="creditScore"
+                class="fa-field-label mb-2"
+              >
+                Business Credit Score (Optional)
+              </label>
+              <input
+                type="number"
+                id="creditScore"
+                name="creditScore"
+                min="300"
+                max="850"
+                class="fa-input-surface w-full"
+                placeholder="700"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Expansion Plan Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Expansion Plan</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                for="loanAmount"
+                class="fa-field-label mb-2"
+              >
+                Loan Amount ($)
+              </label>
+              <input
+                type="number"
+                id="loanAmount"
+                name="loanAmount"
+                min="0"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="500000"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="loanPurpose"
+                class="fa-field-label mb-2"
+              >
+                Loan Purpose
               </label>
               <select
-                id="businessType"
-                name="businessType"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                id="loanPurpose"
+                name="loanPurpose"
+                class="fa-input-surface w-full"
                 required
               >
-                <option value="llc">LLC</option>
-                <option value="corporation">Corporation</option>
-                <option value="s-corp">S-Corp</option>
-                <option value="partnership">Partnership</option>
-                <option value="sole-proprietorship">Sole Proprietorship</option>
+                <option value="equipment">Equipment</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="working-capital">Working Capital</option>
+                <option value="inventory">Inventory</option>
+                <option value="expansion" selected>Expansion</option>
+                <option value="acquisition">Acquisition</option>
+                <option value="refinancing">Refinancing</option>
+                <option value="other">Other</option>
               </select>
             </div>
 
             <div>
-              <label for="employeeCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Number of Employees
+              <label
+                for="expectedRevenueIncrease"
+                class="fa-field-label mb-2"
+              >
+                Expected Annual Revenue Increase ($)
               </label>
               <input
                 type="number"
-                id="employeeCount"
-                name="employeeCount"
+                id="expectedRevenueIncrease"
+                name="expectedRevenueIncrease"
                 min="0"
-                max="10000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="25"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="200000"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="expectedEBITDAIncrease"
+                class="fa-field-label mb-2"
+              >
+                Expected Annual EBITDA Increase ($)
+              </label>
+              <input
+                type="number"
+                id="expectedEBITDAIncrease"
+                name="expectedEBITDAIncrease"
+                step="10000"
+                class="fa-input-surface w-full"
+                placeholder="50000"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="timeline"
+                class="fa-field-label mb-2"
+              >
+                Expansion Timeline (Years)
+              </label>
+              <input
+                type="number"
+                id="timeline"
+                name="timeline"
+                min="1"
+                max="10"
+                value="3"
+                class="fa-input-surface w-full"
                 required
               />
             </div>
           </div>
+        </div>
 
-          <!-- Current Financials Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Current Financial Situation</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="annualRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Annual Revenue ($)
-                </label>
-                <input
-                  type="number"
-                  id="annualRevenue"
-                  name="annualRevenue"
-                  min="0"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="1000000"
-                  required
-                />
-              </div>
+        <!-- Loan Preferences Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Loan Preferences</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                for="loanType"
+                class="fa-field-label mb-2"
+              >
+                Loan Type
+              </label>
+              <select
+                id="loanType"
+                name="loanType"
+                class="fa-input-surface w-full"
+                required
+              >
+                <option value="term-loan" selected>Term Loan</option>
+                <option value="line-of-credit">Line of Credit</option>
+                <option value="sba">SBA Loan</option>
+                <option value="equipment-financing">Equipment Financing</option>
+                <option value="commercial-mortgage">Commercial Mortgage</option>
+              </select>
+            </div>
 
-              <div>
-                <label for="annualEBITDA" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Annual EBITDA ($)
-                </label>
-                <input
-                  type="number"
-                  id="annualEBITDA"
-                  name="annualEBITDA"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="200000"
-                  required
-                />
-              </div>
+            <div>
+              <label
+                for="preferredTerm"
+                class="fa-field-label mb-2"
+              >
+                Preferred Term (Years)
+              </label>
+              <input
+                type="number"
+                id="preferredTerm"
+                name="preferredTerm"
+                min="1"
+                max="30"
+                value="5"
+                class="fa-input-surface w-full"
+                required
+              />
+            </div>
 
-              <div>
-                <label for="currentDebt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Current Debt ($)
-                </label>
-                <input
-                  type="number"
-                  id="currentDebt"
-                  name="currentDebt"
-                  min="0"
-                  step="10000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
+            <div>
+              <label
+                for="preferredRate"
+                class="fa-field-label mb-2"
+              >
+                Expected Interest Rate (%) (Optional)
+              </label>
+              <input
+                type="number"
+                id="preferredRate"
+                name="preferredRate"
+                min="0"
+                max="20"
+                step="0.1"
+                class="fa-input-surface w-full"
+                placeholder="8.0"
+              />
+            </div>
 
-              <div>
-                <label for="monthlyDebtPayments" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Monthly Debt Payments ($)
-                </label>
-                <input
-                  type="number"
-                  id="monthlyDebtPayments"
-                  name="monthlyDebtPayments"
-                  min="0"
-                  step="1000"
-                  value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label for="cashOnHand" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Cash on Hand ($)
-                </label>
-                <input
-                  type="number"
-                  id="cashOnHand"
-                  name="cashOnHand"
-                  min="0"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="100000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="creditScore" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Business Credit Score (Optional)
-                </label>
-                <input
-                  type="number"
-                  id="creditScore"
-                  name="creditScore"
-                  min="300"
-                  max="850"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="700"
-                />
-              </div>
+            <div>
+              <label
+                for="priority"
+                class="fa-field-label mb-2"
+              >
+                Priority
+              </label>
+              <select
+                id="priority"
+                name="priority"
+                class="fa-input-surface w-full"
+                required
+              >
+                <option value="lowest-cost" selected>Lowest Cost</option>
+                <option value="fastest-approval">Fastest Approval</option>
+                <option value="flexible-terms">Flexible Terms</option>
+                <option value="maximum-amount">Maximum Amount</option>
+              </select>
             </div>
           </div>
+        </div>
 
-          <!-- Expansion Plan Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Expansion Plan</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="loanAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Loan Amount ($)
-                </label>
-                <input
-                  type="number"
-                  id="loanAmount"
-                  name="loanAmount"
-                  min="0"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="500000"
-                  required
-                />
-              </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Analyze Expansion Loan </button>
+        </div>
+      </form>
+    </div>
 
-              <div>
-                <label for="loanPurpose" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Loan Purpose
-                </label>
-                <select
-                  id="loanPurpose"
-                  name="loanPurpose"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="equipment">Equipment</option>
-                  <option value="real-estate">Real Estate</option>
-                  <option value="working-capital">Working Capital</option>
-                  <option value="inventory">Inventory</option>
-                  <option value="expansion" selected>Expansion</option>
-                  <option value="acquisition">Acquisition</option>
-                  <option value="refinancing">Refinancing</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+    <!-- Results Section -->
+    <div id="expansion-loan-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        Expansion Loan Analysis
+      </h2>
+      <div id="expansion-loan-results-content" class="space-y-4"></div>
+    </div>
 
-              <div>
-                <label for="expectedRevenueIncrease" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Expected Annual Revenue Increase ($)
-                </label>
-                <input
-                  type="number"
-                  id="expectedRevenueIncrease"
-                  name="expectedRevenueIncrease"
-                  min="0"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="200000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="expectedEBITDAIncrease" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Expected Annual EBITDA Increase ($)
-                </label>
-                <input
-                  type="number"
-                  id="expectedEBITDAIncrease"
-                  name="expectedEBITDAIncrease"
-                  step="10000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="50000"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="timeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Expansion Timeline (Years)
-                </label>
-                <input
-                  type="number"
-                  id="timeline"
-                  name="timeline"
-                  min="1"
-                  max="10"
-                  value="3"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Loan Preferences Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Loan Preferences</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="loanType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Loan Type
-                </label>
-                <select
-                  id="loanType"
-                  name="loanType"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="term-loan" selected>Term Loan</option>
-                  <option value="line-of-credit">Line of Credit</option>
-                  <option value="sba">SBA Loan</option>
-                  <option value="equipment-financing">Equipment Financing</option>
-                  <option value="commercial-mortgage">Commercial Mortgage</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="preferredTerm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Preferred Term (Years)
-                </label>
-                <input
-                  type="number"
-                  id="preferredTerm"
-                  name="preferredTerm"
-                  min="1"
-                  max="30"
-                  value="5"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label for="preferredRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Expected Interest Rate (%) (Optional)
-                </label>
-                <input
-                  type="number"
-                  id="preferredRate"
-                  name="preferredRate"
-                  min="0"
-                  max="20"
-                  step="0.1"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="8.0"
-                />
-              </div>
-
-              <div>
-                <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Priority
-                </label>
-                <select
-                  id="priority"
-                  name="priority"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="lowest-cost" selected>Lowest Cost</option>
-                  <option value="fastest-approval">Fastest Approval</option>
-                  <option value="flexible-terms">Flexible Terms</option>
-                  <option value="maximum-amount">Maximum Amount</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Analyze Expansion Loan
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Results Section -->
-      <div id="expansion-loan-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Expansion Loan Analysis</h2>
-        <div id="expansion-loan-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-  </LegacyToolShell>
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="business-expansion-loan" />
 </Layout>

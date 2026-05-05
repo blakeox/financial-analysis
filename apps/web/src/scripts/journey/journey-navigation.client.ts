@@ -141,12 +141,17 @@ class JourneyNavigationManager {
     const stepIndicators = document.querySelectorAll<HTMLElement>('[data-step-indicator]');
     stepIndicators.forEach((indicator, index) => {
       const stepNumber = index + 1;
+      indicator.classList.remove(
+        'fa-step-indicator-pending',
+        'fa-step-indicator-current',
+        'fa-step-indicator-complete'
+      );
       if (state.completedSteps.includes(stepNumber.toString())) {
-        indicator.classList.add('bg-green-500', 'text-white');
-        indicator.classList.remove('bg-gray-300', 'text-gray-600');
+        indicator.classList.add('fa-step-indicator-complete');
       } else if (stepNumber === state.currentStep) {
-        indicator.classList.add('bg-blue-500', 'text-white');
-        indicator.classList.remove('bg-gray-300', 'text-gray-600');
+        indicator.classList.add('fa-step-indicator-current');
+      } else {
+        indicator.classList.add('fa-step-indicator-pending');
       }
     });
   }
@@ -225,7 +230,7 @@ class JourneyNavigationManager {
       errorDiv = document.createElement('div');
       errorDiv.id = 'journey-validation-error';
       errorDiv.className =
-        'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        'fa-toast-error fixed top-4 right-4 px-4 py-2 z-50';
       document.body.appendChild(errorDiv);
     }
 
@@ -379,7 +384,7 @@ class JourneyNavigationManager {
     // Create progress feedback
     const feedbackDiv = document.createElement('div');
     feedbackDiv.className =
-      'fixed bottom-4 left-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      'fa-toast-success fixed bottom-4 left-4 px-4 py-2 z-50';
     feedbackDiv.innerHTML = `
       <div class="flex items-center">
         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">

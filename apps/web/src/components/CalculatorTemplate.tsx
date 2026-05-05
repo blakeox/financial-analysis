@@ -6988,18 +6988,18 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   // Add Basic/Advanced toggle if there are advanced fields
   if (hasAdvancedFields) {
     html += `
-    <div class="flex items-center justify-between p-4 mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+    <div class="fa-highlight-card mb-4 flex items-center justify-between p-4">
       <div>
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Calculator Mode</span>
-        <p class="text-xs text-gray-500 dark:text-gray-400">Advanced mode includes PMI, tax details, inflation & more</p>
+        <span class="fa-field-label">Calculator Mode</span>
+        <p class="fa-help-copy">Advanced mode includes PMI, tax details, inflation & more</p>
       </div>
       <div class="flex items-center gap-3">
-        <span id="mode-label-basic" class="text-sm font-medium text-purple-600 dark:text-purple-400">Basic</span>
+        <span id="mode-label-basic" class="fa-switch-label-active">Basic</span>
         <button type="button" id="mode-toggle" role="switch" aria-checked="false" aria-label="Toggle advanced mode"
-          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-300 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-          <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+          class="fa-switch-inactive relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          <span class="fa-switch-knob-inactive pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
         </button>
-        <span id="mode-label-advanced" class="text-sm font-medium text-gray-400 dark:text-gray-500">Advanced</span>
+        <span id="mode-label-advanced" class="fa-switch-label-inactive">Advanced</span>
       </div>
     </div>`;
   }
@@ -7007,11 +7007,9 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   Object.entries(groupedFields).forEach(([groupName, groupFields], _index) => {
     if (groupName !== 'default') {
       const isOptional = groupName.includes('Optional');
-      const sectionClass = isOptional
-        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50'
-        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
-      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
+      const sectionClass = isOptional ? 'fa-subcard' : 'fa-highlight-card';
+      html += `<div class="mb-6 p-6 ${sectionClass}">
+        <h3 class="fa-scenario-title mb-4">${groupName}</h3>`;
     }
 
     html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
@@ -7028,14 +7026,14 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
   });
 
   html += `
-    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 fa-panel-divider-top">
+      <button type="submit" id="calculate-btn" class="fa-button-primary flex-1 sm:flex-none">
         📊 Calculate Scenarios
       </button>
-      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+      <button type="button" id="reset-btn" class="fa-button-secondary">
         Reset
       </button>
-      <button type="button" id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+      <button type="button" id="save-btn" class="fa-button-primary">
         💾 Save
       </button>
     </div>
@@ -7060,13 +7058,13 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
 
   switch (field.type) {
     case 'number':
-      inputHTML = `<input type="number" ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">`;
+      inputHTML = `<input type="number" ${baseAttrs} class="fa-input-surface w-full">`;
       break;
     case 'text':
-      inputHTML = `<input type="text" ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">`;
+      inputHTML = `<input type="text" ${baseAttrs} class="fa-input-surface w-full">`;
       break;
     case 'select':
-      inputHTML = `<select ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">`;
+      inputHTML = `<select ${baseAttrs} class="fa-input-surface w-full">`;
       if (field.options) {
         field.options.forEach((option) => {
           inputHTML += `<option value="${option.value}">${option.label}</option>`;
@@ -7085,12 +7083,12 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
 
   return `
     <div class="form-field field-container${hiddenClass}" data-field-id="${field.id}" ${advancedAttr}>
-      <label for="${field.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label for="${field.id}" class="fa-field-label mb-2">
         ${field.label}
         ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
       </label>
       ${inputHTML}
-      ${field.helpText ? `<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${field.helpText}</p>` : ''}
+      ${field.helpText ? `<p class="fa-help-copy mt-1">${field.helpText}</p>` : ''}
       <div class="field-error text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
     </div>
   `;
@@ -7142,11 +7140,9 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
   Object.entries(groupedFields).forEach(([groupName, groupFields]) => {
     if (groupName !== 'default') {
       const isOptional = groupName.includes('Optional');
-      const sectionClass = isOptional
-        ? 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50'
-        : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
-      html += `<div class="mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 ${sectionClass}">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">${groupName}</h3>`;
+      const sectionClass = isOptional ? 'fa-section-shell-optional' : '';
+      html += `<div class="mb-6 fa-section-shell ${sectionClass}">
+        <h3 class="fa-section-title mb-4">${groupName}</h3>`;
     }
 
     // Use a more balanced grid layout
@@ -7177,14 +7173,14 @@ export function generateFormHTML(fields: FormFieldConfig[]): string {
   });
 
   html += `
-    <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <button type="submit" id="calculate-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+    <div class="flex flex-wrap gap-4 mt-8 pt-6 fa-panel-divider-top">
+      <button type="submit" id="calculate-btn" class="fa-button-primary flex-1 sm:flex-none">
         📊 Calculate Scenarios
       </button>
-      <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+      <button type="button" id="reset-btn" class="fa-button-secondary">
         Reset
       </button>
-      <button type="button" id="save-scenario-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+      <button type="button" id="save-scenario-btn" class="fa-button-primary">
         💾 Save
       </button>
     </div>
@@ -7229,11 +7225,11 @@ function generateFieldHTML(field: FormFieldConfig): string {
 
   return `
     <div class="field-container">
-      <label for="${field.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label for="${field.id}" class="fa-field-label mb-2">
         ${field.label}${field.required ? ' <span class="text-red-500">*</span>' : ''}
       </label>
       ${inputHTML}
-      ${field.helpText ? `<p class="text-sm text-gray-500 mt-1">${field.helpText}</p>` : ''}
+      ${field.helpText ? `<p class="fa-help-copy mt-1">${field.helpText}</p>` : ''}
     </div>
   `;
 }

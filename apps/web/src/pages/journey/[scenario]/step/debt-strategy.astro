@@ -2,6 +2,7 @@
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -70,65 +71,39 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">💳</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="💳"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Debt Strategy Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Create Your Debt Strategy</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Create Your Debt Strategy</h2>
             
             <form id="debt-strategy-form" class="space-y-6">
               <!-- Student Loans Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎓 Student Loans</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🎓 Student Loans</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="student-loan-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="student-loan-balance" class="fa-field-label mb-2">
                       Total Student Loan Balance ($) *
                     </label>
                     <input 
                       type="number" 
                       id="student-loan-balance" 
                       name="studentLoanBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="25000"
                       required
                     />
                   </div>
                   <div>
-                    <label for="student-loan-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="student-loan-rate" class="fa-field-label mb-2">
                       Average Interest Rate (%) *
                     </label>
                     <input 
@@ -136,19 +111,19 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.01"
                       id="student-loan-rate" 
                       name="studentLoanRate"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="5.5"
                       required
                     />
                   </div>
                   <div>
-                    <label for="repayment-plan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="repayment-plan" class="fa-field-label mb-2">
                       Current Repayment Plan *
                     </label>
                     <select 
                       id="repayment-plan" 
                       name="repaymentPlan"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       required
                     >
                       <option value="">Select plan</option>
@@ -159,14 +134,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                     </select>
                   </div>
                   <div>
-                    <label for="monthly-payment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-payment" class="fa-field-label mb-2">
                       Current Monthly Payment ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-payment" 
                       name="monthlyPayment"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="275"
                     />
                   </div>
@@ -174,23 +149,23 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Other Debt Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💳 Other Debt</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">💳 Other Debt</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="credit-card-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="credit-card-balance" class="fa-field-label mb-2">
                       Credit Card Debt ($)
                     </label>
                     <input 
                       type="number" 
                       id="credit-card-balance" 
                       name="creditCardBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="credit-card-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="credit-card-rate" class="fa-field-label mb-2">
                       Credit Card Interest Rate (%)
                     </label>
                     <input 
@@ -198,24 +173,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.01"
                       id="credit-card-rate" 
                       name="creditCardRate"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="18.99"
                     />
                   </div>
                   <div>
-                    <label for="car-loan-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="car-loan-balance" class="fa-field-label mb-2">
                       Car Loan Balance ($)
                     </label>
                     <input 
                       type="number" 
                       id="car-loan-balance" 
                       name="carLoanBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="car-loan-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="car-loan-rate" class="fa-field-label mb-2">
                       Car Loan Interest Rate (%)
                     </label>
                     <input 
@@ -223,7 +198,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.01"
                       id="car-loan-rate" 
                       name="carLoanRate"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="4.5"
                     />
                   </div>
@@ -232,57 +207,57 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Strategy Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Debt Payoff Strategy</h3>
+                <h3 class="fa-scenario-title mb-4">🎯 Debt Payoff Strategy</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Which debt payoff method appeals to you?
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="payoffMethod" value="avalanche" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Avalanche Method</span>
-                          <p class="text-xs text-gray-500">Pay highest interest rate debt first (saves most money)</p>
+                          <span class="fa-list-copy-strong">Avalanche Method</span>
+                            <p class="fa-help-copy">Pay highest interest rate debt first (saves most money)</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="payoffMethod" value="snowball" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Snowball Method</span>
-                          <p class="text-xs text-gray-500">Pay smallest balance first (psychological wins)</p>
+                          <span class="fa-list-copy-strong">Snowball Method</span>
+                            <p class="fa-help-copy">Pay smallest balance first (psychological wins)</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="payoffMethod" value="hybrid" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Hybrid Approach</span>
-                          <p class="text-xs text-gray-500">Mix of both methods based on your situation</p>
+                          <span class="fa-list-copy-strong">Hybrid Approach</span>
+                            <p class="fa-help-copy">Mix of both methods based on your situation</p>
                         </div>
                       </label>
                     </div>
                   </div>
                   <div>
-                    <label for="extra-payment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="extra-payment" class="fa-field-label mb-2">
                       How much extra can you pay toward debt each month? ($)
                     </label>
                     <input 
                       type="number" 
                       id="extra-payment" 
                       name="extraPayment"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="200"
                     />
-                    <p class="text-sm text-gray-500 mt-1">This is in addition to minimum payments</p>
+                    <p class="fa-help-copy mt-1">This is in addition to minimum payments</p>
                   </div>
                   <div>
-                    <label for="timeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="timeline" class="fa-field-label mb-2">
                       Target debt-free timeline
                     </label>
                     <select 
                       id="timeline" 
                       name="timeline"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                     >
                       <option value="">Select timeline</option>
                       <option value="1-year">1 year</option>
@@ -297,22 +272,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" id="calculate-strategy-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="button" id="calculate-strategy-btn" class="fa-button-primary">
                   Calculate Strategy
                 </button>
-                <button type="submit" id="save-strategy-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="submit" id="save-strategy-btn" class="fa-button-primary">
                   Save Debt Strategy
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Debt Payoff Strategy</h3>
+            <div id="results-section" class="fa-highlight-card hidden mt-8 p-6">
+              <h3 class="fa-scenario-title mb-4">📊 Your Debt Payoff Strategy</h3>
               <div id="strategy-results" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -320,13 +295,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -336,7 +311,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -350,7 +325,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +335,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,24 +350,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Debt Tips</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title text-lg mb-4">💡 Debt Tips</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Avalanche Method:</strong> Saves the most money in interest over time.</p>
               </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Snowball Method:</strong> Provides psychological motivation with quick wins.</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Extra Payments:</strong> Even $50 extra per month can save thousands!</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">🎯 Student Loan Tips</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title text-lg mb-4">🎯 Student Loan Tips</h3>
+            <div class="space-y-3 fa-list-copy">
               <p><strong>Income-Driven Plans:</strong> Can lower payments if you're struggling.</p>
               <p><strong>Refinancing:</strong> May lower rates if you have good credit.</p>
               <p><strong>Employer Benefits:</strong> Some companies help with student loans.</p>
@@ -498,69 +473,69 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           
           strategyResults.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Avalanche Method</h4>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-4">Avalanche Method</h4>
                 <div class="space-y-3 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
+                     <span class="fa-meta-copy">Time to Payoff:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'avalanche' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
+                     <span class="fa-meta-copy">Total Interest:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
+                     <span class="fa-meta-copy">Total Paid:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'avalanche' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-3">Pays highest interest debts first (saves most money)</p>
+                 <p class="fa-help-copy mt-3">Pays highest interest debts first (saves most money)</p>
               </div>
               
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Snowball Method</h4>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-4">Snowball Method</h4>
                 <div class="space-y-3 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Time to Payoff:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
+                     <span class="fa-meta-copy">Time to Payoff:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'snowball' ? formatMonths(primary.totalMonthsToPayoff) : formatMonths(alternative?.totalMonthsToPayoff || 0)}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Total Interest:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
+                     <span class="fa-meta-copy">Total Interest:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'snowball' ? formatCurrency(primary.totalInterestPaid) : formatCurrency(alternative?.totalInterestPaid || 0)}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Total Paid:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white">${primary.strategy === 'snowball' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
+                     <span class="fa-meta-copy">Total Paid:</span>
+                     <span class="fa-result-emphasis">${primary.strategy === 'snowball' ? formatCurrency(primary.totalAmountPaid) : formatCurrency(alternative?.totalAmountPaid || 0)}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-3">Pays smallest debts first (psychological wins)</p>
+                 <p class="fa-help-copy mt-3">Pays smallest debts first (psychological wins)</p>
               </div>
             </div>
 
             ${comparison > 0 ? `
-              <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-4">
+              <div class="fa-highlight-card p-4">
                 <p class="text-sm text-green-800 dark:text-green-200">
                   <strong>💡 Avalanche saves ${formatCurrency(Math.abs(comparison))} in interest!</strong>
                 </p>
               </div>
             ` : monthDifference < 0 ? `
-              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+              <div class="fa-highlight-card p-4">
                 <p class="text-sm text-blue-800 dark:text-blue-200">
                   <strong>💡 Snowball pays off ${Math.abs(monthDifference)} months faster!</strong>
                 </p>
               </div>
             ` : ''}
 
-            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Payoff Timeline</h4>
+            <div class="fa-subcard">
+               <h4 class="fa-scenario-title mb-3">Payoff Timeline</h4>
               <div class="space-y-2">
                 ${primary.debtSummaries
                   .slice()
                   .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
                   .map((debt, index) => `
                     <div class="flex justify-between items-center text-sm py-1 border-b border-gray-200 dark:border-gray-600">
-                      <span class="font-medium text-gray-900 dark:text-white">${index + 1}. ${debt.name}</span>
-                      <span class="text-gray-600 dark:text-gray-400">${formatMonths(debt.monthsToPayoff)}</span>
+                      <span class="fa-list-copy-strong">${index + 1}. ${debt.name}</span>
+                      <span class="fa-meta-copy">${formatMonths(debt.monthsToPayoff)}</span>
                     </div>
                   `)
                   .join('')}
@@ -616,11 +591,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           // Show success message
           saveBtn.textContent = '✓ Saved!';
           saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-          saveBtn.classList.add('bg-green-500');
+          saveBtn.classList.add('fa-button-success-state');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save Debt Strategy';
-            saveBtn.classList.remove('bg-green-500');
+            saveBtn.classList.remove('fa-button-success-state');
             saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
           }, 2000);
 

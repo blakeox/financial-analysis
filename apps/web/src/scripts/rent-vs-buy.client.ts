@@ -318,7 +318,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>
-      <p class="text-gray-700 dark:text-gray-300">${result.comparison.recommendation}</p>
+      <p class="fa-script-copy-strong">${result.comparison.recommendation}</p>
     </div>
     
     <!-- Side-by-Side Comparison -->
@@ -335,19 +335,19 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+              <span class="fa-script-copy-muted">Monthly Payment</span>
               <span class="font-semibold">${formatCurrency(result.buy.monthlyPayment)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.buy.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Home Equity</span>
+              <span class="fa-script-copy-muted">Home Equity</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.equity)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.breakdown.taxBenefits)}</span>
             </div>
             <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
@@ -364,19 +364,19 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+              <span class="fa-script-copy-muted">Monthly Payment</span>
               <span class="font-semibold">${formatCurrency(result.rent.monthlyPayment)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.rent.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Investments</span>
+              <span class="fa-script-copy-muted">Investments</span>
               <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.rent.equity)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold">$0</span>
             </div>
             <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
@@ -397,7 +397,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Financial Factors</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Home appreciation: ${formatCurrency(result.buy.breakdown.appreciation)}</li>
             <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}</li>
             <li>✓ Equity built: ${formatCurrency(result.buy.equity)}</li>
@@ -407,7 +407,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
         
         <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Lifestyle Factors</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul class="space-y-2 fa-script-copy-strong">
             <li><strong>Flexibility:</strong> Renting = easy to move</li>
             <li><strong>Stability:</strong> Buying = predictable costs</li>
             <li><strong>Maintenance:</strong> Renting = landlord handles</li>
@@ -538,4 +538,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeRentVsBuy();
 }
-
