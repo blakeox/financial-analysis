@@ -17,15 +17,15 @@ export function TrendIndicator({
   // For metrics like expenses, positive is bad (red), negative is good (green)
   const colorClass = invertColors
     ? isPositive
-      ? 'text-red-600 dark:text-red-400'
+      ? 'text-rose-600 dark:text-rose-300'
       : isNegative
-        ? 'text-green-600 dark:text-green-400'
-        : 'text-gray-600 dark:text-gray-400'
+        ? 'text-emerald-600 dark:text-emerald-300'
+        : 'text-slate-600 dark:text-slate-400'
     : isPositive
-      ? 'text-green-600 dark:text-green-400'
+      ? 'text-emerald-600 dark:text-emerald-300'
       : isNegative
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-gray-600 dark:text-gray-400';
+        ? 'text-rose-600 dark:text-rose-300'
+        : 'text-slate-600 dark:text-slate-400';
 
   const icon = isPositive ? '↑' : isNegative ? '↓' : '→';
   

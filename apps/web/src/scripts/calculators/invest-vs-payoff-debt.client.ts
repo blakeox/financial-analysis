@@ -302,17 +302,17 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
     <div class="fa-metric-card fa-metric-card-info">
       <h5 class="text-sm font-medium">Pay Debt First</h5>
       <p class="text-2xl font-bold">${formatCurrency(result.payOffDebt.endingWealth)}</p>
-      ${result.payOffDebt.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+      ${result.payOffDebt.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
     <div class="fa-metric-card fa-metric-card-success">
       <h5 class="text-sm font-medium">Invest First</h5>
       <p class="text-2xl font-bold">${formatCurrency(result.invest.endingWealth)}</p>
-      ${result.invest.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+      ${result.invest.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
     <div class="fa-metric-card fa-metric-card-accent">
       <h5 class="text-sm font-medium">Hybrid (50/50)</h5>
       <p class="text-2xl font-bold">${formatCurrency(result.hybrid.endingWealth)}</p>
-      ${result.hybrid.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+      ${result.hybrid.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
     <div class="fa-metric-card fa-metric-card-warning">
       <h5 class="text-sm font-medium">Recommended</h5>
@@ -327,8 +327,8 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>
-      <p class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
-      <p class="text-gray-700 dark:text-gray-300">${result.recommendation.reasoning}</p>
+      <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
+      <p class="text-slate-700 dark:text-slate-300">${result.recommendation.reasoning}</p>
     </div>
     
     <!-- Strategy Comparison -->
@@ -341,13 +341,13 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         ${[result.payOffDebt, result.invest, result.hybrid].map(strategy => {
           const isBest = strategy.endingWealth === bestWealth;
           return `
-            <div class="border-2 ${isBest ? 'border-green-500' : 'border-gray-300 dark:border-gray-700'} rounded-lg p-4">
+            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST MATH</div>' : ''}
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">${strategy.name}</h3>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">${strategy.name}</h3>
               <div class="space-y-2">
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Ending Wealth</span>
-                  <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(strategy.endingWealth)}</span>
+                  <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(strategy.endingWealth)}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Investment Balance</span>
@@ -355,17 +355,17 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
                 </div>
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Debt Remaining</span>
-                  <span class="font-semibold ${strategy.debtRemaining > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${formatCurrency(strategy.debtRemaining)}</span>
+                  <span class="font-semibold ${strategy.debtRemaining > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${formatCurrency(strategy.debtRemaining)}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Interest Paid</span>
-                  <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(strategy.interestPaid)}</span>
+                  <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(strategy.interestPaid)}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Debt-Free</span>
                   <span class="font-semibold">${strategy.timeToDebtFree === Infinity ? 'No' : `${Math.round(strategy.timeToDebtFree / 12)}y`}</span>
                 </div>
-                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
                   <span class="fa-script-note">Risk: ${strategy.riskLevel.toUpperCase()}</span>
                 </div>
               </div>
@@ -387,11 +387,11 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
           <div class="space-y-2 fa-script-copy-muted">
             <div class="flex justify-between">
               <span>Debt Interest Rate (guaranteed cost):</span>
-              <span class="font-bold text-red-600 dark:text-red-400">${input.debtInterestRate.toFixed(2)}%</span>
+              <span class="font-bold text-rose-600 dark:text-rose-400">${input.debtInterestRate.toFixed(2)}%</span>
             </div>
             <div class="flex justify-between">
               <span>Expected Investment Return:</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${input.expectedInvestmentReturn.toFixed(2)}%</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${input.expectedInvestmentReturn.toFixed(2)}%</span>
             </div>
             <div class="flex justify-between border-t border-current/20 pt-2">
               <span>Difference:</span>

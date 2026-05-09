@@ -156,7 +156,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="nextFundingRound" class="fa-field-label mb-2">
-                  Next Funding Round Amount <span class="text-red-500">*</span>
+                  Next Funding Round Amount <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="nextFundingRound" name="nextFundingRound" required
                        class="fa-input-surface w-full"
@@ -166,7 +166,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               
               <div>
                 <label for="fundingTimeline" class="fa-field-label mb-2">
-                  Funding Timeline (Months) <span class="text-red-500">*</span>
+                  Funding Timeline (Months) <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="fundingTimeline" name="fundingTimeline" required
                        class="fa-input-surface w-full"
@@ -182,7 +182,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="currentBurnRate" class="fa-field-label mb-2">
-                  Current Monthly Burn Rate <span class="text-red-500">*</span>
+                  Current Monthly Burn Rate <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="currentBurnRate" name="currentBurnRate" required
                        class="fa-input-surface w-full"
@@ -293,15 +293,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-info">Runway</h5>
-            <p id="runway-metric" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
+            <p id="runway-metric" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-success">Fundraising Timeline</h5>
-            <p id="timeline-metric" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
+            <p id="timeline-metric" class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-accent">Total Funding Needed</h5>
-            <p id="funding-metric" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
+            <p id="funding-metric" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-warning">Monthly Burn Rate</h5>
@@ -438,13 +438,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         // Show success message
         saveBtn.textContent = '✓ Saved!';
-        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
         saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Funding Strategy';
           saveBtn.classList.remove('fa-button-success-state');
-          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }, 2000);
 
         // Dispatch completion event

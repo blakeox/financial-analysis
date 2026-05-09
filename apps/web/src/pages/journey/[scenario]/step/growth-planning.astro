@@ -431,13 +431,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         // Show success message
         saveBtn.textContent = '✓ Saved!';
-        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
         saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Growth Plan';
           saveBtn.classList.remove('fa-button-success-state');
-          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }, 2000);
 
         // Dispatch completion event

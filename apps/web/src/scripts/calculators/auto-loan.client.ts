@@ -215,19 +215,19 @@ export const renderAutoLoanResults = (
 
   // Render summary cards with TCO
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Payment</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(summary.monthlyPayment)}</p>
-      ${tco ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo</p>` : ''}
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Payment</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(summary.monthlyPayment)}</p>
+      ${tco ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo</p>` : ''}
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Total Interest</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(summary.totalInterest)}</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Total Interest</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(summary.totalInterest)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Cost</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrencyWhole(summary.totalCost)}</p>
-      ${tco ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}</p>` : ''}
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Cost</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrencyWhole(summary.totalCost)}</p>
+      ${tco ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">${tco ? 'Cost Per Mile' : 'Loan Term'}</h5>
@@ -244,100 +244,100 @@ export const renderAutoLoanResults = (
     Number.parseFloat(costBreakdown.extendedWarranty);
 
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Cost Breakdown</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Cost Breakdown</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Vehicle Price</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(costBreakdown.vehiclePrice)}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Vehicle Price</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.vehiclePrice)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Down Payment</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(costBreakdown.downPayment)}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Down Payment</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.downPayment)}</span>
         </div>
         
         ${
           Number.isFinite(netTradeIn) && netTradeIn !== 0
             ? `
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Trade-in Value</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Trade-in Value</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
         </div>
         `
             : ''
         }
         
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Sales Tax</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(costBreakdown.salesTax)}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Sales Tax</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.salesTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Fees</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Fees</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-          <span class="text-gray-700 dark:text-gray-300">Amount Financed</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(costBreakdown.amountFinanced)}</span>
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-slate-700 dark:text-slate-300">Amount Financed</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.amountFinanced)}</span>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Loan Summary</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Loan Summary</h3>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Total Payments</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(summary.totalPayments)}</span>
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Total Payments</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.totalPayments)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Effective APR</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Effective APR</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
           </div>
         </div>
         
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Loan-to-Value</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Loan-to-Value</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Cost per Mile</span>
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Cost per Mile</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Early Payoff Scenarios</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Early Payoff Scenarios</h3>
       
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+          <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payoff Time</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Remaining Balance</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Interest Saved</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
             ${earlyPayoffScenarios
               .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;
                 const yearsLabel = `${years} year${years !== 1 ? 's' : ''}`;
                 return `
                 <tr>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${yearsLabel}</td>
-                  <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-white">${formatCurrency(scenario.remainingBalance)}</td>
-                  <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">${formatCurrency(scenario.interestSaved)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${yearsLabel}</td>
+                  <td class="px-4 py-2 text-sm text-right text-slate-900 dark:text-white">${formatCurrency(scenario.remainingBalance)}</td>
+                  <td class="px-4 py-2 text-sm text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(scenario.interestSaved)}</td>
                 </tr>
               `;
               })

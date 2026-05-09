@@ -748,12 +748,12 @@ export class MultiModelScenarioManager {
       .map((model) => {
         const isCompleted = this.completedModels.has(model.id);
         const statusClass = isCompleted
-          ? 'text-green-600 dark:text-green-400'
-          : 'text-gray-600 dark:text-gray-400';
+          ? 'text-emerald-600 dark:text-emerald-400'
+          : 'text-slate-600 dark:text-slate-400';
         const statusIcon = isCompleted ? '✓' : '○';
 
         return `
-        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
+        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg mb-2">
           <div class="flex items-center">
             <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
             <div>
@@ -774,17 +774,17 @@ export class MultiModelScenarioManager {
 
     return `
       <div class="mb-4">
-        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Models in this Scenario</h4>
+        <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Models in this Scenario</h4>
         <div class="space-y-2">
           ${modelsHTML}
         </div>
       </div>
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-        <h5 class="font-medium text-blue-900 dark:text-blue-300 mb-2">Workflow Steps:</h5>
-        <ol class="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-400">
+      <div class="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg p-4">
+        <h5 class="font-medium text-violet-900 dark:text-violet-300 mb-2">Workflow Steps:</h5>
+        <ol class="list-decimal list-inside space-y-1 text-sm text-violet-800 dark:text-violet-400">
           ${scenario.workflow.map((step) => `<li>${step}</li>`).join('')}
         </ol>
-        <div class="mt-3 flex items-center justify-between text-sm text-blue-700 dark:text-blue-300">
+        <div class="mt-3 flex items-center justify-between text-sm text-violet-700 dark:text-violet-300">
           <span>Estimated Duration: ${scenario.estimatedDuration}</span>
           <span>Complexity: ${scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1)}</span>
         </div>

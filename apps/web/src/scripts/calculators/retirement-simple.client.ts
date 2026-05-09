@@ -228,23 +228,23 @@ const displayResults = (result: RetirementResults): void => {
 
   // Render summary cards with enhanced data
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Retirement Balance</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.projectedBalanceAtRetirement)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Real (today): ${formatCurrency(result.inflationAdjustedBalance)}</p>
-      ${result.afterTaxBalance ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">After-tax: ${formatCurrency(result.afterTaxBalance)}</p>` : ''}
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Retirement Balance</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.projectedBalanceAtRetirement)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Real (today): ${formatCurrency(result.inflationAdjustedBalance)}</p>
+      ${result.afterTaxBalance ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">After-tax: ${formatCurrency(result.afterTaxBalance)}</p>` : ''}
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Monthly Income</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.monthlyRetirementIncome)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Real (today): ${formatCurrency(result.realMonthlyIncome)}</p>
-      ${result.afterTaxMonthlyIncome ? `<p class="text-xs text-green-700 dark:text-green-300 mt-1">After-tax: ${formatCurrency(result.afterTaxMonthlyIncome)}</p>` : ''}
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Monthly Income</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.monthlyRetirementIncome)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Real (today): ${formatCurrency(result.realMonthlyIncome)}</p>
+      ${result.afterTaxMonthlyIncome ? `<p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">After-tax: ${formatCurrency(result.afterTaxMonthlyIncome)}</p>` : ''}
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Replacement Ratio</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatPercent(result.replacementRatio * 100)}</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Real (today): ${formatPercent(result.realReplacementRatio * 100)}</p>
-      ${result.employerMatchTotal ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">+${formatCurrency(result.employerMatchTotal)} match</p>` : ''}
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Replacement Ratio</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatPercent(result.replacementRatio * 100)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Real (today): ${formatPercent(result.realReplacementRatio * 100)}</p>
+      ${result.employerMatchTotal ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">+${formatCurrency(result.employerMatchTotal)} match</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Years to Retirement</h5>
@@ -257,7 +257,7 @@ const displayResults = (result: RetirementResults): void => {
   resultsContainer.innerHTML = `
     ${result.rothVsTraditional ? `
     <!-- Roth vs Traditional Comparison -->
-    <div class="bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🔄</span> Roth vs Traditional IRA/401(k) Comparison
       </h3>
@@ -265,8 +265,8 @@ const displayResults = (result: RetirementResults): void => {
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <!-- Traditional -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-blue-300 dark:border-blue-700">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-3">Traditional IRA/401(k)</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-2 border-violet-300 dark:border-violet-700">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-3">Traditional IRA/401(k)</h4>
           <div class="space-y-2">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Pre-tax Balance</span>
@@ -274,22 +274,22 @@ const displayResults = (result: RetirementResults): void => {
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">After-tax Balance</span>
-              <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.rothVsTraditional.traditional.afterTax)}</span>
+              <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.rothVsTraditional.traditional.afterTax)}</span>
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Monthly Income (after-tax)</span>
               <span class="font-semibold">${formatCurrency(result.rothVsTraditional.traditional.monthlyAfterTax)}</span>
             </div>
           </div>
-          <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <p class="fa-script-note">✓ Tax deduction now</p>
             <p class="fa-script-note">✓ Lower taxable income today</p>
           </div>
         </div>
         
         <!-- Roth -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-green-300 dark:border-green-700">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-3">Roth IRA/401(k)</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-2 border-emerald-300 dark:border-emerald-700">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-3">Roth IRA/401(k)</h4>
           <div class="space-y-2">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Account Balance</span>
@@ -297,21 +297,21 @@ const displayResults = (result: RetirementResults): void => {
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">After-tax Balance</span>
-              <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.rothVsTraditional.roth.afterTax)}</span>
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rothVsTraditional.roth.afterTax)}</span>
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Monthly Income (tax-free)</span>
               <span class="font-semibold">${formatCurrency(result.rothVsTraditional.roth.monthlyAfterTax)}</span>
             </div>
           </div>
-          <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <p class="fa-script-note">✓ Tax-free withdrawals</p>
             <p class="fa-script-note">✓ No RMDs (Required Minimum Distributions)</p>
           </div>
         </div>
       </div>
       
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 ${result.rothVsTraditional.difference > 0 ? 'border-green-500' : 'border-blue-500'}">
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 ${result.rothVsTraditional.difference > 0 ? 'border-emerald-500' : 'border-violet-500'}">
         <h5 class="font-semibold mb-2">${result.rothVsTraditional.difference > 0 ? '🏆 Roth Advantage' : '🏆 Traditional Advantage'}</h5>
         <p class="fa-script-copy-strong mb-2">
           After-tax difference: <span class="font-bold">${formatCurrency(Math.abs(result.rothVsTraditional.difference))}</span>
@@ -321,115 +321,115 @@ const displayResults = (result: RetirementResults): void => {
     </div>
     ` : ''}
     
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Retirement Projection</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Retirement Projection</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Projected Balance at Retirement</span>
             <p class="fa-script-copy-subtle">Total savings accumulated</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.projectedBalanceAtRetirement)}</span>
-            <p class="text-xs text-blue-700 dark:text-blue-300">Inflation-adjusted: ${formatCurrency(result.inflationAdjustedBalance)}</p>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.projectedBalanceAtRetirement)}</span>
+            <p class="text-xs text-violet-700 dark:text-violet-300">Inflation-adjusted: ${formatCurrency(result.inflationAdjustedBalance)}</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Your Contributions</span>
             <p class="fa-script-copy-subtle">Base + catch-up</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.totalContributions)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.totalContributions)}</span>
             ${result.catchUpContributionsTotal ? `<p class="text-xs text-orange-600 dark:text-orange-400">Includes ${formatCurrency(result.catchUpContributionsTotal)} catch-up (50+)</p>` : ''}
           </div>
         </div>
         
         ${result.employerMatchTotal ? `
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Employer Match</span>
             <p class="fa-script-copy-subtle">Free money!</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.employerMatchTotal)}</span>
+            <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.employerMatchTotal)}</span>
           </div>
         </div>
         ` : ''}
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Investment Growth</span>
             <p class="fa-script-copy-subtle">Earnings from compound interest</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.totalGrowth)}</span>
+            <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.totalGrowth)}</span>
           </div>
         </div>
         
         ${result.taxSavingsNow ? `
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Tax Savings (Now)</span>
             <p class="fa-script-copy-subtle">Traditional IRA/401(k) deduction</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.taxSavingsNow)}</span>
+            <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.taxSavingsNow)}</span>
           </div>
         </div>
         ` : ''}
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Annual Contribution</span>
             <p class="fa-script-copy-subtle">Monthly × 12</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.annualContribution)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.annualContribution)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Retirement Income Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Retirement Income Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Monthly Retirement Income</span>
             <p class="fa-script-copy-subtle">Using 4% withdrawal rule</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.monthlyRetirementIncome)}</span>
-            <p class="text-xs text-green-700 dark:text-green-300">Real dollars: ${formatCurrency(result.realMonthlyIncome)}</p>
+            <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.monthlyRetirementIncome)}</span>
+            <p class="text-xs text-emerald-700 dark:text-emerald-300">Real dollars: ${formatCurrency(result.realMonthlyIncome)}</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Income Replacement Ratio</span>
             <p class="fa-script-copy-subtle">Percentage of final salary</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-purple-600 dark:text-purple-400">${formatPercent(result.replacementRatio * 100)}</span>
-            <p class="text-xs text-purple-700 dark:text-purple-300">Real dollars: ${formatPercent(result.realReplacementRatio * 100)}</p>
+            <span class="font-semibold text-violet-600 dark:text-violet-400">${formatPercent(result.replacementRatio * 100)}</span>
+            <p class="text-xs text-violet-700 dark:text-violet-300">Real dollars: ${formatPercent(result.realReplacementRatio * 100)}</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Current Savings Rate</span>
             <p class="fa-script-copy-subtle">Annual contribution / income</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-blue-600 dark:text-blue-400">${formatPercent(result.savingsRate)}</span>
+            <span class="font-semibold text-violet-600 dark:text-violet-400">${formatPercent(result.savingsRate)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Years to Retirement</span>
             <p class="fa-script-copy-subtle">Time remaining to save</p>
@@ -441,38 +441,38 @@ const displayResults = (result: RetirementResults): void => {
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Retirement Readiness</h4>
-          <p class="text-blue-800 dark:text-blue-200">${result.replacementRatio >= 0.8 ? "Excellent! You're on track for a comfortable retirement." : result.replacementRatio >= 0.6 ? 'Good progress! Consider increasing contributions to reach 80% replacement ratio.' : 'Consider increasing your savings rate to improve retirement readiness.'}</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Retirement Readiness</h4>
+          <p class="text-violet-800 dark:text-violet-200">${result.replacementRatio >= 0.8 ? "Excellent! You're on track for a comfortable retirement." : result.replacementRatio >= 0.6 ? 'Good progress! Consider increasing contributions to reach 80% replacement ratio.' : 'Consider increasing your savings rate to improve retirement readiness.'}</p>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Savings Strategy</h4>
-          <p class="text-green-800 dark:text-green-200">${result.savingsRate >= 15 ? "Great savings rate! You're following the 15% rule." : 'Consider increasing your savings rate to at least 15% of income for better retirement security.'}</p>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Savings Strategy</h4>
+          <p class="text-emerald-800 dark:text-emerald-200">${result.savingsRate >= 15 ? "Great savings rate! You're following the 15% rule." : 'Consider increasing your savings rate to at least 15% of income for better retirement security.'}</p>
         </div>
         
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">Time Advantage</h4>
-          <p class="text-purple-800 dark:text-purple-200">${result.yearsToRetirement >= 20 ? 'You have plenty of time to benefit from compound growth.' : result.yearsToRetirement >= 10 ? 'Time is still on your side for building wealth.' : 'Consider maximizing contributions and potentially adjusting retirement timeline.'}</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Time Advantage</h4>
+          <p class="text-violet-800 dark:text-violet-200">${result.yearsToRetirement >= 20 ? 'You have plenty of time to benefit from compound growth.' : result.yearsToRetirement >= 10 ? 'Time is still on your side for building wealth.' : 'Consider maximizing contributions and potentially adjusting retirement timeline.'}</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg shadow-lg p-6 mb-8 border border-blue-200 dark:border-blue-800">
-      <h3 class="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4">Inflation Impact</h3>
-      <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg shadow-lg p-6 mb-8 border border-violet-200 dark:border-violet-800">
+      <h3 class="text-xl font-semibold text-violet-900 dark:text-violet-100 mb-4">Inflation Impact</h3>
+      <p class="text-sm text-violet-800 dark:text-violet-200 mb-4">
         Figures adjusted using a ${formattedInflationImpact} cumulative inflation factor over ${result.yearsToRetirement} years.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 shadow-sm">
           <h4 class="fa-script-copy-muted font-medium mb-1">Nominal vs Real Balance</h4>
           <p class="fa-script-note mb-2">${formatCurrency(result.projectedBalanceAtRetirement)} → ${formatCurrency(result.inflationAdjustedBalance)}</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 shadow-sm">
           <h4 class="fa-script-copy-muted font-medium mb-1">Nominal vs Real Monthly Income</h4>
           <p class="fa-script-note mb-2">${formatCurrency(result.monthlyRetirementIncome)} → ${formatCurrency(result.realMonthlyIncome)}</p>
         </div>

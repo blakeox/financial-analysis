@@ -82,7 +82,7 @@ class CalculatorQuickAccess {
     return `
       <a 
         href="/calculator/${calculator.id}" 
-        class="block px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
+        class="block px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-md transition-colors duration-200"
       >
         <div class="flex items-center">
           <span class="mr-2">${calculator.icon}</span>
@@ -126,10 +126,10 @@ class CalculatorQuickAccess {
 
     if (isFavorite) {
       this.favoriteBtn.classList.remove(
-        'bg-gray-100',
-        'hover:bg-gray-200',
-        'dark:bg-gray-700',
-        'dark:hover:bg-gray-600'
+        'bg-slate-100',
+        'hover:bg-slate-200',
+        'dark:bg-slate-700',
+        'dark:hover:bg-slate-600'
       );
       this.favoriteBtn.classList.add(
         'bg-yellow-100',
@@ -146,10 +146,10 @@ class CalculatorQuickAccess {
         'dark:hover:bg-yellow-800'
       );
       this.favoriteBtn.classList.add(
-        'bg-gray-100',
-        'hover:bg-gray-200',
-        'dark:bg-gray-700',
-        'dark:hover:bg-gray-600'
+        'bg-slate-100',
+        'hover:bg-slate-200',
+        'dark:bg-slate-700',
+        'dark:hover:bg-slate-600'
       );
       favoriteText.textContent = 'Add to Favorites';
     }

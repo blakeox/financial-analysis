@@ -109,11 +109,11 @@ const initMortgageComparison = async () => {
 
       comparisonContent.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border-2 ${
-            winner === 'scenario1' ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'
+          <div class="bg-white dark:bg-slate-700 rounded-lg p-6 border-2 ${
+            winner === 'scenario1' ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'
           }">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💼 Scenario 1</h4>
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💼 Scenario 1</h4>
               ${
                 winner === 'scenario1'
                   ? '<span class="fa-badge-success">Best Value</span>'
@@ -122,37 +122,37 @@ const initMortgageComparison = async () => {
             </div>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Down Payment:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1Down)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Down Payment:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1Down)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Loan Amount:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1Principal)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Loan Amount:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1Principal)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Rate:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${(scenario1Rate * 100).toFixed(2)}%</span>
+                <span class="text-slate-600 dark:text-slate-300">Rate:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${(scenario1Rate * 100).toFixed(2)}%</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Monthly Payment:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1.monthlyPayment)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Monthly Payment:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1.monthlyPayment)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Total Interest:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario1.totalInterest)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Total Interest:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1.totalInterest)}</span>
               </div>
-              <div class="flex justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
-                <span class="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
-                <span class="font-bold text-lg text-gray-900 dark:text-white">${formatCurrency(scenario1TotalCost)}</span>
+              <div class="flex justify-between pt-2 border-t border-slate-300 dark:border-slate-700">
+                <span class="text-slate-900 dark:text-white font-semibold">Total Cost:</span>
+                <span class="font-bold text-lg text-slate-900 dark:text-white">${formatCurrency(scenario1TotalCost)}</span>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border-2 ${
-            winner === 'scenario2' ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'
+          <div class="bg-white dark:bg-slate-700 rounded-lg p-6 border-2 ${
+            winner === 'scenario2' ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'
           }">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white">💰 Scenario 2</h4>
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💰 Scenario 2</h4>
               ${
                 winner === 'scenario2'
                   ? '<span class="fa-badge-success">Best Value</span>'
@@ -161,54 +161,54 @@ const initMortgageComparison = async () => {
             </div>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Down Payment:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2Down)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Down Payment:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2Down)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Loan Amount:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2Principal)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Loan Amount:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2Principal)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Rate:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${(scenario2Rate * 100).toFixed(2)}%</span>
+                <span class="text-slate-600 dark:text-slate-300">Rate:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${(scenario2Rate * 100).toFixed(2)}%</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Monthly Payment:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2.monthlyPayment)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Monthly Payment:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2.monthlyPayment)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Total Interest:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(scenario2.totalInterest)}</span>
+                <span class="text-slate-600 dark:text-slate-300">Total Interest:</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2.totalInterest)}</span>
               </div>
-              <div class="flex justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
-                <span class="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
-                <span class="font-bold text-lg text-gray-900 dark:text-white">${formatCurrency(scenario2TotalCost)}</span>
+              <div class="flex justify-between pt-2 border-t border-slate-300 dark:border-slate-700">
+                <span class="text-slate-900 dark:text-white font-semibold">Total Cost:</span>
+                <span class="font-bold text-lg text-slate-900 dark:text-white">${formatCurrency(scenario2TotalCost)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-700 rounded-lg p-6 mb-4">
-          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Side-by-Side Comparison</h4>
+        <div class="bg-white dark:bg-slate-700 rounded-lg p-6 mb-4">
+          <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">📊 Side-by-Side Comparison</h4>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-violet-600 dark:text-violet-400 mb-1">
                 ${formatCurrency(Math.abs(monthlySavings))}
               </div>
               <div class="fa-script-copy-muted">
                 Monthly ${monthlySavings >= 0 ? 'Savings' : 'Difference'}
               </div>
             </div>
-            <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 ${formatCurrency(Math.abs(totalInterestSavings))}
               </div>
               <div class="fa-script-copy-muted">
                 Interest ${totalInterestSavings >= 0 ? 'Saved' : 'Difference'}
               </div>
             </div>
-            <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-violet-600 dark:text-violet-400 mb-1">
                 ${formatCurrency(Math.abs(totalCostSavings))}
               </div>
               <div class="fa-script-copy-muted">
@@ -218,18 +218,18 @@ const initMortgageComparison = async () => {
           </div>
         </div>
 
-        <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
+        <div class="bg-linear-to-r from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-emerald-200 dark:border-emerald-700">
           <div class="flex items-start">
             <div class="shrink-0">
-              <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div class="ml-4">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                 💡 Recommendation: ${winnerText}
               </h4>
-              <p class="text-gray-700 dark:text-gray-300">
+              <p class="text-slate-700 dark:text-slate-300">
                 ${winnerReason}
               </p>
             </div>

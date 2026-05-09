@@ -91,20 +91,20 @@ export const displayResults = (result: UnitEconomicsResult): void => {
   
   // Populate summary cards
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">LTV:CAC Ratio</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${result.ltvToCacRatio.toFixed(2)}:1</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Target: 3:1 or better</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">LTV:CAC Ratio</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.ltvToCacRatio.toFixed(2)}:1</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Target: 3:1 or better</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Customer LTV</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.ltv)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Lifetime value per customer</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Customer LTV</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.ltv)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Lifetime value per customer</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">CAC</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.cac)}</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Customer acquisition cost</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">CAC</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.cac)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Customer acquisition cost</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Payback Period</h5>
@@ -116,19 +116,19 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <p class="text-2xl font-bold text-pink-600 dark:text-pink-400">${result.churnRate.toFixed(1)}%</p>
       <p class="text-xs text-pink-700 dark:text-pink-300 mt-1">Target: <5%</p>
     </div>
-    <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-indigo-900 dark:text-indigo-100">Gross Margin</h5>
-      <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">${result.grossMarginPercent.toFixed(1)}%</p>
-      <p class="text-xs text-indigo-700 dark:text-indigo-300 mt-1">Target: 70%+</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Gross Margin</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.grossMarginPercent.toFixed(1)}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Target: 70%+</p>
     </div>
   `;
   
   // Overall health indicator
   const healthColors = {
-    excellent: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700',
-    good: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700',
+    excellent: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700',
+    good: 'bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 border-violet-300 dark:border-violet-700',
     'needs-improvement': 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
-    critical: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700',
+    critical: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700',
   } as const;
   
   const healthLabels = {
@@ -163,78 +163,78 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     <!-- Key Metrics -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- LTV Details -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Lifetime Value (LTV)</h4>
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Lifetime Value (LTV)</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Customer Lifetime Value</span>
-            <strong class="text-gray-900 dark:text-white">${formatCurrency(result.ltv)}</strong>
+            <strong class="text-slate-900 dark:text-white">${formatCurrency(result.ltv)}</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Customer Lifespan</span>
-            <strong class="text-gray-900 dark:text-white">${result.customerLifespanMonths.toFixed(1)} months</strong>
+            <strong class="text-slate-900 dark:text-white">${result.customerLifespanMonths.toFixed(1)} months</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Contribution Margin/Month</span>
-            <strong class="text-gray-900 dark:text-white">${formatCurrency(result.contributionMarginPerCustomer)}</strong>
+            <strong class="text-slate-900 dark:text-white">${formatCurrency(result.contributionMarginPerCustomer)}</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Annualized Value</span>
-            <strong class="text-gray-900 dark:text-white">${formatCurrency(result.summary.annualizedCustomerValue)}</strong>
+            <strong class="text-slate-900 dark:text-white">${formatCurrency(result.summary.annualizedCustomerValue)}</strong>
           </div>
         </div>
       </div>
       
       <!-- CAC & Efficiency -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Acquisition Efficiency</h4>
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Acquisition Efficiency</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Customer Acquisition Cost</span>
-            <strong class="text-gray-900 dark:text-white">${formatCurrency(result.cac)}</strong>
+            <strong class="text-slate-900 dark:text-white">${formatCurrency(result.cac)}</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">LTV:CAC Ratio</span>
-            <strong class="text-gray-900 dark:text-white">${result.ltvToCacRatio.toFixed(2)}:1</strong>
+            <strong class="text-slate-900 dark:text-white">${result.ltvToCacRatio.toFixed(2)}:1</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Payback Period</span>
-            <strong class="text-gray-900 dark:text-white">${result.paybackPeriodMonths.toFixed(1)} months</strong>
+            <strong class="text-slate-900 dark:text-white">${result.paybackPeriodMonths.toFixed(1)} months</strong>
           </div>
           <div class="flex justify-between">
             <span class="fa-script-copy-muted">Profit Per Customer</span>
-            <strong class="${result.summary.profitPerCustomer >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(result.summary.profitPerCustomer)}</strong>
+            <strong class="${result.summary.profitPerCustomer >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(result.summary.profitPerCustomer)}</strong>
           </div>
         </div>
       </div>
     </div>
     
     <!-- Retention Metrics -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Retention & Revenue</h4>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Retention & Revenue</h4>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
           <p class="fa-script-copy-muted">Retention Rate</p>
-          <p class="text-xl font-bold text-gray-900 dark:text-white">${result.retentionRate.toFixed(1)}%</p>
+          <p class="text-xl font-bold text-slate-900 dark:text-white">${result.retentionRate.toFixed(1)}%</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">Monthly Churn</p>
-          <p class="text-xl font-bold text-gray-900 dark:text-white">${result.churnRate.toFixed(1)}%</p>
+          <p class="text-xl font-bold text-slate-900 dark:text-white">${result.churnRate.toFixed(1)}%</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">MRR</p>
-          <p class="text-xl font-bold text-gray-900 dark:text-white">${formatCurrency(result.monthlyRecurringRevenue)}</p>
+          <p class="text-xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.monthlyRecurringRevenue)}</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">ARR</p>
-          <p class="text-xl font-bold text-gray-900 dark:text-white">${formatCurrency(result.annualRecurringRevenue)}</p>
+          <p class="text-xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.annualRecurringRevenue)}</p>
         </div>
       </div>
     </div>
     
     <!-- Benchmarks -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Benchmark Comparison</h4>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Benchmark Comparison</h4>
       <div class="space-y-4">
         ${renderBenchmark('LTV:CAC Ratio', result.benchmarks.ltvCacRatio)}
         ${renderBenchmark('Payback Period (months)', result.benchmarks.payback)}
@@ -244,29 +244,29 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     </div>
     
     <!-- Cohort Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Cohort Analysis (24 Months)</h4>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Cohort Analysis (24 Months)</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">Month</th>
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Customers</th>
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Cum. Revenue</th>
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Cum. Costs</th>
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Cum. Profit</th>
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">LTV</th>
+            <tr class="border-b border-slate-200 dark:border-slate-800">
+              <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Cum. Revenue</th>
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Cum. Costs</th>
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Cum. Profit</th>
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">LTV</th>
             </tr>
           </thead>
           <tbody>
             ${result.cohortAnalysis.slice(0, 24).map((cohort: CohortAnalysisRow) => `
-              <tr class="border-b border-gray-100 dark:border-gray-800 ${cohort.cumulativeProfit >= 0 ? 'bg-green-50 dark:bg-green-900/10' : ''}">
-                <td class="py-2 px-3 text-gray-900 dark:text-white">${cohort.month}</td>
-                <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${cohort.customersRemaining.toFixed(1)}</td>
-                <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(cohort.cumulativeRevenue)}</td>
-                <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(cohort.cumulativeCosts)}</td>
-                <td class="text-right py-2 px-3 ${cohort.cumulativeProfit >= 0 ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-red-600 dark:text-red-400'}">${formatCurrency(cohort.cumulativeProfit)}</td>
-                <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(cohort.lifetimeValue)}</td>
+              <tr class="border-b border-slate-100 dark:border-slate-800 ${cohort.cumulativeProfit >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''}">
+                <td class="py-2 px-3 text-slate-900 dark:text-white">${cohort.month}</td>
+                <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${cohort.customersRemaining.toFixed(1)}</td>
+                <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(cohort.cumulativeRevenue)}</td>
+                <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(cohort.cumulativeCosts)}</td>
+                <td class="text-right py-2 px-3 ${cohort.cumulativeProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(cohort.cumulativeProfit)}</td>
+                <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(cohort.lifetimeValue)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -279,11 +279,11 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     
     <!-- Insights -->
     ${result.insights.length > 0 ? `
-      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
+      <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
         <ul class="space-y-2">
           ${result.insights.map((insight: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${insight}</li>
+            <li class="text-slate-700 dark:text-slate-300">${insight}</li>
           `).join('')}
         </ul>
       </div>
@@ -291,11 +291,11 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     
     <!-- Warnings -->
     ${result.warnings.length > 0 ? `
-      <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-6 border-l-4 border-red-500">
-        <h4 class="text-lg font-semibold mb-4 text-red-900 dark:text-red-100">⚠️ Warnings</h4>
+      <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 mb-6 border-l-4 border-rose-500">
+        <h4 class="text-lg font-semibold mb-4 text-rose-900 dark:text-rose-100">⚠️ Warnings</h4>
         <ul class="space-y-2">
           ${result.warnings.map((warning: string) => `
-            <li class="text-red-700 dark:text-red-300">${warning}</li>
+            <li class="text-rose-700 dark:text-rose-300">${warning}</li>
           `).join('')}
         </ul>
       </div>
@@ -303,11 +303,11 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     
     <!-- Recommendations -->
     ${result.recommendations.length > 0 ? `
-      <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
-        <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Recommendations</h4>
+      <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-6">
+        <h4 class="text-lg font-semibold mb-4 text-emerald-900 dark:text-emerald-100">💡 Recommendations</h4>
         <ul class="space-y-2">
           ${result.recommendations.map((rec: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${rec}</li>
+            <li class="text-slate-700 dark:text-slate-300">${rec}</li>
           `).join('')}
         </ul>
       </div>
@@ -326,9 +326,9 @@ function renderBenchmark(
   benchmark: { your: number; target: number; status: 'good' | 'warning' | 'poor' }
 ): string {
   const statusColors = {
-    good: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
+    good: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200',
     warning: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
-    poor: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200',
+    poor: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200',
   };
   
   const statusIcons = {
@@ -338,8 +338,8 @@ function renderBenchmark(
   };
   
   return `
-    <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-      <span class="text-gray-700 dark:text-gray-300">${label}</span>
+    <div class="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-800 last:border-0">
+      <span class="text-slate-700 dark:text-slate-300">${label}</span>
       <div class="flex items-center gap-4">
         <div class="text-right">
           <p class="fa-script-copy-muted">Your: ${benchmark.your.toFixed(1)}</p>

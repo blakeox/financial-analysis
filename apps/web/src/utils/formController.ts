@@ -62,9 +62,9 @@ export function createModelFormController(formId: string, config: FormController
         const fieldValid = validateField(input, rule);
         if (!fieldValid) {
           isValid = false;
-          input.classList.add('border-red-500');
+          input.classList.add('border-rose-500');
         } else {
-          input.classList.remove('border-red-500');
+          input.classList.remove('border-rose-500');
         }
       }
     });
@@ -101,7 +101,7 @@ export function createModelFormController(formId: string, config: FormController
       errorElement = document.createElement('div');
       errorElement.id = 'form-error';
       errorElement.className =
-        'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+        'mb-4 rounded border border-rose-400 bg-rose-100 px-4 py-3 text-rose-700';
       form.insertBefore(errorElement, form.firstChild);
     }
 
@@ -135,8 +135,8 @@ export function createModelFormController(formId: string, config: FormController
         form.reset();
 
         // Clear validation errors
-        form.querySelectorAll('.border-red-500').forEach((element) => {
-          element.classList.remove('border-red-500');
+        form.querySelectorAll('.border-rose-500').forEach((element) => {
+          element.classList.remove('border-rose-500');
         });
 
         const errorElement = document.getElementById('form-error');
@@ -157,7 +157,6 @@ export function createModelFormController(formId: string, config: FormController
     getFormData,
   };
 }
-
 
 
 

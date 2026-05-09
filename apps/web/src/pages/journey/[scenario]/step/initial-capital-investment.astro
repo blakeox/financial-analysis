@@ -131,20 +131,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="totalInvestment" class="fa-field-label mb-2">
-                  Total Investment Amount <span class="text-red-500">*</span>
+                  Total Investment Amount <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="totalInvestment" name="totalInvestment" required
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="1000000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Total amount of initial capital investment</p>
               </div>
               
               <div>
                 <label for="investmentTimeline" class="fa-field-label mb-2">
-                  Investment Timeline <span class="text-red-500">*</span>
+                  Investment Timeline <span class="text-rose-500">*</span>
                 </label>
                 <select id="investmentTimeline" name="investmentTimeline" required
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        class="fa-input-surface w-full">
                   <option value="">Select timeline</option>
                   <option value="immediate">Immediate (0-3 months)</option>
                   <option value="short-term">Short-term (3-6 months)</option>
@@ -165,7 +165,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Founder Investment
                 </label>
                 <input type="number" id="founderInvestment" name="founderInvestment"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="200000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Amount invested by founders</p>
               </div>
@@ -175,7 +175,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Angel Investment
                 </label>
                 <input type="number" id="angelInvestment" name="angelInvestment"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="300000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Amount from angel investors</p>
               </div>
@@ -185,7 +185,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   VC Investment
                 </label>
                 <input type="number" id="vcInvestment" name="vcInvestment"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="500000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Amount from venture capital</p>
               </div>
@@ -195,7 +195,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Other Sources
                 </label>
                 <input type="number" id="otherInvestment" name="otherInvestment"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="0" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Grants, loans, or other sources</p>
               </div>
@@ -211,7 +211,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Product Development
                 </label>
                 <input type="number" id="productDevelopment" name="productDevelopment"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="300000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">R&D, engineering, design</p>
               </div>
@@ -221,7 +221,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Marketing & Sales
                 </label>
                 <input type="number" id="marketingSales" name="marketingSales"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="200000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Customer acquisition, branding</p>
               </div>
@@ -231,7 +231,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Operations
                 </label>
                 <input type="number" id="operations" name="operations"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="250000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Infrastructure, tools, systems</p>
               </div>
@@ -241,7 +241,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Working Capital
                 </label>
                 <input type="number" id="workingCapital" name="workingCapital"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="250000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Cash reserves, inventory</p>
               </div>
@@ -257,7 +257,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Equity Offered (%)
                 </label>
                 <input type="number" id="equityOffered" name="equityOffered"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="20" min="0" max="100" step="0.1">
                 <p class="fa-help-copy mt-1">Percentage of company equity</p>
               </div>
@@ -267,7 +267,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   Company Valuation
                 </label>
                 <input type="number" id="valuation" name="valuation"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                        placeholder="5000000" min="0" step="1000">
                 <p class="fa-help-copy mt-1">Pre-money valuation</p>
               </div>
@@ -503,13 +503,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         // Show success message
         saveBtn.textContent = '✓ Saved!';
-        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
         saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Capital Investment Plan';
           saveBtn.classList.remove('fa-button-success-state');
-          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }, 2000);
 
         // Dispatch completion event

@@ -276,20 +276,20 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
   const bestStrategy = strategies.reduce((best, current) => current.totalInterest < best.totalInterest ? current : best);
 
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Your Plan</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${result.currentStrategy.monthsToPayoff} mo</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${formatCurrency(result.currentStrategy.totalInterest)} interest</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Your Plan</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.currentStrategy.monthsToPayoff} mo</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.currentStrategy.totalInterest)} interest</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Best Strategy</h5>
-      <p class="text-lg font-bold text-green-600 dark:text-green-400">${bestStrategy.name}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Save ${formatCurrency(result.recommendation.savings)}</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Best Strategy</h5>
+      <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${bestStrategy.name}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Save ${formatCurrency(result.recommendation.savings)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Utilization</h5>
-      <p class="text-2xl font-bold ${result.utilization.current > 50 ? 'text-red-600 dark:text-red-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">${result.utilization.current.toFixed(0)}%</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">→ ${result.utilization.after6Months.toFixed(0)}% in 6mo</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Utilization</h5>
+      <p class="text-2xl font-bold ${result.utilization.current > 50 ? 'text-rose-600 dark:text-rose-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.utilization.current.toFixed(0)}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">→ ${result.utilization.after6Months.toFixed(0)}% in 6mo</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Min Payment Trap</h5>
@@ -300,48 +300,48 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-emerald-200 dark:border-emerald-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommended Strategy
       </h2>
-      <p class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
+      <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
       <p class="fa-script-copy-strong">${result.recommendation.reasoning}</p>
     </div>
     
     <!-- Credit Utilization Impact -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📊</span> Credit Utilization Impact
       </h2>
       <p class="fa-script-copy-muted mb-4">${result.utilization.creditScoreImpact}</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Current</p>
-          <p class="text-3xl font-bold ${result.utilization.current > 50 ? 'text-red-600 dark:text-red-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">${result.utilization.current.toFixed(0)}%</p>
+          <p class="text-3xl font-bold ${result.utilization.current > 50 ? 'text-rose-600 dark:text-rose-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.utilization.current.toFixed(0)}%</p>
           <p class="fa-script-note mt-1">${formatCurrency(input.balance)} / ${formatCurrency(input.creditLimit)}</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">After 6 Months</p>
-          <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${result.utilization.after6Months.toFixed(0)}%</p>
+          <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.utilization.after6Months.toFixed(0)}%</p>
           <p class="fa-script-note mt-1">With current payments</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">After Payoff</p>
-          <p class="text-3xl font-bold text-green-600 dark:text-green-400">0%</p>
+          <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">0%</p>
           <p class="fa-script-note mt-1">+50-100 point boost</p>
         </div>
       </div>
       
-      <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4">
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <div class="flex justify-between text-sm mb-2">
           <span class="fa-script-copy-muted">Utilization Progress</span>
           <span class="font-semibold">${result.utilization.current.toFixed(0)}% → 0%</span>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-          <div class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-3 rounded-full" style="width: ${result.utilization.current}%"></div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+          <div class="bg-gradient-to-r from-rose-500 via-yellow-500 to-emerald-500 h-3 rounded-full" style="width: ${result.utilization.current}%"></div>
         </div>
         <p class="fa-script-note mt-2">
           🎯 Goal: Get below 30% for optimal credit score. Below 10% is excellent.
@@ -350,7 +350,7 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     </div>
     
     <!-- Strategy Comparison -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>⚖️</span> Payoff Strategy Comparison
       </h2>
@@ -360,10 +360,10 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
           const isBest = strategy.name === bestStrategy.name;
           const isMinimum = strategy.name === 'Minimum Payments Only';
           return `
-            <div class="border-2 ${isBest ? 'border-green-500' : isMinimum ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'} rounded-lg p-4">
+            <div class="border-2 ${isBest ? 'border-emerald-500' : isMinimum ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST</div>' : ''}
               ${isMinimum ? '<div class="fa-chip fa-chip-danger mb-3">⚠️ WORST</div>' : ''}
-              <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-3">${strategy.name}</h3>
+              <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">${strategy.name}</h3>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Monthly Payment</span>
@@ -375,10 +375,10 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
                 </div>
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Total Interest</span>
-                  <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(strategy.totalInterest)}</span>
+                  <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(strategy.totalInterest)}</span>
                 </div>
-                <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
-                  <span class="text-gray-900 dark:text-white font-medium">Total Paid</span>
+                <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
+                  <span class="text-slate-900 dark:text-white font-medium">Total Paid</span>
                   <span class="font-bold">${formatCurrency(strategy.totalPaid)}</span>
                 </div>
               </div>
@@ -390,15 +390,15 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     
     ${input.balanceTransferOffer && result.balanceTransfer ? `
     <!-- Balance Transfer Analysis -->
-    <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-gradient-to-br from-violet-50 to-pink-50 dark:from-violet-900/20 dark:to-pink-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🔄</span> Balance Transfer Analysis
       </h2>
       <p class="fa-script-copy-muted mb-4">${input.transferAPR === 0 ? '0% APR' : `${input.transferAPR}% APR`} for ${input.transferPromoPeriod} months</p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Transfer Details</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Transfer Details</h4>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Original Balance</span>
@@ -406,21 +406,21 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Transfer Fee (${input.transferFee}%)</span>
-              <span class="text-red-600 dark:text-red-400">+${formatCurrency(input.balance * (input.transferFee / 100))}</span>
+              <span class="text-rose-600 dark:text-rose-400">+${formatCurrency(input.balance * (input.transferFee / 100))}</span>
             </div>
-            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
+            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
               <span class="font-medium">New Balance</span>
               <span class="font-semibold">${formatCurrency(input.balance * (1 + input.transferFee / 100))}</span>
             </div>
           </div>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Savings vs Current</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Savings vs Current</h4>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Interest Saved</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(result.currentStrategy.totalInterest - result.balanceTransfer.totalInterest)}</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.currentStrategy.totalInterest - result.balanceTransfer.totalInterest)}</span>
             </div>
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Months Saved</span>
@@ -430,9 +430,9 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
         </div>
       </div>
       
-      <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border-l-4 border-red-500">
-        <h5 class="font-semibold text-red-900 dark:text-red-100 mb-2">⚠️ Critical: Pay Off During Promo Period!</h5>
-        <p class="text-sm text-red-800 dark:text-red-200">
+      <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-4 border-l-4 border-rose-500">
+        <h5 class="font-semibold text-rose-900 dark:text-rose-100 mb-2">⚠️ Critical: Pay Off During Promo Period!</h5>
+        <p class="text-sm text-rose-800 dark:text-rose-200">
           You MUST pay off the balance within ${input.transferPromoPeriod} months or the rate jumps to ~20%+ APR. 
           Required monthly payment: ${formatCurrency((input.balance * (1 + input.transferFee / 100)) / input.transferPromoPeriod)} to pay off in time.
         </p>
@@ -441,11 +441,11 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     ` : ''}
     
     <!-- Minimum Payment Warning -->
-    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 border-l-4 border-red-500">
-      <h2 class="text-xl font-semibold mb-3 flex items-center gap-2 text-red-900 dark:text-red-100">
+    <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 border-l-4 border-rose-500">
+      <h2 class="text-xl font-semibold mb-3 flex items-center gap-2 text-rose-900 dark:text-rose-100">
         <span>⚠️</span> The Minimum Payment Trap
       </h2>
-      <div class="space-y-3 text-sm text-red-800 dark:text-red-200">
+      <div class="space-y-3 text-sm text-rose-800 dark:text-rose-200">
         <p>
           If you only pay the minimum (${formatCurrency(result.minimumOnly.monthlyPayment)}/month), it will take <strong>${result.minimumOnly.monthsToPayoff} months (${(result.minimumOnly.monthsToPayoff / 12).toFixed(1)} years)</strong> to pay off.
         </p>

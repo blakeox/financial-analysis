@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
   return (
     <nav
       className={cn(
-        'supports-backdrop-blur:bg-white/70 bg-white/80 dark:bg-gray-900/70 backdrop-blur border-b border-gray-200/70 dark:border-gray-800/60',
+        'supports-backdrop-blur:bg-white/70 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800/60 dark:bg-slate-950/70',
         sticky && 'sticky top-0 z-50',
         scrolled && 'shadow-sm',
         className
@@ -92,9 +92,9 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
             <a
               href="/"
               aria-label="Home"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
             >
-              <Coffee className="h-5 w-5 text-gray-900 dark:text-white" aria-hidden="true" />
+              <Coffee className="h-5 w-5 text-slate-900 dark:text-white" aria-hidden="true" />
             </a>
             {/* Desktop nav (md and up) */}
             <div className="hidden md:flex items-center gap-1 ml-2">
@@ -106,10 +106,10 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70',
+                      'rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70',
                       active
-                        ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-400/10'
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
+                        ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-300'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
                     )}
                   >
                     {item.name}
@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
             <div className="flex md:hidden">
               <button
                 type="button"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300/70 dark:border-gray-700/60 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/70 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
                 onClick={() => setMobileMenuOpen((v) => !v)}
                 aria-controls={menuId}
                 aria-expanded={mobileMenuOpen ? 'true' : 'false'}
@@ -155,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
       {mobileMenuOpen && (
         <div
           id={menuId}
-          className="md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800"
+          className="fixed inset-x-0 top-16 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95 md:hidden"
           role="region"
           aria-label="Mobile primary navigation"
         >
@@ -168,10 +168,10 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'block rounded-md px-3 py-2 text-base font-medium transition-colors',
+                    'block rounded-xl px-3 py-2 text-base font-medium transition-colors',
                     active
-                      ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-400/10'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
+                      ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-300'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
                   )}
                   onClick={() => setMobileMenuOpen(false)}
                 >

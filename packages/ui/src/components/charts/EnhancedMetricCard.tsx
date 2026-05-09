@@ -20,14 +20,14 @@ export function EnhancedMetricCard({
   formatter,
   invertTrendColors = false,
   icon,
-  colorClass = 'text-blue-600 dark:text-blue-400',
+  colorClass = 'text-violet-600 dark:text-violet-300',
 }: EnhancedMetricCardProps) {
   return (
-    <Card>
+    <Card variant="interactive">
       <CardContent className="p-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</div>
+            <div className="text-sm font-medium text-slate-600 dark:text-slate-300">{title}</div>
             {icon && <span className="text-xl">{icon}</span>}
           </div>
           <div className={`text-2xl font-bold ${colorClass}`}>
@@ -41,7 +41,7 @@ export function EnhancedMetricCard({
                 invertColors={invertTrendColors}
               />
               {trendLabel && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">{trendLabel}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">{trendLabel}</span>
               )}
             </div>
           )}

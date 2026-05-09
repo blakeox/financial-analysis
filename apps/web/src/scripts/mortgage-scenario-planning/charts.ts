@@ -161,7 +161,7 @@ export function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📊</span> Visual Payment Breakdown
       </h2>
@@ -350,7 +350,7 @@ export function renderTotalCostComparisonChart(scenarios: Scenario[]): string {
   const chartHeight = scenarios.length * 56 + 60;
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>💰</span> Total Cost Comparison
       </h2>
@@ -358,11 +358,11 @@ export function renderTotalCostComparisonChart(scenarios: Scenario[]): string {
       <canvas id="${canvasId}" class="w-full" style="height: ${chartHeight}px;"></canvas>
       <div class="mt-4 flex flex-wrap gap-4 fa-script-note">
         <div class="flex items-center gap-2">
-          <span class="inline-block w-3 h-3 rounded-full bg-green-500"></span>
+          <span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span>
           <span>Best Value (Lowest Total Cost)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-red-500 font-semibold">+$XXk</span>
+          <span class="text-rose-500 font-semibold">+$XXk</span>
           <span>Additional cost vs. best option</span>
         </div>
       </div>
@@ -458,7 +458,7 @@ export function renderPayoffTimelineChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>⏳</span> Payoff Timeline Comparison
       </h2>
@@ -633,7 +633,7 @@ export function renderEquityGrowthChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Equity Growth Over Time
       </h2>
@@ -728,7 +728,7 @@ export function renderMonthlyBreakdownCharts(scenarios: Scenario[]): string {
         <canvas id="${canvasId}" class="mx-auto" style="width: 140px; height: 140px;"></canvas>
         <div class="mt-2 flex justify-center gap-3 text-xs">
           <span class="flex items-center gap-1">
-            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+            <span class="w-2 h-2 bg-violet-500 rounded-full"></span>
             Principal
           </span>
           <span class="flex items-center gap-1">
@@ -737,7 +737,7 @@ export function renderMonthlyBreakdownCharts(scenarios: Scenario[]): string {
           </span>
           ${scenario.hasPMI ? `
             <span class="flex items-center gap-1">
-              <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+              <span class="w-2 h-2 bg-rose-500 rounded-full"></span>
               PMI
             </span>
           ` : ''}
@@ -747,7 +747,7 @@ export function renderMonthlyBreakdownCharts(scenarios: Scenario[]): string {
   }).join('');
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🥧</span> Monthly Payment Breakdown
       </h2>

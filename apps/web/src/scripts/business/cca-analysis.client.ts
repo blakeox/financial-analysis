@@ -34,67 +34,67 @@ class CCAnalysisCalculator {
 
     const newPeer = document.createElement('div');
     newPeer.className =
-      'grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg';
+      'grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     newPeer.innerHTML = `
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+        <label class="fa-field-label mb-2">Name</label>
         <input
           type="text"
           name="peerName"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="Peer Co."
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Market Cap ($M)</label>
+        <label class="fa-field-label mb-2">Market Cap ($M)</label>
         <input
           type="number"
           name="peerMarketCap"
           min="0"
           step="1"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="100"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EV ($M)</label>
+        <label class="fa-field-label mb-2">EV ($M)</label>
         <input
           type="number"
           name="peerEnterpriseValue"
           min="0"
           step="1"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="120"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Revenue ($M)</label>
+        <label class="fa-field-label mb-2">Revenue ($M)</label>
         <input
           type="number"
           name="peerRevenue"
           min="0"
           step="1"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="50"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EBITDA ($M)</label>
+        <label class="fa-field-label mb-2">EBITDA ($M)</label>
         <input
           type="number"
           name="peerEbitda"
           step="1"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="10"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Net Income ($M)</label>
+        <label class="fa-field-label mb-2">Net Income ($M)</label>
         <input
           type="number"
           name="peerNetIncome"
           step="1"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="5"
         />
       </div>
@@ -215,8 +215,8 @@ class CCAnalysisCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">CCA Analysis Complete</h3>
-          <p class="text-gray-700 dark:text-gray-300">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">CCA Analysis Complete</h3>
+          <p class="text-slate-700 dark:text-slate-300">
             Your comparable company analysis is complete. Use the AI assistant to get detailed recommendations and valuation insights.
           </p>
         </div>

@@ -93,8 +93,8 @@ export function generateInsights(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
-              <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${insight.description}</p>
+              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${insight.title}</h4>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${insight.description}</p>
             </div>
             <div class="flex items-center space-x-2 ml-4">
               <span class="px-2 py-1 text-xs rounded-full ${
@@ -169,14 +169,14 @@ export function generateInsights(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${insight.title}</h4>
-          <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${insight.description}</p>
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${insight.title}</h4>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${insight.description}</p>
         </div>
         <span class="inline-block px-2 py-1 text-xs rounded-full ${insight.impact === 'high' ? 'fa-chip fa-chip-danger' : 'fa-chip fa-chip-warning'}">
           ${insight.impact} impact
         </span>
       </div>
-      <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">${insight.actionable}</p>
+      <p class="text-xs text-violet-600 dark:text-violet-400 font-medium mt-2">${insight.actionable}</p>
     </div>
   `
     )
@@ -200,8 +200,8 @@ export function generateRecommendations(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
-              <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${rec.description}</p>
+              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${rec.title}</h4>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">${rec.description}</p>
               <div class="flex items-center justify-between">
                 <div class="flex space-x-2">
                   <span class="px-2 py-1 text-xs rounded-full ${
@@ -219,7 +219,7 @@ export function generateRecommendations(
                 </div>
                 ${
                   typeof rec.potentialSavings === 'number'
-                    ? `<span class="text-sm font-semibold text-green-600 dark:text-green-400">$${rec.potentialSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>`
+                    ? `<span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">$${rec.potentialSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>`
                     : ''
                 }
               </div>
@@ -307,8 +307,8 @@ export function generateRecommendations(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${rec.title}</h4>
-          <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${rec.description}</p>
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${rec.title}</h4>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">${rec.description}</p>
           <div class="flex items-center justify-between">
             <div class="flex space-x-2">
               <span class="px-2 py-1 text-xs rounded-full ${rec.priority === 'high' ? 'fa-chip fa-chip-danger' : rec.priority === 'medium' ? 'fa-chip fa-chip-warning' : 'fa-chip fa-chip-success'}">
@@ -318,7 +318,7 @@ export function generateRecommendations(
                 ${rec.effort} effort
               </span>
             </div>
-            <span class="text-sm font-semibold text-green-600 dark:text-green-400">${rec.savings}</span>
+            <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">${rec.savings}</span>
           </div>
         </div>
       </div>
@@ -344,7 +344,7 @@ export function generateRiskAssessment(
     riskAssessment.innerHTML = `
       <div class="fa-subcard p-4">
         <div class="flex items-center justify-between mb-4">
-          <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Level</h4>
+          <h4 class="font-semibold text-slate-900 dark:text-white">Overall Risk Level</h4>
           <span class="px-3 py-1 text-sm rounded-full ${
             overall === 'high'
               ? 'fa-chip fa-chip-danger'
@@ -363,10 +363,10 @@ export function generateRiskAssessment(
                   <span class="fa-script-copy-muted">${factor.factor}</span>
                   <span class="text-sm font-medium ${
                     factor.risk === 'high'
-                      ? 'text-red-600 dark:text-red-400'
+                      ? 'text-rose-600 dark:text-rose-400'
                       : factor.risk === 'medium'
                         ? 'text-yellow-600 dark:text-yellow-400'
-                        : 'text-green-600 dark:text-green-400'
+                        : 'text-emerald-600 dark:text-emerald-400'
                   }">
                     ${factor.description}
                   </span>
@@ -427,7 +427,7 @@ export function generateRiskAssessment(
   riskAssessment.innerHTML = `
     <div class="fa-subcard p-4">
       <div class="flex items-center justify-between mb-4">
-        <h4 class="font-semibold text-gray-900 dark:text-white">Overall Risk Assessment</h4>
+        <h4 class="font-semibold text-slate-900 dark:text-white">Overall Risk Assessment</h4>
         <span class="px-3 py-1 text-sm rounded-full ${overallRisk === 'high' ? 'fa-chip fa-chip-danger' : overallRisk === 'medium' ? 'fa-chip fa-chip-warning' : 'fa-chip fa-chip-success'}">
           ${overallRisk.toUpperCase()} RISK
         </span>
@@ -438,7 +438,7 @@ export function generateRiskAssessment(
             (factor) => `
               <div class="flex justify-between items-center">
                 <span class="fa-script-copy-muted">${factor.factor}</span>
-                <span class="text-sm font-medium ${factor.risk === 'high' ? 'text-red-600 dark:text-red-400' : factor.risk === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}">
+                <span class="text-sm font-medium ${factor.risk === 'high' ? 'text-rose-600 dark:text-rose-400' : factor.risk === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">
                   ${factor.description}
                 </span>
               </div>
@@ -479,20 +479,20 @@ export function generateOptimizationOpportunities(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
-              <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${opp.description}</p>
+              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${opp.area}</h4>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${opp.description}</p>
               <div class="flex items-center space-x-4 text-sm">
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400">Current:</span>
+                  <span class="text-slate-500 dark:text-slate-400">Current:</span>
                   <span class="font-medium">${renderOptimizationValue(opp.currentValue)}</span>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400">Optimized:</span>
-                  <span class="font-medium text-green-600 dark:text-green-400">${renderOptimizationValue(opp.optimizedValue)}</span>
+                  <span class="text-slate-500 dark:text-slate-400">Optimized:</span>
+                  <span class="font-medium text-emerald-600 dark:text-emerald-400">${renderOptimizationValue(opp.optimizedValue)}</span>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400">Impact:</span>
-                  <span class="font-medium text-blue-600 dark:text-blue-400">${renderOptimizationValue(opp.potentialImprovement)}</span>
+                  <span class="text-slate-500 dark:text-slate-400">Impact:</span>
+                  <span class="font-medium text-violet-600 dark:text-violet-400">${renderOptimizationValue(opp.potentialImprovement)}</span>
                 </div>
               </div>
             </div>
@@ -534,20 +534,20 @@ export function generateOptimizationOpportunities(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${opp.area}</h4>
-          <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${opp.description}</p>
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${opp.area}</h4>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${opp.description}</p>
           <div class="flex items-center space-x-4">
             <div class="text-sm">
-              <span class="text-gray-500 dark:text-gray-400">Current:</span>
+              <span class="text-slate-500 dark:text-slate-400">Current:</span>
               <span class="font-medium">${opp.currentValue === 0 ? '$0' : opp.currentValue < 1 ? `${(opp.currentValue * 100).toFixed(2)}%` : `$${opp.currentValue.toLocaleString()}`}</span>
             </div>
             <div class="text-sm">
-              <span class="text-gray-500 dark:text-gray-400">Optimized:</span>
-              <span class="font-medium text-green-600 dark:text-green-400">${opp.optimizedValue < 1 ? `${(opp.optimizedValue * 100).toFixed(2)}%` : `$${opp.optimizedValue.toLocaleString()}`}</span>
+              <span class="text-slate-500 dark:text-slate-400">Optimized:</span>
+              <span class="font-medium text-emerald-600 dark:text-emerald-400">${opp.optimizedValue < 1 ? `${(opp.optimizedValue * 100).toFixed(2)}%` : `$${opp.optimizedValue.toLocaleString()}`}</span>
             </div>
             <div class="text-sm">
-              <span class="text-gray-500 dark:text-gray-400">Savings:</span>
-              <span class="font-medium text-blue-600 dark:text-blue-400">$${opp.potentialImprovement.toLocaleString()}</span>
+              <span class="text-slate-500 dark:text-slate-400">Savings:</span>
+              <span class="font-medium text-violet-600 dark:text-violet-400">$${opp.potentialImprovement.toLocaleString()}</span>
             </div>
           </div>
         </div>

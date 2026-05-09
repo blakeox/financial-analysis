@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
+import { inputClasses } from '../../lib/classNames';
 
 export type PercentFieldProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -22,11 +23,11 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
     const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-2">
         {label && (
           <label
             htmlFor={fieldId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
           >
             {label}
           </label>
@@ -40,23 +41,25 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
             aria-invalid={Boolean(error)}
             aria-describedby={describedBy}
             className={cn(
-              'w-full rounded-md border border-gray-300 bg-white py-2 pl-4 pr-10 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white',
-              error && 'border-red-500 focus:ring-red-500',
+              inputClasses,
+              'py-2.5 pl-4 pr-10',
+              error &&
+                'border-rose-300 focus:border-rose-500 focus:ring-rose-500/10 dark:border-rose-800 dark:focus:border-rose-500',
               className
             )}
             {...props}
           />
-          <span className="pointer-events-none absolute right-3 top-2 text-gray-500">
+          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-slate-500 dark:text-slate-400">
             {suffix}
           </span>
         </div>
         {error && (
-          <p id={errorId} className="text-sm text-red-600 dark:text-red-400" role="alert">
+          <p id={errorId} className="text-sm text-rose-600 dark:text-rose-300" role="alert">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-gray-500 dark:text-gray-400">
+          <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
             {helperText}
           </p>
         )}

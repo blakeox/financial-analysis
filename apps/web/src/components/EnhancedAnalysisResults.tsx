@@ -1,4 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@financial-analysis/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@financial-analysis/ui';
 import React, { useEffect, useState } from 'react';
 import { FinancialAnalysisEngine } from '../scripts/analysis/financial-analysis-engine';
 
@@ -285,11 +292,11 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   const getImpactColor = (impact: 'low' | 'medium' | 'high'): string => {
     switch (impact) {
       case 'high':
-        return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
+        return 'text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/20';
       case 'medium':
-        return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20';
+        return 'text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/20';
       case 'low':
-        return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
+        return 'text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/20';
       default:
         return 'fa-chip-muted';
     }
@@ -298,11 +305,11 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   const getPriorityColor = (priority: 'low' | 'medium' | 'high'): string => {
     switch (priority) {
       case 'high':
-        return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
+        return 'text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/20';
       case 'medium':
-        return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20';
+        return 'text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/20';
       case 'low':
-        return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
+        return 'text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/20';
       default:
         return 'fa-chip-muted';
     }
@@ -317,7 +324,8 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         {summaryEntries.map(([key, value]) => (
           <Card
             key={key}
-            className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
+            variant="interactive"
+            className="bg-linear-to-br from-violet-50 to-emerald-50 dark:from-violet-950/25 dark:to-emerald-950/20"
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -401,9 +409,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="fa-scenario-title mb-1">
-                    {insight.title}
-                  </h4>
+                  <h4 className="fa-scenario-title mb-1">{insight.title}</h4>
                   <p className="fa-list-copy">{insight.description}</p>
                 </div>
                 <div className="ml-4 flex items-center space-x-2">
@@ -412,11 +418,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   >
                     {insight.impact.toUpperCase()}
                   </span>
-                  {insight.actionable && (
-                      <span className="fa-chip fa-chip-accent">
-                        ACTIONABLE
-                      </span>
-                  )}
+                  {insight.actionable && <span className="fa-chip fa-chip-accent">ACTIONABLE</span>}
                 </div>
               </div>
             </div>
@@ -439,9 +441,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           {analysis.recommendations.map((recommendation, index) => (
             <div key={index} className="fa-subcard p-4">
               <div className="flex items-start justify-between mb-2">
-                <h4 className="fa-scenario-title">
-                  {recommendation.title}
-                </h4>
+                <h4 className="fa-scenario-title">{recommendation.title}</h4>
                 <div className="flex items-center space-x-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(recommendation.priority)}`}
@@ -457,7 +457,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               <div className="flex items-center justify-between fa-meta-copy text-sm">
                 <span>Effort: {recommendation.effort}</span>
                 {recommendation.potentialSavings && (
-                  <span className="font-medium text-green-600 dark:text-green-400">
+                  <span className="font-medium text-emerald-600 dark:text-emerald-300">
                     Potential Savings: {formatCurrency(recommendation.potentialSavings)}
                   </span>
                 )}
@@ -522,11 +522,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
           {analysis.optimizationOpportunities.map((opportunity, index) => (
             <div
               key={index}
-              className="p-4 bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700"
+              className="rounded-lg border border-emerald-200 bg-linear-to-r from-emerald-50 to-violet-50 p-4 dark:border-emerald-800 dark:from-emerald-950/20 dark:to-violet-950/20"
             >
-              <h4 className="fa-scenario-title mb-2">
-                {opportunity.area}
-              </h4>
+              <h4 className="fa-scenario-title mb-2">{opportunity.area}</h4>
               <p className="fa-list-copy mb-3">{opportunity.description}</p>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
@@ -548,7 +546,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                 </div>
                 <div>
                   <span className="fa-meta-copy">Improvement:</span>
-                  <p className="font-medium text-green-600 dark:text-green-400">
+                  <p className="font-medium text-emerald-600 dark:text-emerald-300">
                     {formatCurrency(opportunity.potentialImprovement)}
                   </p>
                 </div>
@@ -570,10 +568,10 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
   if (isLoading) {
     return (
-      <Card className={`shadow-lg ${className}`}>
+      <Card variant="elevated" className={`shadow-lg ${className}`}>
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
             <span className="ml-3 fa-meta-copy">Generating analysis...</span>
           </div>
         </CardContent>
@@ -584,7 +582,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   if (!analysis) {
     return (
       <div className={`enhanced-analysis-results ${className}`}>
-        <Card className="shadow-lg">
+        <Card variant="elevated" className="shadow-lg">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
@@ -597,11 +595,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   {modelType.replace(/([A-Z])/g, ' $1').trim()}
                 </CardDescription>
               </div>
-              <button
+              <Button
                 type="button"
                 aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="fa-shell-icon-button h-9 w-9 transition-transform"
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 rounded-full p-0 transition-transform"
               >
                 <svg
                   className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -616,7 +616,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-              </button>
+              </Button>
             </div>
           </CardHeader>
 
@@ -625,7 +625,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               {/* Tab Navigation */}
               <div className="flex flex-wrap gap-2 mb-6 fa-panel-divider">
                 {tabs.map((tab) => (
-                  <button
+                  <Button
                     type="button"
                     key={tab.id}
                     onClick={(e) => {
@@ -634,15 +634,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                       console.log('Tab clicked:', tab.id);
                       setActiveTab(tab.id);
                     }}
-                    className={`fa-tab-button cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
-                      activeTab === tab.id
-                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                        : 'fa-tab-inactive hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
-                    }`}
+                    variant={activeTab === tab.id ? 'primary' : 'outline'}
+                    size="sm"
+                    className="rounded-full"
                   >
                     <span className="mr-1">{tab.icon}</span>
                     {tab.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
@@ -650,9 +648,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               <div className="min-h-[400px] flex items-center justify-center">
                 <div className="text-center">
                   <div className="text-6xl mb-4">📊</div>
-                  <h3 className="fa-scenario-title mb-2">
-                    No Analysis Data Yet
-                  </h3>
+                  <h3 className="fa-scenario-title mb-2">No Analysis Data Yet</h3>
                   <p className="fa-meta-copy mb-4">
                     Run an amortization calculation to see detailed insights, recommendations, and
                     risk assessment.
@@ -668,7 +664,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
   return (
     <div className={`enhanced-analysis-results ${className}`} data-enhanced-analysis="true">
-      <Card className="shadow-lg">
+      <Card variant="elevated" className="shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
@@ -681,11 +677,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                 {modelType.replace(/([A-Z])/g, ' $1').trim()}
               </CardDescription>
             </div>
-            <button
+            <Button
               type="button"
               aria-label={isExpanded ? 'Collapse analysis' : 'Expand analysis'}
               onClick={() => setIsExpanded(!isExpanded)}
-              className="fa-shell-icon-button h-9 w-9 transition-transform"
+              variant="ghost"
+              size="sm"
+              className="h-10 w-10 rounded-full p-0 transition-transform"
             >
               <svg
                 className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -700,7 +698,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </CardHeader>
 
@@ -709,7 +707,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
             {/* Tab Navigation */}
             <div className="flex flex-wrap gap-2 mb-6 fa-panel-divider">
               {tabs.map((tab) => (
-                <button
+                <Button
                   type="button"
                   key={tab.id}
                   onClick={(e) => {
@@ -718,15 +716,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     console.log('Tab clicked:', tab.id);
                     setActiveTab(tab.id);
                   }}
-                  className={`fa-tab-button cursor-pointer border relative z-20 pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                      : 'fa-tab-inactive hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
-                  }`}
+                  variant={activeTab === tab.id ? 'primary' : 'outline'}
+                  size="sm"
+                  className="rounded-full"
                 >
                   <span className="mr-1">{tab.icon}</span>
                   {tab.label}
-                </button>
+                </Button>
               ))}
             </div>
 

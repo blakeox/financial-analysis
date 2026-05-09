@@ -38,8 +38,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
       return (
         <div className="min-h-[400px] flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="text-red-600 dark:text-red-400">
+          <div className="space-y-4 rounded-[1.5rem] border border-rose-200 bg-rose-50/80 p-8 text-center shadow-sm dark:border-rose-900/70 dark:bg-rose-950/20">
+            <div className="text-rose-600 dark:text-rose-300">
               <svg
                 className="mx-auto h-12 w-12"
                 fill="none"
@@ -54,10 +54,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
               Something went wrong
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-md">
+            <p className="max-w-md text-slate-600 dark:text-slate-300">
               An unexpected error occurred. Please try again or contact support if the problem
               persists.
             </p>

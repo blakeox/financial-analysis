@@ -3,6 +3,7 @@
  * Provides AI-powered analysis of completed financial journeys
  */
 
+import { Button, Card, CardContent, Input } from '@financial-analysis/ui';
 import { useEffect, useRef, useState } from 'react';
 import type { JourneyScenario } from '../utils/journeyData';
 
@@ -499,21 +500,21 @@ export default function JourneyAnalysisResults({
   });
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
-    if (score >= 80) return 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30';
+    if (score >= 90) return 'text-emerald-600 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950/30';
+    if (score >= 80) return 'text-violet-600 bg-violet-100 dark:text-violet-300 dark:bg-violet-950/30';
     if (score >= 70)
-      return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30';
-    return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+      return 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/30';
+    return 'text-rose-600 bg-rose-100 dark:text-rose-300 dark:bg-rose-950/30';
   };
 
   const getPriorityColor = (priority: AnalysisInsight['priority']) => {
     switch (priority) {
       case 'high':
-        return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+        return 'text-rose-600 bg-rose-100 dark:text-rose-300 dark:bg-rose-950/30';
       case 'medium':
-        return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30';
+        return 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/30';
       case 'low':
-        return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+        return 'text-emerald-600 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950/30';
       default:
         return 'fa-chip-muted';
     }
@@ -521,65 +522,69 @@ export default function JourneyAnalysisResults({
 
   if (loading) {
     return (
-      <div className={`fa-card p-8 ${className}`}>
-        <div className="text-center">
-          <div className="fa-button-primary cursor-not-allowed opacity-90">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Generating AI Analysis...
+      <Card variant="elevated" className={className}>
+        <CardContent className="p-8">
+          <div className="text-center">
+            <div className="fa-button-primary cursor-not-allowed opacity-90">
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Generating AI Analysis...
+            </div>
+            <p className="mt-4 fa-meta-copy">
+              Our AI is analyzing your journey data and generating personalized insights...
+            </p>
           </div>
-          <p className="mt-4 fa-meta-copy">
-            Our AI is analyzing your journey data and generating personalized insights...
-          </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <div className={`fa-card p-8 ${className}`}>
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-            <svg
-              className="h-6 w-6 text-red-600 dark:text-red-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
+      <Card variant="elevated" className={className}>
+        <CardContent className="p-8">
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/30">
+              <svg
+                className="h-6 w-6 text-rose-600 dark:text-rose-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 className="fa-scenario-title mb-2">Analysis Error</h3>
+            <p className="fa-meta-copy mb-4">{error}</p>
+            <Button type="button" onClick={generateJourneyAnalysis}>
+              Try Again
+            </Button>
           </div>
-          <h3 className="fa-scenario-title mb-2">Analysis Error</h3>
-          <p className="fa-meta-copy mb-4">{error}</p>
-          <button onClick={generateJourneyAnalysis} className="fa-button-primary">
-            Try Again
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -608,12 +613,8 @@ export default function JourneyAnalysisResults({
             {/* Overall Score */}
             <div className="fa-highlight-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="fa-scenario-title">
-                  Overall Journey Score
-                </h3>
-                <span
-                  className={`fa-chip-status ${getScoreColor(analysisData.overallScore)}`}
-                >
+                <h3 className="fa-scenario-title">Overall Journey Score</h3>
+                <span className={`fa-chip-status ${getScoreColor(analysisData.overallScore)}`}>
                   {analysisData.overallScore}/100
                 </span>
               </div>
@@ -623,21 +624,15 @@ export default function JourneyAnalysisResults({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
                   <div className="fa-scenario-title">Completion Time</div>
-                  <div className="fa-meta-copy">
-                    {analysisData.completionTime}
-                  </div>
+                  <div className="fa-meta-copy">{analysisData.completionTime}</div>
                 </div>
                 <div className="text-center">
                   <div className="fa-scenario-title">Data Quality</div>
-                  <div className="fa-meta-copy capitalize">
-                    {analysisData.dataQuality}
-                  </div>
+                  <div className="fa-meta-copy capitalize">{analysisData.dataQuality}</div>
                 </div>
                 <div className="text-center">
                   <div className="fa-scenario-title">Steps Completed</div>
-                  <div className="fa-meta-copy">
-                    {journeyData.models.length}
-                  </div>
+                  <div className="fa-meta-copy">{journeyData.models.length}</div>
                 </div>
               </div>
             </div>
@@ -648,9 +643,7 @@ export default function JourneyAnalysisResults({
                 <span className="mr-2">🤖</span>
                 AI Analysis Summary
               </h3>
-              <p className="fa-list-copy leading-relaxed">
-                {analysisData.aiSummary}
-              </p>
+              <p className="fa-list-copy leading-relaxed">{analysisData.aiSummary}</p>
             </div>
           </div>
         );
@@ -749,7 +742,7 @@ export default function JourneyAnalysisResults({
   };
 
   return (
-    <div className={`fa-card ${className}`}>
+    <Card variant="elevated" className={className}>
       {/* Header */}
       <div className="p-6 fa-panel-divider">
         <div className="flex items-center justify-between">
@@ -762,7 +755,7 @@ export default function JourneyAnalysisResults({
               Comprehensive analysis of your {journeyData.name} journey
             </p>
           </div>
-          <button onClick={() => setAiChatOpen(!aiChatOpen)} className="fa-button-primary">
+          <Button type="button" onClick={() => setAiChatOpen(!aiChatOpen)}>
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -772,25 +765,24 @@ export default function JourneyAnalysisResults({
               ></path>
             </svg>
             Ask AI Questions
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="fa-panel-divider">
-        <nav className="flex space-x-8 px-6">
+        <nav className="flex flex-wrap gap-2 px-6 py-4">
           {tabs.map((tab) => (
-            <button
+            <Button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent fa-tab-inactive'
-              }`}
+              variant={activeTab === tab.id ? 'primary' : 'outline'}
+              size="sm"
+              className="rounded-full"
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </nav>
       </div>
@@ -801,16 +793,17 @@ export default function JourneyAnalysisResults({
       {/* AI Chat Modal */}
       {aiChatOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="fa-card max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+          <Card variant="rail" className="max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
             <div className="p-6 fa-panel-divider">
               <div className="flex items-center justify-between">
-                <h3 className="fa-scenario-title">
-                  Ask AI About Your Journey
-                </h3>
-                <button
+                <h3 className="fa-scenario-title">Ask AI About Your Journey</h3>
+                <Button
+                  type="button"
                   onClick={() => setAiChatOpen(false)}
                   aria-label="Close AI chat panel"
-                  className="fa-shell-icon-button h-9 w-9"
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 rounded-full p-0"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -820,7 +813,7 @@ export default function JourneyAnalysisResults({
                       d="M6 18L18 6M6 6l12 12"
                     ></path>
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
             <div className="flex-1 p-6 overflow-y-auto">
@@ -846,17 +839,17 @@ export default function JourneyAnalysisResults({
             </div>
             <div className="p-6 fa-panel-divider-top">
               <div className="flex space-x-2">
-                <input
+                <Input
                   type="text"
                   placeholder="Ask a question about your journey analysis..."
-                  className="fa-input-surface flex-1"
+                  className="flex-1"
                 />
-                <button className="fa-button-primary">Send</button>
+                <Button type="button">Send</Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

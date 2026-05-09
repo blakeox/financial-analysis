@@ -76,21 +76,21 @@ class JourneyAnalysisManager {
 
     summaryContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${completedSteps}/${totalSteps}</div>
-          <div class="text-sm text-blue-800 dark:text-blue-200">Steps Completed</div>
+        <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+          <div class="text-2xl font-bold text-violet-600 dark:text-violet-400">${completedSteps}/${totalSteps}</div>
+          <div class="text-sm text-violet-800 dark:text-violet-200">Steps Completed</div>
         </div>
-        <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400">${this.analysisData.scenarioName}</div>
-          <div class="text-sm text-green-800 dark:text-green-200">Journey Type</div>
+        <div class="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+          <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${this.analysisData.scenarioName}</div>
+          <div class="text-sm text-emerald-800 dark:text-emerald-200">Journey Type</div>
         </div>
-        <div class="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">${completionPercentage}%</div>
-          <div class="text-sm text-purple-800 dark:text-purple-200">Complete</div>
+        <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+          <div class="text-2xl font-bold text-violet-600 dark:text-violet-400">${completionPercentage}%</div>
+          <div class="text-sm text-violet-800 dark:text-violet-200">Complete</div>
         </div>
       </div>
       
-      <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+      <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
         <h4 class="fa-script-title-sm mb-2">Completed Steps:</h4>
         <div class="flex flex-wrap gap-2">
           ${this.analysisData.completedSteps
@@ -121,11 +121,11 @@ class JourneyAnalysisManager {
     progressContainer.innerHTML = `
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Progress</span>
           <span class="fa-script-copy-subtle">${percentage}%</span>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
         </div>
         <div class="fa-script-copy-muted">
           ${completedSteps} of ${totalSteps} steps completed
@@ -205,20 +205,20 @@ class JourneyAnalysisManager {
 
     analysisContainer.innerHTML = `
       <div class="prose dark:prose-invert max-w-none">
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-6">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Executive Summary</h4>
-          <p class="text-blue-800 dark:text-blue-200">${analysis.summary}</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg mb-6">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Executive Summary</h4>
+          <p class="text-violet-800 dark:text-violet-200">${analysis.summary}</p>
         </div>
         
         <div class="space-y-4">
-          <h4 class="font-semibold text-gray-900 dark:text-white">Key Recommendations</h4>
+          <h4 class="font-semibold text-slate-900 dark:text-white">Key Recommendations</h4>
           <ul class="space-y-2">
             ${analysis.recommendations
               .map(
                 (rec) => `
               <li class="flex items-start">
-                <div class="shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3"></div>
-                <span class="text-gray-700 dark:text-gray-300">${rec}</span>
+                <div class="shrink-0 w-2 h-2 bg-violet-600 rounded-full mt-2 mr-3"></div>
+                <span class="text-slate-700 dark:text-slate-300">${rec}</span>
               </li>
             `
               )
@@ -241,12 +241,12 @@ class JourneyAnalysisManager {
         ${analysis.insights
           .map(
             (insight) => `
-          <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
             <div class="flex items-start">
-              <div class="shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-medium mr-3">
+              <div class="shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center text-sm font-medium mr-3">
                 💡
               </div>
-              <div class="text-gray-700 dark:text-gray-300">${insight}</div>
+              <div class="text-slate-700 dark:text-slate-300">${insight}</div>
             </div>
           </div>
         `
@@ -268,19 +268,19 @@ class JourneyAnalysisManager {
         ${analysis.keyMetrics
           .map(
             (metric) => `
-          <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${metric.label}</span>
+          <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">${metric.label}</span>
             <div class="flex items-center space-x-2">
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">${metric.value}</span>
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">${metric.value}</span>
               ${
                 metric.trend
                   ? `
                 <span class="text-xs px-2 py-1 rounded-full ${
                   metric.trend === 'up'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
                     : metric.trend === 'down'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200'
+                      : 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200'
                 }">
                   ${metric.trend === 'up' ? '↗' : metric.trend === 'down' ? '↘' : '→'}
                 </span>
@@ -310,22 +310,22 @@ class JourneyAnalysisManager {
             (item) => `
           <div class="p-3 border-l-4 ${
             item.priority === 'high'
-              ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+              ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
               : item.priority === 'medium'
                 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
-                : 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                : 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
           } rounded-r-lg">
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <p class="fa-script-title-sm">${item.task}</p>
-                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Timeline: ${item.timeline}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Timeline: ${item.timeline}</p>
               </div>
               <span class="text-xs px-2 py-1 rounded-full ${
                 item.priority === 'high'
-                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200'
                   : item.priority === 'medium'
                     ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
               }">
                 ${item.priority.toUpperCase()}
               </span>
@@ -357,7 +357,7 @@ class JourneyAnalysisManager {
     if (analysisContainer) {
       analysisContainer.innerHTML = `
         <div class="text-center py-8">
-          <div class="text-red-600 dark:text-red-400 mb-4">
+          <div class="text-rose-600 dark:text-rose-400 mb-4">
             <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>

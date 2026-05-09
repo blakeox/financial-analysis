@@ -107,10 +107,10 @@ const renderSummaryCards = (
 
   target.innerHTML = `
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-blue-600 text-white rounded-lg p-6">
+      <div class="bg-violet-600 text-white rounded-lg p-6">
         <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly payment</p>
         <p class="text-3xl font-bold">${formatCurrency(result.monthlyPayment)}</p>
-        <p class="text-xs text-blue-100/90 mt-1">Rate: ${formatNumber(payload.annualRatePercent)}%</p>
+        <p class="text-xs text-violet-100/90 mt-1">Rate: ${formatNumber(payload.annualRatePercent)}%</p>
       </div>
 
       <div class="fa-subcard p-6">
@@ -125,7 +125,7 @@ const renderSummaryCards = (
 
       <div class="fa-subcard p-6">
         <p class="fa-script-copy-subtle mb-2">Total payments</p>
-        <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">
+        <p class="text-2xl font-semibold text-violet-600 dark:text-violet-400">
           ${formatCurrency(result.totalPayments)}
         </p>
         <p class="fa-script-note mt-1">
@@ -158,20 +158,20 @@ const renderScheduleTable = (schedule: LeaseScheduleEntry[], target: HTMLElement
 
   const rows = schedule
     .map((entry) => {
-      const highlightClass = entry.month % 12 === 0 ? 'bg-blue-50 dark:bg-blue-900/10' : '';
+      const highlightClass = entry.month % 12 === 0 ? 'bg-violet-50 dark:bg-violet-900/10' : '';
       return `
         <tr class="${highlightClass}">
-          <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">${entry.month}</td>
-          <td class="px-4 py-2 text-sm text-right text-gray-900 dark:text-gray-100">
+          <td class="px-4 py-2 text-sm text-slate-900 dark:text-slate-100">${entry.month}</td>
+          <td class="px-4 py-2 text-sm text-right text-slate-900 dark:text-slate-100">
             ${formatCurrency(entry.payment)}
           </td>
-          <td class="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
+          <td class="px-4 py-2 text-sm text-right text-emerald-600 dark:text-emerald-400">
             ${formatCurrency(entry.principal)}
           </td>
           <td class="px-4 py-2 text-sm text-right text-orange-600 dark:text-orange-400">
             ${formatCurrency(entry.interest)}
           </td>
-          <td class="px-4 py-2 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
+          <td class="px-4 py-2 text-sm text-right font-medium text-slate-900 dark:text-slate-100">
             ${formatCurrency(entry.balance)}
           </td>
         </tr>
@@ -182,15 +182,15 @@ const renderScheduleTable = (schedule: LeaseScheduleEntry[], target: HTMLElement
   target.innerHTML = `
     <table class="min-w-full table-auto">
       <thead>
-        <tr class="bg-gray-50 dark:bg-gray-800">
-          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Month</th>
-          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Payment</th>
-          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Principal</th>
-          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Interest</th>
-          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Balance</th>
+        <tr class="bg-slate-50 dark:bg-slate-800">
+          <th class="px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Month</th>
+          <th class="px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Payment</th>
+          <th class="px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Principal</th>
+          <th class="px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Interest</th>
+          <th class="px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Balance</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
         ${rows}
       </tbody>
     </table>

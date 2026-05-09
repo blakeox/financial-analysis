@@ -16,17 +16,13 @@ describe('classNames', () => {
     });
 
     it('filters out falsy values', () => {
-      expect(cn('class1', false, 'class2', null, 'class3', undefined)).toBe(
-        'class1 class2 class3'
-      );
+      expect(cn('class1', false, 'class2', null, 'class3', undefined)).toBe('class1 class2 class3');
     });
 
     it('handles conditional classes with boolean', () => {
       const isActive = true;
       const isDisabled = false;
-      expect(cn('base', isActive && 'active', isDisabled && 'disabled')).toBe(
-        'base active'
-      );
+      expect(cn('base', isActive && 'active', isDisabled && 'disabled')).toBe('base active');
     });
 
     it('handles object with boolean values', () => {
@@ -40,9 +36,7 @@ describe('classNames', () => {
     });
 
     it('handles mixed string and object arguments', () => {
-      expect(
-        cn('base', { active: true, disabled: false }, 'extra')
-      ).toBe('base active extra');
+      expect(cn('base', { active: true, disabled: false }, 'extra')).toBe('base active extra');
     });
 
     it('returns empty string when all values are falsy', () => {
@@ -63,17 +57,12 @@ describe('classNames', () => {
 
     it('handles multiple objects', () => {
       expect(
-        cn(
-          { 'text-red': true, 'text-blue': false },
-          { 'font-bold': true, 'font-italic': false }
-        )
+        cn({ 'text-red': true, 'text-blue': false }, { 'font-bold': true, 'font-italic': false })
       ).toBe('text-red font-bold');
     });
 
     it('preserves order of class names', () => {
-      expect(cn('z-index-10', 'bg-white', 'text-black')).toBe(
-        'z-index-10 bg-white text-black'
-      );
+      expect(cn('z-index-10', 'bg-white', 'text-black')).toBe('z-index-10 bg-white text-black');
     });
 
     it('handles complex conditional expressions', () => {
@@ -82,13 +71,10 @@ describe('classNames', () => {
       const isPending = true;
 
       expect(
-        cn(
-          'base',
-          isActive && 'active',
-          hasError && 'error',
-          isPending && 'pending',
-          { disabled: false, loading: isPending }
-        )
+        cn('base', isActive && 'active', hasError && 'error', isPending && 'pending', {
+          disabled: false,
+          loading: isPending,
+        })
       ).toBe('base active pending loading');
     });
 
@@ -97,59 +83,51 @@ describe('classNames', () => {
     });
 
     it('handles object with all false values', () => {
-      expect(
-        cn({ class1: false, class2: false, class3: false })
-      ).toBe('');
+      expect(cn({ class1: false, class2: false, class3: false })).toBe('');
     });
 
     it('handles tailwind utility classes', () => {
-      expect(
-        cn('px-4 py-2', 'bg-blue-500', 'hover:bg-blue-700', 'rounded')
-      ).toBe('px-4 py-2 bg-blue-500 hover:bg-blue-700 rounded');
+      expect(cn('px-4 py-2', 'bg-violet-500', 'hover:bg-violet-700', 'rounded')).toBe(
+        'px-4 py-2 bg-violet-500 hover:bg-violet-700 rounded'
+      );
     });
   });
 
   describe('buttonVariants', () => {
     it('has primary variant', () => {
-      expect(buttonVariants.primary).toBe(
-        'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
-      );
+      expect(buttonVariants.primary).toContain('from-violet-600');
+      expect(buttonVariants.primary).toContain('text-white');
     });
 
     it('has secondary variant', () => {
-      expect(buttonVariants.secondary).toBe(
-        'bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white'
-      );
+      expect(buttonVariants.secondary).toContain('border');
+      expect(buttonVariants.secondary).toContain('bg-white/90');
     });
 
     it('has success variant', () => {
-      expect(buttonVariants.success).toBe(
-        'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white'
-      );
+      expect(buttonVariants.success).toContain('from-emerald-600');
     });
 
     it('has danger variant', () => {
-      expect(buttonVariants.danger).toBe(
-        'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white'
-      );
+      expect(buttonVariants.danger).toContain('from-rose-600');
     });
 
     it('has warning variant', () => {
-      expect(buttonVariants.warning).toBe(
-        'bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white'
-      );
+      expect(buttonVariants.warning).toContain('from-amber-500');
     });
 
     it('has outline variant', () => {
-      expect(buttonVariants.outline).toBe(
-        'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-      );
+      expect(buttonVariants.outline).toContain('border');
+      expect(buttonVariants.outline).toContain('hover:bg-violet-50/70');
     });
 
     it('has ghost variant', () => {
-      expect(buttonVariants.ghost).toBe(
-        'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-      );
+      expect(buttonVariants.ghost).toContain('hover:bg-slate-100/80');
+    });
+
+    it('has destructive and tertiary aliases', () => {
+      expect(buttonVariants.destructive).toContain('from-rose-600');
+      expect(buttonVariants.tertiary).toContain('hover:bg-slate-100/80');
     });
 
     it('is immutable (readonly)', () => {
@@ -159,9 +137,11 @@ describe('classNames', () => {
         'secondary',
         'success',
         'danger',
+        'destructive',
         'warning',
         'outline',
         'ghost',
+        'tertiary',
       ]);
     });
   });
@@ -169,16 +149,16 @@ describe('classNames', () => {
   describe('inputClasses', () => {
     it('contains expected input styling classes', () => {
       expect(inputClasses).toContain('w-full');
-      expect(inputClasses).toContain('px-3 py-2');
+      expect(inputClasses).toContain('px-4');
       expect(inputClasses).toContain('border');
-      expect(inputClasses).toContain('rounded-lg');
-      expect(inputClasses).toContain('focus:ring-2');
+      expect(inputClasses).toContain('rounded-2xl');
+      expect(inputClasses).toContain('focus:ring-4');
     });
 
     it('includes dark mode variants', () => {
-      expect(inputClasses).toContain('dark:bg-gray-800');
-      expect(inputClasses).toContain('dark:text-gray-100');
-      expect(inputClasses).toContain('dark:border-gray-600');
+      expect(inputClasses).toContain('dark:bg-slate-950/70');
+      expect(inputClasses).toContain('dark:text-slate-100');
+      expect(inputClasses).toContain('dark:border-slate-700');
     });
 
     it('is a single string', () => {
@@ -188,15 +168,15 @@ describe('classNames', () => {
 
   describe('cardClasses', () => {
     it('contains expected card styling classes', () => {
-      expect(cardClasses).toContain('bg-white');
-      expect(cardClasses).toContain('rounded-xl');
+      expect(cardClasses).toContain('bg-white/95');
+      expect(cardClasses).toContain('rounded-[1.5rem]');
       expect(cardClasses).toContain('border');
-      expect(cardClasses).toContain('shadow-sm');
+      expect(cardClasses).toContain('shadow-[0_18px_50px_rgba(9,14,36,0.07)]');
     });
 
     it('includes dark mode variants', () => {
-      expect(cardClasses).toContain('dark:bg-gray-800');
-      expect(cardClasses).toContain('dark:border-gray-700');
+      expect(cardClasses).toContain('dark:bg-slate-950/85');
+      expect(cardClasses).toContain('dark:border-slate-800');
     });
 
     it('is a single string', () => {
@@ -206,33 +186,24 @@ describe('classNames', () => {
 
   describe('badgeVariants', () => {
     it('has default variant', () => {
-      expect(badgeVariants.default).toBe(
-        'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-      );
+      expect(badgeVariants.default).toContain('border');
+      expect(badgeVariants.default).toContain('text-slate-600');
     });
 
     it('has primary variant', () => {
-      expect(badgeVariants.primary).toBe(
-        'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-      );
+      expect(badgeVariants.primary).toContain('bg-violet-50');
     });
 
     it('has success variant', () => {
-      expect(badgeVariants.success).toBe(
-        'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-      );
+      expect(badgeVariants.success).toContain('bg-emerald-50');
     });
 
     it('has danger variant', () => {
-      expect(badgeVariants.danger).toBe(
-        'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-      );
+      expect(badgeVariants.danger).toContain('bg-rose-50');
     });
 
     it('has warning variant', () => {
-      expect(badgeVariants.warning).toBe(
-        'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-      );
+      expect(badgeVariants.warning).toContain('bg-amber-50');
     });
 
     it('has all expected variants', () => {
@@ -254,21 +225,15 @@ describe('classNames', () => {
 
   describe('gridLayouts', () => {
     it('has 1-2 layout (1 col mobile, 2 cols tablet+)', () => {
-      expect(gridLayouts['1-2']).toBe(
-        'grid grid-cols-1 md:grid-cols-2 gap-4'
-      );
+      expect(gridLayouts['1-2']).toBe('grid grid-cols-1 md:grid-cols-2 gap-4');
     });
 
     it('has 1-2-3 layout (1 col mobile, 2 cols tablet, 3 cols desktop)', () => {
-      expect(gridLayouts['1-2-3']).toBe(
-        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-      );
+      expect(gridLayouts['1-2-3']).toBe('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4');
     });
 
     it('has 1-2-4 layout (1 col mobile, 2 cols tablet, 4 cols desktop)', () => {
-      expect(gridLayouts['1-2-4']).toBe(
-        'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
-      );
+      expect(gridLayouts['1-2-4']).toBe('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4');
     });
 
     it('has auto layout (responsive breakpoints)', () => {
@@ -278,12 +243,7 @@ describe('classNames', () => {
     });
 
     it('has all expected layouts', () => {
-      expect(Object.keys(gridLayouts)).toEqual([
-        '1-2',
-        '1-2-3',
-        '1-2-4',
-        'auto',
-      ]);
+      expect(Object.keys(gridLayouts)).toEqual(['1-2', '1-2-3', '1-2-4', 'auto']);
     });
 
     it('all layouts use grid', () => {
@@ -296,27 +256,31 @@ describe('classNames', () => {
 
   describe('textColors', () => {
     it('has primary text color', () => {
-      expect(textColors.primary).toBe('text-gray-900 dark:text-gray-100');
+      expect(textColors.primary).toBe('text-slate-950 dark:text-white');
     });
 
     it('has secondary text color', () => {
-      expect(textColors.secondary).toBe('text-gray-600 dark:text-gray-400');
+      expect(textColors.secondary).toBe('text-slate-600 dark:text-slate-300');
     });
 
     it('has success text color', () => {
-      expect(textColors.success).toBe('text-green-600 dark:text-green-400');
+      expect(textColors.success).toBe('text-emerald-600 dark:text-emerald-300');
     });
 
     it('has danger text color', () => {
-      expect(textColors.danger).toBe('text-red-600 dark:text-red-400');
+      expect(textColors.danger).toBe('text-rose-600 dark:text-rose-300');
     });
 
     it('has warning text color', () => {
-      expect(textColors.warning).toBe('text-yellow-600 dark:text-yellow-400');
+      expect(textColors.warning).toBe('text-amber-600 dark:text-amber-300');
     });
 
     it('has muted text color', () => {
-      expect(textColors.muted).toBe('text-gray-500 dark:text-gray-500');
+      expect(textColors.muted).toBe('text-slate-500 dark:text-slate-400');
+    });
+
+    it('has accent text color', () => {
+      expect(textColors.accent).toBe('text-violet-600 dark:text-violet-300');
     });
 
     it('has all expected colors', () => {
@@ -327,6 +291,7 @@ describe('classNames', () => {
         'danger',
         'warning',
         'muted',
+        'accent',
       ]);
     });
 
@@ -342,27 +307,27 @@ describe('classNames', () => {
   describe('integration - cn with design tokens', () => {
     it('combines buttonVariants with additional classes', () => {
       const result = cn(buttonVariants.primary, 'px-4 py-2', 'rounded-lg');
-      expect(result).toContain('bg-blue-600');
+      expect(result).toContain('from-violet-600');
       expect(result).toContain('px-4 py-2');
       expect(result).toContain('rounded-lg');
     });
 
     it('combines inputClasses with conditional classes', () => {
       const hasError = true;
-      const result = cn(inputClasses, hasError && 'border-red-500');
+      const result = cn(inputClasses, hasError && 'border-rose-500');
       expect(result).toContain('w-full');
-      expect(result).toContain('border-red-500');
+      expect(result).toContain('border-rose-500');
     });
 
     it('combines cardClasses with dynamic padding', () => {
       const result = cn(cardClasses, 'p-6');
-      expect(result).toContain('bg-white');
+      expect(result).toContain('bg-white/95');
       expect(result).toContain('p-6');
     });
 
     it('combines badgeVariants with size classes', () => {
       const result = cn(badgeVariants.success, 'text-xs', 'px-2 py-1');
-      expect(result).toContain('bg-green-100');
+      expect(result).toContain('bg-emerald-50');
       expect(result).toContain('text-xs');
       expect(result).toContain('px-2 py-1');
     });
@@ -376,7 +341,7 @@ describe('classNames', () => {
 
     it('combines textColors with font weight', () => {
       const result = cn(textColors.danger, 'font-bold');
-      expect(result).toBe('text-red-600 dark:text-red-400 font-bold');
+      expect(result).toBe('text-rose-600 dark:text-rose-300 font-bold');
     });
   });
 });

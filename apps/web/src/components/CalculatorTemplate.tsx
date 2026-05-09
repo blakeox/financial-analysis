@@ -7073,7 +7073,7 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
       break;
   }
 
@@ -7085,11 +7085,11 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
     <div class="form-field field-container${hiddenClass}" data-field-id="${field.id}" ${advancedAttr}>
       <label for="${field.id}" class="fa-field-label mb-2">
         ${field.label}
-        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+        ${field.required ? '<span class="ml-1 text-rose-500">*</span>' : ''}
       </label>
       ${inputHTML}
       ${field.helpText ? `<p class="fa-help-copy mt-1">${field.helpText}</p>` : ''}
-      <div class="field-error text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
+      <div class="field-error fa-help-copy mt-1 hidden text-rose-600 dark:text-rose-300"></div>
     </div>
   `;
 }
@@ -7204,13 +7204,13 @@ function generateFieldHTML(field: FormFieldConfig): string {
 
   switch (field.type) {
     case 'number':
-      inputHTML = `<input type="number" ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">`;
+      inputHTML = `<input type="number" ${baseAttrs} class="fa-input-surface w-full">`;
       break;
     case 'text':
-      inputHTML = `<input type="text" ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">`;
+      inputHTML = `<input type="text" ${baseAttrs} class="fa-input-surface w-full">`;
       break;
     case 'select':
-      inputHTML = `<select ${baseAttrs} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">`;
+      inputHTML = `<select ${baseAttrs} class="fa-input-surface w-full">`;
       if (field.options) {
         field.options.forEach((option) => {
           inputHTML += `<option value="${option.value}">${option.label}</option>`;
@@ -7219,14 +7219,14 @@ function generateFieldHTML(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
       break;
   }
 
   return `
     <div class="field-container">
       <label for="${field.id}" class="fa-field-label mb-2">
-        ${field.label}${field.required ? ' <span class="text-red-500">*</span>' : ''}
+        ${field.label}${field.required ? ' <span class="text-rose-500">*</span>' : ''}
       </label>
       ${inputHTML}
       ${field.helpText ? `<p class="fa-help-copy mt-1">${field.helpText}</p>` : ''}

@@ -129,15 +129,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="fa-subcard">
             <h4 class="fa-field-label">Total Investment</h4>
-            <p id="total-investment-display" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
+            <p id="total-investment-display" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
           <div class="fa-subcard">
             <h4 class="fa-field-label">Equity Offered</h4>
-            <p id="equity-offered-display" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
+            <p id="equity-offered-display" class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">--</p>
           </div>
           <div class="fa-subcard">
             <h4 class="fa-field-label">Company Valuation</h4>
-            <p id="company-valuation-display" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
+            <p id="company-valuation-display" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
         </div>
 
@@ -173,7 +173,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="monthlyRevenue" class="fa-field-label mb-2">
-                  Expected Monthly Revenue <span class="text-red-500">*</span>
+                  Expected Monthly Revenue <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="monthlyRevenue" name="monthlyRevenue" required
                        class="fa-input-surface w-full"
@@ -183,7 +183,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               
               <div>
                 <label for="growthRate" class="fa-field-label mb-2">
-                  Monthly Growth Rate <span class="text-red-500">*</span>
+                  Monthly Growth Rate <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="growthRate" name="growthRate" required
                        class="fa-input-surface w-full"
@@ -199,7 +199,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="salaries" class="fa-field-label mb-2">
-                  Monthly Salaries <span class="text-red-500">*</span>
+                  Monthly Salaries <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" id="salaries" name="salaries" required
                        class="fa-input-surface w-full"
@@ -305,8 +305,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Projections Table -->
         <div class="overflow-x-auto">
-          <table id="projections-table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+          <table id="projections-table" class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead class="bg-slate-50 dark:bg-slate-900/60">
               <tr>
                 <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Period</th>
                 <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Revenue</th>
@@ -316,7 +316,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 <th class="px-6 py-3 text-left fa-help-copy uppercase tracking-wider">Cumulative Cash</th>
               </tr>
             </thead>
-            <tbody id="projections-tbody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody id="projections-tbody" class="bg-white dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
               <!-- Projections will be populated here -->
             </tbody>
           </table>
@@ -338,15 +338,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-info">Runway</h5>
-            <p id="runway-metric" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</p>
+            <p id="runway-metric" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-success">Break-even Month</h5>
-            <p id="breakeven-metric" class="text-2xl font-bold text-green-600 dark:text-green-400">--</p>
+            <p id="breakeven-metric" class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-accent">Peak Monthly Burn</h5>
-            <p id="peak-burn-metric" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</p>
+            <p id="peak-burn-metric" class="text-2xl font-bold text-violet-600 dark:text-violet-300">--</p>
           </div>
           <div class="fa-highlight-card p-4">
             <h5 class="fa-metric-label-warning">Year 1 Revenue</h5>
@@ -536,15 +536,15 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
       projections.forEach(projection => {
         const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+        row.className = 'hover:dark:bg-slate-900/60 bg-slate-50 dark:hover:bg-slate-900/60';
         
         if (format === 'ebitda') {
           row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy-strong">${projection.period}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.revenue)}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.expenses)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.ebitda >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(projection.ebitda)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.netIncome >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(projection.netIncome)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.ebitda >= 0 ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}">${formatCurrency(projection.ebitda)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm ${projection.netIncome >= 0 ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}">${formatCurrency(projection.netIncome)}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.cumulativeCash)}</td>
           `;
         } else {
@@ -555,8 +555,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy-strong">${projection.period}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.revenue)}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.expenses)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm ${grossMargin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(grossMargin)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm ${operatingIncome >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(operatingIncome)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm ${grossMargin >= 0 ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}">${formatCurrency(grossMargin)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm ${operatingIncome >= 0 ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}">${formatCurrency(operatingIncome)}</td>
             <td class="px-6 py-4 whitespace-nowrap fa-list-copy">${formatCurrency(projection.cumulativeCash)}</td>
           `;
         }
@@ -700,13 +700,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         // Show success message
         saveBtn.textContent = '✓ Saved!';
-        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
         saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Budget Plan';
           saveBtn.classList.remove('fa-button-success-state');
-          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }, 2000);
 
         // Dispatch completion event

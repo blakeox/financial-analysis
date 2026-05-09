@@ -252,20 +252,20 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
   if (!resultsContainer || !summaryCards || !resultsSection) return;
 
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Starting Cash</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(input.startingCash)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Beginning balance</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Starting Cash</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(input.startingCash)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Beginning balance</p>
     </div>
     <div class="bg-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-50 dark:bg-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-900 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-100">Ending Cash (12 mo)</h5>
       <p class="text-2xl font-bold text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-600 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-400">${formatCurrency(result.summary.endingCash)}</p>
       <p class="text-xs text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-700 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-300 mt-1">${result.summary.endingCash > input.startingCash ? '✓ Growing' : result.summary.endingCash > 0 ? 'Declining' : '🚨 Negative!'}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Lowest Cash Month</h5>
-      <p class="text-2xl font-bold ${result.summary.lowestCash.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-purple-600 dark:text-purple-400'}">${formatCurrency(result.summary.lowestCash.amount)}</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${result.summary.lowestCash.monthName}</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Lowest Cash Month</h5>
+      <p class="text-2xl font-bold ${result.summary.lowestCash.amount < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-violet-600 dark:text-violet-400'}">${formatCurrency(result.summary.lowestCash.amount)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${result.summary.lowestCash.monthName}</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Cash Runway</h5>
@@ -277,25 +277,25 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
   resultsContainer.innerHTML = `
     ${result.warnings.length > 0 ? `
     <!-- Warnings -->
-    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-6 border-l-4 border-red-500">
-      <h2 class="text-xl font-semibold mb-3 text-red-900 dark:text-red-100 flex items-center gap-2">
+    <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 mb-6 border-l-4 border-rose-500">
+      <h2 class="text-xl font-semibold mb-3 text-rose-900 dark:text-rose-100 flex items-center gap-2">
         <span>⚠️</span> Cash Flow Warnings
       </h2>
       <div class="space-y-2">
-        ${result.warnings.map(w => `<p class="text-sm text-red-800 dark:text-red-200">${w}</p>`).join('')}
+        ${result.warnings.map(w => `<p class="text-sm text-rose-800 dark:text-rose-200">${w}</p>`).join('')}
       </div>
     </div>
     ` : ''}
     
     <!-- 12-Month Cash Flow Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 overflow-x-auto">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6 overflow-x-auto">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📅</span> 12-Month Cash Flow Projection
       </h2>
       
       <table class="w-full text-sm">
         <thead>
-          <tr class="border-b-2 border-gray-300 dark:border-gray-600">
+          <tr class="border-b-2 border-slate-300 dark:border-slate-700">
             <th class="text-left py-2 px-2">Month</th>
             <th class="text-right py-2 px-2">Revenue</th>
             <th class="text-right py-2 px-2">Cash In</th>
@@ -307,83 +307,83 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
         </thead>
         <tbody>
           ${result.projections.map(p => `
-            <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700">
               <td class="py-2 px-2 font-medium">${p.monthName}</td>
-              <td class="text-right py-2 px-2 text-gray-600 dark:text-gray-400">${formatCurrency(p.revenue)}</td>
-              <td class="text-right py-2 px-2 text-green-600 dark:text-green-400">${formatCurrency(p.cashCollected)}</td>
-              <td class="text-right py-2 px-2 text-gray-600 dark:text-gray-400">${formatCurrency(p.expenses)}</td>
-              <td class="text-right py-2 px-2 text-red-600 dark:text-red-400">${formatCurrency(p.cashPaid)}</td>
-              <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(p.netCashFlow)}</td>
-              <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(p.endingCash)}</td>
+              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.revenue)}</td>
+              <td class="text-right py-2 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(p.cashCollected)}</td>
+              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.expenses)}</td>
+              <td class="text-right py-2 px-2 text-rose-600 dark:text-rose-400">${formatCurrency(p.cashPaid)}</td>
+              <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.netCashFlow)}</td>
+              <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.endingCash)}</td>
             </tr>
           `).join('')}
-          <tr class="border-t-2 border-gray-300 dark:border-gray-600 font-bold">
+          <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold">
             <td class="py-3 px-2">TOTAL</td>
             <td class="text-right py-3 px-2">${formatCurrency(result.summary.totalRevenue)}</td>
-            <td class="text-right py-3 px-2 text-green-600 dark:text-green-400">${formatCurrency(result.summary.totalCashCollected)}</td>
+            <td class="text-right py-3 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(result.summary.totalCashCollected)}</td>
             <td class="text-right py-3 px-2">${formatCurrency(result.summary.totalExpenses)}</td>
-            <td class="text-right py-3 px-2 text-red-600 dark:text-red-400">${formatCurrency(result.summary.totalCashPaid)}</td>
-            <td class="text-right py-3 px-2 ${result.summary.netCashFlow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(result.summary.netCashFlow)}</td>
-            <td class="text-right py-3 px-2 text-blue-600 dark:text-blue-400">${formatCurrency(result.summary.endingCash)}</td>
+            <td class="text-right py-3 px-2 text-rose-600 dark:text-rose-400">${formatCurrency(result.summary.totalCashPaid)}</td>
+            <td class="text-right py-3 px-2 ${result.summary.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(result.summary.netCashFlow)}</td>
+            <td class="text-right py-3 px-2 text-violet-600 dark:text-violet-400">${formatCurrency(result.summary.endingCash)}</td>
           </tr>
         </tbody>
       </table>
     </div>
     
     <!-- Key Metrics -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Key Cash Flow Metrics
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-3">
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Days Sales Outstanding (DSO)</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Days Sales Outstanding (DSO)</span>
             <span class="font-semibold">${input.averageCollectionDays} days</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Days Payable Outstanding (DPO)</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Days Payable Outstanding (DPO)</span>
             <span class="font-semibold">${input.averagePaymentDays} days</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Working Capital Needs</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Working Capital Needs</span>
             <span class="font-semibold">${formatCurrency(result.summary.workingCapitalNeeds)}</span>
           </div>
         </div>
         
         <div class="space-y-3">
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Average Burn Rate</span>
-            <span class="font-semibold ${result.summary.averageBurnRate > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${result.summary.averageBurnRate > 0 ? formatCurrency(result.summary.averageBurnRate) : 'Profitable'}</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Average Burn Rate</span>
+            <span class="font-semibold ${result.summary.averageBurnRate > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.summary.averageBurnRate > 0 ? formatCurrency(result.summary.averageBurnRate) : 'Profitable'}</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Cash Runway</span>
-            <span class="font-semibold ${result.summary.cashRunway < 6 && result.summary.cashRunway !== Infinity ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${result.summary.cashRunway === Infinity ? 'Infinite' : result.summary.cashRunway.toFixed(1) + ' months'}</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Cash Runway</span>
+            <span class="font-semibold ${result.summary.cashRunway < 6 && result.summary.cashRunway !== Infinity ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.summary.cashRunway === Infinity ? 'Infinite' : result.summary.cashRunway.toFixed(1) + ' months'}</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-gray-700 dark:text-gray-300">Net Cash Flow (12 mo)</span>
-            <span class="font-bold ${result.summary.netCashFlow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${formatCurrency(result.summary.netCashFlow)}</span>
+          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <span class="text-slate-700 dark:text-slate-300">Net Cash Flow (12 mo)</span>
+            <span class="font-bold ${result.summary.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(result.summary.netCashFlow)}</span>
           </div>
         </div>
       </div>
     </div>
     
     <!-- Recommendations -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
         <span>💡</span> Cash Flow Improvement Tips
       </h2>
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 fa-script-copy-strong">
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Cash Flow Best Practices</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 mt-4">
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Best Practices</h4>
           <ul class="space-y-2 fa-script-copy-strong">
             <li>• Invoice immediately (don't wait to bill)</li>
             <li>• Offer discounts for early payment (2% net 10)</li>

@@ -184,8 +184,8 @@ export const displayResults = (result: SavingsGoalResult): void => {
       .map(
         (entry) => `
           <li class="flex gap-2">
-            <span class="text-blue-600 dark:text-blue-400">•</span>
-            <span class="text-gray-700 dark:text-gray-300">${entry}</span>
+            <span class="text-violet-600 dark:text-violet-400">•</span>
+            <span class="text-slate-700 dark:text-slate-300">${entry}</span>
           </li>
         `
       )

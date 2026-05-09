@@ -248,21 +248,21 @@ const displayResults = (result: SavingsGoalResults): void => {
 
   // Render summary cards with inflation adjustment
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Time to Goal</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${result.yearsToGoal.toFixed(1)} years</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${result.targetDate}</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Time to Goal</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.yearsToGoal.toFixed(1)} years</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${result.targetDate}</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Final Balance</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.finalBalance)}</p>
-      ${result.realValue ? `<p class="text-xs text-green-700 dark:text-green-300 mt-1">Real value: ${formatCurrency(result.realValue)}</p>` : ''}
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Final Balance</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.finalBalance)}</p>
+      ${result.realValue ? `<p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Real value: ${formatCurrency(result.realValue)}</p>` : ''}
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Progress</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.progressPercent?.toFixed(0) || 0}%</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">of goal achieved</p>
-      ${result.goalTypeLabel ? `<p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Goal: ${result.goalTypeLabel}</p>` : ''}
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Progress</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.progressPercent?.toFixed(0) || 0}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">of goal achieved</p>
+      ${result.goalTypeLabel ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Goal: ${result.goalTypeLabel}</p>` : ''}
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Earned</h5>
@@ -275,7 +275,7 @@ const displayResults = (result: SavingsGoalResults): void => {
   resultsContainer.innerHTML = `
     ${result.milestones && result.milestones.length > 0 ? `
     <!-- Progress Bar and Milestones -->
-    <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Savings Milestones
       </h3>
@@ -284,11 +284,11 @@ const displayResults = (result: SavingsGoalResults): void => {
       <!-- Visual Progress Bar -->
       <div class="mb-6">
         <div class="flex justify-between text-sm mb-2">
-          <span class="text-gray-600 dark:text-gray-400">Current Progress</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${result.progressPercent?.toFixed(1) || 0}%</span>
+          <span class="text-slate-600 dark:text-slate-400">Current Progress</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${result.progressPercent?.toFixed(1) || 0}%</span>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative">
-          <div class="bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2" style="width: ${result.progressPercent || 0}%">
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-6 relative">
+          <div class="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-emerald-500 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2" style="width: ${result.progressPercent || 0}%">
             ${(result.progressPercent || 0) > 10 ? '<span class="text-white text-xs font-bold">🚀</span>' : ''}
           </div>
           <!-- Milestone markers -->
@@ -302,13 +302,13 @@ const displayResults = (result: SavingsGoalResults): void => {
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         ${result.milestones.map((milestone, idx) => {
           const achieved = (result.progressPercent || 0) >= milestone.percent;
-          const colors = ['blue', 'purple', 'indigo', 'green'];
+          const colors = ['violet', 'fuchsia', 'amber', 'emerald'];
           const color = colors[idx];
           return `
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border-2 ${achieved ? `border-${color}-500` : 'border-gray-200 dark:border-gray-700'}">
+            <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 border-2 ${achieved ? `border-${color}-500` : 'border-slate-200 dark:border-slate-800'}">
               <div class="flex items-center gap-2 mb-2">
                 <span class="text-xl">${achieved ? '✅' : '⏳'}</span>
-                <span class="font-semibold text-gray-900 dark:text-white">${milestone.percent}%</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${milestone.percent}%</span>
               </div>
               <p class="fa-script-note mb-1">${formatCurrency(milestone.amount)}</p>
               <p class="fa-script-note">${milestone.date}</p>
@@ -321,11 +321,11 @@ const displayResults = (result: SavingsGoalResults): void => {
     ` : ''}
 
       ${result.goalStrategy ? `
-      <div class="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 mb-6">
         <div class="flex items-center gap-3 mb-3">
           <span class="text-2xl">🧠</span>
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Strategy Guidance</h3>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Strategy Guidance</h3>
             ${result.goalTypeLabel ? `<p class="fa-script-copy-subtle">Optimized for ${result.goalTypeLabel}</p>` : ''}
           </div>
         </div>
@@ -333,115 +333,115 @@ const displayResults = (result: SavingsGoalResults): void => {
       </div>
       ` : ''}
     
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Savings Goal Timeline</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Savings Goal Timeline</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Target Date</span>
             <p class="fa-script-copy-subtle">When you'll reach your goal</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.targetDate}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.targetDate}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Months to Goal</span>
             <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.monthsToGoal} months</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.monthsToGoal} months</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Years to Goal</span>
             <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.yearsToGoal.toFixed(1)} years</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.yearsToGoal.toFixed(1)} years</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Effective Annual Return</span>
             <p class="fa-script-copy-subtle">After inflation</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-green-600 dark:text-green-400">${formatPercent(result.effectiveAnnualReturn)}</span>
+            <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatPercent(result.effectiveAnnualReturn)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Financial Breakdown</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Financial Breakdown</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Final Balance</span>
             <p class="fa-script-copy-subtle">Total amount saved</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.finalBalance)}</span>
+            <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.finalBalance)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Total Contributions</span>
             <p class="fa-script-copy-subtle">Amount you'll contribute</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.totalContributions)}</span>
+            <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.totalContributions)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Interest Earned</span>
             <p class="fa-script-copy-subtle">Growth from investments</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(result.totalInterestEarned)}</span>
+            <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.totalInterestEarned)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Goal Achievement</span>
             <p class="fa-script-copy-subtle">Status</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold ${result.goalAchieved ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${result.goalAchieved ? 'Achieved' : 'Not Achieved'}</span>
+            <span class="font-semibold ${result.goalAchieved ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${result.goalAchieved ? 'Achieved' : 'Not Achieved'}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Timeline Analysis</h4>
-          <p class="text-blue-800 dark:text-blue-200">${result.yearsToGoal <= 5 ? 'Great! You can reach your goal in a reasonable timeframe.' : result.yearsToGoal <= 10 ? 'Your goal is achievable with consistent saving.' : 'Consider increasing your monthly contribution or adjusting your timeline.'}</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Timeline Analysis</h4>
+          <p class="text-violet-800 dark:text-violet-200">${result.yearsToGoal <= 5 ? 'Great! You can reach your goal in a reasonable timeframe.' : result.yearsToGoal <= 10 ? 'Your goal is achievable with consistent saving.' : 'Consider increasing your monthly contribution or adjusting your timeline.'}</p>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Contribution Strategy</h4>
-          <p class="text-green-800 dark:text-green-200">${result.totalContributions > result.totalInterestEarned ? 'Your contributions are the primary driver of growth.' : 'Investment returns are significantly boosting your savings.'}</p>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Contribution Strategy</h4>
+          <p class="text-emerald-800 dark:text-emerald-200">${result.totalContributions > result.totalInterestEarned ? 'Your contributions are the primary driver of growth.' : 'Investment returns are significantly boosting your savings.'}</p>
         </div>
         
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">Optimization Tips</h4>
-          <p class="text-purple-800 dark:text-purple-200">${result.effectiveAnnualReturn > 5 ? 'Your return assumptions are optimistic - consider conservative planning.' : result.effectiveAnnualReturn < 2 ? 'Consider higher-return investments or increasing contributions.' : 'Your return assumptions are reasonable for long-term planning.'}</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Optimization Tips</h4>
+          <p class="text-violet-800 dark:text-violet-200">${result.effectiveAnnualReturn > 5 ? 'Your return assumptions are optimistic - consider conservative planning.' : result.effectiveAnnualReturn < 2 ? 'Consider higher-return investments or increasing contributions.' : 'Your return assumptions are reasonable for long-term planning.'}</p>
         </div>
       </div>
     </div>

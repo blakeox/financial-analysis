@@ -1,4 +1,5 @@
 import { type SelectHTMLAttributes } from 'react';
+import { cn, inputClasses } from '../lib/classNames';
 
 interface Option {
   value: string;
@@ -23,20 +24,21 @@ export function Select({
   ...props
 }: SelectProps) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
           {label}
         </label>
       )}
       <select
-        className={`
-          w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          dark:border-gray-600 dark:bg-gray-700 dark:text-white
-          ${error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
-          ${className}
-        `}
+        className={cn(
+          inputClasses,
+          'appearance-none py-2.5',
+          error
+            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/10 dark:border-rose-800 dark:focus:border-rose-500'
+            : '',
+          className
+        )}
         onChange={(e) => onChange?.(e.target.value)}
         {...props}
       >
@@ -47,10 +49,10 @@ export function Select({
         ))}
       </select>
       {helperText && !error && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
       )}
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
       )}
     </div>
   );

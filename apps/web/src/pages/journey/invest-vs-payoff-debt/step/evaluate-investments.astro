@@ -68,7 +68,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             <div class="fa-callout-success mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
                 </div>
@@ -396,11 +396,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ${hasEmployerMatch === 'yes' && employerMatchRate > 0 ? `
                   <div class="flex justify-between">
                     <span class="fa-meta-copy">Employer Match:</span>
-                    <span class="font-semibold text-green-600 dark:text-green-400">${employerMatchRate}%</span>
+                    <span class="font-semibold text-emerald-600 dark:text-emerald-300">${employerMatchRate}%</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="fa-meta-copy">Effective Return:</span>
-                    <span class="font-semibold text-green-600 dark:text-green-400">${effectiveReturn.toFixed(1)}%</span>
+                    <span class="font-semibold text-emerald-600 dark:text-emerald-300">${effectiveReturn.toFixed(1)}%</span>
                   </div>
                 ` : ''}
                 <div class="flex justify-between">
@@ -413,7 +413,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 </div>
               </div>
               <div class="fa-highlight-card mt-4 p-3">
-                <p class="text-sm text-purple-800 dark:text-purple-200">
+                <p class="text-sm text-violet-800 dark:text-violet-200">
                   ${hasEmployerMatch === 'yes' ? '🎁 Employer match significantly increases your effective return! Consider prioritizing this.' : expectedReturn >= 8 ? '💡 Good expected return. Compare with your debt interest rate.' : '💡 Lower expected return. Paying off debt may be better if interest rate is high.'}
                 </p>
               </div>
@@ -424,13 +424,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           // Show success message
           saveBtn.textContent = '✓ Saved!';
-          saveBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-          saveBtn.classList.add('bg-purple-500');
+          saveBtn.classList.remove('bg-violet-600', 'hover:bg-violet-700');
+          saveBtn.classList.add('bg-violet-500');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save & Continue';
-            saveBtn.classList.remove('bg-purple-500');
-            saveBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            saveBtn.classList.remove('bg-violet-500');
+            saveBtn.classList.add('bg-violet-600', 'hover:bg-violet-700');
           }, 2000);
 
           // Dispatch completion event

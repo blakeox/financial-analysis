@@ -1,5 +1,5 @@
 import { Wallet } from 'lucide-react';
-import type { ModelCardProps } from './types';
+import { getModelCardShellClass, type ModelCardProps } from './types';
 
 export function BudgetCard({ className = '' }: ModelCardProps) {
   return (
@@ -7,7 +7,7 @@ export function BudgetCard({ className = '' }: ModelCardProps) {
       href="/models/personal-finance/budget"
       className={`block group ${className}`}
     >
-      <div className="h-full rounded-lg border border-emerald-200 bg-linear-to-br from-emerald-50 to-white p-6 shadow-sm transition-all hover:border-emerald-400 hover:shadow-md dark:border-emerald-800 dark:from-emerald-950/50 dark:to-gray-900 dark:hover:border-emerald-600">
+      <div className={getModelCardShellClass('emerald')}>
         <div className="mb-4 flex items-center gap-3">
           <div className="rounded-lg bg-emerald-100 p-2.5 dark:bg-emerald-900/50">
             <Wallet className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />

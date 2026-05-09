@@ -90,7 +90,7 @@
 /* Custom component styles */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-white dark:ring-offset-gray-900;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-white dark:ring-offset-slate-950;
   }
 
   .btn-primary {
@@ -98,11 +98,11 @@
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-900 hover:bg-gray-100;
+    @apply bg-white text-slate-900 hover:bg-slate-100;
   }
 
   .card {
-    @apply rounded-2xl border border-gray-200 bg-white/95 text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100;
+    @apply rounded-2xl border border-slate-200 bg-white/95 text-slate-900 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-white;
     box-shadow: 0 18px 50px rgba(9, 14, 36, 0.07);
   }
 
@@ -231,10 +231,12 @@
   .fa-button-secondary,
   .fa-button-success {
     align-items: center;
-    border-radius: 0.85rem;
+    border-radius: 1rem;
     display: inline-flex;
+    gap: 0.5rem;
     font-size: 0.95rem;
     font-weight: 700;
+    letter-spacing: -0.02em;
     justify-content: center;
     min-height: 3.25rem;
     padding: 0.9rem 1.25rem;
@@ -249,7 +251,7 @@
 
   .fa-button-primary:hover {
     box-shadow: 0 18px 40px rgba(109, 74, 255, 0.34);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .fa-button-success-state {
@@ -259,75 +261,88 @@
   }
 
   .fa-button-success {
-    background: linear-gradient(to right, #16a34a, #10b981);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #16a34a, #059669);
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.24);
     color: white;
     transform: translateZ(0);
   }
 
   .fa-button-success:hover {
-    background: linear-gradient(to right, #15803d, #059669);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(135deg, #15803d, #047857);
+    box-shadow: 0 16px 36px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
   }
 
   .fa-button-info-tone {
-    background: #2563eb;
+    background: linear-gradient(135deg, #6d4aff, #5636e8);
+    box-shadow: 0 12px 28px rgba(109, 74, 255, 0.22);
     color: white;
   }
 
   .fa-button-info-tone:hover {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
+    box-shadow: 0 16px 36px rgba(109, 74, 255, 0.28);
     color: white;
   }
 
   .fa-button-info-panel {
     align-items: center;
-    background: #2563eb;
+    background: linear-gradient(135deg, #6d4aff, #5636e8);
     border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(109, 74, 255, 0.22);
+    color: white;
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    transition: all 180ms ease;
+  }
+
+  .fa-button-info-panel:hover {
+    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
+    box-shadow: 0 16px 36px rgba(109, 74, 255, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .fa-button-info-compact {
+    align-items: center;
+    background: linear-gradient(135deg, #6d4aff, #5636e8);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 24px rgba(109, 74, 255, 0.18);
     color: white;
     display: inline-flex;
     font-size: 0.875rem;
     font-weight: 600;
     justify-content: center;
-    padding: 0.75rem 1.25rem;
-    transition: background-color 180ms ease;
-  }
-
-  .fa-button-info-panel:hover {
-    background: #1d4ed8;
-  }
-
-  .fa-button-info-compact {
-    align-items: center;
-    background: #2563eb;
-    border-radius: 0.375rem;
-    color: white;
-    display: inline-flex;
-    font-size: 0.875rem;
-    font-weight: 500;
-    justify-content: center;
     padding: 0.25rem 0.75rem;
-    transition: background-color 180ms ease;
+    transition: all 180ms ease;
   }
 
   .fa-button-info-compact:hover {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
+    box-shadow: 0 14px 28px rgba(109, 74, 255, 0.24);
+    transform: translateY(-1px);
   }
 
   .fa-button-info-md {
     align-items: center;
-    background: #2563eb;
-    border-radius: 0.375rem;
+    background: linear-gradient(135deg, #6d4aff, #5636e8);
+    border-radius: 0.875rem;
+    box-shadow: 0 12px 28px rgba(109, 74, 255, 0.22);
     color: white;
     display: inline-flex;
+    font-weight: 600;
     justify-content: center;
     padding: 0.5rem 1rem;
-    transition: background-color 180ms ease;
+    transition: all 180ms ease;
   }
 
   .fa-button-info-md:hover {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
+    box-shadow: 0 16px 32px rgba(109, 74, 255, 0.26);
+    transform: translateY(-1px);
   }
 
   .fa-button-success-state:hover {
@@ -341,14 +356,16 @@
   }
 
   .fa-button-secondary {
-    background: white;
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid var(--color-gray-200);
     color: var(--color-gray-900);
+    box-shadow: 0 12px 28px rgba(9, 14, 36, 0.08);
   }
 
   .fa-button-secondary:hover {
     border-color: rgba(109, 74, 255, 0.28);
-    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(9, 14, 36, 0.12);
+    transform: translateY(-1px);
   }
 
   .dark .fa-button-secondary {
@@ -360,6 +377,7 @@
   .dark .fa-button-secondary:hover {
     background: rgba(35, 41, 71, 1);
     border-color: rgba(159, 130, 255, 0.28);
+    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.32);
   }
 
   .fa-button-light {
@@ -379,7 +397,7 @@
 
   .fa-button-light:hover {
     box-shadow: 0 18px 40px rgba(9, 14, 36, 0.18);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .fa-accordion summary::-webkit-details-marker {
@@ -438,7 +456,7 @@
   .fa-button-ghost-light:hover {
     background: white;
     color: var(--color-primary-700);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .fa-shell-brand-mark {
@@ -1226,8 +1244,8 @@
   }
 
   .fa-metric-card-info {
-    background: rgba(59, 130, 246, 0.12);
-    color: #1d4ed8;
+    background: rgba(109, 74, 255, 0.12);
+    color: #5b3df5;
   }
 
   .fa-metric-card-success {
@@ -1251,8 +1269,8 @@
   }
 
   .dark .fa-metric-card-info {
-    background: rgba(59, 130, 246, 0.2);
-    color: #bfdbfe;
+    background: rgba(109, 74, 255, 0.2);
+    color: #ddd6fe;
   }
 
   .dark .fa-metric-card-success {
@@ -1620,8 +1638,16 @@
     line-height: 1.6;
   }
 
+  .fa-model-feature > svg {
+    color: #10b981;
+  }
+
   .dark .fa-model-feature {
     color: #8b90a3;
+  }
+
+  .dark .fa-model-feature > svg {
+    color: #6ee7b7;
   }
 
   .fa-icon-button-ghost {
@@ -1885,7 +1911,7 @@
   }
 
   .fa-metric-value-info {
-    color: #1d4ed8;
+    color: #5b3df5;
   }
 
   .fa-metric-value-success {
@@ -1901,7 +1927,7 @@
   }
 
   .dark .fa-metric-value-info {
-    color: #93c5fd;
+    color: #c4b5fd;
   }
 
   .dark .fa-metric-value-success {
@@ -1987,8 +2013,8 @@
   }
 
   .fa-icon-tile-info {
-    background: rgba(59, 130, 246, 0.14);
-    color: #2563eb;
+    background: rgba(109, 74, 255, 0.14);
+    color: #5b3df5;
   }
 
   .fa-icon-tile-danger {
@@ -2012,8 +2038,8 @@
   }
 
   .dark .fa-icon-tile-info {
-    background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
+    background: rgba(109, 74, 255, 0.2);
+    color: #c4b5fd;
   }
 
   .dark .fa-icon-tile-danger {
@@ -2307,7 +2333,7 @@
     letter-spacing: 0.015em;
     padding: 0.75rem 1rem;
     position: relative;
-    border-radius: 0.85rem;
+    border-radius: 1rem;
   }
 
   #site-nav .desktop-nav a.active {

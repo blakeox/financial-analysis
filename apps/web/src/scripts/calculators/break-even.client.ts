@@ -201,20 +201,20 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
   }
 
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Break-Even Units</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${result.breakEven.units.toLocaleString()}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">units to cover costs</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Break-Even Units</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.breakEven.units.toLocaleString()}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">units to cover costs</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Break-Even Revenue</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.breakEven.revenue)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">minimum revenue</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Break-Even Revenue</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.revenue)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">minimum revenue</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Contribution Margin</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.breakEven.contributionMarginRatio.toFixed(1)}%</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${formatCurrency(result.breakEven.contributionMargin)}/unit</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Contribution Margin</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.breakEven.contributionMarginRatio.toFixed(1)}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.breakEven.contributionMargin)}/unit</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Margin of Safety</h5>
@@ -228,53 +228,53 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     ${renderBreakEvenChart(result, input)}
     
     <!-- Core Metrics -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Break-Even Analysis
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <h3 class="font-semibold text-gray-900 dark:text-white">Cost Structure</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Cost Structure</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Fixed Costs (monthly)</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Fixed Costs (monthly)</span>
               <span class="font-semibold">${formatCurrency(input.fixedCosts)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Variable Cost per Unit</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Variable Cost per Unit</span>
               <span class="font-semibold">${formatCurrency(input.variableCostPerUnit)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Selling Price per Unit</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Selling Price per Unit</span>
               <span class="font-semibold">${formatCurrency(input.sellingPricePerUnit)}</span>
             </div>
-            <div class="flex justify-between py-2 border-t-2 border-gray-300 dark:border-gray-600 pt-2">
-              <span class="text-gray-900 dark:text-white font-semibold">Contribution Margin</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(result.breakEven.contributionMargin)}</span>
+            <div class="flex justify-between py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-2">
+              <span class="text-slate-900 dark:text-white font-semibold">Contribution Margin</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.contributionMargin)}</span>
             </div>
           </div>
         </div>
         
         <div class="space-y-4">
-          <h3 class="font-semibold text-gray-900 dark:text-white">Break-Even Point</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Break-Even Point</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Units to Break Even</span>
-              <span class="font-bold text-blue-600 dark:text-blue-400">${result.breakEven.units.toLocaleString()}</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Units to Break Even</span>
+              <span class="font-bold text-violet-600 dark:text-violet-400">${result.breakEven.units.toLocaleString()}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Revenue to Break Even</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(result.breakEven.revenue)}</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Revenue to Break Even</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.revenue)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Contribution Margin %</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Contribution Margin %</span>
               <span class="font-semibold">${result.breakEven.contributionMarginRatio.toFixed(1)}%</span>
             </div>
           </div>
           
-          <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <p class="text-sm text-blue-800 dark:text-blue-200">
+          <div class="mt-4 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+            <p class="text-sm text-violet-800 dark:text-violet-200">
               💡 <strong>What this means:</strong> You need to sell ${result.breakEven.units.toLocaleString()} units at ${formatCurrency(input.sellingPricePerUnit)} each to cover your ${formatCurrency(input.fixedCosts)} in fixed costs.
             </p>
           </div>
@@ -284,33 +284,33 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     
     ${input.currentSalesUnits && input.currentSalesUnits > 0 ? `
     <!-- Margin of Safety -->
-    <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+    <div class="bg-linear-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-emerald-200 dark:border-emerald-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🛡️</span> Margin of Safety
       </h2>
       <p class="fa-script-copy-muted mb-4">How much cushion you have above break-even</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Current Sales</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${input.currentSalesUnits.toLocaleString()}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${input.currentSalesUnits.toLocaleString()}</p>
           <p class="fa-script-note mt-1">units/month</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Safety Buffer</p>
-          <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-green-600 dark:text-green-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.marginOfSafety.units.toLocaleString()}</p>
+          <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-emerald-600 dark:text-emerald-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.marginOfSafety.units.toLocaleString()}</p>
           <p class="fa-script-note mt-1">units above break-even</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Safety Percentage</p>
-          <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-green-600 dark:text-green-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.marginOfSafety.percentage.toFixed(1)}%</p>
+          <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-emerald-600 dark:text-emerald-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.marginOfSafety.percentage.toFixed(1)}%</p>
           <p class="fa-script-note mt-1">${result.marginOfSafety.percentage > 30 ? 'Healthy' : result.marginOfSafety.percentage > 15 ? 'Moderate' : 'Risky'}</p>
         </div>
       </div>
       
-      <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4">
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <p class="fa-script-copy-strong">
           ${result.marginOfSafety.percentage > 30 
             ? '✓ Strong position: Sales could drop ' + result.marginOfSafety.percentage.toFixed(0) + '% before losing money.' 
@@ -324,28 +324,28 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     
     ${result.targetProfit ? `
     <!-- Target Profit Analysis -->
-    <div class="bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Target Profit: ${formatCurrency(input.targetProfit || 0)}
       </h2>
       <p class="fa-script-copy-muted mb-4">Units and revenue needed to achieve your profit goal</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Units Needed</p>
-          <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">${result.targetProfit.unitsNeeded.toLocaleString()}</p>
+          <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.targetProfit.unitsNeeded.toLocaleString()}</p>
           <p class="fa-script-note mt-1">to reach profit goal</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Revenue Needed</p>
-          <p class="text-3xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.targetProfit.revenueNeeded)}</p>
+          <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.targetProfit.revenueNeeded)}</p>
           <p class="fa-script-note mt-1">total sales required</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Beyond Break-Even</p>
-          <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${result.targetProfit.additionalUnits.toLocaleString()}</p>
+          <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.targetProfit.additionalUnits.toLocaleString()}</p>
           <p class="fa-script-note mt-1">extra units for profit</p>
         </div>
       </div>
@@ -353,23 +353,23 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     ` : ''}
     
     <!-- Sensitivity Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>🔬</span> Sensitivity Analysis
       </h2>
       <p class="fa-script-copy-muted mb-4">How changes in price or costs affect your break-even point</p>
       
       <div class="space-y-4">
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">+10% Price Increase</h4>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">+10% Price Increase</h4>
           <div class="grid grid-cols-2 gap-4">
             <div>
                <p class="fa-script-copy-muted">New Break-Even</p>
-              <p class="text-2xl font-bold text-green-600 dark:text-green-400">${result.sensitivity.price10PercentIncrease.units.toLocaleString()}</p>
+              <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${result.sensitivity.price10PercentIncrease.units.toLocaleString()}</p>
             </div>
             <div>
                <p class="fa-script-copy-muted">Impact</p>
-              <p class="text-sm font-semibold text-green-700 dark:text-green-300">${result.sensitivity.price10PercentIncrease.improvement}</p>
+              <p class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">${result.sensitivity.price10PercentIncrease.improvement}</p>
             </div>
           </div>
           <p class="fa-script-note mt-2">
@@ -377,16 +377,16 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
           </p>
         </div>
         
-        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2">-10% Price Decrease</h4>
+        <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-rose-900 dark:text-rose-100 mb-2">-10% Price Decrease</h4>
           <div class="grid grid-cols-2 gap-4">
             <div>
                <p class="fa-script-copy-muted">New Break-Even</p>
-              <p class="text-2xl font-bold text-red-600 dark:text-red-400">${result.sensitivity.price10PercentDecrease.units.toLocaleString()}</p>
+              <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">${result.sensitivity.price10PercentDecrease.units.toLocaleString()}</p>
             </div>
             <div>
                <p class="fa-script-copy-muted">Impact</p>
-              <p class="text-sm font-semibold text-red-700 dark:text-red-300">${result.sensitivity.price10PercentDecrease.impact}</p>
+              <p class="text-sm font-semibold text-rose-700 dark:text-rose-300">${result.sensitivity.price10PercentDecrease.impact}</p>
             </div>
           </div>
           <p class="fa-script-note mt-2">
@@ -414,14 +414,14 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     </div>
     
     <!-- Recommendations -->
-    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
         <span>💡</span> Key Insights & Recommendations
       </h2>
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 fa-script-copy-strong">
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}
@@ -588,7 +588,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
   }, 100);
   
   return `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Break-Even Chart
       </h2>

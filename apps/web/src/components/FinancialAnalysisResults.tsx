@@ -1,4 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@financial-analysis/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@financial-analysis/ui';
 import React, { useEffect, useState } from 'react';
 
 interface AnalysisResult {
@@ -88,7 +95,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {summaryEntries.map(([key, value]) => (
-          <Card key={key} className="fa-highlight-card">
+          <Card key={key} variant="interactive" className="fa-highlight-card">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -146,7 +153,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
       <div className="space-y-3">
         {result.insights.map((insight, index) => (
           <div key={index} className="fa-highlight-card flex items-start space-x-3 p-3">
-            <span className="text-blue-500 font-bold">{index + 1}.</span>
+            <span className="font-bold text-violet-500">{index + 1}.</span>
             <p className="fa-list-copy">{insight}</p>
           </div>
         ))}
@@ -163,7 +170,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
       <div className="space-y-3">
         {result.recommendations.map((recommendation, index) => (
           <div key={index} className="fa-highlight-card flex items-start space-x-3 p-3">
-            <span className="text-green-500 font-bold">{index + 1}.</span>
+            <span className="font-bold text-emerald-500">{index + 1}.</span>
             <p className="fa-list-copy">{recommendation}</p>
           </div>
         ))}
@@ -184,9 +191,9 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {result.charts.map((chart, index) => (
-            <Card key={index}>
+            <Card key={index} variant="elevated">
               <CardHeader>
-              <CardTitle className="fa-scenario-title text-lg">{chart.title}</CardTitle>
+                <CardTitle className="fa-scenario-title text-lg">{chart.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="fa-subcard h-64 flex items-center justify-center">
@@ -203,9 +210,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
                     <p className="fa-meta-copy">
                       {chart.type.charAt(0).toUpperCase() + chart.type.slice(1)} Chart
                     </p>
-                    <p className="fa-help-copy mt-1">
-                      {chart.data.length} data points
-                    </p>
+                    <p className="fa-help-copy mt-1">{chart.data.length} data points</p>
                   </div>
                 </div>
               </CardContent>
@@ -228,7 +233,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
           Detailed Data
         </h3>
         {result.tables.map((table, index) => (
-          <Card key={index}>
+          <Card key={index} variant="elevated">
             <CardHeader>
               <CardTitle className="fa-scenario-title text-lg">{table.title}</CardTitle>
             </CardHeader>
@@ -238,10 +243,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
                   <thead>
                     <tr className="fa-panel-divider">
                       {table.headers.map((header, headerIndex) => (
-                        <th
-                          key={headerIndex}
-                          className="fa-scenario-title py-2 px-3 text-left"
-                        >
+                        <th key={headerIndex} className="fa-scenario-title py-2 px-3 text-left">
                           {header}
                         </th>
                       ))}
@@ -249,12 +251,9 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
                   </thead>
                   <tbody>
                     {table.rows.map((row, rowIndex) => (
-                      <tr key={rowIndex} className="border-b border-gray-100 dark:border-gray-800">
+                      <tr key={rowIndex} className="border-b border-slate-100 dark:border-slate-800">
                         {row.map((cell, cellIndex) => (
-                          <td
-                            key={cellIndex}
-                            className="py-2 px-3 fa-list-copy"
-                          >
+                          <td key={cellIndex} className="py-2 px-3 fa-list-copy">
                             {typeof cell === 'number' && cellIndex > 0
                               ? cellIndex === 1 &&
                                 table.headers[cellIndex].toLowerCase().includes('rate')
@@ -289,21 +288,24 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
 
   return (
     <div className={`financial-analysis-results ${className}`}>
-      <Card className="shadow-lg">
+      <Card variant="elevated" className="shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-               <CardTitle className="fa-panel-title flex items-center text-xl">
-                 <span className="mr-2">📊</span>
-                 Analysis Results
-               </CardTitle>
+              <CardTitle className="fa-panel-title flex items-center text-xl">
+                <span className="mr-2">📊</span>
+                Analysis Results
+              </CardTitle>
               <CardDescription>
                 Comprehensive analysis for {modelType.replace(/([A-Z])/g, ' $1').trim()}
               </CardDescription>
             </div>
-            <button
+            <Button
+              type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="fa-shell-icon-button h-9 w-9 transition-transform"
+              variant="ghost"
+              size="sm"
+              className="h-10 w-10 rounded-full p-0 transition-transform"
             >
               <svg
                 className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -318,7 +320,7 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </CardHeader>
 
@@ -327,16 +329,17 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
             {/* Tab Navigation */}
             <div className="flex flex-wrap gap-2 mb-6 fa-panel-divider">
               {tabs.map((tab) => (
-                <button
+                <Button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`fa-tab-button ${
-                    activeTab === tab.id ? 'fa-tab-active' : 'fa-tab-inactive'
-                  }`}
+                  variant={activeTab === tab.id ? 'primary' : 'outline'}
+                  size="sm"
+                  className="rounded-full"
                 >
                   <span className="mr-1">{tab.icon}</span>
                   {tab.label}
-                </button>
+                </Button>
               ))}
             </div>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
 import type { ModuleType } from './ModuleSelector';
+import { badgeVariants, cn } from '../lib/classNames';
 
 interface ModuleCardProps {
   moduleType: ModuleType;
@@ -27,19 +28,25 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <Card className="relative">
+    <Card variant="interactive" className="relative">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <div className={`p-2 ${color} rounded-lg`}>
+            <div className={`rounded-2xl p-2 shadow-sm ${color}`}>
               <div className="text-2xl">{icon}</div>
             </div>
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
                 {label}
                 {isValid && (
-                  <span className="text-green-500 text-lg" title="Valid data">
-                    ✓
+                  <span
+                    className={cn(
+                      'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
+                      badgeVariants.success
+                    )}
+                    title="Valid data"
+                  >
+                    Ready
                   </span>
                 )}
               </CardTitle>
@@ -60,7 +67,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
               variant="ghost"
               size="sm"
               onClick={onRemove}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2"
+              className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/20 dark:hover:text-rose-200"
               title="Remove this section"
             >
               ✕

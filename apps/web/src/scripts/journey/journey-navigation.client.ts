@@ -130,7 +130,7 @@ class JourneyNavigationManager {
 
     // Add step completion indicators
     const progressBar = document.querySelector<HTMLElement>(
-      '.bg-gradient-to-r.from-blue-500.to-indigo-600'
+      '.bg-gradient-to-r.from-violet-500.to-violet-600'
     );
     if (progressBar) {
       const completionPercentage = (state.completedSteps.length / state.currentStep) * 100;

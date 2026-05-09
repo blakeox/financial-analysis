@@ -231,7 +231,7 @@ class DCFCalculator {
 
     resultsSection.innerHTML = `
       <div class="fa-card">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">DCF Valuation Results</h2>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">DCF Valuation Results</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div class="fa-metric-card fa-metric-card-info">
@@ -276,10 +276,10 @@ class DCFCalculator {
 
     const sensitivityHTML = `
       <div class="mt-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Sensitivity Analysis</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Sensitivity Analysis</h3>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="fa-subcard">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Revenue Growth Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Revenue Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.revenueGrowth
                 .map(
@@ -295,7 +295,7 @@ class DCFCalculator {
           </div>
           
           <div class="fa-subcard">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Discount Rate Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Discount Rate Impact</h4>
             <div class="space-y-2">
               ${sensitivity.discountRate
                 .map(
@@ -311,7 +311,7 @@ class DCFCalculator {
           </div>
           
           <div class="fa-subcard">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Terminal Growth Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Terminal Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.terminalGrowth
                 .map(
@@ -345,30 +345,30 @@ class DCFCalculator {
 
     const projectionsHTML = `
       <div class="mt-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Cash Flow Projections</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Cash Flow Projections</h3>
         <div class="overflow-x-auto">
-          <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+          <table class="min-w-full bg-white/90 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-lg">
+            <thead class="bg-slate-50 dark:bg-slate-900/60">
               <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Year</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Revenue</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">EBITDA</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">NOPAT</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Free Cash Flow</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Present Value</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Year</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Revenue</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">EBITDA</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">NOPAT</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Free Cash Flow</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Present Value</th>
               </tr>
             </thead>
             <tbody>
               ${projections
                 .map(
                   (proj) => `
-                <tr class="border-t border-gray-200 dark:border-gray-700">
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${proj.year}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.revenue)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.ebitda)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.nopat)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.freeCashFlow)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.presentValue)}</td>
+                <tr class="border-t border-slate-200 dark:border-slate-800">
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${proj.year}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.revenue)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.ebitda)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.nopat)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.freeCashFlow)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.presentValue)}</td>
                 </tr>
               `
                 )

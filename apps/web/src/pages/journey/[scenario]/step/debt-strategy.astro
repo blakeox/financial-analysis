@@ -514,13 +514,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
             ${comparison > 0 ? `
               <div class="fa-highlight-card p-4">
-                <p class="text-sm text-green-800 dark:text-green-200">
+                <p class="text-sm text-emerald-800 dark:text-emerald-200">
                   <strong>💡 Avalanche saves ${formatCurrency(Math.abs(comparison))} in interest!</strong>
                 </p>
               </div>
             ` : monthDifference < 0 ? `
               <div class="fa-highlight-card p-4">
-                <p class="text-sm text-blue-800 dark:text-blue-200">
+                <p class="text-sm text-violet-800 dark:text-violet-200">
                   <strong>💡 Snowball pays off ${Math.abs(monthDifference)} months faster!</strong>
                 </p>
               </div>
@@ -533,7 +533,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   .slice()
                   .sort((a, b) => a.monthsToPayoff - b.monthsToPayoff)
                   .map((debt, index) => `
-                    <div class="flex justify-between items-center text-sm py-1 border-b border-gray-200 dark:border-gray-600">
+                    <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-700">
                       <span class="fa-list-copy-strong">${index + 1}. ${debt.name}</span>
                       <span class="fa-meta-copy">${formatMonths(debt.monthsToPayoff)}</span>
                     </div>
@@ -590,13 +590,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           // Show success message
           saveBtn.textContent = '✓ Saved!';
-          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
           saveBtn.classList.add('fa-button-success-state');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save Debt Strategy';
             saveBtn.classList.remove('fa-button-success-state');
-            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
           }, 2000);
 
           // Dispatch completion event

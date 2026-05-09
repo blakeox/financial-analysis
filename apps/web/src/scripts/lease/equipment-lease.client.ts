@@ -164,17 +164,17 @@ function displayResults(result: EquipmentLeaseResult) {
   if (summaryCards) {
     summaryCards.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-          <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Monthly Payment</div>
-          <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">$${result.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
+          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Monthly Payment</div>
+          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
-        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-          <div class="text-sm text-green-600 dark:text-green-400 font-medium">Total Payments</div>
-          <div class="text-2xl font-bold text-green-900 dark:text-green-100">$${result.totalPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+          <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Total Payments</div>
+          <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">$${result.totalPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
-        <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-          <div class="text-sm text-purple-600 dark:text-purple-400 font-medium">Total Interest</div>
-          <div class="text-2xl font-bold text-purple-900 dark:text-purple-100">$${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
+          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Total Interest</div>
+          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
       </div>
     `;
@@ -183,21 +183,21 @@ function displayResults(result: EquipmentLeaseResult) {
   // Display lease vs buy comparison if available
   if (result.leaseVsBuy) {
     const comparisonContainer = document.createElement('div');
-    comparisonContainer.className = 'mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6';
+    comparisonContainer.className = 'mt-6 bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6';
     comparisonContainer.innerHTML = `
       <h3 class="text-lg font-semibold mb-4">Lease vs Buy Comparison</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-          <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Lease Total Cost</div>
-          <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">$${result.leaseVsBuy.leaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
+          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Lease Total Cost</div>
+          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.leaseVsBuy.leaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
         <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
           <div class="text-sm text-orange-600 dark:text-orange-400 font-medium">Purchase Total Cost</div>
           <div class="text-2xl font-bold text-orange-900 dark:text-orange-100">$${result.leaseVsBuy.purchaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
-        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-          <div class="text-sm text-green-600 dark:text-green-400 font-medium">Savings (${result.leaseVsBuy.savings > 0 ? 'Lease' : 'Buy'})</div>
-          <div class="text-2xl font-bold text-green-900 dark:text-green-100">$${Math.abs(result.leaseVsBuy.savings).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+          <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Savings (${result.leaseVsBuy.savings > 0 ? 'Lease' : 'Buy'})</div>
+          <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">$${Math.abs(result.leaseVsBuy.savings).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         </div>
       </div>
       <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
@@ -229,23 +229,23 @@ function displaySchedule(schedule: EquipmentLeaseResult['schedule']) {
   const thead = scheduleContainer.querySelector('thead tr');
   if (thead) {
     thead.innerHTML = `
-      <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Month</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Principal</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Interest</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Balance</th>
+      <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Month</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payment</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Principal</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Balance</th>
     `;
   }
 
   tableBody.innerHTML = schedule
     .map(
       (row) => `
-    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-      <td class="px-3 py-3 text-sm text-gray-900 dark:text-white">${row.month}</td>
-      <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">$${row.payment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">$${row.principal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">$${row.interest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">$${row.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white">${row.month}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.payment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.principal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.interest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
     </tr>
   `
     )

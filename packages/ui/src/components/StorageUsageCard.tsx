@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { useHydrated, useApiData } from '../lib/hooks';
 import { formatFileSize } from '../lib/formatters';
-import { cn, textColors } from '../lib/classNames';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 type Usage = {
   usedBytes: number;
@@ -24,12 +24,12 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   // Don't render until hydrated to prevent SSR/client mismatch
   if (!hydrated) {
     return (
-      <Card>
+      <Card variant="subtle">
         <CardHeader>
           <CardTitle>Storage Usage</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          <div className={cn('py-8 text-center text-sm', textColors.muted)}>
             Loading...
           </div>
         </CardContent>
@@ -63,57 +63,71 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   const displayData = testData || data;
 
   return (
-    <Card className="w-full max-w-xl">
+    <Card variant="elevated" className="w-full max-w-xl">
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle>Storage Usage</CardTitle>
           {displayData?.locked && (
             <span
               data-testid="storage-locked-badge"
-              className="inline-flex items-center rounded-md bg-red-100 text-red-700 text-xs font-medium px-2 py-1"
+              className={cn(
+                'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
+                badgeVariants.danger
+              )}
             >
               Locked
             </span>
           )}
         </div>
       </CardHeader>
-      <CardContent>
-        {loading && <p className="text-gray-500">Loading…</p>}
-        {error && <p className="text-red-600">{error}</p>}
+      <CardContent className="space-y-4">
+        {loading && <p className={cn('text-sm', textColors.muted)}>Loading…</p>}
+        {error && <p className={cn('text-sm font-medium', textColors.danger)}>{error}</p>}
         {displayData && (
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span>Used</span>
-              <span>{formatFileSize(displayData.usedBytes)}</span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <span className={cn('text-sm', textColors.secondary)}>Used</span>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                {formatFileSize(displayData.usedBytes)}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Soft limit</span>
-              <span>{formatFileSize(displayData.softLimit)}</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className={cn('text-sm', textColors.secondary)}>Soft limit</span>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                {formatFileSize(displayData.softLimit)}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Hard limit</span>
-              <span>{formatFileSize(displayData.hardLimit)}</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className={cn('text-sm', textColors.secondary)}>Hard limit</span>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                {formatFileSize(displayData.hardLimit)}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Max object</span>
-              <span>{formatFileSize(displayData.maxObjectSize)}</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className={cn('text-sm', textColors.secondary)}>Max object</span>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                {formatFileSize(displayData.maxObjectSize)}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Status</span>
+            <div className="flex items-center justify-between gap-4 border-t border-slate-200/70 pt-3 dark:border-slate-800">
+              <span className={cn('text-sm', textColors.secondary)}>Status</span>
               <span
                 data-testid="storage-status-value"
-                className={cn(displayData.locked ? textColors.danger : textColors.success)}
+                className={cn(
+                  'text-sm font-semibold',
+                  displayData.locked ? textColors.danger : textColors.success
+                )}
               >
                 {displayData.locked ? 'Locked' : 'OK'}
               </span>
             </div>
             {displayData.locked && (
-              <div className="mt-3 rounded-md border border-red-200 bg-red-50 text-red-700 text-sm p-3">
+              <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200">
                 Uploads are temporarily disabled due to storage limits. Try again later or remove
                 unused files.
               </div>
             )}
-            <div className="text-xs text-gray-500">
+            <div className={cn('text-xs', textColors.muted)}>
               Updated {new Date(displayData.timestamp).toLocaleString()}
             </div>
           </div>

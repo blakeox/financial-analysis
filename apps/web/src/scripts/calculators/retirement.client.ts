@@ -32,11 +32,11 @@ const isValidAccountType = (value: string): value is RetirementAccount['accountT
   ACCOUNT_TYPES.includes(value as RetirementAccount['accountType']);
 
 const buildAccountMarkup = (index: number): string => `
-  <div class="account-item border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+  <div class="account-item rounded-lg border border-slate-200 p-4 dark:border-slate-800">
     <div class="grid grid-cols-2 gap-3">
       <div class="col-span-2">
-        <label for="account-type-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Account Type</label>
-        <select id="account-type-${index}" name="account-type-${index}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm">
+        <label for="account-type-${index}" class="fa-field-label mb-1 text-xs uppercase tracking-wide">Account Type</label>
+        <select id="account-type-${index}" name="account-type-${index}" class="fa-input-surface w-full text-sm">
           <option value="401k">401(k)</option>
           <option value="roth_401k">Roth 401(k)</option>
           <option value="traditional_ira">Traditional IRA</option>
@@ -45,20 +45,20 @@ const buildAccountMarkup = (index: number): string => `
         </select>
       </div>
       <div>
-        <label for="account-balance-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Current Balance ($)</label>
-        <input id="account-balance-${index}" type="number" name="account-balance-${index}" placeholder="Current balance" min="0" step="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+        <label for="account-balance-${index}" class="fa-field-label mb-1 text-xs uppercase tracking-wide">Current Balance ($)</label>
+        <input id="account-balance-${index}" type="number" name="account-balance-${index}" placeholder="Current balance" min="0" step="1000" class="fa-input-surface w-full text-sm" />
       </div>
       <div>
-        <label for="account-contribution-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Annual Contribution ($)</label>
-        <input id="account-contribution-${index}" type="number" name="account-contribution-${index}" placeholder="Annual contribution" min="0" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+        <label for="account-contribution-${index}" class="fa-field-label mb-1 text-xs uppercase tracking-wide">Annual Contribution ($)</label>
+        <input id="account-contribution-${index}" type="number" name="account-contribution-${index}" placeholder="Annual contribution" min="0" step="500" class="fa-input-surface w-full text-sm" />
       </div>
       <div>
-        <label for="account-match-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Employer Match (%)</label>
-        <input id="account-match-${index}" type="number" name="account-match-${index}" placeholder="Employer match %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+        <label for="account-match-${index}" class="fa-field-label mb-1 text-xs uppercase tracking-wide">Employer Match (%)</label>
+        <input id="account-match-${index}" type="number" name="account-match-${index}" placeholder="Employer match %" min="0" max="100" step="0.5" class="fa-input-surface w-full text-sm" />
       </div>
       <div>
-        <label for="account-match-limit-${index}" class="block text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">Match Limit (%)</label>
-        <input id="account-match-limit-${index}" type="number" name="account-match-limit-${index}" placeholder="Match limit %" min="0" max="100" step="0.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm" />
+        <label for="account-match-limit-${index}" class="fa-field-label mb-1 text-xs uppercase tracking-wide">Match Limit (%)</label>
+        <input id="account-match-limit-${index}" type="number" name="account-match-limit-${index}" placeholder="Match limit %" min="0" max="100" step="0.5" class="fa-input-surface w-full text-sm" />
       </div>
     </div>
   </div>
@@ -122,15 +122,15 @@ export const describeIncomeReplacement = (result: RetirementResult): string | nu
   }
 
   const parts = [
-    '<p class="text-gray-600 dark:text-gray-400">Projected Annual Retirement Income:</p>',
+    '<p class="text-slate-600 dark:text-slate-400">Projected Annual Retirement Income:</p>',
   ];
 
   if (annualIncome) {
-    parts.push(`<p class="text-xl font-semibold text-green-600">${annualIncome}</p>`);
+    parts.push(`<p class="text-xl font-semibold text-emerald-600">${annualIncome}</p>`);
   }
 
   if (replacementRatio) {
-    parts.push(`<p class="text-sm text-gray-500 mt-2">${replacementRatio} of final salary</p>`);
+    parts.push(`<p class="text-sm text-slate-500 mt-2">${replacementRatio} of final salary</p>`);
   }
 
   return parts.join('');

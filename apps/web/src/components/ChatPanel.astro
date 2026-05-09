@@ -353,23 +353,23 @@ const isEmbedded = variant === 'embedded';
 
   .suggested-prompt:hover {
     background: rgb(219 234 254);
-    border-color: rgb(147 197 253);
+    border-color: rgb(167 139 250);
     transform: translateY(-1px);
   }
 
   .suggested-prompt:focus-visible {
-    outline: 2px solid rgb(37 99 235);
+    outline: 2px solid rgb(109 74 255);
     outline-offset: 2px;
   }
 
   .suggested-prompt[data-kind='primary'] {
-    background: linear-gradient(135deg, rgb(37 99 235), rgb(79 70 229));
+    background: linear-gradient(135deg, rgb(109 74 255), rgb(91 61 245));
     border-color: transparent;
     color: #fff;
   }
 
   .suggested-prompt[data-kind='primary']:hover {
-    background: linear-gradient(135deg, rgb(29 78 216), rgb(67 56 202));
+    background: linear-gradient(135deg, rgb(91 61 245), rgb(76 47 212));
   }
 
   .dark .suggested-prompt {
@@ -636,17 +636,17 @@ const isEmbedded = variant === 'embedded';
   }
 
   .chat-panel[data-chat-variant='embedded'] .chat-send {
-    background: linear-gradient(135deg, rgb(37 99 235), rgb(79 70 229));
+    background: linear-gradient(135deg, rgb(109 74 255), rgb(91 61 245));
     border: none;
     color: #fff;
   }
 
   .chat-panel[data-chat-variant='embedded'] .chat-send:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgb(29 78 216), rgb(67 56 202));
+    background: linear-gradient(135deg, rgb(91 61 245), rgb(76 47 212));
   }
   
   .chat-send:hover:not(:disabled) {
-    background: var(--vscode-button-hoverBackground, #005a9e);
+    background: var(--vscode-button-hoverBackground, #5b3df5);
   }
   
   .chat-send:disabled {
@@ -683,8 +683,8 @@ const isEmbedded = variant === 'embedded';
   }
   
   .chat-toggle:hover {
-    background: var(--vscode-button-hoverBackground, #005a9e);
-    transform: scale(1.05);
+    background: var(--vscode-button-hoverBackground, #5b3df5);
+    transform: scale(1.03);
   }
   
   .chat-toggle.panel-open {
