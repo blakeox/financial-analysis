@@ -12,6 +12,8 @@ export interface Props {
   canonical?: string;
   image?: string;
   showNav?: boolean;
+  showFooter?: boolean;
+  navLinks?: { label: string; href: string }[];
   showChat?: boolean;
   showToolAnalysis?: boolean;
   keywords?: string;
@@ -25,6 +27,8 @@ const {
   canonical,
   image,
   showNav = true,
+  showFooter = true,
+  navLinks: navLinksProp,
   showChat = true,
   showToolAnalysis = true,
   keywords,
@@ -32,7 +36,7 @@ const {
   type,
 } = Astro.props as Props;
 
-const navLinks = [
+const navLinks = navLinksProp ?? [
   { label: 'Home', href: '/' },
   { label: 'Models', href: '/models' },
   { label: 'Journey', href: '/journey' },
@@ -85,9 +89,9 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <meta name="color-scheme" content="light dark" />
 
     <!-- Theme Colors for Mobile Browsers -->
-    <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: dark)" />
-    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="theme-color" content="#6d4aff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#050816" media="(prefers-color-scheme: dark)" />
+    <meta name="msapplication-TileColor" content="#6d4aff" />
 
     <!-- Icons and App Manifest -->
     <link rel="icon" type="image/png" href="/fanalyx_favicon.png" sizes="512x512" />
@@ -131,6 +135,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     {
       import.meta.env.PROD && import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN && (
         <script
+          is:inline
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN}"}`}
@@ -146,6 +151,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
         document.documentElement.classList.add('dark');
       }
     </script>
+    <slot name="head" />
 
     {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
     {
@@ -154,7 +160,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
           <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@100..900&display=swap"
             rel="stylesheet"
           />
           {/* Preconnect to AdSense for better performance */}
@@ -171,7 +177,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
       )
     }
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen font-sans">
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-white">
     <!-- Skip Link (visually hidden until focus) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -185,7 +191,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     }
 
     {/* Spacer to reserve header height and prevent content jump (h-16 = 4rem) */}
-    <div aria-hidden="true" class="h-16"></div>
+    {showNav && <div aria-hidden="true" class="h-16" />}
 
     <!-- Main Content -->
     <main id="main-content" tabindex="-1" class="flex-1">
@@ -193,7 +199,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     </main>
 
     <!-- Footer -->
-    <Footer client:only="react" />
+    {showFooter && <Footer client:only="react" />}
 
     <!-- Chat Panel -->
     {showChat && <ChatPanel />}

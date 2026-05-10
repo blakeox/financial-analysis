@@ -107,18 +107,18 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
 
   // Render summary cards with emergency fund
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Income</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.incomeSummary.totalMonthlyIncome)}</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Income</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.incomeSummary.totalMonthlyIncome)}</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Monthly Expenses</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.expenseSummary.totalMonthlyExpenses)}</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Monthly Expenses</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.expenseSummary.totalMonthlyExpenses)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Net Income</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.metrics.monthlyNetIncome)}</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months saved</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Net Income</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.metrics.monthlyNetIncome)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months saved</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Savings Rate</h5>
@@ -132,39 +132,39 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
 
   resultsContainer.innerHTML = `
     <!-- Emergency Fund Progress Tracker -->
-    <div class="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-700">
+    <div class="bg-linear-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-emerald-200 dark:border-emerald-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🛡️</span> Emergency Fund Progress
       </h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${emergencyFund.recommendation}</p>
+      <p class="fa-script-copy-muted mb-4">${emergencyFund.recommendation}</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Fund</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.currentAmount)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <p class="fa-script-copy-muted mb-1">Current Fund</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(emergencyFund.currentAmount)}</p>
+          <p class="fa-script-note mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Target Fund</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${formatCurrency(emergencyFund.targetAmount)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${emergencyFund.targetMonths} months</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <p class="fa-script-copy-muted mb-1">Target Fund</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(emergencyFund.targetAmount)}</p>
+          <p class="fa-script-note mt-1">${emergencyFund.targetMonths} months</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Time to Complete</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">At current savings</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <p class="fa-script-copy-muted mb-1">Time to Complete</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
+          <p class="fa-script-note mt-1">At current savings</p>
         </div>
       </div>
       
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <div class="flex justify-between text-sm mb-2">
-          <span class="text-gray-600 dark:text-gray-400">Progress</span>
-          <span class="font-semibold text-gray-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
+          <span class="fa-script-copy-muted">Progress</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-          <div class="bg-linear-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
+          <div class="bg-linear-to-r from-emerald-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
         </div>
-        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <div class="mt-2 flex justify-between fa-script-note">
           <span>$0</span>
           <span class="font-semibold">${formatCurrency(emergencyFund.currentAmount)}</span>
           <span>${formatCurrency(emergencyFund.targetAmount)}</span>
@@ -172,55 +172,55 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       </div>
     </div>
     
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">50/30/20 Budget Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">50/30/20 Budget Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Needs (50%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Housing, utilities, food, transportation</p>
+            <span class="fa-script-label font-medium">Needs (50%)</span>
+            <p class="fa-script-copy-subtle">Housing, utilities, food, transportation</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(needs.current)}</span>
-            <p class="text-sm ${needs.currentPercent > needs.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(needs.currentPercent)} vs ${formatPercent(needs.recommendedPercent)} target</p>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(needs.current)}</span>
+            <p class="text-sm ${needs.currentPercent > needs.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(needs.currentPercent)} vs ${formatPercent(needs.recommendedPercent)} target</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Wants (30%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Entertainment, dining, hobbies</p>
+            <span class="fa-script-label font-medium">Wants (30%)</span>
+            <p class="fa-script-copy-subtle">Entertainment, dining, hobbies</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(wants.current)}</span>
-            <p class="text-sm ${wants.currentPercent > wants.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(wants.currentPercent)} vs ${formatPercent(wants.recommendedPercent)} target</p>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(wants.current)}</span>
+            <p class="text-sm ${wants.currentPercent > wants.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(wants.currentPercent)} vs ${formatPercent(wants.recommendedPercent)} target</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Savings (20%)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Emergency fund, retirement, investments</p>
+            <span class="fa-script-label font-medium">Savings (20%)</span>
+            <p class="fa-script-copy-subtle">Emergency fund, retirement, investments</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(savings.current)}</span>
-            <p class="text-sm ${savings.currentPercent < savings.recommendedPercent ? 'text-red-600' : 'text-green-600'}">${formatPercent(savings.currentPercent)} vs ${formatPercent(savings.recommendedPercent)} target</p>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(savings.current)}</span>
+            <p class="text-sm ${savings.currentPercent < savings.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(savings.currentPercent)} vs ${formatPercent(savings.recommendedPercent)} target</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recommendations</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
       
       <ul class="space-y-3">
         ${result.recommendations
           .map(
-            (rec) => `
+            (rec: string) => `
           <li class="flex items-start gap-3">
-            <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
-            <span class="text-gray-700 dark:text-gray-300">${rec}</span>
+            <span class="text-violet-600 dark:text-violet-400 mt-1">•</span>
+            <span class="text-slate-700 dark:text-slate-300">${rec}</span>
           </li>
         `
           )

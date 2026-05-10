@@ -1,0 +1,17 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  className?: string;
+  tag?: string;
+}
+
+const { title, description, className = '', tag = 'article' } = Astro.props as Props;
+const Tag = tag;
+---
+
+<Tag class:list={['fa-card', className]}>
+  {title && <h2 class="fa-card-title">{title}</h2>}
+  {description && <p class="fa-card-copy">{description}</p>}
+  <slot />
+</Tag>

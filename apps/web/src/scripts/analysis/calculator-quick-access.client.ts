@@ -50,7 +50,7 @@ class CalculatorQuickAccess {
 
     if (favorites.length === 0) {
       this.favoritesList.innerHTML =
-        '<p class="text-sm text-gray-500 dark:text-gray-400">No favorites yet</p>';
+        '<p class="fa-script-copy-subtle">No favorites yet</p>';
       return;
     }
 
@@ -67,7 +67,7 @@ class CalculatorQuickAccess {
 
     if (recent.length === 0) {
       this.recentList.innerHTML =
-        '<p class="text-sm text-gray-500 dark:text-gray-400">No recent calculators</p>';
+        '<p class="fa-script-copy-subtle">No recent calculators</p>';
       return;
     }
 
@@ -82,7 +82,7 @@ class CalculatorQuickAccess {
     return `
       <a 
         href="/calculator/${calculator.id}" 
-        class="block px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
+        class="block px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-md transition-colors duration-200"
       >
         <div class="flex items-center">
           <span class="mr-2">${calculator.icon}</span>
@@ -126,10 +126,10 @@ class CalculatorQuickAccess {
 
     if (isFavorite) {
       this.favoriteBtn.classList.remove(
-        'bg-gray-100',
-        'hover:bg-gray-200',
-        'dark:bg-gray-700',
-        'dark:hover:bg-gray-600'
+        'bg-slate-100',
+        'hover:bg-slate-200',
+        'dark:bg-slate-700',
+        'dark:hover:bg-slate-600'
       );
       this.favoriteBtn.classList.add(
         'bg-yellow-100',
@@ -146,10 +146,10 @@ class CalculatorQuickAccess {
         'dark:hover:bg-yellow-800'
       );
       this.favoriteBtn.classList.add(
-        'bg-gray-100',
-        'hover:bg-gray-200',
-        'dark:bg-gray-700',
-        'dark:hover:bg-gray-600'
+        'bg-slate-100',
+        'hover:bg-slate-200',
+        'dark:bg-slate-700',
+        'dark:hover:bg-slate-600'
       );
       favoriteText.textContent = 'Add to Favorites';
     }
@@ -204,7 +204,7 @@ class CalculatorQuickAccess {
     // Create a temporary feedback element
     const feedback = document.createElement('div');
     feedback.className =
-      'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-all duration-300';
+      'fa-toast-success fixed top-4 right-4 px-4 py-2 z-50 transition-all duration-300';
     feedback.textContent = message;
 
     document.body.appendChild(feedback);

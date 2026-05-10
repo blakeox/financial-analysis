@@ -85,7 +85,7 @@ async function handleCalculate(
 
   if (validationError) {
     resultsDiv.innerHTML = `
-      <div class="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
+      <div class="p-4 bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 rounded-lg">
         <p class="font-medium">Validation Error</p>
         <p class="text-sm">${validationError}</p>
       </div>
@@ -110,11 +110,11 @@ async function handleCalculate(
   resultsDiv.innerHTML = `
     <div class="p-8 text-center">
       <div class="animate-pulse">
-        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
-        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-4"></div>
-        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mx-auto"></div>
+        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mx-auto mb-4"></div>
+        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto mb-4"></div>
+        <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mx-auto"></div>
       </div>
-      <p class="mt-4 text-gray-500 dark:text-gray-400">Running CFP-level analysis...</p>
+      <p class="mt-4 text-slate-500 dark:text-slate-400">Running CFP-level analysis...</p>
     </div>
   `;
 
@@ -194,7 +194,7 @@ async function handleCalculate(
   } catch (error) {
     console.error('Calculation error:', error);
     resultsDiv.innerHTML = `
-      <div class="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
+      <div class="p-4 bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 rounded-lg">
         <p class="font-medium">Calculation Error</p>
         <p class="text-sm">${error instanceof Error ? error.message : 'An unexpected error occurred'}</p>
         <p class="text-xs mt-2">Please check your inputs and try again.</p>

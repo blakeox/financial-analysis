@@ -105,22 +105,22 @@ const displayResults = (result: MAResults): void => {
 
   const accretionClass =
     result.epsAccretionPercentage >= 0
-      ? 'text-green-600 dark:text-green-400'
-      : 'text-red-600 dark:text-red-400';
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : 'text-rose-600 dark:text-rose-400';
   const accretionIcon = result.epsAccretionPercentage >= 0 ? '↗' : '↘';
 
   // Render summary cards
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Transaction Value</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.transactionValue)}</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Transaction Value</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.transactionValue)}</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Premium</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatPercent(result.premiumPercentage)}</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Premium</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatPercent(result.premiumPercentage)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">EPS Accretion</h5>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">EPS Accretion</h5>
       <p class="text-2xl font-bold ${accretionClass}">${accretionIcon} ${formatPercent(result.epsAccretionPercentage)}</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
@@ -131,44 +131,44 @@ const displayResults = (result: MAResults): void => {
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Transaction Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Transaction Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Transaction Value</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total consideration paid</p>
+            <span class="fa-script-label">Transaction Value</span>
+            <p class="fa-script-copy-subtle">Total consideration paid</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.transactionValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.transactionValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Enterprise Value</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total business value</p>
+            <span class="fa-script-label">Enterprise Value</span>
+            <p class="fa-script-copy-subtle">Total business value</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.enterpriseValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.enterpriseValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Premium Paid</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Above current market price</p>
+            <span class="fa-script-label">Premium Paid</span>
+            <p class="fa-script-copy-subtle">Above current market price</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(result.premiumPercentage)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(result.premiumPercentage)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">EPS Impact</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Earnings per share change</p>
+            <span class="fa-script-label">EPS Impact</span>
+            <p class="fa-script-copy-subtle">Earnings per share change</p>
           </div>
           <div class="text-right">
             <span class="font-semibold ${accretionClass}">${accretionIcon} ${formatPercent(result.epsAccretionPercentage)}</span>
@@ -177,69 +177,69 @@ const displayResults = (result: MAResults): void => {
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Synergy Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Synergy Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Total Synergies</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Revenue + Cost synergies</p>
+            <span class="fa-script-label">Total Synergies</span>
+            <p class="fa-script-copy-subtle">Revenue + Cost synergies</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.totalSynergies)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.totalSynergies)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Combined Revenue</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Post-merger revenue</p>
+            <span class="fa-script-label">Combined Revenue</span>
+            <p class="fa-script-copy-subtle">Post-merger revenue</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.combinedRevenue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.combinedRevenue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Combined EBITDA</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Post-merger EBITDA</p>
+            <span class="fa-script-label">Combined EBITDA</span>
+            <p class="fa-script-copy-subtle">Post-merger EBITDA</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.combinedEBITDA)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.combinedEBITDA)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Leverage Ratio</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Debt to EBITDA ratio</p>
+            <span class="fa-script-label">Leverage Ratio</span>
+            <p class="fa-script-copy-subtle">Debt to EBITDA ratio</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.leverageRatio.toFixed(1)}x</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.leverageRatio.toFixed(1)}x</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Transaction Assessment</h4>
-          <p class="text-blue-800 dark:text-blue-200">The ${formatPercent(result.premiumPercentage)} premium suggests ${result.premiumPercentage > 20 ? 'aggressive' : 'reasonable'} pricing for the target company.</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Transaction Assessment</h4>
+          <p class="text-violet-800 dark:text-violet-200">The ${formatPercent(result.premiumPercentage)} premium suggests ${result.premiumPercentage > 20 ? 'aggressive' : 'reasonable'} pricing for the target company.</p>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">EPS Impact</h4>
-          <p class="text-green-800 dark:text-green-200">The transaction is ${result.epsAccretionPercentage >= 0 ? 'accretive' : 'dilutive'} to earnings, with a ${formatPercent(Math.abs(result.epsAccretionPercentage))} impact on EPS.</p>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">EPS Impact</h4>
+          <p class="text-emerald-800 dark:text-emerald-200">The transaction is ${result.epsAccretionPercentage >= 0 ? 'accretive' : 'dilutive'} to earnings, with a ${formatPercent(Math.abs(result.epsAccretionPercentage))} impact on EPS.</p>
         </div>
         
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">Synergy Value</h4>
-          <p class="text-purple-800 dark:text-purple-200">Total synergies of ${formatCurrency(result.totalSynergies)} represent ${formatPercent((result.totalSynergies / result.transactionValue) * 100)} of the transaction value.</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Synergy Value</h4>
+          <p class="text-violet-800 dark:text-violet-200">Total synergies of ${formatCurrency(result.totalSynergies)} represent ${formatPercent((result.totalSynergies / result.transactionValue) * 100)} of the transaction value.</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import type { ChatRequestPayload, ChatResponsePayload } from './types';
 
+type StreamChunk = string | Pick<ChatResponsePayload, 'functionCallingResults'>;
+
 export type ChatTransportConfig = {
   endpoint: string;
   streamEndpoint?: string;
@@ -10,7 +12,7 @@ export type ChatTransportConfig = {
 
 export type ChatTransport = {
   send(payload: ChatRequestPayload): Promise<ChatResponsePayload>;
-  stream(payload: ChatRequestPayload, onChunk: (chunk: any) => void): Promise<void>;
+  stream(payload: ChatRequestPayload, onChunk: (chunk: StreamChunk) => void): Promise<void>;
 };
 
 const delay = (ms: number): Promise<void> =>
@@ -72,7 +74,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
 
   const streamWithRetry = async (
     payload: ChatRequestPayload,
-    onChunk: (chunk: string) => void,
+    onChunk: (chunk: StreamChunk) => void,
     attempt = 1
   ): Promise<void> => {
     try {

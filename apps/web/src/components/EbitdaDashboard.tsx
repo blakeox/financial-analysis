@@ -21,7 +21,9 @@ import {
   type MonthlyFinancialsData,
   type ScenarioConfigData,
   buildScenarioPayload,
+  cn,
   type DashboardScenarioConfig,
+  textColors,
 } from '@financial-analysis/ui';
 import { useCallback, useState } from 'react';
 
@@ -175,11 +177,12 @@ export function EbitdaDashboard() {
   return (
     <div className="space-y-8">
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+      <Card variant="rail" className="bg-linear-to-r from-violet-50/90 to-emerald-50/80 dark:from-violet-950/30 dark:to-emerald-950/20">
+        <CardContent className="p-6">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
+              <div className="rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 p-2.5 text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)]">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -194,15 +197,15 @@ export function EbitdaDashboard() {
                   />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="fa-panel-title text-3xl">
                 EBITDA Forecasting Dashboard
               </h2>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+            <p className="fa-model-description text-lg">
               Configure your business parameters and generate comprehensive financial forecasts
             </p>
             {state.results && (
-              <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              <div className={cn('text-sm font-medium', textColors.accent)}>
                 ✅ Forecast generated for {state.results.forecast.length} months
               </div>
             )}
@@ -215,24 +218,24 @@ export function EbitdaDashboard() {
                 const monthlyLeasePayments = state.leases.filter(l=>l.isActive).reduce((s,l)=> s + (l.monthlyPayment||0),0);
                 const monthlyOpExBaseline = state.expenseTypes.filter(e=>e.isActive).reduce((s,e)=> s + (e.currentMonthlyAmount||0),0) + monthlyLeasePayments;
                 const format = (v:number) => v.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0});
-                const chipBase = 'rounded-lg p-3 bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col';
+                const chipBase = 'fa-stat-chip';
                 return (
                   <>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Active Employees</span>
-                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{employeeCount}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Active Employees</span>
+                      <span className="fa-scenario-title text-lg">{employeeCount}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Monthly Depreciation</span>
-                      <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">{format(monthlyDepreciation)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Monthly Depreciation</span>
+                      <span className="fa-metric-value-info">{format(monthlyDepreciation)}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Lease Payments / Mo</span>
-                      <span className="text-lg font-semibold text-indigo-700 dark:text-indigo-300">{format(monthlyLeasePayments)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Lease Payments / Mo</span>
+                      <span className="fa-metric-value-secondary">{format(monthlyLeasePayments)}</span>
                     </div>
                     <div className={chipBase}>
-                      <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Baseline OpEx / Mo</span>
-                      <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">{format(monthlyOpExBaseline)}</span>
+                      <span className="fa-help-copy uppercase tracking-wide">Baseline OpEx / Mo</span>
+                      <span className="fa-metric-value-accent">{format(monthlyOpExBaseline)}</span>
                     </div>
                   </>
                 );
@@ -256,7 +259,7 @@ export function EbitdaDashboard() {
             <Button
               onClick={generateForecast}
               disabled={!hasValidData() || state.isLoading}
-              className="min-w-[160px] bg-blue-600 hover:bg-blue-700"
+              className="min-w-[160px]"
             >
               {state.isLoading ? (
                 <>
@@ -284,14 +287,16 @@ export function EbitdaDashboard() {
             </Button>
           </div>
         </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Enhanced Error Display */}
       {state.error && (
-        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl p-6 shadow-sm">
+        <Card variant="subtle" className="border-rose-200 bg-rose-50/90 dark:border-rose-900/70 dark:bg-rose-950/30">
+          <CardContent className="p-6">
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg className="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-6 w-6 text-rose-500" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -300,24 +305,25 @@ export function EbitdaDashboard() {
               </svg>
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-lg font-medium text-red-800 dark:text-red-200">
+              <h3 className={cn('text-lg font-medium', textColors.danger)}>
                 Forecast Generation Error
               </h3>
-              <div className="mt-2 text-red-700 dark:text-red-300">
+              <div className={cn('mt-2', textColors.danger)}>
                 <p className="leading-relaxed">{state.error}</p>
               </div>
               <div className="mt-4">
                 <Button
                   variant="outline"
                   onClick={() => setState((prev) => ({ ...prev, error: null }))}
-                  className="text-red-700 border-red-300 hover:bg-red-50"
+                  className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-200 dark:hover:bg-rose-950/30"
                 >
                   Dismiss
                 </Button>
               </div>
             </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Results Display */}
@@ -327,82 +333,86 @@ export function EbitdaDashboard() {
       {!state.results && (
         <>
           {/* Module selector to add sections on demand */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <div className="fa-card p-6 mb-6">
             <ModuleSelector activeModules={activeModules} onAddModule={handleAddModule} />
           </div>
 
           {/* Progress Indicator */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <Card variant="subtle" className="p-6">
+            <h3 className="fa-scenario-title mb-4">
               Setup Progress
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div
-                className={`text-center p-3 rounded-lg border ${
+                className={`rounded-2xl border p-3 text-center ${
                   Object.values(state.financials).some((v) => (v || 0) > 0)
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                    ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
                     Object.values(state.financials).some((v) => (v || 0) > 0)
-                      ? 'text-green-600'
-                      : 'text-gray-400'
+                      ? 'text-emerald-600 dark:text-emerald-300'
+                      : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
                   💰
                 </div>
-                <div className="text-sm font-medium">Revenue Data</div>
+                <div className="fa-list-copy-strong">Revenue Data</div>
               </div>
               <div
-                className={`text-center p-3 rounded-lg border ${
+                className={`rounded-2xl border p-3 text-center ${
                   state.employees.length > 0
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                    ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
-                    state.employees.length > 0 ? 'text-green-600' : 'text-gray-400'
+                    state.employees.length > 0
+                      ? 'text-emerald-600 dark:text-emerald-300'
+                      : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
                   👥
                 </div>
-                <div className="text-sm font-medium">Employees ({state.employees.length})</div>
+                <div className="fa-list-copy-strong">Employees ({state.employees.length})</div>
               </div>
               <div
-                className={`text-center p-3 rounded-lg border ${
+                className={`rounded-2xl border p-3 text-center ${
                   state.expenseTypes.length > 0
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                    ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
-                    state.expenseTypes.length > 0 ? 'text-green-600' : 'text-gray-400'
+                    state.expenseTypes.length > 0
+                      ? 'text-emerald-600 dark:text-emerald-300'
+                      : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
                   📊
                 </div>
-                <div className="text-sm font-medium">Expenses ({state.expenseTypes.length})</div>
+                <div className="fa-list-copy-strong">Expenses ({state.expenseTypes.length})</div>
               </div>
-              <div className="text-center p-3 rounded-lg border bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
-                <div className="text-2xl mb-2 text-blue-600">⚙️</div>
-                <div className="text-sm font-medium">Scenario Config</div>
+              <div className="rounded-2xl border border-violet-200 bg-violet-50/90 p-3 text-center dark:border-violet-900/70 dark:bg-violet-950/30">
+                <div className="mb-2 text-2xl text-violet-600 dark:text-violet-300">⚙️</div>
+                <div className="fa-list-copy-strong">Scenario Config</div>
               </div>
             </div>
-          </div>
+          </Card>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <div className="space-y-8">
               {activeModules.includes('financials') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                    <div className="rounded-2xl bg-emerald-100 p-2 dark:bg-emerald-950/30">
                       <svg
-                        className="w-5 h-5 text-green-600 dark:text-green-400"
+                        className="w-5 h-5 text-emerald-600 dark:text-emerald-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -429,12 +439,12 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('scenario') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <div className="rounded-2xl bg-violet-100 p-2 dark:bg-violet-950/30">
                       <svg
-                        className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                        className="w-5 h-5 text-violet-600 dark:text-violet-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -465,12 +475,12 @@ export function EbitdaDashboard() {
 
             <div className="space-y-8">
               {activeModules.includes('employees') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <div className="rounded-2xl bg-sky-100 p-2 dark:bg-sky-950/30">
                       <svg
-                        className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                        className="w-5 h-5 text-sky-600 dark:text-sky-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -493,7 +503,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('expenses') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
@@ -524,7 +534,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('fixed-assets') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="fa-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -552,7 +562,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('leases') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
@@ -585,12 +595,15 @@ export function EbitdaDashboard() {
 
       {/* Enhanced Help Text */}
       {!state.results && !hasValidData() && (
-        <Card className="border-2 border-dashed border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10">
+        <Card
+          variant="rail"
+          className="fa-highlight-card border-2 border-dashed border-violet-200/80 bg-violet-50/50 dark:border-violet-900/70 dark:bg-violet-950/15"
+        >
           <CardContent className="p-8">
             <div className="text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-300">
                 <svg
-                  className="w-8 h-8 text-blue-600 dark:text-blue-400"
+                  className="h-8 w-8"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -604,72 +617,72 @@ export function EbitdaDashboard() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                <h3 className="fa-callout-title-info text-xl mb-2">
                   Welcome to EBITDA Forecasting
                 </h3>
-                <p className="text-blue-700 dark:text-blue-300 text-lg leading-relaxed">
+                <p className="fa-callout-copy-info text-lg leading-relaxed">
                   Let's create your financial forecast in a few simple steps
                 </p>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-blue-200 dark:border-blue-700">
+              <div className="fa-subcard p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
                       1
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Revenue Data
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Enter monthly revenue
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
                       2
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Add Employees
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Salary & billable hours
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
                       3
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="fa-scenario-title">
                         Expense Types
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-meta-copy text-sm">
                         Monthly amounts
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
                       4
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">Configure</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="fa-scenario-title">Configure</div>
+                      <div className="fa-meta-copy text-sm">
                         Scenario settings
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                       ✓
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">Generate</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Your forecast</div>
+                      <div className="fa-scenario-title">Generate</div>
+                      <div className="fa-meta-copy text-sm">Your forecast</div>
                     </div>
                   </div>
                 </div>

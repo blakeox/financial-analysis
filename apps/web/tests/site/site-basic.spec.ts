@@ -6,14 +6,17 @@ test.describe('Site route contract', () => {
 
     expect(response?.ok()).toBeTruthy();
     await expect(page).toHaveURL('/');
-    await expect(page).toHaveTitle(/Fanalyx|Financial Calculators/i);
+    await expect(page).toHaveTitle(/Fanalyx|Financial Analysis/i);
     await expect(page.locator('#site-nav')).toContainText(/Fanalyx/i);
     await expect(
-      page.getByRole('heading', { level: 1, name: /Free Financial Calculators & AI Insights/i })
+      page.getByRole('heading', {
+        level: 1,
+        name: /Ask anything\.\s*Get clear financial answers\./i,
+      })
     ).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Browse Calculators' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'Try Fanalyx Free' }).first()).toHaveAttribute(
       'href',
-      '/models'
+      '/agent'
     );
   });
 

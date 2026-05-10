@@ -72,33 +72,33 @@ const initGoalPlanningCalculator = () => {
           ${goalCalculations
             .map(
               goal => `
-                <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
                   <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold text-gray-900 dark:text-white">${goal.name}</h4>
+                    <h4 class="font-semibold text-slate-900 dark:text-white">${goal.name}</h4>
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${
                       goal.type === 'Short-term'
-                        ? 'bg-blue-100 text-blue-800'
+                        ? 'bg-violet-100 text-violet-800'
                         : goal.type === 'Medium-term'
                         ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-purple-100 text-purple-800'
+                        : 'bg-violet-100 text-violet-800'
                     }">${goal.type}</span>
                   </div>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Goal Amount:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white">$${goal.cost.toLocaleString()}</span>
+                      <span class="text-slate-600 dark:text-slate-400">Goal Amount:</span>
+                      <span class="font-semibold text-slate-900 dark:text-white">$${goal.cost.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Monthly Needed:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white">$${goal.monthlyNeeded.toLocaleString()}</span>
+                      <span class="text-slate-600 dark:text-slate-400">Monthly Needed:</span>
+                      <span class="font-semibold text-slate-900 dark:text-white">$${goal.monthlyNeeded.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Timeline:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white">${Math.round(goal.timeline)} months</span>
+                      <span class="text-slate-600 dark:text-slate-400">Timeline:</span>
+                      <span class="font-semibold text-slate-900 dark:text-white">${Math.round(goal.timeline)} months</span>
                     </div>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Status:</span>
-                      <span class="font-semibold ${goal.achievable ? 'text-green-600' : 'text-red-600'}">
+                      <span class="text-slate-600 dark:text-slate-400">Status:</span>
+                      <span class="font-semibold ${goal.achievable ? 'text-emerald-600' : 'text-rose-600'}">
                         ${goal.achievable ? '✅ Achievable' : '⚠️ Needs adjustment'}
                       </span>
                     </div>
@@ -106,7 +106,7 @@ const initGoalPlanningCalculator = () => {
                   ${
                     !goal.achievable
                       ? `
-                    <div class="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm">
+                    <div class="mt-2 p-2 bg-rose-50 dark:bg-rose-900/20 rounded text-sm">
                       <strong>Recommendation:</strong> Increase monthly savings to $${goal.monthlyNeeded.toLocaleString()} 
                       or extend timeline to ${goal.monthsToComplete} months
                     </div>
@@ -118,8 +118,8 @@ const initGoalPlanningCalculator = () => {
             )
             .join('')}
 
-          <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Total Monthly Budget</h4>
+          <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Total Monthly Budget</h4>
             <p class="text-lg">
               You're allocating <strong>$${monthlyBudget.toLocaleString()}</strong> per month to goals.
               ${
@@ -178,13 +178,13 @@ const initGoalPlanningCalculator = () => {
       localStorage.setItem(journeyStateKey, JSON.stringify(journeyState));
 
       saveBtn.textContent = '✓ Saved!';
-      saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-      saveBtn.classList.add('bg-green-500');
+      saveBtn.classList.remove('fa-button-primary');
+      saveBtn.classList.add('fa-button-success-state');
 
       setTimeout(() => {
         saveBtn.textContent = 'Save Goals';
-        saveBtn.classList.remove('bg-green-500');
-        saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        saveBtn.classList.remove('fa-button-success-state');
+        saveBtn.classList.add('fa-button-primary');
       }, 2000);
 
       window.dispatchEvent(

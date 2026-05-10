@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['auto-lease-decision'];
@@ -41,269 +43,224 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey/auto-lease-decision" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3 space-y-6">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">⚖️</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <p class="text-gray-700 dark:text-gray-300">
-              Compare a new lease against financing a new car or buying one with cash. Enter each path once, avoid repeating the same numbers across steps, and mark the cash route as “not an option” if savings are short.
-            </p>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                class="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="⚖️"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+            supportingText={`Compare a new lease against financing a new car or buying one with cash. Enter each path once, avoid repeating the same numbers across steps, and mark the cash route as “not an option” if savings are short.`}
+          />
 
           <!-- Comparison Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="fa-card p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scenario inputs</h2>
-              <span id="replacement-status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+              <h2 class="fa-panel-title">Scenario inputs</h2>
+              <span id="replacement-status" class="fa-meta-copy !mt-0"></span>
             </div>
             <form id="replacement-form" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="horizonMonths">Comparison horizon (months)</label>
-                  <input id="horizonMonths" name="horizonMonths" type="number" min="12" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="36" />
+                  <label class="fa-field-label mb-2" for="horizonMonths">Comparison horizon (months)</label>
+                  <input id="horizonMonths" name="horizonMonths" type="number" min="12" step="1" class="fa-input-surface w-full" placeholder="36" />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="annualMiles">Annual miles</label>
-                  <input id="annualMiles" name="annualMiles" type="number" min="5000" step="500" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="12000" />
+                  <label class="fa-field-label mb-2" for="annualMiles">Annual miles</label>
+                  <input id="annualMiles" name="annualMiles" type="number" min="5000" step="500" class="fa-input-surface w-full" placeholder="12000" />
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">New Lease Terms</h3>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="leaseMonthly">Monthly payment ($)</label>
-                  <input id="leaseMonthly" name="leaseMonthly" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="430" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseDownPayment">Down payment / drive-off ($)</label>
-                  <input id="leaseDownPayment" name="leaseDownPayment" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="2500" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseFees">Disposition/fees ($)</label>
-                  <input id="leaseFees" name="leaseFees" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="495" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseInsurance">Insurance ($/mo)</label>
-                  <input id="leaseInsurance" name="leaseInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="150" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseMaintenance">Maintenance ($/mo)</label>
-                  <input id="leaseMaintenance" name="leaseMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="leaseFuel">Fuel/charging ($/mo)</label>
-                  <input id="leaseFuel" name="leaseFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                <div class="fa-subcard">
+                  <h3 class="fa-scenario-title mb-2">New Lease Terms</h3>
+                  <label class="fa-field-label mb-1" for="leaseMonthly">Monthly payment ($)</label>
+                  <input id="leaseMonthly" name="leaseMonthly" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="430" />
+                  <label class="fa-field-label mt-3 mb-1" for="leaseDownPayment">Down payment / drive-off ($)</label>
+                  <input id="leaseDownPayment" name="leaseDownPayment" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="2500" />
+                  <label class="fa-field-label mt-3 mb-1" for="leaseFees">Disposition/fees ($)</label>
+                  <input id="leaseFees" name="leaseFees" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="495" />
+                  <label class="fa-field-label mt-3 mb-1" for="leaseInsurance">Insurance ($/mo)</label>
+                  <input id="leaseInsurance" name="leaseInsurance" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="150" />
+                  <label class="fa-field-label mt-3 mb-1" for="leaseMaintenance">Maintenance ($/mo)</label>
+                  <input id="leaseMaintenance" name="leaseMaintenance" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="60" />
+                  <label class="fa-field-label mt-3 mb-1" for="leaseFuel">Fuel/charging ($/mo)</label>
+                  <input id="leaseFuel" name="leaseFuel" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="180" />
                 </div>
 
-                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Finance a New Car</h3>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="financePrice">Vehicle price ($)</label>
-                  <input id="financePrice" name="financePrice" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="35000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeDownPayment">Down payment ($)</label>
-                  <input id="financeDownPayment" name="financeDownPayment" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeApr">APR (%)</label>
-                  <input id="financeApr" name="financeApr" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5.9" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeTermMonths">Loan term (months)</label>
-                  <input id="financeTermMonths" name="financeTermMonths" type="number" min="1" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeResaleValue">Resale value at horizon ($)</label>
-                  <input id="financeResaleValue" name="financeResaleValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="22000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeInsurance">Insurance ($/mo)</label>
-                  <input id="financeInsurance" name="financeInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="165" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeMaintenance">Maintenance ($/mo)</label>
-                  <input id="financeMaintenance" name="financeMaintenance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="95" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="financeFuel">Fuel/charging ($/mo)</label>
-                  <input id="financeFuel" name="financeFuel" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                <div class="fa-subcard">
+                  <h3 class="fa-scenario-title mb-2">Finance a New Car</h3>
+                  <label class="fa-field-label mb-1" for="financePrice">Vehicle price ($)</label>
+                  <input id="financePrice" name="financePrice" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="35000" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeDownPayment">Down payment ($)</label>
+                  <input id="financeDownPayment" name="financeDownPayment" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="5000" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeApr">APR (%)</label>
+                  <input id="financeApr" name="financeApr" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="5.9" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeTermMonths">Loan term (months)</label>
+                  <input id="financeTermMonths" name="financeTermMonths" type="number" min="1" step="1" class="fa-input-surface w-full" placeholder="60" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeResaleValue">Resale value at horizon ($)</label>
+                  <input id="financeResaleValue" name="financeResaleValue" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="22000" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeInsurance">Insurance ($/mo)</label>
+                  <input id="financeInsurance" name="financeInsurance" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="165" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeMaintenance">Maintenance ($/mo)</label>
+                  <input id="financeMaintenance" name="financeMaintenance" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="95" />
+                  <label class="fa-field-label mt-3 mb-1" for="financeFuel">Fuel/charging ($/mo)</label>
+                  <input id="financeFuel" name="financeFuel" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="180" />
                 </div>
 
-                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div class="fa-subcard">
                   <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-md font-semibold text-gray-900 dark:text-white">Buy with Cash (New Car)</h3>
-                    <label class="flex items-center space-x-2 text-xs text-gray-700 dark:text-gray-300">
-                      <input id="cashNotOption" name="cashNotOption" type="checkbox" class="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600" />
+                    <h3 class="fa-scenario-title">Buy with Cash (New Car)</h3>
+                    <label class="fa-field-label !font-normal !text-xs flex items-center space-x-2">
+                      <input id="cashNotOption" name="cashNotOption" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 dark:border-slate-700 dark:bg-slate-950/40" />
                       <span>Not an option</span>
                     </label>
                   </div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Skip this if you do not have enough cash on hand.</p>
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="cashPrice">Purchase price (cash outlay)</label>
-                  <input id="cashPrice" name="cashPrice" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="28000" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashTaxesFees">Taxes & fees ($)</label>
-                  <input id="cashTaxesFees" name="cashTaxesFees" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="1800" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashResale">Resale value at horizon ($)</label>
-                  <input id="cashResale" name="cashResale" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19500" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashInsurance">Insurance ($/mo)</label>
-                  <input id="cashInsurance" name="cashInsurance" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="145" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashMaintenance">Maintenance ($/mo)</label>
-                  <input id="cashMaintenance" name="cashMaintenance" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="90" />
-                  <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="cashFuel">Fuel/charging ($/mo)</label>
-                  <input id="cashFuel" name="cashFuel" type="number" min="0" step="0.01" class="cash-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="180" />
+                  <p class="fa-help-copy mb-3 !mt-0">Skip this if you do not have enough cash on hand.</p>
+                  <label class="fa-field-label mb-1" for="cashPrice">Purchase price (cash outlay)</label>
+                  <input id="cashPrice" name="cashPrice" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="28000" />
+                  <label class="fa-field-label mt-3 mb-1" for="cashTaxesFees">Taxes & fees ($)</label>
+                  <input id="cashTaxesFees" name="cashTaxesFees" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="1800" />
+                  <label class="fa-field-label mt-3 mb-1" for="cashResale">Resale value at horizon ($)</label>
+                  <input id="cashResale" name="cashResale" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="19500" />
+                  <label class="fa-field-label mt-3 mb-1" for="cashInsurance">Insurance ($/mo)</label>
+                  <input id="cashInsurance" name="cashInsurance" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="145" />
+                  <label class="fa-field-label mt-3 mb-1" for="cashMaintenance">Maintenance ($/mo)</label>
+                  <input id="cashMaintenance" name="cashMaintenance" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="90" />
+                  <label class="fa-field-label mt-3 mb-1" for="cashFuel">Fuel/charging ($/mo)</label>
+                  <input id="cashFuel" name="cashFuel" type="number" min="0" step="0.01" class="cash-input fa-input-surface w-full" placeholder="180" />
                 </div>
               </div>
 
               <!-- Incentives & Rebates -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Incentives & Rebates</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Enter any manufacturer, dealer, or government incentives that apply to your replacement options.</p>
+              <div class="fa-panel-divider-top pt-6">
+                <h3 class="fa-scenario-title mb-4">Incentives & Rebates</h3>
+                <p class="fa-meta-copy mb-4 !mt-0">Enter any manufacturer, dealer, or government incentives that apply to your replacement options.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="loyaltyBonus">Loyalty bonus ($)</label>
-                    <input id="loyaltyBonus" name="loyaltyBonus" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="500" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Returning customer bonus from same brand</p>
+                    <label class="fa-field-label mb-2" for="loyaltyBonus">Loyalty bonus ($)</label>
+                    <input id="loyaltyBonus" name="loyaltyBonus" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="500" />
+                    <p class="fa-help-copy mt-1">Returning customer bonus from same brand</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="conquestCash">Conquest cash ($)</label>
-                    <input id="conquestCash" name="conquestCash" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="750" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bonus for switching from competitor brand</p>
+                    <label class="fa-field-label mb-2" for="conquestCash">Conquest cash ($)</label>
+                    <input id="conquestCash" name="conquestCash" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="750" />
+                    <p class="fa-help-copy mt-1">Bonus for switching from competitor brand</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="evFederalCredit">Federal EV tax credit ($)</label>
-                    <input id="evFederalCredit" name="evFederalCredit" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="7500" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Up to $7,500 for qualifying EVs (IRS 30D)</p>
+                    <label class="fa-field-label mb-2" for="evFederalCredit">Federal EV tax credit ($)</label>
+                    <input id="evFederalCredit" name="evFederalCredit" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="7500" />
+                    <p class="fa-help-copy mt-1">Up to $7,500 for qualifying EVs (IRS 30D)</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="evStateCredit">State/local EV incentive ($)</label>
-                    <input id="evStateCredit" name="evStateCredit" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="2000" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">State rebates, HOV access value, etc.</p>
+                    <label class="fa-field-label mb-2" for="evStateCredit">State/local EV incentive ($)</label>
+                    <input id="evStateCredit" name="evStateCredit" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="2000" />
+                    <p class="fa-help-copy mt-1">State rebates, HOV access value, etc.</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="dealerRebate">Dealer rebate/cash ($)</label>
-                    <input id="dealerRebate" name="dealerRebate" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="1000" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dealer cash, manufacturer incentives</p>
+                    <label class="fa-field-label mb-2" for="dealerRebate">Dealer rebate/cash ($)</label>
+                    <input id="dealerRebate" name="dealerRebate" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="1000" />
+                    <p class="fa-help-copy mt-1">Dealer cash, manufacturer incentives</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="collegeGradRebate">College grad/military rebate ($)</label>
-                    <input id="collegeGradRebate" name="collegeGradRebate" type="number" min="0" step="100" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="500" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Special program discounts</p>
+                    <label class="fa-field-label mb-2" for="collegeGradRebate">College grad/military rebate ($)</label>
+                    <input id="collegeGradRebate" name="collegeGradRebate" type="number" min="0" step="100" class="fa-input-surface w-full" placeholder="500" />
+                    <p class="fa-help-copy mt-1">Special program discounts</p>
                   </div>
                 </div>
               </div>
 
               <!-- Opportunity Cost / Time Value of Money -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Opportunity Cost (NPV Comparison)</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">For a true cost comparison, factor in what your money could earn elsewhere.</p>
+              <div class="fa-panel-divider-top pt-6">
+                <h3 class="fa-scenario-title mb-4">Opportunity Cost (NPV Comparison)</h3>
+                <p class="fa-meta-copy mb-4 !mt-0">For a true cost comparison, factor in what your money could earn elsewhere.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="discountRate">Discount rate (%)</label>
-                    <input id="discountRate" name="discountRate" type="number" min="0" max="25" step="0.1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Annual rate for NPV calculations (e.g., 5%)</p>
+                    <label class="fa-field-label mb-2" for="discountRate">Discount rate (%)</label>
+                    <input id="discountRate" name="discountRate" type="number" min="0" max="25" step="0.1" class="fa-input-surface w-full" placeholder="5" />
+                    <p class="fa-help-copy mt-1">Annual rate for NPV calculations (e.g., 5%)</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="investmentReturn">Alt. investment return (%)</label>
-                    <input id="investmentReturn" name="investmentReturn" type="number" min="0" max="25" step="0.1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="7" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">What cash could earn if invested instead</p>
+                    <label class="fa-field-label mb-2" for="investmentReturn">Alt. investment return (%)</label>
+                    <input id="investmentReturn" name="investmentReturn" type="number" min="0" max="25" step="0.1" class="fa-input-surface w-full" placeholder="7" />
+                    <p class="fa-help-copy mt-1">What cash could earn if invested instead</p>
                   </div>
                 </div>
               </div>
 
               <!-- Gap Insurance for Replacement -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Gap Insurance (for financed/leased replacements)</h3>
+              <div class="fa-panel-divider-top pt-6">
+                <h3 class="fa-scenario-title mb-4">Gap Insurance (for financed/leased replacements)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="newLeaseGapInsurance">New lease gap insurance ($/term)</label>
-                    <input id="newLeaseGapInsurance" name="newLeaseGapInsurance" type="number" min="0" step="50" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="0" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Often included in lease; enter extra cost if any</p>
+                    <label class="fa-field-label mb-2" for="newLeaseGapInsurance">New lease gap insurance ($/term)</label>
+                    <input id="newLeaseGapInsurance" name="newLeaseGapInsurance" type="number" min="0" step="50" class="fa-input-surface w-full" placeholder="0" />
+                    <p class="fa-help-copy mt-1">Often included in lease; enter extra cost if any</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="financeGapInsurance">Finance gap insurance ($/term)</label>
-                    <input id="financeGapInsurance" name="financeGapInsurance" type="number" min="0" step="50" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="400" />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Covers loan/value gap if totaled</p>
+                    <label class="fa-field-label mb-2" for="financeGapInsurance">Finance gap insurance ($/term)</label>
+                    <input id="financeGapInsurance" name="financeGapInsurance" type="number" min="0" step="50" class="fa-input-surface w-full" placeholder="400" />
+                    <p class="fa-help-copy mt-1">Covers loan/value gap if totaled</p>
                   </div>
                 </div>
               </div>
 
-              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" id="calculate-options" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-4 fa-panel-divider-top">
+                <button type="button" id="calculate-options" class="fa-button-primary">
                   Compare
                 </button>
-                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                <button type="submit" class="fa-button-primary">
                   Save Scenario Inputs
                 </button>
               </div>
             </form>
 
-            <div id="replacement-results" class="results hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">3-year cost snapshot</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+            <div id="replacement-results" class="results fa-highlight-card hidden mt-6 p-5">
+              <h3 class="fa-scenario-title mb-3">3-year cost snapshot</h3>
+              <div class="fa-list-copy-strong grid grid-cols-1 gap-4 md:grid-cols-3 !mt-0">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">New Lease</p>
-                  <p id="leaseResult" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="leaseResult" class="fa-list-copy !mt-0">–</p>
                 </div>
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">Finance a New Car</p>
-                  <p id="financeResult" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="financeResult" class="fa-list-copy !mt-0">–</p>
                 </div>
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">Buy with Cash</p>
-                  <p id="cashResult" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="cashResult" class="fa-list-copy !mt-0">–</p>
                 </div>
               </div>
-              <p id="optionsRecommendation" class="mt-4 text-gray-800 dark:text-gray-200 font-medium"></p>
+              <p id="optionsRecommendation" class="fa-result-emphasis mt-4"></p>
             </div>
           </div>
 
           <!-- Navigation -->
-          <div class="bg-gradient-to-r from-gray-50 to-teal-50 dark:from-gray-900/20 dark:to-teal-900/20 rounded-lg shadow-md p-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
-                  <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.previousStep.url} class="fa-button-secondary">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                     Previous: {journeyNav.previousStep.name}
                   </a>
                 ) : (
-                  <a href={journeyNav.journeyOverviewUrl} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.journeyOverviewUrl} class="fa-button-secondary">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
@@ -313,14 +270,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
               <div class="flex items-center space-x-4">
                 {journeyNav.nextStep ? (
-                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="fa-button-primary">
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                   </a>
                 ) : (
-                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="fa-button-primary">
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -334,18 +291,18 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1 space-y-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Add qualitative filters</h3>
-            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-3">Add qualitative filters</h3>
+            <ul class="fa-list-copy !mt-0 space-y-2">
               <li>• Warranty coverage and roadside assistance</li>
               <li>• Safety/tech upgrades and fuel efficiency</li>
               <li>• EV incentives or HOV perks (if applicable)</li>
               <li>• Insurance differences by vehicle and trim</li>
             </ul>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Shortcuts</h3>
-            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-3">Shortcuts</h3>
+            <ul class="fa-list-copy !mt-0 space-y-2">
               <li><a href="/calculator/auto-loan" class="text-teal-700 dark:text-teal-300 hover:underline">Auto loan calculator</a> for new/used purchase payments.</li>
               <li>Ask dealers for “drive-off” quotes to capture all fees up front.</li>
               <li>Use fuel/energy calculators if switching to EV or PHEV.</li>
@@ -353,398 +310,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
         </div>
       </div>
-    </div>
   </main>
 </Layout>
 
-<script is:inline>
-  const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
-
-  const debounce = (fn, waitMs) => {
-    let timeoutId = null;
-    return (...args) => {
-      if (timeoutId) window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => fn(...args), waitMs);
-    };
-  };
-
-  const parseNumber = (value) => {
-    if (value === null || value === undefined) return 0;
-    const num = typeof value === 'string' ? Number(value) : Number(value.valueOf?.() ?? value);
-    return Number.isFinite(num) ? num : 0;
-  };
-
-  const formatCurrency = (value) =>
-    typeof value === 'number' && Number.isFinite(value)
-      ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-      : '$0';
-
-  const formatPerMile = (value) =>
-    typeof value === 'number' && Number.isFinite(value)
-      ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 })
-      : '$0';
-
-  const computeOption = (inputs) => {
-    const {
-      monthly,
-      upfront,
-      insurance,
-      maintenance,
-      fuel,
-      fees = 0,
-      resale = 0,
-      horizonMonths,
-      annualMiles,
-      subtractResale = false,
-      incentives = 0,
-      gapInsurance = 0,
-      discountRate = 0,
-    } = inputs;
-
-    const horizon = horizonMonths || 36;
-    const miles = annualMiles || 12000;
-    
-    // Calculate base costs
-    const base = monthly * horizon + upfront + insurance * horizon + maintenance * horizon + fuel * horizon + fees + gapInsurance;
-    
-    // Subtract incentives from total
-    const afterIncentives = base - incentives;
-    
-    // Apply resale credit if applicable
-    const total = subtractResale ? afterIncentives - resale : afterIncentives;
-    
-    // Calculate NPV (present value of future cash flows)
-    // Simple NPV: discount future monthly payments
-    let npvTotal = upfront + fees + gapInsurance - incentives; // Treat fees as paid at start
-    const monthlyRate = discountRate > 0 ? discountRate / 100 / 12 : 0;
-    const monthlyCost = monthly + insurance + maintenance + fuel;
-    
-    if (monthlyRate > 0) {
-      // PV of annuity formula: PMT * [(1 - (1+r)^-n) / r]
-      const pvFactor = (1 - Math.pow(1 + monthlyRate, -horizon)) / monthlyRate;
-      npvTotal += monthlyCost * pvFactor;
-      // Discount resale value back to present
-      if (subtractResale && resale > 0) {
-        npvTotal -= resale / Math.pow(1 + monthlyRate, horizon);
-      }
-    } else {
-      npvTotal = total; // No discounting if rate is 0
-    }
-    
-    const milesDriven = (miles / 12) * horizon || 1;
-    const costPerMile = total / milesDriven;
-    
-    return { 
-      total, 
-      costPerMile, 
-      totalIncentives: incentives,
-      npvTotal,
-      gapInsuranceCost: gapInsurance,
-    };
-  };
-
-  const computeLoanPayment = (principal, aprPercent, termMonths) => {
-    if (!Number.isFinite(principal) || principal <= 0) return 0;
-    if (!Number.isFinite(termMonths) || termMonths <= 0) return 0;
-    const r = Number.isFinite(aprPercent) && aprPercent > 0 ? aprPercent / 100 / 12 : 0;
-    if (r === 0) return principal / termMonths;
-    const pow = Math.pow(1 + r, -termMonths);
-    return (principal * r) / (1 - pow);
-  };
-
-  const computeRemainingLoanBalance = (principal, aprPercent, termMonths, paymentsMade, paymentPerMonth) => {
-    if (!Number.isFinite(principal) || principal <= 0) return 0;
-    if (!Number.isFinite(termMonths) || termMonths <= 0) return 0;
-    const k = Math.max(0, Math.min(termMonths, Math.floor(paymentsMade || 0)));
-    if (k === 0) return principal;
-    const r = Number.isFinite(aprPercent) && aprPercent > 0 ? aprPercent / 100 / 12 : 0;
-    if (r === 0) return Math.max(0, principal - paymentPerMonth * k);
-    const pow = Math.pow(1 + r, k);
-    const balance = principal * pow - paymentPerMonth * ((pow - 1) / r);
-    return Number.isFinite(balance) ? Math.max(0, balance) : 0;
-  };
-
-  const getStringEntriesFromForm = (form) => {
-    const details = {};
-    const formData = new FormData(form);
-
-    formData.forEach((value, key) => {
-      details[key] = typeof value === 'string' ? value : value.name;
-    });
-
-    const cashNotOptionEl = document.getElementById('cashNotOption');
-    if (cashNotOptionEl instanceof HTMLInputElement && cashNotOptionEl.type === 'checkbox') {
-      details.cashNotOption = cashNotOptionEl.checked ? 'on' : '';
-    }
-
-    // Back-compat (in case older sessions used previous field names)
-    if (details.leaseUpfront && !details.leaseDownPayment) details.leaseDownPayment = details.leaseUpfront;
-    if (details.financeUpfront && !details.financeDownPayment) details.financeDownPayment = details.financeUpfront;
-    if (details.financeResale && !details.financeResaleValue) details.financeResaleValue = details.financeResale;
-
-    return details;
-  };
-
-  const persistForm = (form, opts) => {
-    const details = getStringEntriesFromForm(form);
-    const rawState = localStorage.getItem(STORAGE_KEY);
-    let journeyState = { collectedData: {} };
-    if (rawState) {
-      try {
-        journeyState = JSON.parse(rawState);
-      } catch {
-        journeyState = { collectedData: {} };
-      }
-    }
-    journeyState.collectedData = journeyState.collectedData || {};
-    journeyState.collectedData['replacement-options'] = details;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
-
-    if (opts?.showStatus) {
-      const statusEl = document.getElementById('replacement-status');
-      if (statusEl) {
-        statusEl.textContent = 'Saved ✓';
-        statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
-      }
-    }
-  };
-
-  const toggleCashFields = () => {
-    const cashToggle = document.getElementById('cashNotOption');
-    const disabled = cashToggle instanceof HTMLInputElement ? cashToggle.checked : false;
-    document.querySelectorAll('.cash-input').forEach((el) => {
-      if (el instanceof HTMLInputElement) {
-        el.disabled = disabled;
-      }
-    });
-  };
-
-  const renderResults = (results, cashNotOption, showNpv = false) => {
-    const leaseResult = document.getElementById('leaseResult');
-    const financeResult = document.getElementById('financeResult');
-    const cashResult = document.getElementById('cashResult');
-    const recommendation = document.getElementById('optionsRecommendation');
-    const wrapper = document.getElementById('replacement-results');
-    if (!leaseResult || !financeResult || !cashResult || !recommendation || !wrapper) return;
-
-    // Show incentives and NPV info if applicable
-    const leaseIncentiveInfo = results.lease.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.lease.totalIncentives)} incentives)` : '';
-    const financeIncentiveInfo = results.finance.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.finance.totalIncentives)} incentives)` : '';
-    
-    // Display with NPV if discount rate provided
-    if (showNpv) {
-      leaseResult.textContent = `${formatCurrency(results.lease.total)} total, NPV: ${formatCurrency(results.lease.npvTotal)} (${formatPerMile(results.lease.costPerMile)}/mi)${leaseIncentiveInfo}`;
-      financeResult.textContent = `${formatCurrency(results.finance.total)} total, NPV: ${formatCurrency(results.finance.npvTotal)} (${formatPerMile(results.finance.costPerMile)}/mi)${financeIncentiveInfo}`;
-    } else {
-      leaseResult.textContent = `${formatCurrency(results.lease.total)} total (${formatPerMile(results.lease.costPerMile)}/mile)${leaseIncentiveInfo}`;
-      financeResult.textContent = `${formatCurrency(results.finance.total)} total (${formatPerMile(results.finance.costPerMile)}/mile)${financeIncentiveInfo}`;
-    }
-    
-    if (cashNotOption || !results.cash) {
-      cashResult.textContent = cashNotOption ? 'Skipped — marked not an option' : 'Enter purchase price to compare';
-    } else {
-      const cashIncentiveInfo = results.cash.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.cash.totalIncentives)} incentives)` : '';
-      if (showNpv) {
-        cashResult.textContent = `${formatCurrency(results.cash.total)} total, NPV: ${formatCurrency(results.cash.npvTotal)} (${formatPerMile(results.cash.costPerMile)}/mi)${cashIncentiveInfo}`;
-      } else {
-        cashResult.textContent = `${formatCurrency(results.cash.total)} total (${formatPerMile(results.cash.costPerMile)}/mile)${cashIncentiveInfo}`;
-      }
-    }
-
-    // Compare using NPV if available, otherwise total
-    const comparisons = [
-      ['lease', results.lease],
-      ['finance', results.finance],
-    ];
-    if (!cashNotOption && results.cash) {
-      comparisons.push(['cash', results.cash]);
-    }
-    
-    // Sort by NPV if discount rate was used, otherwise by total
-    const sortKey = showNpv ? 'npvTotal' : 'total';
-    const cheapest = comparisons.sort((a, b) => a[1][sortKey] - b[1][sortKey])[0];
-    const labelMap = {
-      lease: 'New lease',
-      finance: 'Finance a new car',
-      cash: 'Buy with cash',
-    };
-    
-    let recText = `${labelMap[cheapest[0]]} is currently the lowest ${showNpv ? 'NPV' : 'total'} cost.`;
-    if (showNpv) {
-      recText += ' NPV accounts for the time value of money.';
-    }
-    recText += cashNotOption ? ' Cash path skipped due to limited savings.' : ' Check maintenance/insurance swings that could change the ranking.';
-    
-    recommendation.textContent = recText;
-    wrapper.classList.remove('hidden');
-  };
-
-  const hydrateForm = () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    let data;
-    try {
-      data = JSON.parse(saved);
-    } catch {
-      return;
-    }
-    const details = data && typeof data === 'object' ? data.collectedData?.['replacement-options'] : undefined;
-    if (!details) return;
-
-    // Back-compat: hydrate new fields from older keys if present.
-    const normalized = { ...details };
-    if (normalized.leaseUpfront && !normalized.leaseDownPayment) normalized.leaseDownPayment = normalized.leaseUpfront;
-    if (normalized.financeUpfront && !normalized.financeDownPayment) normalized.financeDownPayment = normalized.financeUpfront;
-    if (normalized.financeResale && !normalized.financeResaleValue) normalized.financeResaleValue = normalized.financeResale;
-
-    Object.entries(normalized).forEach(([key, value]) => {
-      const input = document.querySelector(`[name="${key}"]`);
-      if (input instanceof HTMLInputElement && input.type === 'checkbox') {
-        input.checked = value === 'on' || value === 'true';
-      } else if (input && 'value' in input) {
-        input.value = value;
-      }
-    });
-    toggleCashFields();
-    const statusEl = document.getElementById('replacement-status');
-    if (statusEl) statusEl.textContent = 'Loaded from last session';
-  };
-
-  const runComparison = () => {
-    const formEl = document.getElementById('replacement-form');
-    if (!(formEl instanceof HTMLFormElement)) return;
-    const formData = new FormData(formEl);
-    const horizonMonths = parseNumber(formData.get('horizonMonths')) || 36;
-    const annualMiles = parseNumber(formData.get('annualMiles')) || 12000;
-    const cashNotOption = formData.get('cashNotOption') === 'on';
-
-    // Get incentives & rebates (apply to all options where relevant)
-    const loyaltyBonus = parseNumber(formData.get('loyaltyBonus'));
-    const conquestCash = parseNumber(formData.get('conquestCash'));
-    const evFederalCredit = parseNumber(formData.get('evFederalCredit'));
-    const evStateCredit = parseNumber(formData.get('evStateCredit'));
-    const dealerRebate = parseNumber(formData.get('dealerRebate'));
-    const collegeGradRebate = parseNumber(formData.get('collegeGradRebate'));
-    
-    // Total incentives (use loyalty OR conquest, not both typically)
-    const brandIncentive = Math.max(loyaltyBonus, conquestCash);
-    const totalIncentives = brandIncentive + evFederalCredit + evStateCredit + dealerRebate + collegeGradRebate;
-
-    // Get opportunity cost / discount rate
-    const discountRate = parseNumber(formData.get('discountRate'));
-
-    // Get gap insurance for each option
-    const newLeaseGapInsurance = parseNumber(formData.get('newLeaseGapInsurance'));
-    const financeGapInsurance = parseNumber(formData.get('financeGapInsurance'));
-
-    const lease = computeOption({
-      monthly: parseNumber(formData.get('leaseMonthly')),
-      upfront: parseNumber(formData.get('leaseDownPayment')),
-      insurance: parseNumber(formData.get('leaseInsurance')),
-      maintenance: parseNumber(formData.get('leaseMaintenance')),
-      fuel: parseNumber(formData.get('leaseFuel')),
-      fees: parseNumber(formData.get('leaseFees')),
-      horizonMonths,
-      annualMiles,
-      subtractResale: false,
-      // Lease often gets some incentives (loyalty, conquest) but not EV credits for individual
-      incentives: brandIncentive + dealerRebate + collegeGradRebate,
-      gapInsurance: newLeaseGapInsurance,
-      discountRate,
-    });
-
-    const financePrice = parseNumber(formData.get('financePrice'));
-    const financeDownPayment = parseNumber(formData.get('financeDownPayment'));
-    const financeApr = parseNumber(formData.get('financeApr'));
-    const financeTermMonths = parseNumber(formData.get('financeTermMonths'));
-    // Treat incentives as reducing the effective purchase price (and thus the financed principal).
-    const financeEffectivePrice = Math.max(0, financePrice - totalIncentives);
-    const financePrincipal = Math.max(0, financeEffectivePrice - financeDownPayment);
-    const financeMonthlyPayment = computeLoanPayment(financePrincipal, financeApr, financeTermMonths);
-
-    const financeResaleValue = parseNumber(formData.get('financeResaleValue'));
-    const financeRemainingBalanceAtHorizon = computeRemainingLoanBalance(
-      financePrincipal,
-      financeApr,
-      financeTermMonths,
-      horizonMonths,
-      financeMonthlyPayment
-    );
-    const financeNetResaleAtHorizon = Math.max(0, financeResaleValue - financeRemainingBalanceAtHorizon);
-
-    const finance = computeOption({
-      monthly: financeMonthlyPayment,
-      upfront: financeDownPayment,
-      insurance: parseNumber(formData.get('financeInsurance')),
-      maintenance: parseNumber(formData.get('financeMaintenance')),
-      fuel: parseNumber(formData.get('financeFuel')),
-      resale: financeNetResaleAtHorizon,
-      horizonMonths,
-      annualMiles,
-      subtractResale: true,
-      // Finance/purchase gets all incentives including EV credits
-      incentives: totalIncentives,
-      gapInsurance: financeGapInsurance,
-      discountRate,
-    });
-
-    const cashPurchase = cashNotOption
-      ? null
-      : computeOption({
-          monthly: 0,
-          upfront: (parseNumber(formData.get('cashPrice')) || 0) + (parseNumber(formData.get('cashTaxesFees')) || 0),
-          insurance: parseNumber(formData.get('cashInsurance')),
-          maintenance: parseNumber(formData.get('cashMaintenance')),
-          fuel: parseNumber(formData.get('cashFuel')),
-          resale: parseNumber(formData.get('cashResale')),
-          horizonMonths,
-          annualMiles,
-          subtractResale: true,
-          // Cash purchase gets all incentives
-          incentives: totalIncentives,
-          gapInsurance: 0, // No gap insurance needed for cash purchase
-          discountRate,
-        });
-
-    renderResults({ lease, finance, cash: cashPurchase }, cashNotOption, discountRate > 0);
-  };
-
-  const calculateButton = document.getElementById('calculate-options');
-  if (calculateButton) {
-    calculateButton.addEventListener('click', () => {
-      const formEl = document.getElementById('replacement-form');
-      if (formEl instanceof HTMLFormElement) {
-        persistForm(formEl, { showStatus: true });
-      }
-      runComparison();
-    });
-  }
-
-  const formEl = document.getElementById('replacement-form');
-  if (formEl instanceof HTMLFormElement) {
-    const scheduleAutosave = debounce(() => persistForm(formEl), 150);
-    formEl.addEventListener('input', scheduleAutosave);
-    formEl.addEventListener('change', scheduleAutosave);
-    formEl.addEventListener('submit', (event) => {
-      event.preventDefault();
-      persistForm(formEl, { showStatus: true });
-      runComparison();
-    });
-
-    document.addEventListener('click', (event) => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (formEl.contains(target)) return;
-      persistForm(formEl);
-    });
-  }
-
-  const cashToggle = document.getElementById('cashNotOption');
-  if (cashToggle instanceof HTMLInputElement) {
-    cashToggle.addEventListener('change', () => {
-      toggleCashFields();
-      runComparison();
-    });
-  }
-  hydrateForm();
+<script>
+  import '../../../../scripts/journey/auto-lease-decision/replacement-options.client.ts';
 </script>

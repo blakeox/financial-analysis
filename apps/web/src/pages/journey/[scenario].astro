@@ -1,5 +1,8 @@
 ---
 import ClientScriptLoader from '../../components/ClientScriptLoader.tsx';
+import Breadcrumbs from '../../components/site/Breadcrumbs.astro';
+import PageHero from '../../components/site/PageHero.astro';
+import SurfaceCard from '../../components/site/SurfaceCard.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getJourneyData } from '../../utils/journeyData';
 
@@ -51,89 +54,76 @@ const structuredData = {
 
 <Layout title={`${currentScenario.name} - Financial Journey`} description={currentScenario.description} keywords={`financial journey, ${currentScenario.name.toLowerCase()}, financial planning, ${currentScenario.complexity.toLowerCase()} finance`} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  <main id="main-content" class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="text-sm mb-6" aria-label="Breadcrumb">
-        <ol class="list-none p-0 inline-flex">
-          <li class="flex items-center">
-            <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Home</a>
-            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
-          </li>
-          <li class="flex items-center">
-            <img src="/fanalyx_favicon.png" alt="Fanalyx financial journey icon" class="w-4 h-4 mr-2">
-            <a href="/journey" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
-          </li>
-          <li class="text-gray-500 dark:text-gray-500" aria-current="page">{currentScenario.name}</li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name },
+    ]}
+  />
 
-      <!-- Journey Header -->
-      <div class="mb-8">
-        <div class="flex items-start mb-6">
-          <div class="flex items-center mr-4">
-            <span class="text-5xl">{currentScenario.icon}</span>
-          </div>
-          <div class="flex-1">
-            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">{currentScenario.name}</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">{currentScenario.ageRange}</p>
-          </div>
-        </div>
-        <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed max-w-4xl mb-6">
-          {currentScenario.description}
-        </p>
-        <div class="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-          <div class="flex items-center">
-            <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-medium mr-2">
-              {currentScenario.complexity}
-            </span>
-            <span class="flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-              </svg>
-              {currentScenario.duration}
-            </span>
+  <main id="main-content" class="fa-page-shell">
+      <div class="mb-8 flex items-start gap-4">
+        <span class="text-5xl">{currentScenario.icon}</span>
+        <div class="min-w-0 flex-1">
+          <PageHero
+            eyebrow="Journey overview"
+            title={currentScenario.name}
+            description={currentScenario.description}
+          />
+          <p class="fa-meta-copy -mt-2">{currentScenario.ageRange}</p>
+          <div class="fa-meta-copy mt-4 flex items-center space-x-6">
+            <div class="flex items-center">
+              <span class="fa-chip fa-chip-accent mr-2">
+                {currentScenario.complexity}
+              </span>
+              <span class="flex items-center">
+                <svg class="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+                {currentScenario.duration}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Journey Progress -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Journey Progress</h2>
+      <SurfaceCard className="mb-8">
+        <h2 class="fa-panel-title mb-4">Journey Progress</h2>
         <div class="grid grid-cols-3 gap-4 mb-4">
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">0</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Completed</div>
+            <div class="fa-model-title text-2xl">0</div>
+            <div class="fa-meta-copy text-sm">Completed</div>
           </div>
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">{currentScenario.models.length}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Total Steps</div>
+            <div class="fa-model-title text-2xl">{currentScenario.models.length}</div>
+            <div class="fa-meta-copy text-sm">Total Steps</div>
           </div>
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">0%</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Progress</div>
+            <div class="fa-model-title text-2xl">0%</div>
+            <div class="fa-meta-copy text-sm">Progress</div>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
       <!-- Analysis Models -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Analysis Models</h3>
+      <SurfaceCard className="mb-8">
+        <h3 class="fa-panel-title mb-6">Analysis Models</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentScenario.models.map((model, index) => (
-            <a href={model.url} class="block border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <a href={model.url} class="fa-card block p-6 transition-transform duration-200 hover:-translate-y-1">
               <div class="flex items-start mb-4">
-                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">
+                <div class="fa-chip fa-chip-accent h-8 w-8 justify-center rounded-full p-0 mr-3">
                   {index + 1}
                 </div>
                 <div class="flex-1">
-                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{model.name}</h4>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">{model.description}</p>
-                  <span class={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                  <h4 class="fa-scenario-title mb-2">{model.name}</h4>
+                  <p class="fa-meta-copy mb-3 text-sm">{model.description}</p>
+                  <span class={`fa-chip ${
                     model.required 
-                      ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' 
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                      ? 'fa-chip-danger' 
+                      : 'fa-chip-muted'
                   }`}>
                     {model.required ? 'Required' : 'Optional'}
                   </span>
@@ -142,35 +132,35 @@ const structuredData = {
             </a>
           ))}
         </div>
-      </div>
+      </SurfaceCard>
 
       <!-- Workflow Steps -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Workflow Steps</h3>
+      <SurfaceCard className="mb-8">
+        <h3 class="fa-panel-title mb-6">Workflow Steps</h3>
         <div class="space-y-4">
           {currentScenario.workflow.map((step, index) => (
             <div class="flex items-start">
-              <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">
+              <div class="fa-chip fa-chip-muted h-8 w-8 justify-center rounded-full p-0 mr-4 flex-shrink-0">
                 {index + 1}
               </div>
-              <p class="text-gray-700 dark:text-gray-300 pt-1">{step}</p>
+              <p class="fa-list-copy pt-1">{step}</p>
             </div>
           ))}
         </div>
-        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">💡 Pro Tip</h4>
-          <p class="text-blue-800 dark:text-blue-200 text-sm">
+        <div class="fa-highlight-card mt-6">
+          <h4 class="fa-scenario-title mb-2">💡 Pro Tip</h4>
+          <p class="fa-list-copy text-sm">
             Complete the required models first, then move on to optional ones. Each completed step adds result-specific takeaways so you can decide what to change next.
           </p>
         </div>
-      </div>
+      </SurfaceCard>
 
       <!-- Start Journey Button -->
       <div class="text-center mb-8">
         <form action={`/journey/${scenario}/step/${currentScenario.models[0].id}`} method="get">
           <button
             type="submit"
-            class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            class="fa-button-primary text-lg"
           >
             <span class="mr-2">{currentScenario.icon}</span>
             Start Your Journey
@@ -179,11 +169,10 @@ const structuredData = {
             </svg>
           </button>
         </form>
-        <p class="text-gray-600 dark:text-gray-400 mt-4">
+        <p class="fa-meta-copy mt-4">
           Begin with the first step: <strong>{currentScenario.models[0].name}</strong>
         </p>
       </div>
-    </div>
   </main>
 </Layout>
 

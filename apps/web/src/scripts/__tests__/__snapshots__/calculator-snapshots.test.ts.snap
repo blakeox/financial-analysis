@@ -105,16 +105,16 @@ exports[`Calculator Results Snapshots > Progress Bar HTML > should generate mile
 
 exports[`Calculator Results Snapshots > Progress Bar HTML > should generate progress bar with correct width > complete-progress 1`] = `
 "
-          <div class="w-full bg-gray-200 rounded-full h-4">
-            <div class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
+          <div class="h-4 w-full rounded-full bg-slate-200">
+            <div class="h-4 rounded-full bg-emerald-500" style="width: 100%"></div>
           </div>
         "
 `;
 
 exports[`Calculator Results Snapshots > Progress Bar HTML > should generate progress bar with correct width > half-progress 1`] = `
 "
-          <div class="w-full bg-gray-200 rounded-full h-4">
-            <div class="bg-green-500 h-4 rounded-full" style="width: 50%"></div>
+          <div class="h-4 w-full rounded-full bg-slate-200">
+            <div class="h-4 rounded-full bg-emerald-500" style="width: 50%"></div>
           </div>
         "
 `;
@@ -131,15 +131,15 @@ exports[`Calculator Results Snapshots > Summary Card HTML Generation > should ge
         </p>"
 `;
 
-exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > affordable 1`] = `"<p class="text-xs text-green-600">✓ Within recommended 28% limit</p>"`;
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > affordable 1`] = `"<p class="text-xs text-emerald-600">✓ Within recommended 28% limit</p>"`;
 
-exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > not-affordable 1`] = `"<p class="text-xs text-red-600">⚠️ Exceeds recommended 28% limit</p>"`;
+exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate affordability status consistently > not-affordable 1`] = `"<p class="text-xs text-rose-600">⚠️ Exceeds recommended 28% limit</p>"`;
 
 exports[`Calculator Results Snapshots > Summary Card HTML Generation > should generate consistent summary card HTML 1`] = `
-"<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Monthly Payment</h5>
-            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">$2,528</p>
-            <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">P&I only</p>
+"<div class="bg-violet-50 dark:bg-violet-950/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Payment</h5>
+            <p class="text-2xl font-bold text-violet-600 dark:text-violet-300">$2,528</p>
+            <p class="mt-1 text-xs text-violet-700 dark:text-violet-300">P&I only</p>
           </div>"
 `;
 

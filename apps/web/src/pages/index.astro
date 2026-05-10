@@ -1,313 +1,652 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StructuredData from '../components/StructuredData.astro';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@financial-analysis/ui';
-import AdSense from '../components/AdSense.astro';
 import fanalyxLogo from '../assets/fanalyx_favicon.png?url';
 
-export const organizationLogo = fanalyxLogo;
+const title = 'Fanalyx | AI-Powered Financial Analysis';
+const description =
+  'Ask financial questions in plain English, run formulas without fighting spreadsheets, and compare scenarios with AI-powered financial analysis.';
+const keywords =
+  'AI-powered financial analysis, financial formulas, scenario comparison, financial questions, plain-English finance explanations, decision support';
+
+const featureCards = [
+  {
+    title: 'Solve Financial Formulas',
+    description:
+      'Run calculations for loans, savings, investing, affordability, interest, and more.',
+    icon: 'calculator',
+  },
+  {
+    title: 'Ask in Plain English',
+    description: 'Ask natural questions instead of building complex spreadsheet formulas.',
+    icon: 'message-circle',
+  },
+  {
+    title: 'Explain the Math',
+    description: 'See assumptions, formulas, and step-by-step explanations behind each answer.',
+    icon: 'sparkles',
+  },
+  {
+    title: 'Compare Scenarios',
+    description: 'Test different options side-by-side before making a financial decision.',
+    icon: 'bar-chart',
+  },
+];
+
+const steps = [
+  {
+    title: 'Ask Your Question',
+    description: 'Type or paste a financial question in plain English.',
+  },
+  {
+    title: 'AI Does the Math',
+    description: 'Fanalyx runs the calculation, applies formulas, and identifies key assumptions.',
+  },
+  {
+    title: 'Get Clear Answers',
+    description: 'Receive results, explanations, and next-step questions to consider.',
+  },
+];
+
+const promptChips = [
+  'How much house can I afford?',
+  'Should I pay off debt or invest?',
+  'What is the real cost of this loan?',
+  'How much do I need to retire?',
+  'Compare renting vs. buying',
+  'What happens if interest rates change?',
+  'How long until I reach $100K?',
+  'Explain this amortization schedule',
+  'What monthly payment can I afford?',
+  'Which option has the lowest total cost?',
+];
+
+const useCases = [
+  {
+    title: 'Personal Decisions',
+    description:
+      'Mortgage affordability, car loans, savings goals, debt payoff, and budgeting tradeoffs.',
+  },
+  {
+    title: 'Business Decisions',
+    description:
+      'Pricing, cash flow scenarios, financing options, ROI estimates, and break-even questions.',
+  },
+  {
+    title: 'Learning & Clarity',
+    description:
+      'Understand formulas, assumptions, compounding, amortization, interest rates, and financial tradeoffs.',
+  },
+];
+
+const trustCards = [
+  {
+    title: 'Transparent Calculations',
+    description: 'Shows assumptions and explains how answers are calculated.',
+  },
+  {
+    title: 'Privacy-Conscious',
+    description: 'Designed to answer questions without requiring bank connections.',
+  },
+  {
+    title: 'Educational First',
+    description: 'Helps you understand options. It does not pretend to be your financial advisor.',
+  },
+];
+
+const iconMarkup: Record<string, string> = {
+  calculator:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3"/><path d="M8 7.5h8"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M8 16h.01"/><path d="M12 16h.01"/><path d="M16 16h.01"/></svg>',
+  'message-circle':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10h10"/><path d="M7 14h6"/><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.27 0-2.48-.28-3.57-.78L3 21l1.93-4.4A8.5 8.5 0 1 1 21 11.5Z"/></svg>',
+  sparkles:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/><path d="m5 14 .7 1.8L7.5 16l-1.8.7L5 18.5l-.7-1.8L2.5 16l1.8-.2L5 14Z"/></svg>',
+  'bar-chart':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20v-4"/><path d="M3 20h19"/></svg>',
+  shield:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v6c0 4.7 2.8 7.9 7 9 4.2-1.1 7-4.3 7-9V6l-7-3Z"/><path d="m9.5 12 1.7 1.7 3.3-3.7"/></svg>',
+  brain:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 3.5a3.5 3.5 0 0 0-2.6 5.8A3.5 3.5 0 0 0 8 16v1a3 3 0 0 0 6 0v-1"/><path d="M14.5 3.5a3.5 3.5 0 0 1 2.6 5.8A3.5 3.5 0 0 1 16 16v1a3 3 0 0 1-6 0"/><path d="M9 9.5c0-1 .8-1.8 1.8-1.8H12"/><path d="M15 9.5c0-1-.8-1.8-1.8-1.8H12"/><path d="M12 7.7V20"/></svg>',
+  trending:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17 9 11l4 4 8-8"/><path d="M14 7h7v7"/></svg>',
+};
 ---
 
-<Layout 
-  title="Free Financial Calculators & AI Insights - 29 Professional Tools | Fanalyx" 
-  description="29 free financial calculators with AI-powered analysis. Professional tools for loans, mortgages, retirement, investments, and business planning. No signup required, instant results with expert guidance."
-  keywords="financial calculator, free calculator, loan calculator, mortgage calculator, retirement calculator, investment calculator, business calculator, AI financial advisor, financial planning tools"
+<Layout
+  title={title}
+  description={description}
+  keywords={keywords}
+  canonical={Astro.url.href}
+  showFooter={false}
   showChat={false}
+  showToolAnalysis={false}
 >
-  <div class="min-h-screen bg-slate-950 text-white">
-    <!-- Structured Data for Homepage -->
-    <StructuredData 
-      type="website" 
-      website={{
-        name: 'Fanalyx - Financial Analysis Tools',
-        url: 'https://fanalyx.com',
-        description: 'Professional financial calculators and AI-powered analysis tools for personal finance, business planning, loans, investments, and retirement. 100% free with no signup required.'
-      }}
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap"
+      rel="stylesheet"
     />
-    
-    <StructuredData 
-      type="organization" 
-      organization={{
-        name: 'Fanalyx',
-        url: 'https://fanalyx.com',
-        logo: `https://fanalyx.com${organizationLogo}`,
-        description: 'Fanalyx provides free, professional-grade financial calculators and AI-powered analysis tools to help individuals and businesses make smarter financial decisions.',
-        sameAs: [
-          'https://twitter.com/fanalyx',
-          'https://linkedin.com/company/fanalyx'
-        ]
-      }}
-    />
-    
-    <StructuredData 
-      type="faq" 
-      faqs={[
-        {
-          question: 'Are the financial calculators really free?',
-          answer: 'Yes! All 29 financial calculators are 100% free with no hidden fees, no credit card required, and no signup needed. You get full access to all features including AI-powered analysis and recommendations.'
-        },
-        {
-          question: 'Do I need to create an account?',
-          answer: 'No account required! All calculators work instantly without any signup. Your privacy is protected - we do not track or store your financial data.'
-        },
-        {
-          question: 'What types of calculators are available?',
-          answer: 'We offer 29 calculators including mortgage/loan calculators, retirement planning tools, investment analyzers, debt payoff calculators, budget planners, business valuation tools, lease analysis, and more. All with AI-powered insights.'
-        },
-        {
-          question: 'How does the AI analysis work?',
-          answer: 'Our AI analyzes your calculations and provides personalized recommendations based on your specific situation. It explains results in plain language and suggests optimization strategies to help you achieve better financial outcomes.'
-        },
-        {
-          question: 'Can I use these calculators for business planning?',
-          answer: 'Absolutely! We have specialized business calculators for EBITDA forecasting, lease analysis, commercial real estate, cash flow projections, and more. Perfect for entrepreneurs, startups, and established businesses.'
-        }
-      ]}
-    />
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden">
-  <div class="absolute inset-0 bg-linear-to-br from-blue-600/30 via-indigo-500/25 to-purple-500/20" aria-hidden="true" />
-      <div class="absolute -top-40 -right-40 h-72 w-72 rounded-full bg-blue-500/40 blur-3xl" aria-hidden="true" />
-      <div class="absolute -bottom-52 -left-32 h-96 w-96 rounded-full bg-indigo-500/30 blur-3xl" aria-hidden="true" />
-      <div class="relative container mx-auto px-4 py-24 lg:py-32">
-        <div class="max-w-4xl mx-auto text-center space-y-12">
-          <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-medium text-blue-100 shadow-lg shadow-blue-900/40">
-            <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-            Free financial calculators • AI-powered insights • No signup required
-          </div>
-          <div class="space-y-6">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-              Free Financial
-              <span class="block text-transparent bg-clip-text bg-linear-to-r from-sky-300 via-blue-200 to-indigo-300">
-                Calculators & AI Insights
-              </span>
+  </Fragment>
+
+  <StructuredData
+    type="website"
+    website={{
+      name: 'Fanalyx',
+      url: 'https://fanalyx.com',
+      description,
+    }}
+  />
+  <StructuredData
+    type="organization"
+    organization={{
+      name: 'Fanalyx',
+      url: 'https://fanalyx.com',
+      logo: fanalyxLogo,
+      description: 'AI-powered financial analysis for clearer questions and clearer answers.',
+    }}
+  />
+  <StructuredData
+    type="faq"
+    faqs={[
+      {
+        question: 'What is Fanalyx?',
+        answer:
+          'Fanalyx is an AI-powered financial analysis website for asking financial questions, running formulas, comparing scenarios, and understanding the math in plain English.',
+      },
+      {
+        question: 'Does Fanalyx connect to my bank account?',
+        answer:
+          'No. Fanalyx is designed for question answering and analysis without requiring bank connections.',
+      },
+      {
+        question: 'Is Fanalyx financial advice?',
+        answer:
+          'No. Fanalyx is educational decision support only and does not replace a financial, tax, legal, or investment professional.',
+      },
+    ]}
+  />
+
+  <div class="landing-page fa-home-page">
+    <main class="overflow-hidden">
+      <section class="relative isolate px-4 pb-20 pt-32 sm:px-6 sm:pt-36 lg:px-8 lg:pb-28">
+        <div class="fa-hero-glow" aria-hidden="true"></div>
+        <div class="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
+          <div class="relative z-10">
+            <p class="fa-eyebrow">AI-Powered Financial Analysis</p>
+            <h1 class="fa-display fa-display-hero !mt-6 max-w-3xl">
+              Ask anything.
+              <br />
+              Get <span class="text-[var(--color-purple)]">clear financial answers.</span>
             </h1>
-            <p class="text-lg sm:text-xl text-slate-200/90 max-w-3xl mx-auto leading-relaxed">
-              29 powerful calculators for mortgages, loans, savings, retirement, and business planning. 
-              Get instant calculations plus AI-powered guidance to make smarter financial decisions.
+            <p class="fa-home-hero-copy mt-6 max-w-2xl sm:text-[1.08rem]">
+              Fanalyx uses AI to run calculations, solve formulas, and explain financial concepts in
+              plain English — so you can compare options and make decisions with more confidence.
+            </p>
+
+            <ul
+              class="fa-home-emphasis-list mt-8 space-y-3 sm:text-[0.98rem]"
+            >
+              <li class="flex items-start gap-3">
+                <span class="fa-check-badge">✓</span>
+                <span>Solve financial problems and formulas instantly</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="fa-check-badge">✓</span>
+                <span>Get plain-English explanations of assumptions and results</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="fa-check-badge">✓</span>
+                <span>Compare scenarios before making big decisions</span>
+              </li>
+            </ul>
+
+            <div class="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <a href="/agent" class="fa-button-primary inline-flex items-center justify-center">
+                Try Fanalyx Free
+              </a>
+              <a
+                href="#examples"
+                class="fa-button-secondary inline-flex items-center justify-center"
+              >
+                See Examples
+              </a>
+            </div>
+
+            <p class="fa-home-muted-copy mt-4">
+              No credit card required · Start in seconds
+            </p>
+            <p class="fa-home-support-copy mt-2">
+              Educational decision support only. Not financial advice.
             </p>
           </div>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="/models"
-              class="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-blue-500 to-indigo-500 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-transform duration-300 hover:-translate-y-0.5"
-            >
-              Browse Calculators
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </a>
-            <a
-              href="/journey"
-              class="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-3 text-base font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
-            >
-              Start My Journey
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" />
-              </svg>
-            </a>
-          </div>
-          <dl class="grid grid-cols-1 gap-6 sm:grid-cols-3 text-left">
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">Financial Calculators</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white">29 tools</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">Covering personal finance, loans, investments, and business.</dd>
-            </div>
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">AI-Powered</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white">Instant</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">Get personalized guidance with every calculation.</dd>
-            </div>
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dt class="text-sm font-medium text-slate-200/70">100% Free</dt>
-              <dd class="mt-3 text-3xl font-semibold text-white">No signup</dd>
-              <dd class="mt-2 text-xs text-slate-300/80">Use all calculators immediately, no account required.</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </section>
 
-    <!-- Feature Highlights -->
-    <section class="py-24 bg-slate-950">
-      <div class="container mx-auto px-4">
-        <div class="max-w-2xl text-center mx-auto mb-16 space-y-4">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">Everything You Need</p>
-          <h2 class="text-4xl font-semibold text-white">Smart calculators that adapt to your goals</h2>
-          <p class="text-base text-slate-300/90 leading-relaxed">
-            From buying a home to planning retirement—get accurate calculations and personalized AI advice instantly.
+          <div class="relative">
+            <div class="fa-card fa-card-elevated relative overflow-hidden rounded-[32px] p-5 sm:p-6">
+              <div
+                class="browser-bar flex items-center justify-between rounded-[20px] border border-[var(--color-border)] bg-white/85 px-4 py-3"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="h-2.5 w-2.5 rounded-full bg-[rgba(109,74,255,0.22)]"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-[rgba(109,74,255,0.34)]"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-[rgba(109,74,255,0.5)]"></span>
+                </div>
+                <span class="fa-home-browser-pill">
+                  fanalyx.com
+                </span>
+              </div>
+
+              <div
+                class="mt-5 rounded-[26px] border border-[var(--color-border)] bg-[rgba(255,255,255,0.72)] p-5"
+              >
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="fa-home-greeting">Hi Alex 👋</p>
+                    <p class="fa-home-muted-copy mt-1">
+                      What financial question can I help you with today?
+                    </p>
+                  </div>
+                  <span
+                    class="inline-flex items-center rounded-full border border-[rgba(109,74,255,0.16)] bg-[var(--color-lavender)] px-3 py-1 text-xs font-semibold text-[var(--color-purple)]"
+                  >
+                    AI analysis ready
+                  </span>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                  <div
+                    class="fa-chat-bubble-user fa-home-chat-question ml-auto max-w-[28rem] rounded-[22px] px-4 py-3"
+                  >
+                    If I invest $500 per month at a 7% annual return for 20 years, how much will I
+                    have?
+                  </div>
+
+                  <div class="fa-analysis-card rounded-[24px] p-4 sm:p-5">
+                    <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                      <div class="max-w-md">
+                        <p
+                          class="fa-home-kicker"
+                        >
+                          Estimated future value
+                        </p>
+                        <p
+                          class="fa-home-stat-value mt-2"
+                        >
+                          $276,611
+                        </p>
+                        <p class="fa-home-card-copy mt-3 leading-6">
+                          Assuming monthly contributions, monthly compounding, and a constant 7%
+                          annual return.
+                        </p>
+                      </div>
+
+                      <div
+                        class="chart-card min-w-[15rem] rounded-[20px] border border-[var(--color-border)] bg-[var(--color-off-white)] p-4"
+                      >
+                        <p
+                          class="fa-home-kicker-compact"
+                        >
+                          Growth trend
+                        </p>
+                        <svg
+                          class="mt-3 h-24 w-full"
+                          viewBox="0 0 220 96"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M10 78C38 76 47 71 72 60C95 49 105 52 129 38C151 25 171 27 210 8"
+                            stroke="#6D4AFF"
+                            stroke-width="3.5"
+                            stroke-linecap="round"></path>
+                          <path
+                            d="M10 82h200"
+                            stroke="#D9D4EC"
+                            stroke-width="1.2"
+                            stroke-dasharray="4 6"></path>
+                          <circle cx="210" cy="8" r="5.5" fill="#6D4AFF"></circle>
+                        </svg>
+                        <div
+                          class="fa-home-stat-meta mt-2 flex items-center justify-between"
+                        >
+                          <span>20 years</span>
+                          <span class="font-semibold text-[var(--color-success)]"
+                            >+ steady compounding</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="mt-5 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-off-white)] px-4 py-3"
+                    >
+                      <div class="flex items-center justify-between gap-4">
+                        <div>
+                          <p class="fa-home-explainer-title">
+                            How this was calculated
+                          </p>
+                          <p class="fa-home-muted-copy-tight mt-1">
+                            FV = P × [((1 + r/n)^(nt) - 1) / (r/n)]
+                          </p>
+                        </div>
+                        <span
+                          class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--color-purple)]"
+                        >
+                          Expand
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="fa-home-placeholder-card mt-5 rounded-[20px] border border-[var(--color-border)] bg-white px-4 py-3"
+                >
+                  Ask a follow-up…
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="scroll-mt-28 px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+          <div class="mx-auto max-w-3xl text-center">
+            <p class="fa-eyebrow fa-eyebrow-soft">Why Fanalyx</p>
+            <h2 class="fa-display fa-display-section !mt-4">Powerful AI for financial decisions</h2>
+            <p class="fa-body-copy mt-5">
+              Get accurate calculations, clear explanations, and practical insight without wrestling
+              with spreadsheets.
+            </p>
+          </div>
+
+          <div class="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {
+              featureCards.map((feature) => (
+                <article class="fa-card fa-card-interactive group p-8">
+                  <div class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent" set:html={iconMarkup[feature.icon]} />
+                  <h3 class="fa-home-card-title mt-6">
+                    {feature.title}
+                  </h3>
+                  <p class="fa-home-card-copy mt-3">
+                    {feature.description}
+                  </p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="how-it-works"
+        class="scroll-mt-28 bg-[linear-gradient(180deg,#F7F4FF_0%,#FCFBFF_100%)] px-4 py-20 sm:px-6 lg:px-8"
+      >
+        <div class="mx-auto max-w-7xl">
+          <div class="mx-auto max-w-3xl text-center">
+            <p class="fa-eyebrow fa-eyebrow-soft">How it works</p>
+            <h2 class="fa-display fa-display-section !mt-4">How Fanalyx Works</h2>
+            <p class="fa-body-copy mt-5">Three simple steps to get the insight you need.</p>
+          </div>
+
+          <div class="fa-steps-grid-linked mt-14 grid gap-6 lg:grid-cols-3">
+            {
+              steps.map((step, index) => (
+                <article class="fa-card step-card relative p-7">
+                  <div class="flex items-center gap-4">
+                    <span class="fa-step-badge">{index + 1}</span>
+                    <h3 class="fa-home-card-title">
+                      {step.title}
+                    </h3>
+                  </div>
+                  <p class="fa-home-card-copy mt-5">
+                    {step.description}
+                  </p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section id="examples" class="scroll-mt-28 px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-6xl">
+          <div class="mx-auto max-w-3xl text-center">
+            <p class="fa-eyebrow fa-eyebrow-soft">Examples</p>
+            <h2 class="fa-display fa-display-section !mt-4">Examples of what you can ask</h2>
+          </div>
+
+          <div class="mt-12 flex flex-wrap justify-center gap-3">
+            {
+              promptChips.map((prompt) => (
+                <a href="/agent" class="fa-chip fa-chip-muted fa-chip-lg fa-chip-interactive">
+                  {prompt}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="scroll-mt-28 px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+          <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div class="max-w-2xl">
+              <p class="fa-eyebrow fa-eyebrow-soft">What it is good for</p>
+              <h2 class="fa-display fa-display-section !mt-4">
+                Built for questions spreadsheets make annoying
+              </h2>
+              <p class="fa-body-copy mt-5">
+                Fanalyx is for the moments when you need to understand a financial choice, but do
+                not want to build a spreadsheet from scratch. Ask the question, adjust the
+                assumptions, and get a clear explanation of the math.
+              </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-3">
+              {
+                useCases.map((useCase, index) => (
+                  <article class="fa-card fa-card-interactive p-8">
+                    <div
+                      class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent"
+                      set:html={
+                        index === 0
+                          ? iconMarkup.trending
+                          : index === 1
+                            ? iconMarkup['bar-chart']
+                            : iconMarkup.brain
+                      }
+                    />
+                    <h3 class="fa-home-card-title mt-6">
+                      {useCase.title}
+                    </h3>
+                    <p class="fa-home-card-copy mt-3">
+                      {useCase.description}
+                    </p>
+                  </article>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-[var(--color-lavender)] px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+          <div class="mx-auto max-w-3xl text-center">
+            <p class="fa-eyebrow fa-eyebrow-soft">Built carefully</p>
+            <h2 class="fa-display fa-display-section !mt-4">
+              Built carefully for clearer financial thinking
+            </h2>
+          </div>
+
+          <div class="mt-14 grid gap-6 md:grid-cols-3">
+            {
+              trustCards.map((card, index) => (
+                <article class="fa-card fa-card-interactive p-8">
+                  <div
+                    class="fa-icon-tile fa-icon-tile-sm fa-icon-tile-accent"
+                    set:html={
+                      index === 0
+                        ? iconMarkup.calculator
+                        : index === 1
+                          ? iconMarkup.shield
+                          : iconMarkup.sparkles
+                    }
+                  />
+                  <h3 class="fa-home-card-title mt-6">
+                    {card.title}
+                  </h3>
+                  <p class="fa-home-card-copy mt-3">
+                    {card.description}
+                  </p>
+                </article>
+              ))
+            }
+          </div>
+
+          <p
+            class="fa-home-disclaimer mx-auto mt-10 max-w-4xl text-center"
+          >
+            Fanalyx provides educational analysis and decision support. It is not a financial
+            advisor, broker, tax professional, or legal advisor. Always verify important decisions
+            with a qualified professional.
+          </p>
+        </div>
+      </section>
+
+      <section class="px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-6xl">
+          <div class="fa-cta-band relative overflow-hidden rounded-[32px] px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
+            <div class="relative grid gap-10 lg:grid-cols-[1fr_0.92fr] lg:items-center">
+              <div>
+                <p class="fa-eyebrow fa-eyebrow-soft !text-white/70">Start with one question</p>
+                <h2 class="fa-display !mt-4 max-w-2xl !text-white">
+                  Better questions.
+                  <br />
+                  Better financial decisions.
+                </h2>
+                <p class="fa-home-cta-copy mt-5 max-w-2xl">
+                  Start with one question and see how much clearer your options become.
+                </p>
+              </div>
+
+              <div class="rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
+                <label class="sr-only" for="landing-email">Email</label>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                  <input
+                    id="landing-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    class="fa-home-input flex-1 text-base ring-0"
+                  />
+                  <a
+                    href="/agent"
+                    class="fa-button-light inline-flex min-h-[58px] items-center justify-center whitespace-nowrap"
+                  >
+                    Try Fanalyx Free
+                  </a>
+                </div>
+                <p class="fa-home-cta-note mt-4">
+                  No credit card required · Educational decision support only
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-[var(--color-border)] bg-white px-4 py-16 sm:px-6 lg:px-8">
+      <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr_0.9fr_0.9fr]">
+        <div class="max-w-sm">
+          <a href="/" class="flex items-center gap-3" aria-label="Fanalyx home">
+            <span class="fa-shell-brand-mark flex h-11 w-11 items-center justify-center rounded-2xl"
+              >F</span
+            >
+            <span class="fa-home-wordmark">
+              Fanalyx
+            </span>
+          </a>
+          <p class="fa-home-disclaimer mt-5">
+            AI-powered financial analysis for everyday decisions.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
-            <CardHeader>
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500/30 to-indigo-500/30 text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2a2 2 0 012 2v11a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2z" />
-                </svg>
-              </div>
-              <CardTitle className="text-xl font-semibold text-white">Accurate Calculations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-slate-300/90">
-                Professional-grade financial calculations with precise math. Every result is verified and reproducible.
-              </CardDescription>
-            </CardContent>
-          </Card>
+        <div>
+          <h2 class="fa-home-footer-heading">
+            Product
+          </h2>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="#features" class="fa-footer-link">Features</a></li>
+            <li><a href="#examples" class="fa-footer-link">Examples</a></li>
+            <li><a href="/pricing" class="fa-footer-link">Pricing</a></li>
+          </ul>
+        </div>
 
-          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
-            <CardHeader>
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-500/30 to-blue-500/30 text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3l3 8 4-16 3 8h5" />
-                </svg>
-              </div>
-              <CardTitle className="text-xl font-semibold text-white">Instant Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-slate-300/90">
-                Get your answers <span class="text-white">instantly</span>. No waiting, no loading screens. Just fast, reliable calculations.
-              </CardDescription>
-            </CardContent>
-          </Card>
+        <div>
+          <h2 class="fa-home-footer-heading">
+            Company
+          </h2>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="#about" class="fa-footer-link">About</a></li>
+            <li><a href="/blog" class="fa-footer-link">Blog</a></li>
+            <li><a href="mailto:support@fanalyx.com" class="fa-footer-link">Contact</a></li>
+          </ul>
+        </div>
 
-          <Card className="group bg-white/5 border-white/5 backdrop-blur-xl">
-            <CardHeader>
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-purple-500/30 to-pink-500/30 text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-                  <circle cx="12" cy="12" r="9" />
-                </svg>
-              </div>
-              <CardTitle className="text-xl font-semibold text-white">AI-Powered Guidance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-slate-300/90">
-                Get personalized recommendations and insights. Our AI understands your situation and provides actionable advice.
-              </CardDescription>
-            </CardContent>
-          </Card>
+        <div>
+          <h2 class="fa-home-footer-heading">
+            Legal
+          </h2>
+          <ul class="fa-home-footer-list mt-5 space-y-3">
+            <li><a href="/privacy" class="fa-footer-link">Privacy</a></li>
+            <li><a href="/terms" class="fa-footer-link">Terms</a></li>
+            <li><a href="/disclaimer" class="fa-footer-link">Disclaimer</a></li>
+          </ul>
         </div>
       </div>
-    </section>
 
-    <!-- Workflow Section -->
-  <section class="py-24 bg-linear-to-b from-slate-950 to-slate-900">
-      <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-          <div class="lg:col-span-1 space-y-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200/80">How It Works</p>
-            <h2 class="text-4xl font-semibold text-white">Simple, fast, and helpful—in three steps</h2>
-            <p class="text-base text-slate-300/90 leading-relaxed">
-              Choose your calculator, enter your information, and get instant answers plus personalized AI guidance.
-            </p>
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <p class="text-sm text-slate-200/80">"Finally, financial calculators that actually help me make decisions. The AI guidance is incredibly thoughtful."</p>
-              <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-300">Real User</p>
-            </div>
-          </div>
-          <div class="lg:col-span-2 grid grid-cols-1 gap-6">
-            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/40 text-white font-semibold">1</div>
-              <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Pick Your Calculator</h3>
-                <p class="text-sm text-slate-300/90">Choose from 29 calculators for loans, savings, retirement, investments, or business planning.</p>
-                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">29 Calculators</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">All Free</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/40 text-white font-semibold">2</div>
-              <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Enter Your Info</h3>
-                <p class="text-sm text-slate-300/90">Quick and easy forms guide you through. No confusing fields—just clear questions.</p>
-                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">Simple Forms</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">Safe & Private</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/40 text-white font-semibold">3</div>
-              <div class="space-y-2">
-                <h3 class="text-xl font-semibold text-white">Get Instant Results</h3>
-                <p class="text-sm text-slate-300/90">See your calculations immediately, then review plain-English guidance tied to the result.</p>
-                <div class="inline-flex items-center gap-3 text-xs text-blue-200/80">
-                  <span class="rounded-full bg-white/10 px-3 py-1">Result Summaries</span>
-                  <span class="rounded-full bg-white/10 px-3 py-1">Clear Next Steps</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="mx-auto mt-12 max-w-7xl border-t border-[var(--color-border)] pt-6">
+        <p class="fa-home-disclaimer">
+          Fanalyx is for educational and informational purposes only and does not provide financial
+          advice.
+        </p>
       </div>
-    </section>
-
-    <!-- Call to Action -->
-    <section class="py-24">
-      <div class="container mx-auto px-4">
-  <div class="rounded-4xl relative overflow-hidden border border-white/10 bg-linear-to-r from-blue-600 to-indigo-600 px-8 py-16 sm:px-16">
-          <div class="absolute inset-0 opacity-40" aria-hidden="true">
-            <div class="absolute -top-24 -left-24 h-48 w-48 rounded-full bg-white/40 blur-3xl" />
-            <div class="absolute bottom-0 right-0 h-52 w-52 rounded-full bg-indigo-400/50 blur-3xl" />
-          </div>
-          <div class="relative grid gap-8 lg:grid-cols-[1.25fr,1fr] items-center">
-            <div class="space-y-4">
-              <h2 class="text-3xl sm:text-4xl font-semibold text-white">Get started in seconds</h2>
-              <p class="text-sm sm:text-base text-white/80 max-w-xl">
-                Browse our calculators or start a personalized financial journey. No signup, no credit card—just helpful tools.
-              </p>
-              <div class="flex flex-col sm:flex-row gap-4">
-                <a
-                  href="/models"
-                  class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-blue-600 shadow-lg shadow-blue-900/40 hover:shadow-xl hover:-translate-y-0.5 transition"
-                >
-                  View All Calculators
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M3.172 7l5.657-5.657a4 4 0 015.657 0L18.828 6.4a4 4 0 010 5.657l-5.656 5.657A4 4 0 017.515 16.4L1.858 10.743a2 2 0 010-2.828z" clip-rule="evenodd" />
-                  </svg>
-                </a>
-                <a
-                  href="/journey"
-                  class="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 px-7 py-3 text-sm font-semibold text-white/90 backdrop-blur hover:bg-white/10 transition"
-                >
-                  Start My Journey
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <dl class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">100% Free</dt>
-                  <dd class="text-lg font-semibold text-white">Forever</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">29 Calculators</dt>
-                  <dd class="text-lg font-semibold text-white">Always Growing</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">AI Guidance</dt>
-                  <dd class="text-lg font-semibold text-white">Included</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                  <dt class="text-sm text-white/70">Privacy First</dt>
-                  <dd class="text-lg font-semibold text-white">No Tracking</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AdSense: Bottom of page ad -->
-    <AdSense slot="1234567890" format="horizontal" className="max-w-6xl mx-auto px-4" />
+    </footer>
   </div>
 </Layout>
+
+<style>
+  :global(html) {
+    scroll-padding-top: 7rem;
+  }
+
+  .landing-page {
+    --color-navy: #090e24;
+    --color-deep-navy: #050816;
+    --color-purple: #6d4aff;
+    --color-purple-dark: #5636e8;
+    --color-purple-light: #eee9ff;
+    --color-lavender: #f7f4ff;
+    --color-white: #ffffff;
+    --color-off-white: #fafaff;
+    --color-border: #e7e4f2;
+    --color-muted-text: #5e6478;
+    --color-soft-text: #8b90a3;
+    --color-success: #16a66a;
+    background:
+      radial-gradient(circle at 80% 10%, rgba(109, 74, 255, 0.12), transparent 32%),
+      linear-gradient(180deg, #ffffff 0%, #fafaff 100%);
+  }
+
+  .landing-page a,
+  .landing-page button,
+  .landing-page article,
+  .landing-page input {
+    transition: all 180ms ease;
+  }
+
+</style>

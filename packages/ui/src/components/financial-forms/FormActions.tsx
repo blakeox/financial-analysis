@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
+import { Button } from '../Button';
 
 export interface FormActionsProps {
   submitLabel?: string;
@@ -18,20 +19,20 @@ export const FormActions: React.FC<FormActionsProps> = ({
 }) => {
   return (
     <div className={cn('flex gap-4', className)}>
-      <button
+      <Button
         type="submit"
-        className="flex-1 rounded-md bg-primary-600 px-4 py-2 font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex-1"
         disabled={isSubmitting}
       >
         {submitLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={onReset}
-        className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+        variant="secondary"
       >
         {resetLabel}
-      </button>
+      </Button>
     </div>
   );
 };

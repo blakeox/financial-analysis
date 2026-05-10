@@ -1,81 +1,89 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import EbitdaDashboard from '../components/EbitdaDashboard.tsx';
 import AdSense from '../components/AdSense.astro';
-// ChatPanel is now in Layout.astro
 ---
 
-<Layout 
-  title="EBITDA Forecasting Calculator - Free Business Valuation & Financial Planning Tool | Fanalyx" 
+<Layout
+  title="EBITDA Forecasting Calculator - Free Business Valuation & Financial Planning Tool | Fanalyx"
   description="Free EBITDA forecasting calculator for service businesses. Create multi-year financial projections, model employee costs, track profit margins, and plan for growth. Professional business valuation made simple."
   keywords="EBITDA calculator, EBITDA forecasting, business valuation calculator, financial projections, service business calculator, profit margin calculator, business planning tool, financial modeling"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Calculators', url: '/models' },
-      { name: 'EBITDA Forecasting', url: '/ebitda-forecasting' }
+      { name: 'EBITDA Forecasting', url: '/ebitda-forecasting' },
     ]}
   />
-  
-  <StructuredData 
-    type="software" 
+
+  <StructuredData
+    type="software"
     softwareApp={{
       name: 'EBITDA Forecasting Calculator',
-      description: 'Professional EBITDA forecasting tool for service businesses with multi-year projections, employee modeling, expense tracking, and scenario planning capabilities.',
+      description:
+        'Professional EBITDA forecasting tool for service businesses with multi-year projections, employee modeling, expense tracking, and scenario planning capabilities.',
       category: 'FinanceApplication',
       rating: 4.7,
-      ratingCount: 180
+      ratingCount: 180,
     }}
   />
-  
-  <StructuredData 
-    type="faq" 
+
+  <StructuredData
+    type="faq"
     faqs={[
       {
         question: 'What is EBITDA and why is it important?',
-        answer: 'EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) measures a company\'s operating profitability. It\'s crucial for comparing companies, securing financing, and valuing businesses. Investors typically value service companies at 3-6x EBITDA.'
+        answer:
+          "EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) measures a company's operating profitability. It's crucial for comparing companies, securing financing, and valuing businesses. Investors typically value service companies at 3-6x EBITDA.",
       },
       {
         question: 'How do I forecast EBITDA for my service business?',
-        answer: 'Start with revenue projections based on billable hours and rates. Subtract cost of goods sold and operating expenses (salaries, rent, marketing). Our calculator helps model multiple years with growth assumptions, employee additions, and expense scaling.'
+        answer:
+          'Start with revenue projections based on billable hours and rates. Subtract cost of goods sold and operating expenses (salaries, rent, marketing). Our calculator helps model multiple years with growth assumptions, employee additions, and expense scaling.',
       },
       {
-        question: 'What\'s a good EBITDA margin for a service business?',
-        answer: 'Service businesses typically target 15-25% EBITDA margins. Professional services (consulting, legal, accounting) often achieve 20-30%, while labor-intensive services may see 10-20%. Use our forecasting tool to set and track margin targets as you grow.'
+        question: "What's a good EBITDA margin for a service business?",
+        answer:
+          'Service businesses typically target 15-25% EBITDA margins. Professional services (consulting, legal, accounting) often achieve 20-30%, while labor-intensive services may see 10-20%. Use our forecasting tool to set and track margin targets as you grow.',
       },
       {
         question: 'How do I improve my EBITDA?',
-        answer: 'Increase revenue through pricing or volume, reduce direct labor costs through efficiency, negotiate better vendor pricing, automate processes, and maintain disciplined expense management. Our scenario planning tool helps model the impact of different improvement strategies.'
+        answer:
+          'Increase revenue through pricing or volume, reduce direct labor costs through efficiency, negotiate better vendor pricing, automate processes, and maintain disciplined expense management. Our scenario planning tool helps model the impact of different improvement strategies.',
       },
       {
         question: 'Can I export my EBITDA forecasts?',
-        answer: 'Yes! Our calculator allows you to export detailed financial projections, including revenue breakdown, expense schedules, and EBITDA margins for presentations to investors, lenders, or internal planning purposes.'
-      }
+        answer:
+          'Yes! Our calculator allows you to export detailed financial projections, including revenue breakdown, expense schedules, and EBITDA margins for presentations to investors, lenders, or internal planning purposes.',
+      },
     ]}
   />
-  <div class="container mx-auto px-4 py-8">
-    
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2">EBITDA Forecasting</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Generate comprehensive financial forecasts for service industry scenario planning
-      </p>
-
-      <!-- React Dashboard Component -->
+  <ToolPageShell
+    eyebrow="Business finance"
+    title="EBITDA Forecasting"
+    description="Generate comprehensive financial forecasts for service industry scenario planning"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'EBITDA Forecasting' },
+    ]}
+  >
+    <SurfaceCard className="mb-8">
       <div id="ebitda-dashboard-container" data-testid="ebitda-dashboard">
         <EbitdaDashboard client:only="react" />
       </div>
+    </SurfaceCard>
 
-      <!-- AdSense: After dashboard ad -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
-    </div>
-  </div>
-  
-  <!-- ChatPanel is now in Layout.astro - no need to include it here -->
+    <!-- AdSense: After dashboard ad -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 </Layout>

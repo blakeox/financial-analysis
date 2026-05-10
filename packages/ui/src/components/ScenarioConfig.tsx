@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
+import { Button } from './Button';
 import { parsers } from '../lib/formUtils';
+import { cn, inputClasses, textColors } from '../lib/classNames';
 
 export interface ScenarioConfigData {
   scenarioName: string;
@@ -52,7 +54,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
   const hasSeasonalityFactors = data.seasonalityFactors && data.seasonalityFactors.length === 12;
 
   return (
-    <Card>
+    <Card variant="interactive">
       <CardHeader>
         <CardTitle>Scenario Configuration</CardTitle>
       </CardHeader>
@@ -68,7 +70,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
           />
           <div className="space-y-1">
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
               htmlFor="scenario-description"
             >
               Scenario Description
@@ -80,7 +82,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
               disabled={readonly}
               rows={3}
               placeholder="Short summary of assumptions and goals"
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className={cn(inputClasses, 'min-h-[96px] py-3')}
             />
           </div>
         </div>
@@ -177,18 +179,18 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         </div>
 
         {/* Summary */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-          <h4 className="font-medium mb-2">Scenario Summary</h4>
+        <div className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <h4 className="mb-2 font-semibold text-slate-900 dark:text-white">Scenario Summary</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Forecast Period:</span> {data.projectionMonths} months (
               {Math.round((data.projectionMonths / 12) * 10) / 10} years)
             </div>
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Annual Growth Rate:</span>{' '}
               {((Math.pow(1 + data.revenueGrowthRate, 12) - 1) * 100).toFixed(1)}%
             </div>
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Market Conditions:</span>{' '}
               {data.marketGrowthFactor > 1.1
                 ? 'Favorable'
@@ -198,30 +200,30 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">OpEx Growth:</span>{' '}
               {formatPercent(data.operatingExpenseGrowthRate)} monthly
             </div>
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Billable Hours Growth:</span>{' '}
               {formatPercent(data.billableHoursGrowthRate)} monthly
             </div>
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Inflation Assumption:</span>{' '}
               {formatPercent(data.inflationRate)} annually
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Competition Outlook:</span>{' '}
               {describeCompetition(data.competitionFactor)}
             </div>
-            <div>
+            <div className={textColors.secondary}>
               <span className="font-medium">Competition Factor:</span>{' '}
               {data.competitionFactor.toFixed(2)}
             </div>
             {data.seasonalityFactors && (
-              <div>
+              <div className={textColors.secondary}>
                 <span className="font-medium">Seasonality Avg:</span>{' '}
                 {(
                   (data.seasonalityFactors.reduce((sum, factor) => sum + factor, 0) || 0) /
@@ -235,25 +237,26 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         {/* Seasonality Factors */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium">Seasonality Factors (Optional)</h4>
+            <h4 className="font-semibold text-slate-900 dark:text-white">Seasonality Factors (Optional)</h4>
             {!readonly && (
               <div className="space-x-2">
                 {!hasSeasonalityFactors ? (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => updateField('seasonalityFactors', Array(12).fill(1))}
-                    className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    size="sm"
                   >
                     Enable Seasonality
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
                     type="button"
                     onClick={resetSeasonalityFactors}
-                    className="text-sm px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                    variant="secondary"
+                    size="sm"
                   >
                     Reset to 1.0
-                  </button>
+                  </Button>
                 )}
               </div>
             )}
@@ -261,7 +264,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
 
           {hasSeasonalityFactors && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className={cn('text-sm', textColors.secondary)}>
                 Adjust monthly multipliers to account for seasonal variations (1.0 = normal, 1.2 =
                 20% above normal, 0.8 = 20% below normal)
               </p>
@@ -282,8 +285,8 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
                 ))}
               </div>
 
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-md">
-                <div className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="rounded-2xl border border-violet-200 bg-violet-50/80 p-3 dark:border-violet-900/70 dark:bg-violet-950/25">
+                <div className={cn('text-sm', textColors.accent)}>
                   <strong>Average Factor:</strong>{' '}
                   {(
                     (data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12
@@ -292,7 +295,7 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
                     (data.seasonalityFactors?.reduce((sum, factor) => sum + factor, 0) || 12) / 12 -
                       1
                   ) > 0.05 && (
-                    <span className="ml-2 text-orange-600 dark:text-orange-400">
+                    <span className="ml-2 text-amber-600 dark:text-amber-300">
                       ⚠️ Consider balancing factors around 1.0 for realistic projections
                     </span>
                   )}

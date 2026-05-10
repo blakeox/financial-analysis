@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['invest-vs-payoff-debt'];
@@ -37,79 +39,36 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey/invest-vs-payoff-debt" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">🎯</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="🎯"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Personalized Recommendation -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Your Personalized Recommendation</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Your Personalized Recommendation</h2>
             
             <div id="recommendation-container" class="space-y-6">
               <!-- Recommendation will be generated by JavaScript -->
-              <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4">
-                <p class="text-blue-700 dark:text-blue-300">
+              <div class="fa-highlight-card">
+                <p class="text-violet-700 dark:text-violet-300">
                   Loading your personalized recommendation based on your journey data...
                 </p>
               </div>
@@ -117,21 +76,21 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Action Plan -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">📋 Your Action Plan</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">📋 Your Action Plan</h2>
             <div id="action-plan-container" class="space-y-4">
               <!-- Action plan will be generated by JavaScript -->
             </div>
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -141,7 +100,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -154,7 +113,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               <div class="flex items-center space-x-4">
                 <a 
                   href={`/journey-analysis/${journeyNav.scenarioId}`}
-                  class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  class="fa-button-primary"
                 >
                   Complete Journey Analysis
                   <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,24 +127,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Key Factors</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title mb-4">💡 Key Factors</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>High Debt Rate:</strong> Usually better to pay off debt first</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Employer Match:</strong> Usually prioritize getting full match</p>
               </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Low Debt Rate:</strong> Investing may be better long-term</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">📊 Remember</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-4">📊 Remember</h3>
+            <div class="space-y-3 fa-list-copy">
               <p>• This is a recommendation, not financial advice</p>
               <p>• Your situation is unique</p>
               <p>• Review periodically as circumstances change</p>
@@ -194,7 +153,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
         </div>
       </div>
-    </div>
   </main>
 
   <script>
@@ -211,8 +169,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       if (!foundationData || !debtData || !investmentData) {
         if (recommendationContainer) {
           recommendationContainer.innerHTML = `
-            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
-              <p class="text-yellow-700 dark:text-yellow-300">
+            <div class="fa-callout-warning">
+              <p>
                 <strong>Missing Data:</strong> Please complete all previous steps to get a personalized recommendation.
                 <a href="/journey/invest-vs-payoff-debt" class="underline ml-1">Go back to start</a>
               </p>
@@ -232,38 +190,38 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
       // Decision logic
       let recommendation = '';
-      let recommendationColor = 'blue';
+      let recommendationColor = 'violet';
       let strategy = '';
       let reasoning = '';
 
       if (!hasEmergencyFund) {
         recommendation = 'Build Emergency Fund First';
-        recommendationColor = 'red';
+        recommendationColor = 'rose';
         strategy = 'emergency-fund';
         reasoning = 'Priority #1: Build a 3-6 month emergency fund before making extra debt payments or investments. Without this safety net, unexpected expenses could force you into more debt.';
       } else if (hasEmployerMatch && employerMatchRate > 0) {
         recommendation = 'Invest to Get Employer Match';
-        recommendationColor = 'green';
+        recommendationColor = 'emerald';
         strategy = 'invest-match';
         reasoning = `Your employer offers ${employerMatchRate}% match - this is free money! Prioritize getting the full employer match first, as this provides an immediate ${employerMatchRate}% return plus your expected ${investReturn}% investment return.`;
       } else if (debtRate >= 8) {
         recommendation = 'Pay Off Debt First';
-        recommendationColor = 'red';
+        recommendationColor = 'rose';
         strategy = 'pay-debt';
         reasoning = `Your debt interest rate (${debtRate}%) is higher than typical investment returns. Paying off debt provides a guaranteed ${debtRate}% return, which is better than the uncertain ${investReturn}% expected from investments.`;
       } else if (debtRate >= investReturn + 2) {
         recommendation = 'Pay Off Debt First';
-        recommendationColor = 'orange';
+        recommendationColor = 'amber';
         strategy = 'pay-debt';
         reasoning = `Your debt interest rate (${debtRate}%) is significantly higher than your expected investment return (${investReturn}%). The guaranteed return from debt payoff outweighs the uncertain investment returns.`;
       } else if (debtRate <= 4 && investReturn >= 7) {
         recommendation = 'Invest While Making Minimum Payments';
-        recommendationColor = 'green';
+        recommendationColor = 'emerald';
         strategy = 'invest';
         reasoning = `Your debt interest rate (${debtRate}%) is low, and your expected investment return (${investReturn}%) is good. Over the long term, investing while making minimum debt payments should provide better returns.`;
       } else {
         recommendation = 'Hybrid Approach (50/50 Split)';
-        recommendationColor = 'blue';
+        recommendationColor = 'violet';
         strategy = 'hybrid';
         reasoning = `Your debt rate (${debtRate}%) and expected investment return (${investReturn}%) are relatively close. A balanced approach of splitting extra money between debt payoff and investing provides both guaranteed returns and growth potential.`;
       }
@@ -283,25 +241,25 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 <p class="text-${recommendationColor}-800 dark:text-${recommendationColor}-300 mb-4">
                   ${reasoning}
                 </p>
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
-                  <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Quick Comparison:</h4>
+                <div class="fa-subcard mt-4">
+                  <h4 class="fa-scenario-title mb-2">Quick Comparison:</h4>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Debt Interest Rate:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white ml-2">${debtRate}%</span>
+                      <span class="fa-meta-copy">Debt Interest Rate:</span>
+                      <span class="fa-list-copy-strong ml-2">${debtRate}%</span>
                     </div>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Expected Investment Return:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white ml-2">${investReturn}%</span>
+                      <span class="fa-meta-copy">Expected Investment Return:</span>
+                      <span class="fa-list-copy-strong ml-2">${investReturn}%</span>
                     </div>
                     <div>
-                      <span class="text-gray-600 dark:text-gray-400">Extra Money Available:</span>
-                      <span class="font-semibold text-gray-900 dark:text-white ml-2">$${extraMoney.toLocaleString()}/month</span>
+                      <span class="fa-meta-copy">Extra Money Available:</span>
+                      <span class="fa-list-copy-strong ml-2">$${extraMoney.toLocaleString()}/month</span>
                     </div>
                     ${hasEmployerMatch ? `
                       <div>
-                        <span class="text-gray-600 dark:text-gray-400">Employer Match:</span>
-                        <span class="font-semibold text-green-600 dark:text-green-400 ml-2">${employerMatchRate}%</span>
+                        <span class="fa-meta-copy">Employer Match:</span>
+                        <span class="ml-2 font-semibold text-emerald-600 dark:text-emerald-300">${employerMatchRate}%</span>
                       </div>
                     ` : ''}
                   </div>
@@ -349,11 +307,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         }
 
         actionPlanContainer.innerHTML = actionSteps.map((step, index) => `
-          <div class="flex items-start p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-semibold mr-4">
+          <div class="fa-subcard flex items-start">
+            <span class="mr-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-600 font-semibold text-white">
               ${index + 1}
             </span>
-            <p class="text-gray-700 dark:text-gray-300 flex-1">${step}</p>
+            <p class="fa-list-copy flex-1">${step}</p>
           </div>
         `).join('');
       }
@@ -382,4 +340,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     });
   </script>
 </Layout>
-

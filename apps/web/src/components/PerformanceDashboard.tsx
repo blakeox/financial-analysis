@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { Button, Select, cn, textColors } from '@financial-analysis/ui';
 import type {
   AlertRule,
   PerformanceDashboard,
@@ -74,28 +75,28 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
   const getStatusColor = (status: SystemHealth['status']) => {
     switch (status) {
       case 'healthy':
-        return 'text-green-600 bg-green-100';
+        return 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200';
       case 'degraded':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200';
       case 'critical':
-        return 'text-red-600 bg-red-100';
+        return 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'fa-chip-muted';
     }
   };
 
   const getSeverityColor = (severity: AlertRule['severity']) => {
     switch (severity) {
       case 'low':
-        return 'text-blue-600 bg-blue-100';
+        return 'border border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/70 dark:bg-violet-950/30 dark:text-violet-200';
       case 'medium':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200';
       case 'high':
-        return 'text-orange-600 bg-orange-100';
+        return 'border border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/70 dark:bg-orange-950/30 dark:text-orange-200';
       case 'critical':
-        return 'text-red-600 bg-red-100';
+        return 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'fa-chip-muted';
     }
   };
 
@@ -130,7 +131,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
     return (
       <div className={`performance-dashboard ${className}`}>
         <div className="flex items-center justify-center p-8">
-          <div className="animate-spin rounded-full size-8 border-b-2 border-blue-600"></div>
+          <div className="size-8 animate-spin rounded-full border-b-2 border-violet-600"></div>
         </div>
       </div>
     );
@@ -139,32 +140,35 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
   return (
     <div className={`performance-dashboard ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 fa-panel-divider">
         <div className="flex items-center space-x-3">
-          <h3 className="text-lg font-semibold text-gray-900">Performance Dashboard</h3>
+          <h3 className="fa-scenario-title">Performance Dashboard</h3>
           <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(health.status)}`}
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${getStatusColor(health.status)}`}
           >
             {health.status.toUpperCase()}
           </span>
         </div>
 
         <div className="flex items-center space-x-2">
-          <select
+          <Select
             value={selectedTimeRange}
-            onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
+            onChange={(value) => setSelectedTimeRange(value as TimeRange)}
             aria-label="Select time range"
-            className="text-sm border border-gray-300 rounded px-2 py-1"
-          >
-            <option value="5m">Last 5 minutes</option>
-            <option value="15m">Last 15 minutes</option>
-            <option value="1h">Last hour</option>
-            <option value="24h">Last 24 hours</option>
-          </select>
+            className="fa-input-surface text-sm"
+            options={[
+              { value: '5m', label: 'Last 5 minutes' },
+              { value: '15m', label: 'Last 15 minutes' },
+              { value: '1h', label: 'Last hour' },
+              { value: '24h', label: 'Last 24 hours' },
+            ]}
+          />
 
-          <button
+          <Button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 text-gray-500 hover:text-gray-700"
+            variant="ghost"
+            size="sm"
+            className="fa-shell-icon-button h-9 w-9 px-0"
           >
             {isExpanded ? (
               <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,45 +189,45 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                 />
               </svg>
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-500">Uptime</div>
-          <div className="text-2xl font-bold text-gray-900">{formatUptime(health.uptime)}</div>
+        <div className="fa-subcard">
+          <div className="fa-meta-copy text-sm">Uptime</div>
+          <div className="fa-panel-title text-2xl">{formatUptime(health.uptime)}</div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-500">Response Time</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="fa-subcard">
+          <div className="fa-meta-copy text-sm">Response Time</div>
+          <div className="fa-panel-title text-2xl">
             {formatDuration(health.responseTime)}
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-500">Error Rate</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="fa-subcard">
+          <div className="fa-meta-copy text-sm">Error Rate</div>
+          <div className="fa-panel-title text-2xl">
             {(health.errorRate * 100).toFixed(1)}%
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-500">Throughput</div>
-          <div className="text-2xl font-bold text-gray-900">{stats.throughput.toFixed(1)}/s</div>
+        <div className="fa-subcard">
+          <div className="fa-meta-copy text-sm">Throughput</div>
+          <div className="fa-panel-title text-2xl">{stats.throughput.toFixed(1)}/s</div>
         </div>
       </div>
 
       {/* Alerts */}
       {alerts.length > 0 && (
-        <div className="p-4 border-b border-gray-200">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Recent Alerts</h4>
+        <div className="p-4 fa-panel-divider">
+          <h4 className="fa-scenario-title mb-2 text-sm">Recent Alerts</h4>
           <div className="space-y-2">
             {alerts.slice(0, 3).map((alert, index) => (
-              <div key={index} className={`p-2 rounded ${getSeverityColor(alert.severity)}`}>
-                <div className="text-sm font-medium">{alert.name}</div>
+                <div key={index} className={`rounded-xl p-2 ${getSeverityColor(alert.severity)}`}>
+                <div className="fa-list-copy-strong">{alert.name}</div>
                 <div className="text-xs opacity-75">
                   {new Date(alert.timestamp).toLocaleTimeString()}
                 </div>
@@ -238,10 +242,10 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
         <div className="p-4 space-y-6">
           {/* Performance Stats */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Performance Statistics</h4>
+            <h4 className="fa-scenario-title mb-3 text-sm">Performance Statistics</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="text-sm text-gray-500 mb-2">Response Time Percentiles</div>
+              <div className="fa-subcard">
+                <div className="fa-meta-copy mb-2 text-sm">Response Time Percentiles</div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span>Average:</span>
@@ -258,8 +262,8 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="text-sm text-gray-500 mb-2">Request Summary</div>
+              <div className="fa-subcard">
+                <div className="fa-meta-copy mb-2 text-sm">Request Summary</div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span>Total:</span>
@@ -267,11 +271,11 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Successful:</span>
-                    <span className="text-green-600">{stats.successfulRequests}</span>
+                      <span className={textColors.success}>{stats.successfulRequests}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Failed:</span>
-                    <span className="text-red-600">{stats.failedRequests}</span>
+                      <span className={textColors.danger}>{stats.failedRequests}</span>
                   </div>
                 </div>
               </div>
@@ -281,23 +285,23 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
           {/* Top Operations */}
           {stats.topOperations.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Top Operations</h4>
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <h4 className="fa-scenario-title mb-3 text-sm">Top Operations</h4>
+              <div className="fa-card p-0 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-slate-50 dark:bg-slate-900/80">
                       <tr>
-                        <th className="px-4 py-2 text-left">Operation</th>
-                        <th className="px-4 py-2 text-right">Count</th>
-                        <th className="px-4 py-2 text-right">Avg Duration</th>
+                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Operation</th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Avg Duration</th>
                       </tr>
                     </thead>
                     <tbody>
                       {stats.topOperations.map((op, index) => (
-                        <tr key={index} className="border-t border-gray-200">
-                          <td className="px-4 py-2 font-medium">{op.operation}</td>
-                          <td className="px-4 py-2 text-right">{op.count}</td>
-                          <td className="px-4 py-2 text-right">{formatDuration(op.avgDuration)}</td>
+                        <tr key={index} className="fa-panel-divider-top">
+                          <td className="px-4 py-2 fa-list-copy-strong">{op.operation}</td>
+                          <td className="px-4 py-2 text-right fa-list-copy">{op.count}</td>
+                          <td className="px-4 py-2 text-right fa-list-copy">{formatDuration(op.avgDuration)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -310,21 +314,21 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
           {/* Top Errors */}
           {stats.topErrors.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Top Errors</h4>
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <h4 className="fa-scenario-title mb-3 text-sm">Top Errors</h4>
+              <div className="fa-card p-0 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-slate-50 dark:bg-slate-900/80">
                       <tr>
-                        <th className="px-4 py-2 text-left">Error Code</th>
-                        <th className="px-4 py-2 text-right">Count</th>
+                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Error Code</th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>
                       </tr>
                     </thead>
                     <tbody>
                       {stats.topErrors.map((error, index) => (
-                        <tr key={index} className="border-t border-gray-200">
-                          <td className="px-4 py-2 font-medium text-red-600">{error.errorCode}</td>
-                          <td className="px-4 py-2 text-right">{error.count}</td>
+                        <tr key={index} className="fa-panel-divider-top">
+                          <td className={cn('px-4 py-2 font-medium', textColors.danger)}>{error.errorCode}</td>
+                          <td className="px-4 py-2 text-right fa-list-copy">{error.count}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -335,16 +339,16 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
           )}
 
           {/* Actions */}
-          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-            <div className="text-sm text-gray-500">
+          <div className="flex justify-between items-center pt-4 fa-panel-divider-top">
+            <div className="fa-meta-copy text-sm">
               Last updated: {health.lastUpdated.toLocaleTimeString()}
             </div>
 
             <div className="flex space-x-2">
-              <button
-                onClick={() => {
-                  const data = dashboard.exportMetrics('json');
-                  const blob = new Blob([data], { type: 'application/json' });
+               <Button
+                 onClick={() => {
+                   const data = dashboard.exportMetrics('json');
+                   const blob = new Blob([data], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
@@ -352,12 +356,12 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Export JSON
-              </button>
+                 className="text-sm"
+               >
+                 Export JSON
+               </Button>
 
-              <button
+              <Button
                 onClick={() => {
                   const data = dashboard.exportMetrics('csv');
                   const blob = new Blob([data], { type: 'text/csv' });
@@ -368,17 +372,19 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                variant="success"
+                size="sm"
               >
                 Export CSV
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={() => dashboard.clearMetrics()}
-                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                variant="destructive"
+                size="sm"
               >
                 Clear Data
-              </button>
+              </Button>
             </div>
           </div>
         </div>

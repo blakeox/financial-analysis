@@ -3,199 +3,222 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Bond Pricing Calculator - Fixed Income Securities Analysis | Fanalyx" 
+<Layout
+  title="Bond Pricing Calculator - Fixed Income Securities Analysis | Fanalyx"
   description="Professional bond pricing calculator with YTM calculations, duration analysis, convexity, and support for 7 bond types. Comprehensive fixed income securities analysis."
   keywords="bond pricing, bond calculator, YTM, yield to maturity, duration, convexity, fixed income, bond valuation, bond analysis"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Business Finance', url: '/models/business' },
-      { name: 'Bond Pricing', url: '/bond-pricing' }
+      { name: 'Bond Pricing', url: '/bond-pricing' },
     ]}
   />
-  
-  <StructuredData 
-    type="software" 
+
+  <StructuredData
+    type="software"
     softwareApp={{
       name: 'Bond Pricing Calculator',
-      description: 'Professional bond pricing tool with YTM calculations, duration analysis, convexity, and support for 7 bond types including zero-coupon, fixed-rate, floating-rate, and callable bonds.',
+      description:
+        'Professional bond pricing tool with YTM calculations, duration analysis, convexity, and support for 7 bond types including zero-coupon, fixed-rate, floating-rate, and callable bonds.',
       category: 'FinanceApplication',
       rating: 4.8,
-      ratingCount: 210
+      ratingCount: 210,
     }}
   />
-  
-  <StructuredData 
-    type="faq" 
+
+  <StructuredData
+    type="faq"
     faqs={[
       {
         question: 'What is bond pricing and how is it calculated?',
-        answer: 'Bond pricing determines the fair value of a bond by discounting future cash flows (coupon payments and principal) to present value using the yield to maturity. The price moves inversely to interest rates - when rates rise, bond prices fall.'
+        answer:
+          'Bond pricing determines the fair value of a bond by discounting future cash flows (coupon payments and principal) to present value using the yield to maturity. The price moves inversely to interest rates - when rates rise, bond prices fall.',
       },
       {
         question: 'What is YTM (Yield to Maturity)?',
-        answer: 'YTM is the total return expected on a bond if held until maturity. It accounts for coupon payments, principal repayment, and the difference between purchase price and face value. YTM is the discount rate that makes the bond\'s present value equal to its price.'
+        answer:
+          "YTM is the total return expected on a bond if held until maturity. It accounts for coupon payments, principal repayment, and the difference between purchase price and face value. YTM is the discount rate that makes the bond's present value equal to its price.",
       },
       {
         question: 'What is duration and why does it matter?',
-        answer: 'Duration measures a bond\'s sensitivity to interest rate changes. Higher duration means greater price volatility when rates change. Modified duration estimates the percentage price change for a 1% change in yield. It helps investors manage interest rate risk.'
+        answer:
+          "Duration measures a bond's sensitivity to interest rate changes. Higher duration means greater price volatility when rates change. Modified duration estimates the percentage price change for a 1% change in yield. It helps investors manage interest rate risk.",
       },
       {
         question: 'What is convexity?',
-        answer: 'Convexity measures how duration changes as yields change. It provides a more accurate estimate of price sensitivity, especially for larger yield changes. Positive convexity is generally desirable as it means bond prices increase more when rates fall than they decrease when rates rise.'
+        answer:
+          'Convexity measures how duration changes as yields change. It provides a more accurate estimate of price sensitivity, especially for larger yield changes. Positive convexity is generally desirable as it means bond prices increase more when rates fall than they decrease when rates rise.',
       },
       {
         question: 'What types of bonds can I analyze?',
-        answer: 'Our calculator supports 7 bond types: zero-coupon, fixed-rate, floating-rate, callable, puttable, convertible, and perpetual bonds. Each type has unique characteristics that affect pricing and risk.'
-      }
+        answer:
+          'Our calculator supports 7 bond types: zero-coupon, fixed-rate, floating-rate, callable, puttable, convertible, and perpetual bonds. Each type has unique characteristics that affect pricing and risk.',
+      },
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Bond Pricing Calculator</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Comprehensive bond valuation with YTM, duration, convexity, and support for 7 bond types
-      </p>
+  <ToolPageShell
+    eyebrow="Business finance"
+    title="Bond Pricing Calculator"
+    description="Evaluate bond pricing, yields, duration, and rate sensitivity with clearer assumptions"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'Bond Pricing' },
+    ]}
+  >
+    <!-- Bond Pricing Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Bond Parameters</h2>
 
-      <!-- Bond Pricing Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Bond Parameters</h2>
-
-        <form id="bond-pricing-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="bondType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Bond Type
-              </label>
-              <select
-                id="bondType"
-                name="bondType"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="">Select bond type...</option>
-                <option value="zero-coupon">Zero-Coupon</option>
-                <option value="fixed-rate">Fixed-Rate</option>
-                <option value="floating-rate">Floating-Rate</option>
-                <option value="callable">Callable</option>
-                <option value="puttable">Puttable</option>
-                <option value="convertible">Convertible</option>
-                <option value="perpetual">Perpetual</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="faceValue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Face Value ($)
-              </label>
-              <input
-                type="number"
-                id="faceValue"
-                name="faceValue"
-                min="0"
-                step="100"
-                value="1000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="couponRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Coupon Rate (%)
-              </label>
-              <input
-                type="number"
-                id="couponRate"
-                name="couponRate"
-                min="0"
-                max="100"
-                step="0.01"
-                value="5"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div>
-              <label for="yearsToMaturity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Years to Maturity
-              </label>
-              <input
-                type="number"
-                id="yearsToMaturity"
-                name="yearsToMaturity"
-                min="0.1"
-                step="0.1"
-                value="10"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="marketPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Market Price ($)
-              </label>
-              <input
-                type="number"
-                id="marketPrice"
-                name="marketPrice"
-                min="0"
-                step="0.01"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="950"
-              />
-            </div>
-
-            <div>
-              <label for="yieldToMaturity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Yield to Maturity (%)
-              </label>
-              <input
-                type="number"
-                id="yieldToMaturity"
-                name="yieldToMaturity"
-                min="0"
-                max="100"
-                step="0.01"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="5.5"
-              />
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+      <form id="bond-pricing-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="bondType"
+              class="fa-field-label mb-2"
             >
-              Calculate Bond Price
-            </button>
+              Bond Type
+            </label>
+            <select
+              id="bondType"
+              name="bondType"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="">Select bond type...</option>
+              <option value="zero-coupon">Zero-Coupon</option>
+              <option value="fixed-rate">Fixed-Rate</option>
+              <option value="floating-rate">Floating-Rate</option>
+              <option value="callable">Callable</option>
+              <option value="puttable">Puttable</option>
+              <option value="convertible">Convertible</option>
+              <option value="perpetual">Perpetual</option>
+            </select>
           </div>
-        </form>
-      </div>
 
-      <!-- Results Section -->
-      <div id="bond-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Bond Pricing Results</h2>
-        <div id="bond-results-content" class="space-y-4"></div>
-      </div>
+          <div>
+            <label
+              for="faceValue"
+              class="fa-field-label mb-2"
+            >
+              Face Value ($)
+            </label>
+            <input
+              type="number"
+              id="faceValue"
+              name="faceValue"
+              min="0"
+              step="100"
+              value="1000"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
 
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+          <div>
+            <label
+              for="couponRate"
+              class="fa-field-label mb-2"
+            >
+              Coupon Rate (%)
+            </label>
+            <input
+              type="number"
+              id="couponRate"
+              name="couponRate"
+              min="0"
+              max="100"
+              step="0.01"
+              value="5"
+              class="fa-input-surface w-full"
+            />
+          </div>
+
+          <div>
+            <label
+              for="yearsToMaturity"
+              class="fa-field-label mb-2"
+            >
+              Years to Maturity
+            </label>
+            <input
+              type="number"
+              id="yearsToMaturity"
+              name="yearsToMaturity"
+              min="0.1"
+              step="0.1"
+              value="10"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="marketPrice"
+              class="fa-field-label mb-2"
+            >
+              Market Price ($)
+            </label>
+            <input
+              type="number"
+              id="marketPrice"
+              name="marketPrice"
+              min="0"
+              step="0.01"
+              class="fa-input-surface w-full"
+              placeholder="950"
+            />
+          </div>
+
+          <div>
+            <label
+              for="yieldToMaturity"
+              class="fa-field-label mb-2"
+            >
+              Yield to Maturity (%)
+            </label>
+            <input
+              type="number"
+              id="yieldToMaturity"
+              name="yieldToMaturity"
+              min="0"
+              max="100"
+              step="0.01"
+              class="fa-input-surface w-full"
+              placeholder="5.5"
+            />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Calculate Bond Price </button>
+        </div>
+      </form>
     </div>
-  </div>
+
+    <!-- Results Section -->
+    <div id="bond-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">Bond Pricing Results</h2>
+      <div id="bond-results-content" class="space-y-4"></div>
+    </div>
+
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="bond-pricing" />
 </Layout>

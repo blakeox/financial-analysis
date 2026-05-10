@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useHydrated, useAutoScroll, useEscapeKey } from '../lib/hooks';
-import { cn } from '../lib/classNames';
+import { buttonBaseClasses, buttonVariants, cn, inputClasses, textColors } from '../lib/classNames';
+import { Button } from './Button';
 
 type Role = 'system' | 'user' | 'assistant';
 type Message = { role: Role; content: string };
@@ -98,7 +99,11 @@ export function ChatPanel({
         aria-label="Open chat assistant"
         data-hydrated={hydrated ? 'true' : 'false'}
         data-z-fallback="80"
-        className="fixed bottom-6 right-6 z-100 inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-colors"
+        className={cn(
+          'fixed right-6 bottom-6 z-100 h-14 w-14 rounded-full px-0 shadow-[0_22px_48px_rgba(109,74,255,0.34)]',
+          buttonBaseClasses,
+          buttonVariants.primary
+        )}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -127,22 +132,24 @@ export function ChatPanel({
             aria-modal="true"
             aria-label="Chat assistant"
             data-z-fallback="90"
-            className="fixed z-90 top-0 right-0 h-full w-full sm:w-[380px] md:w-[420px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl transform transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0"
+            className="fixed top-0 right-0 z-90 h-full w-full border-l border-slate-200/80 bg-white/95 shadow-2xl transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0 dark:border-slate-800 dark:bg-slate-950/96 sm:w-[380px] md:w-[420px]"
           >
             {/* Header */}
-            <div className="h-14 px-3 sm:px-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-600 text-white">
+            <div className="flex h-16 items-center justify-between border-b border-slate-200/80 px-3 sm:px-4 dark:border-slate-800">
+              <div className={cn('flex items-center gap-2 text-sm font-semibold', textColors.primary)}>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 text-white shadow-[0_10px_24px_rgba(109,74,255,0.24)]">
                   AI
                 </span>
                 <span>{title}</span>
               </div>
               <div className="flex items-center gap-1">
-                <button
+                <Button
                   type="button"
                   onClick={closePanel}
                   aria-label="Close"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 rounded-xl px-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +162,7 @@ export function ChatPanel({
                     <path d="M18 6 6 18" />
                     <path d="m6 6 12 12" />
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -170,43 +177,46 @@ export function ChatPanel({
                   className={cn(
                     'text-sm',
                     m.role === 'user'
-                      ? 'text-gray-900 dark:text-gray-100'
-                      : 'text-gray-800 dark:text-gray-200'
+                      ? 'text-slate-950 dark:text-slate-100'
+                      : 'text-slate-800 dark:text-slate-200'
                   )}
                 >
                   <div
                     className={cn(
-                      'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-lg px-3 py-2',
+                      'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-2xl border px-4 py-3 shadow-sm',
                       m.role === 'user'
-                        ? 'bg-blue-50 dark:bg-blue-400/10 border border-blue-200/60 dark:border-blue-700/40'
-                        : 'bg-gray-50 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700'
+                        ? 'border-violet-300/70 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/45 dark:text-violet-50'
+                        : 'border-slate-200/80 bg-white/85 text-slate-900 dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-100'
                     )}
                   >
                     {m.content}
                   </div>
                 </div>
               ))}
-              {busy && <div className="text-xs text-gray-500">Thinking…</div>}
+              {busy && <div className={cn('text-xs', textColors.muted)}>Thinking…</div>}
             </div>
 
             {/* Composer */}
-            <div className="h-14 px-3 sm:px-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2">
+            <div className="flex items-center gap-2 border-t border-slate-200/80 px-3 py-3 sm:px-4 dark:border-slate-800">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={busy ? 'Please wait…' : 'Type a message (⌘/Ctrl+Enter to send)'}
-                className="flex-1 resize-none h-10 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                className={cn(
+                  inputClasses,
+                  'h-11 min-h-11 flex-1 resize-none py-2.5 leading-5'
+                )}
                 disabled={busy}
               />
-              <button
+              <Button
                 type="button"
                 onClick={onSend}
                 disabled={busy || !input.trim()}
-                className="inline-flex h-10 px-3 items-center justify-center rounded-md bg-blue-600 text-white text-sm font-medium shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                size="sm"
               >
                 Send
-              </button>
+              </Button>
             </div>
           </div>
         </>

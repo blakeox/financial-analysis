@@ -299,40 +299,40 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
   const bestWealth = Math.max(result.payOffDebt.endingWealth, result.invest.endingWealth, result.hybrid.endingWealth);
   
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Pay Debt First</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.payOffDebt.endingWealth)}</p>
-      ${result.payOffDebt.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+    <div class="fa-metric-card fa-metric-card-info">
+      <h5 class="text-sm font-medium">Pay Debt First</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.payOffDebt.endingWealth)}</p>
+      ${result.payOffDebt.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Invest First</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.invest.endingWealth)}</p>
-      ${result.invest.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+    <div class="fa-metric-card fa-metric-card-success">
+      <h5 class="text-sm font-medium">Invest First</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.invest.endingWealth)}</p>
+      ${result.invest.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Hybrid (50/50)</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.hybrid.endingWealth)}</p>
-      ${result.hybrid.endingWealth === bestWealth ? '<p class="text-xs text-green-600 dark:text-green-400 mt-1">✓ Best Math</p>' : ''}
+    <div class="fa-metric-card fa-metric-card-accent">
+      <h5 class="text-sm font-medium">Hybrid (50/50)</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.hybrid.endingWealth)}</p>
+      ${result.hybrid.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
     </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Recommended</h5>
-      <p class="text-lg font-bold text-orange-600 dark:text-orange-400">${result.recommendation.riskAdjustedWinner}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Risk-adjusted</p>
+    <div class="fa-metric-card fa-metric-card-warning">
+      <h5 class="text-sm font-medium">Recommended</h5>
+      <p class="text-lg font-bold">${result.recommendation.riskAdjustedWinner}</p>
+      <p class="mt-1 text-xs">Risk-adjusted</p>
     </div>
   `;
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="fa-integration-panel">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>
-      <p class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
-      <p class="text-gray-700 dark:text-gray-300">${result.recommendation.reasoning}</p>
+      <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
+      <p class="text-slate-700 dark:text-slate-300">${result.recommendation.reasoning}</p>
     </div>
     
     <!-- Strategy Comparison -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Strategy Comparison (${input.timeHorizonYears} years)
       </h2>
@@ -341,32 +341,32 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         ${[result.payOffDebt, result.invest, result.hybrid].map(strategy => {
           const isBest = strategy.endingWealth === bestWealth;
           return `
-            <div class="border-2 ${isBest ? 'border-green-500' : 'border-gray-300 dark:border-gray-700'} rounded-lg p-4">
-              ${isBest ? '<div class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold mb-3 inline-block">✓ BEST MATH</div>' : ''}
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">${strategy.name}</h3>
+            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
+              ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST MATH</div>' : ''}
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">${strategy.name}</h3>
               <div class="space-y-2">
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Ending Wealth</span>
-                  <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(strategy.endingWealth)}</span>
+                  <span class="fa-script-copy-muted">Ending Wealth</span>
+                  <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(strategy.endingWealth)}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Investment Balance</span>
+                  <span class="fa-script-copy-muted">Investment Balance</span>
                   <span class="font-semibold">${formatCurrency(strategy.investmentBalance)}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Debt Remaining</span>
-                  <span class="font-semibold ${strategy.debtRemaining > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${formatCurrency(strategy.debtRemaining)}</span>
+                  <span class="fa-script-copy-muted">Debt Remaining</span>
+                  <span class="font-semibold ${strategy.debtRemaining > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${formatCurrency(strategy.debtRemaining)}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Interest Paid</span>
-                  <span class="font-semibold text-red-600 dark:text-red-400">${formatCurrency(strategy.interestPaid)}</span>
+                  <span class="fa-script-copy-muted">Interest Paid</span>
+                  <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(strategy.interestPaid)}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Debt-Free</span>
+                  <span class="fa-script-copy-muted">Debt-Free</span>
                   <span class="font-semibold">${strategy.timeToDebtFree === Infinity ? 'No' : `${Math.round(strategy.timeToDebtFree / 12)}y`}</span>
                 </div>
-                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <span class="text-xs text-gray-500 dark:text-gray-400">Risk: ${strategy.riskLevel.toUpperCase()}</span>
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <span class="fa-script-note">Risk: ${strategy.riskLevel.toUpperCase()}</span>
                 </div>
               </div>
             </div>
@@ -376,24 +376,24 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
     </div>
     
     <!-- Key Factors Analysis -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💡</span> Key Decision Factors
       </h2>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Rate Comparison</h4>
-          <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+        <div class="fa-metric-card fa-metric-card-info">
+          <h4 class="mb-2 font-semibold">Rate Comparison</h4>
+          <div class="space-y-2 fa-script-copy-muted">
             <div class="flex justify-between">
               <span>Debt Interest Rate (guaranteed cost):</span>
-              <span class="font-bold text-red-600 dark:text-red-400">${input.debtInterestRate.toFixed(2)}%</span>
+              <span class="font-bold text-rose-600 dark:text-rose-400">${input.debtInterestRate.toFixed(2)}%</span>
             </div>
             <div class="flex justify-between">
               <span>Expected Investment Return:</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${input.expectedInvestmentReturn.toFixed(2)}%</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${input.expectedInvestmentReturn.toFixed(2)}%</span>
             </div>
-            <div class="flex justify-between border-t border-blue-200 dark:border-blue-700 pt-2">
+            <div class="flex justify-between border-t border-current/20 pt-2">
               <span>Difference:</span>
               <span class="font-bold">${result.recommendation.factors.interestRateDifference > 0 ? '+' : ''}${result.recommendation.factors.interestRateDifference.toFixed(2)}%</span>
             </div>
@@ -401,9 +401,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-            <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">✓ Pay Debt Pros</h4>
-            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <div class="fa-metric-card fa-metric-card-success">
+            <h4 class="mb-2 font-semibold">✓ Pay Debt Pros</h4>
+            <ul class="space-y-1 fa-script-copy-muted">
               <li>• Guaranteed return = debt interest rate</li>
               <li>• Reduces financial stress</li>
               <li>• Frees up cash flow for future</li>
@@ -412,9 +412,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
             </ul>
           </div>
           
-          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-            <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">✓ Invest Pros</h4>
-            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <div class="fa-metric-card fa-metric-card-accent">
+            <h4 class="mb-2 font-semibold">✓ Invest Pros</h4>
+            <ul class="space-y-1 fa-script-copy-muted">
               <li>• Potential for higher returns</li>
               <li>• Employer match = free money</li>
               <li>• Compound growth over time</li>
@@ -425,9 +425,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         </div>
         
         ${!input.hasEmergencyFund ? `
-        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border-l-4 border-red-500">
-          <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2">⚠️ Critical: Build Emergency Fund First</h4>
-          <p class="text-sm text-red-800 dark:text-red-200">
+        <div class="fa-callout-danger">
+          <h4 class="mb-2 font-semibold">⚠️ Critical: Build Emergency Fund First</h4>
+          <p class="text-sm">
             You indicated you don't have an emergency fund. This should be your #1 priority before extra debt payments or investing. 
             Aim for 3-6 months of expenses in a high-yield savings account.
           </p>
@@ -437,15 +437,15 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
     </div>
     
     <!-- Mathematical Breakdown -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+    <div class="fa-card">
       <h2 class="text-xl font-semibold mb-4">📐 The Math</h2>
-      <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+      <div class="space-y-3 fa-script-copy-muted">
         <p><strong>Guaranteed Return (Debt Payoff):</strong> ${input.debtInterestRate.toFixed(2)}%</p>
         <p><strong>Expected Return (Investing):</strong> ${input.expectedInvestmentReturn.toFixed(2)}% (not guaranteed)</p>
         <p><strong>Difference:</strong> ${result.recommendation.factors.interestRateDifference.toFixed(2)}% in favor of ${result.recommendation.factors.interestRateDifference > 0 ? 'investing' : 'debt payoff'}</p>
         
         ${input.employerMatch > 0 ? `
-        <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded">
+        <div class="fa-metric-card fa-metric-card-success mt-4">
           <p><strong>Employer Match Boost:</strong> ${input.employerMatch}% match adds ${input.employerMatch}% to your effective return, making investing even more attractive.</p>
         </div>
         ` : ''}
@@ -555,4 +555,3 @@ if (document.readyState === 'loading') {
 }
 
 export { initializeInvestVsDebt as initializeInvestVsPayoffCalculator };
-

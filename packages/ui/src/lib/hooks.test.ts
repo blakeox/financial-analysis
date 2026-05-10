@@ -245,7 +245,6 @@ describe('hooks', () => {
         } else {
           // If we created an own property on window.localStorage, remove it.
           // (The original may be on the prototype chain.)
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete (window as unknown as { localStorage?: unknown }).localStorage;
         }
       } catch {

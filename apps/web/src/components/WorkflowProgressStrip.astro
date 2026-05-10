@@ -9,15 +9,12 @@ const { label, currentStep, totalSteps } = Astro.props as Props;
 const progress = totalSteps > 0 ? Math.min(100, Math.max(0, (currentStep / totalSteps) * 100)) : 0;
 ---
 
-<section class="rounded-3xl border border-blue-200 bg-blue-50/70 p-5 shadow-sm dark:border-blue-900 dark:bg-blue-950/30">
-  <h2 class="text-base font-semibold text-blue-950 dark:text-blue-100">{label}</h2>
-  <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+<section class="fa-card fa-progress-panel p-5">
+  <h2 class="fa-scenario-title text-base">{label}</h2>
+  <p class="fa-list-copy mt-1">
     Step {currentStep} of {totalSteps}
   </p>
-  <div class="mt-4 h-2 rounded-full bg-blue-100 dark:bg-blue-950">
-    <div
-      class="h-2 rounded-full bg-linear-to-r from-blue-500 to-indigo-600 transition-all duration-300"
-      style={`width: ${progress}%`}
-    ></div>
+  <div class="fa-progress-track mt-4">
+    <div class="fa-progress-bar" style={`width: ${progress}%`}></div>
   </div>
 </section>

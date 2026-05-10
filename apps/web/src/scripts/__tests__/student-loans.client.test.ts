@@ -1,4 +1,3 @@
-import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,24 +16,26 @@ vi.mock('./chat-actions', () => ({
 // Import the functions we want to test
 import { displayResults, handleSubmit } from '../calculators/student-loans.client';
 
+type StudentLoanAnalysisResult = ReturnType<typeof StudentLoanEngine.analyze>;
+
 type StudentLoanResultOverrides = {
-  input?: Partial<StudentLoanResult['input']>;
-  summary?: Partial<StudentLoanResult['summary']> & {
+  input?: Partial<StudentLoanAnalysisResult['input']>;
+  summary?: Partial<StudentLoanAnalysisResult['summary']> & {
     loanSummaries?: Array<
-      Partial<StudentLoanResult['summary']['loanSummaries'][number]>
+      Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>
     >;
   };
-  payoffSchedule?: StudentLoanResult['payoffSchedule'];
-  incomeDrivenAnalysis?: StudentLoanResult['incomeDrivenAnalysis'];
-  refinancingAnalysis?: StudentLoanResult['refinancingAnalysis'];
-  recommendations?: StudentLoanResult['recommendations'];
-  metadata?: Partial<StudentLoanResult['metadata']>;
+  payoffSchedule?: StudentLoanAnalysisResult['payoffSchedule'];
+  incomeDrivenAnalysis?: StudentLoanAnalysisResult['incomeDrivenAnalysis'];
+  refinancingAnalysis?: StudentLoanAnalysisResult['refinancingAnalysis'];
+  recommendations?: StudentLoanAnalysisResult['recommendations'];
+  metadata?: Partial<StudentLoanAnalysisResult['metadata']>;
 };
 
 const createMockStudentLoanResult = (
   overrides?: StudentLoanResultOverrides
-): StudentLoanResult => {
-  const baseInput: StudentLoanResult['input'] = {
+): StudentLoanAnalysisResult => {
+  const baseInput: StudentLoanAnalysisResult['input'] = {
     totalLoans: 1,
     totalBalance: '50000.00',
     weightedAverageRate: '6.80',
@@ -42,7 +43,7 @@ const createMockStudentLoanResult = (
     paymentStrategy: 'standard',
   };
 
-  const baseSummary: StudentLoanResult['summary'] = {
+  const baseSummary: StudentLoanAnalysisResult['summary'] = {
     strategy: 'standard',
     totalMonthsToPayoff: 120,
     totalInterestPaid: '19077.60',
@@ -72,9 +73,9 @@ const createMockStudentLoanResult = (
     payoffSchedule: overrides?.payoffSchedule ?? [],
     summary: {
       ...baseSummary,
-      ...summaryOverrides,
-      loanSummaries: overrideLoanSummaries
-        ? overrideLoanSummaries.map((loan, index) => ({
+        ...summaryOverrides,
+        loanSummaries: overrideLoanSummaries
+        ? overrideLoanSummaries.map((loan: Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>, index: number) => ({
             name: loan.name ?? `Student Loan ${index + 1}`,
             loanType: loan.loanType ?? 'federal_unsubsidized',
             originalBalance: loan.originalBalance ?? '50000.00',

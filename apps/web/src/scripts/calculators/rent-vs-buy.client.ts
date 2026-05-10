@@ -454,20 +454,20 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
 
   // Summary cards
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Net Position (Buy)</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.netPosition)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${formatCurrency(result.buy.equity)} equity</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Net Position (Buy)</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.buy.netPosition)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.buy.equity)} equity</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Net Position (Rent)</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.rent.netPosition)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">${formatCurrency(result.rent.equity)} invested</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Net Position (Rent)</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rent.netPosition)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${formatCurrency(result.rent.equity)} invested</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Difference</h5>
-      <p class="text-2xl font-bold ${result.comparison.difference > 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(result.comparison.difference))}</p>
-      <p class="text-xs ${result.comparison.difference > 0 ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${result.comparison.factors.costAdvantage} wins</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Difference</h5>
+      <p class="text-2xl font-bold ${result.comparison.difference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(result.comparison.difference))}</p>
+      <p class="text-xs ${result.comparison.difference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${result.comparison.factors.costAdvantage} wins</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Break-Even</h5>
@@ -478,96 +478,96 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
-    <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>
-      <p class="text-gray-700 dark:text-gray-300">${result.comparison.recommendation}</p>
+      <p class="text-slate-700 dark:text-slate-300">${result.comparison.recommendation}</p>
     </div>
     
     <!-- Side-by-Side Comparison -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> ${input.yearsToAnalyze}-Year Comparison
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Buying -->
-        <div class="border-2 border-blue-300 dark:border-blue-700 rounded-lg p-4">
-          <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+        <div class="border-2 border-violet-300 dark:border-violet-700 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-violet-900 dark:text-violet-100 mb-4 flex items-center gap-2">
             <span>🏠</span> Buying
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
+              <span class="fa-script-copy-muted">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
               <span class="font-semibold">${formatCurrency(result.buy.monthlyPayment)}</span>
             </div>
             ${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total PMI Paid</span>
+              <span class="fa-script-copy-muted">Total PMI Paid</span>
               <span class="font-semibold text-orange-600 dark:text-orange-400">${formatCurrency(result.buy.breakdown.pmiCost)}</span>
             </div>
             ` : ''}
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.buy.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Home Equity</span>
-              <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.equity)}</span>
+              <span class="fa-script-copy-muted">Home Equity</span>
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.buy.equity)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Invested Savings</span>
-              <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.buy.breakdown.opportunityCost)}</span>
+              <span class="fa-script-copy-muted">Invested Savings</span>
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.buy.breakdown.opportunityCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
-              <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.breakdown.taxBenefits)}</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
+              <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.buy.breakdown.taxBenefits)}</span>
             </div>
             ${result.buy.breakdown.capitalGainsTax && result.buy.breakdown.capitalGainsTax > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Capital Gains Tax</span>
-              <span class="font-semibold text-red-600 dark:text-red-400">-${formatCurrency(result.buy.breakdown.capitalGainsTax)}</span>
+              <span class="fa-script-copy-muted">Capital Gains Tax</span>
+              <span class="font-semibold text-rose-600 dark:text-rose-400">-${formatCurrency(result.buy.breakdown.capitalGainsTax)}</span>
             </div>
             ` : ''}
-            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">Net Position</span>
-              <span class="font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.buy.netPosition)}</span>
+            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">Net Position</span>
+              <span class="font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.buy.netPosition)}</span>
             </div>
           </div>
         </div>
         
         <!-- Renting -->
-        <div class="border-2 border-green-300 dark:border-green-700 rounded-lg p-4">
-          <h3 class="text-lg font-semibold text-green-900 dark:text-green-100 mb-4 flex items-center gap-2">
+        <div class="border-2 border-emerald-300 dark:border-emerald-700 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-emerald-900 dark:text-emerald-100 mb-4 flex items-center gap-2">
             <span>🏢</span> Renting
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</span>
+              <span class="fa-script-copy-muted">Monthly Payment</span>
               <span class="font-semibold">${formatCurrency(result.rent.monthlyPayment)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Total Costs</span>
+              <span class="fa-script-copy-muted">Total Costs</span>
               <span class="font-semibold">${formatCurrency(result.rent.totalCost)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Investments</span>
-              <span class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(result.rent.equity)}</span>
+              <span class="fa-script-copy-muted">Investments</span>
+              <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rent.equity)}</span>
             </div>
             ${result.rent.breakdown.securityDeposit && result.rent.breakdown.securityDeposit > 0 ? `
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Security Deposit Opp. Cost</span>
+              <span class="fa-script-copy-muted">Security Deposit Opp. Cost</span>
               <span class="font-semibold text-orange-600 dark:text-orange-400">-${formatCurrency(result.rent.breakdown.securityDeposit)}</span>
             </div>
             ` : ''}
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Tax Benefits</span>
+              <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold">$0</span>
             </div>
-            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">Net Position</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(result.rent.netPosition)}</span>
+            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">Net Position</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rent.netPosition)}</span>
             </div>
           </div>
         </div>
@@ -575,15 +575,15 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Key Factors -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💡</span> Key Considerations
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Buying Advantages</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Buying Advantages</h4>
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Home appreciation: ${formatCurrency(result.buy.breakdown.appreciation)}</li>
             <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}${!result.buy.breakdown.shouldItemize ? ' ⚠️' : ''}</li>
             <li>✓ Equity built: ${formatCurrency(result.buy.equity)}</li>
@@ -592,9 +592,9 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </ul>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Renting Advantages</h4>
-          <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Renting Advantages</h4>
+          <ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Invested capital: ${formatCurrency(result.rent.equity)}</li>
             <li>✓ Flexibility: Easy to move</li>
             <li>✓ No maintenance costs</li>
@@ -632,46 +632,46 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Inflation-Adjusted Values -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mt-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📉</span> Inflation-Adjusted Values (${input.inflationRate}% annual)
       </h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
+      <p class="fa-script-copy-muted mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Real Net Position (Buy)</h5>
-          <p class="text-xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(buyRealNetPosition)}</p>
-          <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">in today's dollars</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Real Net Position (Buy)</h5>
+          <p class="text-xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(buyRealNetPosition)}</p>
+          <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">in today's dollars</p>
         </div>
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Real Net Position (Rent)</h5>
-          <p class="text-xl font-bold text-green-600 dark:text-green-400">${formatCurrency(rentRealNetPosition)}</p>
-          <p class="text-xs text-green-700 dark:text-green-300 mt-1">in today's dollars</p>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Real Net Position (Rent)</h5>
+          <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(rentRealNetPosition)}</p>
+          <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">in today's dollars</p>
         </div>
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Real Difference</h5>
-          <p class="text-xl font-bold ${realDifference > 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(realDifference))}</p>
-          <p class="text-xs ${realDifference > 0 ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)</p>
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Real Difference</h5>
+          <p class="text-xl font-bold ${realDifference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(realDifference))}</p>
+          <p class="text-xs ${realDifference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)</p>
         </div>
       </div>
     </div>
     
     <!-- Year-by-Year Comparison Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mt-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📅</span> Year-by-Year Comparison
       </h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <th class="text-left py-3 px-2 font-semibold text-gray-900 dark:text-white">Year</th>
-              <th class="text-right py-3 px-2 font-semibold text-blue-600 dark:text-blue-400">Buy Cost</th>
-              <th class="text-right py-3 px-2 font-semibold text-blue-600 dark:text-blue-400">Buy Equity</th>
-              <th class="text-right py-3 px-2 font-semibold text-green-600 dark:text-green-400">Rent Cost</th>
-              <th class="text-right py-3 px-2 font-semibold text-green-600 dark:text-green-400">Investments</th>
-              <th class="text-right py-3 px-2 font-semibold text-purple-600 dark:text-purple-400">Net Advantage</th>
+            <tr class="border-b border-slate-200 dark:border-slate-800">
+              <th class="text-left py-3 px-2 font-semibold text-slate-900 dark:text-white">Year</th>
+              <th class="text-right py-3 px-2 font-semibold text-violet-600 dark:text-violet-400">Buy Cost</th>
+              <th class="text-right py-3 px-2 font-semibold text-violet-600 dark:text-violet-400">Buy Equity</th>
+              <th class="text-right py-3 px-2 font-semibold text-emerald-600 dark:text-emerald-400">Rent Cost</th>
+              <th class="text-right py-3 px-2 font-semibold text-emerald-600 dark:text-emerald-400">Investments</th>
+              <th class="text-right py-3 px-2 font-semibold text-violet-600 dark:text-violet-400">Net Advantage</th>
             </tr>
           </thead>
           <tbody>
@@ -681,13 +681,13 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               const rentNetAtYear = (rentYear?.equity || 0) - (rentYear?.cumulativeCost || 0);
               const advantage = buyNetAtYear - rentNetAtYear;
               return `
-                <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/20">
-                  <td class="py-2 px-2 text-gray-900 dark:text-white font-medium">${buyYear.year}</td>
-                  <td class="py-2 px-2 text-right text-blue-600 dark:text-blue-400">${formatCurrency(buyYear.cumulativeCost)}</td>
-                  <td class="py-2 px-2 text-right text-blue-600 dark:text-blue-400">${formatCurrency(buyYear.equity)}</td>
-                  <td class="py-2 px-2 text-right text-green-600 dark:text-green-400">${formatCurrency(rentYear?.cumulativeCost || 0)}</td>
-                  <td class="py-2 px-2 text-right text-green-600 dark:text-green-400">${formatCurrency(rentYear?.equity || 0)}</td>
-                  <td class="py-2 px-2 text-right font-semibold ${advantage > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}">
+                <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20">
+                  <td class="py-2 px-2 text-slate-900 dark:text-white font-medium">${buyYear.year}</td>
+                  <td class="py-2 px-2 text-right text-violet-600 dark:text-violet-400">${formatCurrency(buyYear.cumulativeCost)}</td>
+                  <td class="py-2 px-2 text-right text-violet-600 dark:text-violet-400">${formatCurrency(buyYear.equity)}</td>
+                  <td class="py-2 px-2 text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(rentYear?.cumulativeCost || 0)}</td>
+                  <td class="py-2 px-2 text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(rentYear?.equity || 0)}</td>
+                  <td class="py-2 px-2 text-right font-semibold ${advantage > 0 ? 'text-violet-600 dark:text-violet-400' : 'text-emerald-600 dark:text-emerald-400'}">
                     ${advantage > 0 ? '🏠' : '🏢'} ${formatCurrency(Math.abs(advantage))}
                   </td>
                 </tr>
@@ -696,7 +696,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           </tbody>
         </table>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+      <p class="fa-script-note mt-3">
         Net Advantage shows whether buying (🏠) or renting (🏢) is ahead at each year point.
       </p>
     </div>
@@ -773,29 +773,29 @@ function initializeModeToggle(): void {
     const toggleKnob = toggle.querySelector('span');
     if (toggleKnob) {
       if (isAdvancedMode) {
-        toggle.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-        toggle.classList.add('bg-purple-600');
-        toggleKnob.classList.remove('translate-x-0');
-        toggleKnob.classList.add('translate-x-5');
+        toggle.classList.remove('fa-switch-inactive');
+        toggle.classList.add('fa-switch-active');
+        toggleKnob.classList.remove('fa-switch-knob-inactive');
+        toggleKnob.classList.add('fa-switch-knob-active');
       } else {
-        toggle.classList.remove('bg-purple-600');
-        toggle.classList.add('bg-gray-300', 'dark:bg-gray-600');
-        toggleKnob.classList.remove('translate-x-5');
-        toggleKnob.classList.add('translate-x-0');
+        toggle.classList.remove('fa-switch-active');
+        toggle.classList.add('fa-switch-inactive');
+        toggleKnob.classList.remove('fa-switch-knob-active');
+        toggleKnob.classList.add('fa-switch-knob-inactive');
       }
     }
     
     // Update label colors
     if (isAdvancedMode) {
-      basicLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
-      basicLabel.classList.add('text-gray-400', 'dark:text-gray-500');
-      advancedLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
-      advancedLabel.classList.add('text-purple-600', 'dark:text-purple-400');
+      basicLabel.classList.remove('fa-switch-label-active');
+      basicLabel.classList.add('fa-switch-label-inactive');
+      advancedLabel.classList.remove('fa-switch-label-inactive');
+      advancedLabel.classList.add('fa-switch-label-active');
     } else {
-      basicLabel.classList.remove('text-gray-400', 'dark:text-gray-500');
-      basicLabel.classList.add('text-purple-600', 'dark:text-purple-400');
-      advancedLabel.classList.remove('text-purple-600', 'dark:text-purple-400');
-      advancedLabel.classList.add('text-gray-400', 'dark:text-gray-500');
+      basicLabel.classList.remove('fa-switch-label-inactive');
+      basicLabel.classList.add('fa-switch-label-active');
+      advancedLabel.classList.remove('fa-switch-label-active');
+      advancedLabel.classList.add('fa-switch-label-inactive');
     }
     
     // Update ARIA
@@ -902,4 +902,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeRentVsBuy();
 }
-

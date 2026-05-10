@@ -1,4 +1,5 @@
 ---
+import Breadcrumbs from './site/Breadcrumbs.astro';
 import Layout from '../layouts/Layout.astro';
 import AdSense from './AdSense.astro';
 import { CALCULATOR_CONFIGS, generateFormHTMLWithValidation } from './CalculatorTemplate.tsx';
@@ -85,78 +86,116 @@ const journeyContextScript = `
   showChat={false}
   showToolAnalysis={false}
 >
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
-        <div class="space-y-6">
-          <WorkflowPageIntro
-            backHref={backHref}
-            backLabel={backLabel}
-            title={config.title}
-            description={config.description}
-            icon={config.icon}
-            badgeText={isJourneySpecific && journeyNav ? `Step ${journeyNav.currentStep} of ${journeyNav.totalSteps} - ${journeyNav.scenarioName}` : undefined}
-          />
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: backLabel, href: backHref },
+      { label: config.title },
+    ]}
+  />
 
-          {journeyNav && (
+  <main class="fa-page-shell">
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-6">
+        <WorkflowPageIntro
+          backHref={backHref}
+          backLabel={backLabel}
+          title={config.title}
+          description={config.description}
+          icon={config.icon}
+          badgeText={isJourneySpecific && journeyNav
+            ? `Step ${journeyNav.currentStep} of ${journeyNav.totalSteps} - ${journeyNav.scenarioName}`
+            : undefined}
+        />
+
+        {
+          journeyNav && (
             <WorkflowProgressStrip
               label={`${journeyNav.scenarioName} progress`}
               currentStep={journeyNav.currentStep}
               totalSteps={journeyNav.totalSteps}
             />
-          )}
+          )
+        }
 
-          <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div id="calculator-form-container">
-              <div set:html={formHTML}></div>
+        <section class="fa-card p-6">
+          <div id="calculator-form-container">
+            <div set:html={formHTML} />
+          </div>
+
+          <div id="loading" class="hidden py-8 text-center">
+            <div class="fa-button-primary cursor-not-allowed opacity-90">
+              <svg
+                class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Calculating...
             </div>
+          </div>
 
-            <div id="loading" class="hidden py-8 text-center">
-              <div class="inline-flex cursor-not-allowed items-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold leading-6 text-white shadow transition duration-150 ease-in-out">
-                <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <div id="error" class="fa-callout-danger hidden mb-6">
+            <div class="flex">
+              <div class="shrink-0">
+                <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd"></path>
                 </svg>
-                Calculating...
+              </div>
+              <div class="ml-3">
+                <h3 class="fa-callout-title-danger">Error</h3>
+                <div class="mt-2 fa-callout-copy-danger">
+                  <p id="error-message"></p>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div id="error" class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <div id="results" class="hidden">
+            <div class="fa-callout-success mb-6">
               <div class="flex">
                 <div class="shrink-0">
-                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
-                  <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                    <p id="error-message"></p>
+                  <h3 class="fa-callout-title-success">
+                    Analysis Complete
+                  </h3>
+                  <div class="mt-2 fa-callout-copy-success">
+                    <p>
+                      Your {config.title.toLowerCase()} analysis is ready. Review the results in the rail
+                      before moving on.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div id="results" class="hidden">
-              <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-                <div class="flex">
-                  <div class="shrink-0">
-                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 002.828 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800 dark:text-green-200">Analysis Complete</h3>
-                    <div class="mt-2 text-sm text-green-700 dark:text-green-300">
-                      <p>Your {config.title.toLowerCase()} analysis is ready. Review the results in the rail before moving on.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {journeyNav && (
+        {
+          journeyNav && (
             <WorkflowStepNavigation
               helperText="Move forward once the recalculated result looks right."
               backLabel="Back to Journey"
@@ -165,11 +204,11 @@ const journeyContextScript = `
               nextStep={journeyNav.nextStep}
               completeHref={`/journey-analysis/${journeyNav.scenarioId}`}
             />
-          )}
-        </div>
-
-        <WorkflowSupportRail modelType={config.analysisType} />
+          )
+        }
       </div>
+
+      <WorkflowSupportRail modelType={config.analysisType} />
     </div>
 
     <div class="ad-container mx-auto mt-6 max-w-4xl">
@@ -177,8 +216,12 @@ const journeyContextScript = `
     </div>
   </main>
 
-  {primaryClientScript && <ClientScriptLoader client:load slot="pageScripts" name={primaryClientScript} />}
+  {
+    primaryClientScript && (
+      <ClientScriptLoader client:load slot="pageScripts" name={primaryClientScript} />
+    )
+  }
   <ClientScriptLoader client:load slot="pageScripts" name="calculator-quick-access" />
   {journeyNav && <ClientScriptLoader client:load slot="pageScripts" name="journey-navigation" />}
-  <script is:inline set:html={journeyContextScript}></script>
+  <script is:inline set:html={journeyContextScript} />
 </Layout>

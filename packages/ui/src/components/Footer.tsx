@@ -23,143 +23,142 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
   return (
     <footer
       className={cn(
-        // Match site theme: light/dark backgrounds and subtle top border
-        'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800',
+        'border-t border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,250,255,0.98))] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.98),rgba(9,14,36,0.98))]',
         className
       )}
     >
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8 xl:col-span-1">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
-              Financial Analysis
-            </h3>
-            <p className="text-base text-gray-600 dark:text-gray-400">
-              Advanced financial analysis tools powered by AI and deterministic calculations. Built
-              for precision and reliability in financial decision making.
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr_0.9fr_0.9fr]">
+          <div className="max-w-sm">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 text-lg font-extrabold tracking-[-0.06em] text-white shadow-[0_14px_30px_rgba(109,74,255,0.24)]">
+                F
+              </span>
+              <h2 className="text-lg font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">
+                Fanalyx
+              </h2>
+            </div>
+            <p className="mt-5 max-w-xs text-sm leading-7 text-slate-600 dark:text-slate-300">
+              AI-powered financial analysis for clearer questions, clearer formulas, and clearer
+              decisions.
             </p>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
-                  Analysis Tools
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  <li>
-                    <a
-                      href="/models"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Financial Models
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/analysis"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Analysis Engine
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/lease"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Lease Analysis
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
-                  Resources
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  <li>
-                    <a
-                      href="/developers"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Developer API
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/docs"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Documentation
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/api"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      API Reference
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/status"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      System Status
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wider uppercase">
-                  Legal
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  <li>
-                    <a
-                      href="/privacy"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/terms"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Terms of Service
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.google.com/settings/ads"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Ad Settings
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/sitemap"
-                      className="text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                    >
-                      Site Map
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Product
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <li>
+                <a
+                  href="/"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/models"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Models
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/agent"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Agent
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/pricing"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Pricing
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Resources
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <li>
+                <a
+                  href="/developers"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Developers
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/blog"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/status"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Status
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/disclaimer"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Disclaimer
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Legal
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <li>
+                <a
+                  href="/privacy"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Privacy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/terms"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Terms
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:support@fanalyx.com"
+                  className="transition-colors hover:text-violet-600 dark:hover:text-violet-300"
+                >
+                  Contact
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
-          <p className="text-base text-gray-600 dark:text-gray-400 xl:text-center">
-            &copy; {currentYear} Financial Analysis. All rights reserved. | We use cookies and advertising to improve your experience.
+        <div className="mt-12 border-t border-slate-200/80 pt-8 dark:border-slate-800">
+          <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 xl:text-center">
+            &copy; {currentYear} Fanalyx. Educational decision support only. Not financial advice.
           </p>
         </div>
       </div>

@@ -230,38 +230,38 @@ class DCFCalculator {
     });
 
     resultsSection.innerHTML = `
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">DCF Valuation Results</h2>
+      <div class="fa-card">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">DCF Valuation Results</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">Enterprise Value</h3>
-            <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">${formatter.format(results.enterpriseValue)}</p>
+          <div class="fa-metric-card fa-metric-card-info">
+            <h3 class="mb-2 text-lg font-semibold">Enterprise Value</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.enterpriseValue)}</p>
           </div>
           
-          <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-green-900 dark:text-green-300 mb-2">Equity Value</h3>
-            <p class="text-2xl font-bold text-green-900 dark:text-green-300">${formatter.format(results.equityValue)}</p>
+          <div class="fa-metric-card fa-metric-card-success">
+            <h3 class="mb-2 text-lg font-semibold">Equity Value</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.equityValue)}</p>
           </div>
           
-          <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-300 mb-2">Share Price</h3>
-            <p class="text-2xl font-bold text-purple-900 dark:text-purple-300">$${results.sharePrice.toFixed(2)}</p>
+          <div class="fa-metric-card fa-metric-card-accent">
+            <h3 class="mb-2 text-lg font-semibold">Share Price</h3>
+            <p class="text-2xl font-bold">$${results.sharePrice.toFixed(2)}</p>
           </div>
           
-          <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-orange-900 dark:text-orange-300 mb-2">WACC</h3>
-            <p class="text-2xl font-bold text-orange-900 dark:text-orange-300">${results.wacc.toFixed(1)}%</p>
+          <div class="fa-metric-card fa-metric-card-warning">
+            <h3 class="mb-2 text-lg font-semibold">WACC</h3>
+            <p class="text-2xl font-bold">${results.wacc.toFixed(1)}%</p>
           </div>
           
-          <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-red-900 dark:text-red-300 mb-2">Terminal Value</h3>
-            <p class="text-2xl font-bold text-red-900 dark:text-red-300">${formatter.format(results.terminalValue)}</p>
+          <div class="fa-metric-card fa-metric-card-danger">
+            <h3 class="mb-2 text-lg font-semibold">Terminal Value</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.terminalValue)}</p>
           </div>
           
-          <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-indigo-900 dark:text-indigo-300 mb-2">Present Value</h3>
-            <p class="text-2xl font-bold text-indigo-900 dark:text-indigo-300">${formatter.format(results.presentValue)}</p>
+          <div class="fa-metric-card fa-metric-card-accent">
+            <h3 class="mb-2 text-lg font-semibold">Present Value</h3>
+            <p class="text-2xl font-bold">${formatter.format(results.presentValue)}</p>
           </div>
         </div>
       </div>
@@ -276,10 +276,10 @@ class DCFCalculator {
 
     const sensitivityHTML = `
       <div class="mt-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Sensitivity Analysis</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Sensitivity Analysis</h3>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Revenue Growth Impact</h4>
+          <div class="fa-subcard">
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Revenue Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.revenueGrowth
                 .map(
@@ -294,8 +294,8 @@ class DCFCalculator {
             </div>
           </div>
           
-          <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Discount Rate Impact</h4>
+          <div class="fa-subcard">
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Discount Rate Impact</h4>
             <div class="space-y-2">
               ${sensitivity.discountRate
                 .map(
@@ -310,8 +310,8 @@ class DCFCalculator {
             </div>
           </div>
           
-          <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Terminal Growth Impact</h4>
+          <div class="fa-subcard">
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Terminal Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.terminalGrowth
                 .map(
@@ -345,30 +345,30 @@ class DCFCalculator {
 
     const projectionsHTML = `
       <div class="mt-8">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Cash Flow Projections</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Cash Flow Projections</h3>
         <div class="overflow-x-auto">
-          <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+          <table class="min-w-full bg-white/90 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-lg">
+            <thead class="bg-slate-50 dark:bg-slate-900/60">
               <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Year</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Revenue</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">EBITDA</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">NOPAT</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Free Cash Flow</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">Present Value</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Year</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Revenue</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">EBITDA</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">NOPAT</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Free Cash Flow</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Present Value</th>
               </tr>
             </thead>
             <tbody>
               ${projections
                 .map(
                   (proj) => `
-                <tr class="border-t border-gray-200 dark:border-gray-700">
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${proj.year}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.revenue)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.ebitda)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.nopat)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.freeCashFlow)}</td>
-                  <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">${formatter.format(proj.presentValue)}</td>
+                <tr class="border-t border-slate-200 dark:border-slate-800">
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${proj.year}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.revenue)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.ebitda)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.nopat)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.freeCashFlow)}</td>
+                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.presentValue)}</td>
                 </tr>
               `
                 )

@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -112,139 +114,113 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 </script>
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="text-sm mb-6" aria-label="Breadcrumb">
-        <ol class="list-none p-0 inline-flex">
-          <li class="flex items-center">
-            <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Home</a>
-            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
-          </li>
-          <li class="flex items-center">
-            <a href="/journey" class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
-          </li>
-          <li class="flex items-center">
-            <a href={`/journey/${scenario}`} class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-            <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568 0 33.941z"/></svg>
-          </li>
-          <li class="text-gray-500 dark:text-gray-500" aria-current="page">Growth Planning</li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center mb-4">
-          <span class="text-4xl mr-3">📈</span>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Growth Planning</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400">Step 4 of {currentScenario.models.length} - {currentScenario.name}</p>
-          </div>
-        </div>
-        <p class="text-gray-700 dark:text-gray-300 max-w-3xl">
-          Analyze growth scenarios and optimize resource allocation for sustainable expansion. This final step helps you plan for scaling your startup effectively.
-        </p>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">4 of {currentScenario.models.length}</span>
-        </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
+  <main class="fa-page-shell">
+          <JourneyStepHero
+            icon="📈"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+            supportingText={`Analyze growth scenarios and optimize resource allocation for sustainable expansion. This final step helps you plan for scaling your startup effectively.`}
+          />
 
       <!-- Previous Steps Integration -->
-      <div id="previous-steps-integration" class="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 hidden">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Journey Overview</h3>
+      <div id="previous-steps-integration" class="fa-integration-panel hidden">
+        <h3 class="fa-scenario-title mb-4">📊 Journey Overview</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div id="capital-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 1: Capital</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Investment data loaded</p>
+          <div id="capital-display" class="fa-subcard hidden">
+            <h4 class="fa-scenario-title mb-2">Phase 1: Capital</h4>
+            <p class="fa-meta-copy">Investment data loaded</p>
           </div>
-          <div id="budget-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 2: Budget</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Revenue projections available</p>
+          <div id="budget-display" class="fa-subcard hidden">
+            <h4 class="fa-scenario-title mb-2">Phase 2: Budget</h4>
+            <p class="fa-meta-copy">Revenue projections available</p>
           </div>
-          <div id="funding-display" class="bg-white dark:bg-gray-800 rounded-lg p-4 hidden">
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Phase 3: Funding</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Runway analysis complete</p>
+          <div id="funding-display" class="fa-subcard hidden">
+            <h4 class="fa-scenario-title mb-2">Phase 3: Funding</h4>
+            <p class="fa-meta-copy">Runway analysis complete</p>
           </div>
         </div>
       </div>
 
       <!-- Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <div class="fa-card p-6 mb-8">
         <form id="growth-planning-form" class="space-y-6">
           <!-- Growth Scenarios -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Growth Scenarios</h3>
+            <h3 class="fa-scenario-title mb-4">Growth Scenarios</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Conservative</h4>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-3">Conservative</h4>
                 <div class="space-y-3">
                   <div>
-                    <label for="conservativeGrowth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="conservativeGrowth" class="fa-field-label mb-1">
                       Monthly Growth Rate (%)
                     </label>
                     <input type="number" id="conservativeGrowth" name="conservativeGrowth"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="5" min="0" max="50" step="1">
                   </div>
                   <div>
-                    <label for="conservativeRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="conservativeRevenue" class="fa-field-label mb-1">
                       Year 1 Revenue Target
                     </label>
                     <input type="number" id="conservativeRevenue" name="conservativeRevenue"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="1000000" min="0" step="10000">
                   </div>
                 </div>
               </div>
               
-              <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Moderate</h4>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-3">Moderate</h4>
                 <div class="space-y-3">
                   <div>
-                    <label for="moderateGrowth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="moderateGrowth" class="fa-field-label mb-1">
                       Monthly Growth Rate (%)
                     </label>
                     <input type="number" id="moderateGrowth" name="moderateGrowth"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="15" min="0" max="50" step="1">
                   </div>
                   <div>
-                    <label for="moderateRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="moderateRevenue" class="fa-field-label mb-1">
                       Year 1 Revenue Target
                     </label>
                     <input type="number" id="moderateRevenue" name="moderateRevenue"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="2500000" min="0" step="10000">
                   </div>
                 </div>
               </div>
               
-              <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Aggressive</h4>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-3">Aggressive</h4>
                 <div class="space-y-3">
                   <div>
-                    <label for="aggressiveGrowth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="aggressiveGrowth" class="fa-field-label mb-1">
                       Monthly Growth Rate (%)
                     </label>
                     <input type="number" id="aggressiveGrowth" name="aggressiveGrowth"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="25" min="0" max="50" step="1">
                   </div>
                   <div>
-                    <label for="aggressiveRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="aggressiveRevenue" class="fa-field-label mb-1">
                       Year 1 Revenue Target
                     </label>
                     <input type="number" id="aggressiveRevenue" name="aggressiveRevenue"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                            placeholder="5000000" min="0" step="10000">
                   </div>
                 </div>
@@ -254,23 +230,23 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           <!-- Resource Allocation -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Resource Allocation</h3>
+            <h3 class="fa-scenario-title mb-4">Resource Allocation</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="hiringPlan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="hiringPlan" class="fa-field-label mb-2">
                   Hiring Plan (Next 12 months)
                 </label>
                 <textarea id="hiringPlan" name="hiringPlan" rows="4"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Q1: 2 engineers, Q2: 1 sales, Q3: 1 marketing, Q4: 2 engineers"></textarea>
               </div>
               
               <div>
-                <label for="technologyInvestment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="technologyInvestment" class="fa-field-label mb-2">
                   Technology Investment Priorities
                 </label>
                 <textarea id="technologyInvestment" name="technologyInvestment" rows="4"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Infrastructure scaling, new features, data analytics, security"></textarea>
               </div>
             </div>
@@ -278,33 +254,33 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           <!-- Market Expansion -->
           <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Market Expansion</h3>
+            <h3 class="fa-scenario-title mb-4">Market Expansion</h3>
             <div class="space-y-4">
               <div>
-                <label for="targetMarkets" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="targetMarkets" class="fa-field-label mb-2">
                   Target Markets for Expansion
                 </label>
                 <textarea id="targetMarkets" name="targetMarkets" rows="3"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          class="fa-input-surface w-full"
                           placeholder="e.g., Enterprise customers, international markets, new verticals"></textarea>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label for="expansionTimeline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label for="expansionTimeline" class="fa-field-label mb-2">
                     Expansion Timeline (Months)
                   </label>
                   <input type="number" id="expansionTimeline" name="expansionTimeline"
-                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                         class="fa-input-surface w-full"
                          placeholder="18" min="1" max="60" step="1">
                 </div>
                 
                 <div>
-                  <label for="expansionBudget" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label for="expansionBudget" class="fa-field-label mb-2">
                     Expansion Budget Allocation (%)
                   </label>
                   <input type="number" id="expansionBudget" name="expansionBudget"
-                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                         class="fa-input-surface w-full"
                          placeholder="30" min="0" max="100" step="5">
                 </div>
               </div>
@@ -313,13 +289,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-4 mt-8">
-            <button type="button" id="save-growth-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="save-growth-btn" class="fa-button-primary">
               Save Growth Plan
             </button>
-            <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+            <button type="button" id="reset-btn" class="fa-button-secondary">
               Reset
             </button>
-            <a href={`/journey-analysis/${scenario}`} class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+            <a href={`/journey-analysis/${scenario}`} class="fa-button-primary">
               Complete Journey Analysis
               <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -332,14 +308,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
       <!-- Navigation -->
       <div class="flex justify-between items-center">
         {journeyNav.previousStep ? (
-          <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={journeyNav.previousStep.url} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
             Previous: {journeyNav.previousStep.name}
           </a>
         ) : (
-          <a href={`/journey/${scenario}`} class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+          <a href={`/journey/${scenario}`} class="fa-button-secondary">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -347,14 +323,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </a>
         )}
         
-        <a href={`/journey-analysis/${scenario}`} class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+        <a href={`/journey-analysis/${scenario}`} class="fa-button-primary">
           Complete Journey Analysis
           <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
         </a>
       </div>
-    </div>
   </main>
 </Layout>
 
@@ -456,13 +431,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         // Show success message
         saveBtn.textContent = '✓ Saved!';
-        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-        saveBtn.classList.add('bg-green-500');
+        saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        saveBtn.classList.add('fa-button-success-state');
         
         setTimeout(() => {
           saveBtn.textContent = 'Save Growth Plan';
-          saveBtn.classList.remove('bg-green-500');
-          saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          saveBtn.classList.remove('fa-button-success-state');
+          saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
         }, 2000);
 
         // Dispatch completion event
@@ -483,4 +458,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     }
   });
 </script>
-
