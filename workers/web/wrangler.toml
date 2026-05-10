@@ -3,22 +3,10 @@ main = "src/index.ts"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
-[vars]
-ENVIRONMENT = "production"
-# Production API origin
-API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
-# Dev-only: where the API worker listens when using scripts/dev-all.mjs (used when running `pnpm dev`)
-API_DEV_ORIGIN = "http://localhost:8787"
-
 [assets]
 directory = "../../apps/web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-
-# Custom domain route
-[[routes]]
-pattern = "fanalyx.com/*"
-zone_id = "8b74875a9a9edb1d7572c9d41e9e2016"
 
 # Removed [build] custom command to prevent duplicate astro build runs during dev.
 
@@ -28,14 +16,23 @@ local_protocol = "http"
 upstream_protocol = "https"
 host = "localhost"
 
+# Development environment
+[env.development]
+name = "fanalyx-web-development"
+[env.development.vars]
+ENVIRONMENT = "development"
+API_DEV_ORIGIN = "http://localhost:8787"
+
 # Preview environment
 [env.preview]
+name = "fanalyx-web-preview"
 [env.preview.vars]
 ENVIRONMENT = "preview"
 API_ORIGIN = "https://financial-analysis-api-preview.blakeoxford.workers.dev"
 
 # Production environment
 [env.production]
+name = "fanalyx-web"
 [env.production.vars]
 ENVIRONMENT = "production"
 API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
