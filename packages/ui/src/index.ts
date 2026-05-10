@@ -11,11 +11,7 @@ export {
 export { ErrorBoundary } from './components/ErrorBoundary';
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
-export {
-  CurrencyField,
-  PercentField,
-  FormActions,
-} from './components/financial-forms';
+export { CurrencyField, PercentField, FormActions } from './components/financial-forms';
 export type {
   CurrencyFieldProps,
   PercentFieldProps,
@@ -36,13 +32,21 @@ export type { AmortizationResultsProps } from './components/AmortizationResults'
 
 // EBITDA Forecasting Components
 export { FinancialsInputForm } from './components/FinancialsInputForm';
-export type { MonthlyFinancialsData, FinancialsInputFormProps } from './components/FinancialsInputForm';
+export type {
+  MonthlyFinancialsData,
+  FinancialsInputFormProps,
+} from './components/FinancialsInputForm';
 export { EmployeeManager } from './components/EmployeeManager';
 export type { EmployeeData, EmployeeManagerProps } from './components/EmployeeManager';
 export { ExpenseTypesManager } from './components/ExpenseTypesManager';
 export type { ExpenseTypeData, ExpenseTypesManagerProps } from './components/ExpenseTypesManager';
 export { ForecastResults } from './components/ForecastResults';
-export type { MonthlyForecast, ForecastSummary, EbitdaForecastResult, ForecastResultsProps } from './components/ForecastResults';
+export type {
+  MonthlyForecast,
+  ForecastSummary,
+  EbitdaForecastResult,
+  ForecastResultsProps,
+} from './components/ForecastResults';
 export { ScenarioConfig } from './components/ScenarioConfig';
 export type { ScenarioConfigData, ScenarioConfigProps } from './components/ScenarioConfig';
 export { ModuleSelector, AVAILABLE_MODULES } from './components/ModuleSelector';
@@ -78,13 +82,19 @@ export {
 } from './lib/validation';
 export {
   cn as classNames,
+  buttonBaseClasses,
+  buttonSizeClasses,
   buttonVariants,
   inputClasses,
+  inputStateClasses,
   cardClasses,
+  cardVariants,
   badgeVariants,
   gridLayouts,
   textColors,
 } from './lib/classNames';
+export { primitiveContracts, primitiveOwnership } from './lib/primitiveContracts';
+export type { ButtonVariant, ButtonSize, CardVariant, InputState } from './lib/primitiveContracts';
 
 // Custom Hooks
 export {
@@ -129,13 +139,5 @@ export type {
   PageAnalytics,
 } from './lib/analytics';
 
-export {
-  getApiMonitor,
-  monitoredFetch,
-  monitoredFetchWithRetry,
-} from './lib/api-monitor';
-export type {
-  ApiCallMetrics,
-  ApiAnalysis,
-  EndpointStats,
-} from './lib/api-monitor';
+export { getApiMonitor, monitoredFetch, monitoredFetchWithRetry } from './lib/api-monitor';
+export type { ApiCallMetrics, ApiAnalysis, EndpointStats } from './lib/api-monitor';

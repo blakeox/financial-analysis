@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
+
+const title = 'Disclaimer | Fanalyx';
+const description =
+  'Important disclaimer for Fanalyx educational analysis and decision-support tools.';
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={Astro.url.href}
+  showChat={false}
+  showToolAnalysis={false}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Disclaimer' }]} />
+
+  <section class="fa-page-shell-narrow">
+    <PageHero
+      eyebrow="Disclaimer"
+      title="Educational decision support only"
+      description="Fanalyx is built to help users ask better financial questions, compare scenarios, and understand the math behind decisions."
+    />
+
+    <SurfaceCard className="mt-8">
+      <div class="space-y-5 text-base leading-8 text-slate-600">
+        <p>
+          Fanalyx provides educational and informational analysis. It is designed to help users ask
+          financial questions, understand formulas, compare scenarios, and think more clearly about
+          options.
+        </p>
+        <p>
+          Fanalyx is not a financial advisor, investment advisor, broker, tax professional,
+          accountant, or legal advisor. Nothing on this website should be treated as personalized
+          advice or a recommendation to take a specific financial action.
+        </p>
+        <p>
+          Important decisions should be reviewed with a qualified professional who understands your
+          specific circumstances.
+        </p>
+      </div>
+    </SurfaceCard>
+  </section>
+</Layout>

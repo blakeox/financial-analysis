@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { StorageUsageCard } from '@financial-analysis/ui';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 const apiBase = import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:8787';
 
 const title = "System Status - Fanalyx Financial Tools";
@@ -34,33 +37,30 @@ const structuredData = {
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="max-w-4xl mx-auto px-6 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 font-medium" aria-current="page">System Status</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-gray-50 p-6">
-    <h1 class="text-3xl font-bold mb-6">System Status</h1>
-    <div class="grid gap-6 md:grid-cols-2">
-      <div>
-        <h2 class="text-lg font-semibold mb-3">R2 Storage</h2>
-        <div data-testid="storage-card">
+
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'System Status' }]} />
+
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Status"
+      title="System Status"
+      description="Check the current health of Fanalyx storage and operational surfaces in one place."
+    />
+
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      <SurfaceCard title="R2 Storage">
+        <div class="mt-4" data-testid="storage-card">
           <StorageUsageCard client:load apiBase={apiBase} />
         </div>
-      </div>
-      <div>
-        <h2 class="text-lg font-semibold mb-3">Notes</h2>
-        <ul class="list-disc list-inside text-sm text-gray-700">
+      </SurfaceCard>
+
+      <SurfaceCard title="Notes">
+        <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-600">
           <li>Usage refreshes automatically every 30 seconds.</li>
           <li>Locked state indicates uploads are temporarily disabled.</li>
           <li>Admins can reconcile usage via /v1/storage/reconcile.</li>
         </ul>
-      </div>
+      </SurfaceCard>
     </div>
   </div>
 </Layout>

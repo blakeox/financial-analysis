@@ -339,7 +339,7 @@ const milestoneLabel = (milestone: AmortizationMilestone) => {
 const metricToneClasses: Record<'emerald' | 'amber' | 'blue', string> = {
   emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200',
   amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-200',
-  blue: 'bg-blue-100/80 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200',
+  blue: 'bg-violet-100/80 text-violet-700 dark:bg-violet-500/10 dark:text-violet-200',
 };
 
 const MetricBadge: React.FC<{
@@ -362,8 +362,8 @@ const DetailCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
-  <div className="rounded-md border border-gray-200/70 bg-white/80 p-3 shadow-sm dark:border-gray-700/70 dark:bg-gray-900/70">
-    <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+  <div className="rounded-md border border-slate-200/70 bg-white/80 p-3 shadow-sm dark:border-slate-700/70 dark:bg-slate-950/60">
+    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
       {title}
     </dt>
     <dd className="mt-2 space-y-2">{children}</dd>
@@ -568,14 +568,14 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
     <div ref={containerRef} className={cn('space-y-4 w-full', className)} {...props}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">{title}</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Highlight a month to inspect the payment mix and remaining balance.
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-1">
-            <span className="inline-flex h-2 w-2 rounded-full bg-blue-500" aria-hidden />
+            <span className="inline-flex h-2 w-2 rounded-full bg-violet-500" aria-hidden />
             <span>Remaining balance</span>
           </div>
           <div className="flex items-center gap-1">
@@ -588,13 +588,13 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
           </div>
           {showViewToggle ? (
             <div className="ml-2 flex items-center gap-1">
-              <span className="text-gray-400">•</span>
-              <div className="inline-flex overflow-hidden rounded border border-gray-200 dark:border-gray-700">
+              <span className="text-slate-400">•</span>
+              <div className="inline-flex overflow-hidden rounded border border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   className={cn(
-                    'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60',
-                    viewMode === 'monthly' ? 'bg-gray-100 dark:bg-gray-800' : 'bg-transparent'
+                    'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
+                    viewMode === 'monthly' ? 'bg-slate-100 dark:bg-slate-900/60' : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('monthly')}
                 >
@@ -603,8 +603,8 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                 <button
                   type="button"
                   className={cn(
-                    'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60',
-                    viewMode === 'yearly' ? 'bg-gray-100 dark:bg-gray-800' : 'bg-transparent'
+                    'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
+                    viewMode === 'yearly' ? 'bg-slate-100 dark:bg-slate-900/60' : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('yearly')}
                 >
@@ -652,14 +652,14 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   y2={y}
                   stroke="currentColor"
                   strokeWidth={0.5}
-                  className="text-gray-200/80 dark:text-gray-700/70"
+                  className="text-slate-200/80 dark:text-slate-700/70"
                   strokeDasharray="4 4"
                 />
                 <text
                   x={-LEFT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-gray-400 dark:text-gray-500"
+                  className="text-[10px] text-slate-400 dark:text-slate-500"
                   textAnchor="end"
                   dominantBaseline="middle"
                 >
@@ -669,7 +669,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   x={chartBodyWidth + RIGHT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-gray-400 dark:text-gray-500"
+                  className="text-[10px] text-slate-400 dark:text-slate-500"
                   textAnchor="start"
                   dominantBaseline="middle"
                 >
@@ -687,7 +687,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
             y2={baselineY}
             stroke="currentColor"
             strokeWidth={0.75}
-            className="text-gray-300 dark:text-gray-700"
+            className="text-slate-300 dark:text-slate-700"
           />
 
           {/* Payment bars */}
@@ -804,7 +804,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <label
             htmlFor={sliderId}
-            className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+            className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
           >
             Highlight month {activeItem ? `${activeItem.month}` : '--'} of{' '}
             {numberFormatter.format(viewSchedule[viewSchedule.length - 1]?.month ?? monthCount)}
@@ -886,7 +886,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   break;
               }
             }}
-            className="accent-blue-500"
+            className="accent-violet-500"
           />
         </div>
       ) : null}
@@ -900,9 +900,9 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                 key={milestone.id}
                 type="button"
                 className={cn(
-                  'flex w-full flex-col items-start gap-1 rounded-md border border-gray-200/70 bg-white/50 p-3 text-left text-xs shadow-sm transition-colors hover:border-blue-400 hover:bg-blue-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 dark:border-gray-700/60 dark:bg-gray-900/50 dark:hover:border-blue-500/70 dark:hover:bg-blue-500/10',
+                  'flex w-full flex-col items-start gap-1 rounded-md border border-slate-200/70 bg-white/50 p-3 text-left text-xs shadow-sm transition-colors hover:border-violet-400 hover:bg-violet-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 dark:border-slate-700/60 dark:bg-slate-950/50 dark:hover:border-violet-500/70 dark:hover:bg-violet-500/10',
                   isActive &&
-                    'border-blue-500 bg-blue-500/10 text-blue-700 dark:border-blue-400 dark:bg-blue-400/10 dark:text-blue-200'
+                    'border-violet-500 bg-violet-500/10 text-violet-700 dark:border-violet-400 dark:bg-violet-400/10 dark:text-violet-200'
                 )}
                 aria-pressed={isActive}
                 onClick={() => handleMilestoneFocus(milestone.month)}
@@ -913,10 +913,10 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                 <span className="font-semibold uppercase tracking-wide">
                   {milestoneLabel(milestone)}
                 </span>
-                <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   Month {numberFormatter.format(milestone.month)}
                 </span>
-                <span className="text-[11px] text-gray-600 dark:text-gray-300">
+                <span className="text-[11px] text-slate-600 dark:text-slate-300">
                   {milestone.description}
                 </span>
               </button>
@@ -925,24 +925,24 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
         </div>
       ) : null}
 
-      <div className="rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/40">
+      <div className="rounded-lg border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/40">
         {activeItem ? (
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
             <DetailCard title="Month & payment">
-              <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div className="text-lg font-semibold text-slate-900 dark:text-white">
                 {numberFormatter.format(activeItem.month)}
               </div>
               <div
                 className={cn(
                   'flex items-center justify-between rounded-md px-2 py-1 text-xs font-medium',
-                  'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200'
+                  'bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-200'
                 )}
               >
                 <span>Payment</span>
-                <span className="font-semibold text-blue-700 dark:text-blue-100">
+                <span className="font-semibold text-violet-700 dark:text-violet-100">
                   {formatCurrencyWithThinSpace(activeItem.payment)}
                   {'\u200d'}
-                  <span className="ml-1 text-[10px] font-normal text-blue-500/80 dark:text-blue-200/80">
+                  <span className="ml-1 text-[10px] font-normal text-violet-500/80 dark:text-violet-200/80">
                     /mo
                   </span>
                 </span>
@@ -971,7 +971,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
             </DetailCard>
           </dl>
         ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             No amortization schedule available.
           </p>
         )}

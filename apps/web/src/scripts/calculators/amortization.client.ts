@@ -579,19 +579,19 @@ export const renderSummaryCards = (
     totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
 
   target.innerHTML = `
-    <div class="bg-blue-600 text-white rounded-lg p-6">
+    <div class="bg-violet-600 text-white rounded-lg p-6">
       <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly Payment</p>
       <p class="text-3xl font-bold">${toCurrency(monthlyPayment)}</p>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Interest</p>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
+      <p class="fa-script-copy-subtle mb-2">Total Interest</p>
       <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${toCurrency(totalInterest)}</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${interestShare}% of total payments</p>
+      <p class="fa-script-note mt-1">${interestShare}% of total payments</p>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Total Paid</p>
-      <p class="text-2xl font-semibold text-purple-600 dark:text-purple-400">${toCurrency(totalPayments)}</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Over ${termMonths} months</p>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
+      <p class="fa-script-copy-subtle mb-2">Total Paid</p>
+      <p class="text-2xl font-semibold text-violet-600 dark:text-violet-400">${toCurrency(totalPayments)}</p>
+      <p class="fa-script-note mt-1">Over ${termMonths} months</p>
     </div>
   `;
 };
@@ -603,7 +603,7 @@ export const renderChart = (
   if (!target) return;
   if (!Array.isArray(schedule) || schedule.length === 0) {
     target.innerHTML =
-      '<p class="text-sm text-gray-500 dark:text-gray-400">No chart data available.</p>';
+      '<p class="fa-script-copy-subtle">No chart data available.</p>';
     return;
   }
 
@@ -753,31 +753,31 @@ export const renderChart = (
   target.innerHTML = `
     <div class="space-y-5">
       <!-- Enhanced Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Track payment breakdown and remaining balance over time</p>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
+          <p class="fa-script-copy-muted">Track payment breakdown and remaining balance over time</p>
         </div>
         
         <!-- Enhanced Legend -->
-        <div class="flex flex-wrap items-center gap-5 text-sm bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-lg">
+        <div class="flex flex-wrap items-center gap-5 text-sm bg-slate-50 dark:bg-slate-900/60/50 px-4 py-3 rounded-lg">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.principal}"></div>
-            <span class="font-semibold text-gray-700 dark:text-gray-300">Principal</span>
+            <span class="font-semibold text-slate-700 dark:text-slate-300">Principal</span>
           </div>
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.interest}"></div>
-            <span class="font-semibold text-gray-700 dark:text-gray-300">Interest</span>
+            <span class="font-semibold text-slate-700 dark:text-slate-300">Interest</span>
           </div>
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.balance}"></div>
-            <span class="font-semibold text-gray-700 dark:text-gray-300">Balance</span>
+            <span class="font-semibold text-slate-700 dark:text-slate-300">Balance</span>
           </div>
         </div>
       </div>
       
       <!-- Enhanced Chart Container -->
-      <div class="bg-linear-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
+      <div class="bg-linear-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-x-auto">
         <div class="min-w-full">
           <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full h-auto" style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));">
             <!-- Subtle background gradient -->
@@ -829,10 +829,10 @@ export const renderChart = (
       
       <!-- Enhanced Chart Footer -->
       <div class="text-center pt-2">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          <span class="font-semibold text-gray-700 dark:text-gray-300">${totalMonths} months</span> complete schedule • 
+        <p class="fa-script-copy-muted">
+          <span class="font-semibold text-slate-700 dark:text-slate-300">${totalMonths} months</span> complete schedule • 
           <span class="font-medium text-emerald-600 dark:text-emerald-400">Left:</span> Payment components (Principal & Interest) • 
-          <span class="font-medium text-blue-600 dark:text-blue-400">Right:</span> Remaining loan balance
+          <span class="font-medium text-violet-600 dark:text-violet-400">Right:</span> Remaining loan balance
         </p>
       </div>
     </div>
@@ -857,16 +857,16 @@ export const renderSchedule = (
       const interest = toCurrency(entry.interest);
       const balance = toCurrency(entry.balance);
       const cumulativeInterest = toCurrency(entry.cumulativeInterest);
-      const highlightClass = month % 12 === 0 ? 'bg-blue-50 dark:bg-blue-900/10' : '';
+      const highlightClass = month % 12 === 0 ? 'bg-violet-50 dark:bg-violet-900/10' : '';
 
       return `
         <tr class="${highlightClass}">
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${month}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">${payment}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-green-600 dark:text-green-400">${principal}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">${month}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-900 dark:text-slate-100">${payment}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${interest}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-gray-900 dark:text-gray-100">${balance}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-600 dark:text-gray-400">${cumulativeInterest}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">${balance}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-600 dark:text-slate-400">${cumulativeInterest}</td>
         </tr>
       `;
     })

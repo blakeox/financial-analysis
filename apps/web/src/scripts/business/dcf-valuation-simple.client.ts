@@ -116,96 +116,96 @@ const displayResults = (result: DCFResults): void => {
 
   // Render summary cards
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Enterprise Value</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.enterpriseValue)}</p>
+    <div class="fa-metric-card fa-metric-card-info">
+      <h5 class="text-sm font-medium">Enterprise Value</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.enterpriseValue)}</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Equity Value</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.equityValue)}</p>
+    <div class="fa-metric-card fa-metric-card-success">
+      <h5 class="text-sm font-medium">Equity Value</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.equityValue)}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Share Price</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.sharePrice)}</p>
+    <div class="fa-metric-card fa-metric-card-accent">
+      <h5 class="text-sm font-medium">Share Price</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.sharePrice)}</p>
     </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Terminal Value</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatCurrency(result.terminalValue)}</p>
+    <div class="fa-metric-card fa-metric-card-warning">
+      <h5 class="text-sm font-medium">Terminal Value</h5>
+      <p class="text-2xl font-bold">${formatCurrency(result.terminalValue)}</p>
     </div>
   `;
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Valuation Summary</h3>
+    <div class="fa-card mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Valuation Summary</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Present Value of Cash Flows</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Discounted projected cash flows</p>
+            <span class="fa-script-label">Present Value of Cash Flows</span>
+            <p class="fa-script-copy-subtle">Discounted projected cash flows</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.presentValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.presentValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Terminal Value</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Perpetual growth value</p>
+            <span class="fa-script-label">Terminal Value</span>
+            <p class="fa-script-copy-subtle">Perpetual growth value</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatCurrency(result.terminalValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.terminalValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Discount Rate (WACC)</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Weighted average cost of capital</p>
+            <span class="fa-script-label">Discount Rate (WACC)</span>
+            <p class="fa-script-copy-subtle">Weighted average cost of capital</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${formatPercent(result.wacc)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(result.wacc)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-gray-700 dark:text-gray-300 font-medium">Shares Outstanding</span>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total number of shares</p>
+            <span class="fa-script-label">Shares Outstanding</span>
+            <p class="fa-script-copy-subtle">Total number of shares</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-gray-900 dark:text-white">${result.sharesOutstanding.toLocaleString()}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.sharesOutstanding.toLocaleString()}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Cash Flow Projections</h3>
+    <div class="fa-card mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Cash Flow Projections</h3>
       
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+          <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Year</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Revenue</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">EBITDA</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Free Cash Flow</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Present Value</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Year</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Revenue</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">EBITDA</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Free Cash Flow</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Present Value</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
             ${result.cashFlowProjections
               .map(
                 (projection) => `
               <tr>
-                <td class="px-3 py-3 text-sm text-gray-900 dark:text-white">${projection.year}</td>
-                <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">${formatCurrency(projection.revenue)}</td>
-                <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">${formatCurrency(projection.ebitda)}</td>
-                <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">${formatCurrency(projection.freeCashFlow)}</td>
-                <td class="px-3 py-3 text-sm text-gray-900 dark:text-white text-right">${formatCurrency(projection.presentValue)}</td>
+                <td class="px-3 py-3 text-sm text-slate-900 dark:text-white">${projection.year}</td>
+                <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">${formatCurrency(projection.revenue)}</td>
+                <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">${formatCurrency(projection.ebitda)}</td>
+                <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">${formatCurrency(projection.freeCashFlow)}</td>
+                <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">${formatCurrency(projection.presentValue)}</td>
               </tr>
             `
               )
@@ -215,23 +215,23 @@ const displayResults = (result: DCFResults): void => {
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Key Insights</h3>
+    <div class="fa-card">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Valuation Analysis</h4>
-          <p class="text-blue-800 dark:text-blue-200">The DCF model suggests a fair value of ${formatCurrency(result.sharePrice)} per share based on projected cash flows and terminal value.</p>
+        <div class="fa-metric-card fa-metric-card-info">
+          <h4 class="mb-2 font-semibold">Valuation Analysis</h4>
+          <p>The DCF model suggests a fair value of ${formatCurrency(result.sharePrice)} per share based on projected cash flows and terminal value.</p>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">Growth Assumptions</h4>
-          <p class="text-green-800 dark:text-green-200">Revenue growth assumptions significantly impact the valuation. Consider sensitivity analysis for different growth scenarios.</p>
+        <div class="fa-metric-card fa-metric-card-success">
+          <h4 class="mb-2 font-semibold">Growth Assumptions</h4>
+          <p>Revenue growth assumptions significantly impact the valuation. Consider sensitivity analysis for different growth scenarios.</p>
         </div>
         
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-purple-900 dark:text-purple-100 mb-2">Risk Factors</h4>
-          <p class="text-purple-800 dark:text-purple-200">The discount rate reflects the risk profile. Higher risk businesses require higher discount rates, reducing valuation.</p>
+        <div class="fa-metric-card fa-metric-card-accent">
+          <h4 class="mb-2 font-semibold">Risk Factors</h4>
+          <p>The discount rate reflects the risk profile. Higher risk businesses require higher discount rates, reducing valuation.</p>
         </div>
       </div>
     </div>

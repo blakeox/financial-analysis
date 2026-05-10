@@ -1,5 +1,8 @@
 ---
 import { CALCULATOR_CONFIGS } from '../components/CalculatorTemplate.tsx';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const calculators = Object.values(CALCULATOR_CONFIGS);
@@ -54,129 +57,109 @@ const structuredData = {
   keywords={keywords}
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Header -->
-      <div class="mb-12 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Financial Calculators
-        </h1>
-        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Professional-grade financial analysis tools to help you make informed decisions about mortgages, loans, retirement, savings, and more.
-        </p>
-      </div>
 
-      <!-- Calculator Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
+
+  <div class="fa-page-shell">
+      <PageHero
+        eyebrow="Calculators"
+        title="Financial Calculators"
+        description="Professional-grade financial analysis tools to help you evaluate mortgages, loans, retirement, savings, debt payoff, and other everyday decisions."
+      />
+
+      <div class="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
         {calculators.map((calculator) => (
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div class="p-6">
-              <!-- Icon and Title -->
-              <div class="flex items-center mb-4">
-                <span class="text-3xl mr-3">{calculator.icon}</span>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                  {calculator.title}
-                </h2>
+          <SurfaceCard className="h-full">
+            <div class="flex items-center mb-4">
+              <span class="mr-3 text-3xl">{calculator.icon}</span>
+              <h2 class="fa-panel-title">
+                {calculator.title}
+              </h2>
+            </div>
+
+            <p class="fa-scenario-copy mb-4">
+              {calculator.description}
+            </p>
+
+              <div class="mb-4 flex flex-wrap gap-2">
+                {calculator.keywords.slice(0, 3).map((keyword) => (
+                  <span class="fa-chip fa-chip-accent">
+                    {keyword}
+                  </span>
+                ))}
               </div>
-              
-              <!-- Description -->
-              <p class="text-gray-600 dark:text-gray-300 mb-4">
-                {calculator.description}
-              </p>
-              
-              <!-- Keywords -->
-              <div class="mb-4">
-                <div class="flex flex-wrap gap-2">
-                  {calculator.keywords.slice(0, 3).map((keyword) => (
-                    <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <!-- Action Button -->
-              <a 
-                href={`/calculator/${calculator.id}`}
-                class={`inline-flex items-center justify-center w-full px-4 py-2 font-medium rounded-lg transition-colors duration-200 ${
-                  calculator.color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' :
-                  calculator.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
-                  calculator.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-                  calculator.color === 'red' ? 'bg-red-600 hover:bg-red-700' :
-                  calculator.color === 'yellow' ? 'bg-yellow-600 hover:bg-yellow-700' :
-                  'bg-gray-600 hover:bg-gray-700'
-                } text-white`}
-              >
-                Use Calculator
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+
+              <div class="mt-auto pt-2">
+                <a 
+                  href={`/calculator/${calculator.id}`}
+                  class="fa-button-primary w-full"
+                >
+                  Use Calculator
+                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
               </a>
             </div>
-          </div>
+          </SurfaceCard>
         ))}
       </div>
 
-      <!-- Features Section -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-12">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+      <SurfaceCard className="mb-12">
+        <h2 class="fa-panel-title text-2xl mb-6 text-center">
           Why Choose Our Financial Calculators?
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="text-center">
-            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="fa-icon-tile fa-icon-tile-lg fa-icon-tile-info mx-auto mb-4">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Professional Grade</h3>
-            <p class="text-gray-600 dark:text-gray-300">Built with industry-standard formulas and validated calculations for accurate results.</p>
+            <h3 class="fa-scenario-title mb-2">Professional Grade</h3>
+            <p class="fa-scenario-copy">Built with industry-standard formulas and validated calculations for accurate results.</p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="fa-icon-tile fa-icon-tile-lg fa-icon-tile-success mx-auto mb-4">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
-            <p class="text-gray-600 dark:text-gray-300">Instant calculations with real-time updates as you adjust parameters.</p>
+            <h3 class="fa-scenario-title mb-2">Lightning Fast</h3>
+            <p class="fa-scenario-copy">Instant calculations with real-time updates as you adjust parameters.</p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="fa-icon-tile fa-icon-tile-lg fa-icon-tile-accent mx-auto mb-4">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
-            <p class="text-gray-600 dark:text-gray-300">All calculations happen in your browser. No data is stored or transmitted.</p>
+            <h3 class="fa-scenario-title mb-2">Privacy First</h3>
+            <p class="fa-scenario-copy">All calculations happen in your browser. No data is stored or transmitted.</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- CTA Section -->
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <div class="fa-highlight-card text-center">
+        <h2 class="fa-panel-title text-2xl mb-4">
           Ready to Take Control of Your Finances?
         </h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-6">
+        <p class="fa-scenario-copy mb-6">
           Start with any calculator above or explore our comprehensive financial journey guides.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a 
             href="/journey/young-professional"
-            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-primary"
           >
             Start Financial Journey
           </a>
           <a 
             href="/models"
-            class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
+            class="fa-button-secondary"
           >
             Browse All Models
           </a>
         </div>
       </div>
-    </div>
   </div>
 </Layout>

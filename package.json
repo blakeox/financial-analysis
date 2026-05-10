@@ -37,7 +37,7 @@
     "deploy:web:production": "cd workers/web && pnpm run deploy:production",
     "deploy:all": "pnpm run deploy:api && pnpm run deploy:web",
     "install:all": "pnpm install",
-    "prepare": "husky",
+    "prepare": "lefthook install",
     "test:e2e:hmr:web": "pnpm --filter @financial-analysis/web run test:e2e:hmr"
   },
   "devDependencies": {
@@ -53,7 +53,7 @@
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
     "eslint-plugin-astro": "^1.5.0",
-    "husky": "^9.1.7",
+    "lefthook": "^2.1.6",
     "prettier": "^3.7.4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",

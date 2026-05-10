@@ -1,6 +1,7 @@
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import { useMemo, useState } from 'react';
+import { Button, Card, CardContent, CardHeader, CardTitle, cn, inputClasses } from '@financial-analysis/ui';
 
 const SESSION_STORAGE_KEY = 'fanalyx-project-think-session';
 
@@ -48,41 +49,43 @@ export function AgentChatPanel() {
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+    <Card variant="rail">
+      <CardHeader className="border-b border-slate-200/80 px-6 py-5 dark:border-slate-800">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Fanalyx Agent</h2>
+            <CardTitle className="text-2xl">Fanalyx Agent</CardTitle>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               Powered by Cloudflare Project Think with persistent agent sessions and deterministic
               finance tools.
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-1 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             {status === 'streaming' ? 'Streaming response' : 'Ready'}
           </div>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+      <CardContent className="border-b border-slate-200/80 px-6 py-4 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
           {STARTER_PROMPTS.map((prompt) => (
-            <button
+            <Button
               key={prompt}
               type="button"
-              className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-200 dark:hover:bg-blue-950"
+              variant="outline"
+              size="sm"
+              className="h-auto rounded-full px-3 py-2 text-left"
               onClick={() => submitMessage(prompt)}
             >
               {prompt}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </CardContent>
 
-      <div className="max-h-[32rem] space-y-4 overflow-y-auto px-6 py-5">
+      <CardContent className="max-h-[32rem] space-y-4 overflow-y-auto px-6 py-5">
         {messages.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+          <div className="rounded-[1.35rem] border border-dashed border-slate-300 bg-slate-50/90 p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
             Ask for an amortization or lease analysis. The agent keeps its conversation state in a
             Cloudflare Durable Object-backed session so it can remember the thread.
           </div>
@@ -93,10 +96,10 @@ export function AgentChatPanel() {
           return (
             <div
               key={message.id}
-              className={`max-w-3xl rounded-2xl px-4 py-3 text-sm shadow-sm ${
+              className={`max-w-3xl rounded-[1.35rem] border px-4 py-3 text-sm shadow-sm ${
                 message.role === 'user'
-                  ? 'ml-auto bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100'
+                  ? 'ml-auto border-violet-300/70 bg-violet-600 text-white dark:border-violet-800 dark:bg-violet-600'
+                  : 'border-slate-200/80 bg-white/90 text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100'
               }`}
             >
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide opacity-70">
@@ -108,16 +111,16 @@ export function AgentChatPanel() {
             </div>
           );
         })}
-      </div>
+      </CardContent>
 
       <form
-        className="border-t border-slate-200 px-6 py-5 dark:border-slate-800"
+        className="border-t border-slate-200/80 px-6 py-5 dark:border-slate-800"
         onSubmit={(event) => {
           event.preventDefault();
           submitMessage(input);
         }}
       >
-        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+        <label className="fa-field-label mb-2">
           Message
         </label>
         <div className="flex flex-col gap-3 md:flex-row">
@@ -125,18 +128,18 @@ export function AgentChatPanel() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Ask for a payment schedule, lease summary, or the workflows this agent supports."
-            className="min-h-28 flex-1 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-0 transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className={cn(inputClasses, 'min-h-28 flex-1 py-3')}
           />
-          <button
+          <Button
             type="submit"
             disabled={status === 'streaming' || input.trim().length === 0}
-            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-w-[120px] self-start md:self-auto"
           >
             {status === 'streaming' ? 'Working…' : 'Send'}
-          </button>
+          </Button>
         </div>
       </form>
-    </div>
+    </Card>
   );
 }
 

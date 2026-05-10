@@ -85,91 +85,91 @@ export const displayResults = (result: RevenueForecastResult): void => {
   
   // Populate summary cards
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 col-span-2">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Total Forecast Revenue</h5>
-      <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.summary.totalForecastRevenue)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Next ${result.monthlyForecasts.length} months</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 col-span-2">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Forecast Revenue</h5>
+      <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.summary.totalForecastRevenue)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Next ${result.monthlyForecasts.length} months</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Avg Monthly Revenue</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.summary.averageMonthlyRevenue)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Mean per month</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Avg Monthly Revenue</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.summary.averageMonthlyRevenue)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Mean per month</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Total Growth</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${result.summary.totalGrowth.toFixed(1)}%</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">CMGR: ${result.summary.compoundMonthlyGrowthRate.toFixed(2)}%</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Growth</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.summary.totalGrowth.toFixed(1)}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">CMGR: ${result.summary.compoundMonthlyGrowthRate.toFixed(2)}%</p>
     </div>
   `;
   
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Monthly Forecast Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Monthly Revenue Forecast</h4>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Monthly Revenue Forecast</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-gray-300 dark:border-gray-600">
-              <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">Month</th>
+            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
+              <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
               ${Object.keys(result.monthlyForecasts[0].revenueByStream).map(stream => `
-                <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${stream}</th>
+                <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${stream}</th>
               `).join('')}
-              <th class="text-right py-2 px-3 text-gray-900 dark:text-white font-semibold">Total</th>
-              ${result.customerMetrics ? '<th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Customers</th>' : ''}
-              <th class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">Growth</th>
+              <th class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">Total</th>
+              ${result.customerMetrics ? '<th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>' : ''}
+              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Growth</th>
             </tr>
           </thead>
           <tbody>
             ${result.monthlyForecasts.map((month: RevenueForecastMonth) => `
-              <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="py-2 px-3 text-gray-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
+              <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                <td class="py-2 px-3 text-slate-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
                 ${Object.values(month.revenueByStream).map((rev) => `
-                  <td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
+                  <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
                 `).join('')}
-                <td class="text-right py-2 px-3 text-gray-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
-                ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-gray-700 dark:text-gray-300">${month.customers.toFixed(0)}</td>` : ''}
-                <td class="text-right py-2 px-3 ${month.growthVsPreviousMonth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+                <td class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
+                ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${month.customers.toFixed(0)}</td>` : ''}
+                <td class="text-right py-2 px-3 ${month.growthVsPreviousMonth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                   ${month.growthVsPreviousMonth >= 0 ? '+' : ''}${month.growthVsPreviousMonth.toFixed(1)}%
                 </td>
               </tr>
             `).join('')}
-            <tr class="border-t-2 border-gray-300 dark:border-gray-600 font-semibold">
-              <td class="py-3 px-3 text-gray-900 dark:text-white">TOTAL</td>
+            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-semibold">
+              <td class="py-3 px-3 text-slate-900 dark:text-white">TOTAL</td>
               ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => `
-                <td class="text-right py-3 px-3 text-gray-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
+                <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
               `).join('')}
-              <td class="text-right py-3 px-3 text-gray-900 dark:text-white text-lg">${formatCurrency(result.summary.totalForecastRevenue)}</td>
-              ${result.customerMetrics ? `<td class="text-right py-3 px-3 text-gray-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</td>` : ''}
-              <td class="text-right py-3 px-3 text-gray-900 dark:text-white">${result.summary.totalGrowth.toFixed(1)}%</td>
+              <td class="text-right py-3 px-3 text-slate-900 dark:text-white text-lg">${formatCurrency(result.summary.totalForecastRevenue)}</td>
+              ${result.customerMetrics ? `<td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</td>` : ''}
+              <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.summary.totalGrowth.toFixed(1)}%</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+      <p class="fa-script-note mt-4">
         💡 Peak: ${result.summary.peakMonth.revenue.toFixed(0)} in month ${result.summary.peakMonth.month} | 
         Lowest: ${formatCurrency(result.summary.lowestMonth.revenue)} in month ${result.summary.lowestMonth.month}
       </p>
     </div>
     
     <!-- Stream Breakdown -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue Stream Breakdown</h4>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Revenue Stream Breakdown</h4>
       <div class="space-y-4">
         ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => {
           const widthPercent = Math.min(100, Math.max(10, stream.percentOfTotal));
           return `
             <div>
               <div class="flex justify-between mb-2">
-                <span class="font-medium text-gray-900 dark:text-white">${stream.name}</span>
-                <span class="text-gray-700 dark:text-gray-300">${formatCurrency(stream.totalRevenue)} (${stream.percentOfTotal.toFixed(1)}%)</span>
+                <span class="font-medium text-slate-900 dark:text-white">${stream.name}</span>
+                <span class="text-slate-700 dark:text-slate-300">${formatCurrency(stream.totalRevenue)} (${stream.percentOfTotal.toFixed(1)}%)</span>
               </div>
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500" style="width: ${widthPercent}%"></div>
+              <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                <div class="bg-gradient-to-r from-violet-500 to-violet-500 h-3 rounded-full transition-all duration-500" style="width: ${widthPercent}%"></div>
               </div>
-              <div class="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <div class="flex justify-between mt-1 fa-script-note">
                 <span>Avg: ${formatCurrency(stream.avgMonthlyRevenue)}/mo</span>
-                <span class="${stream.growth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+                <span class="${stream.growth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                   ${stream.growth >= 0 ? '+' : ''}${stream.growth.toFixed(1)}% growth
                 </span>
               </div>
@@ -181,26 +181,26 @@ export const displayResults = (result: RevenueForecastResult): void => {
     
     <!-- Customer Metrics -->
     ${result.customerMetrics ? `
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Customer Growth Analysis</h4>
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Customer Growth Analysis</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Ending Customers</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
+            <p class="fa-script-copy-muted">Ending Customers</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Net Growth</p>
-            <p class="text-2xl font-bold ${result.customerMetrics.netCustomerGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+            <p class="fa-script-copy-muted">Net Growth</p>
+            <p class="text-2xl font-bold ${result.customerMetrics.netCustomerGrowth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
               ${result.customerMetrics.netCustomerGrowth >= 0 ? '+' : ''}${result.customerMetrics.netCustomerGrowth.toFixed(0)}
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Acquired</p>
-            <p class="text-2xl font-bold text-green-600 dark:text-green-400">+${result.customerMetrics.totalAcquired.toFixed(0)}</p>
+            <p class="fa-script-copy-muted">Total Acquired</p>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">+${result.customerMetrics.totalAcquired.toFixed(0)}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Churned</p>
-            <p class="text-2xl font-bold text-red-600 dark:text-red-400">-${result.customerMetrics.totalChurned.toFixed(0)}</p>
+            <p class="fa-script-copy-muted">Total Churned</p>
+            <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">-${result.customerMetrics.totalChurned.toFixed(0)}</p>
           </div>
         </div>
       </div>
@@ -208,11 +208,11 @@ export const displayResults = (result: RevenueForecastResult): void => {
     
     <!-- Insights -->
     ${result.insights.length > 0 ? `
-      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
+      <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
         <ul class="space-y-2">
           ${result.insights.map((insight: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${insight}</li>
+            <li class="text-slate-700 dark:text-slate-300">${insight}</li>
           `).join('')}
         </ul>
       </div>
@@ -232,11 +232,11 @@ export const displayResults = (result: RevenueForecastResult): void => {
     
     <!-- Recommendations -->
     ${result.recommendations.length > 0 ? `
-      <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
-        <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Growth Recommendations</h4>
+      <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-6">
+        <h4 class="text-lg font-semibold mb-4 text-emerald-900 dark:text-emerald-100">💡 Growth Recommendations</h4>
         <ul class="space-y-2">
           ${result.recommendations.map((rec: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${rec}</li>
+            <li class="text-slate-700 dark:text-slate-300">${rec}</li>
           `).join('')}
         </ul>
       </div>
@@ -321,40 +321,40 @@ function setupDynamicStreams(): void {
     }
     
     const streamDiv = document.createElement('div');
-    streamDiv.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg';
+    streamDiv.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     streamDiv.id = `stream-${streamCount}`;
     
     streamDiv.innerHTML = `
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="fa-field-label mb-1">
           Stream Name
         </label>
         <input type="text" name="stream-name-${streamCount}" 
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="e.g., Subscriptions" required>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="fa-field-label mb-1">
           Monthly Revenue
         </label>
         <input type="number" name="stream-revenue-${streamCount}" 
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="10000" step="100" required>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="fa-field-label mb-1">
           Growth Rate (%)
         </label>
         <input type="number" name="stream-growth-${streamCount}" 
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="15" step="1" value="10" required>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="fa-field-label mb-1">
           Seasonality
         </label>
         <select name="stream-seasonality-${streamCount}"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+          class="fa-input-surface w-full">
           <option value="none">None</option>
           <option value="retail">Retail (Q4 peak)</option>
           <option value="b2b">B2B (Summer low)</option>
@@ -362,7 +362,7 @@ function setupDynamicStreams(): void {
       </div>
       <div class="md:col-span-4 flex justify-end">
         <button type="button" onclick="document.getElementById('stream-${streamCount}')?.remove()"
-          class="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+          class="text-sm text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300">
           Remove Stream
         </button>
       </div>

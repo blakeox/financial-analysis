@@ -1,36 +1,67 @@
 import React from 'react';
+import type { ButtonSize, ButtonVariant } from '../lib/primitiveContracts';
+import { buttonBaseClasses, buttonSizeClasses, buttonVariants } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
+  (
+    {
+      className,
+      variant = 'primary',
+      size = 'md',
+      isLoading = false,
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const resolvedVariant =
+      variant === 'danger' ? 'danger' : variant === 'tertiary' ? 'tertiary' : variant;
+
     return (
       <button
         className={cn(
-          'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-          {
-            'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-600':
-              variant === 'primary',
-            'bg-gray-600 text-white hover:bg-gray-700 focus-visible:ring-gray-600':
-              variant === 'secondary',
-            'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus-visible:ring-gray-600':
-              variant === 'outline',
-            'text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-600': variant === 'ghost',
-          },
-          {
-            'h-8 px-3 text-sm': size === 'sm',
-            'h-10 px-4 text-base': size === 'md',
-            'h-12 px-6 text-lg': size === 'lg',
-          },
+          buttonBaseClasses,
+          buttonVariants[resolvedVariant],
+          buttonSizeClasses[size],
           className
         )}
         ref={ref}
+        disabled={disabled || isLoading}
         {...props}
-      />
+      >
+        {isLoading ? (
+          <svg
+            className="h-4 w-4 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-90"
+              fill="currentColor"
+              d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"
+            />
+          </svg>
+        ) : null}
+        {children}
+      </button>
     );
   }
 );

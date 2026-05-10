@@ -395,18 +395,18 @@ function displayResults(result: unknown): void {
   const synergyPV = r?.synergyAnalysis?.totalSynergies?.presentValue;
 
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-      <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Purchase Price</div>
-      <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">${formatCurrencyWhole(purchasePrice)}</div>
+    <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
+      <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Purchase Price</div>
+      <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">${formatCurrencyWhole(purchasePrice)}</div>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-      <div class="text-sm text-green-600 dark:text-green-400 font-medium">Value Creation</div>
-      <div class="text-2xl font-bold text-green-900 dark:text-green-100">${formatCurrencyWhole(valueCreation)}</div>
-      <div class="text-sm text-green-700 dark:text-green-300">${formatPercentDecimal(valueCreationPercent)}</div>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+      <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Value Creation</div>
+      <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">${formatCurrencyWhole(valueCreation)}</div>
+      <div class="text-sm text-emerald-700 dark:text-emerald-300">${formatPercentDecimal(valueCreationPercent)}</div>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-      <div class="text-sm text-purple-600 dark:text-purple-400 font-medium">Synergy PV</div>
-      <div class="text-2xl font-bold text-purple-900 dark:text-purple-100">${formatCurrencyWhole(synergyPV)}</div>
+    <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
+      <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Synergy PV</div>
+      <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">${formatCurrencyWhole(synergyPV)}</div>
     </div>
   `;
 
@@ -445,21 +445,21 @@ function displayResults(result: unknown): void {
         <div class="mt-4">
           <h3 class="text-lg font-semibold mb-2">Accretion / Dilution (Summary)</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Year 1</div>
-              <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div class="fa-script-copy-muted font-medium">Year 1</div>
+              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.year1Accretion
               )}</div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Year 3</div>
-              <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div class="fa-script-copy-muted font-medium">Year 3</div>
+              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.year3Accretion
               )}</div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Average</div>
-              <div class="text-xl font-bold text-gray-900 dark:text-white">${formatPercentDecimal(
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div class="fa-script-copy-muted font-medium">Average</div>
+              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
                 accretionSummary.averageAccretion
               )}</div>
             </div>
@@ -477,17 +477,17 @@ function displayResults(result: unknown): void {
       <div>
         <h3 class="text-lg font-semibold mb-2">Deal Overview</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Deal Size</div>
-            <div class="text-xl font-bold text-gray-900 dark:text-white">${(r?.transactionSummary?.dealSize || 'N/A').toString()}</div>
+          <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+            <div class="fa-script-copy-muted font-medium">Deal Size</div>
+            <div class="text-xl font-bold text-slate-900 dark:text-white">${(r?.transactionSummary?.dealSize || 'N/A').toString()}</div>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Premium</div>
-            <div class="text-xl font-bold text-gray-900 dark:text-white">${premiumText}</div>
+          <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+            <div class="fa-script-copy-muted font-medium">Premium</div>
+            <div class="text-xl font-bold text-slate-900 dark:text-white">${premiumText}</div>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Enterprise Value</div>
-            <div class="text-xl font-bold text-gray-900 dark:text-white">${evText}</div>
+          <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+            <div class="fa-script-copy-muted font-medium">Enterprise Value</div>
+            <div class="text-xl font-bold text-slate-900 dark:text-white">${evText}</div>
           </div>
         </div>
       </div>

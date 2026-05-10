@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -56,74 +58,31 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">🚀</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="🚀"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Retirement Planning Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Start Your Retirement Journey</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Start Your Retirement Journey</h2>
             
             <form
               id="retirement-start-form"
@@ -131,57 +90,57 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               class="space-y-6"
             >
               <!-- Current Situation Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Current Situation</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">📊 Current Situation</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="age" class="fa-field-label mb-2">
                       Your Age *
                     </label>
                     <input 
                       type="number" 
                       id="age" 
                       name="age"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="28"
                       required
                     />
                   </div>
                   <div>
-                    <label for="retirement-age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="retirement-age" class="fa-field-label mb-2">
                       Target Retirement Age *
                     </label>
                     <input 
                       type="number" 
                       id="retirement-age" 
                       name="retirementAge"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="65"
                       required
                     />
                   </div>
                   <div>
-                    <label for="current-salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="current-salary" class="fa-field-label mb-2">
                       Current Annual Salary ($) *
                     </label>
                     <input 
                       type="number" 
                       id="current-salary" 
                       name="currentSalary"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="65000"
                       required
                     />
                   </div>
                   <div>
-                    <label for="current-retirement-balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="current-retirement-balance" class="fa-field-label mb-2">
                       Current Retirement Savings ($)
                     </label>
                     <input 
                       type="number" 
                       id="current-retirement-balance" 
                       name="currentRetirementBalance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
@@ -189,11 +148,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Employer Benefits Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏢 Employer Benefits</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🏢 Employer Benefits</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="employer-match" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="employer-match" class="fa-field-label mb-2">
                       Employer 401(k) Match (%)
                     </label>
                     <input 
@@ -201,13 +160,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.1"
                       id="employer-match" 
                       name="employerMatch"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="3.0"
                     />
-                    <p class="text-sm text-gray-500 mt-1">Common match is 3-6%</p>
+                    <p class="fa-help-copy mt-1">Common match is 3-6%</p>
                   </div>
                   <div>
-                    <label for="match-limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="match-limit" class="fa-field-label mb-2">
                       Match Limit (% of salary)
                     </label>
                     <input 
@@ -215,74 +174,74 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.1"
                       id="match-limit" 
                       name="matchLimit"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="6.0"
                     />
-                    <p class="text-sm text-gray-500 mt-1">Maximum % they'll match</p>
+                    <p class="fa-help-copy mt-1">Maximum % they'll match</p>
                   </div>
                 </div>
               </div>
 
               <!-- Retirement Goals Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎯 Retirement Goals</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🎯 Retirement Goals</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       What percentage of your current income do you want in retirement?
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="retirementIncome" value="70" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">70% of current income</span>
-                          <p class="text-xs text-gray-500">Conservative - assumes lower expenses</p>
+                          <span class="fa-list-copy-strong">70% of current income</span>
+                          <p class="fa-help-copy">Conservative - assumes lower expenses</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="retirementIncome" value="80" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">80% of current income</span>
-                          <p class="text-xs text-gray-500">Moderate - maintains lifestyle</p>
+                          <span class="fa-list-copy-strong">80% of current income</span>
+                          <p class="fa-help-copy">Moderate - maintains lifestyle</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="retirementIncome" value="100" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">100% of current income</span>
-                          <p class="text-xs text-gray-500">Comfortable - no lifestyle change</p>
+                          <span class="fa-list-copy-strong">100% of current income</span>
+                          <p class="fa-help-copy">Comfortable - no lifestyle change</p>
                         </div>
                       </label>
                     </div>
                   </div>
                   <div>
-                    <label for="monthly-contribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-contribution" class="fa-field-label mb-2">
                       How much can you contribute monthly? ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-contribution" 
                       name="monthlyContribution"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="500"
                     />
-                    <p class="text-sm text-gray-500 mt-1">Start with what you can afford</p>
+                    <p class="fa-help-copy mt-1">Start with what you can afford</p>
                   </div>
                 </div>
               </div>
 
               <!-- Investment Strategy Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📈 Investment Strategy</h3>
+                <h3 class="fa-scenario-title mb-4">📈 Investment Strategy</h3>
                 <div class="space-y-4">
                   <div>
-                    <label for="risk-tolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="risk-tolerance" class="fa-field-label mb-2">
                       Risk Tolerance
                     </label>
                     <select 
                       id="risk-tolerance" 
                       name="riskTolerance"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                     >
                       <option value="">Select risk level</option>
                       <option value="conservative">Conservative (Lower risk, steady growth)</option>
@@ -291,25 +250,25 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                     </select>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Investment Preferences
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-center">
                         <input type="checkbox" name="investmentPrefs" value="target-date-fund" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Target-date fund (set it and forget it)</span>
+                        <span class="fa-list-copy">Target-date fund (set it and forget it)</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="investmentPrefs" value="index-funds" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Low-cost index funds</span>
+                        <span class="fa-list-copy">Low-cost index funds</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="investmentPrefs" value="roth-ira" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Roth IRA for tax-free growth</span>
+                        <span class="fa-list-copy">Roth IRA for tax-free growth</span>
                       </label>
                       <label class="flex items-center">
                         <input type="checkbox" name="investmentPrefs" value="professional-help" class="mr-2">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Get professional investment advice</span>
+                        <span class="fa-list-copy">Get professional investment advice</span>
                       </label>
                     </div>
                   </div>
@@ -317,22 +276,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="submit" id="calculate-retirement-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="submit" id="calculate-retirement-btn" class="fa-button-primary">
                   Calculate Retirement Plan
                 </button>
-                <button type="button" id="save-plan-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="save-plan-btn" class="fa-button-primary">
                   Save Plan
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden mt-8 p-6 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Retirement Plan</h3>
+            <div id="results-section" class="hidden mt-8 rounded-lg bg-linear-to-r from-violet-50 to-emerald-50 p-6 dark:from-violet-950/25 dark:to-emerald-950/20">
+              <h3 class="fa-scenario-title mb-4">📊 Your Retirement Plan</h3>
               <div id="retirement-results" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -340,13 +299,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-journey-nav-panel">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -356,7 +315,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -370,7 +329,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-success flex-1 sm:flex-none"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,7 +339,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-success flex-1 sm:flex-none"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,27 +354,27 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">🚀 Why Start Early?</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title mb-4">🚀 Why Start Early?</h3>
+            <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Compound Interest:</strong> Time is your biggest advantage.</p>
               </div>
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Employer Match:</strong> Free money you shouldn't miss.</p>
               </div>
-              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Tax Benefits:</strong> Reduce taxes while saving.</p>
               </div>
-              <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Habit Building:</strong> Start small, increase over time.</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">💡 Retirement Tips</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-4">💡 Retirement Tips</h3>
+            <div class="space-y-3 fa-list-copy">
               <p><strong>Start Small:</strong> Even $50/month makes a difference.</p>
               <p><strong>Increase Annually:</strong> Boost contributions with raises.</p>
               <p><strong>Diversify:</strong> Don't put all eggs in one basket.</p>
@@ -424,7 +383,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
         </div>
       </div>
-    </div>
   </main>
 
   <script type="module" is:inline>

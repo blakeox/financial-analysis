@@ -3,6 +3,7 @@ import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { ValidatedInput, ValidatedNumberInput } from './ValidatedField';
 import { formatCurrency } from '../lib/formatters';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 export interface LeaseData {
   id: string;
@@ -81,35 +82,40 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
     () => leases.reduce((sum, lease) => sum + (lease.isActive ? lease.monthlyPayment : 0), 0),
     [leases]
   );
+  const summaryCardBase =
+    'rounded-2xl border p-4 text-center shadow-[0_10px_24px_rgba(9,14,36,0.04)]';
 
   return (
-    <Card>
+    <Card variant="interactive">
       <CardHeader>
         <CardTitle>Leases</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{leases.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Leases</div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+            <div className={cn('text-2xl font-bold', textColors.accent)}>{leases.length}</div>
+            <div className={cn('text-sm', textColors.secondary)}>Leases</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          <div className={cn(summaryCardBase, 'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30')}>
+            <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">
               {formatCurrency(totalMonthlyLeaseCost)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Lease Cost</div>
+            <div className={cn('text-sm', textColors.secondary)}>Monthly Lease Cost</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+            <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalMonthlyLeaseCost * 12)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Annual Lease Cost</div>
+            <div className={cn('text-sm', textColors.secondary)}>Annual Lease Cost</div>
           </div>
         </div>
 
         <div className="space-y-3">
           {leases.map((lease) => (
-            <div key={lease.id} className="p-4 border rounded-md bg-white dark:bg-gray-900">
+            <div
+              key={lease.id}
+              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
+            >
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <ValidatedInput
                   label="Name"
@@ -144,9 +150,16 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
                       checked={lease.isActive}
                       onChange={(event) => updateLease(lease.id, 'isActive', event.target.checked)}
                       disabled={readonly}
-                      className="rounded border-gray-300"
+                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
                     />
-                    <span className="text-sm">Active</span>
+                    <span
+                      className={cn(
+                        'rounded-full px-2 py-1 text-xs font-semibold',
+                        lease.isActive ? badgeVariants.success : badgeVariants.default
+                      )}
+                    >
+                      {lease.isActive ? 'Active' : 'Inactive'}
+                    </span>
                   </label>
                   {!readonly && (
                     <Button onClick={() => removeLease(lease.id)} variant="outline" size="sm">
@@ -160,8 +173,8 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
         </div>
 
         {!readonly && (
-          <div className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md">
-            <h4 className="font-medium mb-3">Add Lease</h4>
+          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
+            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add Lease</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <ValidatedInput
                 label="Name"

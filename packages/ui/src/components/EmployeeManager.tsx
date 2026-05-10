@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
 import { parsers } from '../lib/formUtils';
 import { formatCurrency } from '../lib/formatters';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 export interface EmployeeData {
   id: string;
@@ -78,38 +79,40 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
     (sum, emp) => sum + (emp.isActive ? emp.billableHoursPerMonth * emp.hourlyRate : 0),
     0
   );
+  const summaryCardBase =
+    'rounded-2xl border p-4 text-center shadow-[0_10px_24px_rgba(9,14,36,0.04)]';
 
   return (
-    <Card>
+    <Card variant="interactive">
       <CardHeader>
         <CardTitle>Employee Management</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+            <div className={cn('text-2xl font-bold', textColors.accent)}>
               {employees.filter((emp) => emp.isActive).length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Active Employees</div>
+            <div className={cn('text-sm', textColors.secondary)}>Active Employees</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+            <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalAnnualSalaries)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Annual Payroll</div>
+            <div className={cn('text-sm', textColors.secondary)}>Annual Payroll</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+          <div className={cn(summaryCardBase, 'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30')}>
+            <div className={cn('text-2xl font-bold', textColors.warning)}>
               {formatCurrency(totalMonthlySalaries)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Monthly Payroll</div>
+            <div className={cn('text-sm', textColors.secondary)}>Monthly Payroll</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          <div className={cn(summaryCardBase, 'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30')}>
+            <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">
               {formatCurrency(totalMonthlyRevenuePotential)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
+            <div className={cn('text-sm', textColors.secondary)}>
               Monthly Revenue Potential
             </div>
           </div>
@@ -118,7 +121,10 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
         {/* Employee List */}
         <div className="space-y-3">
           {employees.map((employee) => (
-            <div key={employee.id} className="p-4 border rounded-md bg-white dark:bg-gray-900">
+            <div
+              key={employee.id}
+              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
+            >
               <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
                 <Input
                   label="Name"
@@ -164,15 +170,22 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   min="0"
                 />
                 <div className="flex gap-2">
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 rounded-full px-1">
                     <input
                       type="checkbox"
                       checked={employee.isActive}
                       onChange={(e) => updateEmployee(employee.id, 'isActive', e.target.checked)}
                       disabled={readonly}
-                      className="rounded border-gray-300"
+                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
                     />
-                    <span className="text-sm">Active</span>
+                    <span
+                      className={cn(
+                        'rounded-full px-2 py-1 text-xs font-semibold',
+                        employee.isActive ? badgeVariants.success : badgeVariants.default
+                      )}
+                    >
+                      {employee.isActive ? 'Active' : 'Inactive'}
+                    </span>
                   </label>
                   {!readonly && (
                     <Button onClick={() => removeEmployee(employee.id)} variant="outline" size="sm">
@@ -187,8 +200,8 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
 
         {/* Add New Employee */}
         {!readonly && (
-          <div className="p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md">
-            <h4 className="font-medium mb-3">Add New Employee</h4>
+          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
+            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add New Employee</h4>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
               <Input
                 label="Name"

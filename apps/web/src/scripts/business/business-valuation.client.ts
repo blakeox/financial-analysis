@@ -92,46 +92,46 @@ export const displayResults = (result: BusinessValuationResult): void => {
   
   // Populate summary cards
   summaryCards.innerHTML = `
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 col-span-2">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Estimated Business Value</h5>
-      <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">${formatCurrency(result.valuationMid)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-2">Range: ${result.summary.valuationRange}</p>
-      <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Confidence: ${result.summary.confidenceLevel.toUpperCase()}</p>
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-4 col-span-2">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Estimated Business Value</h5>
+      <p class="text-3xl font-bold text-violet-600 dark:text-violet-400 mt-2">${formatCurrency(result.valuationMid)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-2">Range: ${result.summary.valuationRange}</p>
+      <p class="text-xs text-violet-600 dark:text-violet-400 mt-1">Confidence: ${result.summary.confidenceLevel.toUpperCase()}</p>
     </div>
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Low Estimate</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.valuationLow)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">Conservative scenario</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Low Estimate</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.valuationLow)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Conservative scenario</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">High Estimate</h5>
-      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(result.valuationHigh)}</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Optimistic scenario</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">High Estimate</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.valuationHigh)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Optimistic scenario</p>
     </div>
   `;
   
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Valuation Methods -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Valuation Methods Used</h4>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Valuation Methods Used</h4>
+      <p class="fa-script-copy-muted mb-4">
         Primary method: <strong>${result.summary.mostRelevantMethod}</strong>
       </p>
       <div class="space-y-4">
         ${result.methods.map((method: BusinessValuationMethod) => `
-          <div class="border-l-4 ${method.confidence === 'high' ? 'border-green-500' : method.confidence === 'medium' ? 'border-yellow-500' : 'border-gray-400'} pl-4">
+          <div class="border-l-4 ${method.confidence === 'high' ? 'border-emerald-500' : method.confidence === 'medium' ? 'border-yellow-500' : 'border-slate-400'} pl-4">
             <div class="flex justify-between items-start mb-1">
-              <h5 class="font-semibold text-gray-900 dark:text-white">${method.name}</h5>
-              <span class="text-lg font-bold text-gray-900 dark:text-white">${formatCurrency(method.value)}</span>
+              <h5 class="font-semibold text-slate-900 dark:text-white">${method.name}</h5>
+              <span class="text-lg font-bold text-slate-900 dark:text-white">${formatCurrency(method.value)}</span>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">${method.explanation}</p>
+            <p class="fa-script-copy-muted">${method.explanation}</p>
             <div class="flex items-center gap-4 mt-2">
-              <span class="text-xs text-gray-500 dark:text-gray-400">Weight: ${(method.weight * 100).toFixed(0)}%</span>
+              <span class="fa-script-note">Weight: ${(method.weight * 100).toFixed(0)}%</span>
               <span class="text-xs px-2 py-0.5 rounded ${
-                method.confidence === 'high' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                method.confidence === 'high' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
                 method.confidence === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
               }">
                 ${method.confidence.toUpperCase()} confidence
               </span>
@@ -144,46 +144,46 @@ export const displayResults = (result: BusinessValuationResult): void => {
     <!-- Multiples Applied -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       ${result.ebitdaMultiple > 0 ? `
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EBITDA Multiple</h5>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${result.ebitdaMultiple.toFixed(2)}x</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
+          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">EBITDA Multiple</h5>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.ebitdaMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
       ${result.revenueMultiple > 0 ? `
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Revenue Multiple</h5>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${result.revenueMultiple.toFixed(2)}x</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
+          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Revenue Multiple</h5>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.revenueMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
       ${result.sdeMultiple > 0 ? `
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">SDE Multiple</h5>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">${result.sdeMultiple.toFixed(2)}x</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
+          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">SDE Multiple</h5>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.sdeMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
     </div>
     
     <!-- Adjustment Factors -->
     ${result.adjustments.length > 0 ? `
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Valuation Adjustments</h4>
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Valuation Adjustments</h4>
         <div class="space-y-3">
           ${result.adjustments.map((adj: BusinessValuationAdjustment) => `
-            <div class="flex items-start justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+            <div class="flex items-start justify-between py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
               <div class="flex-1">
-                <h5 class="font-medium text-gray-900 dark:text-white ${
-                  adj.impact === 'positive' ? 'text-green-700 dark:text-green-300' :
-                  adj.impact === 'negative' ? 'text-red-700 dark:text-red-300' :
-                  'text-gray-700 dark:text-gray-300'
+                <h5 class="font-medium text-slate-900 dark:text-white ${
+                  adj.impact === 'positive' ? 'text-emerald-700 dark:text-emerald-300' :
+                  adj.impact === 'negative' ? 'text-rose-700 dark:text-rose-300' :
+                  'text-slate-700 dark:text-slate-300'
                 }">
                   ${adj.impact === 'positive' ? '✅' : adj.impact === 'negative' ? '⚠️' : 'ℹ️'} ${adj.name}
                 </h5>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${adj.description}</p>
+                <p class="fa-script-copy-muted mt-1">${adj.description}</p>
               </div>
               <span class="ml-4 px-3 py-1 rounded-full text-sm font-semibold ${
-                adj.impact === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                adj.impact === 'negative' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
-                'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                adj.impact === 'positive' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
+                adj.impact === 'negative' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
+                'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
               }">
                 ${adj.adjustmentPercent > 0 ? '+' : ''}${adj.adjustmentPercent.toFixed(0)}%
               </span>
@@ -195,11 +195,11 @@ export const displayResults = (result: BusinessValuationResult): void => {
     
     <!-- Insights -->
     ${result.insights.length > 0 ? `
-      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-blue-900 dark:text-blue-100">📊 Key Insights</h4>
+      <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
         <ul class="space-y-2">
           ${result.insights.map((insight: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${insight}</li>
+            <li class="text-slate-700 dark:text-slate-300">${insight}</li>
           `).join('')}
         </ul>
       </div>
@@ -207,11 +207,11 @@ export const displayResults = (result: BusinessValuationResult): void => {
     
     <!-- Warnings -->
     ${result.warnings.length > 0 ? `
-      <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 mb-6 border-l-4 border-red-500">
-        <h4 class="text-lg font-semibold mb-4 text-red-900 dark:text-red-100">⚠️ Important Considerations</h4>
+      <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 mb-6 border-l-4 border-rose-500">
+        <h4 class="text-lg font-semibold mb-4 text-rose-900 dark:text-rose-100">⚠️ Important Considerations</h4>
         <ul class="space-y-2">
           ${result.warnings.map((warning: string) => `
-            <li class="text-red-700 dark:text-red-300">${warning}</li>
+            <li class="text-rose-700 dark:text-rose-300">${warning}</li>
           `).join('')}
         </ul>
       </div>
@@ -219,11 +219,11 @@ export const displayResults = (result: BusinessValuationResult): void => {
     
     <!-- Recommendations -->
     ${result.recommendations.length > 0 ? `
-      <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">💡 Ways to Increase Value</h4>
+      <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-6 mb-6">
+        <h4 class="text-lg font-semibold mb-4 text-emerald-900 dark:text-emerald-100">💡 Ways to Increase Value</h4>
         <ul class="space-y-2">
           ${result.recommendations.map((rec: string) => `
-            <li class="text-gray-700 dark:text-gray-300">${rec}</li>
+            <li class="text-slate-700 dark:text-slate-300">${rec}</li>
           `).join('')}
         </ul>
       </div>

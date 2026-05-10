@@ -3,232 +3,263 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Options Pricing Calculator - Black-Scholes & Greeks Analysis | Fanalyx" 
+<Layout
+  title="Options Pricing Calculator - Black-Scholes & Greeks Analysis | Fanalyx"
   description="Professional options pricing calculator with Black-Scholes model, Binomial Tree, Monte Carlo simulation, and comprehensive Greeks analysis (Delta, Gamma, Theta, Vega, Rho)."
   keywords="options pricing, Black-Scholes, options calculator, Greeks, delta, gamma, theta, vega, rho, options strategy, options analysis"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Business Finance', url: '/models/business' },
-      { name: 'Options Pricing', url: '/options-pricing' }
+      { name: 'Options Pricing', url: '/options-pricing' },
     ]}
   />
-  
-  <StructuredData 
-    type="software" 
+
+  <StructuredData
+    type="software"
     softwareApp={{
       name: 'Options Pricing Calculator',
-      description: 'Professional options pricing tool with Black-Scholes, Binomial Tree, and Monte Carlo models. Comprehensive Greeks analysis for European, American, Asian, Barrier, and Binary options.',
+      description:
+        'Professional options pricing tool with Black-Scholes, Binomial Tree, and Monte Carlo models. Comprehensive Greeks analysis for European, American, Asian, Barrier, and Binary options.',
       category: 'FinanceApplication',
       rating: 4.9,
-      ratingCount: 250
+      ratingCount: 250,
     }}
   />
-  
-  <StructuredData 
-    type="faq" 
+
+  <StructuredData
+    type="faq"
     faqs={[
       {
         question: 'What is options pricing and how is it calculated?',
-        answer: 'Options pricing determines the fair value of an option contract. The Black-Scholes model is the most common method, using stock price, strike price, time to expiration, volatility, risk-free rate, and dividend yield. Our calculator supports multiple pricing models including Binomial Tree and Monte Carlo simulation.'
+        answer:
+          'Options pricing determines the fair value of an option contract. The Black-Scholes model is the most common method, using stock price, strike price, time to expiration, volatility, risk-free rate, and dividend yield. Our calculator supports multiple pricing models including Binomial Tree and Monte Carlo simulation.',
       },
       {
         question: 'What are the Greeks in options trading?',
-        answer: 'The Greeks measure how option prices change with various factors: Delta (price sensitivity), Gamma (delta sensitivity), Theta (time decay), Vega (volatility sensitivity), and Rho (interest rate sensitivity). Understanding Greeks is essential for options risk management.'
+        answer:
+          'The Greeks measure how option prices change with various factors: Delta (price sensitivity), Gamma (delta sensitivity), Theta (time decay), Vega (volatility sensitivity), and Rho (interest rate sensitivity). Understanding Greeks is essential for options risk management.',
       },
       {
         question: 'What is the difference between European and American options?',
-        answer: 'European options can only be exercised at expiration, while American options can be exercised at any time before expiration. American options are typically worth more due to this flexibility. Our calculator supports both styles.'
+        answer:
+          'European options can only be exercised at expiration, while American options can be exercised at any time before expiration. American options are typically worth more due to this flexibility. Our calculator supports both styles.',
       },
       {
         question: 'How does volatility affect options prices?',
-        answer: 'Higher volatility increases options prices because it increases the probability of the option finishing in-the-money. Vega measures this sensitivity. Volatility is a key input in options pricing models and is often the most difficult to estimate accurately.'
+        answer:
+          'Higher volatility increases options prices because it increases the probability of the option finishing in-the-money. Vega measures this sensitivity. Volatility is a key input in options pricing models and is often the most difficult to estimate accurately.',
       },
       {
         question: 'What is time decay (Theta)?',
-        answer: 'Time decay (Theta) measures how much an option\'s value decreases as time passes, all else equal. Options lose value as expiration approaches, with decay accelerating near expiration. This is why many options traders prefer shorter-term strategies.'
-      }
+        answer:
+          "Time decay (Theta) measures how much an option's value decreases as time passes, all else equal. Options lose value as expiration approaches, with decay accelerating near expiration. This is why many options traders prefer shorter-term strategies.",
+      },
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Options Pricing Calculator</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Professional options pricing with Black-Scholes, Binomial Tree, Monte Carlo, and comprehensive Greeks analysis
-      </p>
+  <ToolPageShell
+    eyebrow="Business finance"
+    title="Options Pricing Calculator"
+    description="Model option value, sensitivity, and pricing assumptions for derivatives analysis"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'Options Pricing' },
+    ]}
+  >
+    <!-- Options Pricing Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Option Parameters</h2>
 
-      <!-- Options Pricing Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Option Parameters</h2>
-
-        <form id="options-pricing-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="optionType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Option Type
-              </label>
-              <select
-                id="optionType"
-                name="optionType"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="">Select option type...</option>
-                <option value="call">Call</option>
-                <option value="put">Put</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="optionStyle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Option Style
-              </label>
-              <select
-                id="optionStyle"
-                name="optionStyle"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="european">European</option>
-                <option value="american">American</option>
-                <option value="asian">Asian</option>
-                <option value="barrier">Barrier</option>
-                <option value="binary">Binary</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="stockPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Stock Price ($)
-              </label>
-              <input
-                type="number"
-                id="stockPrice"
-                name="stockPrice"
-                min="0"
-                step="0.01"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="strikePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Strike Price ($)
-              </label>
-              <input
-                type="number"
-                id="strikePrice"
-                name="strikePrice"
-                min="0"
-                step="0.01"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="timeToExpiration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Time to Expiration (Years)
-              </label>
-              <input
-                type="number"
-                id="timeToExpiration"
-                name="timeToExpiration"
-                min="0"
-                max="10"
-                step="0.01"
-                value="0.25"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="volatility" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Volatility (%)
-              </label>
-              <input
-                type="number"
-                id="volatility"
-                name="volatility"
-                min="0"
-                max="500"
-                step="0.1"
-                value="20"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="riskFreeRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Risk-Free Rate (%)
-              </label>
-              <input
-                type="number"
-                id="riskFreeRate"
-                name="riskFreeRate"
-                min="0"
-                max="50"
-                step="0.01"
-                value="5"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="dividendYield" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Dividend Yield (%)
-              </label>
-              <input
-                type="number"
-                id="dividendYield"
-                name="dividendYield"
-                min="0"
-                max="50"
-                step="0.01"
-                value="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+      <form id="options-pricing-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="optionType"
+              class="fa-field-label mb-2"
             >
-              Calculate Option Price
-            </button>
+              Option Type
+            </label>
+            <select
+              id="optionType"
+              name="optionType"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="">Select option type...</option>
+              <option value="call">Call</option>
+              <option value="put">Put</option>
+            </select>
           </div>
-        </form>
-      </div>
 
-      <!-- Results Section -->
-      <div id="options-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Options Pricing Results</h2>
-        <div id="options-results-content" class="space-y-4"></div>
-      </div>
+          <div>
+            <label
+              for="optionStyle"
+              class="fa-field-label mb-2"
+            >
+              Option Style
+            </label>
+            <select
+              id="optionStyle"
+              name="optionStyle"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="european">European</option>
+              <option value="american">American</option>
+              <option value="asian">Asian</option>
+              <option value="barrier">Barrier</option>
+              <option value="binary">Binary</option>
+            </select>
+          </div>
 
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+          <div>
+            <label
+              for="stockPrice"
+              class="fa-field-label mb-2"
+            >
+              Stock Price ($)
+            </label>
+            <input
+              type="number"
+              id="stockPrice"
+              name="stockPrice"
+              min="0"
+              step="0.01"
+              class="fa-input-surface w-full"
+              placeholder="100"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="strikePrice"
+              class="fa-field-label mb-2"
+            >
+              Strike Price ($)
+            </label>
+            <input
+              type="number"
+              id="strikePrice"
+              name="strikePrice"
+              min="0"
+              step="0.01"
+              class="fa-input-surface w-full"
+              placeholder="100"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="timeToExpiration"
+              class="fa-field-label mb-2"
+            >
+              Time to Expiration (Years)
+            </label>
+            <input
+              type="number"
+              id="timeToExpiration"
+              name="timeToExpiration"
+              min="0"
+              max="10"
+              step="0.01"
+              value="0.25"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="volatility"
+              class="fa-field-label mb-2"
+            >
+              Volatility (%)
+            </label>
+            <input
+              type="number"
+              id="volatility"
+              name="volatility"
+              min="0"
+              max="500"
+              step="0.1"
+              value="20"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="riskFreeRate"
+              class="fa-field-label mb-2"
+            >
+              Risk-Free Rate (%)
+            </label>
+            <input
+              type="number"
+              id="riskFreeRate"
+              name="riskFreeRate"
+              min="0"
+              max="50"
+              step="0.01"
+              value="5"
+              class="fa-input-surface w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="dividendYield"
+              class="fa-field-label mb-2"
+            >
+              Dividend Yield (%)
+            </label>
+            <input
+              type="number"
+              id="dividendYield"
+              name="dividendYield"
+              min="0"
+              max="50"
+              step="0.01"
+              value="0"
+              class="fa-input-surface w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Calculate Option Price </button>
+        </div>
+      </form>
     </div>
-  </div>
+
+    <!-- Results Section -->
+    <div id="options-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        Options Pricing Results
+      </h2>
+      <div id="options-results-content" class="space-y-4"></div>
+    </div>
+
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="options-pricing" />
 </Layout>

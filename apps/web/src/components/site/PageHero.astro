@@ -1,0 +1,50 @@
+---
+export interface Action {
+  href: string;
+  label: string;
+  variant?: 'primary' | 'secondary';
+}
+
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  actions?: Action[];
+  align?: 'left' | 'center';
+  className?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  actions = [],
+  align = 'left',
+  className = '',
+} = Astro.props as Props;
+
+const rootClasses = ['fa-page-hero', align === 'center' ? 'fa-page-hero-center' : '', className];
+---
+
+<div class:list={rootClasses}>
+  {eyebrow && <p class="fa-eyebrow">{eyebrow}</p>}
+  <h1 class="fa-display">{title}</h1>
+  {description && <p class="fa-body-lg">{description}</p>}
+
+  {
+    actions.length > 0 && (
+      <div class="fa-actions">
+        {actions.map((action) => (
+          <a
+            href={action.href}
+            class={action.variant === 'secondary' ? 'fa-button-secondary' : 'fa-button-primary'}
+          >
+            {action.label}
+          </a>
+        ))}
+      </div>
+    )
+  }
+
+  <slot />
+</div>

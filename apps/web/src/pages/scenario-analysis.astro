@@ -3,167 +3,186 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Multi-Model Scenario Analysis - Comprehensive Financial Planning | Fanalyx" 
+<Layout
+  title="Multi-Model Scenario Analysis - Comprehensive Financial Planning | Fanalyx"
   description="Analyze complex financial scenarios that span multiple models. Coordinate strategies across budgeting, debt payoff, savings, retirement, and investment planning for comprehensive financial planning."
   keywords="scenario analysis, financial scenarios, multi-model analysis, financial planning, scenario planning, financial modeling, comprehensive planning"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Business Finance', url: '/models/business' },
-      { name: 'Scenario Analysis', url: '/scenario-analysis' }
+      { name: 'Scenario Analysis', url: '/scenario-analysis' },
     ]}
   />
-  
-  <StructuredData 
-    type="software" 
+
+  <StructuredData
+    type="software"
     softwareApp={{
       name: 'Multi-Model Scenario Analysis',
-      description: 'Comprehensive scenario analysis tool that coordinates multiple financial models for complex financial planning journeys and scenario modeling.',
+      description:
+        'Comprehensive scenario analysis tool that coordinates multiple financial models for complex financial planning journeys and scenario modeling.',
       category: 'FinanceApplication',
       rating: 4.7,
-      ratingCount: 160
+      ratingCount: 160,
     }}
   />
-  
-  <StructuredData 
-    type="faq" 
+
+  <StructuredData
+    type="faq"
     faqs={[
       {
         question: 'What is multi-model scenario analysis?',
-        answer: 'Multi-model scenario analysis coordinates multiple financial models (budget, debt payoff, savings, retirement, investments) to analyze complex financial scenarios. It helps you see how decisions in one area affect other areas of your finances.'
+        answer:
+          'Multi-model scenario analysis coordinates multiple financial models (budget, debt payoff, savings, retirement, investments) to analyze complex financial scenarios. It helps you see how decisions in one area affect other areas of your finances.',
       },
       {
         question: 'What scenarios can I analyze?',
-        answer: 'Common scenarios include young professional planning, family planning, home buying, debt elimination, investment portfolio building, and pre-retirement planning. Each scenario coordinates multiple models to provide comprehensive guidance.'
+        answer:
+          'Common scenarios include young professional planning, family planning, home buying, debt elimination, investment portfolio building, and pre-retirement planning. Each scenario coordinates multiple models to provide comprehensive guidance.',
       },
       {
         question: 'How does it coordinate multiple models?',
-        answer: 'The tool identifies conflicts and synergies between models. For example, it might recommend paying off high-interest debt before increasing retirement contributions, or suggest balancing emergency fund building with other savings goals.'
+        answer:
+          'The tool identifies conflicts and synergies between models. For example, it might recommend paying off high-interest debt before increasing retirement contributions, or suggest balancing emergency fund building with other savings goals.',
       },
       {
         question: 'Can I create custom scenarios?',
-        answer: 'Yes! You can create custom scenarios based on your specific situation and goals. The tool adapts recommendations based on your age, income, risk tolerance, and financial objectives.'
+        answer:
+          'Yes! You can create custom scenarios based on your specific situation and goals. The tool adapts recommendations based on your age, income, risk tolerance, and financial objectives.',
       },
       {
         question: 'How do I track progress across scenarios?',
-        answer: 'The tool tracks your progress through each scenario, showing which models you\'ve completed, current priorities, and next steps. It provides a unified view of your financial journey across all models.'
-      }
+        answer:
+          "The tool tracks your progress through each scenario, showing which models you've completed, current priorities, and next steps. It provides a unified view of your financial journey across all models.",
+      },
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Multi-Model Scenario Analysis</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Coordinate multiple financial models for comprehensive scenario planning and analysis
-      </p>
+  <ToolPageShell
+    eyebrow="Business finance"
+    title="Multi-Model Scenario Analysis"
+    description="Coordinate multiple financial models for comprehensive scenario planning and analysis"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'Scenario Analysis' },
+    ]}
+  >
+    <!-- Scenario Analysis Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">Scenario Selection</h2>
 
-      <!-- Scenario Analysis Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Scenario Selection</h2>
-
-        <form id="scenario-analysis-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="scenarioId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Scenario Type
-              </label>
-              <select
-                id="scenarioId"
-                name="scenarioId"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="">Select scenario...</option>
-                <option value="young-professional">Young Professional</option>
-                <option value="family-planning">Family Planning</option>
-                <option value="home-buying">Home Buying</option>
-                <option value="debt-elimination">Debt Elimination</option>
-                <option value="investment-portfolio">Investment Portfolio</option>
-                <option value="pre-retirement">Pre-Retirement</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="userAge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Age
-              </label>
-              <input
-                type="number"
-                id="userAge"
-                name="userAge"
-                min="18"
-                max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="35"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="userIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Annual Income ($)
-              </label>
-              <input
-                type="number"
-                id="userIncome"
-                name="userIncome"
-                min="0"
-                step="1000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="riskTolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Risk Tolerance
-              </label>
-              <select
-                id="riskTolerance"
-                name="riskTolerance"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="conservative">Conservative</option>
-                <option value="moderate" selected>Moderate</option>
-                <option value="aggressive">Aggressive</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+      <form id="scenario-analysis-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="scenarioId"
+              class="fa-field-label mb-2"
             >
-              Analyze Scenario
-            </button>
+              Scenario Type
+            </label>
+            <select
+              id="scenarioId"
+              name="scenarioId"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="">Select scenario...</option>
+              <option value="young-professional">Young Professional</option>
+              <option value="family-planning">Family Planning</option>
+              <option value="home-buying">Home Buying</option>
+              <option value="debt-elimination">Debt Elimination</option>
+              <option value="investment-portfolio">Investment Portfolio</option>
+              <option value="pre-retirement">Pre-Retirement</option>
+            </select>
           </div>
-        </form>
-      </div>
 
-      <!-- Results Section -->
-      <div id="scenario-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Scenario Analysis Results</h2>
-        <div id="scenario-results-content" class="space-y-4"></div>
-      </div>
+          <div>
+            <label
+              for="userAge"
+              class="fa-field-label mb-2"
+            >
+              Age
+            </label>
+            <input
+              type="number"
+              id="userAge"
+              name="userAge"
+              min="18"
+              max="100"
+              class="fa-input-surface w-full"
+              placeholder="35"
+              required
+            />
+          </div>
 
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+          <div>
+            <label
+              for="userIncome"
+              class="fa-field-label mb-2"
+            >
+              Annual Income ($)
+            </label>
+            <input
+              type="number"
+              id="userIncome"
+              name="userIncome"
+              min="0"
+              step="1000"
+              class="fa-input-surface w-full"
+              placeholder="100000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="riskTolerance"
+              class="fa-field-label mb-2"
+            >
+              Risk Tolerance
+            </label>
+            <select
+              id="riskTolerance"
+              name="riskTolerance"
+              class="fa-input-surface w-full"
+              required
+            >
+              <option value="conservative">Conservative</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="aggressive">Aggressive</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Analyze Scenario </button>
+        </div>
+      </form>
     </div>
-  </div>
+
+    <!-- Results Section -->
+    <div id="scenario-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">
+        Scenario Analysis Results
+      </h2>
+      <div id="scenario-results-content" class="space-y-4"></div>
+    </div>
+
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="scenario-analysis" />
 </Layout>

@@ -49,7 +49,8 @@ test.describe('Navbar SSR vs Hydration diff', () => {
     // Ensure number of desktop links stable (>=3 typical: Home, Analysis, Models, Debug maybe)
     expect(links1.length).toBeGreaterThanOrEqual(3);
 
-    // Ensure hydrated markup still contains the same link text payload
-    expect(n2).toContain(links1[0]);
+    // Ensure hydrated markup still contains a stable navigational link payload.
+    const comparableLink = links1.find((text) => text === 'Home') ?? links1[0];
+    expect(n2).toContain(comparableLink);
   });
 });

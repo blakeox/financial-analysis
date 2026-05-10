@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['auto-lease-decision'];
@@ -41,225 +43,180 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey/auto-lease-decision" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3 space-y-6">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">📊</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <p class="text-gray-700 dark:text-gray-300">
-              Stack the hard dollars: total cost to finish the lease vs buying the car with financing (now or at lease-end) and compare to the vehicle’s market value. This frames your equity position and exit strategy.
-            </p>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                class="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="📊"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+            supportingText={`Stack the hard dollars: total cost to finish the lease vs buying the car with financing (now or at lease-end) and compare to the vehicle’s market value. This frames your equity position and exit strategy.`}
+          />
 
           <!-- Lease vs Buyout Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="fa-card p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Model the tradeoffs</h2>
-              <span id="lease-buyout-status" class="text-sm text-gray-600 dark:text-gray-400"></span>
+              <h2 class="fa-panel-title">Model the tradeoffs</h2>
+              <span id="lease-buyout-status" class="fa-meta-copy !mt-0"></span>
             </div>
             <form id="lease-buyout-form" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                   <div>
-                    <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Finish the lease</h3>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="remainingPayments">Payments remaining ($ total)</label>
-                    <input id="remainingPayments" name="remainingPayments" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="3150" />
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mt-3 mb-1" for="monthsRemaining">Months remaining</label>
-                    <input id="monthsRemaining" name="monthsRemaining" type="number" min="0" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="9" />
+                    <h3 class="fa-scenario-title mb-2">Finish the lease</h3>
+                    <label class="fa-field-label mb-1" for="remainingPayments">Payments remaining ($ total)</label>
+                    <input id="remainingPayments" name="remainingPayments" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="3150" />
+                    <label class="fa-field-label mt-3 mb-1" for="monthsRemaining">Months remaining</label>
+                    <input id="monthsRemaining" name="monthsRemaining" type="number" min="0" step="1" class="fa-input-surface w-full" placeholder="9" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="dispositionFee">Disposition fee ($)</label>
-                      <input id="dispositionFee" name="dispositionFee" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="395" />
+                      <label class="fa-field-label mb-1" for="dispositionFee">Disposition fee ($)</label>
+                      <input id="dispositionFee" name="dispositionFee" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="395" />
                     </div>
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="mileagePenalty">Mileage/condition charges ($)</label>
-                      <input id="mileagePenalty" name="mileagePenalty" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="0" />
+                      <label class="fa-field-label mb-1" for="mileagePenalty">Mileage/condition charges ($)</label>
+                      <input id="mileagePenalty" name="mileagePenalty" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="0" />
                     </div>
                   </div>
                 </div>
 
                 <div class="space-y-4">
                   <div>
-                    <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Buyout path</h3>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="buyoutAmount">Buyout amount ($)</label>
-                    <input id="buyoutAmount" name="buyoutAmount" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19500" />
+                    <h3 class="fa-scenario-title mb-2">Buyout path</h3>
+                    <label class="fa-field-label mb-1" for="buyoutAmount">Buyout amount ($)</label>
+                    <input id="buyoutAmount" name="buyoutAmount" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="19500" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="salesTaxRate">Sales tax (%)</label>
-                      <input id="salesTaxRate" name="salesTaxRate" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="8.5" />
+                      <label class="fa-field-label mb-1" for="salesTaxRate">Sales tax (%)</label>
+                      <input id="salesTaxRate" name="salesTaxRate" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="8.5" />
                     </div>
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="fees">Title/DMV fees ($)</label>
-                      <input id="fees" name="fees" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="450" />
+                      <label class="fa-field-label mb-1" for="fees">Title/DMV fees ($)</label>
+                      <input id="fees" name="fees" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="450" />
                     </div>
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="loanTermMonths">Loan term (months)</label>
-                      <input id="loanTermMonths" name="loanTermMonths" type="number" min="6" step="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="60" />
+                      <label class="fa-field-label mb-1" for="loanTermMonths">Loan term (months)</label>
+                      <input id="loanTermMonths" name="loanTermMonths" type="number" min="6" step="1" class="fa-input-surface w-full" placeholder="60" />
                     </div>
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="apr">APR (%)</label>
-                      <input id="apr" name="apr" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="5.5" />
+                      <label class="fa-field-label mb-1" for="apr">APR (%)</label>
+                      <input id="apr" name="apr" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="5.5" />
                     </div>
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="expectedValueNow">Market value today ($)</label>
-                      <input id="expectedValueNow" name="expectedValueNow" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="21000" />
+                      <label class="fa-field-label mb-1" for="expectedValueNow">Market value today ($)</label>
+                      <input id="expectedValueNow" name="expectedValueNow" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="21000" />
                     </div>
                   </div>
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="expectedValueFuture">Estimated value at lease-end ($)</label>
-                    <input id="expectedValueFuture" name="expectedValueFuture" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="18500" />
+                    <label class="fa-field-label mb-1" for="expectedValueFuture">Estimated value at lease-end ($)</label>
+                    <input id="expectedValueFuture" name="expectedValueFuture" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="18500" />
                   </div>
                 </div>
               </div>
 
               <!-- Trade-in & Sale Options -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">If Buying Out: Exit Strategy Values</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Compare what you could get if you buy out and then sell/trade the vehicle.</p>
+              <div class="fa-panel-divider-top pt-6">
+                <h3 class="fa-scenario-title mb-4">If Buying Out: Exit Strategy Values</h3>
+                <p class="fa-help-copy mb-4 !mt-0">Compare what you could get if you buy out and then sell/trade the vehicle.</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="tradeInValue">Trade-in Value (dealer) ($)</label>
-                    <input id="tradeInValue" name="tradeInValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="19000" />
-                    <p class="text-xs text-gray-500 mt-1">What dealer would give on trade.</p>
+                    <label class="fa-field-label mb-1" for="tradeInValue">Trade-in Value (dealer) ($)</label>
+                    <input id="tradeInValue" name="tradeInValue" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="19000" />
+                    <p class="fa-help-copy mt-1">What dealer would give on trade.</p>
                   </div>
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="privateSaleValue">Private Sale Value ($)</label>
-                    <input id="privateSaleValue" name="privateSaleValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="21500" />
-                    <p class="text-xs text-gray-500 mt-1">Estimated private party sale.</p>
+                    <label class="fa-field-label mb-1" for="privateSaleValue">Private Sale Value ($)</label>
+                    <input id="privateSaleValue" name="privateSaleValue" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="21500" />
+                    <p class="fa-help-copy mt-1">Estimated private party sale.</p>
                   </div>
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="instantOfferValue">Instant Offer Value ($)</label>
-                    <input id="instantOfferValue" name="instantOfferValue" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="20000" />
-                    <p class="text-xs text-gray-500 mt-1">CarMax, Carvana, Vroom offer.</p>
+                    <label class="fa-field-label mb-1" for="instantOfferValue">Instant Offer Value ($)</label>
+                    <input id="instantOfferValue" name="instantOfferValue" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="20000" />
+                    <p class="fa-help-copy mt-1">CarMax, Carvana, Vroom offer.</p>
                   </div>
                 </div>
               </div>
 
               <!-- Depreciation & Additional Options -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Additional Factors</h3>
+              <div class="fa-panel-divider-top pt-6">
+                <h3 class="fa-scenario-title mb-4">Additional Factors</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="depreciationModel">Depreciation Model</label>
-                    <select id="depreciationModel" name="depreciationModel" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    <label class="fa-field-label mb-1" for="depreciationModel">Depreciation Model</label>
+                    <select id="depreciationModel" name="depreciationModel" class="fa-input-surface w-full">
                       <option value="moderate">Moderate</option>
                       <option value="aggressive">Aggressive</option>
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">How fast the vehicle loses value.</p>
+                    <p class="fa-help-copy mt-1">How fast the vehicle loses value.</p>
                   </div>
                   <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1" for="gapInsurance">Gap Insurance ($)</label>
-                    <input id="gapInsurance" name="gapInsurance" type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="600" />
-                    <p class="text-xs text-gray-500 mt-1">Estimated gap insurance cost (if applicable).</p>
+                    <label class="fa-field-label mb-1" for="gapInsurance">Gap Insurance ($)</label>
+                    <input id="gapInsurance" name="gapInsurance" type="number" min="0" step="0.01" class="fa-input-surface w-full" placeholder="600" />
+                    <p class="fa-help-copy mt-1">Estimated gap insurance cost (if applicable).</p>
                   </div>
                 </div>
               </div>
 
-              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" id="calculate-lease-buyout" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-4 fa-panel-divider-top">
+                <button type="button" id="calculate-lease-buyout" class="fa-button-primary">
                   Compare
                 </button>
-                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                <button type="submit" class="fa-button-primary">
                   Save Numbers
                 </button>
               </div>
             </form>
 
-            <div id="lease-buyout-results" class="results hidden mt-6 p-5 bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Quick take</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+            <div id="lease-buyout-results" class="results fa-highlight-card hidden mt-6 p-5">
+              <h3 class="fa-scenario-title mb-3">Quick take</h3>
+              <div class="fa-list-copy-strong grid grid-cols-1 gap-4 md:grid-cols-3 !mt-0">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">Finish the lease</p>
-                  <p id="leaseCostSummary" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="leaseCostSummary" class="fa-list-copy !mt-0">–</p>
                 </div>
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">Buyout financing</p>
-                  <p id="buyoutSummary" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="buyoutSummary" class="fa-list-copy !mt-0">–</p>
                 </div>
-                <div class="p-3 bg-white/70 dark:bg-gray-800/60 rounded-lg">
+                <div class="fa-subcard p-3">
                   <p class="font-semibold mb-1">Equity check</p>
-                  <p id="equitySummary" class="text-gray-700 dark:text-gray-300">–</p>
+                  <p id="equitySummary" class="fa-list-copy !mt-0">–</p>
                 </div>
               </div>
-              <p id="recommendation" class="mt-4 text-gray-800 dark:text-gray-200 font-medium"></p>
+              <p id="recommendation" class="fa-result-emphasis mt-4"></p>
             </div>
           </div>
 
           <!-- Navigation -->
-          <div class="bg-gradient-to-r from-gray-50 to-teal-50 dark:from-gray-900/20 dark:to-teal-900/20 rounded-lg shadow-md p-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
-                  <a href={journeyNav.previousStep.url} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.previousStep.url} class="fa-button-secondary">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                     Previous: {journeyNav.previousStep.name}
                   </a>
                 ) : (
-                  <a href={journeyNav.journeyOverviewUrl} class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.journeyOverviewUrl} class="fa-button-secondary">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
@@ -269,14 +226,14 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
               <div class="flex items-center space-x-4">
                 {journeyNav.nextStep ? (
-                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="fa-button-primary">
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                   </a>
                 ) : (
-                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="fa-button-primary">
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -290,319 +247,27 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1 space-y-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Guardrails</h3>
-            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-3">Guardrails</h3>
+            <ul class="fa-list-copy !mt-0 space-y-2">
               <li>• Check if lender restricts third-party buyouts.</li>
               <li>• Ask about taxes in your state on lease buyouts.</li>
               <li>• Compare insurance/registration costs between options.</li>
               <li>• Consider warranty coverage if you keep the car.</li>
             </ul>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Helpful links</h3>
-            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-3">Helpful links</h3>
+            <ul class="fa-list-copy !mt-0 space-y-2">
               <li><a href="/calculator/auto-loan" class="text-teal-700 dark:text-teal-300 hover:underline">Auto loan calculator</a> for buyout financing.</li>
               <li><a href="/calculator/risk-management" class="text-teal-700 dark:text-teal-300 hover:underline">Risk review</a> for emergency fund and payment safety.</li>
             </ul>
           </div>
         </div>
       </div>
-    </div>
   </main>
 </Layout>
 
-<script is:inline>
-  const STORAGE_KEY = 'fanalyx-journey-state-auto-lease-decision';
-
-  const parseNumber = (value) => {
-    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
-    if (typeof value === 'string') {
-      const num = Number(value);
-      return Number.isFinite(num) ? num : 0;
-    }
-    return 0;
-  };
-
-  const formatCurrency = (value) => {
-    const num = parseNumber(value);
-    return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-  };
-
-  const formatPerMonth = (value) => {
-    const num = parseNumber(value);
-    return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-  };
-
-  const calculatePayment = (principal, apr, months) => {
-    const monthlyRate = apr / 100 / 12;
-    if (!months || months <= 0) return 0;
-    if (monthlyRate === 0) return principal / months;
-    const pow = Math.pow(1 + monthlyRate, months);
-    return (principal * monthlyRate * pow) / (pow - 1);
-  };
-
-  const calculateRemainingBalance = (principal, apr, termMonths, paymentsMade, paymentPerMonth) => {
-    if (!principal || principal <= 0) return 0;
-    if (!termMonths || termMonths <= 0) return 0;
-    const k = Math.max(0, Math.min(termMonths, paymentsMade || 0));
-    if (k === 0) return principal;
-    const r = apr > 0 ? apr / 100 / 12 : 0;
-    if (r === 0) {
-      return Math.max(0, principal - (paymentPerMonth || 0) * k);
-    }
-    const pow = Math.pow(1 + r, k);
-    // Balance after k payments: P*(1+r)^k - PMT*((1+r)^k - 1)/r
-    const balance = principal * pow - (paymentPerMonth || 0) * ((pow - 1) / r);
-    return Number.isFinite(balance) ? Math.max(0, balance) : 0;
-  };
-
-  const renderResults = ({
-    leaseCost,
-    buyoutPayment,
-    buyoutTotal,
-    buyoutOutOfPocketToLeaseEnd,
-    remainingBalanceAtLeaseEnd,
-    equityNow,
-    equityFuture,
-    monthsRemaining,
-    gapInsuranceCost,
-    tradeInValue,
-    privateSaleValue,
-    instantOfferValue,
-    bestExitOption,
-    bestExitValue,
-  }) => {
-    const leaseCostSummary = document.getElementById('leaseCostSummary');
-    const buyoutSummary = document.getElementById('buyoutSummary');
-    const equitySummary = document.getElementById('equitySummary');
-    const recommendation = document.getElementById('recommendation');
-    const resultsWrapper = document.getElementById('lease-buyout-results');
-
-    if (!leaseCostSummary || !buyoutSummary || !equitySummary || !recommendation || !resultsWrapper) return;
-
-    // Include gap insurance in total buyout cost display
-    const totalBuyoutWithGap = buyoutTotal + gapInsuranceCost;
-    leaseCostSummary.textContent = `${formatCurrency(leaseCost)} total (${monthsRemaining} months)`;
-    const outOfPocketToLeaseEndText = monthsRemaining
-      ? ` | ${formatCurrency(buyoutOutOfPocketToLeaseEnd)} paid through lease-end`
-      : '';
-    const remainingBalanceText = monthsRemaining
-      ? ` | ${formatCurrency(remainingBalanceAtLeaseEnd)} balance at lease-end`
-      : '';
-    buyoutSummary.textContent = `${formatPerMonth(buyoutPayment)}/mo, ${formatCurrency(totalBuyoutWithGap)} total${gapInsuranceCost > 0 ? ` (incl. ${formatCurrency(gapInsuranceCost)} gap ins.)` : ''}${outOfPocketToLeaseEndText}${remainingBalanceText}`;
-    
-    // Show all exit options if provided
-    const exitOptions = [];
-    if (tradeInValue > 0) exitOptions.push(`trade-in: ${formatCurrency(tradeInValue)}`);
-    if (privateSaleValue > 0) exitOptions.push(`private sale: ${formatCurrency(privateSaleValue)}`);
-    if (instantOfferValue > 0) exitOptions.push(`instant offer: ${formatCurrency(instantOfferValue)}`);
-    
-    let exitInfo = '';
-    if (exitOptions.length > 0) {
-      exitInfo = ` | Exit values: ${exitOptions.join(', ')}`;
-      if (bestExitValue > 0 && exitOptions.length > 1) {
-        exitInfo += ` → Best: ${bestExitOption}`;
-      }
-    }
-    equitySummary.textContent = `Equity now: ${formatCurrency(equityNow)} | At lease-end: ${formatCurrency(equityFuture)}${exitInfo}`;
-
-    // Enhanced recommendation logic
-    let leaning = '';
-    if (equityNow > 0 && bestExitValue > equityNow) {
-      leaning = `Strong buyout case: ${formatCurrency(equityNow)} equity now, and ${bestExitOption} offers ${formatCurrency(bestExitValue)}.`;
-    } else if (equityNow > 0) {
-      leaning = 'Buyout is compelling because you have positive equity now.';
-    } else if (equityFuture > 0) {
-      leaning = 'Running the lease to the end then buying keeps equity positive.';
-    } else {
-      leaning = 'Watch total cost and negative equity risk—shop other options in the next step.';
-    }
-
-    recommendation.textContent = leaning;
-    resultsWrapper.classList.remove('hidden');
-  };
-
-  const persistLeaseBuyout = (form, options) => {
-    const formData = new FormData(form);
-    const details = Object.fromEntries(
-      Array.from(formData.entries()).map(([key, value]) => [key, String(value ?? '')])
-    );
-
-    const rawState = localStorage.getItem(STORAGE_KEY);
-    const journeyState = rawState ? JSON.parse(rawState) : {};
-    if (!journeyState.collectedData || typeof journeyState.collectedData !== 'object') {
-      journeyState.collectedData = {};
-    }
-    journeyState.collectedData['lease-vs-buyout'] = details;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(journeyState));
-
-    if (options?.showStatus) {
-      const statusEl = document.getElementById('lease-buyout-status');
-      if (statusEl) {
-        statusEl.textContent = 'Saved ✓';
-        statusEl.className = 'text-sm text-emerald-700 dark:text-emerald-300';
-      }
-    }
-  };
-
-  const scheduleAutosave = (() => {
-    let timeoutId = null;
-    return (form) => {
-      if (timeoutId) window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => {
-        persistLeaseBuyout(form);
-      }, 150);
-    };
-  })();
-
-  const hydrateForm = () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    const data = JSON.parse(saved);
-    const collectedData = (data && typeof data === 'object' ? data.collectedData : null) || {};
-
-    // First, pre-fill from lease-profile (step 1) data
-    const leaseProfile = collectedData['lease-profile'];
-    if (leaseProfile) {
-      // Map step 1 fields to step 2 fields
-      const mappings = {
-        monthsRemaining: 'monthsRemaining',
-        residualValue: 'buyoutAmount',
-        dispositionFee: 'dispositionFee',
-        monthlyPayment: '_monthlyPayment', // Store for calculation
-      };
-
-      // Calculate remaining payments from monthly payment × months remaining
-      const monthlyPayment = parseNumber(leaseProfile.monthlyPayment);
-      const monthsRemaining = parseNumber(leaseProfile.monthsRemaining);
-      if (monthlyPayment > 0 && monthsRemaining > 0) {
-        const remainingInput = document.querySelector('[name="remainingPayments"]');
-        if (remainingInput && !remainingInput.value) {
-          remainingInput.value = String(monthlyPayment * monthsRemaining);
-        }
-      }
-
-      Object.entries(mappings).forEach(([fromKey, toKey]) => {
-        if (toKey.startsWith('_')) return; // Skip internal mappings
-        const value = leaseProfile[fromKey];
-        if (value === undefined || value === null || value === '') return;
-        const input = document.querySelector(`[name="${toKey}"]`);
-        if (input && !input.value) {
-          input.value = String(value);
-        }
-      });
-    }
-
-    // Then, override with any saved step 2 data
-    const details = collectedData['lease-vs-buyout'];
-    if (details) {
-      Object.entries(details).forEach(([key, value]) => {
-        const input = document.querySelector(`[name="${key}"]`);
-        if (input) {
-          input.value = String(value ?? '');
-        }
-      });
-    }
-
-    const statusEl = document.getElementById('lease-buyout-status');
-    if (statusEl) {
-      statusEl.textContent = details ? 'Loaded from last session' : (leaseProfile ? 'Pre-filled from lease profile' : '');
-    }
-  };
-
-  const runComparison = () => {
-    const form = document.getElementById('lease-buyout-form');
-    if (!(form instanceof HTMLFormElement)) return;
-    const formData = new FormData(form);
-
-    const monthsRemaining = parseNumber(formData.get('monthsRemaining'));
-    const leaseCost =
-      parseNumber(formData.get('remainingPayments')) +
-      parseNumber(formData.get('dispositionFee')) +
-      parseNumber(formData.get('mileagePenalty'));
-
-    const buyoutBase = parseNumber(formData.get('buyoutAmount'));
-    const buyoutTax = buyoutBase * (parseNumber(formData.get('salesTaxRate')) / 100);
-    const buyoutPrincipal = buyoutBase + buyoutTax + parseNumber(formData.get('fees'));
-    const loanTermMonths = parseNumber(formData.get('loanTermMonths'));
-    const apr = parseNumber(formData.get('apr'));
-
-    const payment = calculatePayment(buyoutPrincipal, apr, loanTermMonths);
-    const buyoutTotal = payment * loanTermMonths;
-
-    const horizonMonths = Math.max(0, Math.min(loanTermMonths || 0, monthsRemaining || 0));
-    const remainingBalanceAtLeaseEnd = calculateRemainingBalance(
-      buyoutPrincipal,
-      apr,
-      loanTermMonths,
-      horizonMonths,
-      payment
-    );
-    const buyoutOutOfPocketToLeaseEnd = payment * horizonMonths;
-
-    const equityNow = parseNumber(formData.get('expectedValueNow')) - buyoutPrincipal;
-    const equityFuture = parseNumber(formData.get('expectedValueFuture')) - remainingBalanceAtLeaseEnd;
-
-    // Additional fields: gap insurance
-    const gapInsuranceCost = parseNumber(formData.get('gapInsurance'));
-
-    // New fields: trade-in and sale options
-    const tradeInValue = parseNumber(formData.get('tradeInValue'));
-    const privateSaleValue = parseNumber(formData.get('privateSaleValue'));
-    const instantOfferValue = parseNumber(formData.get('instantOfferValue'));
-
-    // Determine best exit option (if user buys out then sells)
-    const exitOptions = [
-      { name: 'trade-in', value: tradeInValue },
-      { name: 'private sale', value: privateSaleValue },
-      { name: 'instant offer', value: instantOfferValue },
-    ].filter(opt => opt.value > 0);
-    
-    const bestExit = exitOptions.length > 0 
-      ? exitOptions.reduce((best, curr) => curr.value > best.value ? curr : best)
-      : { name: '', value: 0 };
-
-    renderResults({
-      leaseCost,
-      buyoutPayment: payment,
-      buyoutTotal,
-      buyoutOutOfPocketToLeaseEnd,
-      remainingBalanceAtLeaseEnd,
-      equityNow,
-      equityFuture,
-      monthsRemaining,
-      gapInsuranceCost,
-      tradeInValue,
-      privateSaleValue,
-      instantOfferValue,
-      bestExitOption: bestExit.name,
-      bestExitValue: bestExit.value - buyoutPrincipal, // Net equity vs total buyout basis
-    });
-  };
-
-  const saveForm = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) return;
-    persistLeaseBuyout(form, { showStatus: true });
-
-    runComparison();
-  };
-
-  document.getElementById('calculate-lease-buyout')?.addEventListener('click', runComparison);
-  const leaseBuyoutForm = document.getElementById('lease-buyout-form');
-  if (leaseBuyoutForm instanceof HTMLFormElement) {
-    leaseBuyoutForm.addEventListener('submit', saveForm);
-  }
-  if (leaseBuyoutForm) {
-    leaseBuyoutForm.addEventListener('input', () => scheduleAutosave(leaseBuyoutForm));
-    leaseBuyoutForm.addEventListener('change', () => scheduleAutosave(leaseBuyoutForm));
-    document.addEventListener('click', (event) => {
-      const target = event.target;
-      if (target instanceof Node && leaseBuyoutForm.contains(target)) return;
-      scheduleAutosave(leaseBuyoutForm);
-    });
-  }
-  hydrateForm();
+<script>
+  import '../../../../scripts/journey/auto-lease-decision/lease-vs-buyout.client.ts';
 </script>

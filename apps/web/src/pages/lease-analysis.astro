@@ -1,6 +1,9 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import StructuredData from '../components/StructuredData.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
+import Layout from '../layouts/Layout.astro';
 import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
 ---
 
@@ -56,18 +59,17 @@ import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
       }
     ]}
   />
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
-    <div class="container mx-auto px-4">
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-          Enhanced Lease Analysis
-        </h1>
-        <p class="text-slate-600 dark:text-slate-400">
-          Analyze lease vs buy scenarios with AI extraction, templates, and advanced financial modeling
-        </p>
-      </div>
-      
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Lease Analysis' }]} />
+
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Analysis"
+      title="Enhanced Lease Analysis"
+      description="Analyze lease vs buy scenarios with AI extraction, templates, and advanced financial modeling."
+    />
+
+    <SurfaceCard>
       <LeaseAnalysisDashboard client:load />
-    </div>
+    </SurfaceCard>
   </div>
 </Layout>

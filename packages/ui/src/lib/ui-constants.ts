@@ -16,18 +16,19 @@ export const GAP_3 = 'gap-3';
 export const GAP_4 = 'gap-4';
 
 // Border styles
-export const BORDER_DEFAULT = 'border border-gray-200 dark:border-gray-700';
-export const BORDER_INTERACTIVE = 'border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500';
+export const BORDER_DEFAULT = 'border border-slate-200 dark:border-slate-800';
+export const BORDER_INTERACTIVE =
+  'border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500';
 
 // Background colors
-export const BG_CARD = 'bg-white dark:bg-gray-800';
-export const BG_SUBTLE = 'bg-gray-50 dark:bg-gray-700';
-export const BG_HOVER = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+export const BG_CARD = 'bg-white dark:bg-slate-950';
+export const BG_SUBTLE = 'bg-slate-50 dark:bg-slate-900';
+export const BG_HOVER = 'hover:bg-slate-50 dark:hover:bg-slate-900';
 
 // Text colors
-export const TEXT_PRIMARY = 'text-gray-900 dark:text-gray-100';
-export const TEXT_SECONDARY = 'text-gray-600 dark:text-gray-400';
-export const TEXT_MUTED = 'text-gray-500 dark:text-gray-500';
+export const TEXT_PRIMARY = 'text-slate-900 dark:text-white';
+export const TEXT_SECONDARY = 'text-slate-600 dark:text-slate-400';
+export const TEXT_MUTED = 'text-slate-500 dark:text-slate-500';
 
 // Interactive states
 export const TRANSITION_COLORS = 'transition-colors duration-200';
@@ -35,15 +36,18 @@ export const TRANSITION_ALL = 'transition-all duration-200';
 
 // Button base styles
 export const BTN_BASE = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
-export const BTN_PRIMARY = 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800';
-export const BTN_SECONDARY = 'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800';
-export const BTN_OUTLINE = 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
+export const BTN_PRIMARY = 'bg-violet-600 text-white hover:bg-violet-700 active:bg-violet-800';
+export const BTN_SECONDARY = 'bg-slate-600 text-white hover:bg-slate-700 active:bg-slate-800';
+export const BTN_OUTLINE =
+  'border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900';
 
 // Card action button (repeated pattern)
-export const CARD_ACTION_BTN = 'flex flex-col items-center gap-2 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors';
+export const CARD_ACTION_BTN =
+  'flex flex-col items-center gap-2 rounded-lg border border-slate-300 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900';
 
 // Input styles
-export const INPUT_BASE = 'w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50';
+export const INPUT_BASE =
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:placeholder:text-slate-500';
 
 // Shadow utilities
 export const SHADOW_SM = 'shadow-sm';
@@ -92,10 +96,10 @@ export const ICON_SIZES = {
  */
 export const STATUS_COLORS = {
   success: {
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    border: 'border-green-200 dark:border-green-800',
-    text: 'text-green-700 dark:text-green-400',
-    accent: 'bg-green-500',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+    border: 'border-emerald-200 dark:border-emerald-800',
+    text: 'text-emerald-700 dark:text-emerald-300',
+    accent: 'bg-emerald-500',
   },
   warning: {
     bg: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -104,15 +108,15 @@ export const STATUS_COLORS = {
     accent: 'bg-yellow-500',
   },
   error: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-200 dark:border-red-800',
-    text: 'text-red-700 dark:text-red-400',
-    accent: 'bg-red-500',
+    bg: 'bg-rose-50 dark:bg-rose-950/20',
+    border: 'border-rose-200 dark:border-rose-800',
+    text: 'text-rose-700 dark:text-rose-300',
+    accent: 'bg-rose-500',
   },
   info: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-200 dark:border-blue-800',
-    text: 'text-blue-700 dark:text-blue-400',
-    accent: 'bg-blue-500',
+    bg: 'bg-violet-50 dark:bg-violet-950/20',
+    border: 'border-violet-200 dark:border-violet-800',
+    text: 'text-violet-700 dark:text-violet-300',
+    accent: 'bg-violet-500',
   },
 } as const;

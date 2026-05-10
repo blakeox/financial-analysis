@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Button } from '@financial-analysis/ui';
 
 interface ToolAnalysis {
   toolName: string;
@@ -104,24 +105,24 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
   const getToolColor = (toolName: string): string => {
     const colorMap: Record<string, string> = {
-      analyze_amortization: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      analyze_lease: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      analyze_enhanced_lease: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      analyze_auto_loan: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      analyze_debt_payoff: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      analyze_savings_goal: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      analyze_amortization: 'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-200',
+      analyze_lease: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
+      analyze_enhanced_lease: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
+      analyze_auto_loan: 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950/40 dark:text-fuchsia-200',
+      analyze_debt_payoff: 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200',
+      analyze_savings_goal: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200',
       analyze_student_loans:
-        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+        'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-200',
       analyze_retirement_savings:
-        'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-      optimize_budget: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-      ebitda_forecasting: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
-      analyze_bond_pricing: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
+        'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-200',
+      optimize_budget: 'bg-pink-100 text-pink-800 dark:bg-pink-950/40 dark:text-pink-200',
+      ebitda_forecasting: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-200',
+      analyze_bond_pricing: 'bg-teal-100 text-teal-800 dark:bg-teal-950/40 dark:text-teal-200',
       analyze_options_pricing:
-        'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-      analyze_cash_flow: 'bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-200',
+        'bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200',
+      analyze_cash_flow: 'bg-lime-100 text-lime-800 dark:bg-lime-950/40 dark:text-lime-200',
     };
-    return colorMap[toolName] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    return colorMap[toolName] || 'fa-chip-muted';
   };
 
   // Context-aware tool filtering
@@ -182,7 +183,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
       {/* Collapsed View */}
       {!isExpanded && (
         <div
-          className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-xl transition-all duration-200 z-40"
+          className="fa-card fa-floating-panel fixed bottom-4 right-4 z-40 cursor-pointer p-4 transition-all duration-200 hover:shadow-xl"
           onClick={() => setIsExpanded(true)}
         >
           <div className="flex items-center space-x-3">
@@ -190,7 +191,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
               {relevantAnalyses.slice(0, 3).map((analysis, index) => (
                 <div
                   key={analysis.timestamp}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2 border-white dark:border-gray-800 ${getToolColor(analysis.toolName)}`}
+                  className={`fa-avatar-badge ${getToolColor(analysis.toolName)}`}
                   style={{ zIndex: 10 - index }}
                 >
                   {getToolIcon(analysis.toolName)}
@@ -198,10 +199,10 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
               ))}
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="fa-scenario-title text-sm">
                 {relevantAnalyses.length} Tool Analysis{relevantAnalyses.length !== 1 ? 'es' : ''}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Click to view details</div>
+              <div className="fa-help-copy">Click to view details</div>
             </div>
           </div>
         </div>
@@ -209,21 +210,18 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
       {/* Expanded View */}
       {isExpanded && (
-        <div className="fixed bottom-4 right-4 w-96 max-h-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="fa-card fa-floating-panel fixed bottom-4 right-4 z-50 max-h-96 w-96 p-0 shadow-xl">
+          <div className="p-4 fa-panel-divider">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="fa-scenario-title">
                   Tool Analysis
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="fa-help-copy">
                   {getContextDisplayName()}
                 </p>
               </div>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
+              <button onClick={() => setIsExpanded(false)} className="fa-shell-icon-button h-9 w-9">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -240,30 +238,28 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
             {relevantAnalyses.map((analysis) => (
               <div
                 key={analysis.timestamp}
-                className={`p-4 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                  selectedAnalysis?.timestamp === analysis.timestamp
-                    ? 'bg-blue-50 dark:bg-blue-900/20'
-                    : ''
+                className={`p-4 fa-panel-divider-soft fa-list-row-interactive cursor-pointer ${
+                  selectedAnalysis?.timestamp === analysis.timestamp ? 'fa-highlight-card' : ''
                 }`}
                 onClick={() => setSelectedAnalysis(analysis)}
               >
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${getToolColor(analysis.toolName)}`}
+                    className={`fa-icon-tile fa-icon-tile-sm text-lg ${getToolColor(analysis.toolName)}`}
                   >
                     {getToolIcon(analysis.toolName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    <div className="fa-scenario-title truncate text-sm">
                       {formatToolName(analysis.toolName)}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="fa-help-copy">
                       {formatTimestamp(analysis.timestamp)}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-400 dark:text-gray-500">
+                  <div className="fa-help-copy">
                     {analysis.insights.length > 0 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <span className="fa-chip fa-chip-accent">
                         {analysis.insights.length} insight
                         {analysis.insights.length !== 1 ? 's' : ''}
                       </span>
@@ -276,29 +272,29 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
           {/* Analysis Details */}
           {selectedAnalysis && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+            <div className="fa-subcard fa-panel-divider-top rounded-t-none">
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  <h4 className="fa-scenario-title mb-2 text-sm">
                     Analysis Results
                   </h4>
-                  <div className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                  <div className="fa-list-copy text-sm whitespace-pre-wrap">
                     {selectedAnalysis.analysis}
                   </div>
                 </div>
 
                 {selectedAnalysis.insights.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    <h4 className="fa-scenario-title mb-2 text-sm">
                       Key Insights
                     </h4>
                     <ul className="space-y-1">
                       {selectedAnalysis.insights.map((insight, index) => (
                         <li
                           key={index}
-                          className="text-sm text-gray-600 dark:text-gray-300 flex items-start"
+                          className="fa-list-copy text-sm flex items-start"
                         >
-                          <span className="text-blue-500 mr-2">•</span>
+                      <span className="mr-2 text-violet-500">•</span>
                           {insight}
                         </li>
                       ))}
@@ -307,21 +303,25 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
                 )}
 
                 <div className="flex justify-between items-center pt-2">
-                  <button
+                  <Button
                     onClick={() => setSelectedAnalysis(null)}
-                    className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    variant="ghost"
+                    size="sm"
+                    className="px-0"
                   >
                     Close Details
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => {
                       setAnalyses([]);
                       setSelectedAnalysis(null);
                     }}
-                    className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200"
+                    variant="ghost"
+                    size="sm"
+                    className="text-rose-600 hover:text-rose-700 dark:text-rose-300 dark:hover:text-rose-200"
                   >
                     Clear All
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -3,334 +3,403 @@ import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
 ---
 
-<Layout 
-  title="Comparable Company Analysis (CCA) - Business Valuation Calculator | Fanalyx" 
+<Layout
+  title="Comparable Company Analysis (CCA) - Business Valuation Calculator | Fanalyx"
   description="Professional comparable company analysis (CCA) valuation tool with trading multiples, peer group analysis, premium/discount analysis, and valuation ranges. Industry-standard business valuation methodology."
   keywords="comparable company analysis, CCA, business valuation, trading multiples, peer group analysis, EV/EBITDA, P/E ratio, company valuation, valuation multiples"
   canonical={Astro.url.href}
   type="article"
 >
   <!-- Structured Data for SEO -->
-  <StructuredData 
-    type="breadcrumb" 
+  <StructuredData
+    type="breadcrumb"
     breadcrumbs={[
       { name: 'Home', url: '/' },
       { name: 'Models', url: '/models' },
       { name: 'Business Finance', url: '/models/business' },
-      { name: 'CCA Analysis', url: '/cca-analysis' }
+      { name: 'CCA Analysis', url: '/cca-analysis' },
     ]}
   />
-  
-  <StructuredData 
-    type="software" 
+
+  <StructuredData
+    type="software"
     softwareApp={{
       name: 'Comparable Company Analysis (CCA)',
-      description: 'Professional CCA valuation tool with trading multiples, peer group analysis, premium/discount analysis, outlier detection, and valuation range determination.',
+      description:
+        'Professional CCA valuation tool with trading multiples, peer group analysis, premium/discount analysis, outlier detection, and valuation range determination.',
       category: 'FinanceApplication',
       rating: 4.8,
-      ratingCount: 190
+      ratingCount: 190,
     }}
   />
-  
-  <StructuredData 
-    type="faq" 
+
+  <StructuredData
+    type="faq"
     faqs={[
       {
         question: 'What is Comparable Company Analysis (CCA)?',
-        answer: 'CCA is a valuation method that compares a target company to similar public companies using trading multiples like EV/Revenue, EV/EBITDA, P/E, P/B, and P/S ratios. It helps determine fair value by analyzing how similar companies are valued in the market.'
+        answer:
+          'CCA is a valuation method that compares a target company to similar public companies using trading multiples like EV/Revenue, EV/EBITDA, P/E, P/B, and P/S ratios. It helps determine fair value by analyzing how similar companies are valued in the market.',
       },
       {
         question: 'What multiples are used in CCA?',
-        answer: 'Common multiples include EV/Revenue, EV/EBITDA, EV/EBIT, P/E (Price-to-Earnings), P/B (Price-to-Book), and P/S (Price-to-Sales). Each multiple provides different insights - EV multiples focus on enterprise value, while equity multiples focus on market cap.'
+        answer:
+          'Common multiples include EV/Revenue, EV/EBITDA, EV/EBIT, P/E (Price-to-Earnings), P/B (Price-to-Book), and P/S (Price-to-Sales). Each multiple provides different insights - EV multiples focus on enterprise value, while equity multiples focus on market cap.',
       },
       {
         question: 'How do I select comparable companies?',
-        answer: 'Select peers based on industry, business model, size, geography, and growth stage. Companies should be similar in operations, market position, and financial characteristics. Our tool helps identify outliers and refine the peer group.'
+        answer:
+          'Select peers based on industry, business model, size, geography, and growth stage. Companies should be similar in operations, market position, and financial characteristics. Our tool helps identify outliers and refine the peer group.',
       },
       {
         question: 'What is premium/discount analysis?',
-        answer: 'Premium/discount analysis compares the target company\'s valuation multiples to peer averages and market benchmarks. A premium suggests the company is valued higher than peers, while a discount suggests it\'s undervalued relative to comparable companies.'
+        answer:
+          "Premium/discount analysis compares the target company's valuation multiples to peer averages and market benchmarks. A premium suggests the company is valued higher than peers, while a discount suggests it's undervalued relative to comparable companies.",
       },
       {
         question: 'How do I interpret CCA valuation results?',
-        answer: 'CCA provides a valuation range (typically 25th, 50th, and 75th percentiles) based on peer multiples. Compare the target\'s implied valuation to its current market value to identify over/undervaluation. Use alongside DCF analysis for comprehensive valuation.'
-      }
+        answer:
+          "CCA provides a valuation range (typically 25th, 50th, and 75th percentiles) based on peer multiples. Compare the target's implied valuation to its current market value to identify over/undervaluation. Use alongside DCF analysis for comprehensive valuation.",
+      },
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Comparable Company Analysis (CCA)</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Professional peer group valuation analysis with trading multiples and premium/discount analysis
-      </p>
+  <ToolPageShell
+    eyebrow="Business finance"
+    title="Comparable Company Analysis"
+    description="Analyze peer companies, valuation multiples, and market positioning for sharper business comparisons"
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Business Finance', href: '/models/business' },
+      { label: 'CCA Analysis' },
+    ]}
+  >
+    <!-- CCA Analysis Form -->
+    <div class="fa-card p-6 mb-8">
+      <h2 class="fa-panel-title mb-6">
+        Target Company Information
+      </h2>
 
-      <!-- CCA Analysis Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Target Company Information</h2>
-
-        <form id="cca-analysis-form" class="space-y-6">
-          <!-- Target Company Section -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="targetName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Company Name
-              </label>
-              <input
-                type="text"
-                id="targetName"
-                name="targetName"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Target Company Inc."
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetIndustry" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Industry
-              </label>
-              <input
-                type="text"
-                id="targetIndustry"
-                name="targetIndustry"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Technology"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetMarketCap" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Market Cap ($)
-              </label>
-              <input
-                type="number"
-                id="targetMarketCap"
-                name="targetMarketCap"
-                min="0"
-                step="1000000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="100000000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetEnterpriseValue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Enterprise Value ($)
-              </label>
-              <input
-                type="number"
-                id="targetEnterpriseValue"
-                name="targetEnterpriseValue"
-                min="0"
-                step="1000000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="120000000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetRevenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Revenue ($)
-              </label>
-              <input
-                type="number"
-                id="targetRevenue"
-                name="targetRevenue"
-                min="0"
-                step="100000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="50000000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetEbitda" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                EBITDA ($)
-              </label>
-              <input
-                type="number"
-                id="targetEbitda"
-                name="targetEbitda"
-                step="100000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="10000000"
-                required
-              />
-            </div>
-
-            <div>
-              <label for="targetNetIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Net Income ($)
-              </label>
-              <input
-                type="number"
-                id="targetNetIncome"
-                name="targetNetIncome"
-                step="100000"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="5000000"
-                required
-              />
-            </div>
-          </div>
-
-          <!-- Peer Companies Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Peer Companies</h3>
-            <div id="peer-companies" class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="peerName"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Peer Co."
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Market Cap ($M)</label>
-                  <input
-                    type="number"
-                    name="peerMarketCap"
-                    min="0"
-                    step="1"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="100"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EV ($M)</label>
-                  <input
-                    type="number"
-                    name="peerEnterpriseValue"
-                    min="0"
-                    step="1"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="120"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Revenue ($M)</label>
-                  <input
-                    type="number"
-                    name="peerRevenue"
-                    min="0"
-                    step="1"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="50"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">EBITDA ($M)</label>
-                  <input
-                    type="number"
-                    name="peerEbitda"
-                    step="1"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="10"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Net Income ($M)</label>
-                  <input
-                    type="number"
-                    name="peerNetIncome"
-                    step="1"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="5"
-                  />
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              id="add-peer-company"
-              class="mt-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-md transition-colors duration-200"
+      <form id="cca-analysis-form" class="space-y-6">
+        <!-- Target Company Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              for="targetName"
+              class="fa-field-label mb-2"
             >
-              + Add Peer Company
-            </button>
+              Company Name
+            </label>
+            <input
+              type="text"
+              id="targetName"
+              name="targetName"
+              class="fa-input-surface w-full"
+              placeholder="Target Company Inc."
+              required
+            />
           </div>
 
-          <!-- Analysis Settings -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Analysis Settings</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Multiples to Analyze
-                </label>
-                <div class="space-y-2">
-                  <label class="flex items-center">
-                    <input type="checkbox" name="multiples" value="ev-revenue" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">EV/Revenue</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="multiples" value="ev-ebitda" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">EV/EBITDA</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="multiples" value="pe" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">P/E</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="multiples" value="pb" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">P/B</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="multiples" value="ps" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">P/S</span>
-                  </label>
-                </div>
-              </div>
+          <div>
+            <label
+              for="targetIndustry"
+              class="fa-field-label mb-2"
+            >
+              Industry
+            </label>
+            <input
+              type="text"
+              id="targetIndustry"
+              name="targetIndustry"
+              class="fa-input-surface w-full"
+              placeholder="Technology"
+              required
+            />
+          </div>
 
+          <div>
+            <label
+              for="targetMarketCap"
+              class="fa-field-label mb-2"
+            >
+              Market Cap ($)
+            </label>
+            <input
+              type="number"
+              id="targetMarketCap"
+              name="targetMarketCap"
+              min="0"
+              step="1000000"
+              class="fa-input-surface w-full"
+              placeholder="100000000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="targetEnterpriseValue"
+              class="fa-field-label mb-2"
+            >
+              Enterprise Value ($)
+            </label>
+            <input
+              type="number"
+              id="targetEnterpriseValue"
+              name="targetEnterpriseValue"
+              min="0"
+              step="1000000"
+              class="fa-input-surface w-full"
+              placeholder="120000000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="targetRevenue"
+              class="fa-field-label mb-2"
+            >
+              Revenue ($)
+            </label>
+            <input
+              type="number"
+              id="targetRevenue"
+              name="targetRevenue"
+              min="0"
+              step="100000"
+              class="fa-input-surface w-full"
+              placeholder="50000000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="targetEbitda"
+              class="fa-field-label mb-2"
+            >
+              EBITDA ($)
+            </label>
+            <input
+              type="number"
+              id="targetEbitda"
+              name="targetEbitda"
+              step="100000"
+              class="fa-input-surface w-full"
+              placeholder="10000000"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="targetNetIncome"
+              class="fa-field-label mb-2"
+            >
+              Net Income ($)
+            </label>
+            <input
+              type="number"
+              id="targetNetIncome"
+              name="targetNetIncome"
+              step="100000"
+              class="fa-input-surface w-full"
+              placeholder="5000000"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Peer Companies Section -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">Peer Companies</h3>
+          <div id="peer-companies" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 fa-highlight-card p-4">
               <div>
-                <label for="outlierThreshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Outlier Threshold (0-1)
-                </label>
+                <label class="fa-field-label mb-2"
+                  >Name</label
+                >
+                <input
+                  type="text"
+                  name="peerName"
+                  class="fa-input-surface w-full"
+                  placeholder="Peer Co."
+                />
+              </div>
+              <div>
+                <label class="fa-field-label mb-2"
+                  >Market Cap ($M)</label
+                >
                 <input
                   type="number"
-                  id="outlierThreshold"
-                  name="outlierThreshold"
+                  name="peerMarketCap"
                   min="0"
-                  max="1"
-                  step="0.1"
-                  value="0.2"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  step="1"
+                  class="fa-input-surface w-full"
+                  placeholder="100"
+                />
+              </div>
+              <div>
+                <label class="fa-field-label mb-2"
+                  >EV ($M)</label
+                >
+                <input
+                  type="number"
+                  name="peerEnterpriseValue"
+                  min="0"
+                  step="1"
+                  class="fa-input-surface w-full"
+                  placeholder="120"
+                />
+              </div>
+              <div>
+                <label class="fa-field-label mb-2"
+                  >Revenue ($M)</label
+                >
+                <input
+                  type="number"
+                  name="peerRevenue"
+                  min="0"
+                  step="1"
+                  class="fa-input-surface w-full"
+                  placeholder="50"
+                />
+              </div>
+              <div>
+                <label class="fa-field-label mb-2"
+                  >EBITDA ($M)</label
+                >
+                <input
+                  type="number"
+                  name="peerEbitda"
+                  step="1"
+                  class="fa-input-surface w-full"
+                  placeholder="10"
+                />
+              </div>
+              <div>
+                <label class="fa-field-label mb-2"
+                  >Net Income ($M)</label
+                >
+                <input
+                  type="number"
+                  name="peerNetIncome"
+                  step="1"
+                  class="fa-input-surface w-full"
+                  placeholder="5"
                 />
               </div>
             </div>
           </div>
+          <button type="button" id="add-peer-company" class="fa-button-secondary mt-4">
+            + Add Peer Company
+          </button>
+        </div>
 
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-            <button
-              type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Analyze CCA
-            </button>
+        <!-- Analysis Settings -->
+        <div class="fa-panel-divider-top pt-6 mt-6">
+          <h3 class="fa-scenario-title mb-4">
+            Analysis Settings
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="fa-field-label mb-2">
+                Multiples to Analyze
+              </label>
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="multiples"
+                    value="ev-revenue"
+                    class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300"
+                    checked
+                  />
+                  <span class="ml-2 fa-list-copy">EV/Revenue</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="multiples"
+                    value="ev-ebitda"
+                    class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300"
+                    checked
+                  />
+                  <span class="ml-2 fa-list-copy">EV/EBITDA</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="multiples"
+                    value="pe"
+                    class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300"
+                    checked
+                  />
+                  <span class="ml-2 fa-list-copy">P/E</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="multiples"
+                    value="pb"
+                    class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300"
+                  />
+                  <span class="ml-2 fa-list-copy">P/B</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="multiples"
+                    value="ps"
+                    class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300"
+                  />
+                  <span class="ml-2 fa-list-copy">P/S</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="outlierThreshold"
+                class="fa-field-label mb-2"
+              >
+                Outlier Threshold (0-1)
+              </label>
+              <input
+                type="number"
+                id="outlierThreshold"
+                name="outlierThreshold"
+                min="0"
+                max="1"
+                step="0.1"
+                value="0.2"
+                class="fa-input-surface w-full"
+              />
+            </div>
           </div>
-        </form>
-      </div>
+        </div>
 
-      <!-- Results Section -->
-      <div id="cca-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">CCA Analysis Results</h2>
-        <div id="cca-results-content" class="space-y-4"></div>
-      </div>
-
-      <!-- AdSense -->
-      <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
+          <button type="submit" class="fa-button-primary"> Analyze CCA </button>
+        </div>
+      </form>
     </div>
-  </div>
+
+    <!-- Results Section -->
+    <div id="cca-results" class="fa-card hidden p-6 mb-8">
+      <h2 class="fa-panel-title text-xl mb-4">CCA Analysis Results</h2>
+      <div id="cca-results-content" class="space-y-4"></div>
+    </div>
+
+    <!-- AdSense -->
+    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+  </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="cca-analysis" />
 </Layout>

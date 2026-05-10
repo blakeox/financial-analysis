@@ -1,4 +1,7 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const title = 'Developer Dashboard - Financial Analysis API';
@@ -7,64 +10,65 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
 ---
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} noindex={true}>
-  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="mt-2 text-gray-600">Manage your API subscription and monitor usage</p>
-      </div>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
 
-      <!-- Account Info -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+  <div class="fa-page-shell">
+      <PageHero
+        eyebrow="Account"
+        title="Dashboard"
+        description="Manage your API subscription, view usage, and handle billing from one shared workspace."
+      />
+
+      <SurfaceCard className="mb-6">
+        <h2 class="fa-panel-title mb-4">Account Information</h2>
         <div class="grid md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
-            <p class="mt-1 text-gray-900" id="user-email">Loading...</p>
+            <label class="fa-field-label">Email</label>
+            <p class="mt-1 text-slate-900 dark:text-white" id="user-email">Loading...</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Customer ID</label>
-            <p class="mt-1 text-gray-600 font-mono text-sm" id="customer-id">Loading...</p>
+            <label class="fa-field-label">Customer ID</label>
+            <p class="mt-1 font-mono text-sm text-slate-600 dark:text-slate-300" id="customer-id">Loading...</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- Current Plan -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="current-plan">
+      <div id="current-plan">
+      <SurfaceCard className="mb-6">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
+          <h2 class="fa-panel-title">Current Plan</h2>
           <button 
             onclick="manageBilling()"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+            class="fa-button-primary"
           >
             Manage Billing
           </button>
         </div>
         
         <div class="text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p class="mt-2 text-gray-600">Loading plan details...</p>
+          <div class="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-violet-600"></div>
+          <p class="fa-meta-copy mt-2">Loading plan details...</p>
         </div>
+      </SurfaceCard>
       </div>
 
-      <!-- Usage Stats -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="usage-stats">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage This Month</h2>
+      <div id="usage-stats">
+      <SurfaceCard className="mb-6">
+        <h2 class="fa-panel-title mb-4">Usage This Month</h2>
         
         <div class="text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p class="mt-2 text-gray-600">Loading usage data...</p>
+          <div class="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-violet-600"></div>
+          <p class="fa-meta-copy mt-2">Loading usage data...</p>
         </div>
+      </SurfaceCard>
       </div>
 
-      <!-- API Keys -->
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <SurfaceCard>
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">API Keys</h2>
+          <h2 class="fa-panel-title">API Keys</h2>
           <a 
             href="/developers" 
-            class="text-indigo-600 hover:text-indigo-700 font-semibold"
+            class="fa-inline-link"
           >
             View Documentation →
           </a>
@@ -72,39 +76,34 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
         
         <div id="api-keys-list">
           <div class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            <p class="mt-2 text-gray-600">Loading API keys...</p>
+            <div class="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-violet-600"></div>
+            <p class="fa-meta-copy mt-2">Loading API keys...</p>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
 
-      <!-- Quick Actions -->
       <div class="mt-8 grid md:grid-cols-3 gap-6">
         <a 
           href="/pricing" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">Upgrade Plan</h3>
-          <p class="text-gray-600 text-sm">Get more requests and higher rate limits</p>
+          <SurfaceCard title="Upgrade Plan" description="Get more requests and higher rate limits." className="h-full" />
         </a>
         
         <a 
           href="/developers" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">API Documentation</h3>
-          <p class="text-gray-600 text-sm">Learn how to integrate the API</p>
+          <SurfaceCard title="API Documentation" description="Learn how to integrate the API." className="h-full" />
         </a>
         
         <a 
           href="mailto:support@fanalyx.com" 
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="block transition hover:-translate-y-1"
         >
-          <h3 class="font-semibold text-gray-900 mb-2">Get Support</h3>
-          <p class="text-gray-600 text-sm">Contact us for help or questions</p>
+          <SurfaceCard title="Get Support" description="Contact us for help or questions." className="h-full" />
         </a>
       </div>
-    </div>
   </div>
 </Layout>
 
@@ -171,42 +170,44 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
     };
 
     container.innerHTML = `
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
-        <button 
-          onclick="manageBilling()"
-          class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-        >
-          Manage Billing
-        </button>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Plan</label>
-          <p class="mt-1 text-2xl font-bold text-gray-900 capitalize">${tierNames[key.tier] || key.tier}</p>
+      <article class="fa-card">
+        <div class="flex justify-between items-center mb-4 gap-4">
+          <h2 class="fa-panel-title">Current Plan</h2>
+          <button 
+            onclick="manageBilling()"
+            class="fa-button-primary"
+          >
+            Manage Billing
+          </button>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Monthly Quota</label>
-          <p class="mt-1 text-2xl font-bold text-gray-900">${key.monthlyQuota.toLocaleString()}</p>
-          <p class="text-sm text-gray-500">requests/month</p>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="fa-subcard">
+            <label class="fa-field-label">Plan</label>
+            <p class="mt-1 text-2xl font-bold capitalize text-slate-900 dark:text-white">${tierNames[key.tier] || key.tier}</p>
+          </div>
+          <div class="fa-subcard">
+            <label class="fa-field-label">Monthly Quota</label>
+            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">${key.monthlyQuota.toLocaleString()}</p>
+            <p class="fa-meta-copy">requests/month</p>
+          </div>
+          <div class="fa-subcard">
+            <label class="fa-field-label">Rate Limit</label>
+            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">${key.rateLimitPerSec}</p>
+            <p class="fa-meta-copy">requests/second</p>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Rate Limit</label>
-          <p class="mt-1 text-2xl font-bold text-gray-900">${key.rateLimitPerSec}</p>
-          <p class="text-sm text-gray-500">requests/second</p>
-        </div>
-      </div>
 
-      ${key.tier === 'free' ? `
-        <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-          <p class="text-indigo-900 font-semibold">Ready to scale?</p>
-          <p class="text-indigo-700 text-sm mt-1">Upgrade to Pro for 50,000 requests/month and 10x faster rate limits.</p>
-          <a href="/pricing" class="inline-block mt-3 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors">
-            View Pricing
-          </a>
-        </div>
-      ` : ''}
+        ${key.tier === 'free' ? `
+          <div class="fa-highlight-card mt-6">
+            <p class="font-semibold text-violet-900 dark:text-violet-200">Ready to scale?</p>
+            <p class="mt-1 text-sm text-violet-700 dark:text-violet-300">Upgrade to Pro for 50,000 requests/month and 10x faster rate limits.</p>
+            <a href="/pricing" class="fa-button-primary mt-3">
+              View Pricing
+            </a>
+          </div>
+        ` : ''}
+      </article>
     `;
   }
 
@@ -219,47 +220,49 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
     const remaining = Math.max(0, key.monthlyQuota - current.totalRequests);
 
     container.innerHTML = `
-      <h2 class="text-xl font-semibold text-gray-900 mb-6">Usage This Month</h2>
-      
-      <div class="mb-6">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-gray-700">Requests Used</span>
-          <span class="text-sm font-medium text-gray-900">${current.totalRequests.toLocaleString()} / ${key.monthlyQuota.toLocaleString()}</span>
+      <article class="fa-card">
+         <h2 class="fa-panel-title mb-6">Usage This Month</h2>
+        
+        <div class="mb-6">
+          <div class="flex justify-between items-center mb-2">
+            <span class="fa-field-label">Requests Used</span>
+            <span class="fa-list-copy-strong">${current.totalRequests.toLocaleString()} / ${key.monthlyQuota.toLocaleString()}</span>
+          </div>
+          <div class="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div 
+              class="h-3 rounded-full ${percentage > 80 ? 'bg-rose-500' : percentage > 50 ? 'bg-yellow-500' : 'bg-emerald-500'}" 
+              style="width: ${Math.min(percentage, 100)}%"
+            ></div>
+          </div>
+          <p class="fa-meta-copy mt-1">${remaining.toLocaleString()} requests remaining</p>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-3">
-          <div 
-            class="h-3 rounded-full ${percentage > 80 ? 'bg-red-500' : percentage > 50 ? 'bg-yellow-500' : 'bg-green-500'}" 
-            style="width: ${Math.min(percentage, 100)}%"
-          ></div>
-        </div>
-        <p class="mt-1 text-sm text-gray-600">${remaining.toLocaleString()} requests remaining</p>
-      </div>
 
-      <div class="grid md:grid-cols-4 gap-4">
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Total Requests</p>
-          <p class="text-2xl font-bold text-gray-900">${(current.totalRequests || 0).toLocaleString()}</p>
+        <div class="grid md:grid-cols-4 gap-4">
+          <div class="fa-subcard">
+            <p class="fa-meta-copy">Total Requests</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">${(current.totalRequests || 0).toLocaleString()}</p>
+          </div>
+          <div class="fa-subcard">
+            <p class="fa-meta-copy">Successful</p>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">${(current.successfulRequests || 0).toLocaleString()}</p>
+          </div>
+          <div class="fa-subcard">
+            <p class="fa-meta-copy">Failed</p>
+            <p class="text-2xl font-bold text-rose-600 dark:text-rose-300">${(current.failedRequests || 0).toLocaleString()}</p>
+          </div>
+          <div class="fa-subcard">
+            <p class="fa-meta-copy">Avg Response</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">${current.totalRequests > 0 ? Math.round(current.totalResponseTimeMs / current.totalRequests) : 0}ms</p>
+          </div>
         </div>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Successful</p>
-          <p class="text-2xl font-bold text-green-600">${(current.successfulRequests || 0).toLocaleString()}</p>
-        </div>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Failed</p>
-          <p class="text-2xl font-bold text-red-600">${(current.failedRequests || 0).toLocaleString()}</p>
-        </div>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Avg Response</p>
-          <p class="text-2xl font-bold text-gray-900">${current.totalRequests > 0 ? Math.round(current.totalResponseTimeMs / current.totalRequests) : 0}ms</p>
-        </div>
-      </div>
 
-      ${percentage > 80 ? `
-        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p class="text-yellow-900 font-semibold">⚠️ Approaching quota limit</p>
-          <p class="text-yellow-700 text-sm mt-1">You've used ${percentage.toFixed(1)}% of your monthly quota. Consider upgrading to avoid service interruption.</p>
-        </div>
-      ` : ''}
+        ${percentage > 80 ? `
+          <div class="fa-highlight-card mt-6">
+            <p class="text-yellow-900 font-semibold">⚠️ Approaching quota limit</p>
+            <p class="text-yellow-700 text-sm mt-1">You've used ${percentage.toFixed(1)}% of your monthly quota. Consider upgrading to avoid service interruption.</p>
+          </div>
+        ` : ''}
+      </article>
     `;
   }
 
@@ -270,20 +273,20 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
     container.innerHTML = `
       <div class="space-y-4">
         ${keys.map(key => `
-          <div class="border border-gray-200 rounded-lg p-4">
+          <div class="fa-subcard">
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="font-mono text-sm text-gray-900">${key.keyPrefix}••••••••••••</span>
+                  <span class="font-mono text-sm text-slate-900 dark:text-white">${key.keyPrefix}••••••••••••</span>
                   ${key.active ? 
-                    '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>' : 
-                    '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Inactive</span>'
+                    '<span class="fa-chip fa-chip-success">Active</span>' : 
+                    '<span class="fa-chip fa-chip-muted">Inactive</span>'
                   }
-                  <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full capitalize">${key.tier}</span>
+                  <span class="fa-chip fa-chip-accent capitalize">${key.tier}</span>
                 </div>
-                <p class="text-sm text-gray-600 mt-2">${key.metadata?.description || 'API Key'}</p>
-                <p class="text-xs text-gray-500 mt-1">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
-                ${key.lastUsedAt ? `<p class="text-xs text-gray-500">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">${key.metadata?.description || 'API Key'}</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
+                ${key.lastUsedAt ? `<p class="text-xs text-slate-500 dark:text-slate-400">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
               </div>
             </div>
           </div>
@@ -299,12 +302,12 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
 
     if (planContainer) {
       planContainer.innerHTML = `
-        <div class="text-center py-8">
-          <p class="text-gray-600">No API keys found.</p>
-          <a href="/developers" class="inline-block mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+        <article class="fa-card text-center py-8">
+          <p class="text-slate-600 dark:text-slate-300">No API keys found.</p>
+          <a href="/developers" class="fa-button-primary mt-4">
             Create Your First API Key
           </a>
-        </div>
+        </article>
       `;
     }
     
@@ -317,9 +320,9 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
     if (!container) return;
 
     container.innerHTML = `
-      <div class="text-center py-8">
-        <p class="text-red-600">Failed to load dashboard data. Please try again later.</p>
-      </div>
+      <article class="fa-card text-center py-8">
+        <p class="text-rose-600 dark:text-rose-300">Failed to load dashboard data. Please try again later.</p>
+      </article>
     `;
   }
 

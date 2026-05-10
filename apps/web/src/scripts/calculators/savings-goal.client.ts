@@ -99,7 +99,7 @@ const clearFieldErrors = (form: HTMLFormElement) => {
   const invalidFields = form.querySelectorAll('[data-field-error="true"]');
   invalidFields.forEach((field) => {
     field.removeAttribute('data-field-error');
-    field.classList.remove('border-red-500', 'focus:ring-red-500');
+    field.classList.remove('fa-field-error');
     field.setAttribute('aria-invalid', 'false');
   });
 };
@@ -122,7 +122,7 @@ export const applyFieldErrors = (
     }
     field.setAttribute('data-field-error', 'true');
     field.setAttribute('aria-invalid', 'true');
-    field.classList.add('border-red-500', 'focus:ring-red-500');
+    field.classList.add('fa-field-error');
   });
 };
 
@@ -184,8 +184,8 @@ export const displayResults = (result: SavingsGoalResult): void => {
       .map(
         (entry) => `
           <li class="flex gap-2">
-            <span class="text-blue-600 dark:text-blue-400">•</span>
-            <span class="text-gray-700 dark:text-gray-300">${entry}</span>
+            <span class="text-violet-600 dark:text-violet-400">•</span>
+            <span class="text-slate-700 dark:text-slate-300">${entry}</span>
           </li>
         `
       )

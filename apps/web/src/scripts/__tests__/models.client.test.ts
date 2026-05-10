@@ -561,16 +561,16 @@ describe('models.client selection behavior', () => {
     card?.dispatchEvent(new Event('mouseenter'));
     expect(card?.classList.contains('ring')).toBe(true);
     expect(card?.classList.contains('ring-offset-1')).toBe(true);
-    expect(card?.classList.contains('ring-gray-200')).toBe(true);
+    expect(card?.classList.contains('ring-violet-200')).toBe(true);
 
     // Click should select the card and clear hover styling
     card?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(card?.classList.contains('ring')).toBe(false);
     expect(card?.classList.contains('ring-offset-1')).toBe(false);
-    expect(card?.classList.contains('ring-gray-200')).toBe(false);
+    expect(card?.classList.contains('ring-violet-200')).toBe(false);
     expect(card?.classList.contains('ring-2')).toBe(true);
-    expect(card?.classList.contains('ring-blue-500')).toBe(true);
+    expect(card?.classList.contains('ring-violet-500')).toBe(true);
   });
 
   it('allows programmatic selection without triggering scroll', () => {

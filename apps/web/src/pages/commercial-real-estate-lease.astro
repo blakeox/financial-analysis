@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ToolPageShell from '../components/site/ToolPageShell.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
@@ -8,94 +10,99 @@ const currentUrl = `${baseUrl}/commercial-real-estate-lease`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
-        { "@type": "ListItem", "position": 2, "name": "Commercial Real Estate Lease", "item": currentUrl }
-      ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Commercial Real Estate Lease',
+          item: currentUrl,
+        },
+      ],
     },
     {
-      "@type": "SoftwareApplication",
-      "name": "Commercial Real Estate Lease Calculator",
-      "description": "Free commercial real estate lease calculator with NNN, modified gross, and full service lease analysis.",
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "Web",
-      "url": currentUrl,
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
+      '@type': 'SoftwareApplication',
+      name: 'Commercial Real Estate Lease Calculator',
+      description:
+        'Free commercial real estate lease calculator with NNN, modified gross, and full service lease analysis.',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      url: currentUrl,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
     },
     {
-      "@type": "FAQPage",
-      "mainEntity": [
+      '@type': 'FAQPage',
+      mainEntity: [
         {
-          "@type": "Question",
-          "name": "What is a triple net (NNN) lease?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "A triple net lease requires the tenant to pay property taxes, insurance, and maintenance costs in addition to rent. This shifts operating expenses from landlord to tenant, making NNN leases common in commercial real estate. The base rent is typically lower than gross leases to account for these additional costs."
-          }
+          '@type': 'Question',
+          name: 'What is a triple net (NNN) lease?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A triple net lease requires the tenant to pay property taxes, insurance, and maintenance costs in addition to rent. This shifts operating expenses from landlord to tenant, making NNN leases common in commercial real estate. The base rent is typically lower than gross leases to account for these additional costs.',
+          },
         },
         {
-          "@type": "Question",
-          "name": "How do tenant improvements affect lease value?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Tenant improvements (TI) are build-out costs to customize space for your business. Landlords may offer a TI allowance (e.g., $50/sq ft) to incentivize signing. Higher TI allowances can offset higher base rent. Our calculator helps evaluate whether generous TI terms justify higher rent over the lease term."
-          }
+          '@type': 'Question',
+          name: 'How do tenant improvements affect lease value?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Tenant improvements (TI) are build-out costs to customize space for your business. Landlords may offer a TI allowance (e.g., $50/sq ft) to incentivize signing. Higher TI allowances can offset higher base rent. Our calculator helps evaluate whether generous TI terms justify higher rent over the lease term.',
+          },
         },
         {
-          "@type": "Question",
-          "name": "What are common area maintenance (CAM) charges?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "CAM charges cover shared property expenses like landscaping, parking lot maintenance, security, and common area utilities. In shopping centers or office buildings, these costs are typically prorated based on your leased square footage. CAM can add $3-$10 per square foot annually to your total occupancy cost."
-          }
+          '@type': 'Question',
+          name: 'What are common area maintenance (CAM) charges?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'CAM charges cover shared property expenses like landscaping, parking lot maintenance, security, and common area utilities. In shopping centers or office buildings, these costs are typically prorated based on your leased square footage. CAM can add $3-$10 per square foot annually to your total occupancy cost.',
+          },
         },
         {
-          "@type": "Question",
-          "name": "Should I negotiate lease escalations?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Most commercial leases include annual rent increases (2-4% or tied to CPI). Negotiate the escalation rate, cap it at a maximum percentage, or tie it to specific indices. Lower escalations significantly reduce total lease costs over 5-10 year terms."
-          }
-        }
-      ]
-    }
-  ]
+          '@type': 'Question',
+          name: 'Should I negotiate lease escalations?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Most commercial leases include annual rent increases (2-4% or tied to CPI). Negotiate the escalation rate, cap it at a maximum percentage, or tie it to specific indices. Lower escalations significantly reduce total lease costs over 5-10 year terms.',
+          },
+        },
+      ],
+    },
+  ],
 };
 ---
 
-<Layout title="Commercial Real Estate Lease Analysis | Fanalyx" description="Free commercial real estate lease calculator with NNN, modified gross, and full service lease analysis. Calculate total occupancy costs, CAM charges, and compare lease structures." keywords="commercial real estate lease, NNN lease calculator, CAM charges, triple net lease, commercial lease analysis, retail lease calculator, office lease calculator" canonical={Astro.url.href}>
+<Layout
+  title="Commercial Real Estate Lease Analysis | Fanalyx"
+  description="Free commercial real estate lease calculator with NNN, modified gross, and full service lease analysis. Calculate total occupancy costs, CAM charges, and compare lease structures."
+  keywords="commercial real estate lease, NNN lease calculator, CAM charges, triple net lease, commercial lease analysis, retail lease calculator, office lease calculator"
+  canonical={Astro.url.href}
+>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Commercial Real Estate Lease</span></li>
-    </ol>
-  </nav>
-  
-  <main class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-        Commercial Real Estate Lease Analysis
-      </h1>
-      <p class="text-slate-600 dark:text-slate-400">
-        Analyze NNN, modified gross, and full service leases. Calculate total occupancy costs including CAM charges.
-      </p>
-    </div>
-    <div id="commercial-real-estate-lease-container"></div>
-    
+  <ToolPageShell
+    eyebrow="Lease analysis"
+    title="Commercial Real Estate Lease Analysis"
+    description="Analyze NNN, modified gross, and full service leases. Calculate total occupancy costs including CAM charges."
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Lease Analysis', href: '/lease-analysis' },
+      { label: 'Commercial Real Estate Lease' },
+    ]}
+  >
+    <SurfaceCard className="mb-8">
+      <div id="commercial-real-estate-lease-container"></div>
+    </SurfaceCard>
+
     <!-- AdSense: After dashboard ad -->
     <AdSense slot="1234509876" format="horizontal" className="mt-8" />
-  </main>
+  </ToolPageShell>
+
   <ClientScriptLoader client:load slot="pageScripts" name="commercial-real-estate-lease" />
 </Layout>

@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 
 const keywords = "financial models, personal finance calculator, business finance tools, mortgage calculator, retirement planning, lease analysis, EBITDA calculator, financial planning";
 const description = "Free financial models and calculators. Choose personal finance tools for mortgages, retirement, and investments or business finance for commercial real estate, lease analysis, and EBITDA forecasting.";
@@ -54,85 +57,51 @@ const structuredData = {
 
 <Layout title="Financial Models" description={description} keywords={keywords} canonical={Astro.url.href} showChat={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Financial Models</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Main Content Container with Chat Panel Integration -->
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Financial Models' }]} />
+
+  <div class="fa-page-shell">
     <div id="main-container" class="transition-all duration-300 ease-in-out">
-      <div class="container mx-auto px-4 py-16">
-        <!-- Header Section -->
-        <div class="text-center mb-16">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Financial Models
-          </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Choose between personal finance tools or business analysis models. Each is designed for precision and powered by deterministic calculations.
-          </p>
-          <div class="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-            </svg>
-            <span>Pick a model, run the numbers, then use guided analysis to compare scenarios and change inputs.</span>
-          </div>
+        <PageHero
+          eyebrow="Models"
+          title="Financial Models"
+          description="Choose between personal finance tools or business analysis models. Each is designed for precision and backed by deterministic calculations."
+        />
+
+        <div class="fa-model-intro mb-16">
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+          <span>Pick a model, run the numbers, then use guided analysis to compare scenarios and change inputs.</span>
         </div>
 
-        <!-- Category Selection -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16" role="main">
-          
-          <!-- Personal Finance Category -->
-          <a href="/models/personal" class="block group">
-            <div class="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-blue-600 dark:bg-blue-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Personal Finance</h2>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families.
-              </p>
-              <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Personal Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
+        <div class="mx-auto mb-16 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2" role="main">
+          <a
+            href="/models/personal"
+            aria-label="Explore Personal Tools"
+            class="block"
+          >
+            <SurfaceCard
+              title="Personal Finance"
+              description="Mortgage calculators, retirement planning, and personal investment tools designed for individuals and families."
+              className="h-full fa-card-interactive bg-gradient-to-br from-emerald-50 to-violet-50"
+            >
+              <span class="fa-inline-link mt-6 inline-flex">Explore Personal Tools</span>
+            </SurfaceCard>
           </a>
 
-          <!-- Business Finance Category -->
-          <a href="/models/business" class="block group">
-            <div class="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-violet-200 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500">
-              <div class="flex items-center mb-6">
-                <div class="p-4 bg-violet-600 dark:bg-violet-500 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Business Finance</h2>
-              </div>
-              <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg">
-                Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools.
-              </p>
-              <div class="flex items-center text-violet-600 dark:text-violet-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                <span>Explore Business Tools</span>
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </div>
-            </div>
+          <a
+            href="/models/business"
+            aria-label="Explore Business Tools"
+            class="block"
+          >
+            <SurfaceCard
+              title="Business Finance"
+              description="Commercial real estate, lease analysis, EBITDA forecasting, and enterprise financial modeling tools."
+              className="h-full fa-card-interactive bg-gradient-to-br from-violet-50 to-purple-50"
+            >
+              <span class="fa-inline-link mt-6 inline-flex">Explore Business Tools</span>
+            </SurfaceCard>
           </a>
-
         </div>
 
         <!-- AdSense: Between categories and features -->
@@ -140,40 +109,40 @@ const structuredData = {
 
         <!-- Featured Models -->
         <section class="max-w-5xl mx-auto mb-16">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-8">
+          <h2 class="fa-display fa-display-section !mt-0 mb-8">
             Featured Financial Models
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Amortization Calculator -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="Amortization Calculator">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                  <h3 class="fa-model-title">
                     Amortization Calculator
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Generate detailed payment schedules, compare principal versus interest, and model extra payment strategies.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Payment schedules
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Principal vs interest breakdown
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Extra payment modeling
@@ -181,7 +150,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/calculator/amortization"
-                  class="inline-flex items-center px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Calculator
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -192,35 +161,35 @@ const structuredData = {
             </div>
 
             <!-- Enhanced Lease Analysis -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-violet-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="Enhanced Lease Analysis">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300">
+                  <h3 class="fa-model-title">
                     Enhanced Lease Analysis
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Evaluate lease scenarios, run sensitivity analyses, and compare lease-versus-buy outcomes with AI-assisted workflows.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Lease scenario evaluation
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Sensitivity analysis
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Lease vs buy comparison
@@ -228,7 +197,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/lease-analysis"
-                  class="inline-flex items-center px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Analysis
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -239,35 +208,35 @@ const structuredData = {
             </div>
 
             <!-- EBITDA Forecasting -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-emerald-500 group cursor-pointer model-card"
+            <div class="fa-model-card group cursor-pointer model-card"
               data-model="EBITDA Forecasting">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                  <h3 class="fa-model-title">
                     EBITDA Forecasting
                   </h3>
-                  <div class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                  <div class="fa-chip fa-chip-success">
                     Available
                   </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                <p class="fa-model-description">
                   Service industry financial projections with deterministic controls for revenue, staffing, and expense scenarios.
                 </p>
                 <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Revenue forecasting
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Staffing & expense planning
                   </div>
-                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <svg class="w-4 h-4 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div class="fa-model-feature">
+                    <svg class="w-4 h-4 mr-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Scenario analysis
@@ -275,7 +244,7 @@ const structuredData = {
                 </div>
                 <a
                   href="/ebitda-forecasting"
-                  class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-md transition-colors duration-200 w-full justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500"
+                  class="fa-button-primary w-full justify-center"
                 >
                   Open Forecaster
                   <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -288,12 +257,12 @@ const structuredData = {
         </section>
 
         <!-- Active Model Section -->
-        <div id="selected-model-info" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <div id="selected-model-info" class="fa-card hidden p-6 mb-8">
           <div class="flex items-center justify-between mb-4">
-            <h2 id="selected-model-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+            <h2 id="selected-model-title" class="fa-model-title"></h2>
             <button 
               onclick="clearSelection()"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              class="fa-icon-button-ghost"
               title="Clear selection"
               aria-label="Clear model selection"
             >
@@ -302,10 +271,10 @@ const structuredData = {
               </svg>
             </button>
           </div>
-          <p id="selected-model-description" class="text-gray-600 dark:text-gray-300 mb-4"></p>
+          <p id="selected-model-description" class="fa-model-description !mb-4 !mt-0"></p>
           <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500 dark:text-gray-400">Run the model first, then use guided analysis to interpret the result or decide what to change next.</span>
-            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <span class="fa-meta-copy">Run the model first, then use guided analysis to interpret the result or decide what to change next.</span>
+            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -313,17 +282,17 @@ const structuredData = {
 
         <!-- Call to Action -->
         <div class="text-center">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div class="fa-card p-8">
+            <h2 class="fa-display fa-display-section !mt-0 mb-4">
               Guided analysis after every calculation
             </h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">
+            <p class="fa-card-copy !mt-0 mb-6">
               Start with a calculator, get the result first, then use guided follow-up prompts to understand the outcome, compare scenarios, and decide what to change next.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/calculator/amortization"
-                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                class="fa-button-primary"
               >
                 Start with Amortization
                 <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -332,15 +301,13 @@ const structuredData = {
               </a>
               <a
                 href="/status"
-                class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                class="fa-button-secondary"
               >
                 API Status
               </a>
             </div>
           </div>
         </div>
-      </div>
-    </div>
   </div>
 
   <ClientScriptLoader client:load slot="pageScripts" name="models" />

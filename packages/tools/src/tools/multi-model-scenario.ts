@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // @ts-nocheck
 /**
  * Multi-Model Scenario Analysis Tool

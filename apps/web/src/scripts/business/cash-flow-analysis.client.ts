@@ -34,32 +34,32 @@ class CashFlowAnalysisCalculator {
 
     const newItem = document.createElement('div');
     newItem.className =
-      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg';
+      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     newItem.innerHTML = `
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+        <label class="fa-field-label mb-2">Description</label>
         <input
           type="text"
           name="itemDescription"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="Monthly Revenue"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount ($)</label>
+        <label class="fa-field-label mb-2">Amount ($)</label>
         <input
           type="number"
           name="itemAmount"
           step="100"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
           placeholder="10000"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+        <label class="fa-field-label mb-2">Type</label>
         <select
           name="itemType"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
         >
           <option value="operating">Operating</option>
           <option value="investing">Investing</option>
@@ -67,10 +67,10 @@ class CashFlowAnalysisCalculator {
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frequency</label>
+        <label class="fa-field-label mb-2">Frequency</label>
         <select
           name="itemFrequency"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="fa-input-surface w-full"
         >
           <option value="monthly">Monthly</option>
           <option value="quarterly">Quarterly</option>
@@ -177,12 +177,12 @@ class CashFlowAnalysisCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cash Flow Analysis</h3>
-          <p class="text-gray-700 dark:text-gray-300">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Analysis</h3>
+          <p class="text-slate-700 dark:text-slate-300">
             Your cash flow analysis is complete. Use the AI assistant to get detailed recommendations and insights.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered cash flow analysis and recommendations based on your specific situation.</p>
         </div>
       </div>

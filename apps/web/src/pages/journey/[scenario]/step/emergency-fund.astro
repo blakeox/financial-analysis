@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -56,177 +58,134 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href={`/journey/${scenario}`} class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">🛡️</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="🛡️"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Emergency Fund Calculator -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">
               {scenario === 'home-buying' ? 'Home Ownership Buffer Calculator' : 'Emergency Fund Calculator'}
             </h2>
             
             <form id="emergency-fund-form" class="space-y-6">
               <!-- Monthly Expenses Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">
                   💰 {scenario === 'home-buying' ? 'Expected Home Expenses' : 'Monthly Expenses'}
                 </h3>
                 {scenario === 'home-buying' && (
-                  <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                  <div class="fa-highlight-card p-3">
+                    <p class="text-sm text-violet-800 dark:text-violet-200">
                       <strong>💡 Homeownership Tip:</strong> As a homeowner, you'll have additional costs like maintenance, repairs, HOA fees, and property taxes. This emergency fund is separate from your down payment and closing costs.
                     </p>
                   </div>
                 )}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="rent-mortgage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="rent-mortgage" class="fa-field-label mb-2">
                       {scenario === 'home-buying' ? 'Expected Mortgage ($) *' : 'Rent/Mortgage ($) *'}
                     </label>
                     <input 
                       type="number" 
                       id="rent-mortgage" 
                       name="rentMortgage"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder={scenario === 'home-buying' ? '2000' : '1200'}
                       required
                     />
                     {scenario === 'home-buying' && (
-                      <p class="text-sm text-gray-500 mt-1">Estimated monthly mortgage payment from step 2</p>
+                      <p class="fa-help-copy mt-1">Estimated monthly mortgage payment from step 2</p>
                     )}
                   </div>
                   <div>
-                    <label for="utilities" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="utilities" class="fa-field-label mb-2">
                       Utilities ($) *
                     </label>
                     <input 
                       type="number" 
                       id="utilities" 
                       name="utilities"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="250"
                       required
                     />
                     {scenario === 'home-buying' && (
-                      <p class="text-sm text-gray-500 mt-1">Electric, water, gas, internet, etc.</p>
+                      <p class="fa-help-copy mt-1">Electric, water, gas, internet, etc.</p>
                     )}
                   </div>
                   <div>
-                    <label for="groceries" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="groceries" class="fa-field-label mb-2">
                       Groceries & Food ($) *
                     </label>
                     <input 
                       type="number" 
                       id="groceries" 
                       name="groceries"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="600"
                       required
                     />
                   </div>
                   <div>
-                    <label for="transportation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="transportation" class="fa-field-label mb-2">
                       Transportation ($) *
                     </label>
                     <input 
                       type="number" 
                       id="transportation" 
                       name="transportation"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="400"
                       required
                     />
                     {scenario === 'home-buying' && (
-                      <p class="text-sm text-gray-500 mt-1">Gas, car payment, maintenance</p>
+                      <p class="fa-help-copy mt-1">Gas, car payment, maintenance</p>
                     )}
                   </div>
                   {scenario === 'home-buying' ? (
                     <div>
-                      <label for="home-insurance-taxes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="home-insurance-taxes" class="fa-field-label mb-2">
                         Home Insurance & Taxes ($) *
                       </label>
                       <input 
                         type="number" 
                         id="home-insurance-taxes" 
                         name="homeInsuranceTaxes"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="400"
                         required
                       />
-                      <p class="text-sm text-gray-500 mt-1">Monthly property tax + insurance</p>
+                      <p class="fa-help-copy mt-1">Monthly property tax + insurance</p>
                     </div>
                   ) : (
                     <div>
-                      <label for="insurance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="insurance" class="fa-field-label mb-2">
                         Insurance ($) *
                       </label>
                       <input 
                         type="number" 
                         id="insurance" 
                         name="insurance"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="150"
                         required
                       />
@@ -234,64 +193,64 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   )}
                   {scenario === 'home-buying' && (
                     <div>
-                      <label for="maintenance-hoa" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label for="maintenance-hoa" class="fa-field-label mb-2">
                         Maintenance & HOA ($) *
                       </label>
                       <input 
                         type="number" 
                         id="maintenance-hoa" 
                         name="maintenanceHOA"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        class="fa-input-surface w-full"
                         placeholder="300"
                         required
                       />
-                      <p class="text-sm text-gray-500 mt-1">Monthly maintenance savings + HOA fees</p>
+                      <p class="fa-help-copy mt-1">Monthly maintenance savings + HOA fees</p>
                     </div>
                   )}
                   <div>
-                    <label for="other-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="other-expenses" class="fa-field-label mb-2">
                       {scenario === 'home-buying' ? 'Other Essential Expenses ($)' : 'Other Essential Expenses ($) *'}
                     </label>
                     <input 
                       type="number" 
                       id="other-expenses" 
                       name="otherExpenses"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder={scenario === 'home-buying' ? '300' : '200'}
                       required={scenario !== 'home-buying'}
                     />
                     {scenario === 'home-buying' && (
-                      <p class="text-sm text-gray-500 mt-1">Healthcare, subscriptions, etc.</p>
+                      <p class="fa-help-copy mt-1">Healthcare, subscriptions, etc.</p>
                     )}
                   </div>
                 </div>
               </div>
 
               <!-- Current Savings Section -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🏦 Current Savings</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🏦 Current Savings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label for="current-emergency-fund" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="current-emergency-fund" class="fa-field-label mb-2">
                       Current Emergency Fund ($)
                     </label>
                     <input 
                       type="number" 
                       id="current-emergency-fund" 
                       name="currentEmergencyFund"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label for="monthly-savings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="monthly-savings" class="fa-field-label mb-2">
                       Amount You Can Save Monthly ($)
                     </label>
                     <input 
                       type="number" 
                       id="monthly-savings" 
                       name="monthlySavings"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="500"
                     />
                   </div>
@@ -300,12 +259,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Emergency Fund Strategy Section -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                <h3 class="fa-scenario-title mb-4">
                   🎯 {scenario === 'home-buying' ? 'Home Ownership Buffer Strategy' : 'Emergency Fund Strategy'}
                 </h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Choose your {scenario === 'home-buying' ? 'buffer target:' : 'emergency fund target:'}
                     </label>
                     <div class="space-y-2">
@@ -314,22 +273,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
-                              <p class="text-xs text-gray-500">Recommended for homeowners</p>
+                              <span class="fa-list-copy-strong">6 Months of Expenses</span>
+                              <p class="fa-help-copy">Recommended for homeowners</p>
                             </div>
                           </label>
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="12-months" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">12 Months of Expenses</span>
-                              <p class="text-xs text-gray-500">Extra safety cushion</p>
+                              <span class="fa-list-copy-strong">12 Months of Expenses</span>
+                              <p class="fa-help-copy">Extra safety cushion</p>
                             </div>
                           </label>
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
-                              <p class="text-xs text-gray-500">Set your own target</p>
+                              <span class="fa-list-copy-strong">Custom Amount</span>
+                              <p class="fa-help-copy">Set your own target</p>
                             </div>
                           </label>
                         </>
@@ -338,22 +297,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="3-months" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 Months of Expenses</span>
-                              <p class="text-xs text-gray-500">Minimum recommended for young professionals</p>
+                              <span class="fa-list-copy-strong">3 Months of Expenses</span>
+                              <p class="fa-help-copy">Minimum recommended for young professionals</p>
                             </div>
                           </label>
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="6-months" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">6 Months of Expenses</span>
-                              <p class="text-xs text-gray-500">Recommended for most people</p>
+                              <span class="fa-list-copy-strong">6 Months of Expenses</span>
+                              <p class="fa-help-copy">Recommended for most people</p>
                             </div>
                           </label>
                           <label class="flex items-start">
                             <input type="radio" name="fundTarget" value="custom" class="mt-1 mr-3">
                             <div>
-                              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Amount</span>
-                              <p class="text-xs text-gray-500">Set your own target</p>
+                              <span class="fa-list-copy-strong">Custom Amount</span>
+                              <p class="fa-help-copy">Set your own target</p>
                             </div>
                           </label>
                         </>
@@ -361,25 +320,25 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                     </div>
                   </div>
                   <div id="custom-amount" class="hidden">
-                    <label for="custom-fund-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="custom-fund-amount" class="fa-field-label mb-2">
                       Custom Emergency Fund Target ($)
                     </label>
                     <input 
                       type="number" 
                       id="custom-fund-amount" 
                       name="customFundAmount"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                       placeholder="10000"
                     />
                   </div>
                   <div>
-                    <label for="savings-account" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="savings-account" class="fa-field-label mb-2">
                       Where will you keep your emergency fund?
                     </label>
                     <select 
                       id="savings-account" 
                       name="savingsAccount"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      class="fa-input-surface w-full"
                     >
                       <option value="">Select account type</option>
                       <option value="high-yield-savings">High-Yield Savings Account</option>
@@ -392,22 +351,22 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="submit" id="calculate-fund-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="submit" id="calculate-fund-btn" class="fa-button-primary">
                   Calculate Emergency Fund
                 </button>
-                <button type="button" id="save-strategy-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="save-strategy-btn" class="fa-button-primary">
                   Save Strategy
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Emergency Fund Plan</h3>
+            <div id="results-section" class="fa-highlight-card hidden mt-8 p-6">
+              <h3 class="fa-scenario-title mb-4">📊 Your Emergency Fund Plan</h3>
               <div id="fund-results" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -415,13 +374,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -431,7 +390,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -445,7 +404,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,7 +414,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,36 +429,36 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">{scenario === 'home-buying' ? '🏠 Why Home Ownership Buffer?' : '🛡️ Why Emergency Fund?'}</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5 mb-6">
+            <h3 class="fa-scenario-title mb-4">{scenario === 'home-buying' ? '🏠 Why Home Ownership Buffer?' : '🛡️ Why Emergency Fund?'}</h3>
+            <div class="space-y-4 fa-list-copy">
               {scenario === 'home-buying' ? (
                 <>
-                  <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Major Repairs:</strong> HVAC, roof, plumbing emergencies.</p>
                   </div>
-                  <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Job Loss:</strong> Covers mortgage during job transition.</p>
                   </div>
-                  <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Appliance Replacement:</strong> Fridge, washer, HVAC breaks.</p>
                   </div>
-                  <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Peace of Mind:</strong> Sleep easy with home protection.</p>
                   </div>
                 </>
               ) : (
                 <>
-                  <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Job Loss:</strong> Covers expenses while job hunting.</p>
                   </div>
-                  <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Medical Emergency:</strong> Unexpected health costs.</p>
                   </div>
-                  <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Car Repairs:</strong> Vehicle breakdowns happen.</p>
                   </div>
-                  <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div class="fa-highlight-card p-3">
                     <p><strong>Peace of Mind:</strong> Reduces financial stress.</p>
                   </div>
                 </>
@@ -507,9 +466,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">💡 {scenario === 'home-buying' ? 'Homeownership Savings Tips' : 'Savings Tips'}</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+            <h3 class="fa-scenario-title mb-4">💡 {scenario === 'home-buying' ? 'Homeownership Savings Tips' : 'Savings Tips'}</h3>
+            <div class="space-y-3 fa-list-copy">
               {scenario === 'home-buying' ? (
                 <>
                   <p><strong>Budget 1%:</strong> Save 1% of home value annually for maintenance.</p>
@@ -529,7 +488,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
         </div>
       </div>
-    </div>
   </main>
 
   <script define:vars={{ scenario }} is:inline>
@@ -607,25 +565,25 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           // Display results
           fundResults.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Monthly Expenses</h4>
-                <p class="text-2xl font-bold text-blue-600">$${monthlyExpenses.toLocaleString()}</p>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-2">Monthly Expenses</h4>
+                <p class="text-2xl font-bold text-violet-600 dark:text-violet-300">$${monthlyExpenses.toLocaleString()}</p>
               </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Target Fund</h4>
-                <p class="text-2xl font-bold text-green-600">$${targetAmount.toLocaleString()}</p>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-2">Target Fund</h4>
+                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-300">$${targetAmount.toLocaleString()}</p>
               </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Current Fund</h4>
-                <p class="text-2xl font-bold text-gray-600">$${currentFund.toLocaleString()}</p>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-2">Current Fund</h4>
+                <p class="text-2xl font-bold text-slate-600 dark:text-slate-300">$${currentFund.toLocaleString()}</p>
               </div>
-              <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Still Needed</h4>
-                <p class="text-2xl font-bold text-red-600">$${neededAmount.toLocaleString()}</p>
+              <div class="fa-subcard">
+                <h4 class="fa-scenario-title mb-2">Still Needed</h4>
+                <p class="text-2xl font-bold text-rose-600 dark:text-rose-300">$${neededAmount.toLocaleString()}</p>
               </div>
             </div>
-            <div class="mt-4 bg-white dark:bg-gray-700 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Timeline to Goal</h4>
+            <div class="fa-subcard mt-4">
+              <h4 class="fa-scenario-title mb-2">Timeline to Goal</h4>
               <p class="text-lg">
                 ${monthsToGoal > 0 ? 
                   `You'll reach your goal in <strong>${monthsToGoal} months</strong> (${Math.round(monthsToGoal/12)} years)` :
@@ -670,13 +628,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           // Show success message
           saveBtn.textContent = '✓ Saved!';
-          saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-          saveBtn.classList.add('bg-green-500');
+          saveBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+          saveBtn.classList.add('fa-button-success-state');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save Strategy';
-            saveBtn.classList.remove('bg-green-500');
-            saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            saveBtn.classList.remove('fa-button-success-state');
+            saveBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
           }, 2000);
 
           // Dispatch completion event

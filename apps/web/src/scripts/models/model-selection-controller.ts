@@ -49,16 +49,16 @@ type WindowWithSelection = Window &
 
 const SELECTED_CLASSES = [
   'ring-2',
-  'ring-blue-500',
-  'bg-blue-50',
-  'dark:bg-blue-900/20',
+  'ring-violet-500',
+  'bg-violet-50',
+  'dark:bg-violet-900/20',
 ] as const;
-const HOVER_CLASSES = ['ring', 'ring-offset-1', 'ring-gray-200'] as const;
+const HOVER_CLASSES = ['ring', 'ring-offset-1', 'ring-violet-200'] as const;
 const STATUS_AVAILABLE_CLASSES = [
-  'bg-green-100',
-  'dark:bg-green-900',
-  'text-green-800',
-  'dark:text-green-200',
+  'bg-emerald-100',
+  'dark:bg-emerald-900',
+  'text-emerald-800',
+  'dark:text-emerald-200',
 ] as const;
 const STATUS_COMING_SOON_CLASSES = [
   'bg-yellow-100',
@@ -180,7 +180,7 @@ const updateFeaturesList = (doc: Document, listElement: HTMLElement | null, feat
     ...features.map((featureText) => {
       const item = doc.createElement('li');
       item.textContent = featureText;
-      item.className = 'flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400';
+      item.className = 'flex items-center gap-2 fa-script-copy-muted';
       return item;
     })
   );

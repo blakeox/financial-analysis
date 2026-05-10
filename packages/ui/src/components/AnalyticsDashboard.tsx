@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { getApiMonitor, type ApiAnalysis, type ApiCallMetrics } from '../lib/api-monitor';
 import { formatNumber } from '../lib/formatters';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 export interface AnalyticsDashboardProps {
   autoRefresh?: boolean;
@@ -41,9 +42,9 @@ export function AnalyticsDashboard({
 
   if (!analysis) {
     return (
-      <Card>
+      <Card variant="subtle">
         <CardContent className="p-6">
-          <p className="text-gray-500">No analytics data available</p>
+          <p className={cn('text-sm', textColors.muted)}>No analytics data available</p>
         </CardContent>
       </Card>
     );
@@ -53,43 +54,51 @@ export function AnalyticsDashboard({
     <div className="space-y-6">
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card variant="interactive">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Total API Calls</CardTitle>
+            <CardTitle className={cn('text-sm font-medium', textColors.secondary)}>
+              Total API Calls
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{analysis.totalCalls}</p>
+            <p className="text-3xl font-bold text-slate-950 dark:text-white">{analysis.totalCalls}</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="interactive">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Success Rate</CardTitle>
+            <CardTitle className={cn('text-sm font-medium', textColors.secondary)}>
+              Success Rate
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">
+            <p className={cn('text-3xl font-bold', textColors.success)}>
               {analysis.successRate.toFixed(1)}%
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="interactive">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Avg Duration</CardTitle>
+            <CardTitle className={cn('text-sm font-medium', textColors.secondary)}>
+              Avg Duration
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">
+            <p className="text-3xl font-bold text-slate-950 dark:text-white">
               {formatNumber(analysis.averageDuration, 0)}ms
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="interactive">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Cache Hit Rate</CardTitle>
+            <CardTitle className={cn('text-sm font-medium', textColors.secondary)}>
+              Cache Hit Rate
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600">
+            <p className={cn('text-3xl font-bold', textColors.accent)}>
               {analysis.cacheHitRate.toFixed(1)}%
             </p>
           </CardContent>
@@ -98,46 +107,45 @@ export function AnalyticsDashboard({
 
       {/* Slowest Calls */}
       {analysis.slowestCalls.length > 0 && (
-        <Card>
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle>Slowest API Calls</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Endpoint
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Method
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Duration
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Status
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {analysis.slowestCalls.slice(0, 5).map((call: ApiCallMetrics, i: number) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm font-mono">{call.endpoint}</td>
+                    <tr key={i} className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20">
+                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">{call.endpoint}</td>
                       <td className="px-4 py-2 text-sm">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                        <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', badgeVariants.primary)}>
                           {call.method}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-sm">{call.duration}ms</td>
+                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">{call.duration}ms</td>
                       <td className="px-4 py-2 text-sm">
                         <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            call.success
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
+                          className={cn(
+                            'rounded-full px-2.5 py-1 text-xs font-semibold',
+                            call.success ? badgeVariants.success : badgeVariants.danger
+                          )}
                         >
                           {call.statusCode || 'N/A'}
                         </span>
@@ -153,25 +161,25 @@ export function AnalyticsDashboard({
 
       {/* Recent Errors */}
       {analysis.recentErrors.length > 0 && (
-        <Card>
+        <Card variant="rail">
           <CardHeader>
-            <CardTitle className="text-red-600">Recent Errors</CardTitle>
+            <CardTitle className={textColors.danger}>Recent Errors</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {analysis.recentErrors.slice(0, 5).map((error: ApiCallMetrics, i: number) => (
                 <div
                   key={i}
-                  className="p-3 bg-red-50 border border-red-200 rounded-lg"
+                  className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 dark:border-rose-900/70 dark:bg-rose-950/30"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-mono text-sm">
+                      <p className="font-mono text-sm text-slate-950 dark:text-white">
                         {error.method} {error.endpoint}
                       </p>
-                      <p className="text-xs text-red-600 mt-1">{error.errorMessage}</p>
+                      <p className={cn('mt-1 text-xs', textColors.danger)}>{error.errorMessage}</p>
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className={cn('text-xs', textColors.muted)}>
                       {new Date(error.startTime).toLocaleTimeString()}
                     </span>
                   </div>
@@ -184,58 +192,59 @@ export function AnalyticsDashboard({
 
       {/* Endpoint Statistics */}
       {analysis.endpointStats.size > 0 && (
-        <Card>
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle>Endpoint Statistics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Endpoint
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Calls
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Success
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Avg Duration
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
                       Cache Hits
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {Array.from(analysis.endpointStats.values()).map((stats, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm font-mono">{stats.endpoint}</td>
-                      <td className="px-4 py-2 text-sm">{stats.callCount}</td>
+                    <tr key={i} className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20">
+                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">{stats.endpoint}</td>
+                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">{stats.callCount}</td>
                       <td className="px-4 py-2 text-sm">
                         <span
-                          className={`px-2 py-1 rounded text-xs ${
+                          className={cn(
+                            'rounded-full px-2.5 py-1 text-xs font-semibold',
                             stats.successCount === stats.callCount
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
+                              ? badgeVariants.success
+                              : badgeVariants.warning
+                          )}
                         >
                           {stats.successCount}/{stats.callCount}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-sm">
+                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">
                         {formatNumber(stats.averageDuration, 0)}ms
                       </td>
                       <td className="px-4 py-2 text-sm">
                         {stats.cacheHits > 0 ? (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                          <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', badgeVariants.primary)}>
                             {stats.cacheHits}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className={textColors.muted}>-</span>
                         )}
                       </td>
                     </tr>
@@ -248,7 +257,7 @@ export function AnalyticsDashboard({
       )}
 
       {/* Last Update */}
-      <div className="text-sm text-gray-500 text-center">
+      <div className={cn('text-center text-sm', textColors.muted)}>
         Last updated: {lastUpdate.toLocaleTimeString()}
       </div>
     </div>

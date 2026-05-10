@@ -1,6 +1,8 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
+import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['invest-vs-payoff-debt'];
@@ -37,84 +39,41 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
-  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a></li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey" class="hover:text-gray-700 dark:hover:text-gray-300">Journey</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <a href="/journey/invest-vs-payoff-debt" class="hover:text-gray-700 dark:hover:text-gray-300">{currentScenario.name}</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-gray-900 dark:text-white">{currentStep?.name}</span>
-          </li>
-        </ol>
-      </nav>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Journey', href: '/journey' },
+      { label: currentScenario.name, href: journeyNav.journeyOverviewUrl },
+      { label: currentStep?.name ?? 'Current step' },
+    ]}
+  />
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <main class="fa-page-shell">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          <!-- Header -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center mb-4">
-              <span class="text-3xl mr-3">📈</span>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{currentStep?.name}</h1>
-                <p class="text-gray-600 dark:text-gray-400">{currentStep?.description}</p>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    Step {currentStepOrder} of {currentScenario.models.length} - {currentScenario.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Journey Progress Bar -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Journey Progress</h3>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                Step {currentStepOrder} of {currentScenario.models.length}
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(currentStepOrder / currentScenario.models.length) * 100}%`}
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {currentScenario.name} - {Math.round((currentStepOrder / currentScenario.models.length) * 100)}% Complete
-            </p>
-          </div>
+          <JourneyStepHero
+            icon="📈"
+            title={currentStep?.name ?? 'Current step'}
+            description={currentStep?.description ?? ''}
+            currentStep={currentStepOrder}
+            totalSteps={currentScenario.models.length}
+            scenarioName={currentScenario.name}
+          />
 
           <!-- Investment Evaluation Form -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Evaluate Your Investment Options</h2>
+          <div class="fa-card p-6 mb-6">
+            <h2 class="fa-panel-title mb-6">Evaluate Your Investment Options</h2>
             
-            <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-4 mb-6">
+            <div class="fa-callout-success mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <p class="text-sm text-green-700 dark:text-green-300">
+                  <p class="text-sm">
                     <strong>Key Factor:</strong> Compare expected investment returns with your debt interest rate. Also consider employer match - that's free money you shouldn't miss!
                   </p>
                 </div>
@@ -123,11 +82,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             
             <form id="investment-form" class="space-y-6">
               <!-- Expected Returns -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Expected Investment Returns</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">📊 Expected Investment Returns</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label for="expected-return" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="expected-return" class="fa-field-label mb-2">
                       Expected Annual Return (%) *
                     </label>
                     <input 
@@ -135,20 +94,20 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                       step="0.1"
                       id="expected-return" 
                       name="expectedReturn"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                       placeholder="10"
                       required
                     />
-                    <p class="text-xs text-gray-500 mt-1">S&P 500 historical average: ~10% annually</p>
+                    <p class="fa-help-copy mt-1">S&P 500 historical average: ~10% annually</p>
                   </div>
                   <div>
-                    <label for="investment-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label for="investment-type" class="fa-field-label mb-2">
                       Investment Type *
                     </label>
                     <select 
                       id="investment-type" 
                       name="investmentType"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                       class="fa-input-surface w-full"
                       required
                     >
                       <option value="">Select type</option>
@@ -162,25 +121,25 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Employer Match -->
-              <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🎁 Employer Match (If Applicable)</h3>
+              <div class="fa-panel-divider pb-6">
+                <h3 class="fa-scenario-title mb-4">🎁 Employer Match (If Applicable)</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Do you have employer match available?
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="hasEmployerMatch" value="yes" class="mt-1 mr-3" id="has-match-yes">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, I have employer match</span>
-                          <p class="text-xs text-gray-500">This is free money - usually prioritize this!</p>
+                          <span class="fa-list-copy-strong">Yes, I have employer match</span>
+                          <p class="fa-help-copy">This is free money - usually prioritize this!</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="hasEmployerMatch" value="no" class="mt-1 mr-3" id="has-match-no" checked>
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No employer match</span>
+                          <span class="fa-list-copy-strong">No employer match</span>
                         </div>
                       </label>
                     </div>
@@ -188,7 +147,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                   <div id="employer-match-details" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label for="employer-match-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="employer-match-rate" class="fa-field-label mb-2">
                           Employer Match Rate (%)
                         </label>
                         <input 
@@ -196,13 +155,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                           step="0.1"
                           id="employer-match-rate" 
                           name="employerMatchRate"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                           placeholder="50"
                         />
-                        <p class="text-xs text-gray-500 mt-1">e.g., 50% means employer contributes $0.50 per $1.00 you contribute</p>
+                         <p class="fa-help-copy mt-1">e.g., 50% means employer contributes $0.50 per $1.00 you contribute</p>
                       </div>
                       <div>
-                        <label for="match-limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="match-limit" class="fa-field-label mb-2">
                           Match Limit (% of salary)
                         </label>
                         <input 
@@ -210,10 +169,10 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                           step="0.1"
                           id="match-limit" 
                           name="matchLimit"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                           class="fa-input-surface w-full"
                           placeholder="6"
                         />
-                        <p class="text-xs text-gray-500 mt-1">e.g., 6% means match up to 6% of your salary</p>
+                         <p class="fa-help-copy mt-1">e.g., 6% means match up to 6% of your salary</p>
                       </div>
                     </div>
                   </div>
@@ -222,32 +181,32 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
               <!-- Risk Tolerance -->
               <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">⚖️ Risk Considerations</h3>
+                 <h3 class="fa-scenario-title mb-4">⚖️ Risk Considerations</h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="fa-field-label mb-2">
                       Investment Risk Tolerance
                     </label>
                     <div class="space-y-2">
                       <label class="flex items-start">
                         <input type="radio" name="riskTolerance" value="conservative" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Conservative</span>
-                          <p class="text-xs text-gray-500">Prefer guaranteed returns (debt payoff)</p>
+                           <span class="fa-list-copy-strong">Conservative</span>
+                           <p class="fa-help-copy">Prefer guaranteed returns (debt payoff)</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="riskTolerance" value="moderate" class="mt-1 mr-3" checked>
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Moderate</span>
-                          <p class="text-xs text-gray-500">Balance between risk and return</p>
+                           <span class="fa-list-copy-strong">Moderate</span>
+                           <p class="fa-help-copy">Balance between risk and return</p>
                         </div>
                       </label>
                       <label class="flex items-start">
                         <input type="radio" name="riskTolerance" value="aggressive" class="mt-1 mr-3">
                         <div>
-                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Aggressive</span>
-                          <p class="text-xs text-gray-500">Comfortable with market risk for higher returns</p>
+                           <span class="fa-list-copy-strong">Aggressive</span>
+                           <p class="fa-help-copy">Comfortable with market risk for higher returns</p>
                         </div>
                       </label>
                     </div>
@@ -256,19 +215,19 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" id="save-investment-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+              <div class="flex flex-wrap gap-4 pt-6 fa-panel-divider-top">
+                <button type="button" id="save-investment-btn" class="fa-button-primary">
                   Save & Continue
                 </button>
-                <button type="button" id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                <button type="button" id="reset-btn" class="fa-button-secondary">
                   Reset Form
                 </button>
               </div>
             </form>
 
             <!-- Results Section -->
-            <div id="investment-results" class="hidden mt-8 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📊 Your Investment Summary</h3>
+            <div id="investment-results" class="fa-highlight-card hidden mt-8 p-6">
+              <h3 class="fa-scenario-title mb-4">📊 Your Investment Summary</h3>
               <div id="investment-results-content" class="space-y-4">
                 <!-- Results will be populated by JavaScript -->
               </div>
@@ -276,13 +235,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
 
           <!-- Journey Navigation -->
-          <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg shadow-md p-6 mb-6">
+          <div class="fa-card p-6 mb-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 {journeyNav.previousStep ? (
                   <a 
                     href={journeyNav.previousStep.url}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -292,7 +251,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={journeyNav.journeyOverviewUrl}
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-secondary"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -306,7 +265,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 {journeyNav.nextStep ? (
                   <a 
                     href={journeyNav.nextStep.url}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Next: {journeyNav.nextStep.name}
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,7 +275,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
                 ) : (
                   <a 
                     href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    class="fa-button-primary"
                   >
                     Complete Journey
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,24 +290,24 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-4">💡 Return Expectations</h3>
-            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="fa-card p-5 mb-6">
+             <h3 class="fa-scenario-title mb-4">💡 Return Expectations</h3>
+             <div class="space-y-4 fa-list-copy">
+              <div class="fa-highlight-card p-3">
                 <p><strong>S&P 500:</strong> ~10% annual average (long-term)</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Bonds:</strong> ~3-5% annual average</p>
               </div>
-              <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <div class="fa-highlight-card p-3">
                 <p><strong>Remember:</strong> Past performance doesn't guarantee future results</p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5">
-            <h3 class="text-lg font-semibold mb-4">🎁 Employer Match</h3>
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="fa-card p-5">
+             <h3 class="fa-scenario-title mb-4">🎁 Employer Match</h3>
+             <div class="space-y-3 fa-list-copy">
               <p><strong>Free Money:</strong> Employer match is typically 50-100% return immediately</p>
               <p><strong>Priority:</strong> Usually best to get full match before paying extra on debt</p>
               <p><strong>Example:</strong> 50% match on 6% = 3% free money from employer</p>
@@ -356,7 +315,6 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           </div>
         </div>
       </div>
-    </div>
   </main>
 
   <script>
@@ -429,33 +387,33 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           // Show results
           investmentResultsContent!.innerHTML = `
-            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+            <div class="fa-subcard">
               <div class="space-y-3 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Expected Return:</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">${expectedReturn}%</span>
+                  <span class="fa-meta-copy">Expected Return:</span>
+                  <span class="fa-list-copy-strong">${expectedReturn}%</span>
                 </div>
                 ${hasEmployerMatch === 'yes' && employerMatchRate > 0 ? `
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Employer Match:</span>
-                    <span class="font-semibold text-green-600 dark:text-green-400">${employerMatchRate}%</span>
+                    <span class="fa-meta-copy">Employer Match:</span>
+                    <span class="font-semibold text-emerald-600 dark:text-emerald-300">${employerMatchRate}%</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Effective Return:</span>
-                    <span class="font-semibold text-green-600 dark:text-green-400">${effectiveReturn.toFixed(1)}%</span>
+                    <span class="fa-meta-copy">Effective Return:</span>
+                    <span class="font-semibold text-emerald-600 dark:text-emerald-300">${effectiveReturn.toFixed(1)}%</span>
                   </div>
                 ` : ''}
                 <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Investment Type:</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">${investmentType.toUpperCase()}</span>
+                  <span class="fa-meta-copy">Investment Type:</span>
+                  <span class="fa-list-copy-strong">${investmentType.toUpperCase()}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Risk Tolerance:</span>
-                  <span class="font-semibold text-gray-900 dark:text-white">${riskTolerance.charAt(0).toUpperCase() + riskTolerance.slice(1)}</span>
+                  <span class="fa-meta-copy">Risk Tolerance:</span>
+                  <span class="fa-list-copy-strong">${riskTolerance.charAt(0).toUpperCase() + riskTolerance.slice(1)}</span>
                 </div>
               </div>
-              <div class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <p class="text-sm text-purple-800 dark:text-purple-200">
+              <div class="fa-highlight-card mt-4 p-3">
+                <p class="text-sm text-violet-800 dark:text-violet-200">
                   ${hasEmployerMatch === 'yes' ? '🎁 Employer match significantly increases your effective return! Consider prioritizing this.' : expectedReturn >= 8 ? '💡 Good expected return. Compare with your debt interest rate.' : '💡 Lower expected return. Paying off debt may be better if interest rate is high.'}
                 </p>
               </div>
@@ -466,13 +424,13 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
 
           // Show success message
           saveBtn.textContent = '✓ Saved!';
-          saveBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-          saveBtn.classList.add('bg-purple-500');
+          saveBtn.classList.remove('bg-violet-600', 'hover:bg-violet-700');
+          saveBtn.classList.add('bg-violet-500');
           
           setTimeout(() => {
             saveBtn.textContent = 'Save & Continue';
-            saveBtn.classList.remove('bg-purple-500');
-            saveBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            saveBtn.classList.remove('bg-violet-500');
+            saveBtn.classList.add('bg-violet-600', 'hover:bg-violet-700');
           }, 2000);
 
           // Dispatch completion event
@@ -527,4 +485,3 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
     });
   </script>
 </Layout>
-

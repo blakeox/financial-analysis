@@ -1,259 +1,278 @@
 ---
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import Layout from '../layouts/Layout.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 
 const title = 'API Pricing Plans - Financial Analysis | Free & Pro Tiers';
-const description = 'Simple, transparent pricing for the Financial Analysis API. Start free with 1,000 requests/month, upgrade to Pro or Enterprise as you grow. No hidden fees.';
-const keywords = "api pricing, financial api cost, free api tier, developer pricing, financial calculator api pricing, rest api plans";
+const description =
+  'Simple, transparent pricing for the Financial Analysis API. Start free with 1,000 requests/month, upgrade to Pro or Enterprise as you grow. No hidden fees.';
+const keywords =
+  'api pricing, financial api cost, free api tier, developer pricing, financial calculator api pricing, rest api plans';
 
 const baseUrl = 'https://fanalyx.com';
 const currentUrl = `${baseUrl}${Astro.url.pathname}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
+      '@type': 'BreadcrumbList',
+      itemListElement: [
         {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": baseUrl
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: baseUrl,
         },
         {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Pricing",
-          "item": currentUrl
-        }
-      ]
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Pricing',
+          item: currentUrl,
+        },
+      ],
     },
     {
-      "@type": "Product",
-      "name": "Fanalyx Financial Analysis API",
-      "description": description,
-      "brand": {
-        "@type": "Brand",
-        "name": "Fanalyx"
+      '@type': 'Product',
+      name: 'Fanalyx Financial Analysis API',
+      description: description,
+      brand: {
+        '@type': 'Brand',
+        name: 'Fanalyx',
       },
-      "offers": [
+      offers: [
         {
-          "@type": "Offer",
-          "name": "Free Tier",
-          "price": "0",
-          "priceCurrency": "USD",
-          "description": "1,000 requests/month, 1 request/second rate limit"
+          '@type': 'Offer',
+          name: 'Free Tier',
+          price: '0',
+          priceCurrency: 'USD',
+          description: '1,000 requests/month, 1 request/second rate limit',
         },
         {
-          "@type": "Offer",
-          "name": "Pro Tier",
-          "price": "29",
-          "priceCurrency": "USD",
-          "description": "50,000 requests/month, 10 requests/second rate limit"
+          '@type': 'Offer',
+          name: 'Pro Tier',
+          price: '29',
+          priceCurrency: 'USD',
+          description: '50,000 requests/month, 10 requests/second rate limit',
         },
         {
-          "@type": "Offer",
-          "name": "Enterprise",
-          "description": "1,000,000 requests/month, custom rate limits, dedicated support"
-        }
-      ]
-    }
-  ]
+          '@type': 'Offer',
+          name: 'Enterprise',
+          description: '1,000,000 requests/month, custom rate limits, dedicated support',
+        },
+      ],
+    },
+  ],
 };
 ---
 
 <Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-  
-  <!-- Breadcrumb Navigation -->
-  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-      <li><a href="/" class="hover:text-blue-600">Home</a></li>
-      <li><span aria-hidden="true">/</span></li>
-      <li><span class="text-gray-900 dark:text-white font-medium" aria-current="page">Pricing</span></li>
-    </ol>
-  </nav>
-  
-  <div class="min-h-screen bg-linear-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
-          Simple, Transparent Pricing
-        </h1>
-        <p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
-          Start free, upgrade as you grow. No hidden fees, cancel anytime.
-        </p>
-      </div>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Pricing' }]} />
 
-      <!-- Pricing Cards -->
-      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16" id="pricing-tiers">
-        <!-- Loading state -->
-        <div class="col-span-3 text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-          <p class="mt-4 text-gray-600">Loading pricing...</p>
+  <div class="fa-page-shell">
+      <section class="fa-card relative overflow-hidden px-6 py-10 sm:px-8 lg:px-12 lg:py-14">
+        <div
+          class="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top,rgba(109,74,255,0.16),transparent_55%)]"
+          aria-hidden="true"
+        >
         </div>
-      </div>
+        <div class="relative grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <PageHero
+            eyebrow="Pricing"
+            title="Simple, Transparent Pricing"
+            description="Start free, upgrade as you grow, and keep the economics readable. Fanalyx pricing is built for teams using the API for financial calculations and AI-assisted workflows."
+            actions={[
+              { href: '/developers', label: 'Get Your Free API Key' },
+              { href: '/agent', label: 'Explore the product', variant: 'secondary' },
+            ]}
+          />
 
-      <!-- Features Comparison -->
-      <div class="max-w-6xl mx-auto mt-20">
-        <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">
-          Compare Features
-        </h2>
-        
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Feature</th>
-                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Free</th>
-                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Pro</th>
-                <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900">Enterprise</th>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <SurfaceCard className="bg-slate-50/90 dark:bg-slate-900/50" title="Starting point">
+              <p class="fa-price-display mt-3 text-slate-900 dark:text-white">$0</p>
+              <p class="fa-card-copy !mt-2">
+                Free tier for trying the API, validating use cases, and testing contract shapes.
+              </p>
+            </SurfaceCard>
+            <SurfaceCard className="fa-surface-accent" title="Scaling up">
+              <p class="fa-price-display mt-3 text-slate-900 dark:text-white">$29</p>
+              <p class="fa-card-copy !mt-2">
+                Pro tier for live integrations, higher throughput, and direct support when needed.
+              </p>
+            </SurfaceCard>
+            <SurfaceCard className="sm:col-span-2" title="Built for clarity">
+              <p class="fa-card-copy !mt-3">
+                No vague enterprise-only pricing wall up front. You can start small, see the math,
+                and talk to us when your usage becomes real.
+              </p>
+            </SurfaceCard>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-14">
+        <div class="mb-10 text-center">
+          <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">Compare plans</h2>
+          <p class="fa-body-copy mx-auto mt-4 max-w-2xl">
+            The pricing cards below are loaded from the current pricing configuration.
+          </p>
+        </div>
+
+        <div class="grid gap-8 md:grid-cols-3" id="pricing-tiers">
+          <div
+            class="fa-card col-span-3 p-12 text-center"
+          >
+            <div
+              class="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-violet-600"
+            >
+            </div>
+            <p class="fa-card-copy !mt-4">Loading pricing...</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="fa-card mt-20 p-4 sm:p-6">
+        <div class="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">Compare Features</h2>
+            <p class="fa-card-copy fa-card-copy-sm !mt-2">
+              The same core analysis surface, with more room to scale as usage grows.
+            </p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead>
+              <tr class="text-left fa-list-copy-strong">
+                <th class="px-4 py-4">Feature</th>
+                <th class="px-4 py-4 text-center">Free</th>
+                <th class="px-4 py-4 text-center">Pro</th>
+                <th class="px-4 py-4 text-center">Enterprise</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-slate-200 text-sm dark:divide-slate-800">
               <tr>
-                <td class="px-6 py-4 text-sm text-gray-900">Monthly Requests</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">1,000</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">50,000</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">1,000,000</td>
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Monthly Requests</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">1,000</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">50,000</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">1,000,000</td>
               </tr>
-              <tr class="bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900">Rate Limit</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">1/sec</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">10/sec</td>
-                <td class="px-6 py-4 text-sm text-center text-gray-600">100/sec</td>
-              </tr>
-              <tr>
-                <td class="px-6 py-4 text-sm text-gray-900">Lease Analysis</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-              </tr>
-              <tr class="bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900">Amortization Schedules</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
+              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Rate Limit</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">1/sec</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">10/sec</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">100/sec</td>
               </tr>
               <tr>
-                <td class="px-6 py-4 text-sm text-gray-900">EBITDA Forecasting</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Lease Analysis</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
               </tr>
-              <tr class="bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900">Email Support</td>
-                <td class="px-6 py-4 text-sm text-center">-</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
+              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Amortization Schedules</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
               </tr>
               <tr>
-                <td class="px-6 py-4 text-sm text-gray-900">Priority Support</td>
-                <td class="px-6 py-4 text-sm text-center">-</td>
-                <td class="px-6 py-4 text-sm text-center">-</td>
-                <td class="px-6 py-4 text-sm text-center">✅</td>
+                <td class="px-4 py-4 text-slate-900 dark:text-white">EBITDA Forecasting</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
               </tr>
-              <tr class="bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900">SLA Guarantee</td>
-                <td class="px-6 py-4 text-sm text-center">-</td>
-                <td class="px-6 py-4 text-sm text-center">-</td>
-                <td class="px-6 py-4 text-sm text-center">99.9%</td>
+              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Email Support</td>
+                <td class="px-4 py-4 text-center">—</td>
+                <td class="px-4 py-4 text-center">✓</td>
+                <td class="px-4 py-4 text-center">✓</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-4 text-slate-900 dark:text-white">Priority Support</td>
+                <td class="px-4 py-4 text-center">—</td>
+                <td class="px-4 py-4 text-center">—</td>
+                <td class="px-4 py-4 text-center">✓</td>
+              </tr>
+              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
+                <td class="px-4 py-4 text-slate-900 dark:text-white">SLA Guarantee</td>
+                <td class="px-4 py-4 text-center">—</td>
+                <td class="px-4 py-4 text-center">—</td>
+                <td class="fa-meta-copy px-4 py-4 text-center">99.9%</td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <!-- FAQ -->
-      <div class="max-w-3xl mx-auto mt-20">
-        <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">
-          Frequently Asked Questions
-        </h2>
-        
-        <div class="space-y-6">
-          <details class="bg-white rounded-lg shadow-md p-6 group">
-            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+      <section class="mx-auto mt-20 max-w-3xl">
+        <div class="mb-10 text-center">
+          <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">
+            Frequently asked questions
+          </h2>
+        </div>
+
+        <div class="space-y-5">
+          <details class="fa-accordion fa-card p-6">
+            <summary class="fa-accordion-summary fa-list-copy-strong">
               What happens if I exceed my quota?
-              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+              <span class="fa-accordion-chevron">▼</span>
             </summary>
-            <p class="mt-4 text-gray-600">
-              Once you reach your monthly quota, additional requests will be charged at the overage rate for your tier. 
-              Pro tier: $0.001/request, Enterprise: $0.0001/request. You can upgrade anytime to increase your quota.
+            <p class="fa-card-copy fa-card-copy-sm !mt-4">
+              Once you reach your monthly quota, additional requests are charged at the overage rate
+              for your tier. You can also upgrade to increase your quota before you hit that
+              ceiling.
             </p>
           </details>
 
-          <details class="bg-white rounded-lg shadow-md p-6 group">
-            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
-              Can I cancel my subscription anytime?
-              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+          <details class="fa-accordion fa-card p-6">
+            <summary class="fa-accordion-summary fa-list-copy-strong">
+              Can I cancel anytime?
+              <span class="fa-accordion-chevron">▼</span>
             </summary>
-            <p class="mt-4 text-gray-600">
-              Yes! You can cancel your subscription anytime from the billing portal. When you cancel, you'll be 
-              downgraded to the Free tier at the end of your billing period. Your API key remains active.
+            <p class="fa-card-copy fa-card-copy-sm !mt-4">
+              Yes. You can cancel a paid plan any time and keep access through the current billing
+              period before dropping back to the free tier.
             </p>
           </details>
 
-          <details class="bg-white rounded-lg shadow-md p-6 group">
-            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
-              How do I upgrade or downgrade?
-              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <p class="mt-4 text-gray-600">
-              You can upgrade or downgrade at any time through the billing portal. Changes take effect immediately, 
-              and billing is prorated. Access the billing portal from your dashboard.
-            </p>
-          </details>
-
-          <details class="bg-white rounded-lg shadow-md p-6 group">
-            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
+          <details class="fa-accordion fa-card p-6">
+            <summary class="fa-accordion-summary fa-list-copy-strong">
               Do you offer custom enterprise plans?
-              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
+              <span class="fa-accordion-chevron">▼</span>
             </summary>
-            <p class="mt-4 text-gray-600">
-              Yes! For custom quotas, dedicated support, or special requirements, contact us at 
-              <a href="mailto:enterprise@fanalyx.com" class="text-indigo-600 hover:text-indigo-700">enterprise@fanalyx.com</a> 
-              to discuss a custom plan.
-            </p>
-          </details>
-
-          <details class="bg-white rounded-lg shadow-md p-6 group">
-            <summary class="font-semibold text-gray-900 cursor-pointer flex justify-between items-center">
-              What payment methods do you accept?
-              <span class="ml-2 transform group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <p class="mt-4 text-gray-600">
-              We accept all major credit cards (Visa, Mastercard, Amex, Discover) through our secure payment 
-              processor, Stripe. Enterprise customers can also pay via invoice.
+            <p class="fa-card-copy fa-card-copy-sm !mt-4">
+              Yes. If you need custom quotas, support, or deployment requirements, contact{' '}
+              <a href="mailto:enterprise@fanalyx.com" class="fa-inline-link">
+                enterprise@fanalyx.com
+              </a>
+              .
             </p>
           </details>
         </div>
-      </div>
+      </section>
 
-      <!-- CTA -->
-      <div class="text-center mt-20">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">
-          Ready to get started?
-        </h2>
-        <p class="text-gray-600 mb-8">
-          Create your free API key and start building today.
-        </p>
-        <a 
-          href="/developers" 
-          class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-        >
-          Get Your Free API Key
-        </a>
-      </div>
-    </div>
+      <section class="fa-cta-band mt-20 rounded-[32px] px-6 py-10 text-white sm:px-10 lg:px-14">
+        <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <h2 class="fa-display fa-display-section !mt-0 !text-white">Ready to get started?</h2>
+            <p class="fa-body-copy mt-4 max-w-2xl !text-white/78">
+              Start with the free tier, evaluate the contract, and scale only when your use case is
+              ready.
+            </p>
+          </div>
+          <a
+            href="/developers"
+            class="fa-button-light inline-flex items-center justify-center whitespace-nowrap"
+          >
+            Get Your Free API Key
+          </a>
+        </div>
+      </section>
   </div>
   <ClientScriptLoader client:load slot="pageScripts" name="pricing" />
 </Layout>
-
-<style>
-  details summary::-webkit-details-marker {
-    display: none;
-  }
-</style>

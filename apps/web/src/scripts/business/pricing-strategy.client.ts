@@ -111,26 +111,26 @@ function displayResults(result: PricingResult, input: PricingInput): void {
   ];
 
   summaryCards.innerHTML = strategies.map(s => `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">${s.icon} ${s.name}</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(s.data.price)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${s.data.margin.toFixed(1)}% margin</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">${s.icon} ${s.name}</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(s.data.price)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${s.data.margin.toFixed(1)}% margin</p>
     </div>
   `).join('') + `
-    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-green-900 dark:text-green-100">⭐ Optimal Price</h5>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(result.optimal.price)}</p>
-      <p class="text-xs text-green-700 dark:text-green-300 mt-1">${formatCurrency(result.optimal.profit)}/mo profit</p>
+    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">⭐ Optimal Price</h5>
+      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.optimal.price)}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${formatCurrency(result.optimal.profit)}/mo profit</p>
     </div>
   `;
 
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">Pricing Strategy Comparison</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-gray-300 dark:border-gray-600">
+            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
               <th class="text-left py-2 px-2">Strategy</th>
               <th class="text-right py-2 px-2">Price</th>
               <th class="text-right py-2 px-2">Margin %</th>
@@ -139,30 +139,30 @@ function displayResults(result: PricingResult, input: PricingInput): void {
           </thead>
           <tbody>
             ${strategies.map(s => `
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="border-b border-slate-200 dark:border-slate-800">
                 <td class="py-2 px-2 font-medium">${s.icon} ${s.name}</td>
                 <td class="text-right py-2 px-2">${formatCurrency(s.data.price)}</td>
                 <td class="text-right py-2 px-2">${s.data.margin.toFixed(1)}%</td>
-                <td class="text-right py-2 px-2 font-semibold text-green-600 dark:text-green-400">${formatCurrency(s.data.monthlyProfit)}</td>
+                <td class="text-right py-2 px-2 font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(s.data.monthlyProfit)}</td>
               </tr>
             `).join('')}
-            <tr class="border-t-2 border-gray-300 dark:border-gray-600 font-bold bg-green-50 dark:bg-green-900/20">
+            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold bg-emerald-50 dark:bg-emerald-900/20">
               <td class="py-3 px-2">⭐ Optimal (Math-Based)</td>
               <td class="text-right py-3 px-2">${formatCurrency(result.optimal.price)}</td>
               <td class="text-right py-3 px-2">${(((result.optimal.price - input.costPerUnit) / result.optimal.price) * 100).toFixed(1)}%</td>
-              <td class="text-right py-3 px-2 text-green-600 dark:text-green-400">${formatCurrency(result.optimal.profit)}</td>
+              <td class="text-right py-3 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(result.optimal.profit)}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
     
-    <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-4">📈 Price Sensitivity Analysis</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
           <thead>
-            <tr class="border-b border-gray-300 dark:border-gray-600">
+            <tr class="border-b border-slate-300 dark:border-slate-700">
               <th class="text-left py-2">Price</th>
               <th class="text-right py-2">Est. Units</th>
               <th class="text-right py-2">Revenue</th>
@@ -171,11 +171,11 @@ function displayResults(result: PricingResult, input: PricingInput): void {
           </thead>
           <tbody>
             ${result.sensitivity.map(s => `
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="border-b border-slate-200 dark:border-slate-800">
                 <td class="py-2">${formatCurrency(s.price)}</td>
                 <td class="text-right py-2">${Math.round(s.units)}</td>
                 <td class="text-right py-2">${formatCurrency(s.revenue)}</td>
-                <td class="text-right py-2 ${s.profit > result.optimal.profit * 0.95 ? 'font-bold text-green-600 dark:text-green-400' : ''}">${formatCurrency(s.profit)}</td>
+                <td class="text-right py-2 ${s.profit > result.optimal.profit * 0.95 ? 'font-bold text-emerald-600 dark:text-emerald-400' : ''}">${formatCurrency(s.profit)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -183,11 +183,11 @@ function displayResults(result: PricingResult, input: PricingInput): void {
       </div>
     </div>
     
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3">💡 Pricing Recommendations</h2>
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-sm">${rec}</div>
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
         `).join('')}
       </div>
     </div>

@@ -124,12 +124,12 @@ class InsuranceNeedsCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Insurance Needs Analysis</h3>
-          <p class="text-gray-700 dark:text-gray-300">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Insurance Needs Analysis</h3>
+          <p class="text-slate-700 dark:text-slate-300">
             Your insurance needs analysis is complete. Use the AI assistant to get detailed recommendations and coverage gap analysis.
           </p>
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fa-script-copy-muted">
           <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered insurance recommendations based on your specific situation.</p>
         </div>
       </div>

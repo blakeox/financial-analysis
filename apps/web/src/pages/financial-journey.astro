@@ -1,6 +1,9 @@
 ---
 import AdSense from '../components/AdSense.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 ---
@@ -60,22 +63,32 @@ import Layout from '../layouts/Layout.astro';
     ]}
   />
 
-  <div class="container mx-auto px-4 py-8">
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Models', href: '/models' },
+      { label: 'Personal Finance', href: '/models/personal' },
+      { label: 'Financial Journey' },
+    ]}
+  />
+
+  <div class="fa-page-shell">
     <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Financial Journey Planner</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">
-        Comprehensive multi-stage financial planning with personalized recommendations and progress tracking
-      </p>
+      <PageHero
+        eyebrow="Planner"
+        title="Financial Journey Planner"
+        description="Comprehensive multi-stage financial planning with personalized recommendations and progress tracking."
+      />
 
       <!-- Financial Journey Form -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Personal Information</h2>
+      <SurfaceCard className="mb-8">
+        <h2 class="fa-panel-title mb-6">Personal Information</h2>
 
         <form id="financial-journey-form" class="space-y-6">
           <!-- Personal Info Section -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="age" class="fa-field-label mb-2">
                 Age
               </label>
               <input
@@ -84,20 +97,20 @@ import Layout from '../layouts/Layout.astro';
                 name="age"
                 min="18"
                 max="100"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="fa-input-surface w-full"
                 placeholder="35"
                 required
               />
             </div>
 
             <div>
-              <label for="maritalStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="maritalStatus" class="fa-field-label mb-2">
                 Marital Status
               </label>
               <select
                 id="maritalStatus"
                 name="maritalStatus"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="fa-input-surface w-full"
                 required
               >
                 <option value="">Select...</option>
@@ -109,7 +122,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
 
             <div>
-              <label for="dependents" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="dependents" class="fa-field-label mb-2">
                 Number of Dependents
               </label>
               <input
@@ -119,18 +132,18 @@ import Layout from '../layouts/Layout.astro';
                 min="0"
                 max="20"
                 value="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="fa-input-surface w-full"
               />
             </div>
 
             <div>
-              <label for="employmentStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="employmentStatus" class="fa-field-label mb-2">
                 Employment Status
               </label>
               <select
                 id="employmentStatus"
                 name="employmentStatus"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="fa-input-surface w-full"
                 required
               >
                 <option value="">Select...</option>
@@ -143,11 +156,11 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <!-- Current Financials Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Current Financial Situation</h3>
+          <div class="fa-panel-divider-top pt-6 mt-6">
+            <h3 class="fa-scenario-title mb-4">Current Financial Situation</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="annualIncome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="annualIncome" class="fa-field-label mb-2">
                   Annual Income ($)
                 </label>
                 <input
@@ -156,14 +169,14 @@ import Layout from '../layouts/Layout.astro';
                   name="annualIncome"
                   min="0"
                   step="1000"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                   placeholder="100000"
                   required
                 />
               </div>
 
               <div>
-                <label for="monthlyExpenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="monthlyExpenses" class="fa-field-label mb-2">
                   Monthly Expenses ($)
                 </label>
                 <input
@@ -172,14 +185,14 @@ import Layout from '../layouts/Layout.astro';
                   name="monthlyExpenses"
                   min="0"
                   step="100"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                   placeholder="5000"
                   required
                 />
               </div>
 
               <div>
-                <label for="totalDebt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="totalDebt" class="fa-field-label mb-2">
                   Total Debt ($)
                 </label>
                 <input
@@ -189,12 +202,12 @@ import Layout from '../layouts/Layout.astro';
                   min="0"
                   step="1000"
                   value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                 />
               </div>
 
               <div>
-                <label for="emergencyFund" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="emergencyFund" class="fa-field-label mb-2">
                   Emergency Fund ($)
                 </label>
                 <input
@@ -204,12 +217,12 @@ import Layout from '../layouts/Layout.astro';
                   min="0"
                   step="1000"
                   value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                 />
               </div>
 
               <div>
-                <label for="retirementSavings" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="retirementSavings" class="fa-field-label mb-2">
                   Retirement Savings ($)
                 </label>
                 <input
@@ -219,12 +232,12 @@ import Layout from '../layouts/Layout.astro';
                   min="0"
                   step="1000"
                   value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                 />
               </div>
 
               <div>
-                <label for="otherAssets" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="otherAssets" class="fa-field-label mb-2">
                   Other Assets ($)
                 </label>
                 <input
@@ -234,24 +247,24 @@ import Layout from '../layouts/Layout.astro';
                   min="0"
                   step="1000"
                   value="0"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                 />
               </div>
             </div>
           </div>
 
           <!-- Goals Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Goals</h3>
+          <div class="fa-panel-divider-top pt-6 mt-6">
+            <h3 class="fa-scenario-title mb-4">Financial Goals</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="riskTolerance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="riskTolerance" class="fa-field-label mb-2">
                   Risk Tolerance
                 </label>
                 <select
                   id="riskTolerance"
                   name="riskTolerance"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                   required
                 >
                   <option value="conservative">Conservative</option>
@@ -261,7 +274,7 @@ import Layout from '../layouts/Layout.astro';
               </div>
 
               <div>
-                <label for="timeHorizon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="timeHorizon" class="fa-field-label mb-2">
                   Time Horizon (Years)
                 </label>
                 <input
@@ -271,7 +284,7 @@ import Layout from '../layouts/Layout.astro';
                   min="1"
                   max="50"
                   value="10"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  class="fa-input-surface w-full"
                   required
                 />
               </div>
@@ -279,21 +292,23 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <!-- Submit Button -->
-          <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+          <div class="flex justify-end pt-6 fa-panel-divider-top mt-6">
             <button
               type="submit"
-              class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              class="fa-button-primary"
             >
               Plan Financial Journey
             </button>
           </div>
         </form>
-      </div>
+      </SurfaceCard>
 
       <!-- Results Section -->
-      <div id="journey-results" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Financial Journey Plan</h2>
-        <div id="journey-results-content" class="space-y-4"></div>
+      <div id="journey-results" class="hidden">
+        <SurfaceCard className="mb-8">
+          <h2 class="fa-panel-title text-xl mb-4">Financial Journey Plan</h2>
+          <div id="journey-results-content" class="space-y-4"></div>
+        </SurfaceCard>
       </div>
 
       <!-- AdSense -->

@@ -1,5 +1,8 @@
 ---
 import AgentChatPanel from '../components/AgentChatPanel';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
 
 const title = 'Fanalyx Agent | Cloudflare Project Think';
@@ -9,56 +12,44 @@ const keywords =
   'cloudflare agents, project think, financial analysis agent, amortization agent, lease analysis agent';
 ---
 
-<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} showChat={false}>
-  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-    <div class="mb-8 max-w-3xl">
-      <p
-        class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300"
-      >
-        Advanced workspace
-      </p>
-      <h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-        Persistent financial workspace for ongoing analysis
-      </h1>
-      <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
-        Use this when you want a longer-running thread that survives page reloads. For calculator
-        work, Fanalyx now keeps guidance alongside the result so most users can stay inside the
-        model page instead of bouncing to a separate chat surface.
-      </p>
-    </div>
+<Layout
+  title={title}
+  description={description}
+  keywords={keywords}
+  canonical={Astro.url.href}
+  showChat={false}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Agent' }]} />
 
-    <div class="mb-8 grid gap-4 md:grid-cols-3">
-      <div
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
-      >
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Persistent sessions</h2>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Each browser gets a stable agent session name so the conversation can continue across page
-          reloads.
-        </p>
-      </div>
-      <div
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
-      >
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Deterministic tools</h2>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Amortization and lease calculations run through the existing analysis engines instead of
-          freeform LLM math.
-        </p>
-      </div>
-      <div
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
-      >
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
-          Same-origin agent route
-        </h2>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          The app proxies Cloudflare agent traffic through the existing web worker so the React
-          client can connect over the app origin.
-        </p>
-      </div>
-    </div>
+  <section class="fa-page-shell">
+    <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+      <div>
+        <PageHero
+          eyebrow="Advanced workspace"
+          title="Persistent financial workspace for ongoing analysis"
+          description="Use the Fanalyx agent when you want a longer-running thread that survives page reloads, keeps your context together, and leans on deterministic tools when the math matters."
+        />
 
-    <AgentChatPanel client:only="react" />
+        <div class="mt-6 grid gap-4">
+          <SurfaceCard
+            title="Persistent sessions"
+            description="Each browser gets a stable session name so the conversation can continue across reloads."
+          />
+          <SurfaceCard
+            title="Deterministic tools"
+            description="Amortization and lease calculations still run through the analysis engines instead of freeform LLM math."
+            className="fa-surface-accent"
+          />
+          <SurfaceCard
+            title="Same-origin agent route"
+            description="The web worker proxies Cloudflare agent traffic so the client stays on the app origin."
+          />
+        </div>
+      </div>
+
+      <SurfaceCard className="fa-surface-glow">
+        <AgentChatPanel client:only="react" />
+      </SurfaceCard>
+    </div>
   </section>
 </Layout>

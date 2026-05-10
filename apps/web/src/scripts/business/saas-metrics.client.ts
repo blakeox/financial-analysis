@@ -144,20 +144,20 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
   if (!resultsContainer || !summaryCards || !resultsSection) return;
 
   summaryCards.innerHTML = `
-    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">MRR</h5>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.mrr)}</p>
-      <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${formatCurrency(result.arr)} ARR</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">MRR</h5>
+      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.mrr)}</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.arr)} ARR</p>
     </div>
     <div class="bg-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-50 dark:bg-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-900 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-100">LTV:CAC Ratio</h5>
       <p class="text-2xl font-bold text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-600 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-400">${result.ltvCacRatio.toFixed(1)}:1</p>
       <p class="text-xs text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-700 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-300 mt-1">${result.ltvCacRatio >= 3 ? '✓ Excellent' : result.ltvCacRatio >= 1 ? '⚠️ Needs work' : '🚨 Losing money'}</p>
     </div>
-    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100">Monthly Churn</h5>
-      <p class="text-2xl font-bold ${result.churnRate <= 2 ? 'text-green-600 dark:text-green-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.churnRate.toFixed(1)}%</p>
-      <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">${(result.churnRate * 12).toFixed(0)}% annual</p>
+    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Churn</h5>
+      <p class="text-2xl font-bold ${result.churnRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.churnRate.toFixed(1)}%</p>
+      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${(result.churnRate * 12).toFixed(0)}% annual</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Health Grade</h5>
@@ -167,76 +167,76 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">📊 Core SaaS Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <h3 class="font-semibold text-gray-900 dark:text-white">Revenue Metrics</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Revenue Metrics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">MRR (Monthly Recurring)</span>
-              <span class="font-bold text-blue-600 dark:text-blue-400">${formatCurrency(result.mrr)}</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">MRR (Monthly Recurring)</span>
+              <span class="font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.mrr)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">ARR (Annual Recurring)</span>
-              <span class="font-bold text-green-600 dark:text-green-400">${formatCurrency(result.arr)}</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">ARR (Annual Recurring)</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.arr)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">Revenue per Customer</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">Revenue per Customer</span>
               <span class="font-semibold">${formatCurrency(input.averageMonthlyRevenue)}/mo</span>
             </div>
           </div>
         </div>
         
         <div class="space-y-4">
-          <h3 class="font-semibold text-gray-900 dark:text-white">Unit Economics</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Unit Economics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">CAC (Customer Acquisition Cost)</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">CAC (Customer Acquisition Cost)</span>
               <span class="font-semibold">${formatCurrency(result.cac)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">LTV (Lifetime Value)</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">LTV (Lifetime Value)</span>
               <span class="font-semibold">${formatCurrency(result.ltv)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-gray-700 dark:text-gray-300">LTV:CAC Ratio</span>
-              <span class="font-bold ${result.ltvCacRatio >= 3 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${result.ltvCacRatio.toFixed(1)}:1</span>
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+              <span class="text-slate-700 dark:text-slate-300">LTV:CAC Ratio</span>
+              <span class="font-bold ${result.ltvCacRatio >= 3 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltvCacRatio.toFixed(1)}:1</span>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-6 mb-6 border border-purple-200 dark:border-purple-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-4">📈 Growth & Efficiency Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Monthly Churn Rate</h4>
-          <p class="text-3xl font-bold ${result.churnRate <= 2 ? 'text-green-600 dark:text-green-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.churnRate.toFixed(1)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: <2% (excellent)</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Monthly Churn Rate</h4>
+          <p class="text-3xl font-bold ${result.churnRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.churnRate.toFixed(1)}%</p>
+          <p class="fa-script-note mt-2">Target: <2% (excellent)</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">CAC Payback Period</h4>
-          <p class="text-3xl font-bold ${result.paybackPeriod <= 12 ? 'text-green-600 dark:text-green-400' : result.paybackPeriod <= 18 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.paybackPeriod.toFixed(1)}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: <12 months</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="fa-script-copy-muted font-semibold mb-2">CAC Payback Period</h4>
+          <p class="text-3xl font-bold ${result.paybackPeriod <= 12 ? 'text-emerald-600 dark:text-emerald-400' : result.paybackPeriod <= 18 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.paybackPeriod.toFixed(1)}</p>
+          <p class="fa-script-note mt-2">Target: <12 months</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Net Revenue Retention</h4>
-          <p class="text-3xl font-bold ${result.nrr >= 100 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.nrr.toFixed(0)}%</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Target: >100% (with expansion)</p>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Net Revenue Retention</h4>
+          <p class="text-3xl font-bold ${result.nrr >= 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.nrr.toFixed(0)}%</p>
+          <p class="fa-script-note mt-2">Target: >100% (with expansion)</p>
         </div>
       </div>
       
-      <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Rule of 40</h4>
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="fa-script-copy-muted font-semibold mb-2">Rule of 40</h4>
         <div class="flex items-center gap-4">
-          <p class="text-4xl font-bold ${result.ruleOf40 >= 40 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.ruleOf40.toFixed(1)}%</p>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="text-4xl font-bold ${result.ruleOf40 >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.ruleOf40.toFixed(1)}%</p>
+          <div class="fa-script-copy-muted">
             <p>Growth Rate: {input.revenueGrowthRate}%</p>
             <p>+ Profit Margin: ${result.profitMargin.toFixed(1)}%</p>
             <p class="font-semibold mt-1">${result.ruleOf40 >= 40 ? '✓ Target achieved (≥40%)' : '⚠️ Below target 40%'}</p>
@@ -250,27 +250,27 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       
       <div class="flex items-center gap-6 mb-4">
         <div class="text-center">
-          <div class="text-6xl font-bold ${result.health.score >= 80 ? 'text-green-600 dark:text-green-400' : result.health.score >= 60 ? 'text-blue-600 dark:text-blue-400' : result.health.score >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}">${result.health.grade}</div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">${result.health.status}</p>
+          <div class="text-6xl font-bold ${result.health.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : result.health.score >= 60 ? 'text-violet-600 dark:text-violet-400' : result.health.score >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.health.grade}</div>
+          <p class="fa-script-copy-muted mt-2">${result.health.status}</p>
         </div>
         <div class="flex-1">
-          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-6">
+          <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-6">
             <div class="bg-gradient-to-r from-${result.health.score >= 80 ? 'green' : result.health.score >= 60 ? 'blue' : result.health.score >= 40 ? 'yellow' : 'red'}-500 to-${result.health.score >= 80 ? 'green' : result.health.score >= 60 ? 'blue' : result.health.score >= 40 ? 'yellow' : 'red'}-600 h-6 rounded-full flex items-center justify-center text-white text-sm font-semibold" style="width: ${result.health.score}%">
               ${result.health.score}/100
             </div>
           </div>
-          <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
             Based on LTV:CAC (25 pts), Churn (25 pts), Payback Period (25 pts), Rule of 40 (25 pts)
           </p>
         </div>
       </div>
     </div>
     
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3">💡 Recommendations & Insights</h2>
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-3 text-sm">${rec}</div>
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
         `).join('')}
       </div>
     </div>
@@ -337,4 +337,3 @@ if (document.readyState === 'loading') {
 } else {
   initializeSaaSMetrics();
 }
-

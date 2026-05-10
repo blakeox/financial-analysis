@@ -11,10 +11,10 @@ describe('Calculator Results Snapshots', () => {
     it('should generate consistent summary card HTML', () => {
       const generateSummaryCard = (title: string, value: string, subtitle?: string) => {
         return `
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">${title}</h5>
-            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${value}</p>
-            ${subtitle ? `<p class="text-xs text-blue-700 dark:text-blue-300 mt-1">${subtitle}</p>` : ''}
+          <div class="bg-violet-50 dark:bg-violet-950/20 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">${title}</h5>
+            <p class="text-2xl font-bold text-violet-600 dark:text-violet-300">${value}</p>
+            ${subtitle ? `<p class="mt-1 text-xs text-violet-700 dark:text-violet-300">${subtitle}</p>` : ''}
           </div>
         `.trim();
       };
@@ -42,7 +42,7 @@ describe('Calculator Results Snapshots', () => {
     it('should generate affordability status consistently', () => {
       const affordabilityHTML = (dti: number) => {
         const isAffordable = dti <= 28;
-        const colorClass = isAffordable ? 'text-green-600' : 'text-red-600';
+        const colorClass = isAffordable ? 'text-emerald-600' : 'text-rose-600';
         const status = isAffordable ? '✓ Within recommended 28% limit' : '⚠️ Exceeds recommended 28% limit';
         
         return `<p class="text-xs ${colorClass}">${status}</p>`;
@@ -133,8 +133,8 @@ describe('Calculator Results Snapshots', () => {
     it('should generate progress bar with correct width', () => {
       const generateProgressBar = (percent: number) => {
         return `
-          <div class="w-full bg-gray-200 rounded-full h-4">
-            <div class="bg-green-500 h-4 rounded-full" style="width: ${percent}%"></div>
+          <div class="h-4 w-full rounded-full bg-slate-200">
+            <div class="h-4 rounded-full bg-emerald-500" style="width: ${percent}%"></div>
           </div>
         `;
       };
@@ -552,4 +552,3 @@ describe('Comparison Result Snapshots', () => {
     expect(strategies).toMatchSnapshot();
   });
 });
-

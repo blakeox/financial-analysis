@@ -18,10 +18,7 @@ test.describe('Site navigation contract', () => {
       'href',
       '/journey'
     );
-    await expect(desktopNav.getByRole('link', { name: 'Agent' })).toHaveAttribute(
-      'href',
-      '/agent'
-    );
+    await expect(desktopNav.getByRole('link', { name: 'Agent' })).toHaveAttribute('href', '/agent');
     await expect(desktopNav.getByRole('link', { name: 'Developers' })).toHaveAttribute(
       'href',
       '/developers'
@@ -32,18 +29,32 @@ test.describe('Site navigation contract', () => {
     );
   });
 
-  test('homepage CTA leads to models and featured lease analysis leads to its live route', async ({
-    page,
-  }) => {
+  test('homepage CTA leads to the Fanalyx agent and pricing stays reachable', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Browse Calculators' }).click();
-    await expect(page).toHaveURL(/\/models\/?$/);
+    await page.getByRole('link', { name: 'Try Fanalyx Free' }).first().click();
+    await expect(page).toHaveURL(/\/agent\/?$/);
+    await page.goBack();
+    await page.getByRole('link', { name: 'Get Started Free' }).first().click();
+    await expect(page).toHaveURL(/\/agent\/?$/);
+    await page.goBack();
+    await page.locator('[data-testid="nav-desktop"]').getByRole('link', { name: 'Agent' }).click();
+    await expect(page).toHaveURL(/\/agent\/?$/);
+    await page.goBack();
+    await page
+      .locator('[data-testid="nav-desktop"]')
+      .getByRole('link', { name: 'Developers' })
+      .click();
+    await expect(page).toHaveURL(/\/developers\/?$/);
+  });
 
-    await page.locator('[data-model="Enhanced Lease Analysis"] a[href="/lease-analysis"]').click();
-    await expect(page).toHaveURL(/\/lease-analysis\/?$/);
+  test('pricing stays reachable from the homepage footer', async ({ page }) => {
+    await page.goto('/');
+
+    await page.locator('footer').getByRole('link', { name: 'Pricing' }).click();
+    await expect(page).toHaveURL(/\/pricing\/?$/);
     await expect(
-      page.getByRole('heading', { level: 1, name: /Enhanced Lease Analysis/i })
+      page.getByRole('heading', { level: 1, name: /Simple, Transparent Pricing/i })
     ).toBeVisible();
   });
 

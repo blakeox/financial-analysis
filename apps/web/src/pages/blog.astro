@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import PageHero from '../components/site/PageHero.astro';
+import SurfaceCard from '../components/site/SurfaceCard.astro';
+
+const title = 'Fanalyx Blog';
+const description = 'Product updates, explainers, and financial analysis notes from Fanalyx.';
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={Astro.url.href}
+  showChat={false}
+  showToolAnalysis={false}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
+
+  <section class="fa-page-shell-narrow">
+    <PageHero
+      eyebrow="Blog"
+      title="Insights and product notes, coming soon"
+      description="Fanalyx is still early. This space will hold product updates, formula explainers, and practical notes on clearer financial thinking as the product evolves."
+    />
+
+    <SurfaceCard title="What to expect" className="mt-8">
+      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-600">
+        <li>Plain-English explainers for common financial formulas</li>
+        <li>Notes on new scenario tools and AI analysis improvements</li>
+        <li>Examples of how to ask better financial questions</li>
+      </ul>
+    </SurfaceCard>
+  </section>
+</Layout>

@@ -313,8 +313,8 @@ class JourneyPageManager {
       const button = element.querySelector('a');
       if (button) {
         button.textContent = 'Review';
-        button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-        button.classList.add('bg-green-600', 'hover:bg-green-700');
+        button.classList.remove('bg-violet-600', 'hover:bg-violet-700');
+        button.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
       }
     });
   }
@@ -344,8 +344,8 @@ class JourneyPageManager {
       const button = element.querySelector('a');
       if (button) {
         button.textContent = 'Start';
-        button.classList.remove('bg-green-600', 'hover:bg-green-700');
-        button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        button.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        button.classList.add('bg-violet-600', 'hover:bg-violet-700');
       }
     });
   }
