@@ -22,8 +22,7 @@
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --config ./vitest.config.mjs",
-    "test:ui": "vitest --ui",
-    "prepare": "tsc -p tsconfig.json"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
