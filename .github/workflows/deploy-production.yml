@@ -44,8 +44,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build UI package (for Astro build)
-        run: pnpm --filter @financial-analysis/ui run build
+      - name: Build analysis and UI packages (for Astro build)
+        run: |
+          pnpm --filter @financial-analysis/analysis run build
+          pnpm --filter @financial-analysis/ui run build
 
       - name: Build Astro site
         working-directory: apps/web
