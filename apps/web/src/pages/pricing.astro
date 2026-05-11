@@ -92,14 +92,14 @@ const structuredData = {
           />
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <SurfaceCard className="bg-slate-50/90 dark:bg-slate-900/50" title="Starting point">
-              <p class="fa-price-display mt-3 text-slate-900 dark:text-white">$0</p>
+            <SurfaceCard className="fa-surface-muted" title="Starting point">
+              <p class="fa-panel-title mt-3 text-4xl">$0</p>
               <p class="fa-card-copy !mt-2">
                 Free tier for trying the API, validating use cases, and testing contract shapes.
               </p>
             </SurfaceCard>
             <SurfaceCard className="fa-surface-accent" title="Scaling up">
-              <p class="fa-price-display mt-3 text-slate-900 dark:text-white">$29</p>
+              <p class="fa-panel-title mt-3 text-4xl">$29</p>
               <p class="fa-card-copy !mt-2">
                 Pro tier for live integrations, higher throughput, and direct support when needed.
               </p>
@@ -116,7 +116,7 @@ const structuredData = {
 
       <section class="mt-14">
         <div class="mb-10 text-center">
-          <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">Compare plans</h2>
+          <h2 class="fa-display fa-display-section !mt-0">Compare plans</h2>
           <p class="fa-body-copy mx-auto mt-4 max-w-2xl">
             The pricing cards below are loaded from the current pricing configuration.
           </p>
@@ -138,7 +138,7 @@ const structuredData = {
       <section class="fa-card mt-20 p-4 sm:p-6">
         <div class="mb-6 flex items-end justify-between gap-4">
           <div>
-            <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">Compare Features</h2>
+            <h2 class="fa-display fa-display-section !mt-0">Compare Features</h2>
             <p class="fa-card-copy fa-card-copy-sm !mt-2">
               The same core analysis surface, with more room to scale as usage grows.
             </p>
@@ -146,8 +146,8 @@ const structuredData = {
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead>
+          <table class="min-w-full">
+            <thead class="fa-table-head">
               <tr class="text-left fa-list-copy-strong">
                 <th class="px-4 py-4">Feature</th>
                 <th class="px-4 py-4 text-center">Free</th>
@@ -155,54 +155,54 @@ const structuredData = {
                 <th class="px-4 py-4 text-center">Enterprise</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-sm dark:divide-slate-800">
-              <tr>
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Monthly Requests</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">1,000</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">50,000</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">1,000,000</td>
+            <tbody class="fa-table-body text-sm">
+              <tr class="fa-panel-divider-top">
+                <td class="fa-list-copy-strong px-4 py-4">Monthly Requests</td>
+                <td class="fa-list-copy px-4 py-4 text-center">1,000</td>
+                <td class="fa-list-copy px-4 py-4 text-center">50,000</td>
+                <td class="fa-list-copy px-4 py-4 text-center">1,000,000</td>
               </tr>
-              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Rate Limit</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">1/sec</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">10/sec</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">100/sec</td>
+              <tr class="fa-panel-divider-top fa-table-row-alt">
+                <td class="fa-list-copy-strong px-4 py-4">Rate Limit</td>
+                <td class="fa-list-copy px-4 py-4 text-center">1/sec</td>
+                <td class="fa-list-copy px-4 py-4 text-center">10/sec</td>
+                <td class="fa-list-copy px-4 py-4 text-center">100/sec</td>
               </tr>
-              <tr>
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Lease Analysis</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
+              <tr class="fa-panel-divider-top">
+                <td class="fa-list-copy-strong px-4 py-4">Lease Analysis</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
               </tr>
-              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Amortization Schedules</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
+              <tr class="fa-panel-divider-top fa-table-row-alt">
+                <td class="fa-list-copy-strong px-4 py-4">Amortization Schedules</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
               </tr>
-              <tr>
-                <td class="px-4 py-4 text-slate-900 dark:text-white">EBITDA Forecasting</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
+              <tr class="fa-panel-divider-top">
+                <td class="fa-list-copy-strong px-4 py-4">EBITDA Forecasting</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
               </tr>
-              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Email Support</td>
-                <td class="px-4 py-4 text-center">—</td>
-                <td class="px-4 py-4 text-center">✓</td>
-                <td class="px-4 py-4 text-center">✓</td>
+              <tr class="fa-panel-divider-top fa-table-row-alt">
+                <td class="fa-list-copy-strong px-4 py-4">Email Support</td>
+                <td class="fa-list-copy px-4 py-4 text-center">—</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
               </tr>
-              <tr>
-                <td class="px-4 py-4 text-slate-900 dark:text-white">Priority Support</td>
-                <td class="px-4 py-4 text-center">—</td>
-                <td class="px-4 py-4 text-center">—</td>
-                <td class="px-4 py-4 text-center">✓</td>
+              <tr class="fa-panel-divider-top">
+                <td class="fa-list-copy-strong px-4 py-4">Priority Support</td>
+                <td class="fa-list-copy px-4 py-4 text-center">—</td>
+                <td class="fa-list-copy px-4 py-4 text-center">—</td>
+                <td class="fa-list-copy px-4 py-4 text-center">✓</td>
               </tr>
-              <tr class="bg-slate-50/80 dark:bg-slate-900/40">
-                <td class="px-4 py-4 text-slate-900 dark:text-white">SLA Guarantee</td>
-                <td class="px-4 py-4 text-center">—</td>
-                <td class="px-4 py-4 text-center">—</td>
-                <td class="fa-meta-copy px-4 py-4 text-center">99.9%</td>
+              <tr class="fa-panel-divider-top fa-table-row-alt">
+                <td class="fa-list-copy-strong px-4 py-4">SLA Guarantee</td>
+                <td class="fa-list-copy px-4 py-4 text-center">—</td>
+                <td class="fa-list-copy px-4 py-4 text-center">—</td>
+                <td class="fa-list-copy px-4 py-4 text-center">99.9%</td>
               </tr>
             </tbody>
           </table>
@@ -211,7 +211,7 @@ const structuredData = {
 
       <section class="mx-auto mt-20 max-w-3xl">
         <div class="mb-10 text-center">
-          <h2 class="fa-display fa-display-section !mt-0 text-slate-900 dark:text-white">
+          <h2 class="fa-display fa-display-section !mt-0">
             Frequently asked questions
           </h2>
         </div>

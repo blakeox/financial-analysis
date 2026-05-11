@@ -344,17 +344,17 @@ export function EbitdaDashboard() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div
-                className={`rounded-2xl border p-3 text-center ${
+                className={`text-center ${
                   Object.values(state.financials).some((v) => (v || 0) > 0)
                     ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
-                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
+                    : 'fa-subcard'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
                     Object.values(state.financials).some((v) => (v || 0) > 0)
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : textColors.muted
                   }`}
                 >
                   💰
@@ -362,17 +362,17 @@ export function EbitdaDashboard() {
                 <div className="fa-list-copy-strong">Revenue Data</div>
               </div>
               <div
-                className={`rounded-2xl border p-3 text-center ${
+                className={`text-center ${
                   state.employees.length > 0
                     ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
-                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
+                    : 'fa-subcard'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
                     state.employees.length > 0
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : textColors.muted
                   }`}
                 >
                   👥
@@ -380,17 +380,17 @@ export function EbitdaDashboard() {
                 <div className="fa-list-copy-strong">Employees ({state.employees.length})</div>
               </div>
               <div
-                className={`rounded-2xl border p-3 text-center ${
+                className={`text-center ${
                   state.expenseTypes.length > 0
                     ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
-                    : 'border-slate-200 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-900/80'
+                    : 'fa-subcard'
                 }`}
               >
                 <div
                   className={`text-2xl mb-2 ${
                     state.expenseTypes.length > 0
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : textColors.muted
                   }`}
                 >
                   📊
@@ -562,7 +562,7 @@ export function EbitdaDashboard() {
               )}
 
               {activeModules.includes('leases') && (
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
+              <Card className="fa-surface-accent border-0 shadow-lg">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">

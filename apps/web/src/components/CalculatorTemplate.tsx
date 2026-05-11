@@ -7073,7 +7073,7 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 fa-checkbox">`;
       break;
   }
 
@@ -7219,7 +7219,7 @@ function generateFieldHTML(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 fa-checkbox">`;
       break;
   }
 

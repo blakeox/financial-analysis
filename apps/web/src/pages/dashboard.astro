@@ -24,11 +24,11 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
         <div class="grid md:grid-cols-2 gap-4">
           <div>
             <label class="fa-field-label">Email</label>
-            <p class="mt-1 text-slate-900 dark:text-white" id="user-email">Loading...</p>
+            <p class="fa-list-copy-strong mt-1" id="user-email">Loading...</p>
           </div>
           <div>
             <label class="fa-field-label">Customer ID</label>
-            <p class="mt-1 font-mono text-sm text-slate-600 dark:text-slate-300" id="customer-id">Loading...</p>
+            <p class="fa-card-copy fa-card-copy-sm mt-1 font-mono" id="customer-id">Loading...</p>
           </div>
         </div>
       </SurfaceCard>
@@ -184,16 +184,16 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
         <div class="grid md:grid-cols-3 gap-6">
           <div class="fa-subcard">
             <label class="fa-field-label">Plan</label>
-            <p class="mt-1 text-2xl font-bold capitalize text-slate-900 dark:text-white">${tierNames[key.tier] || key.tier}</p>
+            <p class="fa-panel-title mt-1 text-2xl capitalize">${tierNames[key.tier] || key.tier}</p>
           </div>
           <div class="fa-subcard">
             <label class="fa-field-label">Monthly Quota</label>
-            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">${key.monthlyQuota.toLocaleString()}</p>
+            <p class="fa-panel-title mt-1 text-2xl">${key.monthlyQuota.toLocaleString()}</p>
             <p class="fa-meta-copy">requests/month</p>
           </div>
           <div class="fa-subcard">
             <label class="fa-field-label">Rate Limit</label>
-            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">${key.rateLimitPerSec}</p>
+            <p class="fa-panel-title mt-1 text-2xl">${key.rateLimitPerSec}</p>
             <p class="fa-meta-copy">requests/second</p>
           </div>
         </div>
@@ -240,7 +240,7 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
         <div class="grid md:grid-cols-4 gap-4">
           <div class="fa-subcard">
             <p class="fa-meta-copy">Total Requests</p>
-            <p class="text-2xl font-bold text-slate-900 dark:text-white">${(current.totalRequests || 0).toLocaleString()}</p>
+            <p class="fa-panel-title text-2xl">${(current.totalRequests || 0).toLocaleString()}</p>
           </div>
           <div class="fa-subcard">
             <p class="fa-meta-copy">Successful</p>
@@ -252,7 +252,7 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
           </div>
           <div class="fa-subcard">
             <p class="fa-meta-copy">Avg Response</p>
-            <p class="text-2xl font-bold text-slate-900 dark:text-white">${current.totalRequests > 0 ? Math.round(current.totalResponseTimeMs / current.totalRequests) : 0}ms</p>
+            <p class="fa-panel-title text-2xl">${current.totalRequests > 0 ? Math.round(current.totalResponseTimeMs / current.totalRequests) : 0}ms</p>
           </div>
         </div>
 
@@ -277,14 +277,14 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="font-mono text-sm text-slate-900 dark:text-white">${key.keyPrefix}••••••••••••</span>
+                  <span class="fa-list-copy-strong font-mono">${key.keyPrefix}••••••••••••</span>
                   ${key.active ? 
                     '<span class="fa-chip fa-chip-success">Active</span>' : 
                     '<span class="fa-chip fa-chip-muted">Inactive</span>'
                   }
                   <span class="fa-chip fa-chip-accent capitalize">${key.tier}</span>
                 </div>
-                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">${key.metadata?.description || 'API Key'}</p>
+                <p class="fa-card-copy fa-card-copy-sm mt-2">${key.metadata?.description || 'API Key'}</p>
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
                 ${key.lastUsedAt ? `<p class="text-xs text-slate-500 dark:text-slate-400">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
               </div>
@@ -303,7 +303,7 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
     if (planContainer) {
       planContainer.innerHTML = `
         <article class="fa-card text-center py-8">
-          <p class="text-slate-600 dark:text-slate-300">No API keys found.</p>
+          <p class="fa-card-copy !mt-0">No API keys found.</p>
           <a href="/developers" class="fa-button-primary mt-4">
             Create Your First API Key
           </a>
