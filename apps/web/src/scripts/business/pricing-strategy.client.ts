@@ -162,7 +162,7 @@ function displayResults(result: PricingResult, input: PricingInput): void {
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
           <thead>
-            <tr class="border-b border-slate-300 dark:border-slate-700">
+            <tr class="border-b border-slate-200/80 dark:border-slate-800">
               <th class="text-left py-2">Price</th>
               <th class="text-right py-2">Est. Units</th>
               <th class="text-right py-2">Revenue</th>
@@ -252,4 +252,3 @@ if (document.readyState === 'loading') {
 } else {
   initializePricingStrategy();
 }
-

@@ -259,7 +259,7 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
               ${result.health.score}/100
             </div>
           </div>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+          <p class="fa-help-copy mt-2">
             Based on LTV:CAC (25 pts), Churn (25 pts), Payback Period (25 pts), Rule of 40 (25 pts)
           </p>
         </div>

@@ -749,7 +749,7 @@ export class MultiModelScenarioManager {
         const isCompleted = this.completedModels.has(model.id);
         const statusClass = isCompleted
           ? 'text-emerald-600 dark:text-emerald-400'
-          : 'text-slate-600 dark:text-slate-400';
+          : 'fa-help-copy';
         const statusIcon = isCompleted ? '✓' : '○';
 
         return `

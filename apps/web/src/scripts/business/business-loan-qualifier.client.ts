@@ -432,7 +432,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       
       <div class="space-y-4">
         ${Object.values(result.loanEligibility).map(loan => `
-          <div class="border-2 ${loan.eligible ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
+          <div class="border-2 ${loan.eligible ? 'border-emerald-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-4">
             <div class="flex justify-between items-start mb-3">
               <div>
                 <h3 class="text-lg fa-list-copy-strong">${loan.loanType}</h3>
@@ -452,9 +452,9 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
               </div>
             ` : ''}
             
-            <div class="bg-slate-50 dark:bg-slate-900 rounded p-3">
-              <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Requirements:</p>
-              <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+            <div class="fa-surface-muted rounded p-3">
+              <p class="fa-field-label mb-2">Requirements:</p>
+              <ul class="fa-help-copy space-y-1">
                 ${loan.requirements.map(req => `<li>• ${req}</li>`).join('')}
               </ul>
             </div>
@@ -462,11 +462,11 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
             ${loan.eligible ? `
               <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span class="text-slate-600 dark:text-slate-400">Est. Rate:</span>
+                  <span class="fa-help-copy">Est. Rate:</span>
                   <span class="font-semibold ml-2">${loan.estimatedRate.toFixed(2)}%</span>
                 </div>
                 <div>
-                  <span class="text-slate-600 dark:text-slate-400">Est. Term:</span>
+                  <span class="fa-help-copy">Est. Term:</span>
                   <span class="font-semibold ml-2">${loan.estimatedTermYears} years</span>
                 </div>
               </div>
@@ -484,7 +484,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="fa-subcard">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">DSCR</h4>
+          <h4 class="fa-field-label mb-2">DSCR</h4>
           <p class="text-3xl font-bold ${result.dscr >= 1.5 ? 'text-emerald-600 dark:text-emerald-400' : result.dscr >= 1.25 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.dscr.toFixed(2)}</p>
           <p class="fa-script-note mt-2">Debt Service Coverage Ratio</p>
           <p class="text-xs mt-1">${result.dscr >= 1.5 ? '✓ Excellent (≥1.5)' : result.dscr >= 1.25 ? '✓ Acceptable (≥1.25)' : '❌ Too Low (<1.25)'}</p>
@@ -492,7 +492,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         
         ${input.collateralValue > 0 ? `
         <div class="fa-subcard">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">LTV Ratio</h4>
+          <h4 class="fa-field-label mb-2">LTV Ratio</h4>
           <p class="text-3xl font-bold ${result.ltv <= 75 ? 'text-emerald-600 dark:text-emerald-400' : result.ltv <= 90 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltv.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Loan-to-Value Ratio</p>
           <p class="text-xs mt-1">${result.ltv <= 75 ? '✓ Excellent (≤75%)' : result.ltv <= 90 ? '✓ Acceptable (≤90%)' : '❌ Too High (>90%)'}</p>
@@ -500,7 +500,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         ` : ''}
         
         <div class="fa-subcard">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Debt-to-Income</h4>
+          <h4 class="fa-field-label mb-2">Debt-to-Income</h4>
           <p class="text-3xl font-bold ${result.debtToIncome <= 30 ? 'text-emerald-600 dark:text-emerald-400' : result.debtToIncome <= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.debtToIncome.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Total Debt / Revenue</p>
           <p class="text-xs mt-1">${result.debtToIncome <= 30 ? '✓ Healthy (<30%)' : result.debtToIncome <= 50 ? '⚠️ Moderate (30-50%)' : '❌ High (>50%)'}</p>

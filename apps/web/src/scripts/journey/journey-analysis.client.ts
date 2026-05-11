@@ -318,7 +318,7 @@ class JourneyAnalysisManager {
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <p class="fa-script-title-sm">${item.task}</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Timeline: ${item.timeline}</p>
+                <p class="fa-meta-copy mt-1">Timeline: ${item.timeline}</p>
               </div>
               <span class="text-xs px-2 py-1 rounded-full ${
                 item.priority === 'high'

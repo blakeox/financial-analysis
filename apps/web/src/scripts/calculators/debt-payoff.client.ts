@@ -197,7 +197,7 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
       (entry: TimelineEntry, index: number) => `
         <div class="flex justify-between items-center text-sm">
           <span class="font-medium">${index + 1}. ${entry.name}</span>
-          <span class="text-slate-600 dark:text-slate-400">Month ${entry.monthsToPayoff}</span>
+          <span class="fa-help-copy">Month ${entry.monthsToPayoff}</span>
         </div>
       `
     )

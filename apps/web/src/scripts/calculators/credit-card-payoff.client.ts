@@ -360,7 +360,7 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
           const isBest = strategy.name === bestStrategy.name;
           const isMinimum = strategy.name === 'Minimum Payments Only';
           return `
-            <div class="border-2 ${isBest ? 'border-emerald-500' : isMinimum ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
+            <div class="border-2 ${isBest ? 'border-emerald-500' : isMinimum ? 'border-rose-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST</div>' : ''}
               ${isMinimum ? '<div class="fa-chip fa-chip-danger mb-3">⚠️ WORST</div>' : ''}
               <h3 class="text-base fa-list-copy-strong mb-3">${strategy.name}</h3>

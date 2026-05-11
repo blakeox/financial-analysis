@@ -107,7 +107,7 @@ export function createScenarioCard(index: number): HTMLElement {
         <span class="w-8 h-8 rounded-full bg-${colors.bg}-500 text-white flex items-center justify-center font-bold text-sm">${letter}</span>
         <h3 class="fa-list-copy-strong">
           Scenario ${letter}
-          <span class="text-sm font-normal text-slate-500 dark:text-slate-400">${index === 0 ? '(Conservative)' : index === 1 ? '(Alternative)' : ''}</span>
+          <span class="fa-help-copy text-sm font-normal">${index === 0 ? '(Conservative)' : index === 1 ? '(Alternative)' : ''}</span>
         </h3>
       </div>
       ${index >= MIN_SCENARIOS ? `
@@ -124,16 +124,16 @@ export function createScenarioCard(index: number): HTMLElement {
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label for="scenario${index}Down" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <label for="scenario${index}Down" class="fa-field-label mb-1 block">
           Down Payment
-          <span class="text-xs text-slate-500 ml-1">(20%+ avoids PMI)</span>
+          <span class="fa-help-copy ml-1 text-xs">(20%+ avoids PMI)</span>
         </label>
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+          <span class="fa-help-copy absolute left-3 top-1/2 -translate-y-1/2">$</span>
           <input type="number" 
             id="scenario${index}Down" 
             name="scenario${index}Down"
-            class="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
+            class="fa-input-surface w-full py-2 pl-7 pr-3 focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
             min="0" 
             step="1000" 
             placeholder="${index === 0 ? '100000' : index === 1 ? '75000' : '50000'}"
@@ -142,35 +142,35 @@ export function createScenarioCard(index: number): HTMLElement {
       </div>
       
       <div>
-        <label for="scenario${index}Rate" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <label for="scenario${index}Rate" class="fa-field-label mb-1 block">
           Interest Rate
-          <span class="text-xs text-slate-500 ml-1">(Shop 3-5 lenders)</span>
+          <span class="fa-help-copy ml-1 text-xs">(Shop 3-5 lenders)</span>
         </label>
         <div class="relative">
           <input type="number" 
             id="scenario${index}Rate" 
             name="scenario${index}Rate"
-            class="w-full pl-3 pr-7 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
+            class="fa-input-surface w-full py-2 pl-3 pr-7 focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
             min="0" 
             max="30" 
             step="0.01" 
             placeholder="${index === 0 ? '6.5' : index === 1 ? '7.0' : '6.75'}"
             required>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+          <span class="fa-help-copy absolute right-3 top-1/2 -translate-y-1/2">%</span>
         </div>
       </div>
       
       <div>
-        <label for="scenario${index}Extra" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <label for="scenario${index}Extra" class="fa-field-label mb-1 block">
           Extra Monthly Payment
-          <span class="text-xs text-slate-500 ml-1">(optional)</span>
+          <span class="fa-help-copy ml-1 text-xs">(optional)</span>
         </label>
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+          <span class="fa-help-copy absolute left-3 top-1/2 -translate-y-1/2">$</span>
           <input type="number" 
             id="scenario${index}Extra" 
             name="scenario${index}Extra"
-            class="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
+            class="fa-input-surface w-full py-2 pl-7 pr-3 focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
             min="0" 
             step="50" 
             placeholder="0">
@@ -178,16 +178,16 @@ export function createScenarioCard(index: number): HTMLElement {
       </div>
       
       <div>
-        <label for="scenario${index}Closing" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <label for="scenario${index}Closing" class="fa-field-label mb-1 block">
           Closing Costs
-          <span class="text-xs text-slate-500 ml-1">(typically 2-5%)</span>
+          <span class="fa-help-copy ml-1 text-xs">(typically 2-5%)</span>
         </label>
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+          <span class="fa-help-copy absolute left-3 top-1/2 -translate-y-1/2">$</span>
           <input type="number" 
             id="scenario${index}Closing" 
             name="scenario${index}Closing"
-            class="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
+            class="fa-input-surface w-full py-2 pl-7 pr-3 focus:ring-2 focus:ring-${colors.bg}-500 focus:border-transparent"
             min="0" 
             step="500" 
             placeholder="${index === 0 ? '15000' : '12000'}">
@@ -226,7 +226,7 @@ function addScenarioButton(_form: HTMLFormElement, container: HTMLElement): void
   const addBtn = document.createElement('button') as HTMLButtonElement;
   addBtn.type = 'button';
   addBtn.id = 'add-scenario-btn';
-  addBtn.className = 'w-full py-3 px-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:border-violet-500 hover:text-violet-500 dark:hover:border-violet-400 dark:hover:text-violet-400 transition-colors flex items-center justify-center gap-2 font-medium';
+  addBtn.className = 'fa-subcard w-full border-2 border-dashed px-4 py-3 fa-card-copy hover:border-violet-500 hover:text-violet-500 dark:hover:border-violet-400 dark:hover:text-violet-400 transition-colors flex items-center justify-center gap-2 font-medium';
   addBtn.innerHTML = `
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

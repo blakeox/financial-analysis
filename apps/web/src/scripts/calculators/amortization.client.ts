@@ -866,7 +866,7 @@ export const renderSchedule = (
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${interest}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">${balance}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-600 dark:text-slate-400">${cumulativeInterest}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right text-sm fa-help-copy">${cumulativeInterest}</td>
         </tr>
       `;
     })

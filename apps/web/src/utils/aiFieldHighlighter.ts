@@ -303,15 +303,11 @@ class AIFieldHighlighter {
     if (!container || container.querySelector('.ai-indicator')) return;
 
     const badge = document.createElement('div');
-    badge.className = 'ai-indicator';
+    badge.className = isValid ? 'ai-indicator' : 'ai-indicator ai-indicator-warning';
     badge.textContent = isValid ? badgeText : 'AI ⚠️';
     badge.title = isValid
       ? 'This field was modified by AI'
       : 'This field was modified by AI (validation warning)';
-
-    if (!isValid) {
-      badge.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
-    }
 
     if (container instanceof HTMLElement) {
       container.style.position = 'relative';

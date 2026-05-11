@@ -309,9 +309,9 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
           ${result.projections.map(p => `
             <tr class="fa-panel-divider-soft hover:bg-slate-50 dark:hover:bg-slate-700">
               <td class="py-2 px-2 font-medium">${p.monthName}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.revenue)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.revenue)}</td>
               <td class="text-right py-2 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(p.cashCollected)}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.expenses)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.expenses)}</td>
               <td class="text-right py-2 px-2 text-rose-600 dark:text-rose-400">${formatCurrency(p.cashPaid)}</td>
               <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.netCashFlow)}</td>
               <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.endingCash)}</td>

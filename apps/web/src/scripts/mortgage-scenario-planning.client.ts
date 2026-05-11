@@ -712,7 +712,7 @@ function displayResults(scenarios: Scenario[]): void {
               <!-- Detailed Comparison Metrics -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-2">Monthly Payment</p>
+                  <p class="fa-field-label uppercase mb-2">Monthly Payment</p>
                   <p class="fa-panel-title text-2xl mb-1">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}</p>
                   <p class="fa-script-note">
                     ${baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment ? 
@@ -721,7 +721,7 @@ function displayResults(scenarios: Scenario[]): void {
                   </p>
                 </div>
                 <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-2">Total Interest</p>
+                  <p class="fa-field-label uppercase mb-2">Total Interest</p>
                   <p class="fa-panel-title text-2xl mb-1">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
                   <p class="fa-script-note">
                     ${baseScenarios[0].totalInterest < baseScenarios[1].totalInterest ? 
@@ -730,7 +730,7 @@ function displayResults(scenarios: Scenario[]): void {
                   </p>
                 </div>
                 <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-2">Payoff Timeline</p>
+                  <p class="fa-field-label uppercase mb-2">Payoff Timeline</p>
                   <p class="fa-panel-title text-2xl mb-1">${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo</p>
                   <p class="fa-script-note">
                     ${baseScenarios[0].payoffMonths < baseScenarios[1].payoffMonths ? 
@@ -1101,24 +1101,24 @@ function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): st
       
         <div class="space-y-3">
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
             <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
-            ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'text-slate-500 dark:text-slate-400'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
+            ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'fa-meta-copy'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
           </div>
         
         <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Interest</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Total Interest</p>
             <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
           </div>
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Payoff Time</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Payoff Time</p>
             <p class="text-sm font-semibold ${textColor}">${time.display}</p>
           </div>
         </div>
         
         <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Cost</p>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Total Cost</p>
           <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
         </div>
       </div>
@@ -1140,7 +1140,7 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
       <div class="space-y-4">
         <!-- Loan Details -->
         <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-          <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-3">Loan Details</h4>
+          <h4 class="fa-field-label uppercase mb-3">Loan Details</h4>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
               <span class="fa-script-copy-muted">Loan Amount</span>
@@ -1165,7 +1165,7 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         
         <!-- Payment Information -->
         <div>
-          <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-3">Monthly Payment</h4>
+          <h4 class="fa-field-label uppercase mb-3">Monthly Payment</h4>
           <p class="text-3xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
           ${scenario.hasPMI ? `
             <p class="fa-script-note mb-1">

@@ -288,19 +288,19 @@ class RiskCalculator {
             <h3 class="text-lg fa-list-copy-strong mb-4">Expected Shortfall</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Daily ES:</span>
+                <span class="fa-help-copy">Daily ES:</span>
                 <span class="font-medium text-rose-600 dark:text-rose-400">${formatter.format(results.expectedShortfall.daily)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Weekly ES:</span>
+                <span class="fa-help-copy">Weekly ES:</span>
                 <span class="font-medium text-rose-600 dark:text-rose-400">${formatter.format(results.expectedShortfall.weekly)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Monthly ES:</span>
+                <span class="fa-help-copy">Monthly ES:</span>
                 <span class="font-medium text-rose-600 dark:text-rose-400">${formatter.format(results.expectedShortfall.monthly)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Annual ES:</span>
+                <span class="fa-help-copy">Annual ES:</span>
                 <span class="font-medium text-rose-600 dark:text-rose-400">${formatter.format(results.expectedShortfall.annual)}</span>
               </div>
             </div>
@@ -310,11 +310,11 @@ class RiskCalculator {
             <h3 class="text-lg font-semibold mb-4">Custom ${results.customTimeHorizon.days}-Day Horizon</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">VaR (${results.customTimeHorizon.days} days):</span>
+                <span class="fa-help-copy">VaR (${results.customTimeHorizon.days} days):</span>
                 <span class="font-medium text-violet-700 dark:text-violet-300">${formatter.format(results.customTimeHorizon.valueAtRisk)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Expected Shortfall:</span>
+                <span class="fa-help-copy">Expected Shortfall:</span>
                 <span class="font-medium text-violet-700 dark:text-violet-300">${formatter.format(results.customTimeHorizon.expectedShortfall)}</span>
               </div>
             </div>
@@ -324,19 +324,19 @@ class RiskCalculator {
             <h3 class="text-lg fa-list-copy-strong mb-4">Risk Metrics</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Sharpe Ratio:</span>
+                <span class="fa-help-copy">Sharpe Ratio:</span>
                 <span class="font-medium">${results.riskMetrics.sharpeRatio.toFixed(2)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Max Drawdown:</span>
+                <span class="fa-help-copy">Max Drawdown:</span>
                 <span class="font-medium text-rose-600 dark:text-rose-400">${results.riskMetrics.maxDrawdown.toFixed(1)}%</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Beta:</span>
+                <span class="fa-help-copy">Beta:</span>
                 <span class="font-medium">${results.riskMetrics.beta.toFixed(2)}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Tracking Error:</span>
+                <span class="fa-help-copy">Tracking Error:</span>
                 <span class="font-medium">${results.riskMetrics.trackingError.toFixed(1)}%</span>
               </div>
             </div>
@@ -384,23 +384,23 @@ class RiskCalculator {
           <h4 class="fa-list-copy-strong mb-3">Portfolio Value Distribution</h4>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="text-center">
-              <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">5th Percentile</h5>
+              <h5 class="fa-field-label mb-1">5th Percentile</h5>
               <p class="text-lg font-bold text-rose-600 dark:text-rose-400">${formatter.format(simulation.percentiles.p5)}</p>
             </div>
             <div class="text-center">
-              <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">25th Percentile</h5>
+              <h5 class="fa-field-label mb-1">25th Percentile</h5>
               <p class="text-lg font-bold text-orange-600 dark:text-orange-400">${formatter.format(simulation.percentiles.p25)}</p>
             </div>
             <div class="text-center">
-              <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">50th Percentile</h5>
+              <h5 class="fa-field-label mb-1">50th Percentile</h5>
               <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatter.format(simulation.percentiles.p50)}</p>
             </div>
             <div class="text-center">
-              <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">75th Percentile</h5>
+              <h5 class="fa-field-label mb-1">75th Percentile</h5>
               <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${formatter.format(simulation.percentiles.p75)}</p>
             </div>
             <div class="text-center">
-              <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">95th Percentile</h5>
+              <h5 class="fa-field-label mb-1">95th Percentile</h5>
               <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatter.format(simulation.percentiles.p95)}</p>
             </div>
           </div>

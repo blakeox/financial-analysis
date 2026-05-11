@@ -284,7 +284,7 @@ const displayResults = (result: SavingsGoalResults): void => {
       <!-- Visual Progress Bar -->
       <div class="mb-6">
         <div class="flex justify-between text-sm mb-2">
-          <span class="text-slate-600 dark:text-slate-400">Current Progress</span>
+          <span class="fa-help-copy">Current Progress</span>
           <span class="fa-list-copy-strong">${result.progressPercent?.toFixed(1) || 0}%</span>
         </div>
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-6 relative">

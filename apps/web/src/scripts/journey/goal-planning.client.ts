@@ -85,19 +85,19 @@ const initGoalPlanningCalculator = () => {
                   </div>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Goal Amount:</span>
+                      <span class="fa-help-copy">Goal Amount:</span>
                       <span class="fa-list-copy-strong">$${goal.cost.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Monthly Needed:</span>
+                      <span class="fa-help-copy">Monthly Needed:</span>
                       <span class="fa-list-copy-strong">$${goal.monthlyNeeded.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Timeline:</span>
+                      <span class="fa-help-copy">Timeline:</span>
                       <span class="fa-list-copy-strong">${Math.round(goal.timeline)} months</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Status:</span>
+                      <span class="fa-help-copy">Status:</span>
                       <span class="font-semibold ${goal.achievable ? 'text-emerald-600' : 'text-rose-600'}">
                         ${goal.achievable ? '✅ Achievable' : '⚠️ Needs adjustment'}
                       </span>

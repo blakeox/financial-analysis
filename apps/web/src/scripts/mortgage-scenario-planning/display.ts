@@ -129,24 +129,24 @@ export function renderSummaryCard(scenario: Scenario, idx: number, isBest: boole
       
       <div class="space-y-3">
         <div>
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
           <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
-          ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'text-slate-500 dark:text-slate-400'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
+          ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'fa-meta-copy'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
         </div>
         
         <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Interest</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Total Interest</p>
             <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
           </div>
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Payoff Time</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Payoff Time</p>
             <p class="text-sm font-semibold ${textColor}">${time.display}</p>
           </div>
         </div>
         
         <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Cost</p>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-meta-copy'} mb-1">Total Cost</p>
           <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
         </div>
       </div>

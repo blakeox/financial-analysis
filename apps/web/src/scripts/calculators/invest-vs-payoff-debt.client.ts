@@ -341,7 +341,7 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         ${[result.payOffDebt, result.invest, result.hybrid].map(strategy => {
           const isBest = strategy.endingWealth === bestWealth;
           return `
-            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
+            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST MATH</div>' : ''}
               <h3 class="text-lg fa-list-copy-strong mb-4">${strategy.name}</h3>
               <div class="space-y-2">
