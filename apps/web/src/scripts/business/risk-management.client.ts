@@ -253,7 +253,7 @@ class RiskCalculator {
 
     resultsSection.innerHTML = `
       <div class="fa-card">
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Risk Analysis Results</h2>
+        <h2 class="fa-panel-title text-2xl mb-6">Risk Analysis Results</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="fa-metric-card fa-metric-card-danger">
@@ -285,7 +285,7 @@ class RiskCalculator {
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div class="fa-subcard">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Expected Shortfall</h3>
+            <h3 class="text-lg fa-list-copy-strong mb-4">Expected Shortfall</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
                 <span class="text-slate-600 dark:text-slate-400">Daily ES:</span>
@@ -321,7 +321,7 @@ class RiskCalculator {
           </div>
           
           <div class="fa-subcard">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Risk Metrics</h3>
+            <h3 class="text-lg fa-list-copy-strong mb-4">Risk Metrics</h3>
             <div class="space-y-3">
               <div class="flex justify-between">
                 <span class="text-slate-600 dark:text-slate-400">Sharpe Ratio:</span>
@@ -344,7 +344,7 @@ class RiskCalculator {
         </div>
 
         <div class="fa-subcard">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Stress Test Scenarios</h3>
+          <h3 class="text-lg fa-list-copy-strong mb-4">Stress Test Scenarios</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center">
               <h4 class="font-medium text-slate-900 dark:text-white mb-2">Recession Scenario</h4>
@@ -379,9 +379,9 @@ class RiskCalculator {
 
     const monteCarloHTML = `
       <div class="mt-8">
-        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Monte Carlo Simulation Results</h3>
+        <h3 class="fa-panel-title text-xl mb-4">Monte Carlo Simulation Results</h3>
         <div class="fa-subcard">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Portfolio Value Distribution</h4>
+          <h4 class="fa-list-copy-strong mb-3">Portfolio Value Distribution</h4>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="text-center">
               <h5 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">5th Percentile</h5>

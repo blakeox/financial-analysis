@@ -98,14 +98,14 @@ export function createScenarioCard(index: number): HTMLElement {
   const letter = String.fromCharCode(65 + index); // A, B, C, ...
   
   const card = document.createElement('div');
-  card.className = `scenario-card bg-white/90 dark:bg-slate-950/40 rounded-lg border-2 border-${colors.bg}-200 dark:border-${colors.bg}-700 p-4 relative`;
+  card.className = `scenario-card border-2 border-${colors.bg}-200 dark:border-${colors.bg}-700 p-4 relative`;
   card.dataset.scenarioIndex = String(index);
   
   card.innerHTML = `
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">
         <span class="w-8 h-8 rounded-full bg-${colors.bg}-500 text-white flex items-center justify-center font-bold text-sm">${letter}</span>
-        <h3 class="font-semibold text-slate-900 dark:text-white">
+        <h3 class="fa-list-copy-strong">
           Scenario ${letter}
           <span class="text-sm font-normal text-slate-500 dark:text-slate-400">${index === 0 ? '(Conservative)' : index === 1 ? '(Alternative)' : ''}</span>
         </h3>

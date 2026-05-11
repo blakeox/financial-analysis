@@ -125,12 +125,12 @@ function displayResults(result: PricingResult, input: PricingInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">Pricing Strategy Comparison</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
+            <tr class="fa-panel-divider">
               <th class="text-left py-2 px-2">Strategy</th>
               <th class="text-right py-2 px-2">Price</th>
               <th class="text-right py-2 px-2">Margin %</th>
@@ -139,14 +139,14 @@ function displayResults(result: PricingResult, input: PricingInput): void {
           </thead>
           <tbody>
             ${strategies.map(s => `
-              <tr class="border-b border-slate-200 dark:border-slate-800">
+              <tr class="fa-panel-divider-soft">
                 <td class="py-2 px-2 font-medium">${s.icon} ${s.name}</td>
                 <td class="text-right py-2 px-2">${formatCurrency(s.data.price)}</td>
                 <td class="text-right py-2 px-2">${s.data.margin.toFixed(1)}%</td>
                 <td class="text-right py-2 px-2 font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(s.data.monthlyProfit)}</td>
               </tr>
             `).join('')}
-            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold bg-emerald-50 dark:bg-emerald-900/20">
+            <tr class="fa-panel-divider-top font-bold bg-emerald-50 dark:bg-emerald-900/20">
               <td class="py-3 px-2">⭐ Optimal (Math-Based)</td>
               <td class="text-right py-3 px-2">${formatCurrency(result.optimal.price)}</td>
               <td class="text-right py-3 px-2">${(((result.optimal.price - input.costPerUnit) / result.optimal.price) * 100).toFixed(1)}%</td>
@@ -171,7 +171,7 @@ function displayResults(result: PricingResult, input: PricingInput): void {
           </thead>
           <tbody>
             ${result.sensitivity.map(s => `
-              <tr class="border-b border-slate-200 dark:border-slate-800">
+              <tr class="fa-panel-divider-soft">
                 <td class="py-2">${formatCurrency(s.price)}</td>
                 <td class="text-right py-2">${Math.round(s.units)}</td>
                 <td class="text-right py-2">${formatCurrency(s.revenue)}</td>
@@ -187,7 +187,7 @@ function displayResults(result: PricingResult, input: PricingInput): void {
       <h2 class="text-xl font-semibold mb-3">💡 Pricing Recommendations</h2>
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
+          <div class="fa-subcard p-3 text-sm">${rec}</div>
         `).join('')}
       </div>
     </div>

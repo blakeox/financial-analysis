@@ -161,7 +161,7 @@ export function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📊</span> Visual Payment Breakdown
       </h2>
@@ -350,7 +350,7 @@ export function renderTotalCostComparisonChart(scenarios: Scenario[]): string {
   const chartHeight = scenarios.length * 56 + 60;
   
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>💰</span> Total Cost Comparison
       </h2>
@@ -458,7 +458,7 @@ export function renderPayoffTimelineChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>⏳</span> Payoff Timeline Comparison
       </h2>
@@ -633,7 +633,7 @@ export function renderEquityGrowthChart(scenarios: Scenario[]): string {
   }, 100);
   
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Equity Growth Over Time
       </h2>
@@ -747,7 +747,7 @@ export function renderMonthlyBreakdownCharts(scenarios: Scenario[]): string {
   }).join('');
   
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🥧</span> Monthly Payment Breakdown
       </h2>

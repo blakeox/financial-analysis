@@ -214,13 +214,13 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
 
   resultsContainer.innerHTML = `
     <!-- Tax Breakdown -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💸</span> Tax Breakdown
       </h2>
       
       <div class="space-y-3">
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <div>
             <span class="fa-script-label">Self-Employment Tax (15.3%)</span>
             <p class="fa-script-note">Social Security + Medicare on 92.35% of profit</p>
@@ -228,19 +228,19 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.selfEmploymentTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="fa-script-label">Federal Income Tax</span>
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.federalIncomeTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="fa-script-label">State Income Tax</span>
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.stateIncomeTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-3">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-top pt-3">
           <div>
-            <span class="text-slate-900 dark:text-white font-semibold">Total Annual Taxes</span>
+            <span class="fa-list-copy-strong">Total Annual Taxes</span>
             <p class="fa-script-note">Effective rate: ${result.taxes.effectiveTaxRate.toFixed(1)}%</p>
           </div>
           <span class="font-bold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.totalTaxes)}</span>
@@ -259,7 +259,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
     </div>
     
     <!-- Income Breakdown -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Income Breakdown
       </h2>
@@ -267,7 +267,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       <div class="space-y-3">
         <div class="flex justify-between py-2">
           <span class="fa-script-label">Gross Revenue (Annual)</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.gross.annualRevenue)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(result.gross.annualRevenue)}</span>
         </div>
         
         <div class="flex justify-between py-2">
@@ -275,9 +275,9 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">- ${formatCurrency(result.expenses.annualExpenses)}</span>
         </div>
         
-        <div class="flex justify-between py-2 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between py-2 fa-panel-divider-top">
           <span class="fa-script-label font-medium">Net Profit (Before Tax)</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.netIncome.annualNet)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(result.netIncome.annualNet)}</span>
         </div>
         
         <div class="flex justify-between py-2">
@@ -285,15 +285,15 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">- ${formatCurrency(result.taxes.totalTaxes)}</span>
         </div>
         
-        <div class="flex justify-between py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-2">
-          <span class="text-slate-900 dark:text-white font-bold">After-Tax Income</span>
+        <div class="flex justify-between py-2 fa-panel-divider-top pt-2">
+          <span class="fa-list-copy-strong font-bold">After-Tax Income</span>
           <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.afterTax.annualAfterTax)}</span>
         </div>
       </div>
     </div>
     
     <!-- Hourly Rate Analysis -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>⏰</span> Hourly Rate Analysis
       </h2>
@@ -301,7 +301,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Gross Hourly</p>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.gross.hourlyRate)}</p>
+          <p class="fa-panel-title text-2xl">${formatCurrency(result.gross.hourlyRate)}</p>
           <p class="fa-script-note mt-1">Before expenses & taxes</p>
         </div>
         
@@ -327,7 +327,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
     </div>
     
     <!-- W-2 Comparison -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💼</span> W-2 Job Comparison
       </h2>

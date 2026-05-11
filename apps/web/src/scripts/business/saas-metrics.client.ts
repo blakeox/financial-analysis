@@ -167,22 +167,22 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">📊 Core SaaS Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <h3 class="font-semibold text-slate-900 dark:text-white">Revenue Metrics</h3>
+          <h3 class="fa-list-copy-strong">Revenue Metrics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">MRR (Monthly Recurring)</span>
               <span class="font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.mrr)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">ARR (Annual Recurring)</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.arr)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">Revenue per Customer</span>
               <span class="font-semibold">${formatCurrency(input.averageMonthlyRevenue)}/mo</span>
             </div>
@@ -190,17 +190,17 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
         </div>
         
         <div class="space-y-4">
-          <h3 class="font-semibold text-slate-900 dark:text-white">Unit Economics</h3>
+          <h3 class="fa-list-copy-strong">Unit Economics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">CAC (Customer Acquisition Cost)</span>
               <span class="font-semibold">${formatCurrency(result.cac)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">LTV (Lifetime Value)</span>
               <span class="font-semibold">${formatCurrency(result.ltv)}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex justify-between py-2 fa-panel-divider-soft">
               <span class="text-slate-700 dark:text-slate-300">LTV:CAC Ratio</span>
               <span class="font-bold ${result.ltvCacRatio >= 3 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltvCacRatio.toFixed(1)}:1</span>
             </div>
@@ -213,26 +213,26 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       <h2 class="text-xl font-semibold mb-4">📈 Growth & Efficiency Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Monthly Churn Rate</h4>
           <p class="text-3xl font-bold ${result.churnRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.churnRate.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Target: <2% (excellent)</p>
         </div>
         
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="fa-script-copy-muted font-semibold mb-2">CAC Payback Period</h4>
           <p class="text-3xl font-bold ${result.paybackPeriod <= 12 ? 'text-emerald-600 dark:text-emerald-400' : result.paybackPeriod <= 18 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.paybackPeriod.toFixed(1)}</p>
           <p class="fa-script-note mt-2">Target: <12 months</p>
         </div>
         
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Net Revenue Retention</h4>
           <p class="text-3xl font-bold ${result.nrr >= 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.nrr.toFixed(0)}%</p>
           <p class="fa-script-note mt-2">Target: >100% (with expansion)</p>
         </div>
       </div>
       
-      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+      <div class="mt-4 fa-subcard">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Rule of 40</h4>
         <div class="flex items-center gap-4">
           <p class="text-4xl font-bold ${result.ruleOf40 >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.ruleOf40.toFixed(1)}%</p>
@@ -270,7 +270,7 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       <h2 class="text-xl font-semibold mb-3">💡 Recommendations & Insights</h2>
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
+          <div class="fa-subcard p-3 text-sm">${rec}</div>
         `).join('')}
       </div>
     </div>

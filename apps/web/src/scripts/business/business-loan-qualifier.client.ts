@@ -425,7 +425,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
 
   resultsContainer.innerHTML = `
     <!-- Loan Eligibility -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>🏦</span> Loan Eligibility Analysis
       </h2>
@@ -435,7 +435,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
           <div class="border-2 ${loan.eligible ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
             <div class="flex justify-between items-start mb-3">
               <div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">${loan.loanType}</h3>
+                <h3 class="text-lg fa-list-copy-strong">${loan.loanType}</h3>
                 <p class="text-sm ${loan.eligible ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} font-semibold">
                   ${loan.eligible ? '✓ ELIGIBLE' : '❌ NOT ELIGIBLE'}
                 </p>
@@ -483,7 +483,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">DSCR</h4>
           <p class="text-3xl font-bold ${result.dscr >= 1.5 ? 'text-emerald-600 dark:text-emerald-400' : result.dscr >= 1.25 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.dscr.toFixed(2)}</p>
           <p class="fa-script-note mt-2">Debt Service Coverage Ratio</p>
@@ -491,7 +491,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         </div>
         
         ${input.collateralValue > 0 ? `
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">LTV Ratio</h4>
           <p class="text-3xl font-bold ${result.ltv <= 75 ? 'text-emerald-600 dark:text-emerald-400' : result.ltv <= 90 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltv.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Loan-to-Value Ratio</p>
@@ -499,7 +499,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         </div>
         ` : ''}
         
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+        <div class="fa-subcard">
           <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Debt-to-Income</h4>
           <p class="text-3xl font-bold ${result.debtToIncome <= 30 ? 'text-emerald-600 dark:text-emerald-400' : result.debtToIncome <= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.debtToIncome.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Total Debt / Revenue</p>
@@ -507,8 +507,8 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         </div>
       </div>
       
-      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-2">What These Mean</h4>
+      <div class="mt-4 fa-subcard">
+        <h4 class="fa-list-copy-strong mb-2">What These Mean</h4>
         <ul class="space-y-2 fa-script-copy-strong">
           <li><strong>DSCR (Debt Service Coverage Ratio):</strong> Your annual net income divided by total annual debt payments. Lenders want 1.25+ (meaning you earn $1.25 for every $1 of debt payments).</li>
           <li><strong>LTV (Loan-to-Value):</strong> Loan amount as percentage of collateral value. Lower is better - shows you have skin in the game.</li>
@@ -525,7 +525,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
+          <div class="fa-subcard p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}

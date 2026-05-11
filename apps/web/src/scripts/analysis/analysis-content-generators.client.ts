@@ -93,7 +93,7 @@ export function generateInsights(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${insight.title}</h4>
+              <h4 class="fa-list-copy-strong mb-1">${insight.title}</h4>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${insight.description}</p>
             </div>
             <div class="flex items-center space-x-2 ml-4">
@@ -169,7 +169,7 @@ export function generateInsights(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${insight.title}</h4>
+          <h4 class="fa-list-copy-strong mb-1">${insight.title}</h4>
           <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${insight.description}</p>
         </div>
         <span class="inline-block px-2 py-1 text-xs rounded-full ${insight.impact === 'high' ? 'fa-chip fa-chip-danger' : 'fa-chip fa-chip-warning'}">
@@ -200,7 +200,7 @@ export function generateRecommendations(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${rec.title}</h4>
+              <h4 class="fa-list-copy-strong mb-1">${rec.title}</h4>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">${rec.description}</p>
               <div class="flex items-center justify-between">
                 <div class="flex space-x-2">
@@ -307,7 +307,7 @@ export function generateRecommendations(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${rec.title}</h4>
+          <h4 class="fa-list-copy-strong mb-1">${rec.title}</h4>
           <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">${rec.description}</p>
           <div class="flex items-center justify-between">
             <div class="flex space-x-2">
@@ -344,7 +344,7 @@ export function generateRiskAssessment(
     riskAssessment.innerHTML = `
       <div class="fa-subcard p-4">
         <div class="flex items-center justify-between mb-4">
-          <h4 class="font-semibold text-slate-900 dark:text-white">Overall Risk Level</h4>
+          <h4 class="fa-list-copy-strong">Overall Risk Level</h4>
           <span class="px-3 py-1 text-sm rounded-full ${
             overall === 'high'
               ? 'fa-chip fa-chip-danger'
@@ -427,7 +427,7 @@ export function generateRiskAssessment(
   riskAssessment.innerHTML = `
     <div class="fa-subcard p-4">
       <div class="flex items-center justify-between mb-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white">Overall Risk Assessment</h4>
+        <h4 class="fa-list-copy-strong">Overall Risk Assessment</h4>
         <span class="px-3 py-1 text-sm rounded-full ${overallRisk === 'high' ? 'fa-chip fa-chip-danger' : overallRisk === 'medium' ? 'fa-chip fa-chip-warning' : 'fa-chip fa-chip-success'}">
           ${overallRisk.toUpperCase()} RISK
         </span>
@@ -479,7 +479,7 @@ export function generateOptimizationOpportunities(
         <div class="fa-subcard p-4">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${opp.area}</h4>
+              <h4 class="fa-list-copy-strong mb-1">${opp.area}</h4>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${opp.description}</p>
               <div class="flex items-center space-x-4 text-sm">
                 <div>
@@ -534,7 +534,7 @@ export function generateOptimizationOpportunities(
     <div class="fa-subcard p-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-1">${opp.area}</h4>
+          <h4 class="fa-list-copy-strong mb-1">${opp.area}</h4>
           <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">${opp.description}</p>
           <div class="flex items-center space-x-4">
             <div class="text-sm">
