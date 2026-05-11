@@ -2,6 +2,8 @@
  * Shared UI constants and utility classes for consistent styling across components
  */
 
+import { buttonVariants, cardVariants, checkboxClasses, inputClasses, textColors } from './classNames';
+
 // Common Tailwind class combinations for flex layouts
 export const FLEX_CENTER = 'flex items-center justify-center';
 export const FLEX_BETWEEN = 'flex items-center justify-between';
@@ -16,19 +18,18 @@ export const GAP_3 = 'gap-3';
 export const GAP_4 = 'gap-4';
 
 // Border styles
-export const BORDER_DEFAULT = 'border border-slate-200 dark:border-slate-800';
-export const BORDER_INTERACTIVE =
-  'border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500';
+export const BORDER_DEFAULT = 'border border-slate-200/80 dark:border-slate-800';
+export const BORDER_INTERACTIVE = buttonVariants.outline;
 
 // Background colors
-export const BG_CARD = 'bg-white dark:bg-slate-950';
-export const BG_SUBTLE = 'bg-slate-50 dark:bg-slate-900';
-export const BG_HOVER = 'hover:bg-slate-50 dark:hover:bg-slate-900';
+export const BG_CARD = cardVariants.default;
+export const BG_SUBTLE = cardVariants.subtle;
+export const BG_HOVER = 'hover:bg-violet-50/70 dark:hover:bg-violet-950/40';
 
 // Text colors
-export const TEXT_PRIMARY = 'text-slate-900 dark:text-white';
-export const TEXT_SECONDARY = 'text-slate-600 dark:text-slate-400';
-export const TEXT_MUTED = 'text-slate-500 dark:text-slate-500';
+export const TEXT_PRIMARY = textColors.primary;
+export const TEXT_SECONDARY = textColors.secondary;
+export const TEXT_MUTED = textColors.muted;
 
 // Interactive states
 export const TRANSITION_COLORS = 'transition-colors duration-200';
@@ -38,16 +39,15 @@ export const TRANSITION_ALL = 'transition-all duration-200';
 export const BTN_BASE = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 export const BTN_PRIMARY = 'bg-violet-600 text-white hover:bg-violet-700 active:bg-violet-800';
 export const BTN_SECONDARY = 'bg-slate-600 text-white hover:bg-slate-700 active:bg-slate-800';
-export const BTN_OUTLINE =
-  'border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900';
+export const BTN_OUTLINE = buttonVariants.outline;
 
 // Card action button (repeated pattern)
 export const CARD_ACTION_BTN =
-  'flex flex-col items-center gap-2 rounded-lg border border-slate-300 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900';
+  'flex flex-col items-center gap-2 rounded-2xl border border-slate-200/80 bg-white/95 p-4 text-slate-900 shadow-[0_8px_24px_rgba(9,14,36,0.04)] transition-colors hover:border-violet-200 hover:bg-violet-50/70 dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100 dark:hover:border-violet-800 dark:hover:bg-violet-950/40';
 
 // Input styles
-export const INPUT_BASE =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:placeholder:text-slate-500';
+export const INPUT_BASE = inputClasses;
+export const CHECKBOX_BASE = checkboxClasses;
 
 // Shadow utilities
 export const SHADOW_SM = 'shadow-sm';

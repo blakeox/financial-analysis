@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from './Button';
+import { cn, textColors } from '../lib/classNames';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -54,10 +55,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+            <h2 className={cn('text-xl font-semibold', textColors.primary)}>
               Something went wrong
             </h2>
-            <p className="max-w-md text-slate-600 dark:text-slate-300">
+            <p className={cn('max-w-md', textColors.secondary)}>
               An unexpected error occurred. Please try again or contact support if the problem
               persists.
             </p>

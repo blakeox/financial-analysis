@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
 import { parsers } from '../lib/formUtils';
 import { formatCurrency } from '../lib/formatters';
-import { badgeVariants, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cardVariants, checkboxClasses, cn, textColors } from '../lib/classNames';
 
 export interface EmployeeData {
   id: string;
@@ -123,7 +123,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
           {employees.map((employee) => (
             <div
               key={employee.id}
-              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
+              className={cn(cardVariants.subtle, 'p-4 shadow-sm')}
             >
               <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
                 <Input
@@ -176,7 +176,7 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                       checked={employee.isActive}
                       onChange={(e) => updateEmployee(employee.id, 'isActive', e.target.checked)}
                       disabled={readonly}
-                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
+                      className={checkboxClasses}
                     />
                     <span
                       className={cn(
@@ -200,8 +200,8 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
 
         {/* Add New Employee */}
         {!readonly && (
-          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
-            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add New Employee</h4>
+          <div className={cn(cardVariants.subtle, 'border-2 border-dashed p-5')}>
+            <h4 className={cn('mb-3 font-semibold', textColors.primary)}>Add New Employee</h4>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
               <Input
                 label="Name"

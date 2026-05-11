@@ -1,6 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useHydrated, useAutoScroll, useEscapeKey } from '../lib/hooks';
-import { buttonBaseClasses, buttonVariants, cn, inputClasses, textColors } from '../lib/classNames';
+import {
+  buttonBaseClasses,
+  buttonVariants,
+  cardVariants,
+  cn,
+  inputClasses,
+  textColors,
+} from '../lib/classNames';
 import { Button } from './Button';
 
 type Role = 'system' | 'user' | 'assistant';
@@ -132,7 +139,10 @@ export function ChatPanel({
             aria-modal="true"
             aria-label="Chat assistant"
             data-z-fallback="90"
-            className="fixed top-0 right-0 z-90 h-full w-full border-l border-slate-200/80 bg-white/95 shadow-2xl transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0 dark:border-slate-800 dark:bg-slate-950/96 sm:w-[380px] md:w-[420px]"
+            className={cn(
+              cardVariants.rail,
+              'fixed top-0 right-0 z-90 h-full w-full rounded-none border-y-0 border-r-0 p-0 shadow-2xl transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0 sm:w-[380px] md:w-[420px]'
+            )}
           >
             {/* Header */}
             <div className="flex h-16 items-center justify-between border-b border-slate-200/80 px-3 sm:px-4 dark:border-slate-800">
@@ -174,21 +184,16 @@ export function ChatPanel({
               {messages.map((m, idx) => (
                 <div
                   key={idx}
-                  className={cn(
-                    'text-sm',
-                    m.role === 'user'
-                      ? 'text-slate-950 dark:text-slate-100'
-                      : 'text-slate-800 dark:text-slate-200'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-2xl border px-4 py-3 shadow-sm',
-                      m.role === 'user'
-                        ? 'border-violet-300/70 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/45 dark:text-violet-50'
-                        : 'border-slate-200/80 bg-white/85 text-slate-900 dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-100'
-                    )}
+                    className={cn('text-sm', m.role === 'user' ? textColors.primary : textColors.secondary)}
                   >
+                  <div
+                      className={cn(
+                        'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-2xl border px-4 py-3 shadow-sm',
+                        m.role === 'user'
+                          ? 'border-violet-300/70 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/45 dark:text-violet-50'
+                          : cn(cardVariants.subtle, 'px-4 py-3')
+                      )}
+                    >
                     {m.content}
                   </div>
                 </div>

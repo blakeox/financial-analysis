@@ -17,7 +17,7 @@ import { formatCurrency, formatPercentage } from '../lib/formatters';
 import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
 import { parsers } from '../lib/formUtils';
-import { cn, textColors } from '../lib/classNames';
+import { actionTileClasses, cardVariants, checkboxClasses, cn, textColors } from '../lib/classNames';
 
 // Extend Window interface for analysis results storage
 declare global {
@@ -403,9 +403,9 @@ function LeaseExtractionPreview({
       </CardHeader>
       <CardContent className="space-y-4">
         {extractedData.confidence && (
-          <div className="grid grid-cols-1 gap-3 rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <div className={cn(cardVariants.subtle, 'grid grid-cols-1 gap-3 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4')}>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.overall || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Overall</div>
@@ -420,7 +420,7 @@ function LeaseExtractionPreview({
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.financial || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Financial</div>
@@ -435,7 +435,7 @@ function LeaseExtractionPreview({
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.property || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Property</div>
@@ -454,7 +454,7 @@ function LeaseExtractionPreview({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Basic Terms</h4>
+            <h4 className={cn('font-semibold', textColors.primary)}>Basic Terms</h4>
             <div className="space-y-2 text-sm">
               {extractedData.leaseType && (
                 <div className="flex justify-between">
@@ -488,7 +488,7 @@ function LeaseExtractionPreview({
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Additional Costs</h4>
+            <h4 className={cn('font-semibold', textColors.primary)}>Additional Costs</h4>
             <div className="space-y-2 text-sm">
               {extractedData.cam && (
                 <div className="flex justify-between">
@@ -533,13 +533,13 @@ function LeaseExtractionPreview({
         {extractedData.extractedSections &&
           Object.values(extractedData.extractedSections).some((section) => section) && (
             <div className="space-y-3">
-              <h4 className="font-semibold text-slate-900 dark:text-white">
+              <h4 className={cn('font-semibold', textColors.primary)}>
                 Key Document Sections
               </h4>
               <div className="space-y-3">
                 {extractedData.extractedSections.financialTerms && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                <div className={cn(cardVariants.subtle, 'p-3 text-sm')}>
+                  <div className={cn('mb-1 font-medium', textColors.primary)}>
                       Financial Terms:
                     </div>
                   <div className="text-slate-700 dark:text-slate-300">
@@ -548,8 +548,8 @@ function LeaseExtractionPreview({
                   </div>
                 )}
                 {extractedData.extractedSections.propertyDescription && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                <div className={cn(cardVariants.subtle, 'p-3 text-sm')}>
+                  <div className={cn('mb-1 font-medium', textColors.primary)}>
                       Property Description:
                     </div>
                   <div className="text-slate-700 dark:text-slate-300">
@@ -2777,7 +2777,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         onChange={(e) =>
                           handleNestedInputChange('purchaseOption', 'enabled', e.target.checked)
                         }
-                        className="rounded border-slate-300"
+                        className={checkboxClasses}
                       />
                       <label htmlFor="purchase-option-enabled">Enable purchase option</label>
                     </div>
@@ -2810,7 +2810,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                                 e.target.checked
                               )
                             }
-                            className="rounded border-slate-300"
+                            className={checkboxClasses}
                           />
                           <label htmlFor="fair-market-value">Use fair market value option</label>
                         </div>
@@ -2833,7 +2833,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         onChange={(e) =>
                           handleNestedInputChange('earlyTermination', 'allowed', e.target.checked)
                         }
-                        className="rounded border-slate-300"
+                        className={checkboxClasses}
                       />
                       <label htmlFor="early-termination-allowed">Allow early termination</label>
                     </div>
@@ -2937,7 +2937,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                           handleInputChange('compareAlternatives', undefined);
                         }
                       }}
-                      className="rounded border-slate-300"
+                      className={checkboxClasses}
                     />
                     <label htmlFor="lease-vs-buy-compare">Compare with purchase option</label>
                   </div>
@@ -3412,7 +3412,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
                     onClick={exportToPDF}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-rose-600"
@@ -3432,7 +3432,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={exportToCSV}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-emerald-600"
@@ -3452,7 +3452,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={exportToJSON}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-violet-600"
@@ -3472,7 +3472,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={generateShareableLink}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-violet-600"

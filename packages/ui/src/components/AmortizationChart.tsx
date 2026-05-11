@@ -1,6 +1,7 @@
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { parsers } from '../lib/formUtils';
+import { cardVariants, cn as sharedCn, textColors } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
@@ -568,12 +569,12 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
     <div ref={containerRef} className={cn('space-y-4 w-full', className)} {...props}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <h3 className={sharedCn('text-sm font-semibold', textColors.primary)}>{title}</h3>
+          <p className={sharedCn('text-xs', textColors.muted)}>
             Highlight a month to inspect the payment mix and remaining balance.
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <div className={sharedCn('flex items-center gap-4 text-xs', textColors.muted)}>
           <div className="flex items-center gap-1">
             <span className="inline-flex h-2 w-2 rounded-full bg-violet-500" aria-hidden />
             <span>Remaining balance</span>
@@ -589,12 +590,12 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
           {showViewToggle ? (
             <div className="ml-2 flex items-center gap-1">
               <span className="text-slate-400">•</span>
-              <div className="inline-flex overflow-hidden rounded border border-slate-200 dark:border-slate-800">
+              <div className={sharedCn(cardVariants.subtle, 'inline-flex overflow-hidden rounded-xl p-0 shadow-sm')}>
                 <button
                   type="button"
                   className={cn(
                     'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
-                    viewMode === 'monthly' ? 'bg-slate-100 dark:bg-slate-900/60' : 'bg-transparent'
+                    viewMode === 'monthly' ? 'bg-white/95 text-violet-700 dark:bg-slate-950 dark:text-violet-200' : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('monthly')}
                 >
@@ -604,7 +605,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   type="button"
                   className={cn(
                     'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
-                    viewMode === 'yearly' ? 'bg-slate-100 dark:bg-slate-900/60' : 'bg-transparent'
+                    viewMode === 'yearly' ? 'bg-white/95 text-violet-700 dark:bg-slate-950 dark:text-violet-200' : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('yearly')}
                 >
@@ -913,10 +914,10 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                 <span className="font-semibold uppercase tracking-wide">
                   {milestoneLabel(milestone)}
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                <span className={sharedCn('text-[11px]', textColors.muted)}>
                   Month {numberFormatter.format(milestone.month)}
                 </span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                <span className={sharedCn('text-[11px]', textColors.secondary)}>
                   {milestone.description}
                 </span>
               </button>
@@ -925,11 +926,11 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
         </div>
       ) : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/40">
+      <div className={sharedCn(cardVariants.subtle, 'p-4')}>
         {activeItem ? (
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
             <DetailCard title="Month & payment">
-              <div className="text-lg font-semibold text-slate-900 dark:text-white">
+              <div className={sharedCn('text-lg font-semibold', textColors.primary)}>
                 {numberFormatter.format(activeItem.month)}
               </div>
               <div

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { useHydrated, useApiData } from '../lib/hooks';
 import { formatFileSize } from '../lib/formatters';
-import { badgeVariants, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cardVariants, cn, textColors } from '../lib/classNames';
 
 type Usage = {
   usedBytes: number;
@@ -87,25 +87,25 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Used</span>
-              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+              <span className={cn('text-sm font-semibold', textColors.primary)}>
                 {formatFileSize(displayData.usedBytes)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Soft limit</span>
-              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+              <span className={cn('text-sm font-semibold', textColors.primary)}>
                 {formatFileSize(displayData.softLimit)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Hard limit</span>
-              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+              <span className={cn('text-sm font-semibold', textColors.primary)}>
                 {formatFileSize(displayData.hardLimit)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Max object</span>
-              <span className="text-sm font-semibold text-slate-950 dark:text-white">
+              <span className={cn('text-sm font-semibold', textColors.primary)}>
                 {formatFileSize(displayData.maxObjectSize)}
               </span>
             </div>
@@ -122,7 +122,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
               </span>
             </div>
             {displayData.locked && (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200">
+              <div className={cn(cardVariants.subtle, 'border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200')}>
                 Uploads are temporarily disabled due to storage limits. Try again later or remove
                 unused files.
               </div>
