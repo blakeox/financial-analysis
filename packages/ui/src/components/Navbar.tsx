@@ -2,7 +2,7 @@ import React, { useEffect, useId, useMemo, useState } from 'react';
 import { cn } from '../lib/utils';
 import { Menu, X, Coffee } from 'lucide-react';
 import { Button } from './Button';
-import { buttonVariants, cardVariants, textColors } from '../lib/classNames';
+import { buttonVariants, cardVariants, surfaceDividerClasses, textColors } from '../lib/classNames';
 
 interface NavItem {
   name: string;
@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
   return (
     <nav
       className={cn(
-        'supports-backdrop-blur:bg-white/70 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800/60 dark:bg-slate-950/70',
+        `supports-backdrop-blur:bg-white/70 border-b ${surfaceDividerClasses} bg-white/80 backdrop-blur dark:bg-slate-950/70`,
         sticky && 'sticky top-0 z-50',
         scrolled && 'shadow-sm',
         className

@@ -1,3 +1,5 @@
+import { textColors } from '../../lib/classNames';
+
 export interface TrendIndicatorProps {
   value: number;
   formatter?: (value: number) => string;
@@ -20,12 +22,12 @@ export function TrendIndicator({
       ? 'text-rose-600 dark:text-rose-300'
       : isNegative
         ? 'text-emerald-600 dark:text-emerald-300'
-        : 'text-slate-600 dark:text-slate-400'
+        : textColors.secondary
     : isPositive
       ? 'text-emerald-600 dark:text-emerald-300'
       : isNegative
         ? 'text-rose-600 dark:text-rose-300'
-        : 'text-slate-600 dark:text-slate-400';
+        : textColors.secondary;
 
   const icon = isPositive ? '↑' : isNegative ? '↓' : '→';
   

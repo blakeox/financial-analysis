@@ -1,5 +1,5 @@
 import { type SelectHTMLAttributes } from 'react';
-import { cn, inputClasses } from '../lib/classNames';
+import { cn, fieldLabelClasses, helperTextClasses, inputClasses } from '../lib/classNames';
 
 interface Option {
   value: string;
@@ -26,9 +26,9 @@ export function Select({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
-          {label}
-        </label>
+          <label className={fieldLabelClasses}>
+            {label}
+          </label>
       )}
       <select
         className={cn(
@@ -49,7 +49,7 @@ export function Select({
         ))}
       </select>
       {helperText && !error && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
+        <p className={helperTextClasses}>{helperText}</p>
       )}
       {error && (
         <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>

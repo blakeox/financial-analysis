@@ -1,7 +1,7 @@
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { parsers } from '../lib/formUtils';
-import { cardVariants, cn as sharedCn, textColors } from '../lib/classNames';
+import { cardVariants, cn as sharedCn, segmentedActiveClasses, textColors } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
@@ -363,8 +363,8 @@ const DetailCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
-  <div className="rounded-md border border-slate-200/70 bg-white/80 p-3 shadow-sm dark:border-slate-700/70 dark:bg-slate-950/60">
-    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+  <div className={sharedCn(cardVariants.subtle, 'rounded-md p-3 shadow-sm')}>
+    <dt className={sharedCn('text-xs font-semibold uppercase tracking-wide', textColors.muted)}>
       {title}
     </dt>
     <dd className="mt-2 space-y-2">{children}</dd>
@@ -589,13 +589,13 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
           </div>
           {showViewToggle ? (
             <div className="ml-2 flex items-center gap-1">
-              <span className="text-slate-400">•</span>
+              <span className={textColors.muted}>•</span>
               <div className={sharedCn(cardVariants.subtle, 'inline-flex overflow-hidden rounded-xl p-0 shadow-sm')}>
                 <button
                   type="button"
                   className={cn(
                     'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
-                    viewMode === 'monthly' ? 'bg-white/95 text-violet-700 dark:bg-slate-950 dark:text-violet-200' : 'bg-transparent'
+                    viewMode === 'monthly' ? segmentedActiveClasses : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('monthly')}
                 >
@@ -605,7 +605,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   type="button"
                   className={cn(
                     'px-2 py-1 text-[11px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60',
-                    viewMode === 'yearly' ? 'bg-white/95 text-violet-700 dark:bg-slate-950 dark:text-violet-200' : 'bg-transparent'
+                    viewMode === 'yearly' ? segmentedActiveClasses : 'bg-transparent'
                   )}
                   onClick={() => setViewMode('yearly')}
                 >
@@ -660,7 +660,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   x={-LEFT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-slate-400 dark:text-slate-500"
+                  className={sharedCn('text-[10px]', textColors.muted)}
                   textAnchor="end"
                   dominantBaseline="middle"
                 >
@@ -670,7 +670,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   x={chartBodyWidth + RIGHT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-slate-400 dark:text-slate-500"
+                  className={sharedCn('text-[10px]', textColors.muted)}
                   textAnchor="start"
                   dominantBaseline="middle"
                 >
@@ -805,7 +805,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <label
             htmlFor={sliderId}
-            className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            className={sharedCn('text-xs font-medium uppercase tracking-wide', textColors.muted)}
           >
             Highlight month {activeItem ? `${activeItem.month}` : '--'} of{' '}
             {numberFormatter.format(viewSchedule[viewSchedule.length - 1]?.month ?? monthCount)}
@@ -972,7 +972,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
             </DetailCard>
           </dl>
         ) : (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className={sharedCn('text-sm', textColors.muted)}>
             No amortization schedule available.
           </p>
         )}

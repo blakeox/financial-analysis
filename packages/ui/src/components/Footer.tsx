@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '../lib/utils';
-import { textColors } from '../lib/classNames';
+import { surfaceDividerClasses, textColors } from '../lib/classNames';
 
 interface FooterProps {
   className?: string;
@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
   return (
     <footer
       className={cn(
-        'border-t border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,250,255,0.98))] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.98),rgba(9,14,36,0.98))]',
+        `border-t ${surfaceDividerClasses} bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,250,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.98),rgba(9,14,36,0.98))]`,
         className
       )}
     >
@@ -157,7 +157,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-slate-200/80 pt-8 dark:border-slate-800">
+        <div className={cn('mt-12 border-t pt-8', surfaceDividerClasses)}>
           <p className={cn('text-sm leading-7 xl:text-center', textColors.secondary)}>
             &copy; {currentYear} Fanalyx. Educational decision support only. Not financial advice.
           </p>

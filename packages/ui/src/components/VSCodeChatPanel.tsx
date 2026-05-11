@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from './Button';
-import { cardVariants, cn, inputClasses, textColors } from '../lib/classNames';
+import { cardVariants, cn, inputClasses, surfaceDividerClasses, textColors } from '../lib/classNames';
 
 // SVG Icons as components to avoid external dependencies
 const XIcon = () => (
@@ -108,8 +108,11 @@ export function VSCodeChatPanel({
     cn(cardVariants.rail, 'fixed inset-0 z-50 rounded-none border-0 p-0 md:hidden');
   const desktopShellClasses =
     cn(cardVariants.rail, 'fixed top-0 right-0 z-40 hidden h-full w-96 rounded-none border-y-0 border-r-0 p-0 shadow-2xl md:block');
-  const headerClasses =
-    'flex items-center justify-between border-b border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/90';
+  const headerClasses = cn(
+    cardVariants.subtle,
+    'flex items-center justify-between rounded-none border-x-0 border-t-0 p-4',
+    surfaceDividerClasses
+  );
   const emptyStateClasses = cn('mt-8 text-center', textColors.muted);
 
   if (!isOpen) return null;

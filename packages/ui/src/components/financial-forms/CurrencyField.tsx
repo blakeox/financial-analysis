@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { inputClasses } from '../../lib/classNames';
+import { fieldLabelClasses, helperTextClasses, inputClasses, textColors } from '../../lib/classNames';
 
 export type CurrencyFieldProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -35,13 +35,13 @@ export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldPro
         {label && (
           <label
             htmlFor={fieldId}
-            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
+            className={fieldLabelClasses}
           >
             {label}
           </label>
         )}
         <div className="relative">
-          <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 dark:text-slate-400">
+          <span className={cn('pointer-events-none absolute top-1/2 left-4 -translate-y-1/2', textColors.muted)}>
             {currencySymbol}
           </span>
           <input
@@ -67,7 +67,7 @@ export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldPro
           </p>
         )}
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
+          <p id={helperId} className={helperTextClasses}>
             {helperText}
           </p>
         )}

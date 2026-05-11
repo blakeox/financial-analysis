@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { useHydrated, useApiData } from '../lib/hooks';
 import { formatFileSize } from '../lib/formatters';
-import { badgeVariants, cardVariants, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cardVariants, cn, surfaceDividerClasses, textColors } from '../lib/classNames';
 
 type Usage = {
   usedBytes: number;
@@ -109,7 +109,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
                 {formatFileSize(displayData.maxObjectSize)}
               </span>
             </div>
-            <div className="flex items-center justify-between gap-4 border-t border-slate-200/70 pt-3 dark:border-slate-800">
+            <div className={cn('flex items-center justify-between gap-4 border-t pt-3', surfaceDividerClasses)}>
               <span className={cn('text-sm', textColors.secondary)}>Status</span>
               <span
                 data-testid="storage-status-value"
