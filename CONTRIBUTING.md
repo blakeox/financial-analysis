@@ -7,7 +7,7 @@ Thank you for your interest in contributing to the `financial-analysis` project!
 ### Prerequisites
 
 - Node.js 22+ (see `.nvmrc`)
-- pnpm 8+ (<https://pnpm.io/installation>)
+- pnpm 10+ (see `packageManager` in root `package.json`)
 - Cloudflare account (for Workers deployment)
 - Git
 
@@ -120,6 +120,14 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 - **Astro + Tailwind:** Use Astro for pages/layout, Tailwind for styling
 - **Cloudflare stack:** Use Workers for APIs, R2 for file storage, D1 for relational data, KV for sessions, Queues for long tasks
 - **Deterministic math:** Financial calculations must be pure, testable TypeScript functions
+
+### Duplicate files
+
+Never commit duplicate copies. The repo enforces this via `pnpm run check:duplicates` (also runs on pre-commit and PRs).
+
+- **Playwright specs** must live under feature folders (`tests/chat/`, `tests/nav/`, etc.) with unique basenames.
+- **Shared test helpers** belong in `apps/web/tests/_shared/` (not `tests/utils/`).
+- **macOS Finder copies** (`file 2.md`, `package 2`, etc.) must be deleted — run `pnpm run clean:finder-duplicates` or `pnpm run clean:finder-duplicates -- --node-modules` if duplicates appear under `node_modules/`.
 
 ### Code Quality
 
