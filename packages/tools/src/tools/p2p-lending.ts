@@ -9,9 +9,18 @@ export class P2PLendingTool {
     type: 'object',
     properties: {
       principal: { type: 'number', minimum: 0 },
-      annualInterestRate: { type: 'number', minimum: 0, description: 'Nominal annual interest rate (decimal)' },
+      annualInterestRate: {
+        type: 'number',
+        minimum: 0,
+        description: 'Nominal annual interest rate (decimal)',
+      },
       termYears: { type: 'number', minimum: 0 },
-      feeRate: { type: 'number', minimum: 0, default: 0, description: 'Fee rate applied to interest (decimal)' },
+      feeRate: {
+        type: 'number',
+        minimum: 0,
+        default: 0,
+        description: 'Fee rate applied to interest (decimal)',
+      },
       defaultProbability: { type: 'number', minimum: 0, maximum: 1, default: 0 },
       recoveryRate: { type: 'number', minimum: 0, maximum: 1, default: 0 },
     },
@@ -23,4 +32,3 @@ export class P2PLendingTool {
     return P2PLendingAnalyzer.analyze(validated);
   }
 }
-

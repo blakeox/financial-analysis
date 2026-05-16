@@ -39,10 +39,14 @@ export class DividendReinvestmentCalculator {
     const dividendGrowthPerPeriod = Math.pow(1 + input.dividendGrowthRate, 1 / ppy) - 1;
 
     let sharePrice = input.sharePrice;
-    let annualDividendPerShare = new Decimal(input.annualDividendYield).times(sharePrice).toNumber();
+    let annualDividendPerShare = new Decimal(input.annualDividendYield)
+      .times(sharePrice)
+      .toNumber();
 
     let shares =
-      input.sharePrice > 0 ? new Decimal(input.initialInvestment).div(input.sharePrice).toNumber() : 0;
+      input.sharePrice > 0
+        ? new Decimal(input.initialInvestment).div(input.sharePrice).toNumber()
+        : 0;
     let totalContributions = input.initialInvestment;
     let totalDividends = 0;
 
@@ -91,4 +95,3 @@ export class DividendReinvestmentCalculator {
     };
   }
 }
-

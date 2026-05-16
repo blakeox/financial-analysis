@@ -15,10 +15,9 @@ type Usage = {
 
 export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   const hydrated = useHydrated();
-  const { data, loading, error } = useApiData<Usage>(
-    `${apiBase}/v1/storage/usage`,
-    { refreshInterval: 30000 }
-  );
+  const { data, loading, error } = useApiData<Usage>(`${apiBase}/v1/storage/usage`, {
+    refreshInterval: 30000,
+  });
   const [testData, setTestData] = React.useState<Usage | null>(null);
 
   // Don't render until hydrated to prevent SSR/client mismatch
@@ -29,9 +28,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
           <CardTitle>Storage Usage</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className={cn('py-8 text-center text-sm', textColors.muted)}>
-            Loading...
-          </div>
+          <div className={cn('py-8 text-center text-sm', textColors.muted)}>Loading...</div>
         </CardContent>
       </Card>
     );

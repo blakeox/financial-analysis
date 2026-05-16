@@ -25,9 +25,23 @@ export class FranchiseROITool {
         type: 'object',
         properties: {
           franchiseFee: { type: 'number', minimum: 0, description: 'Franchise fee' },
-          initialInvestment: { type: 'number', minimum: 0, description: 'Total initial investment' },
-          workingCapital: { type: 'number', minimum: 0, default: 0, description: 'Working capital' },
-          realEstateCost: { type: 'number', minimum: 0, default: 0, description: 'Real estate cost' },
+          initialInvestment: {
+            type: 'number',
+            minimum: 0,
+            description: 'Total initial investment',
+          },
+          workingCapital: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Working capital',
+          },
+          realEstateCost: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Real estate cost',
+          },
           equipmentCost: { type: 'number', minimum: 0, default: 0, description: 'Equipment cost' },
         },
         required: ['franchiseFee', 'initialInvestment'],
@@ -35,9 +49,25 @@ export class FranchiseROITool {
       ongoingCosts: {
         type: 'object',
         properties: {
-          royaltyFee: { type: 'number', minimum: 0, maximum: 0.2, default: 0.05, description: 'Royalty fee percentage' },
-          marketingFee: { type: 'number', minimum: 0, maximum: 0.1, default: 0.02, description: 'Marketing fee percentage' },
-          annualOperatingCosts: { type: 'number', minimum: 0, description: 'Annual operating costs' },
+          royaltyFee: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0.05,
+            description: 'Royalty fee percentage',
+          },
+          marketingFee: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.1,
+            default: 0.02,
+            description: 'Marketing fee percentage',
+          },
+          annualOperatingCosts: {
+            type: 'number',
+            minimum: 0,
+            description: 'Annual operating costs',
+          },
         },
         required: ['royaltyFee', 'marketingFee', 'annualOperatingCosts'],
       },
@@ -45,8 +75,20 @@ export class FranchiseROITool {
         type: 'object',
         properties: {
           firstYearRevenue: { type: 'number', minimum: 0, description: 'First year revenue' },
-          revenueGrowthRate: { type: 'number', minimum: 0, maximum: 0.5, default: 0.1, description: 'Revenue growth rate' },
-          grossMargin: { type: 'number', minimum: 0, maximum: 1, default: 0.3, description: 'Gross margin' },
+          revenueGrowthRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            default: 0.1,
+            description: 'Revenue growth rate',
+          },
+          grossMargin: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.3,
+            description: 'Gross margin',
+          },
         },
         required: ['firstYearRevenue', 'grossMargin'],
       },
@@ -54,10 +96,28 @@ export class FranchiseROITool {
         type: 'object',
         properties: {
           includeROI: { type: 'boolean', default: true, description: 'Include ROI' },
-          includeBreakEven: { type: 'boolean', default: true, description: 'Include break-even analysis' },
-          includePaybackPeriod: { type: 'boolean', default: true, description: 'Include payback period' },
-          includeScenarioAnalysis: { type: 'boolean', default: true, description: 'Include scenario analysis' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 20, default: 10, description: 'Projection years' },
+          includeBreakEven: {
+            type: 'boolean',
+            default: true,
+            description: 'Include break-even analysis',
+          },
+          includePaybackPeriod: {
+            type: 'boolean',
+            default: true,
+            description: 'Include payback period',
+          },
+          includeScenarioAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include scenario analysis',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 20,
+            default: 10,
+            description: 'Projection years',
+          },
         },
         required: ['projectionYears'],
       },
@@ -70,5 +130,3 @@ export class FranchiseROITool {
     return FranchiseROICalculator.analyze(validated);
   }
 }
-
-

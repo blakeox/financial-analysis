@@ -26,7 +26,7 @@ test.describe('Navbar styling regression', () => {
 
     const blurApplied = Boolean(
       navStyles?.backdropFilter?.includes('blur(14px)') ||
-        navStyles?.webkitBackdropFilter?.includes('blur(14px)')
+      navStyles?.webkitBackdropFilter?.includes('blur(14px)')
     );
     expect(blurApplied).toBeTruthy();
     const expectedBorders = ['rgba(0, 0, 0, 0.06)', 'rgba(255, 255, 255, 0.06)'];

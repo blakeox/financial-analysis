@@ -1,9 +1,9 @@
 /**
  * Circuit Breaker Pattern Implementation
- * 
+ *
  * Prevents cascading failures by stopping requests to a failing service
  * after a threshold of consecutive failures is reached.
- * 
+ *
  * States:
  * - CLOSED: Normal operation, requests pass through
  * - OPEN: Failures exceeded threshold, requests fail fast

@@ -2,7 +2,10 @@
  * Business Succession Planning MCP Tool
  */
 
-import { BusinessSuccessionPlanningInputSchema, BusinessSuccessionPlanningCalculator } from '@financial-analysis/analysis';
+import {
+  BusinessSuccessionPlanningInputSchema,
+  BusinessSuccessionPlanningCalculator,
+} from '@financial-analysis/analysis';
 
 export class BusinessSuccessionPlanningTool {
   static readonly toolName = 'analyze_business_succession_planning';
@@ -31,8 +34,20 @@ export class BusinessSuccessionPlanningTool {
         type: 'object',
         properties: {
           age: { type: 'number', minimum: 18, maximum: 100, description: 'Owner age' },
-          ownershipPercentage: { type: 'number', minimum: 0, maximum: 1, default: 1, description: 'Ownership percentage' },
-          expectedRetirementAge: { type: 'number', minimum: 50, maximum: 100, default: 65, description: 'Expected retirement age' },
+          ownershipPercentage: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 1,
+            description: 'Ownership percentage',
+          },
+          expectedRetirementAge: {
+            type: 'number',
+            minimum: 50,
+            maximum: 100,
+            default: 65,
+            description: 'Expected retirement age',
+          },
         },
         required: ['age', 'expectedRetirementAge'],
       },
@@ -45,7 +60,11 @@ export class BusinessSuccessionPlanningTool {
             default: 'family-transfer',
             description: 'Succession type',
           },
-          hasBuySellAgreement: { type: 'boolean', default: false, description: 'Has buy-sell agreement' },
+          hasBuySellAgreement: {
+            type: 'boolean',
+            default: false,
+            description: 'Has buy-sell agreement',
+          },
           buySellFunding: {
             type: 'string',
             enum: ['life-insurance', 'sinking-fund', 'installment-sale', 'other'],
@@ -57,19 +76,51 @@ export class BusinessSuccessionPlanningTool {
       estatePlanning: {
         type: 'object',
         properties: {
-          estateTaxExemption: { type: 'number', minimum: 0, default: 12920000, description: 'Estate tax exemption' },
-          includeGiftingStrategy: { type: 'boolean', default: true, description: 'Include gifting strategy' },
-          annualGiftExclusion: { type: 'number', minimum: 0, default: 18000, description: 'Annual gift exclusion' },
+          estateTaxExemption: {
+            type: 'number',
+            minimum: 0,
+            default: 12920000,
+            description: 'Estate tax exemption',
+          },
+          includeGiftingStrategy: {
+            type: 'boolean',
+            default: true,
+            description: 'Include gifting strategy',
+          },
+          annualGiftExclusion: {
+            type: 'number',
+            minimum: 0,
+            default: 18000,
+            description: 'Annual gift exclusion',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
           includeValuation: { type: 'boolean', default: true, description: 'Include valuation' },
-          includeTaxAnalysis: { type: 'boolean', default: true, description: 'Include tax analysis' },
-          includeTransitionPlan: { type: 'boolean', default: true, description: 'Include transition plan' },
-          includeFundingAnalysis: { type: 'boolean', default: true, description: 'Include funding analysis' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 30, default: 10, description: 'Projection years' },
+          includeTaxAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax analysis',
+          },
+          includeTransitionPlan: {
+            type: 'boolean',
+            default: true,
+            description: 'Include transition plan',
+          },
+          includeFundingAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include funding analysis',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 30,
+            default: 10,
+            description: 'Projection years',
+          },
         },
         required: ['projectionYears'],
       },
@@ -82,5 +133,3 @@ export class BusinessSuccessionPlanningTool {
     return BusinessSuccessionPlanningCalculator.analyze(validated);
   }
 }
-
-

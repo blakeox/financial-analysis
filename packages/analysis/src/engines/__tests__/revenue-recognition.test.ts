@@ -196,4 +196,3 @@ describe('RevenueRecognitionCalculator', () => {
     expect(result.recommendations).toContain('Review revenue recognition for compliance issues');
   });
 });
-

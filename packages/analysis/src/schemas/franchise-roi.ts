@@ -92,19 +92,13 @@ export const FranchiseROIInputSchema = RawFranchiseROIInputSchema.transform((raw
       otherCosts;
 
   const revenueProjectionYears =
-    raw.revenueProjections.revenueProjectionYears ??
-    raw.analysis.projectionYears ??
-    10;
+    raw.revenueProjections.revenueProjectionYears ?? raw.analysis.projectionYears ?? 10;
 
   const annualOperatingExpenses =
-    raw.ongoingCosts.annualOperatingExpenses ??
-    raw.ongoingCosts.annualOperatingCosts ??
-    0;
+    raw.ongoingCosts.annualOperatingExpenses ?? raw.ongoingCosts.annualOperatingCosts ?? 0;
 
   const includeSensitivityAnalysis =
-    raw.analysis.includeSensitivityAnalysis ??
-    raw.analysis.includeScenarioAnalysis ??
-    false;
+    raw.analysis.includeSensitivityAnalysis ?? raw.analysis.includeScenarioAnalysis ?? false;
 
   return {
     franchiseInfo: raw.franchiseInfo,
@@ -147,6 +141,3 @@ export const FranchiseROIInputSchema = RawFranchiseROIInputSchema.transform((raw
 });
 
 export type FranchiseROIInput = z.infer<typeof FranchiseROIInputSchema>;
-
-
-

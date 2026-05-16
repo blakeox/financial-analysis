@@ -279,4 +279,3 @@ describe('CryptocurrencyTaxCalculator', () => {
     expect(result.recommendations.join(' ')).toContain('FIFO');
   });
 });
-

@@ -61,10 +61,12 @@ describe('checkRateLimit', () => {
   it('should block request when limit exceeded', async () => {
     const request = new Request('https://api.example.com/v1/chat/enhanced');
     const now = Date.now();
-    mockKV.get.mockResolvedValue(JSON.stringify({
-      count: 20,
-      resetTime: now + 60000
-    }));
+    mockKV.get.mockResolvedValue(
+      JSON.stringify({
+        count: 20,
+        resetTime: now + 60000,
+      })
+    );
 
     const result = await checkRateLimit(request, env);
 

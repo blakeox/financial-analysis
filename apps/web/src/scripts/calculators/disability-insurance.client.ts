@@ -45,7 +45,9 @@ class DisabilityInsuranceCalculator {
           hasIndividualPolicy: formData.get('hasIndividualPolicy') === 'true',
         },
         needsAnalysis: {
-          targetReplacementIncome: parseFloat((formData.get('targetReplacementIncome') as string) || '0.6'),
+          targetReplacementIncome: parseFloat(
+            (formData.get('targetReplacementIncome') as string) || '0.6'
+          ),
           includeSocialSecurity: formData.get('includeSocialSecurity') !== 'false',
           expectedSSDIBenefit: parseFloat((formData.get('expectedSSDIBenefit') as string) || '0'),
         },
@@ -53,8 +55,11 @@ class DisabilityInsuranceCalculator {
           benefitAmount: parseFloat((formData.get('benefitAmount') as string) || '0'),
           benefitPeriod: (formData.get('benefitPeriod') as string) || 'to-age-65',
           eliminationPeriod: parseInt((formData.get('eliminationPeriod') as string) || '90'),
-          definitionOfDisability: (formData.get('definitionOfDisability') as string) || 'own-occupation',
-          estimatedAnnualPremium: parseFloat((formData.get('estimatedAnnualPremium') as string) || '0'),
+          definitionOfDisability:
+            (formData.get('definitionOfDisability') as string) || 'own-occupation',
+          estimatedAnnualPremium: parseFloat(
+            (formData.get('estimatedAnnualPremium') as string) || '0'
+          ),
         },
         analysis: {
           includeCoverageGapAnalysis: formData.get('includeCoverageGapAnalysis') !== 'false',

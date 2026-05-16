@@ -2,7 +2,12 @@
  * Chatbot integration for Mortgage Scenario Planning Calculator
  */
 
-import type { Scenario, MortgageScenarioPlanningInput, MortgageScenarioChatContext, ScenarioFormSlice } from './types';
+import type {
+  Scenario,
+  MortgageScenarioPlanningInput,
+  MortgageScenarioChatContext,
+  ScenarioFormSlice,
+} from './types';
 import { parseFormInput } from './form-handling';
 
 /**
@@ -22,44 +27,48 @@ export function setupChatbotContext(form: HTMLFormElement): void {
     ],
     currentFormData: null,
   };
-  
+
   // Update context data when form changes
   form.addEventListener('input', () => {
     const input = parseFormInput(form);
-    
+
     // Build scenarios array for chat context
-    const scenarios: ScenarioFormSlice[] = input.scenarios.map(s => ({
+    const scenarios: ScenarioFormSlice[] = input.scenarios.map((s) => ({
       downPayment: s.downPayment || null,
       rate: s.rate || null,
       extraPayment: s.extraPayment || null,
       closingCosts: s.closingCosts || null,
     }));
-    
+
     contextData.currentFormData = {
       homePrice: input.homePrice || null,
       loanTerm: input.loanTermYears || null,
       scenarios,
       refinanceRate: input.refinanceRate || null,
     };
-    
+
     // Dispatch context update
-    window.dispatchEvent(new CustomEvent('chat-context-update', {
+    window.dispatchEvent(
+      new CustomEvent('chat-context-update', {
+        detail: {
+          context: 'mortgage-scenario-planning',
+          contextLabel: 'Mortgage Scenario Planner',
+          contextData,
+        },
+      })
+    );
+  });
+
+  // Set initial context
+  window.dispatchEvent(
+    new CustomEvent('chat-context-update', {
       detail: {
         context: 'mortgage-scenario-planning',
-        contextLabel: 'Mortgage Scenario Planner',
+        contextLabel: 'Mortgage Scenario Planner - CFP Assistant',
         contextData,
       },
-    }));
-  });
-  
-  // Set initial context
-  window.dispatchEvent(new CustomEvent('chat-context-update', {
-    detail: {
-      context: 'mortgage-scenario-planning',
-      contextLabel: 'Mortgage Scenario Planner - CFP Assistant',
-      contextData,
-    },
-  }));
+    })
+  );
 }
 
 /**
@@ -69,18 +78,18 @@ export function updateChatbotWithResults(
   scenarios: Scenario[],
   formData: MortgageScenarioPlanningInput
 ): void {
-  const bestScenario = scenarios.reduce((best, current) => 
+  const bestScenario = scenarios.reduce((best, current) =>
     current.totalCost < best.totalCost ? current : best
   );
-  
-  const baseScenarios = scenarios.filter(s => !s.name.includes('Refinanced'));
-  const refinanceScenarios = scenarios.filter(s => s.name.includes('Refinanced'));
-  
+
+  const baseScenarios = scenarios.filter((s) => !s.name.includes('Refinanced'));
+  const refinanceScenarios = scenarios.filter((s) => s.name.includes('Refinanced'));
+
   const analysisContext = {
     calculatorType: 'mortgage-scenario-planning',
     calculatorName: 'Mortgage Scenario Planner',
     results: {
-      scenarios: scenarios.map(s => ({
+      scenarios: scenarios.map((s) => ({
         name: s.name,
         downPayment: s.downPayment,
         downPaymentPercent: ((s.downPayment / (s.principal + s.downPayment)) * 100).toFixed(1),
@@ -96,18 +105,37 @@ export function updateChatbotWithResults(
         name: bestScenario.name,
         monthlyPayment: bestScenario.monthlyPayment,
         totalCost: bestScenario.totalCost,
-        savings: Math.max(...scenarios.map(s => s.totalCost)) - bestScenario.totalCost,
+        savings: Math.max(...scenarios.map((s) => s.totalCost)) - bestScenario.totalCost,
       },
-      comparison: baseScenarios.length === 2 ? {
-        monthlyDiff: Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment),
-        interestDiff: Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest),
-        totalCostDiff: Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost),
-      } : null,
-      refinancing: refinanceScenarios.length > 0 ? {
-        available: true,
-        savings: baseScenarios[0] && refinanceScenarios[0] ? baseScenarios[0].totalCost - refinanceScenarios[0].totalCost : 0,
-        roi: baseScenarios[0] && refinanceScenarios[0] ? ((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1) : '0',
-      } : { available: false },
+      comparison:
+        baseScenarios.length === 2
+          ? {
+              monthlyDiff: Math.abs(
+                baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment
+              ),
+              interestDiff: Math.abs(
+                baseScenarios[0].totalInterest - baseScenarios[1].totalInterest
+              ),
+              totalCostDiff: Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost),
+            }
+          : null,
+      refinancing:
+        refinanceScenarios.length > 0
+          ? {
+              available: true,
+              savings:
+                baseScenarios[0] && refinanceScenarios[0]
+                  ? baseScenarios[0].totalCost - refinanceScenarios[0].totalCost
+                  : 0,
+              roi:
+                baseScenarios[0] && refinanceScenarios[0]
+                  ? (
+                      (1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) *
+                      100
+                    ).toFixed(1)
+                  : '0',
+            }
+          : { available: false },
     },
     formData,
     cfpGuidance: [
@@ -119,13 +147,15 @@ export function updateChatbotWithResults(
       'Compare scenarios based on your financial goals',
     ],
   };
-  
+
   // Update chatbot context with results
-  window.dispatchEvent(new CustomEvent('chat-context-update', {
-    detail: {
-      context: 'mortgage-scenario-planning',
-      contextLabel: 'Mortgage Analysis - CFP Assistant',
-      contextData: analysisContext,
-    },
-  }));
+  window.dispatchEvent(
+    new CustomEvent('chat-context-update', {
+      detail: {
+        context: 'mortgage-scenario-planning',
+        contextLabel: 'Mortgage Analysis - CFP Assistant',
+        contextData: analysisContext,
+      },
+    })
+  );
 }

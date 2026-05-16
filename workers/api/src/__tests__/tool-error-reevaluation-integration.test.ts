@@ -7,7 +7,6 @@ import { describe, it, expect } from 'vitest';
 import type { OrchestrationRequest } from '../services/llm-orchestrator';
 
 describe('Tool Error Re-evaluation - Integration Tests', () => {
-
   describe('End-to-End Error Detection Flow', () => {
     it('should detect validation error and trigger re-evaluation', async () => {
       const request: OrchestrationRequest = {
@@ -54,9 +53,7 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
           },
           analyze_lease: {
             success: false,
-            validationErrors: [
-              { field: 'monthlyRent', message: 'Missing required field' },
-            ],
+            validationErrors: [{ field: 'monthlyRent', message: 'Missing required field' }],
           },
         },
         availableTools: [],
@@ -69,10 +66,12 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
             continue;
           }
           const outputObj = output as Record<string, unknown>;
-          if (outputObj._mcpError === true || 
-              outputObj._requiresReevaluation === true ||
-              outputObj.success === false ||
-              'validationErrors' in outputObj) {
+          if (
+            outputObj._mcpError === true ||
+            outputObj._requiresReevaluation === true ||
+            outputObj.success === false ||
+            'validationErrors' in outputObj
+          ) {
             return true;
           }
         }
@@ -103,12 +102,14 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
             continue;
           }
           const outputObj = output as Record<string, unknown>;
-          if (outputObj._mcpError === true || 
-              outputObj._requiresReevaluation === true ||
-              'error' in outputObj ||
-              'errors' in outputObj ||
-              'validationErrors' in outputObj ||
-              (outputObj.success === false)) {
+          if (
+            outputObj._mcpError === true ||
+            outputObj._requiresReevaluation === true ||
+            'error' in outputObj ||
+            'errors' in outputObj ||
+            'validationErrors' in outputObj ||
+            outputObj.success === false
+          ) {
             return true;
           }
         }
@@ -131,24 +132,24 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
       };
 
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorMessage = '';
         let errorType = 'unknown';
-        
+
         if (outputObj._errorType) {
           errorType = String(outputObj._errorType);
         }
-        
+
         if (outputObj.error) {
           errorMessage = String(outputObj.error);
         }
-        
+
         if (errorMessage) {
           errors.push({ tool: toolName, error: errorMessage, type: errorType });
         }
@@ -169,57 +170,64 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
         },
         analyze_lease: {
           success: false,
-          validationErrors: [
-            { field: 'monthlyRent', message: 'Missing required field' },
-          ],
+          validationErrors: [{ field: 'monthlyRent', message: 'Missing required field' }],
         },
       };
 
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorMessage = '';
         let errorType = 'unknown';
-        
+
         if (outputObj._errorType) {
           errorType = String(outputObj._errorType);
         }
-        
+
         if (outputObj.error) {
           errorMessage = String(outputObj.error);
         } else if (outputObj.validationErrors && Array.isArray(outputObj.validationErrors)) {
-          errorMessage = outputObj.validationErrors.map((e: unknown) => 
-            typeof e === 'object' && e !== null && 'message' in e 
-              ? String((e as { message: unknown }).message)
-              : String(e)
-          ).join('; ');
+          errorMessage = outputObj.validationErrors
+            .map((e: unknown) =>
+              typeof e === 'object' && e !== null && 'message' in e
+                ? String((e as { message: unknown }).message)
+                : String(e)
+            )
+            .join('; ');
           errorType = 'validation';
         }
-        
+
         if (errorMessage) {
           errors.push({ tool: toolName, error: errorMessage, type: errorType });
         }
       }
 
       expect(errors.length).toBe(2);
-      expect(errors.some(e => e.tool === 'analyze_amortization')).toBe(true);
-      expect(errors.some(e => e.tool === 'analyze_lease')).toBe(true);
+      expect(errors.some((e) => e.tool === 'analyze_amortization')).toBe(true);
+      expect(errors.some((e) => e.tool === 'analyze_lease')).toBe(true);
     });
 
     it('should build correct re-evaluation message', () => {
       const originalMessage = 'Calculate a $300k mortgage at 4.5% for 30 years';
       const errors = [
-        { tool: 'analyze_amortization', error: 'Invalid interest rate: must be between 0 and 1', type: 'validation' },
+        {
+          tool: 'analyze_amortization',
+          error: 'Invalid interest rate: must be between 0 and 1',
+          type: 'validation',
+        },
       ];
 
-      const errorContext = errors.map(e => 
-        `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
-      ).join('\n');
+      const errorContext = errors
+        .map(
+          (e) =>
+            `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
+        )
+        .join('\n');
 
       const reevaluationMessage = `${originalMessage}\n\n⚠️ IMPORTANT: The previous tool call(s) encountered errors:\n${errorContext}\n\nPlease re-evaluate the input and provide corrected parameters or suggest alternative approaches. If this was a field update request, please correct the values and try again.`;
 
@@ -246,23 +254,23 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
       };
 
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorType = 'unknown';
         if (outputObj._errorType) {
           errorType = String(outputObj._errorType);
         }
-        
+
         if (outputObj.error) {
-          errors.push({ 
-            tool: toolName, 
-            error: String(outputObj.error), 
-            type: errorType 
+          errors.push({
+            tool: toolName,
+            error: String(outputObj.error),
+            type: errorType,
           });
         }
       }
@@ -280,23 +288,23 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
       };
 
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorType = 'unknown';
         if (outputObj._errorType) {
           errorType = String(outputObj._errorType);
         }
-        
+
         if (outputObj.error) {
-          errors.push({ 
-            tool: toolName, 
-            error: String(outputObj.error), 
-            type: errorType 
+          errors.push({
+            tool: toolName,
+            error: String(outputObj.error),
+            type: errorType,
           });
         }
       }
@@ -406,9 +414,12 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
         { tool: 'analyze_lease', error: 'Missing monthly rent', type: 'validation' },
       ];
 
-      const errorContext = errors.map(e => 
-        `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
-      ).join('\n');
+      const errorContext = errors
+        .map(
+          (e) =>
+            `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
+        )
+        .join('\n');
 
       const reevaluationMessage = `${originalMessage}\n\n⚠️ IMPORTANT: The previous tool call(s) encountered errors:\n${errorContext}\n\nPlease re-evaluate the input and provide corrected parameters or suggest alternative approaches. If this was a field update request, please correct the values and try again.`;
 
@@ -426,9 +437,12 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
         { tool: 'interactive_financial_model', error: 'Invalid field value', type: 'validation' },
       ];
 
-      const errorContext = errors.map(e => 
-        `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
-      ).join('\n');
+      const errorContext = errors
+        .map(
+          (e) =>
+            `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
+        )
+        .join('\n');
 
       const reevaluationMessage = `${originalMessage}\n\n⚠️ IMPORTANT: The previous tool call(s) encountered errors:\n${errorContext}\n\nPlease re-evaluate the input and provide corrected parameters or suggest alternative approaches. If this was a field update request, please correct the values and try again.`;
 
@@ -514,4 +528,3 @@ describe('Tool Error Re-evaluation - Integration Tests', () => {
     });
   });
 });
-

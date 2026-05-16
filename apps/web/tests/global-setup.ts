@@ -55,7 +55,7 @@ async function fetchAccessToken({
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
     throw new Error(
-      `Failed to obtain Cloudflare OAuth access token (status ${response.status}): ${errorText}`,
+      `Failed to obtain Cloudflare OAuth access token (status ${response.status}): ${errorText}`
     );
   }
 
@@ -92,22 +92,20 @@ async function createBrowserRenderingSession({
         browser,
         ttl: sessionTtl,
       }),
-    },
+    }
   );
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
     throw new Error(
-      `Failed to create Cloudflare Browser Rendering session (status ${response.status}): ${errorText}`,
+      `Failed to create Cloudflare Browser Rendering session (status ${response.status}): ${errorText}`
     );
   }
 
   const json = (await response.json()) as BrowserRenderingSessionResponse;
   if (!json.success || !json.result?.ws_url) {
     const details = JSON.stringify(json.errors ?? [], null, 2);
-    throw new Error(
-      `Unexpected Browser Rendering session response from Cloudflare: ${details}`,
-    );
+    throw new Error(`Unexpected Browser Rendering session response from Cloudflare: ${details}`);
   }
 
   return {
@@ -130,7 +128,7 @@ export async function ensureBrowserRenderingEndpoint(): Promise<string | undefin
   if (!clientId || !clientSecret || !accountId) {
     if (!hasWarnedAboutCredentials) {
       console.warn(
-        'Cloudflare OAuth credentials not fully configured; falling back to local browsers for Playwright tests.',
+        'Cloudflare OAuth credentials not fully configured; falling back to local browsers for Playwright tests.'
       );
       hasWarnedAboutCredentials = true;
     }
@@ -168,7 +166,7 @@ export async function ensureBrowserRenderingEndpoint(): Promise<string | undefin
     return wsEndpoint;
   } catch (error) {
     console.warn(
-      `Unable to establish Cloudflare Browser Rendering session via OAuth (${(error as Error).message}). Tests will run locally.`,
+      `Unable to establish Cloudflare Browser Rendering session via OAuth (${(error as Error).message}). Tests will run locally.`
     );
     return undefined;
   }

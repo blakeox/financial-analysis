@@ -41,6 +41,3 @@ export const TaxLossHarvestingInputSchema = z.object({
 });
 
 export type TaxLossHarvestingInput = z.infer<typeof TaxLossHarvestingInputSchema>;
-
-
-

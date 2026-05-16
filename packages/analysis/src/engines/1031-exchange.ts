@@ -26,7 +26,10 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
     const relinquishedRaw = (raw['relinquishedProperty'] ?? {}) as Record<string, unknown>;
     const replacementRaw = (raw['replacementProperty'] ?? {}) as Record<string, unknown>;
-    const timelineRaw = ((raw['exchangeTimeline'] ?? raw['exchangeDetails']) ?? {}) as Record<string, unknown>;
+    const timelineRaw = (raw['exchangeTimeline'] ?? raw['exchangeDetails'] ?? {}) as Record<
+      string,
+      unknown
+    >;
     const taxInfoRaw = (raw['taxInfo'] ?? {}) as Record<string, unknown>;
     const analysisRaw = (raw['analysis'] ?? {}) as Record<string, unknown>;
     const bootRaw = (raw['boot'] ?? {}) as Record<string, unknown>;
@@ -40,7 +43,9 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
     const replacement = {
       purchasePrice: toNumber(replacementRaw['purchasePrice']),
-      purchaseExpenses: toNumber(replacementRaw['purchaseExpenses'] ?? replacementRaw['closingCosts']),
+      purchaseExpenses: toNumber(
+        replacementRaw['purchaseExpenses'] ?? replacementRaw['closingCosts']
+      ),
       mortgageAmount: toNumber(replacementRaw['mortgageAmount']),
       downPayment: toNumber(replacementRaw['downPayment']),
     };
@@ -71,13 +76,18 @@ export class OneZeroThreeOneExchangeAnalyzer {
       nonLikeKindProperty: toNumber(bootRaw['nonLikeKindProperty']),
       totalBoot: toNumber(
         bootRaw['totalBoot'],
-        toNumber(bootRaw['cashReceived']) + toNumber(bootRaw['debtRelief']) + toNumber(bootRaw['nonLikeKindProperty'])
+        toNumber(bootRaw['cashReceived']) +
+          toNumber(bootRaw['debtRelief']) +
+          toNumber(bootRaw['nonLikeKindProperty'])
       ),
     };
 
     const analysis = {
       includeTaxDeferral: toBoolean(analysisRaw['includeTaxDeferral'], true),
-      includeDepreciationRecapture: toBoolean(analysisRaw['includeDepreciationRecapture'], taxInfo.includeDepreciationRecapture),
+      includeDepreciationRecapture: toBoolean(
+        analysisRaw['includeDepreciationRecapture'],
+        taxInfo.includeDepreciationRecapture
+      ),
       includeBootAnalysis: toBoolean(analysisRaw['includeBootAnalysis'], true),
       includeComparison: toBoolean(analysisRaw['includeComparison'], false),
       includeComplianceCheck: toBoolean(analysisRaw['includeComplianceCheck'], true),
@@ -95,9 +105,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
       : undefined;
 
     // Boot analysis
-    const bootAnalysis = analysis.includeBootAnalysis
-      ? this.analyzeBoot(boot, taxInfo)
-      : undefined;
+    const bootAnalysis = analysis.includeBootAnalysis ? this.analyzeBoot(boot, taxInfo) : undefined;
 
     // Comparison to selling without exchange
     const comparison = analysis.includeComparison
@@ -244,7 +252,11 @@ export class OneZeroThreeOneExchangeAnalyzer {
     recapture: { recaptureTax: number } | undefined,
     boot: { taxOnBoot: number } | undefined,
     comparison: { taxSavings: number; recommendation: string } | undefined,
-    timeline: { identificationDeadline: string; closingDeadline: string; qualifiedIntermediary: boolean }
+    timeline: {
+      identificationDeadline: string;
+      closingDeadline: string;
+      qualifiedIntermediary: boolean;
+    }
   ): string[] {
     const recommendations: string[] = [];
 
@@ -300,7 +312,12 @@ export class OneZeroThreeOneExchangeAnalyzer {
 
   private static analyzeReplacement(
     relinquished: { sellingPrice: number },
-    replacement: { purchasePrice: number; purchaseExpenses: number; mortgageAmount: number; downPayment: number }
+    replacement: {
+      purchasePrice: number;
+      purchaseExpenses: number;
+      mortgageAmount: number;
+      downPayment: number;
+    }
   ): {
     totalReplacementCost: number;
     meetsReinvestmentRequirement: boolean;
@@ -317,6 +334,3 @@ export class OneZeroThreeOneExchangeAnalyzer {
     };
   }
 }
-
-
-

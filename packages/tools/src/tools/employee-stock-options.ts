@@ -2,7 +2,10 @@
  * Employee Stock Options MCP Tool
  */
 
-import { EmployeeStockOptionsInputSchema, EmployeeStockOptionsValuator } from '@financial-analysis/analysis';
+import {
+  EmployeeStockOptionsInputSchema,
+  EmployeeStockOptionsValuator,
+} from '@financial-analysis/analysis';
 
 export class EmployeeStockOptionsTool {
   static readonly toolName = 'analyze_employee_stock_options';
@@ -17,7 +20,13 @@ export class EmployeeStockOptionsTool {
         properties: {
           age: { type: 'number', minimum: 18, maximum: 100, description: 'Current age' },
           currentSalary: { type: 'number', minimum: 0, description: 'Current salary' },
-          expectedRetirementAge: { type: 'number', minimum: 50, maximum: 100, default: 65, description: 'Expected retirement age' },
+          expectedRetirementAge: {
+            type: 'number',
+            minimum: 50,
+            maximum: 100,
+            default: 65,
+            description: 'Expected retirement age',
+          },
         },
         required: ['age', 'currentSalary'],
       },
@@ -46,11 +55,22 @@ export class EmployeeStockOptionsTool {
                   default: 'graded',
                   description: 'Vesting type',
                 },
-                vestingPeriod: { type: 'number', minimum: 0, default: 4, description: 'Vesting period (years)' },
+                vestingPeriod: {
+                  type: 'number',
+                  minimum: 0,
+                  default: 4,
+                  description: 'Vesting period (years)',
+                },
               },
             },
           },
-          required: ['grantDate', 'grantPrice', 'numberOfOptions', 'expirationDate', 'currentStockPrice'],
+          required: [
+            'grantDate',
+            'grantPrice',
+            'numberOfOptions',
+            'expirationDate',
+            'currentStockPrice',
+          ],
         },
         minItems: 1,
       },
@@ -60,8 +80,20 @@ export class EmployeeStockOptionsTool {
           federalTaxRate: {
             type: 'object',
             properties: {
-              ordinary: { type: 'number', minimum: 0, maximum: 0.5, default: 0.37, description: 'Ordinary income rate' },
-              capitalGains: { type: 'number', minimum: 0, maximum: 0.3, default: 0.2, description: 'Capital gains rate' },
+              ordinary: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.5,
+                default: 0.37,
+                description: 'Ordinary income rate',
+              },
+              capitalGains: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.3,
+                default: 0.2,
+                description: 'Capital gains rate',
+              },
             },
             required: ['ordinary', 'capitalGains'],
           },
@@ -74,20 +106,47 @@ export class EmployeeStockOptionsTool {
         properties: {
           strategy: {
             type: 'string',
-            enum: ['exercise-early', 'exercise-at-vest', 'exercise-before-expiration', 'hold-to-expiration'],
+            enum: [
+              'exercise-early',
+              'exercise-at-vest',
+              'exercise-before-expiration',
+              'hold-to-expiration',
+            ],
             default: 'exercise-at-vest',
             description: 'Exercise strategy',
           },
-          includeTaxOptimization: { type: 'boolean', default: true, description: 'Include tax optimization' },
+          includeTaxOptimization: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax optimization',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
-          includeValuation: { type: 'boolean', default: true, description: 'Include Black-Scholes valuation' },
-          includeTaxAnalysis: { type: 'boolean', default: true, description: 'Include tax analysis' },
-          includeExerciseScenarios: { type: 'boolean', default: true, description: 'Include exercise scenarios' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 20, default: 10, description: 'Projection years' },
+          includeValuation: {
+            type: 'boolean',
+            default: true,
+            description: 'Include Black-Scholes valuation',
+          },
+          includeTaxAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax analysis',
+          },
+          includeExerciseScenarios: {
+            type: 'boolean',
+            default: true,
+            description: 'Include exercise scenarios',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 20,
+            default: 10,
+            description: 'Projection years',
+          },
         },
         required: ['projectionYears'],
       },
@@ -100,5 +159,3 @@ export class EmployeeStockOptionsTool {
     return EmployeeStockOptionsValuator.analyze(validated);
   }
 }
-
-

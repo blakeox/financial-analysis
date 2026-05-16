@@ -2,7 +2,10 @@
  * Accounts Payable Optimization MCP Tool
  */
 
-import { AccountsPayableOptimizationInputSchema, AccountsPayableOptimizer } from '@financial-analysis/analysis';
+import {
+  AccountsPayableOptimizationInputSchema,
+  AccountsPayableOptimizer,
+} from '@financial-analysis/analysis';
 
 export class AccountsPayableOptimizationTool {
   static readonly toolName = 'analyze_accounts_payable_optimization';
@@ -30,12 +33,30 @@ export class AccountsPayableOptimizationTool {
                 earlyPaymentDiscount: {
                   type: 'object',
                   properties: {
-                    discountPercentage: { type: 'number', minimum: 0, maximum: 1, default: 0, description: 'Discount percentage' },
-                    discountDays: { type: 'number', minimum: 0, default: 0, description: 'Discount days' },
+                    discountPercentage: {
+                      type: 'number',
+                      minimum: 0,
+                      maximum: 1,
+                      default: 0,
+                      description: 'Discount percentage',
+                    },
+                    discountDays: {
+                      type: 'number',
+                      minimum: 0,
+                      default: 0,
+                      description: 'Discount days',
+                    },
                   },
                 },
               },
-              required: ['invoiceNumber', 'vendorName', 'invoiceDate', 'dueDate', 'invoiceAmount', 'paymentTerms'],
+              required: [
+                'invoiceNumber',
+                'vendorName',
+                'invoiceDate',
+                'dueDate',
+                'invoiceAmount',
+                'paymentTerms',
+              ],
             },
           },
         },
@@ -46,7 +67,13 @@ export class AccountsPayableOptimizationTool {
         properties: {
           currentCash: { type: 'number', minimum: 0, description: 'Current cash' },
           monthlyCashFlow: { type: 'number', description: 'Monthly cash flow' },
-          costOfCapital: { type: 'number', minimum: 0, maximum: 0.5, default: 0.1, description: 'Cost of capital' },
+          costOfCapital: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            default: 0.1,
+            description: 'Cost of capital',
+          },
         },
         required: ['currentCash', 'monthlyCashFlow', 'costOfCapital'],
       },
@@ -59,16 +86,36 @@ export class AccountsPayableOptimizationTool {
             default: 'balanced',
             description: 'Optimization goal',
           },
-          includeEarlyPaymentAnalysis: { type: 'boolean', default: true, description: 'Include early payment analysis' },
+          includeEarlyPaymentAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include early payment analysis',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
-          includeDiscountAnalysis: { type: 'boolean', default: true, description: 'Include discount analysis' },
-          includeCashFlowImpact: { type: 'boolean', default: true, description: 'Include cash flow impact' },
-          includePaymentSchedule: { type: 'boolean', default: true, description: 'Include payment schedule' },
-          includeVendorAnalysis: { type: 'boolean', default: true, description: 'Include vendor analysis' },
+          includeDiscountAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include discount analysis',
+          },
+          includeCashFlowImpact: {
+            type: 'boolean',
+            default: true,
+            description: 'Include cash flow impact',
+          },
+          includePaymentSchedule: {
+            type: 'boolean',
+            default: true,
+            description: 'Include payment schedule',
+          },
+          includeVendorAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include vendor analysis',
+          },
         },
       },
     },
@@ -80,5 +127,3 @@ export class AccountsPayableOptimizationTool {
     return AccountsPayableOptimizer.analyze(validated);
   }
 }
-
-

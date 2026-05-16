@@ -36,35 +36,34 @@ export class TaxLossHarvestingOptimizer {
         harvestableLosses.push({
           symbol: holding.symbol,
           lossAmount: loss,
-          washSaleRisk: false // TODO: Implement wash sale checking when recentTrades data is available
+          washSaleRisk: false, // TODO: Implement wash sale checking when recentTrades data is available
         });
       }
     }
 
     // Calculate tax savings (assuming long-term capital gains rate)
-    const projectedTaxSavings = new Decimal(totalTaxLoss).times(input.taxInfo.federalTaxRate.longTerm).toNumber();
+    const projectedTaxSavings = new Decimal(totalTaxLoss)
+      .times(input.taxInfo.federalTaxRate.longTerm)
+      .toNumber();
 
     return {
       totalTaxLoss,
       harvestableLosses,
       recommendedActions: harvestableLosses
-        .filter(h => !h.washSaleRisk)
-        .map(h => `Harvest loss in ${h.symbol}: $${h.lossAmount.toFixed(2)}`),
+        .filter((h) => !h.washSaleRisk)
+        .map((h) => `Harvest loss in ${h.symbol}: $${h.lossAmount.toFixed(2)}`),
       projectedTaxSavings,
       washSalePeriod: 30,
       recommendations: [
         'Avoid wash sales by not repurchasing substantially identical securities within 30 days',
         'Consider tax-loss harvesting in down markets to offset gains',
-        'Use harvested losses against up to $3,000 of ordinary income annually'
+        'Use harvested losses against up to $3,000 of ordinary income annually',
       ],
       risks: [
         'Wash sale rules prohibit claiming losses if repurchasing same or substantially identical securities',
         'Market timing risks when selling at losses',
-        'Transaction costs may reduce benefits'
-      ]
+        'Transaction costs may reduce benefits',
+      ],
     };
   }
 }
-
-
-

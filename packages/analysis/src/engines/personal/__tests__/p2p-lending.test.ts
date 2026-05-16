@@ -35,4 +35,3 @@ describe('P2PLendingAnalyzer', () => {
     expect(result.expectedAnnualizedReturn).toBeNull();
   });
 });
-

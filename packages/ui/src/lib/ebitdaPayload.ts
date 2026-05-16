@@ -60,7 +60,14 @@ const monthIndexMap: Record<keyof MonthlyFinancialsData, number> = {
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 export function buildScenarioPayload(params: BuildPayloadParams) {
-  const { financials, employees, expenseTypes, fixedAssets = [], leases = [], scenarioConfig } = params;
+  const {
+    financials,
+    employees,
+    expenseTypes,
+    fixedAssets = [],
+    leases = [],
+    scenarioConfig,
+  } = params;
   const now = params.clock ?? new Date();
   const currentYear = now.getFullYear();
 
@@ -114,7 +121,9 @@ export function buildScenarioPayload(params: BuildPayloadParams) {
       growthRate: expense.growthRate ?? 0,
     }));
 
-  const assetDepreciation = fixedAssets.filter((a) => a.isActive).reduce((s, a) => s + (a.monthlyDepreciation || 0), 0);
+  const assetDepreciation = fixedAssets
+    .filter((a) => a.isActive)
+    .reduce((s, a) => s + (a.monthlyDepreciation || 0), 0);
   // Apply assets' monthly depreciation to all included months
   for (const m of monthlyFinancials) {
     m.depreciation = assetDepreciation;
@@ -134,7 +143,9 @@ export function buildScenarioPayload(params: BuildPayloadParams) {
       growthRate: 0,
     }));
 
-  const hasSeasonality = Array.isArray(scenarioConfig.seasonalityFactors) && scenarioConfig.seasonalityFactors.length === 12;
+  const hasSeasonality =
+    Array.isArray(scenarioConfig.seasonalityFactors) &&
+    scenarioConfig.seasonalityFactors.length === 12;
   const marketGrowthRate = clamp(scenarioConfig.marketGrowthFactor - 1, -1, 1);
   const scenarioName = scenarioConfig.scenarioName.trim() || 'EBITDA Forecast Scenario';
   const scenarioDescription = scenarioConfig.scenarioDescription?.trim();

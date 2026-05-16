@@ -25,7 +25,7 @@
     "test:chat:integration:api": "pnpm --filter @financial-analysis/api run test:chat:integration",
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
-    "format:check": "pnpm --recursive exec prettier --check .",
+    "format:check": "pnpm --recursive run format:check",
     "typecheck": "pnpm --recursive run typecheck",
     "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",

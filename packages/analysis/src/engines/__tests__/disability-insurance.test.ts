@@ -3,7 +3,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { DisabilityInsuranceInputSchema, type DisabilityInsuranceInput } from '../../schemas/disability-insurance.js';
+import {
+  DisabilityInsuranceInputSchema,
+  type DisabilityInsuranceInput,
+} from '../../schemas/disability-insurance.js';
 import { DisabilityInsuranceAnalyzer } from '../disability-insurance.js';
 
 describe('DisabilityInsuranceAnalyzer', () => {
@@ -115,4 +118,3 @@ describe('DisabilityInsuranceAnalyzer', () => {
     expect(highRisk.monthlyPremium).toBeGreaterThan(base.monthlyPremium);
   });
 });
-

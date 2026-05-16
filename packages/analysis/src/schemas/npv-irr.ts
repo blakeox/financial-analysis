@@ -7,4 +7,3 @@ export const NPVIRRInputSchema = z.object({
 });
 
 export type NPVIRRInput = z.infer<typeof NPVIRRInputSchema>;
-

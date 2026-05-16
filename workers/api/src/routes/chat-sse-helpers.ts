@@ -41,9 +41,7 @@ export function createStructuredSSEStream(
 
         // Include function calling results for structured updates (e.g., modelChanges)
         if (functionCallingResults) {
-          controller.enqueue(
-            encoder.encode(createSSEMessage({ functionCallingResults }))
-          );
+          controller.enqueue(encoder.encode(createSSEMessage({ functionCallingResults })));
         }
 
         controller.enqueue(encoder.encode(createSSEDone()));
@@ -106,6 +104,6 @@ export function buildSSEHeaders(baseHeaders: Record<string, string>): Record<str
     ...baseHeaders,
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
   };
 }

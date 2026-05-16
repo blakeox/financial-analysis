@@ -16,28 +16,34 @@ export interface LLMRequest {
   maxTokens?: number | undefined;
   stream?: boolean | undefined;
   systemPrompt?: string | undefined;
-  metadata?: {
-    requestId?: string | undefined;
-    context?: string | undefined;
-    intent?: string | undefined;
-    cacheKey?: string | undefined;
-  } | undefined;
+  metadata?:
+    | {
+        requestId?: string | undefined;
+        context?: string | undefined;
+        intent?: string | undefined;
+        cacheKey?: string | undefined;
+      }
+    | undefined;
 }
 
 export interface LLMResponse {
   content: string;
   fromCache?: boolean | undefined;
-  tokensUsed?: {
-    prompt: number;
-    response: number;
-    total: number;
-  } | undefined;
+  tokensUsed?:
+    | {
+        prompt: number;
+        response: number;
+        total: number;
+      }
+    | undefined;
   latency?: number | undefined;
-  metadata?: {
-    model: string;
-    requestId: string;
-    attempt?: number | undefined;
-  } | undefined;
+  metadata?:
+    | {
+        model: string;
+        requestId: string;
+        attempt?: number | undefined;
+      }
+    | undefined;
 }
 
 export interface LLMStreamChunk {
@@ -102,7 +108,7 @@ export class LLMService {
         const cached = await this.cache.get(request.metadata.cacheKey);
         if (cached && cached.value) {
           const latency = Date.now() - startTime;
-          
+
           // Record cache hit metrics
           if (this.config.metricsEnabled && this.metrics) {
             await this.metrics.recordRequest({
@@ -323,7 +329,7 @@ export class LLMService {
     // Call Cloudflare Workers AI
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ai = this.ai as any;
-    
+
     const options: any = {
       prompt,
       temperature,
@@ -351,20 +357,20 @@ export class LLMService {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           const chunk = decoder.decode(value, { stream: true });
           buffer += chunk;
-          
+
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
-          
+
           for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed.startsWith('data: ')) continue;
-            
+
             const data = trimmed.slice(6);
             if (data === '[DONE]') continue;
-            
+
             try {
               const parsed = JSON.parse(data);
               const text = parsed.response || parsed.token || parsed.text;
@@ -374,7 +380,7 @@ export class LLMService {
             }
           }
         }
-        
+
         // Process remaining buffer
         if (buffer.trim().startsWith('data: ')) {
           const data = buffer.trim().slice(6);
@@ -388,7 +394,7 @@ export class LLMService {
             }
           }
         }
-        
+
         return fullText;
       } finally {
         reader.releaseLock();
@@ -422,4 +428,3 @@ export class LLMService {
     this.config = { ...this.config, ...config };
   }
 }
-

@@ -411,7 +411,7 @@ describe('AmortizationAnalyzer', () => {
       expect(result).toHaveProperty('totalInterest');
       expect(result).toHaveProperty('schedule');
       expect(Array.isArray(result.schedule)).toBe(true);
-      
+
       // Optional fields might be undefined, but we check for their existence in the type
       // by accessing them (TS would complain if they didn't exist on the type)
       void result.totalPMI;

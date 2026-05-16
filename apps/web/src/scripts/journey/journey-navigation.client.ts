@@ -229,8 +229,7 @@ class JourneyNavigationManager {
     if (!errorDiv) {
       errorDiv = document.createElement('div');
       errorDiv.id = 'journey-validation-error';
-      errorDiv.className =
-        'fa-toast-error fixed top-4 right-4 px-4 py-2 z-50';
+      errorDiv.className = 'fa-toast-error fixed top-4 right-4 px-4 py-2 z-50';
       document.body.appendChild(errorDiv);
     }
 
@@ -383,8 +382,7 @@ class JourneyNavigationManager {
 
     // Create progress feedback
     const feedbackDiv = document.createElement('div');
-    feedbackDiv.className =
-      'fa-toast-success fixed bottom-4 left-4 px-4 py-2 z-50';
+    feedbackDiv.className = 'fa-toast-success fixed bottom-4 left-4 px-4 py-2 z-50';
     feedbackDiv.innerHTML = `
       <div class="flex items-center">
         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">

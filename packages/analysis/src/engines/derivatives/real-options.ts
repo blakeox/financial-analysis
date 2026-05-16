@@ -42,8 +42,14 @@ export interface RealOptionsResult {
 export const RealOptionsInputSchema = z.object({
   initialInvestment: z.number().positive('Initial investment must be positive'),
   expectedCashFlows: z.array(z.number()).min(1, 'At least one cash flow required'),
-  volatility: z.number().min(0, 'Volatility must be between 0 and 1').max(1, 'Volatility must be between 0 and 1'),
-  riskFreeRate: z.number().min(0, 'Risk-free rate must be between 0 and 1').max(1, 'Risk-free rate must be between 0 and 1'),
+  volatility: z
+    .number()
+    .min(0, 'Volatility must be between 0 and 1')
+    .max(1, 'Volatility must be between 0 and 1'),
+  riskFreeRate: z
+    .number()
+    .min(0, 'Risk-free rate must be between 0 and 1')
+    .max(1, 'Risk-free rate must be between 0 and 1'),
   timeToMaturity: z.number().positive('Time to maturity must be positive'),
 
   optionType: z.enum(['expand', 'abandon', 'delay']),
@@ -62,9 +68,16 @@ export class RealOptionsAnalyzer {
     const validated = RealOptionsInputSchema.parse(input);
 
     // Calculate base project NPV
-    const npv = this.calculateNPV(validated.initialInvestment, validated.expectedCashFlows, validated.riskFreeRate);
+    const npv = this.calculateNPV(
+      validated.initialInvestment,
+      validated.expectedCashFlows,
+      validated.riskFreeRate
+    );
     const irr = this.calculateIRR(validated.initialInvestment, validated.expectedCashFlows);
-    const paybackPeriod = this.calculatePaybackPeriod(validated.initialInvestment, validated.expectedCashFlows);
+    const paybackPeriod = this.calculatePaybackPeriod(
+      validated.initialInvestment,
+      validated.expectedCashFlows
+    );
 
     // Calculate real option value using Black-Scholes framework
     const optionValue = this.calculateRealOptionValue(validated);
@@ -100,15 +113,17 @@ export class RealOptionsAnalyzer {
   /**
    * Calculate NPV of cash flows
    */
-  private static calculateNPV(initialInvestment: number, cashFlows: number[], discountRate: number): number {
+  private static calculateNPV(
+    initialInvestment: number,
+    cashFlows: number[],
+    discountRate: number
+  ): number {
     let npv = new Decimal(-initialInvestment);
 
     for (let i = 0; i < cashFlows.length; i++) {
       const flow = cashFlows[i];
       if (flow === undefined) continue;
-      const discountedFlow = new Decimal(flow).div(
-        new Decimal(1).plus(discountRate).pow(i + 1)
-      );
+      const discountedFlow = new Decimal(flow).div(new Decimal(1).plus(discountRate).pow(i + 1));
       npv = npv.plus(discountedFlow);
     }
 
@@ -133,7 +148,7 @@ export class RealOptionsAnalyzer {
         if (flow === undefined) continue;
         const discountFactor = Math.pow(1 + rate, j + 1);
         npv += flow / discountFactor;
-        dnpv -= (j + 1) * flow / Math.pow(1 + rate, j + 2);
+        dnpv -= ((j + 1) * flow) / Math.pow(1 + rate, j + 2);
       }
 
       const newRate = rate - npv / dnpv;
@@ -179,7 +194,10 @@ export class RealOptionsAnalyzer {
     const { volatility, riskFreeRate, timeToMaturity, optionType } = input;
 
     // For real options, we treat the project value as the underlying asset
-    const underlyingValue = Math.max(0, this.calculateNPV(input.initialInvestment, input.expectedCashFlows, riskFreeRate));
+    const underlyingValue = Math.max(
+      0,
+      this.calculateNPV(input.initialInvestment, input.expectedCashFlows, riskFreeRate)
+    );
 
     let strikePrice = 0;
 
@@ -187,16 +205,32 @@ export class RealOptionsAnalyzer {
       case 'expand':
         strikePrice = input.exercisePrice || input.expansionCost || 0;
         // Call option (right to expand)
-        return this.blackScholesCall(underlyingValue, strikePrice, timeToMaturity, riskFreeRate, volatility);
+        return this.blackScholesCall(
+          underlyingValue,
+          strikePrice,
+          timeToMaturity,
+          riskFreeRate,
+          volatility
+        );
 
       case 'abandon':
         strikePrice = input.exercisePrice || input.salvageValue || 0;
         // Put option (right to abandon)
-        return this.blackScholesPut(underlyingValue, strikePrice, timeToMaturity, riskFreeRate, volatility);
+        return this.blackScholesPut(
+          underlyingValue,
+          strikePrice,
+          timeToMaturity,
+          riskFreeRate,
+          volatility
+        );
 
       case 'delay': {
         // Option to delay investment - value is the option to invest later
-        const delayedNPV = this.calculateNPV(input.initialInvestment, input.expectedCashFlows.slice(1), riskFreeRate);
+        const delayedNPV = this.calculateNPV(
+          input.initialInvestment,
+          input.expectedCashFlows.slice(1),
+          riskFreeRate
+        );
         return Math.max(0, delayedNPV - input.initialInvestment);
       }
 
@@ -208,8 +242,14 @@ export class RealOptionsAnalyzer {
   /**
    * Black-Scholes call option pricing
    */
-  private static blackScholesCall(S: number, K: number, T: number, r: number, sigma: number): number {
-    const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
+  private static blackScholesCall(
+    S: number,
+    K: number,
+    T: number,
+    r: number,
+    sigma: number
+  ): number {
+    const d1 = (Math.log(S / K) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
     const d2 = d1 - sigma * Math.sqrt(T);
 
     const callPrice = S * this.normalCDF(d1) - K * Math.exp(-r * T) * this.normalCDF(d2);
@@ -219,8 +259,14 @@ export class RealOptionsAnalyzer {
   /**
    * Black-Scholes put option pricing
    */
-  private static blackScholesPut(S: number, K: number, T: number, r: number, sigma: number): number {
-    const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
+  private static blackScholesPut(
+    S: number,
+    K: number,
+    T: number,
+    r: number,
+    sigma: number
+  ): number {
+    const d1 = (Math.log(S / K) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
     const d2 = d1 - sigma * Math.sqrt(T);
 
     const putPrice = K * Math.exp(-r * T) * this.normalCDF(-d2) - S * this.normalCDF(-d1);
@@ -242,7 +288,7 @@ export class RealOptionsAnalyzer {
     x = Math.abs(x) / Math.sqrt(2.0);
 
     const t = 1.0 / (1.0 + p * x);
-    const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    const erf = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
 
     return 0.5 * (1.0 + sign * erf);
   }
@@ -257,27 +303,43 @@ export class RealOptionsAnalyzer {
     rho: number;
   } {
     const { volatility, riskFreeRate, timeToMaturity } = input;
-    const underlyingValue = Math.max(0, this.calculateNPV(input.initialInvestment, input.expectedCashFlows, riskFreeRate));
+    const underlyingValue = Math.max(
+      0,
+      this.calculateNPV(input.initialInvestment, input.expectedCashFlows, riskFreeRate)
+    );
     const strikePrice = input.exercisePrice || input.expansionCost || input.salvageValue || 0;
 
     if (underlyingValue <= 0 || timeToMaturity <= 0 || strikePrice <= 0) {
       return { delta: 0, gamma: 0, theta: 0, rho: 0 };
     }
 
-    const d1 = (Math.log(underlyingValue / strikePrice) + (riskFreeRate + volatility * volatility / 2) * timeToMaturity) /
-               (volatility * Math.sqrt(timeToMaturity));
+    const d1 =
+      (Math.log(underlyingValue / strikePrice) +
+        (riskFreeRate + (volatility * volatility) / 2) * timeToMaturity) /
+      (volatility * Math.sqrt(timeToMaturity));
     const d2 = d1 - volatility * Math.sqrt(timeToMaturity);
 
     const delta = input.optionType === 'expand' ? this.normalCDF(d1) : -this.normalCDF(-d1);
     const gamma = this.normalPDF(d1) / (underlyingValue * volatility * Math.sqrt(timeToMaturity));
-    const theta = input.optionType === 'expand'
-      ? -(underlyingValue * this.normalPDF(d1) * volatility) / (2 * Math.sqrt(timeToMaturity)) -
-        riskFreeRate * strikePrice * Math.exp(-riskFreeRate * timeToMaturity) * this.normalCDF(d2)
-      : -(underlyingValue * this.normalPDF(d1) * volatility) / (2 * Math.sqrt(timeToMaturity)) +
-        riskFreeRate * strikePrice * Math.exp(-riskFreeRate * timeToMaturity) * this.normalCDF(-d2);
-    const rho = input.optionType === 'expand'
-      ? strikePrice * timeToMaturity * Math.exp(-riskFreeRate * timeToMaturity) * this.normalCDF(d2)
-      : -strikePrice * timeToMaturity * Math.exp(-riskFreeRate * timeToMaturity) * this.normalCDF(-d2);
+    const theta =
+      input.optionType === 'expand'
+        ? -(underlyingValue * this.normalPDF(d1) * volatility) / (2 * Math.sqrt(timeToMaturity)) -
+          riskFreeRate * strikePrice * Math.exp(-riskFreeRate * timeToMaturity) * this.normalCDF(d2)
+        : -(underlyingValue * this.normalPDF(d1) * volatility) / (2 * Math.sqrt(timeToMaturity)) +
+          riskFreeRate *
+            strikePrice *
+            Math.exp(-riskFreeRate * timeToMaturity) *
+            this.normalCDF(-d2);
+    const rho =
+      input.optionType === 'expand'
+        ? strikePrice *
+          timeToMaturity *
+          Math.exp(-riskFreeRate * timeToMaturity) *
+          this.normalCDF(d2)
+        : -strikePrice *
+          timeToMaturity *
+          Math.exp(-riskFreeRate * timeToMaturity) *
+          this.normalCDF(-d2);
 
     return { delta, gamma, theta, rho };
   }
@@ -292,7 +354,11 @@ export class RealOptionsAnalyzer {
   /**
    * Generate recommendation
    */
-  private static generateRecommendation(npv: number, optionValue: number, optionType: string): string {
+  private static generateRecommendation(
+    npv: number,
+    optionValue: number,
+    optionType: string
+  ): string {
     const totalValue = npv + optionValue;
 
     if (totalValue > 0) {
@@ -307,19 +373,29 @@ export class RealOptionsAnalyzer {
   /**
    * Generate insights
    */
-  private static generateInsights(input: RealOptionsInputValidated, npv: number, optionValue: number): string[] {
+  private static generateInsights(
+    input: RealOptionsInputValidated,
+    npv: number,
+    optionValue: number
+  ): string[] {
     const insights = [];
 
     if (optionValue > Math.abs(npv)) {
-      insights.push(`Real options value ($${optionValue.toFixed(2)}) exceeds the absolute NPV magnitude, indicating high strategic value.`);
+      insights.push(
+        `Real options value ($${optionValue.toFixed(2)}) exceeds the absolute NPV magnitude, indicating high strategic value.`
+      );
     }
 
     if (input.volatility > 0.3) {
-      insights.push(`High volatility (${(input.volatility * 100).toFixed(1)}%) increases option value significantly.`);
+      insights.push(
+        `High volatility (${(input.volatility * 100).toFixed(1)}%) increases option value significantly.`
+      );
     }
 
     if (input.timeToMaturity > 5) {
-      insights.push(`Long time horizon (${input.timeToMaturity} years) provides substantial option value.`);
+      insights.push(
+        `Long time horizon (${input.timeToMaturity} years) provides substantial option value.`
+      );
     }
 
     insights.push(`Total project value including real options: $${(npv + optionValue).toFixed(2)}`);
@@ -341,7 +417,9 @@ export class RealOptionsAnalyzer {
       risks.push('Short time horizon limits the strategic value of real options.');
     }
 
-    risks.push('Real options valuation relies on assumptions about future volatility and cash flows.');
+    risks.push(
+      'Real options valuation relies on assumptions about future volatility and cash flows.'
+    );
     risks.push('Managerial discretion in exercising options may not always be optimal.');
 
     return risks;

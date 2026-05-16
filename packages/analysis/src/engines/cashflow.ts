@@ -13,14 +13,16 @@ export interface CashFlowItem {
   category?: CashFlowCategory | undefined;
   taxRate?: number | undefined; // Tax rate applied to this cash flow
   inflationAdjusted?: boolean | undefined;
-  probabilistic?: {
-    bestCase: number;
-    worstCase: number;
-    probability: number; // Probability of occurrence (0-1)
-  } | undefined;
+  probabilistic?:
+    | {
+        bestCase: number;
+        worstCase: number;
+        probability: number; // Probability of occurrence (0-1)
+      }
+    | undefined;
 }
 
-export type CashFlowCategory = 
+export type CashFlowCategory =
   | 'revenue'
   | 'operating-expense'
   | 'capital-expenditure'
@@ -66,13 +68,13 @@ export interface DCFValuationResult {
   paybackPeriod: number; // Simple payback period in years
   discountedPaybackPeriod: number; // Discounted payback period
   profitabilityIndex: number; // PI = PV of cash flows / Initial investment
-  
+
   // Advanced Metrics
   equivalentAnnuity: number; // Equivalent annual annuity
   capitalRecoveryFactor: number;
   presentValueRatio: number;
   futureValue: number; // Terminal value of all cash flows
-  
+
   // Detailed Analysis
   cashFlowSummary: {
     totalInflows: number;
@@ -81,7 +83,7 @@ export interface DCFValuationResult {
     peakCumulativeCashFlow: number;
     worstCumulativeCashFlow: number;
   };
-  
+
   // Period-by-period breakdown
   detailedCashFlows: Array<{
     period: number;
@@ -92,7 +94,7 @@ export interface DCFValuationResult {
     discountFactor: number;
     inflationAdjustedCF?: number | undefined;
   }>;
-  
+
   // Risk Analysis
   sensitivity: SensitivityAnalysis[];
   scenarios: Array<{
@@ -102,7 +104,7 @@ export interface DCFValuationResult {
     irr: number;
     description: string;
   }>;
-  
+
   // Terminal Value Analysis
   terminalValue: {
     method: 'perpetual-growth' | 'exit-multiple' | 'explicit';
@@ -123,14 +125,14 @@ export interface ProjectComparison {
     capitalRequired: number;
     ranking: number;
   }>;
-  
+
   mutuallyExclusive: {
     recommended: string;
     reason: string;
     npvDifference?: number | undefined;
     incrementalIRR?: number | undefined;
   };
-  
+
   capitalRationing: {
     budgetConstraint: number;
     optimalPortfolio: string[];
@@ -146,24 +148,28 @@ export const CashFlowItemSchema = z.object({
   date: z.string().optional(),
   cashFlow: z.number(),
   description: z.string().optional(),
-  category: z.enum([
-    'revenue',
-    'operating-expense', 
-    'capital-expenditure',
-    'tax',
-    'depreciation',
-    'working-capital',
-    'financing',
-    'terminal-value',
-    'other'
-  ]).optional(),
+  category: z
+    .enum([
+      'revenue',
+      'operating-expense',
+      'capital-expenditure',
+      'tax',
+      'depreciation',
+      'working-capital',
+      'financing',
+      'terminal-value',
+      'other',
+    ])
+    .optional(),
   taxRate: z.number().min(0).max(1).optional(),
   inflationAdjusted: z.boolean().optional().default(false),
-  probabilistic: z.object({
-    bestCase: z.number(),
-    worstCase: z.number(),
-    probability: z.number().min(0).max(1),
-  }).optional(),
+  probabilistic: z
+    .object({
+      bestCase: z.number(),
+      worstCase: z.number(),
+      probability: z.number().min(0).max(1),
+    })
+    .optional(),
 });
 
 export const DiscountingParametersSchema = z.object({
@@ -178,29 +184,38 @@ export const DiscountingParametersSchema = z.object({
 export const CashFlowInputSchema = z.object({
   cashFlows: z.array(CashFlowItemSchema).min(1),
   discounting: DiscountingParametersSchema,
-  analysis: z.object({
-    includeTerminalValue: z.boolean().default(true),
-    terminalValueMethod: z.enum(['perpetual-growth', 'exit-multiple', 'explicit']).default('perpetual-growth'),
-    exitMultiple: z.number().positive().optional(),
-    inflationRate: z.number().min(0).max(0.2).default(0.03),
-    includeSensitivity: z.boolean().default(true),
-    sensitivityParameters: z.array(z.string()).default(['discountRate', 'terminalGrowthRate', 'cashFlows']),
-    includeScenarios: z.boolean().default(true),
-    reinvestmentRate: z.number().min(0).max(1).optional(), // For MIRR calculation
-  }).default({
-    includeTerminalValue: true,
-    terminalValueMethod: 'perpetual-growth',
-    inflationRate: 0.03,
-    includeSensitivity: true,
-    sensitivityParameters: ['discountRate', 'terminalGrowthRate', 'cashFlows'],
-    includeScenarios: true,
-  }),
-  project: z.object({
-    name: z.string().default('Investment Project'),
-    description: z.string().optional(),
-    startDate: z.string().optional(),
-    currency: z.string().default('USD'),
-  }).optional().default({ name: 'Investment Project', currency: 'USD' }),
+  analysis: z
+    .object({
+      includeTerminalValue: z.boolean().default(true),
+      terminalValueMethod: z
+        .enum(['perpetual-growth', 'exit-multiple', 'explicit'])
+        .default('perpetual-growth'),
+      exitMultiple: z.number().positive().optional(),
+      inflationRate: z.number().min(0).max(0.2).default(0.03),
+      includeSensitivity: z.boolean().default(true),
+      sensitivityParameters: z
+        .array(z.string())
+        .default(['discountRate', 'terminalGrowthRate', 'cashFlows']),
+      includeScenarios: z.boolean().default(true),
+      reinvestmentRate: z.number().min(0).max(1).optional(), // For MIRR calculation
+    })
+    .default({
+      includeTerminalValue: true,
+      terminalValueMethod: 'perpetual-growth',
+      inflationRate: 0.03,
+      includeSensitivity: true,
+      sensitivityParameters: ['discountRate', 'terminalGrowthRate', 'cashFlows'],
+      includeScenarios: true,
+    }),
+  project: z
+    .object({
+      name: z.string().default('Investment Project'),
+      description: z.string().optional(),
+      startDate: z.string().optional(),
+      currency: z.string().default('USD'),
+    })
+    .optional()
+    .default({ name: 'Investment Project', currency: 'USD' }),
 });
 
 export type CashFlowInput = z.infer<typeof CashFlowInputSchema>;
@@ -210,7 +225,6 @@ export type CashFlowInput = z.infer<typeof CashFlowInputSchema>;
 // ============================================================================
 
 export class CashFlowAnalyzer {
-
   /**
    * Main DCF analysis method
    */
@@ -253,7 +267,11 @@ export class CashFlowAnalyzer {
       cashFlowsWithTerminal,
       discounting.discountRate
     );
-    const equivalentAnnuity = this.calculateEquivalentAnnuity(npv, discounting.discountRate, cashFlowsWithTerminal.length);
+    const equivalentAnnuity = this.calculateEquivalentAnnuity(
+      npv,
+      discounting.discountRate,
+      cashFlowsWithTerminal.length
+    );
     const futureValue = this.calculateFutureValue(cashFlowsWithTerminal, discounting.discountRate);
 
     // Generate detailed cash flow breakdown
@@ -267,7 +285,11 @@ export class CashFlowAnalyzer {
 
     // Perform sensitivity analysis
     const sensitivity = analysis.includeSensitivity
-      ? this.performSensitivityAnalysis(cashFlowsWithTerminal, discounting, analysis.sensitivityParameters)
+      ? this.performSensitivityAnalysis(
+          cashFlowsWithTerminal,
+          discounting,
+          analysis.sensitivityParameters
+        )
       : [];
 
     // Generate scenarios
@@ -276,11 +298,7 @@ export class CashFlowAnalyzer {
       : [];
 
     // Terminal value analysis
-    const terminalValue = this.analyzeTerminalValue(
-      cashFlowsWithTerminal,
-      discounting,
-      analysis
-    );
+    const terminalValue = this.analyzeTerminalValue(cashFlowsWithTerminal, discounting, analysis);
 
     return {
       npv: Number(new Decimal(npv).toDecimalPlaces(2)),
@@ -290,7 +308,11 @@ export class CashFlowAnalyzer {
       discountedPaybackPeriod: Number(new Decimal(discountedPaybackPeriod).toDecimalPlaces(2)),
       profitabilityIndex: Number(new Decimal(profitabilityIndex).toDecimalPlaces(4)),
       equivalentAnnuity: Number(new Decimal(equivalentAnnuity).toDecimalPlaces(2)),
-      capitalRecoveryFactor: Number(new Decimal(this.calculateCRF(discounting.discountRate, cashFlowsWithTerminal.length)).toDecimalPlaces(6)),
+      capitalRecoveryFactor: Number(
+        new Decimal(
+          this.calculateCRF(discounting.discountRate, cashFlowsWithTerminal.length)
+        ).toDecimalPlaces(6)
+      ),
       presentValueRatio: npv / Math.abs(cashFlowsWithTerminal[0]?.cashFlow ?? 1),
       futureValue: Number(new Decimal(futureValue).toDecimalPlaces(2)),
       cashFlowSummary,
@@ -308,11 +330,11 @@ export class CashFlowAnalyzer {
     cashFlows: CashFlowItem[],
     inflationRate: number
   ): CashFlowItem[] {
-    return cashFlows.map(cf => {
+    return cashFlows.map((cf) => {
       if (cf.inflationAdjusted === false || cf.period === 0) {
         return cf; // No adjustment for period 0 or explicitly non-adjusted flows
       }
-      
+
       const inflationFactor = Math.pow(1 + inflationRate, cf.period);
       return {
         ...cf,
@@ -329,7 +351,7 @@ export class CashFlowAnalyzer {
     discounting: z.infer<typeof DiscountingParametersSchema>,
     analysis: NonNullable<CashFlowInput['analysis']>
   ): CashFlowItem[] {
-    const lastPeriod = Math.max(...cashFlows.map(cf => cf.period));
+    const lastPeriod = Math.max(...cashFlows.map((cf) => cf.period));
     let terminalValue = 0;
 
     switch (analysis.terminalValueMethod) {
@@ -337,12 +359,13 @@ export class CashFlowAnalyzer {
         // Gordon Growth Model: CF * (1 + g) / (r - g)
         const lastOperatingCF = this.getLastOperatingCashFlow(cashFlows);
         if (lastOperatingCF > 0 && discounting.discountRate > discounting.terminalGrowthRate) {
-          terminalValue = (lastOperatingCF * (1 + discounting.terminalGrowthRate)) / 
+          terminalValue =
+            (lastOperatingCF * (1 + discounting.terminalGrowthRate)) /
             (discounting.discountRate - discounting.terminalGrowthRate);
         }
         break;
       }
-        
+
       case 'exit-multiple': {
         if (analysis.exitMultiple) {
           const lastRevenue = this.getLastRevenueFlow(cashFlows);
@@ -350,19 +373,22 @@ export class CashFlowAnalyzer {
         }
         break;
       }
-        
+
       case 'explicit':
         // Terminal value already included in explicit cash flows
         return cashFlows;
     }
 
     if (terminalValue > 0) {
-      return [...cashFlows, {
-        period: lastPeriod + 1,
-        cashFlow: terminalValue,
-        description: 'Terminal Value',
-        category: 'terminal-value',
-      }];
+      return [
+        ...cashFlows,
+        {
+          period: lastPeriod + 1,
+          cashFlow: terminalValue,
+          description: 'Terminal Value',
+          category: 'terminal-value',
+        },
+      ];
     }
 
     return cashFlows;
@@ -373,9 +399,9 @@ export class CashFlowAnalyzer {
    */
   private static getLastOperatingCashFlow(cashFlows: CashFlowItem[]): number {
     const operatingFlows = cashFlows
-      .filter(cf => cf.category === 'revenue' || cf.category === 'operating-expense')
+      .filter((cf) => cf.category === 'revenue' || cf.category === 'operating-expense')
       .sort((a, b) => b.period - a.period);
-    
+
     return operatingFlows.reduce((net, cf) => net + cf.cashFlow, 0);
   }
 
@@ -384,9 +410,9 @@ export class CashFlowAnalyzer {
    */
   private static getLastRevenueFlow(cashFlows: CashFlowItem[]): number {
     const revenueFlows = cashFlows
-      .filter(cf => cf.category === 'revenue')
+      .filter((cf) => cf.category === 'revenue')
       .sort((a, b) => b.period - a.period);
-    
+
     return revenueFlows[0]?.cashFlow ?? 0;
   }
 
@@ -408,28 +434,28 @@ export class CashFlowAnalyzer {
     let irr = 0.1;
     const tolerance = 1e-6;
     const maxIterations = 100;
-    
+
     for (let i = 0; i < maxIterations; i++) {
       const npv = this.calculateNPV(cashFlows, irr);
       const npvDerivative = this.calculateNPVDerivative(cashFlows, irr);
-      
+
       if (Math.abs(npv) < tolerance) {
         return irr;
       }
-      
+
       if (Math.abs(npvDerivative) < tolerance) {
         break; // Derivative too small, avoid division by zero
       }
-      
+
       const newIrr = irr - npv / npvDerivative;
-      
+
       if (Math.abs(newIrr - irr) < tolerance) {
         return newIrr;
       }
-      
+
       irr = newIrr;
     }
-    
+
     return irr; // Return best estimate if convergence not achieved
   }
 
@@ -439,7 +465,7 @@ export class CashFlowAnalyzer {
   private static calculateNPVDerivative(cashFlows: CashFlowItem[], rate: number): number {
     return cashFlows.reduce((derivative, cf) => {
       if (cf.period === 0) return derivative;
-      const term = -cf.period * cf.cashFlow / Math.pow(1 + rate, cf.period + 1);
+      const term = (-cf.period * cf.cashFlow) / Math.pow(1 + rate, cf.period + 1);
       return derivative + term;
     }, 0);
   }
@@ -452,25 +478,27 @@ export class CashFlowAnalyzer {
     discountRate: number,
     reinvestmentRate: number
   ): number {
-    const positiveFlows = cashFlows.filter(cf => cf.cashFlow > 0);
-    const negativeFlows = cashFlows.filter(cf => cf.cashFlow < 0);
-    
+    const positiveFlows = cashFlows.filter((cf) => cf.cashFlow > 0);
+    const negativeFlows = cashFlows.filter((cf) => cf.cashFlow < 0);
+
     if (positiveFlows.length === 0 || negativeFlows.length === 0) {
       return this.calculateIRR(cashFlows); // Fall back to IRR
     }
-    
-    const lastPeriod = Math.max(...cashFlows.map(cf => cf.period));
-    
+
+    const lastPeriod = Math.max(...cashFlows.map((cf) => cf.period));
+
     // Future value of positive cash flows at reinvestment rate
     const fvPositive = positiveFlows.reduce((fv, cf) => {
       return fv + cf.cashFlow * Math.pow(1 + reinvestmentRate, lastPeriod - cf.period);
     }, 0);
-    
+
     // Present value of negative cash flows at discount rate
-    const pvNegative = Math.abs(negativeFlows.reduce((pv, cf) => {
-      return pv + cf.cashFlow / Math.pow(1 + discountRate, cf.period);
-    }, 0));
-    
+    const pvNegative = Math.abs(
+      negativeFlows.reduce((pv, cf) => {
+        return pv + cf.cashFlow / Math.pow(1 + discountRate, cf.period);
+      }, 0)
+    );
+
     // MIRR = (FV_positive / PV_negative)^(1/n) - 1
     return Math.pow(fvPositive / pvNegative, 1 / lastPeriod) - 1;
   }
@@ -481,24 +509,24 @@ export class CashFlowAnalyzer {
   private static calculatePaybackPeriod(cashFlows: CashFlowItem[]): number {
     let cumulativeCF = 0;
     const sortedFlows = [...cashFlows].sort((a, b) => a.period - b.period);
-    
+
     for (let i = 0; i < sortedFlows.length; i++) {
       cumulativeCF += sortedFlows[i]!.cashFlow;
-      
+
       if (cumulativeCF >= 0) {
         // Interpolate within the period for more precision
         const previousCumulative = cumulativeCF - sortedFlows[i]!.cashFlow;
         const periodCashFlow = sortedFlows[i]!.cashFlow;
-        
+
         if (periodCashFlow !== 0) {
           const fraction = -previousCumulative / periodCashFlow;
           return sortedFlows[i]!.period - 1 + fraction;
         }
-        
+
         return sortedFlows[i]!.period;
       }
     }
-    
+
     return Infinity; // Never pays back
   }
 
@@ -511,24 +539,24 @@ export class CashFlowAnalyzer {
   ): number {
     let cumulativePV = 0;
     const sortedFlows = [...cashFlows].sort((a, b) => a.period - b.period);
-    
+
     for (let i = 0; i < sortedFlows.length; i++) {
       const pv = sortedFlows[i]!.cashFlow / Math.pow(1 + discountRate, sortedFlows[i]!.period);
       cumulativePV += pv;
-      
+
       if (cumulativePV >= 0) {
         // Interpolate within the period
         const previousCumulative = cumulativePV - pv;
-        
+
         if (pv !== 0) {
           const fraction = -previousCumulative / pv;
           return sortedFlows[i]!.period - 1 + fraction;
         }
-        
+
         return sortedFlows[i]!.period;
       }
     }
-    
+
     return Infinity; // Never pays back
   }
 
@@ -541,25 +569,29 @@ export class CashFlowAnalyzer {
   ): number {
     const initialInvestment = Math.abs(
       cashFlows
-        .filter(cf => cf.period === 0)
+        .filter((cf) => cf.period === 0)
         .reduce((sum, cf) => sum + Math.min(0, cf.cashFlow), 0)
     );
-    
+
     const pvOfInflows = cashFlows
-      .filter(cf => cf.period > 0 && cf.cashFlow > 0)
+      .filter((cf) => cf.period > 0 && cf.cashFlow > 0)
       .reduce((pv, cf) => {
         return pv + cf.cashFlow / Math.pow(1 + discountRate, cf.period);
       }, 0);
-    
+
     return initialInvestment > 0 ? pvOfInflows / initialInvestment : 0;
   }
 
   /**
    * Calculate equivalent annuity
    */
-  private static calculateEquivalentAnnuity(npv: number, discountRate: number, periods: number): number {
+  private static calculateEquivalentAnnuity(
+    npv: number,
+    discountRate: number,
+    periods: number
+  ): number {
     if (periods === 0 || discountRate === 0) return 0;
-    
+
     const crf = this.calculateCRF(discountRate, periods);
     return npv * crf;
   }
@@ -576,8 +608,8 @@ export class CashFlowAnalyzer {
    * Calculate future value of all cash flows
    */
   private static calculateFutureValue(cashFlows: CashFlowItem[], discountRate: number): number {
-    const lastPeriod = Math.max(...cashFlows.map(cf => cf.period));
-    
+    const lastPeriod = Math.max(...cashFlows.map((cf) => cf.period));
+
     return cashFlows.reduce((fv, cf) => {
       return fv + cf.cashFlow * Math.pow(1 + discountRate, lastPeriod - cf.period);
     }, 0);
@@ -586,19 +618,16 @@ export class CashFlowAnalyzer {
   /**
    * Generate detailed cash flow breakdown
    */
-  private static generateDetailedCashFlows(
-    cashFlows: CashFlowItem[],
-    discountRate: number
-  ) {
+  private static generateDetailedCashFlows(cashFlows: CashFlowItem[], discountRate: number) {
     let cumulativePV = 0;
-    
+
     return cashFlows
       .sort((a, b) => a.period - b.period)
-      .map(cf => {
+      .map((cf) => {
         const discountFactor = 1 / Math.pow(1 + discountRate, cf.period);
         const presentValue = cf.cashFlow * discountFactor;
         cumulativePV += presentValue;
-        
+
         return {
           period: cf.period,
           date: cf.date,
@@ -615,25 +644,25 @@ export class CashFlowAnalyzer {
    * Calculate cash flow summary statistics
    */
   private static calculateCashFlowSummary(cashFlows: CashFlowItem[]) {
-    const inflows = cashFlows.filter(cf => cf.cashFlow > 0);
-    const outflows = cashFlows.filter(cf => cf.cashFlow < 0);
-    
+    const inflows = cashFlows.filter((cf) => cf.cashFlow > 0);
+    const outflows = cashFlows.filter((cf) => cf.cashFlow < 0);
+
     const totalInflows = inflows.reduce((sum, cf) => sum + cf.cashFlow, 0);
     const totalOutflows = Math.abs(outflows.reduce((sum, cf) => sum + cf.cashFlow, 0));
     const netCashFlow = totalInflows - totalOutflows;
-    
+
     // Calculate cumulative cash flows to find peaks
     let cumulativeCF = 0;
     let peakCumulative = 0;
     let worstCumulative = 0;
-    
+
     const sortedFlows = [...cashFlows].sort((a, b) => a.period - b.period);
     for (const cf of sortedFlows) {
       cumulativeCF += cf.cashFlow;
       peakCumulative = Math.max(peakCumulative, cumulativeCF);
       worstCumulative = Math.min(worstCumulative, cumulativeCF);
     }
-    
+
     return {
       totalInflows: Number(new Decimal(totalInflows).toDecimalPlaces(2)),
       totalOutflows: Number(new Decimal(totalOutflows).toDecimalPlaces(2)),
@@ -652,38 +681,40 @@ export class CashFlowAnalyzer {
     parameters: string[]
   ): SensitivityAnalysis[] {
     const baseNPV = this.calculateNPV(cashFlows, discounting.discountRate);
-    
+
     const results: SensitivityAnalysis[] = [];
-    
+
     for (const param of parameters) {
       const scenarios = this.generateParameterScenarios(param, discounting, cashFlows);
-      
+
       const analysis: SensitivityAnalysis = {
         parameter: param,
         baseValue: this.getParameterValue(param, discounting, cashFlows),
-        scenarios: scenarios.map(scenario => ({
+        scenarios: scenarios.map((scenario) => ({
           label: scenario.label,
           value: scenario.value,
           npv: Number(new Decimal(scenario.npv).toDecimalPlaces(2)),
           irr: Number(new Decimal(scenario.irr).toDecimalPlaces(4)),
           paybackPeriod: Number(new Decimal(scenario.payback).toDecimalPlaces(2)),
         })),
-        tornadoChart: [{
-          parameter: param,
-          impact: 0, // Will be calculated based on scenario range
-          lowValue: scenarios[0]?.value ?? 0,
-          highValue: scenarios[scenarios.length - 1]?.value ?? 0,
-        }],
+        tornadoChart: [
+          {
+            parameter: param,
+            impact: 0, // Will be calculated based on scenario range
+            lowValue: scenarios[0]?.value ?? 0,
+            highValue: scenarios[scenarios.length - 1]?.value ?? 0,
+          },
+        ],
       };
-      
+
       // Calculate tornado impact
       const lowNPV = scenarios[0]?.npv ?? baseNPV;
       const highNPV = scenarios[scenarios.length - 1]?.npv ?? baseNPV;
       analysis.tornadoChart[0]!.impact = Number(new Decimal(highNPV - lowNPV).toDecimalPlaces(2));
-      
+
       results.push(analysis);
     }
-    
+
     return results;
   }
 
@@ -696,11 +727,11 @@ export class CashFlowAnalyzer {
     cashFlows: CashFlowItem[]
   ) {
     const variations = [-0.2, -0.1, 0, 0.1, 0.2]; // -20%, -10%, base, +10%, +20%
-    
-    return variations.map(variation => {
+
+    return variations.map((variation) => {
       let modifiedDiscounting = { ...discounting };
       let modifiedCashFlows = [...cashFlows];
-      
+
       switch (parameter) {
         case 'discountRate':
           modifiedDiscounting.discountRate = discounting.discountRate * (1 + variation);
@@ -709,17 +740,17 @@ export class CashFlowAnalyzer {
           modifiedDiscounting.terminalGrowthRate = discounting.terminalGrowthRate * (1 + variation);
           break;
         case 'cashFlows':
-          modifiedCashFlows = cashFlows.map(cf => ({
+          modifiedCashFlows = cashFlows.map((cf) => ({
             ...cf,
             cashFlow: cf.period === 0 ? cf.cashFlow : cf.cashFlow * (1 + variation),
           }));
           break;
       }
-      
+
       const npv = this.calculateNPV(modifiedCashFlows, modifiedDiscounting.discountRate);
       const irr = this.calculateIRR(modifiedCashFlows);
       const payback = this.calculatePaybackPeriod(modifiedCashFlows);
-      
+
       return {
         label: `${variation >= 0 ? '+' : ''}${(variation * 100).toFixed(0)}%`,
         value: this.getParameterValue(parameter, modifiedDiscounting, modifiedCashFlows),
@@ -780,17 +811,17 @@ export class CashFlowAnalyzer {
         discountRateAdjustment: 0.02,
       },
     ];
-    
-    return scenarios.map(scenario => {
-      const modifiedCashFlows = cashFlows.map(cf => ({
+
+    return scenarios.map((scenario) => {
+      const modifiedCashFlows = cashFlows.map((cf) => ({
         ...cf,
         cashFlow: cf.period === 0 ? cf.cashFlow : cf.cashFlow * scenario.cashFlowMultiplier,
       }));
-      
+
       const modifiedDiscountRate = discounting.discountRate + scenario.discountRateAdjustment;
       const npv = this.calculateNPV(modifiedCashFlows, modifiedDiscountRate);
       const irr = this.calculateIRR(modifiedCashFlows);
-      
+
       return {
         name: scenario.name,
         probability: scenario.probability,
@@ -809,28 +840,29 @@ export class CashFlowAnalyzer {
     discounting: z.infer<typeof DiscountingParametersSchema>,
     analysis: NonNullable<CashFlowInput['analysis']>
   ) {
-    const terminalCashFlow = cashFlows.find(cf => cf.category === 'terminal-value');
-    
+    const terminalCashFlow = cashFlows.find((cf) => cf.category === 'terminal-value');
+
     if (terminalCashFlow) {
-      const presentValue = terminalCashFlow.cashFlow / Math.pow(1 + discounting.discountRate, terminalCashFlow.period);
-      
+      const presentValue =
+        terminalCashFlow.cashFlow / Math.pow(1 + discounting.discountRate, terminalCashFlow.period);
+
       const result: DCFValuationResult['terminalValue'] = {
         method: analysis.terminalValueMethod as 'perpetual-growth' | 'exit-multiple' | 'explicit',
         value: Number(new Decimal(terminalCashFlow.cashFlow).toDecimalPlaces(2)),
         presentValue: Number(new Decimal(presentValue).toDecimalPlaces(2)),
       };
-      
+
       if (analysis.terminalValueMethod === 'perpetual-growth') {
         result.growthRate = discounting.terminalGrowthRate;
       }
-      
+
       if (analysis.terminalValueMethod === 'exit-multiple' && analysis.exitMultiple !== undefined) {
         result.multiple = analysis.exitMultiple;
       }
-      
+
       return result;
     }
-    
+
     return {
       method: 'explicit' as const,
       value: 0,
@@ -841,15 +873,18 @@ export class CashFlowAnalyzer {
   /**
    * Compare multiple projects for capital allocation decisions
    */
-  static compareProjects(projects: Array<{ name: string; input: CashFlowInput }>, budgetConstraint?: number): ProjectComparison {
-    const projectResults = projects.map(project => {
+  static compareProjects(
+    projects: Array<{ name: string; input: CashFlowInput }>,
+    budgetConstraint?: number
+  ): ProjectComparison {
+    const projectResults = projects.map((project) => {
       const analysis = this.analyze(project.input);
       const initialInvestment = Math.abs(
         project.input.cashFlows
-          .filter(cf => cf.period === 0)
+          .filter((cf) => cf.period === 0)
           .reduce((sum, cf) => sum + Math.min(0, cf.cashFlow), 0)
       );
-      
+
       return {
         name: project.name,
         npv: analysis.npv,
@@ -860,23 +895,23 @@ export class CashFlowAnalyzer {
         ranking: 0, // Will be calculated
       };
     });
-    
+
     // Rank projects by NPV (primary criterion)
     const rankedProjects = projectResults
       .sort((a, b) => b.npv - a.npv)
       .map((project, index) => ({ ...project, ranking: index + 1 }));
-    
+
     // Determine best project for mutually exclusive scenario
     const bestProject = rankedProjects[0];
     const mutuallyExclusive: ProjectComparison['mutuallyExclusive'] = {
       recommended: bestProject?.name ?? '',
       reason: `Highest NPV of $${bestProject?.npv.toLocaleString()}`,
     };
-    
+
     if (rankedProjects[1] && bestProject) {
       mutuallyExclusive.npvDifference = bestProject.npv - rankedProjects[1].npv;
     }
-    
+
     // Capital rationing optimization
     let capitalRationing = {
       budgetConstraint: budgetConstraint ?? 0,
@@ -885,12 +920,14 @@ export class CashFlowAnalyzer {
       totalCapitalUsed: 0,
       efficiencyRatio: 0,
     };
-    
+
     if (budgetConstraint) {
       // Simple greedy algorithm based on profitability index
-      const sortedByPI = [...rankedProjects].sort((a, b) => b.profitabilityIndex - a.profitabilityIndex);
+      const sortedByPI = [...rankedProjects].sort(
+        (a, b) => b.profitabilityIndex - a.profitabilityIndex
+      );
       let remainingBudget = budgetConstraint;
-      
+
       for (const project of sortedByPI) {
         if (project.capitalRequired <= remainingBudget) {
           capitalRationing.optimalPortfolio.push(project.name);
@@ -899,12 +936,13 @@ export class CashFlowAnalyzer {
           remainingBudget -= project.capitalRequired;
         }
       }
-      
-      capitalRationing.efficiencyRatio = capitalRationing.totalCapitalUsed > 0 
-        ? capitalRationing.totalNPV / capitalRationing.totalCapitalUsed 
-        : 0;
+
+      capitalRationing.efficiencyRatio =
+        capitalRationing.totalCapitalUsed > 0
+          ? capitalRationing.totalNPV / capitalRationing.totalCapitalUsed
+          : 0;
     }
-    
+
     return {
       projects: rankedProjects,
       mutuallyExclusive,

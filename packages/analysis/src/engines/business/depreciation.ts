@@ -32,9 +32,10 @@ export class DepreciationCalculator {
       : undefined;
 
     // Disposal analysis
-    const disposalAnalysis = disposal && disposal.includeDisposalAnalysis
-      ? this.analyzeDisposal(assetInfo, disposal, depreciationSchedule, taxInfo)
-      : undefined;
+    const disposalAnalysis =
+      disposal && disposal.includeDisposalAnalysis
+        ? this.analyzeDisposal(assetInfo, disposal, depreciationSchedule, taxInfo)
+        : undefined;
 
     // Recommendations
     const recommendations = this.generateRecommendations(
@@ -59,13 +60,21 @@ export class DepreciationCalculator {
     };
   }
 
-  private static calculateDepreciationSchedule(
-    input: DepreciationInput
-  ): {
-    schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }>;
+  private static calculateDepreciationSchedule(input: DepreciationInput): {
+    schedule: Array<{
+      year: number;
+      depreciation: number;
+      accumulatedDepreciation: number;
+      bookValue: number;
+    }>;
     totalDepreciation: number;
   } {
-    const schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }> = [];
+    const schedule: Array<{
+      year: number;
+      depreciation: number;
+      accumulatedDepreciation: number;
+      bookValue: number;
+    }> = [];
     let accumulatedDepreciation = 0;
     const asset = input.assetInfo;
     const method = input.depreciationMethod;
@@ -82,7 +91,8 @@ export class DepreciationCalculator {
           break;
         case 'declining-balance':
         case 'double-declining-balance': {
-          const rate = method === 'double-declining-balance' ? 2 / asset.usefulLife : 1.5 / asset.usefulLife;
+          const rate =
+            method === 'double-declining-balance' ? 2 / asset.usefulLife : 1.5 / asset.usefulLife;
           const bookValue = asset.purchaseCost - accumulatedDepreciation;
           depreciation = Math.min(bookValue * rate, depreciableBase - accumulatedDepreciation);
           break;
@@ -149,12 +159,25 @@ export class DepreciationCalculator {
       return (depreciableBase * (2 / usefulLife)) / 2;
     }
 
-    const bookValue = asset.purchaseCost - (depreciableBase * (2 / usefulLife) * (year - 1));
-    return Math.min(bookValue * (2 / usefulLife), depreciableBase * (1 - Math.pow(1 - 2 / usefulLife, year)));
+    const bookValue = asset.purchaseCost - depreciableBase * (2 / usefulLife) * (year - 1);
+    return Math.min(
+      bookValue * (2 / usefulLife),
+      depreciableBase * (1 - Math.pow(1 - 2 / usefulLife, year))
+    );
   }
 
   private static calculateTaxSavings(
-    schedule: { schedule: Array<{ year: number; depreciation: number; accumulatedDepreciation: number; bookValue: number }>; totalDepreciation: number } | undefined,
+    schedule:
+      | {
+          schedule: Array<{
+            year: number;
+            depreciation: number;
+            accumulatedDepreciation: number;
+            bookValue: number;
+          }>;
+          totalDepreciation: number;
+        }
+      | undefined,
     input: DepreciationInput
   ): {
     annualSavings: Array<{ year: number; taxSavings: number }>;
@@ -182,16 +205,17 @@ export class DepreciationCalculator {
     };
   }
 
-  private static compareMethods(
-    input: DepreciationInput
-  ): {
+  private static compareMethods(input: DepreciationInput): {
     methods: Array<{ method: string; totalDepreciation: number; totalTaxSavings: number }>;
     bestMethod: string;
   } {
     const { taxInfo, assetInfo: asset } = input;
 
     const methods = ['straight-line', 'double-declining-balance', 'macrs'].map((method) => {
-      const tempInput = { ...input, depreciationMethod: method as DepreciationInput['depreciationMethod'] };
+      const tempInput = {
+        ...input,
+        depreciationMethod: method as DepreciationInput['depreciationMethod'],
+      };
       const schedule = this.calculateDepreciationSchedule(tempInput);
       const taxRate = taxInfo.federalTaxRate + taxInfo.stateTaxRate;
       const totalTaxSavings = schedule.totalDepreciation * taxRate * asset.businessUsePercentage;
@@ -235,9 +259,7 @@ export class DepreciationCalculator {
     const bookValue = asset.purchaseCost - schedule.totalDepreciation;
     const gainOrLoss = disposal.disposalProceeds - bookValue;
     const depreciationRecapture = Math.min(gainOrLoss, schedule.totalDepreciation);
-    const taxOnDisposal = gainOrLoss > 0
-      ? gainOrLoss * taxInfo.federalTaxRate
-      : 0;
+    const taxOnDisposal = gainOrLoss > 0 ? gainOrLoss * taxInfo.federalTaxRate : 0;
     const netProceeds = disposal.disposalProceeds - taxOnDisposal;
 
     return {
@@ -276,6 +298,3 @@ export class DepreciationCalculator {
     return recommendations;
   }
 }
-
-
-

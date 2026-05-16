@@ -12,4 +12,3 @@ export const MonteCarloInvestmentInputSchema = z.object({
 });
 
 export type MonteCarloInvestmentInput = z.infer<typeof MonteCarloInvestmentInputSchema>;
-

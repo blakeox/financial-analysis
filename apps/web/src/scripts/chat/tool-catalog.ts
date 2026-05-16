@@ -53,9 +53,7 @@ class ToolCatalog {
     return this.snapshot;
   }
 
-  public subscribe(
-    listener: (event: ChatToolsUpdateEvent) => void
-  ): () => void {
+  public subscribe(listener: (event: ChatToolsUpdateEvent) => void): () => void {
     return appEventBus.on('chat:tools:update', listener);
   }
 
@@ -70,7 +68,10 @@ class ToolCatalog {
       return this.inflight;
     }
 
-    const request = this.fetchTools(source ?? (this.snapshot ? 'refresh' : 'initial'), captureOutputs);
+    const request = this.fetchTools(
+      source ?? (this.snapshot ? 'refresh' : 'initial'),
+      captureOutputs
+    );
     this.inflight = request;
 
     try {
@@ -105,7 +106,7 @@ class ToolCatalog {
     const combinedOutputs =
       outputsFromPage && outputsFromAPI
         ? { ...outputsFromAPI, ...outputsFromPage }
-        : outputsFromPage ?? outputsFromAPI ?? null;
+        : (outputsFromPage ?? outputsFromAPI ?? null);
 
     const snapshot: ToolCatalogSnapshot = {
       tools,

@@ -213,8 +213,8 @@ export class AutoLoanAnalysisEngine {
     // Calculate total loan amount including taxes and fees
     const taxableAmount = vehicle.negotiatedPrice - vehicle.tradeInValue - vehicle.downPayment;
     const salesTax = taxableAmount * loanTerms.salesTaxRate;
-const totalFees = Object.values(loanTerms.fees).reduce((sum, fee) => sum + fee, 0);
-const totalLoanAmount = loanTerms.loanAmount + salesTax + totalFees;
+    const totalFees = Object.values(loanTerms.fees).reduce((sum, fee) => sum + fee, 0);
+    const totalLoanAmount = loanTerms.loanAmount + salesTax + totalFees;
 
     // Calculate monthly payment using PMT formula
     const monthlyRate = loanTerms.interestRate / 12;

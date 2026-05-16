@@ -33,10 +33,7 @@ export class CarLeaseVsBuyCalculator {
     const comparison = this.compareOptions(leaseAnalysis, purchaseAnalysis, analysis);
 
     // Recommendations
-    const recommendations = this.generateRecommendations(
-      comparison,
-      analysis
-    );
+    const recommendations = this.generateRecommendations(comparison, analysis);
 
     return {
       summary: {
@@ -144,7 +141,8 @@ export class CarLeaseVsBuyCalculator {
     }
 
     // Depreciation / resale value at end of analysis period (years)
-    const resaleValue = vehiclePrice * Math.pow(1 - assumptions.expectedDepreciation, analysis.analysisPeriod);
+    const resaleValue =
+      vehiclePrice * Math.pow(1 - assumptions.expectedDepreciation, analysis.analysisPeriod);
     const depreciation = vehiclePrice - resaleValue;
 
     // Ownership costs
@@ -156,7 +154,8 @@ export class CarLeaseVsBuyCalculator {
     const totalOwnershipCosts = annualOwnershipCosts * analysis.analysisPeriod;
 
     // Opportunity cost of down payment
-    const opportunityCost = purchaseTerms.downPayment * assumptions.opportunityCostRate * analysis.analysisPeriod;
+    const opportunityCost =
+      purchaseTerms.downPayment * assumptions.opportunityCostRate * analysis.analysisPeriod;
 
     const totalLoanPayments = monthlyPayment * monthsAnalyzed;
     const totalCost =
@@ -204,8 +203,12 @@ export class CarLeaseVsBuyCalculator {
   ): string[] {
     const recommendations: string[] = [];
 
-    recommendations.push(`${comparison.betterOption === 'lease' ? 'Leasing' : 'Buying'} is more cost-effective in your situation`);
-    recommendations.push(`Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysis.analysisPeriod} years`);
+    recommendations.push(
+      `${comparison.betterOption === 'lease' ? 'Leasing' : 'Buying'} is more cost-effective in your situation`
+    );
+    recommendations.push(
+      `Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysis.analysisPeriod} years`
+    );
 
     if (comparison.betterOption === 'lease') {
       recommendations.push('Leasing provides lower upfront costs and newer vehicles');
@@ -216,6 +219,3 @@ export class CarLeaseVsBuyCalculator {
     return recommendations;
   }
 }
-
-
-

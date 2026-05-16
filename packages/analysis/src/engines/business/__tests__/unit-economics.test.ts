@@ -229,7 +229,7 @@ describe('UnitEconomicsEngine', () => {
 
       // Month 0 should have 100 customers (cohort of 100)
       expect(result.cohortAnalysis[0].customersRemaining).toBe(100);
-      
+
       // Later months should have fewer customers due to churn
       const laterMonth = result.cohortAnalysis[6];
       expect(laterMonth.customersRemaining).toBeLessThan(100);
@@ -270,7 +270,7 @@ describe('UnitEconomicsEngine', () => {
 
       const result = UnitEconomicsEngine.analyze(poorInput);
 
-      const ratioInsight = result.insights.find(i => i.includes('LTV') || i.includes('CAC'));
+      const ratioInsight = result.insights.find((i) => i.includes('LTV') || i.includes('CAC'));
       expect(ratioInsight).toBeDefined();
     });
 
@@ -284,12 +284,13 @@ describe('UnitEconomicsEngine', () => {
 
       const result = UnitEconomicsEngine.analyze(excellentInput);
 
-      const positiveInsight = result.insights.find(i => 
-        i.toLowerCase().includes('excellent') || 
-        i.toLowerCase().includes('strong') || 
-        i.toLowerCase().includes('healthy') ||
-        i.includes('✅') ||
-        i.includes('🎯')
+      const positiveInsight = result.insights.find(
+        (i) =>
+          i.toLowerCase().includes('excellent') ||
+          i.toLowerCase().includes('strong') ||
+          i.toLowerCase().includes('healthy') ||
+          i.includes('✅') ||
+          i.includes('🎯')
       );
       expect(positiveInsight).toBeDefined();
     });
@@ -313,8 +314,8 @@ describe('UnitEconomicsEngine', () => {
 
       const result = UnitEconomicsEngine.analyze(highCacInput);
 
-      const cacRec = result.recommendations.find(r => 
-        r.includes('CAC') || r.includes('acquisition') || r.includes('marketing')
+      const cacRec = result.recommendations.find(
+        (r) => r.includes('CAC') || r.includes('acquisition') || r.includes('marketing')
       );
       expect(cacRec).toBeDefined();
     });
@@ -327,8 +328,8 @@ describe('UnitEconomicsEngine', () => {
 
       const result = UnitEconomicsEngine.analyze(highChurnInput);
 
-      const retentionRec = result.recommendations.find(r => 
-        r.toLowerCase().includes('churn') || r.toLowerCase().includes('retention')
+      const retentionRec = result.recommendations.find(
+        (r) => r.toLowerCase().includes('churn') || r.toLowerCase().includes('retention')
       );
       expect(retentionRec).toBeDefined();
     });
@@ -448,7 +449,7 @@ describe('UnitEconomicsEngine', () => {
   describe('Scenario Comparison', () => {
     it('current vs improved scenario', () => {
       const currentResult = UnitEconomicsEngine.analyze(basicInput);
-      
+
       const improvedInput: UnitEconomicsInput = {
         ...basicInput,
         monthlyMarketingSpend: 8000,
@@ -518,25 +519,25 @@ describe('UnitEconomicsEngine', () => {
       expect(result).toHaveProperty('cac');
       expect(result).toHaveProperty('ltv');
       expect(result).toHaveProperty('ltvToCacRatio');
-      
+
       // Profitability
       expect(result).toHaveProperty('grossMarginPercent');
       expect(result).toHaveProperty('contributionMarginPerCustomer');
-      
+
       // Timing
       expect(result).toHaveProperty('paybackPeriodMonths');
       expect(result).toHaveProperty('breakEvenMonth');
-      
+
       // Retention
       expect(result).toHaveProperty('customerLifespanMonths');
       expect(result).toHaveProperty('retentionRate');
       expect(result).toHaveProperty('churnRate');
-      
+
       // Revenue
       expect(result).toHaveProperty('monthlyRecurringRevenue');
       expect(result).toHaveProperty('annualRecurringRevenue');
       expect(result).toHaveProperty('netRevenueRetention');
-      
+
       // Analysis
       expect(result).toHaveProperty('cohortAnalysis');
       expect(result).toHaveProperty('benchmarks');
@@ -572,7 +573,7 @@ describe('UnitEconomicsEngine', () => {
 
     it('NRR increases with revenue growth rate', () => {
       const noGrowthResult = UnitEconomicsEngine.analyze(basicInput);
-      
+
       const growthInput: UnitEconomicsInput = {
         ...basicInput,
         revenueGrowthRate: 0.2, // 20% annual growth
@@ -586,7 +587,7 @@ describe('UnitEconomicsEngine', () => {
   describe('Organic Growth', () => {
     it('organic growth reduces effective CAC', () => {
       const allPaidResult = UnitEconomicsEngine.analyze(basicInput);
-      
+
       const organicInput: UnitEconomicsInput = {
         ...basicInput,
         organicGrowthPercent: 50, // Half of customers are organic

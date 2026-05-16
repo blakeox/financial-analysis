@@ -51,7 +51,9 @@ class LifeInsuranceReassessmentCalculator {
         needsAnalysis: {
           incomeReplacement: {
             yearsOfIncome: parseInt((formData.get('yearsOfIncome') as string) || '10'),
-            replacementPercentage: parseFloat((formData.get('replacementPercentage') as string) || '0.7'),
+            replacementPercentage: parseFloat(
+              (formData.get('replacementPercentage') as string) || '0.7'
+            ),
           },
           debtPayoff: {
             mortgageBalance: parseFloat((formData.get('mortgageBalance') as string) || '0'),
@@ -59,7 +61,9 @@ class LifeInsuranceReassessmentCalculator {
           },
           educationFunding: {
             childrenCount: parseInt((formData.get('childrenCount') as string) || '0'),
-            educationCostPerChild: parseFloat((formData.get('educationCostPerChild') as string) || '0'),
+            educationCostPerChild: parseFloat(
+              (formData.get('educationCostPerChild') as string) || '0'
+            ),
           },
           finalExpenses: parseFloat((formData.get('finalExpenses') as string) || '10000'),
           estateTaxes: parseFloat((formData.get('estateTaxes') as string) || '0'),
@@ -87,7 +91,9 @@ class LifeInsuranceReassessmentCalculator {
       this.displayResults(result);
     } catch (error) {
       console.error('Life Insurance Reassessment error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to analyze life insurance reassessment');
+      showError(
+        error instanceof Error ? error.message : 'Failed to analyze life insurance reassessment'
+      );
     } finally {
       hideLoading();
     }

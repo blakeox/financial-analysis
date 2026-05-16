@@ -2,7 +2,10 @@
  * International Tax Planning MCP Tool
  */
 
-import { InternationalTaxPlanningInputSchema, InternationalTaxPlanningOptimizer } from '@financial-analysis/analysis';
+import {
+  InternationalTaxPlanningInputSchema,
+  InternationalTaxPlanningOptimizer,
+} from '@financial-analysis/analysis';
 
 export class InternationalTaxPlanningTool {
   static readonly toolName = 'analyze_international_tax_planning';
@@ -30,7 +33,12 @@ export class InternationalTaxPlanningTool {
         properties: {
           domesticIncome: { type: 'number', minimum: 0, description: 'Domestic income' },
           foreignIncome: { type: 'number', minimum: 0, default: 0, description: 'Foreign income' },
-          foreignTaxPaid: { type: 'number', minimum: 0, default: 0, description: 'Foreign tax paid' },
+          foreignTaxPaid: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Foreign tax paid',
+          },
         },
         required: ['domesticIncome'],
       },
@@ -57,17 +65,41 @@ export class InternationalTaxPlanningTool {
             default: 'corporation',
             description: 'Entity type',
           },
-          transferPricing: { type: 'boolean', default: false, description: 'Transfer pricing applicable' },
+          transferPricing: {
+            type: 'boolean',
+            default: false,
+            description: 'Transfer pricing applicable',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
-          includeForeignTaxCredit: { type: 'boolean', default: true, description: 'Include foreign tax credit' },
-          includeTaxTreatyAnalysis: { type: 'boolean', default: true, description: 'Include tax treaty analysis' },
-          includeTransferPricing: { type: 'boolean', default: true, description: 'Include transfer pricing' },
-          includeCFCAnalysis: { type: 'boolean', default: true, description: 'Include CFC analysis' },
-          includeBEPSCompliance: { type: 'boolean', default: true, description: 'Include BEPS compliance' },
+          includeForeignTaxCredit: {
+            type: 'boolean',
+            default: true,
+            description: 'Include foreign tax credit',
+          },
+          includeTaxTreatyAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax treaty analysis',
+          },
+          includeTransferPricing: {
+            type: 'boolean',
+            default: true,
+            description: 'Include transfer pricing',
+          },
+          includeCFCAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include CFC analysis',
+          },
+          includeBEPSCompliance: {
+            type: 'boolean',
+            default: true,
+            description: 'Include BEPS compliance',
+          },
         },
       },
     },
@@ -79,5 +111,3 @@ export class InternationalTaxPlanningTool {
     return InternationalTaxPlanningOptimizer.analyze(validated);
   }
 }
-
-

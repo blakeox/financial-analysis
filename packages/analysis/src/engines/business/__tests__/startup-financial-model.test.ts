@@ -88,4 +88,3 @@ describe('StartupFinancialModel', () => {
     expect(result.fundingNeeds).toBeDefined();
   });
 });
-

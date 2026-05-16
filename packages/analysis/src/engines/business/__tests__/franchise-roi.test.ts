@@ -83,9 +83,7 @@ describe('FranchiseROICalculator', () => {
   it('should compute break-even month alongside year', () => {
     const result = FranchiseROICalculator.analyze(baseInput) as any;
     expect(result.breakEvenAnalysis).toBeDefined();
-    expect(result.breakEvenAnalysis.breakEvenMonth).toBe(
-      result.breakEvenAnalysis.year * 12
-    );
+    expect(result.breakEvenAnalysis.breakEvenMonth).toBe(result.breakEvenAnalysis.year * 12);
   });
 
   it('should omit ROI analysis when disabled', () => {
@@ -254,4 +252,3 @@ describe('FranchiseROICalculator', () => {
     expect(result.sensitivity).toBeDefined();
   });
 });
-

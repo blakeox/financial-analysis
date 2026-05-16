@@ -37,7 +37,7 @@ describe('Mortgage Scenario Planning - Constants', () => {
     });
 
     it('should have valid color objects', () => {
-      SCENARIO_COLORS.forEach(color => {
+      SCENARIO_COLORS.forEach((color) => {
         expect(color).toHaveProperty('bg');
         expect(color).toHaveProperty('accent');
         expect(color).toHaveProperty('label');
@@ -48,7 +48,7 @@ describe('Mortgage Scenario Planning - Constants', () => {
     });
 
     it('should have unique labels', () => {
-      const labels = SCENARIO_COLORS.map(c => c.label);
+      const labels = SCENARIO_COLORS.map((c) => c.label);
       const uniqueLabels = new Set(labels);
       expect(uniqueLabels.size).toBe(SCENARIO_COLORS.length);
     });

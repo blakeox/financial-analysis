@@ -36,7 +36,7 @@ test.describe('Analysis edge cases', () => {
     const results = page.locator('#results-section');
     await expect(results).toBeVisible();
     await expect(results).toContainText(/payment/i);
-    
+
     // Verify schedule table exists (shows amortization data)
     const scheduleTable = page.locator('#schedule-content table');
     await expect(scheduleTable).toBeVisible();
@@ -73,7 +73,7 @@ test.describe('Analysis edge cases', () => {
 
     const results = page.locator('#results-section');
     await expect(results).toBeVisible();
-    
+
     // Verify schedule table exists even with long term
     const scheduleTable = page.locator('#schedule-content table');
     await expect(scheduleTable).toBeVisible();

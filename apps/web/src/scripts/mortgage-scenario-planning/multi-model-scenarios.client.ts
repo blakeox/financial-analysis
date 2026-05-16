@@ -219,7 +219,8 @@ export class MultiModelScenarioManager {
           {
             id: 'lease-vs-buyout',
             name: 'Buyout Math & Equity Check',
-            description: 'Compare finishing the lease vs buying out now or later with taxes and fees',
+            description:
+              'Compare finishing the lease vs buying out now or later with taxes and fees',
             url: '/journey/auto-lease-decision/step/lease-vs-buyout',
             order: 2,
             required: true,
@@ -227,7 +228,8 @@ export class MultiModelScenarioManager {
           {
             id: 'replacement-options',
             name: 'New Lease vs Finance vs Cash',
-            description: 'Enter new lease terms, financed new car terms, and cash purchase (mark cash not an option if short)',
+            description:
+              'Enter new lease terms, financed new car terms, and cash purchase (mark cash not an option if short)',
             url: '/journey/auto-lease-decision/step/replacement-options',
             order: 3,
             required: true,

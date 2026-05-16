@@ -55,7 +55,8 @@ export class BondPricingTool {
       },
       issueDate: {
         type: 'string',
-        description: 'Issue date in ISO 8601 format (YYYY-MM-DD). If not provided, default to 1 year before settlement date.',
+        description:
+          'Issue date in ISO 8601 format (YYYY-MM-DD). If not provided, default to 1 year before settlement date.',
       },
       callProvision: {
         type: 'object',
@@ -151,16 +152,12 @@ export class BondPricingTool {
       priceQuoteConvention: {
         type: 'string',
         enum: ['clean', 'dirty'],
-        description: 'Whether to quote clean price (excluding accrued) or dirty price (including accrued)',
+        description:
+          'Whether to quote clean price (excluding accrued) or dirty price (including accrued)',
         default: 'clean',
       },
     },
-    required: [
-      'couponRate',
-      'yieldToMaturity',
-      'maturityDate',
-      'issueDate',
-    ],
+    required: ['couponRate', 'yieldToMaturity', 'maturityDate', 'issueDate'],
   };
 
   static async execute(args: unknown): Promise<string> {
@@ -171,19 +168,22 @@ export class BondPricingTool {
         bondType: (toolArgs.bondType as BondPricingInput['bondType']) || 'treasury',
         faceValue: (toolArgs.principal as number) || (toolArgs.faceValue as number) || 1000,
         couponRate: toolArgs.couponRate as number,
-        couponFrequency: (toolArgs.couponFrequency as BondPricingInput['couponFrequency']) || 'semi-annual',
+        couponFrequency:
+          (toolArgs.couponFrequency as BondPricingInput['couponFrequency']) || 'semi-annual',
         yieldToMaturity: toolArgs.yieldToMaturity as number,
         issueDate: toolArgs.issueDate as string,
         maturityDate: toolArgs.maturityDate as string,
         settlementDate: toolArgs.settlementDate as string | undefined,
-        dayCountConvention: (toolArgs.dayCountConvention as BondPricingInput['dayCountConvention']) || 'actual-actual',
+        dayCountConvention:
+          (toolArgs.dayCountConvention as BondPricingInput['dayCountConvention']) ||
+          'actual-actual',
         creditRating: toolArgs.creditRating as BondPricingInput['creditRating'] | undefined,
         // Tax-related fields with defaults
         taxRate: (toolArgs.taxRate as number) || 0,
         stateTaxRate: (toolArgs.stateTaxRate as number) || 0,
         isTaxExempt: (toolArgs.isTaxExempt as boolean) || false,
       };
-      
+
       const result = await BondPricingAnalyzer.analyze(input);
       return JSON.stringify(result, null, 2);
     } catch (error) {

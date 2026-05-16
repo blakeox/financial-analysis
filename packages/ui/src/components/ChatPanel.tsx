@@ -136,7 +136,9 @@ export function ChatPanel({
           >
             {/* Header */}
             <div className="flex h-16 items-center justify-between border-b border-slate-200/80 px-3 sm:px-4 dark:border-slate-800">
-              <div className={cn('flex items-center gap-2 text-sm font-semibold', textColors.primary)}>
+              <div
+                className={cn('flex items-center gap-2 text-sm font-semibold', textColors.primary)}
+              >
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 text-white shadow-[0_10px_24px_rgba(109,74,255,0.24)]">
                   AI
                 </span>
@@ -203,18 +205,10 @@ export function ChatPanel({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={busy ? 'Please wait…' : 'Type a message (⌘/Ctrl+Enter to send)'}
-                className={cn(
-                  inputClasses,
-                  'h-11 min-h-11 flex-1 resize-none py-2.5 leading-5'
-                )}
+                className={cn(inputClasses, 'h-11 min-h-11 flex-1 resize-none py-2.5 leading-5')}
                 disabled={busy}
               />
-              <Button
-                type="button"
-                onClick={onSend}
-                disabled={busy || !input.trim()}
-                size="sm"
-              >
+              <Button type="button" onClick={onSend} disabled={busy || !input.trim()} size="sm">
                 Send
               </Button>
             </div>

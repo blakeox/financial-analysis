@@ -44,13 +44,11 @@ export class LLMMetricsCollector {
    */
   async recordRequest(metrics: LLMMetrics): Promise<void> {
     const key = `metrics:${metrics.timestamp}:${metrics.requestId}`;
-    
+
     // Store individual metrics
-    await this.kv.put(
-      key,
-      JSON.stringify(metrics),
-      { expirationTtl: this.RETENTION_DAYS * 24 * 3600 }
-    );
+    await this.kv.put(key, JSON.stringify(metrics), {
+      expirationTtl: this.RETENTION_DAYS * 24 * 3600,
+    });
 
     // Update daily aggregates
     await this.updateDailyStats(metrics);
@@ -62,7 +60,7 @@ export class LLMMetricsCollector {
   private async updateDailyStats(metrics: LLMMetrics): Promise<void> {
     const date = new Date(metrics.timestamp).toISOString().split('T')[0];
     const statsKey = `stats:daily:${date}`;
-    
+
     // Get existing stats
     const existing = await this.kv.get(statsKey);
     const stats: DailyStats = existing
@@ -89,13 +87,16 @@ export class LLMMetricsCollector {
     }
 
     // Rolling average for latency
-    stats.averageLatency = (stats.averageLatency * (stats.totalRequests - 1) + metrics.latency) / stats.totalRequests;
-    
+    stats.averageLatency =
+      (stats.averageLatency * (stats.totalRequests - 1) + metrics.latency) / stats.totalRequests;
+
     stats.totalTokens += metrics.totalTokens;
     stats.totalCost += metrics.cost || 0;
-    
+
     // Cache hit rate
-    const cacheHits = (stats.cacheHitRate * (stats.totalRequests - 1) + (metrics.cacheHit ? 1 : 0)) / stats.totalRequests;
+    const cacheHits =
+      (stats.cacheHitRate * (stats.totalRequests - 1) + (metrics.cacheHit ? 1 : 0)) /
+      stats.totalRequests;
     stats.cacheHitRate = cacheHits;
 
     // By model
@@ -159,14 +160,11 @@ export class LLMMetricsCollector {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    
+
     const endDateStr = endDate.toISOString().split('T')[0];
     const startDateStr = startDate.toISOString().split('T')[0];
-    
-    const stats = await this.getMultiDayStats(
-      startDateStr || '',
-      endDateStr || ''
-    );
+
+    const stats = await this.getMultiDayStats(startDateStr || '', endDateStr || '');
 
     const aggregated = {
       totalRequests: 0,
@@ -196,9 +194,8 @@ export class LLMMetricsCollector {
       }
     }
 
-    const averageLatency = aggregated.totalRequests > 0 
-      ? aggregated.totalLatency / aggregated.totalRequests 
-      : 0;
+    const averageLatency =
+      aggregated.totalRequests > 0 ? aggregated.totalLatency / aggregated.totalRequests : 0;
 
     const topModels = Object.entries(aggregated.byModel)
       .map(([model, count]) => ({ model, count }))
@@ -216,12 +213,10 @@ export class LLMMetricsCollector {
       failedRequests: aggregated.failedRequests,
       averageLatency,
       totalCost: aggregated.totalCost,
-      averageCostPerRequest: aggregated.totalRequests > 0 
-        ? aggregated.totalCost / aggregated.totalRequests 
-        : 0,
-      cacheHitRate: aggregated.totalRequests > 0
-        ? aggregated.totalCacheHits / aggregated.totalRequests
-        : 0,
+      averageCostPerRequest:
+        aggregated.totalRequests > 0 ? aggregated.totalCost / aggregated.totalRequests : 0,
+      cacheHitRate:
+        aggregated.totalRequests > 0 ? aggregated.totalCacheHits / aggregated.totalRequests : 0,
       topModels,
       topIntents,
     };
@@ -236,7 +231,7 @@ export class LLMMetricsCollector {
       '@cf/meta/llama-3-8b-instruct': { input: 0.05, output: 0.15 },
       '@cf/meta/llama-3.1-8b-instruct': { input: 0.05, output: 0.15 },
       '@hf/meta-llama/Meta-Llama-3-8B-Instruct': { input: 0.05, output: 0.15 },
-      default: { input: 0.10, output: 0.30 },
+      default: { input: 0.1, output: 0.3 },
     };
 
     const modelPrices = prices[model] || prices.default;
@@ -245,8 +240,7 @@ export class LLMMetricsCollector {
     }
     const inputCost = (promptTokens / 1_000_000) * modelPrices.input;
     const outputCost = (responseTokens / 1_000_000) * modelPrices.output;
-    
+
     return inputCost + outputCost;
   }
 }
-

@@ -142,15 +142,24 @@ function LeaseDocumentUpload({
       </CardHeader>
       <CardContent>
         <p className={cn('mb-4 text-sm sm:text-base', textColors.secondary)}>
-          Upload a lease agreement and let AI extract the key terms automatically. Your document is 
-          processed in memory and never stored on our servers. You can also fill out the form manually below.
+          Upload a lease agreement and let AI extract the key terms automatically. Your document is
+          processed in memory and never stored on our servers. You can also fill out the form
+          manually below.
         </p>
 
         {/* Error Message */}
         {error && (
           <div className="mb-4 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50/90 p-4 dark:border-rose-900/70 dark:bg-rose-950/30">
-            <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-rose-600 dark:text-rose-300" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            <svg
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-rose-600 dark:text-rose-300"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
             </svg>
             <div className="flex-1">
               <p className="text-sm font-medium text-rose-800 dark:text-rose-200">Upload Failed</p>
@@ -164,7 +173,11 @@ function LeaseDocumentUpload({
               aria-label="Dismiss error"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
               </svg>
             </Button>
           </div>
@@ -231,9 +244,7 @@ function LeaseDocumentUpload({
                 </svg>
                 <p className="font-medium">Document processed successfully!</p>
                 {uploadedFile && (
-                  <p className={cn('mt-1 text-xs', textColors.muted)}>
-                    {uploadedFile.name}
-                  </p>
+                  <p className={cn('mt-1 text-xs', textColors.muted)}>{uploadedFile.name}</p>
                 )}
                 <p className={cn('mt-2 text-sm', textColors.secondary)}>
                   Form populated with extracted data
@@ -249,9 +260,7 @@ function LeaseDocumentUpload({
                       ? 'Analyzing content...'
                       : 'Extracting lease data...'}
                 </p>
-                <p className={cn('text-sm', textColors.secondary)}>
-                  {uploadProgress}% complete
-                </p>
+                <p className={cn('text-sm', textColors.secondary)}>{uploadProgress}% complete</p>
               </div>
             ) : dragActive ? (
               <div className="text-violet-600 dark:text-violet-300">
@@ -538,21 +547,21 @@ function LeaseExtractionPreview({
               </h4>
               <div className="space-y-3">
                 {extractedData.extractedSections.financialTerms && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
+                    <div className="mb-1 font-medium text-slate-900 dark:text-white">
                       Financial Terms:
                     </div>
-                  <div className="text-slate-700 dark:text-slate-300">
+                    <div className="text-slate-700 dark:text-slate-300">
                       {extractedData.extractedSections.financialTerms}
                     </div>
                   </div>
                 )}
                 {extractedData.extractedSections.propertyDescription && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
+                    <div className="mb-1 font-medium text-slate-900 dark:text-white">
                       Property Description:
                     </div>
-                  <div className="text-slate-700 dark:text-slate-300">
+                    <div className="text-slate-700 dark:text-slate-300">
                       {extractedData.extractedSections.propertyDescription}
                     </div>
                   </div>
@@ -562,17 +571,10 @@ function LeaseExtractionPreview({
           )}
 
         <div className="flex flex-col gap-2 border-t border-slate-200/80 pt-4 sm:flex-row sm:gap-3 dark:border-slate-800">
-          <Button
-            onClick={() => onApply(extractedData)}
-            className="flex-1 px-4 py-3 sm:py-2"
-          >
+          <Button onClick={() => onApply(extractedData)} className="flex-1 px-4 py-3 sm:py-2">
             Apply to Form
           </Button>
-          <Button
-            onClick={onDismiss}
-            variant="outline"
-            className="px-4 py-3 sm:py-2"
-          >
+          <Button onClick={onDismiss} variant="outline" className="px-4 py-3 sm:py-2">
             Dismiss
           </Button>
         </div>
@@ -583,7 +585,10 @@ function LeaseExtractionPreview({
 
 type ScenarioKey = 'optimistic' | 'conservative' | 'pessimistic';
 
-const SCENARIO_THEMES: Record<ScenarioKey, { label: string; container: string; accent: string; heading: string; text: string }> = {
+const SCENARIO_THEMES: Record<
+  ScenarioKey,
+  { label: string; container: string; accent: string; heading: string; text: string }
+> = {
   optimistic: {
     label: 'Optimistic',
     container:
@@ -824,7 +829,12 @@ const defaultFormData: LeaseFormData = {
   },
 };
 
-export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScenarioCard, hideAnalysisHistory }: LeaseAnalysisDashboardProps) {
+export function LeaseAnalysisDashboard({
+  onAnalyze,
+  hideAnalyzeButton,
+  hideScenarioCard,
+  hideAnalysisHistory,
+}: LeaseAnalysisDashboardProps) {
   const [formData, setFormData] = useState<LeaseFormData>(defaultFormData);
   const [result, setResult] = useState<EnhancedLeaseAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -913,7 +923,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
     try {
       console.log('🚀 Starting lease analysis with data:', formData);
-      
+
       // Call the enhanced lease analysis API
       const response = await fetch('/v1/api/analysis/enhanced-lease', {
         method: 'POST',
@@ -947,8 +957,10 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
           if (/baseRent/i.test(field)) return `Set baseRent to a positive number, e.g., 5000`;
           if (/principal/i.test(field)) return `Set principal to a positive number, e.g., 25000`;
           if (/termMonths/i.test(field)) return `Use a whole number of months, e.g., 36 or 60`;
-          if (/annualRate|discountRate/i.test(field)) return `Enter a percentage between 0 and 100, e.g., 5.0`;
-          if (/escalation\.type/i.test(field)) return `Choose one of: none, fixed, cpi, market, stepped`;
+          if (/annualRate|discountRate/i.test(field))
+            return `Enter a percentage between 0 and 100, e.g., 5.0`;
+          if (/escalation\.type/i.test(field))
+            return `Choose one of: none, fixed, cpi, market, stepped`;
           return `Adjust ${field} to satisfy: ${iss.message}`;
         });
 
@@ -962,7 +974,10 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
           };
           window.dispatchEvent(
             new CustomEvent('analysis-result-updated', {
-              detail: { toolName: 'analysis_errors', result: window.analysisResults['analysis_errors'] },
+              detail: {
+                toolName: 'analysis_errors',
+                result: window.analysisResults['analysis_errors'],
+              },
             })
           );
         }
@@ -983,7 +998,11 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       const previousResult = prevResultRef.current;
       if (previousInput && previousResult) {
         const changedFields: Array<{ field: string; before: unknown; after: unknown }> = [];
-        const collectChanges = (a: Record<string, unknown>, b: Record<string, unknown>, prefix = '') => {
+        const collectChanges = (
+          a: Record<string, unknown>,
+          b: Record<string, unknown>,
+          prefix = ''
+        ) => {
           const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
           keys.forEach((k) => {
             const key = prefix ? `${prefix}.${k}` : k;
@@ -997,13 +1016,21 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
             }
           });
         };
-        collectChanges(previousInput as unknown as Record<string, unknown>, formData as unknown as Record<string, unknown>);
+        collectChanges(
+          previousInput as unknown as Record<string, unknown>,
+          formData as unknown as Record<string, unknown>
+        );
 
         const metricDelta = (name: keyof typeof analysisResult.metrics) => {
           const before = previousResult.metrics?.[name] as number | undefined;
           const after = analysisResult.metrics?.[name] as number | undefined;
           return before !== undefined && after !== undefined
-            ? { before, after, delta: after - before, deltaPct: before !== 0 ? (after - before) / before : null }
+            ? {
+                before,
+                after,
+                delta: after - before,
+                deltaPct: before !== 0 ? (after - before) / before : null,
+              }
             : undefined;
         };
 
@@ -1016,13 +1043,22 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
         const narrativeParts: string[] = [];
         if (changedFields.length > 0) {
-          const firstFew = changedFields.slice(0, 5).map((c) => `${c.field}: ${String(c.before)} → ${String(c.after)}`);
-          narrativeParts.push(`Inputs changed (${changedFields.length}): ${firstFew.join('; ')}${changedFields.length > 5 ? '…' : ''}`);
+          const firstFew = changedFields
+            .slice(0, 5)
+            .map((c) => `${c.field}: ${String(c.before)} → ${String(c.after)}`);
+          narrativeParts.push(
+            `Inputs changed (${changedFields.length}): ${firstFew.join('; ')}${changedFields.length > 5 ? '…' : ''}`
+          );
         }
-        const addMetricLine = (label: string, d?: { before: number; after: number; delta: number; deltaPct: number | null }) => {
+        const addMetricLine = (
+          label: string,
+          d?: { before: number; after: number; delta: number; deltaPct: number | null }
+        ) => {
           if (!d) return;
           const pct = d.deltaPct == null ? '' : ` (${(d.deltaPct * 100).toFixed(2)}%)`;
-          narrativeParts.push(`${label}: ${d.before.toLocaleString()} → ${d.after.toLocaleString()} (Δ ${d.delta.toLocaleString()}${pct})`);
+          narrativeParts.push(
+            `${label}: ${d.before.toLocaleString()} → ${d.after.toLocaleString()} (Δ ${d.delta.toLocaleString()}${pct})`
+          );
         };
         addMetricLine('Total Cost', deltas.totalCost as any);
         addMetricLine('Present Value', deltas.presentValue as any);
@@ -1043,24 +1079,28 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
         if (typeof window !== 'undefined') {
           if (!window.analysisResults) window.analysisResults = {};
           window.analysisResults['analysis_change_report'] = changeReport;
-          window.dispatchEvent(new CustomEvent('analysis-result-updated', {
-            detail: { toolName: 'analysis_change_report', result: changeReport }
-          }));
+          window.dispatchEvent(
+            new CustomEvent('analysis-result-updated', {
+              detail: { toolName: 'analysis_change_report', result: changeReport },
+            })
+          );
         }
       }
 
       // Update previous snapshots
       prevFormDataRef.current = { ...formData };
       prevResultRef.current = analysisResult;
-      
+
       // Store result for chat panel integration
       if (typeof window !== 'undefined' && window.analysisResults) {
         window.analysisResults['analyze_lease'] = analysisResult;
-        window.dispatchEvent(new CustomEvent('analysis-result-updated', {
-          detail: { toolName: 'analyze_lease', result: analysisResult }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('analysis-result-updated', {
+            detail: { toolName: 'analyze_lease', result: analysisResult },
+          })
+        );
       }
-      
+
       onAnalyze?.(analysisResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -1082,156 +1122,174 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       controller.abort();
       clearTimeout(timeout);
     };
-  }, [formData.leaseType, formData.principal, formData.baseRent, formData.termMonths, formData.annualRate, formData.residualValue, formData.discountRate, formData.escalation, formData.additionalCosts, formData.securityDeposit, formData.buildingSpace, formData.percentageRent, formData.compareAlternatives]);
+  }, [
+    formData.leaseType,
+    formData.principal,
+    formData.baseRent,
+    formData.termMonths,
+    formData.annualRate,
+    formData.residualValue,
+    formData.discountRate,
+    formData.escalation,
+    formData.additionalCosts,
+    formData.securityDeposit,
+    formData.buildingSpace,
+    formData.percentageRent,
+    formData.compareAlternatives,
+  ]);
 
   // Handle applying extracted data to form
-  const applyExtractedData = useCallback((data: ExtractedLeaseData) => {
-    console.log('📝 Applying extracted data to form:', data);
-    const updates: Partial<LeaseFormData> = {};
+  const applyExtractedData = useCallback(
+    (data: ExtractedLeaseData) => {
+      console.log('📝 Applying extracted data to form:', data);
+      const updates: Partial<LeaseFormData> = {};
 
-    if (data.leaseType) {
-      // Map lease type string to LeaseType enum
-      const leaseTypeMap: Record<string, LeaseType> = {
-        'office-gross': 'office-gross',
-        'office-modified': 'office-modified',
-        'office-nnn': 'office-nnn',
-        'warehouse-gross': 'warehouse-gross',
-        'warehouse-nnn': 'warehouse-nnn',
-        'retail-base': 'retail-base',
-        'retail-percentage': 'retail-percentage',
-        'medical-gross': 'medical-gross',
-        'medical-nnn': 'medical-nnn',
-        'mixed-use': 'mixed-use',
-        'commercial-gross': 'commercial-gross',
-        'commercial-nnn': 'commercial-nnn',
-        'commercial-modified': 'commercial-modified',
-      };
-      updates.leaseType = leaseTypeMap[data.leaseType] || 'equipment';
-    }
-
-    if (data.leaseTerm) {
-      updates.termMonths = data.leaseTerm;
-    }
-
-    if (data.baseRent) {
-      updates.baseRent = data.baseRent;
-    }
-
-    if (data.escalationType && data.escalationRate) {
-      // Normalize extracted escalation type to schema-supported values
-      const normalizeEscalationType = (t: string): EscalationType => {
-        const lower = t.toLowerCase();
-        if (lower === 'percentage' || lower === 'percent' || lower === 'fixed-percentage') return 'fixed';
-        if (lower === 'none') return 'none';
-        if (lower === 'cpi' || lower === 'cpi-based') return 'cpi';
-        if (lower === 'market' || lower === 'market-rate') return 'market';
-        if (lower === 'stepped' || lower === 'step' || lower === 'step-up') return 'stepped';
-        return 'fixed';
-      };
-
-      updates.escalation = {
-        type: normalizeEscalationType(String(data.escalationType)),
-        rate: data.escalationRate,
-        schedule: [],
-        cpiBase: 0,
-      };
-    }
-
-    if (data.securityDeposit) {
-      updates.securityDeposit = {
-        amount: data.securityDeposit,
-        interestRate: 0,
-      };
-    }
-
-    // Map all additional costs from extraction
-    const hasAdditionalCosts = Object.keys(data).some(
-      (key) =>
-        [
-          'cam',
-          'taxes',
-          'insurance',
-          'utilities',
-          'maintenance',
-          'managementFee',
-          'parking',
-          'security',
-          'cleaning',
-          'technology',
-          'elevatorMaintenance',
-          'hvacMaintenance',
-          'landscaping',
-          'wasteManagement',
-        ].includes(key) && data[key as keyof ExtractedLeaseData] !== undefined
-    );
-
-    if (hasAdditionalCosts) {
-      const currentCosts = formData.additionalCosts || {
-        camCharges: 0,
-        propertyTaxes: 0,
-        insurance: 0,
-        utilities: 0,
-        maintenance: 0,
-        managementFee: 0,
-        parking: 0,
-        security: 0,
-        cleaning: 0,
-        technology: 0,
-        elevatorMaintenance: 0,
-        hvacMaintenance: 0,
-        landscaping: 0,
-        wasteManagement: 0,
-      };
-
-      updates.additionalCosts = {
-        camCharges: data.cam ?? currentCosts.camCharges,
-        propertyTaxes: data.taxes ?? currentCosts.propertyTaxes,
-        insurance: data.insurance ?? currentCosts.insurance,
-        utilities: data.utilities ?? currentCosts.utilities,
-        maintenance: data.maintenance ?? currentCosts.maintenance,
-        managementFee: data.managementFee ?? currentCosts.managementFee,
-        parking: data.parking ?? currentCosts.parking,
-        security: data.security ?? currentCosts.security,
-        cleaning: data.cleaning ?? currentCosts.cleaning,
-        technology: data.technology ?? currentCosts.technology,
-        elevatorMaintenance: data.elevatorMaintenance ?? currentCosts.elevatorMaintenance,
-        hvacMaintenance: data.hvacMaintenance ?? currentCosts.hvacMaintenance,
-        landscaping: data.landscaping ?? currentCosts.landscaping,
-        wasteManagement: data.wasteManagement ?? currentCosts.wasteManagement,
-      };
-    }
-
-    // Apply updates to form
-    setFormData((prev) => {
-      const newData = { ...prev, ...updates };
-      console.log('✅ Form data updated:', newData);
-      return newData;
-    });
-
-    // Show success feedback
-    setError(null);
-    setAppliedSuccess(true);
-    
-    // Close preview and clear extracted data after brief delay to show success
-    setTimeout(() => {
-      setShowExtractedPreview(false);
-      setExtractedData(null);
-      console.log('✅ Applied to form - closing preview');
-    }, 500);
-    
-    // Clear success message after 3 seconds
-    setTimeout(() => {
-      setAppliedSuccess(false);
-    }, 3000);
-    
-    // Scroll to form after delay
-    setTimeout(() => {
-      const formElement = document.querySelector('[data-form-section="main"]');
-      if (formElement) {
-        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (data.leaseType) {
+        // Map lease type string to LeaseType enum
+        const leaseTypeMap: Record<string, LeaseType> = {
+          'office-gross': 'office-gross',
+          'office-modified': 'office-modified',
+          'office-nnn': 'office-nnn',
+          'warehouse-gross': 'warehouse-gross',
+          'warehouse-nnn': 'warehouse-nnn',
+          'retail-base': 'retail-base',
+          'retail-percentage': 'retail-percentage',
+          'medical-gross': 'medical-gross',
+          'medical-nnn': 'medical-nnn',
+          'mixed-use': 'mixed-use',
+          'commercial-gross': 'commercial-gross',
+          'commercial-nnn': 'commercial-nnn',
+          'commercial-modified': 'commercial-modified',
+        };
+        updates.leaseType = leaseTypeMap[data.leaseType] || 'equipment';
       }
-    }, 600);
-  }, [formData]);
+
+      if (data.leaseTerm) {
+        updates.termMonths = data.leaseTerm;
+      }
+
+      if (data.baseRent) {
+        updates.baseRent = data.baseRent;
+      }
+
+      if (data.escalationType && data.escalationRate) {
+        // Normalize extracted escalation type to schema-supported values
+        const normalizeEscalationType = (t: string): EscalationType => {
+          const lower = t.toLowerCase();
+          if (lower === 'percentage' || lower === 'percent' || lower === 'fixed-percentage')
+            return 'fixed';
+          if (lower === 'none') return 'none';
+          if (lower === 'cpi' || lower === 'cpi-based') return 'cpi';
+          if (lower === 'market' || lower === 'market-rate') return 'market';
+          if (lower === 'stepped' || lower === 'step' || lower === 'step-up') return 'stepped';
+          return 'fixed';
+        };
+
+        updates.escalation = {
+          type: normalizeEscalationType(String(data.escalationType)),
+          rate: data.escalationRate,
+          schedule: [],
+          cpiBase: 0,
+        };
+      }
+
+      if (data.securityDeposit) {
+        updates.securityDeposit = {
+          amount: data.securityDeposit,
+          interestRate: 0,
+        };
+      }
+
+      // Map all additional costs from extraction
+      const hasAdditionalCosts = Object.keys(data).some(
+        (key) =>
+          [
+            'cam',
+            'taxes',
+            'insurance',
+            'utilities',
+            'maintenance',
+            'managementFee',
+            'parking',
+            'security',
+            'cleaning',
+            'technology',
+            'elevatorMaintenance',
+            'hvacMaintenance',
+            'landscaping',
+            'wasteManagement',
+          ].includes(key) && data[key as keyof ExtractedLeaseData] !== undefined
+      );
+
+      if (hasAdditionalCosts) {
+        const currentCosts = formData.additionalCosts || {
+          camCharges: 0,
+          propertyTaxes: 0,
+          insurance: 0,
+          utilities: 0,
+          maintenance: 0,
+          managementFee: 0,
+          parking: 0,
+          security: 0,
+          cleaning: 0,
+          technology: 0,
+          elevatorMaintenance: 0,
+          hvacMaintenance: 0,
+          landscaping: 0,
+          wasteManagement: 0,
+        };
+
+        updates.additionalCosts = {
+          camCharges: data.cam ?? currentCosts.camCharges,
+          propertyTaxes: data.taxes ?? currentCosts.propertyTaxes,
+          insurance: data.insurance ?? currentCosts.insurance,
+          utilities: data.utilities ?? currentCosts.utilities,
+          maintenance: data.maintenance ?? currentCosts.maintenance,
+          managementFee: data.managementFee ?? currentCosts.managementFee,
+          parking: data.parking ?? currentCosts.parking,
+          security: data.security ?? currentCosts.security,
+          cleaning: data.cleaning ?? currentCosts.cleaning,
+          technology: data.technology ?? currentCosts.technology,
+          elevatorMaintenance: data.elevatorMaintenance ?? currentCosts.elevatorMaintenance,
+          hvacMaintenance: data.hvacMaintenance ?? currentCosts.hvacMaintenance,
+          landscaping: data.landscaping ?? currentCosts.landscaping,
+          wasteManagement: data.wasteManagement ?? currentCosts.wasteManagement,
+        };
+      }
+
+      // Apply updates to form
+      setFormData((prev) => {
+        const newData = { ...prev, ...updates };
+        console.log('✅ Form data updated:', newData);
+        return newData;
+      });
+
+      // Show success feedback
+      setError(null);
+      setAppliedSuccess(true);
+
+      // Close preview and clear extracted data after brief delay to show success
+      setTimeout(() => {
+        setShowExtractedPreview(false);
+        setExtractedData(null);
+        console.log('✅ Applied to form - closing preview');
+      }, 500);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setAppliedSuccess(false);
+      }, 3000);
+
+      // Scroll to form after delay
+      setTimeout(() => {
+        const formElement = document.querySelector('[data-form-section="main"]');
+        if (formElement) {
+          formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 600);
+    },
+    [formData]
+  );
 
   // Handle dismissing the preview
   const dismissExtractedData = () => {
@@ -1466,7 +1524,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
           squareFeet: 50000,
           usableSquareFeet: 47500,
           loadFactor: 1.05,
-          pricePerSquareFoot: 10.80,
+          pricePerSquareFoot: 10.8,
           floors: ['1'],
           parkingSpaces: 60,
           exclusiveAreas: ['Loading docks', 'Storage area'],
@@ -1574,7 +1632,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
           squareFeet: 2500,
           usableSquareFeet: 2300,
           loadFactor: 1.087,
-          pricePerSquareFoot: 38.40,
+          pricePerSquareFoot: 38.4,
           floors: ['G'],
           parkingSpaces: 0,
           exclusiveAreas: ['Storage room'],
@@ -1681,10 +1739,9 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       setIsAnalyzing(true);
       setError(null);
 
-      const payloadEntries = Object.entries(buildScenarioPayloads(formData)) as Array<[
-        ScenarioKey,
-        LeaseFormData
-      ]>;
+      const payloadEntries = Object.entries(buildScenarioPayloads(formData)) as Array<
+        [ScenarioKey, LeaseFormData]
+      >;
 
       const analysisEntries = await Promise.all(
         payloadEntries.map(async ([key, payload]) => {
@@ -1720,10 +1777,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
   const scenarioEntries = useMemo(
     () =>
       SCENARIO_ORDER.map(
-        (key) => [key, scenarioResults[key]] as [
-          ScenarioKey,
-          EnhancedLeaseAnalysisResult | null
-        ]
+        (key) => [key, scenarioResults[key]] as [ScenarioKey, EnhancedLeaseAnalysisResult | null]
       ),
     [scenarioResults]
   );
@@ -1777,63 +1831,118 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
     setDragActive(false);
   }, []);
 
-  const processFile = useCallback(async (file: File) => {
-    // Validate file - increased to 50MB for larger lease documents
-    const validationError = validateFile(file, {
-      maxSizeBytes: 50 * 1024 * 1024, // 50MB
-      allowedTypes: [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-      ],
-    });
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+  const processFile = useCallback(
+    async (file: File) => {
+      // Validate file - increased to 50MB for larger lease documents
+      const validationError = validateFile(file, {
+        maxSizeBytes: 50 * 1024 * 1024, // 50MB
+        allowedTypes: [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain',
+        ],
+      });
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
 
-    setUploading(true);
-    setUploadProgress(0);
-    setUploadedFile(file);
-    setError(null);
+      setUploading(true);
+      setUploadProgress(0);
+      setUploadedFile(file);
+      setError(null);
 
-    try {
-      // Process file client-side - no server storage
-      setUploadProgress(25);
-      console.log('Processing file:', file.name, 'Size:', file.size);
-      
-      // Read file as text (for now, supporting TXT files)
-      // For PDF/DOCX, we'll need additional libraries or send to extract endpoint
-      const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'txt';
-      let fileText = '';
-      
-      if (fileExtension === 'txt') {
-        fileText = await file.text();
-      } else {
-        // For PDF/DOCX, convert to base64 and send to extraction API
-        setUploadProgress(50);
-        const fileArrayBuffer = await file.arrayBuffer();
-        
-        // Convert ArrayBuffer to base64 efficiently for large files
-        const uint8Array = new Uint8Array(fileArrayBuffer);
-        let binary = '';
-        const chunkSize = 8192; // Process in 8KB chunks to avoid stack overflow
-        for (let i = 0; i < uint8Array.length; i += chunkSize) {
-          const chunk = uint8Array.subarray(i, i + chunkSize);
-          binary += String.fromCharCode.apply(null, Array.from(chunk));
+      try {
+        // Process file client-side - no server storage
+        setUploadProgress(25);
+        console.log('Processing file:', file.name, 'Size:', file.size);
+
+        // Read file as text (for now, supporting TXT files)
+        // For PDF/DOCX, we'll need additional libraries or send to extract endpoint
+        const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'txt';
+        let fileText = '';
+
+        if (fileExtension === 'txt') {
+          fileText = await file.text();
+        } else {
+          // For PDF/DOCX, convert to base64 and send to extraction API
+          setUploadProgress(50);
+          const fileArrayBuffer = await file.arrayBuffer();
+
+          // Convert ArrayBuffer to base64 efficiently for large files
+          const uint8Array = new Uint8Array(fileArrayBuffer);
+          let binary = '';
+          const chunkSize = 8192; // Process in 8KB chunks to avoid stack overflow
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const fileBase64 = btoa(binary);
+
+          // Send file directly to extraction endpoint without storing
+          const extractResponse = await fetch('/v1/api/extract/lease-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileData: fileBase64,
+              fileName: file.name,
+              fileType: file.type,
+              documentType: fileExtension,
+              extractionOptions: {
+                includeFinancialDetails: true,
+                includeLegalTerms: true,
+                includePropertyDetails: true,
+              },
+            }),
+          });
+
+          if (!extractResponse.ok) {
+            const errorText = await extractResponse.text();
+            console.error('Extraction failed:', errorText);
+            throw new Error(`Failed to extract lease data: ${errorText}`);
+          }
+
+          const extractResult = await extractResponse.json();
+          console.log('Extraction result:', extractResult);
+
+          if (extractResult.success && extractResult.extractedData) {
+            setUploadProgress(100);
+            setExtractedData(extractResult.extractedData);
+            // Automatically apply to form without showing preview
+            applyExtractedData(extractResult.extractedData);
+            setShowExtractedPreview(false);
+            // Store extraction context for chat
+            if (typeof window !== 'undefined') {
+              if (!window.analysisResults) window.analysisResults = {};
+              window.analysisResults['lease_extracted'] = extractResult.extractedData;
+              window.dispatchEvent(
+                new CustomEvent('analysis-result-updated', {
+                  detail: { toolName: 'lease_extracted', result: extractResult.extractedData },
+                })
+              );
+            }
+            // Keep upload state visible to show success - don't reset
+            return;
+          } else {
+            throw new Error(
+              extractResult.errors
+                ? extractResult.errors.join(', ')
+                : 'No lease data could be extracted'
+            );
+          }
         }
-        const fileBase64 = btoa(binary);
-        
-        // Send file directly to extraction endpoint without storing
-        const extractResponse = await fetch('/v1/api/extract/lease-direct', {
+
+        // For TXT files, process directly
+        setUploadProgress(75);
+        console.log('Processing TXT file content');
+
+        // Extract lease data from text using AI
+        const extractResponse = await fetch('/v1/api/extract/lease-text', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            fileData: fileBase64,
-            fileName: file.name,
-            fileType: file.type,
-            documentType: fileExtension,
+            text: fileText,
             extractionOptions: {
               includeFinancialDetails: true,
               includeLegalTerms: true,
@@ -1841,102 +1950,67 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
             },
           }),
         });
-        
+
         if (!extractResponse.ok) {
           const errorText = await extractResponse.text();
           console.error('Extraction failed:', errorText);
           throw new Error(`Failed to extract lease data: ${errorText}`);
         }
-        
+
         const extractResult = await extractResponse.json();
         console.log('Extraction result:', extractResult);
-        
-      if (extractResult.success && extractResult.extractedData) {
-        setUploadProgress(100);
-        setExtractedData(extractResult.extractedData);
-        // Automatically apply to form without showing preview
-        applyExtractedData(extractResult.extractedData);
-        setShowExtractedPreview(false);
-        // Store extraction context for chat
-        if (typeof window !== 'undefined') {
-          if (!window.analysisResults) window.analysisResults = {};
-          window.analysisResults['lease_extracted'] = extractResult.extractedData;
-          window.dispatchEvent(new CustomEvent('analysis-result-updated', {
-            detail: { toolName: 'lease_extracted', result: extractResult.extractedData }
-          }));
-        }
-        // Keep upload state visible to show success - don't reset
-        return;
-        } else {
-          throw new Error(extractResult.errors ? extractResult.errors.join(', ') : 'No lease data could be extracted');
-        }
-      }
-      
-      // For TXT files, process directly
-      setUploadProgress(75);
-      console.log('Processing TXT file content');
-      
-      // Extract lease data from text using AI
-      const extractResponse = await fetch('/v1/api/extract/lease-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: fileText,
-          extractionOptions: {
-            includeFinancialDetails: true,
-            includeLegalTerms: true,
-            includePropertyDetails: true,
-          },
-        }),
-      });
-      
-      if (!extractResponse.ok) {
-        const errorText = await extractResponse.text();
-        console.error('Extraction failed:', errorText);
-        throw new Error(`Failed to extract lease data: ${errorText}`);
-      }
-      
-      const extractResult = await extractResponse.json();
-      console.log('Extraction result:', extractResult);
-      
-      if (extractResult.success && extractResult.extractedData) {
-        setUploadProgress(100);
-        setExtractedData(extractResult.extractedData);
-        // Automatically apply to form without showing preview
-        applyExtractedData(extractResult.extractedData);
-        setShowExtractedPreview(false);
-        // Store extraction context for chat
-        if (typeof window !== 'undefined') {
-          if (!window.analysisResults) window.analysisResults = {};
-          window.analysisResults['lease_extracted'] = extractResult.extractedData;
-          if (fileText) {
-            window.analysisResults['lease_document_text'] = fileText;
-          }
-          // If raw text present in extraction, also store it
-          if (extractResult.extractedData && (extractResult.extractedData as any).extractedSections) {
-            const sections = (extractResult.extractedData as any).extractedSections;
-            const joined = Object.values(sections || {}).filter(Boolean).join('\n\n');
-            if (joined) {
-              window.analysisResults['lease_document_text'] = joined;
+
+        if (extractResult.success && extractResult.extractedData) {
+          setUploadProgress(100);
+          setExtractedData(extractResult.extractedData);
+          // Automatically apply to form without showing preview
+          applyExtractedData(extractResult.extractedData);
+          setShowExtractedPreview(false);
+          // Store extraction context for chat
+          if (typeof window !== 'undefined') {
+            if (!window.analysisResults) window.analysisResults = {};
+            window.analysisResults['lease_extracted'] = extractResult.extractedData;
+            if (fileText) {
+              window.analysisResults['lease_document_text'] = fileText;
             }
+            // If raw text present in extraction, also store it
+            if (
+              extractResult.extractedData &&
+              (extractResult.extractedData as any).extractedSections
+            ) {
+              const sections = (extractResult.extractedData as any).extractedSections;
+              const joined = Object.values(sections || {})
+                .filter(Boolean)
+                .join('\n\n');
+              if (joined) {
+                window.analysisResults['lease_document_text'] = joined;
+              }
+            }
+            window.dispatchEvent(
+              new CustomEvent('analysis-result-updated', {
+                detail: { toolName: 'lease_extracted', result: extractResult.extractedData },
+              })
+            );
           }
-          window.dispatchEvent(new CustomEvent('analysis-result-updated', {
-            detail: { toolName: 'lease_extracted', result: extractResult.extractedData }
-          }));
+          // Keep upload state visible to show success - don't reset
+        } else {
+          throw new Error(
+            extractResult.errors
+              ? extractResult.errors.join(', ')
+              : 'No lease data could be extracted'
+          );
         }
-        // Keep upload state visible to show success - don't reset
-      } else {
-        throw new Error(extractResult.errors ? extractResult.errors.join(', ') : 'No lease data could be extracted');
+      } catch (err) {
+        console.error('Document processing error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to process document');
+        setUploadProgress(0);
+        setUploadedFile(null);
+      } finally {
+        setUploading(false);
       }
-    } catch (err) {
-      console.error('Document processing error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to process document');
-      setUploadProgress(0);
-      setUploadedFile(null);
-    } finally {
-      setUploading(false);
-    }
-  }, [applyExtractedData]);
+    },
+    [applyExtractedData]
+  );
 
   const handleDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
@@ -2166,41 +2240,12 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
         {/* Saved Analyses */}
         {!hideAnalysisHistory && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-violet-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-                Analysis History
-              </div>
-              {result && (
-                <button
-                  onClick={() => setShowSaveModal(true)}
-                  className="rounded bg-violet-600 px-3 py-1 text-sm text-white transition-colors hover:bg-violet-700"
-                >
-                  Save Current
-                </button>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {savedAnalyses.length === 0 ? (
-                <div className="text-center py-6 text-slate-500 dark:text-slate-400">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <svg
-                    className="w-12 h-12 mx-auto mb-2 opacity-50"
+                    className="w-5 h-5 text-violet-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -2209,81 +2254,110 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                     />
                   </svg>
-                  <p className="text-sm">No saved analyses yet</p>
-                  <p className="text-xs mt-1">Save your first analysis to see it here</p>
+                  Analysis History
                 </div>
-              ) : (
-                <>
-                  {savedAnalyses.slice(0, 3).map((analysis) => (
-                    <div
-                      key={analysis.id}
-                      className="cursor-pointer rounded-lg border border-slate-200 p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:border-slate-800 dark:active:bg-violet-900/20 sm:p-3"
-                      onClick={() => loadAnalysis(analysis)}
+                {result && (
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="rounded bg-violet-600 px-3 py-1 text-sm text-white transition-colors hover:bg-violet-700"
+                  >
+                    Save Current
+                  </button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {savedAnalyses.length === 0 ? (
+                  <div className="text-center py-6 text-slate-500 dark:text-slate-400">
+                    <svg
+                      className="w-12 h-12 mx-auto mb-2 opacity-50"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 dark:text-white">
-                            {analysis.name}
-                          </h4>
-                          {analysis.description && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                              {analysis.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-slate-500">
-                              {new Date(analysis.savedAt).toLocaleDateString()}
-                            </span>
-                            {analysis.result && (
-                              <span className="text-xs text-emerald-600 dark:text-emerald-300">
-                                {analysis.result.metrics.totalCost
-                                  ? `$${analysis.result.metrics.totalCost.toLocaleString()}`
-                                  : 'Complete'}
-                              </span>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <p className="text-sm">No saved analyses yet</p>
+                    <p className="text-xs mt-1">Save your first analysis to see it here</p>
+                  </div>
+                ) : (
+                  <>
+                    {savedAnalyses.slice(0, 3).map((analysis) => (
+                      <div
+                        key={analysis.id}
+                        className="cursor-pointer rounded-lg border border-slate-200 p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:border-slate-800 dark:active:bg-violet-900/20 sm:p-3"
+                        onClick={() => loadAnalysis(analysis)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-slate-900 dark:text-white">
+                              {analysis.name}
+                            </h4>
+                            {analysis.description && (
+                              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                {analysis.description}
+                              </p>
                             )}
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-xs text-slate-500">
+                                {new Date(analysis.savedAt).toLocaleDateString()}
+                              </span>
+                              {analysis.result && (
+                                <span className="text-xs text-emerald-600 dark:text-emerald-300">
+                                  {analysis.result.metrics.totalCost
+                                    ? `$${analysis.result.metrics.totalCost.toLocaleString()}`
+                                    : 'Complete'}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteAnalysis(analysis.id);
-                          }}
-                          className="text-slate-400 hover:text-rose-600 p-1"
-                          title="Delete analysis"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteAnalysis(analysis.id);
+                            }}
+                            className="text-slate-400 hover:text-rose-600 p-1"
+                            title="Delete analysis"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  {savedAnalyses.length > 3 && (
-                    <button
-                      className="w-full p-3 sm:p-2 text-violet-600 hover:text-violet-700 active:text-violet-800 text-sm font-medium border border-dashed border-violet-300 rounded-lg hover:bg-violet-50 active:bg-violet-100 dark:hover:bg-violet-900/20 dark:active:bg-violet-800/30 transition-colors touch-manipulation"
-                      disabled
-                    >
-                      View All Saved ({savedAnalyses.length})
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                    ))}
+                    {savedAnalyses.length > 3 && (
+                      <button
+                        className="w-full p-3 sm:p-2 text-violet-600 hover:text-violet-700 active:text-violet-800 text-sm font-medium border border-dashed border-violet-300 rounded-lg hover:bg-violet-50 active:bg-violet-100 dark:hover:bg-violet-900/20 dark:active:bg-violet-800/30 transition-colors touch-manipulation"
+                        disabled
+                      >
+                        View All Saved ({savedAnalyses.length})
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
 
@@ -2371,7 +2445,9 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         label="Equipment Cost"
                         type="number"
                         value={formData.principal}
-                        onChange={(e) => handleInputChange('principal', parsers.number(e.target.value))}
+                        onChange={(e) =>
+                          handleInputChange('principal', parsers.number(e.target.value))
+                        }
                         min="0"
                         step="1000"
                       />
@@ -2392,7 +2468,9 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         label="Residual Value"
                         type="number"
                         value={formData.residualValue}
-                        onChange={(e) => handleInputChange('residualValue', parsers.number(e.target.value))}
+                        onChange={(e) =>
+                          handleInputChange('residualValue', parsers.number(e.target.value))
+                        }
                         min="0"
                         step="1000"
                       />
@@ -2402,7 +2480,9 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                       label="Monthly Base Rent"
                       type="number"
                       value={formData.baseRent || 0}
-                      onChange={(e) => handleInputChange('baseRent', parsers.number(e.target.value))}
+                      onChange={(e) =>
+                        handleInputChange('baseRent', parsers.number(e.target.value))
+                      }
                       min="0"
                       step="100"
                     />
@@ -2412,12 +2492,16 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                     label="Lease Term (Months)"
                     type="number"
                     value={formData.termMonths}
-                    onChange={(e) => handleInputChange('termMonths', parsers.number(e.target.value))}
+                    onChange={(e) =>
+                      handleInputChange('termMonths', parsers.number(e.target.value))
+                    }
                     min="1"
                     max="360"
                   />
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Advanced options</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                      Advanced options
+                    </span>
                     <Button type="button" onClick={() => setShowAdvanced((v) => !v)} size="sm">
                       {showAdvanced ? 'Hide' : 'Show'} Advanced
                     </Button>
@@ -2431,19 +2515,25 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                   <CardContent className="py-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Total Cost</span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          Total Cost
+                        </span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.totalCost)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Present Value</span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          Present Value
+                        </span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.presentValue)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Effective Annual Rate</span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          Effective Annual Rate
+                        </span>
                         <span className="font-medium">
                           {formatPercentage(result.metrics.effectiveAnnualRate)}
                         </span>
@@ -2884,7 +2974,11 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                       type="number"
                       value={formData.securityDeposit?.amount || 0}
                       onChange={(e) =>
-                        handleNestedInputChange('securityDeposit', 'amount', parsers.number(e.target.value))
+                        handleNestedInputChange(
+                          'securityDeposit',
+                          'amount',
+                          parsers.number(e.target.value)
+                        )
                       }
                       min="0"
                       step="1000"
@@ -3597,9 +3691,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="fa-field-label mb-1">
-                  Analysis Name
-                </label>
+                <label className="fa-field-label mb-1">Analysis Name</label>
                 <input
                   type="text"
                   value={saveFormName}
@@ -3610,9 +3702,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                 />
               </div>
               <div>
-                <label className="fa-field-label mb-1">
-                  Description (optional)
-                </label>
+                <label className="fa-field-label mb-1">Description (optional)</label>
                 <textarea
                   value={saveFormDescription}
                   onChange={(e) => setSaveFormDescription(e.target.value)}

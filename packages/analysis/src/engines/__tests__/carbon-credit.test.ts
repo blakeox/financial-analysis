@@ -33,4 +33,3 @@ describe('CarbonCreditValuationCalculator', () => {
     expect(Number.isNaN(result.presentValue)).toBe(true);
   });
 });
-

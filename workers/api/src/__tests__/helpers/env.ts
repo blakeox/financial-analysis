@@ -28,9 +28,9 @@ export const makeTestEnv = (overrides: TestEnvOverrides = {}) => {
       ? { ANALYSIS_CACHE_TTL_SECONDS: overrides.analysisCacheTtlSeconds }
       : {}),
     ...(overrides.commitSha !== undefined ? { COMMIT_SHA: overrides.commitSha } : {}),
-    DB: (overrides.db ?? ({} as unknown as D1Database)),
+    DB: overrides.db ?? ({} as unknown as D1Database),
     SESSIONS: overrides.sessions ?? defaultSessions,
-    DOCUMENTS: (overrides.documents ?? ({} as unknown as R2Bucket)),
+    DOCUMENTS: overrides.documents ?? ({} as unknown as R2Bucket),
   };
 
   const ctx: ExecutionContext = {

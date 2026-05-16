@@ -37,7 +37,9 @@ export async function getKnowledgePipelineStatus(
   >
 ): Promise<KnowledgePipelineStatus> {
   const browserPrefixes = env.BROWSER_RENDERING_PATH_PREFIXES
-    ? env.BROWSER_RENDERING_PATH_PREFIXES.split(',').map((prefix) => prefix.trim()).filter(Boolean)
+    ? env.BROWSER_RENDERING_PATH_PREFIXES.split(',')
+        .map((prefix) => prefix.trim())
+        .filter(Boolean)
     : [];
 
   const status: KnowledgePipelineStatus = {

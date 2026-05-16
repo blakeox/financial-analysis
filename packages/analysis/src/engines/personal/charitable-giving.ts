@@ -1,4 +1,1 @@
-export {
-  CharitableGivingOptimizer,
-  type CharitableGivingResult,
-} from '../charitable-giving.js';
+export { CharitableGivingOptimizer, type CharitableGivingResult } from '../charitable-giving.js';

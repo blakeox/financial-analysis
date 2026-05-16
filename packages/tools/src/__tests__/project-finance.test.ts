@@ -11,9 +11,27 @@ describe('ProjectFinanceTool', () => {
     cashFlows: {
       initialInvestment: 500000,
       annualCashFlows: [
-        { year: 1, revenue: 250000, operatingExpenses: 100000, capitalExpenditures: 10000, workingCapital: 5000 },
-        { year: 2, revenue: 260000, operatingExpenses: 105000, capitalExpenditures: 5000, workingCapital: 2000 },
-        { year: 3, revenue: 270000, operatingExpenses: 110000, capitalExpenditures: 0, workingCapital: 0 },
+        {
+          year: 1,
+          revenue: 250000,
+          operatingExpenses: 100000,
+          capitalExpenditures: 10000,
+          workingCapital: 5000,
+        },
+        {
+          year: 2,
+          revenue: 260000,
+          operatingExpenses: 105000,
+          capitalExpenditures: 5000,
+          workingCapital: 2000,
+        },
+        {
+          year: 3,
+          revenue: 270000,
+          operatingExpenses: 110000,
+          capitalExpenditures: 0,
+          workingCapital: 0,
+        },
       ],
     },
     financing: {

@@ -58,7 +58,10 @@ describe('BusinessSuccessionPlanningTool', () => {
 
   it('exposes the expected metadata', () => {
     expect(BusinessSuccessionPlanningTool.toolName).toBe('analyze_business_succession_planning');
-    expect(BusinessSuccessionPlanningTool.inputSchema.required).toEqual(['businessInfo', 'ownerInfo']);
+    expect(BusinessSuccessionPlanningTool.inputSchema.required).toEqual([
+      'businessInfo',
+      'ownerInfo',
+    ]);
   });
 
   it('calculates business value, transfer tax, and timing', async () => {

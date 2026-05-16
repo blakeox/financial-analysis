@@ -77,10 +77,7 @@ export function DualAxisChart({
             return value;
           }}
         />
-        <Legend
-          wrapperStyle={{ paddingTop: '20px' }}
-          iconType="rect"
-        />
+        <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />
         <Bar
           yAxisId="left"
           dataKey="value1"

@@ -27,7 +27,11 @@ type ScrollIntoViewMock = ReturnType<typeof vi.fn<(options?: ScrollIntoViewOptio
 
 declare global {
   interface Window {
-    selectModel?: (element: HTMLElement, modelId?: string, interactionType?: InteractionType) => void;
+    selectModel?: (
+      element: HTMLElement,
+      modelId?: string,
+      interactionType?: InteractionType
+    ) => void;
     selectModelById?: (modelId: string, interactionType?: InteractionType) => boolean;
     selectedModel?: () => string | null;
     clearSelection?: () => void;
@@ -63,7 +67,10 @@ describe('models.client selection behavior', () => {
       configurable: true,
       value: vi.fn((query: string) => {
         const targetQuery = '(prefers-reduced-motion: reduce)';
-        const updateListeners = (listener: (event: MediaQueryListEvent) => void, action: 'add' | 'remove') => {
+        const updateListeners = (
+          listener: (event: MediaQueryListEvent) => void,
+          action: 'add' | 'remove'
+        ) => {
           if (query !== targetQuery || typeof listener !== 'function') {
             return;
           }
@@ -87,16 +94,20 @@ describe('models.client selection behavior', () => {
           removeListener: vi.fn((listener: (event: MediaQueryListEvent) => void) => {
             updateListeners(listener, 'remove');
           }),
-          addEventListener: vi.fn((type: string, listener: (event: MediaQueryListEvent) => void) => {
-            if (type === 'change') {
-              updateListeners(listener, 'add');
+          addEventListener: vi.fn(
+            (type: string, listener: (event: MediaQueryListEvent) => void) => {
+              if (type === 'change') {
+                updateListeners(listener, 'add');
+              }
             }
-          }),
-          removeEventListener: vi.fn((type: string, listener: (event: MediaQueryListEvent) => void) => {
-            if (type === 'change') {
-              updateListeners(listener, 'remove');
+          ),
+          removeEventListener: vi.fn(
+            (type: string, listener: (event: MediaQueryListEvent) => void) => {
+              if (type === 'change') {
+                updateListeners(listener, 'remove');
+              }
             }
-          }),
+          ),
           dispatchEvent: vi.fn((event: MediaQueryListEvent) => {
             if (query !== targetQuery) {
               return false;
@@ -118,7 +129,9 @@ describe('models.client selection behavior', () => {
     infoSection.id = 'selected-model-info';
     infoSection.classList.add('hidden');
     scrollSpy = vi.fn<(options?: ScrollIntoViewOptions) => void>();
-    (infoSection as unknown as { scrollIntoView: (options?: ScrollIntoViewOptions) => void }).scrollIntoView = scrollSpy;
+    (
+      infoSection as unknown as { scrollIntoView: (options?: ScrollIntoViewOptions) => void }
+    ).scrollIntoView = scrollSpy;
 
     const header = document.createElement('div');
     const titleElement = document.createElement('h2');
@@ -140,10 +153,10 @@ describe('models.client selection behavior', () => {
     descriptionElement.id = 'selected-model-description';
     infoSection.appendChild(descriptionElement);
 
-  const featuresElement = document.createElement('ul');
-  featuresElement.id = 'selected-model-features';
-  featuresElement.classList.add('hidden');
-  infoSection.appendChild(featuresElement);
+    const featuresElement = document.createElement('ul');
+    featuresElement.id = 'selected-model-features';
+    featuresElement.classList.add('hidden');
+    infoSection.appendChild(featuresElement);
 
     const ctaElement = document.createElement('a');
     ctaElement.id = 'selected-model-cta';
@@ -181,10 +194,10 @@ describe('models.client selection behavior', () => {
       feature.textContent = `${config.label} feature`;
       card.appendChild(feature);
 
-  const featureTwo = document.createElement('div');
-  featureTwo.setAttribute('data-model-feature', '');
-  featureTwo.textContent = `${config.label} insights`;
-  card.appendChild(featureTwo);
+      const featureTwo = document.createElement('div');
+      featureTwo.setAttribute('data-model-feature', '');
+      featureTwo.textContent = `${config.label} insights`;
+      card.appendChild(featureTwo);
 
       const cta = document.createElement('a');
       cta.setAttribute('data-model-cta', '');
@@ -253,34 +266,48 @@ describe('models.client selection behavior', () => {
     expect(infoRegion?.getAttribute('aria-labelledby')).toBe('selected-model-title');
     expect(infoRegion?.getAttribute('aria-describedby')).toBe('selected-model-description');
     expect(document.getElementById('selected-model-status')?.getAttribute('role')).toBe('status');
-    expect(document.getElementById('selected-model-status')?.getAttribute('aria-live')).toBe('polite');
-    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe('true');
-    expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe('true');
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-live')).toBe(
+      'polite'
+    );
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
+    expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
 
     card?.dispatchEvent(new Event('focus'));
 
     expect(scrollSpy).toHaveBeenCalledTimes(1);
-  expect(scrollSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
+    expect(scrollSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
     expect(document.getElementById('selected-model-title')?.textContent).toBe(
-      'Selected: Personal Mortgage Analyzer',
+      'Selected: Personal Mortgage Analyzer'
     );
-    expect(document.getElementById('selected-model-info')?.classList.contains('hidden')).toBe(false);
-    expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe('false');
+    expect(document.getElementById('selected-model-info')?.classList.contains('hidden')).toBe(
+      false
+    );
+    expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
     expect(document.getElementById('selected-model-description')?.textContent).toBe(
-      'Deterministic mortgage analysis with schedules.',
+      'Deterministic mortgage analysis with schedules.'
     );
     expect(document.getElementById('selected-model-status')?.textContent).toBe('Available');
-    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe('false');
-    expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe('false');
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
+    expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
     expect(card?.getAttribute('aria-selected')).toBe('true');
     expect(card?.getAttribute('aria-controls')).toBe('selected-model-info');
     expect(secondCard?.getAttribute('aria-selected')).toBe('false');
     expect(card?.tabIndex).toBe(0);
     expect(secondCard?.tabIndex).toBe(-1);
 
-    const features = Array.from(
-      document.querySelectorAll('#selected-model-features li')
-    ).map((node) => node.textContent);
+    const features = Array.from(document.querySelectorAll('#selected-model-features li')).map(
+      (node) => node.textContent
+    );
     expect(features).toEqual([
       'Personal Mortgage Analyzer feature',
       'Personal Mortgage Analyzer insights',
@@ -579,22 +606,30 @@ describe('models.client selection behavior', () => {
     expect(secondCard).toBeDefined();
 
     scrollSpy.mockClear();
-  window.selectModel?.(secondCard, undefined, 'programmatic');
+    window.selectModel?.(secondCard, undefined, 'programmatic');
 
     expect(scrollSpy).not.toHaveBeenCalled();
-    expect(document.getElementById('selected-model-title')?.textContent).toBe('Selected: Second Scenario');
+    expect(document.getElementById('selected-model-title')?.textContent).toBe(
+      'Selected: Second Scenario'
+    );
     expect(document.getElementById('selected-model-status')?.textContent).toBe('Coming Soon');
-  expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe('false');
-  expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe('false');
-  expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe('false');
+    expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
+    expect(document.getElementById('selected-model-features')?.getAttribute('aria-hidden')).toBe(
+      'false'
+    );
     expect(secondCard?.getAttribute('aria-selected')).toBe('true');
     expect(firstCard?.getAttribute('aria-selected')).toBe('false');
-  expect(secondCard?.tabIndex).toBe(0);
-  expect(firstCard?.tabIndex).toBe(-1);
+    expect(secondCard?.tabIndex).toBe(0);
+    expect(firstCard?.tabIndex).toBe(-1);
 
-    const features = Array.from(
-      document.querySelectorAll('#selected-model-features li')
-    ).map((node) => node.textContent);
+    const features = Array.from(document.querySelectorAll('#selected-model-features li')).map(
+      (node) => node.textContent
+    );
     expect(features).toEqual(['Second Scenario feature', 'Second Scenario insights']);
 
     const cta = document.getElementById('selected-model-cta') as HTMLAnchorElement | null;
@@ -694,13 +729,19 @@ describe('models.client selection behavior', () => {
 
     expect(window.selectedModel?.()).toBeNull();
     expect(document.getElementById('selected-model-info')?.classList.contains('hidden')).toBe(true);
-  expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe('true');
-  expect(document.getElementById('selected-model-status')?.classList.contains('hidden')).toBe(true);
-  expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe('true');
-  const features = document.getElementById('selected-model-features');
-  expect(features?.classList.contains('hidden')).toBe(true);
-  expect(features?.childElementCount).toBe(0);
-  expect(features?.getAttribute('aria-hidden')).toBe('true');
+    expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
+    expect(document.getElementById('selected-model-status')?.classList.contains('hidden')).toBe(
+      true
+    );
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
+    const features = document.getElementById('selected-model-features');
+    expect(features?.classList.contains('hidden')).toBe(true);
+    expect(features?.childElementCount).toBe(0);
+    expect(features?.getAttribute('aria-hidden')).toBe('true');
     const cta = document.getElementById('selected-model-cta');
     expect(cta?.hidden).toBe(true);
     const cards = document.querySelectorAll<HTMLElement>('.model-card');
@@ -724,18 +765,24 @@ describe('models.client selection behavior', () => {
 
     expect(card?.classList.contains('ring-2')).toBe(false);
     expect(document.getElementById('selected-model-info')?.classList.contains('hidden')).toBe(true);
-  expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe('true');
-    expect(document.getElementById('selected-model-status')?.classList.contains('hidden')).toBe(true);
-    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe('true');
+    expect(document.getElementById('selected-model-info')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
+    expect(document.getElementById('selected-model-status')?.classList.contains('hidden')).toBe(
+      true
+    );
+    expect(document.getElementById('selected-model-status')?.getAttribute('aria-hidden')).toBe(
+      'true'
+    );
     expect(card?.getAttribute('aria-selected')).toBe('false');
 
     const cta = document.getElementById('selected-model-cta') as HTMLAnchorElement | null;
     expect(cta?.hidden).toBe(true);
 
     const features = document.getElementById('selected-model-features');
-  expect(features?.classList.contains('hidden')).toBe(true);
-  expect(features?.childElementCount).toBe(0);
-  expect(features?.getAttribute('aria-hidden')).toBe('true');
+    expect(features?.classList.contains('hidden')).toBe(true);
+    expect(features?.childElementCount).toBe(0);
+    expect(features?.getAttribute('aria-hidden')).toBe('true');
 
     const cards = document.querySelectorAll<HTMLElement>('.model-card');
     expect(cards[0]?.tabIndex).toBe(0);

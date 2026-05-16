@@ -52,39 +52,51 @@ export const ScenarioInputSchema = z.object({
   name: z.string(),
   description: z.string(),
   forecastPeriodMonths: z.number().positive().int(),
-  currentMonthlyFinancials: z.array(z.object({
-    month: z.number().positive().int(),
-    revenue: z.number().min(0),
-    costs: z.number().min(0),
-  })),
-  employees: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    role: z.string(),
-    department: z.string(),
-    billableHoursPerMonth: z.number().min(0),
-    hourlyRate: z.number().min(0),
-    salary: z.number().min(0),
-    benefits: z.number().min(0),
-    startDate: z.string(),
-  })),
-  revenueStreams: z.array(z.object({
-    name: z.string(),
-    monthlyRevenue: z.number().min(0),
-    growthRate: z.number().min(-1),
-    seasonalityMultipliers: z.array(z.number().positive()).default([1,1,1,1,1,1,1,1,1,1,1,1]),
-  })),
-  costItems: z.array(z.object({
-    name: z.string(),
-    monthlyCost: z.number().min(0),
-    isVariableCost: z.boolean(),
-    costPercentageOfRevenue: z.number().min(0).optional(),
-  })),
-  assumptions: z.object({
-    taxRate: z.number().min(0).max(1).default(0.25),
-    discountRate: z.number().min(0).max(1).default(0.1),
-    inflationRate: z.number().min(0).max(1).default(0.03),
-  }).default({ taxRate: 0.25, discountRate: 0.1, inflationRate: 0.03 }),
+  currentMonthlyFinancials: z.array(
+    z.object({
+      month: z.number().positive().int(),
+      revenue: z.number().min(0),
+      costs: z.number().min(0),
+    })
+  ),
+  employees: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      role: z.string(),
+      department: z.string(),
+      billableHoursPerMonth: z.number().min(0),
+      hourlyRate: z.number().min(0),
+      salary: z.number().min(0),
+      benefits: z.number().min(0),
+      startDate: z.string(),
+    })
+  ),
+  revenueStreams: z.array(
+    z.object({
+      name: z.string(),
+      monthlyRevenue: z.number().min(0),
+      growthRate: z.number().min(-1),
+      seasonalityMultipliers: z
+        .array(z.number().positive())
+        .default([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+    })
+  ),
+  costItems: z.array(
+    z.object({
+      name: z.string(),
+      monthlyCost: z.number().min(0),
+      isVariableCost: z.boolean(),
+      costPercentageOfRevenue: z.number().min(0).optional(),
+    })
+  ),
+  assumptions: z
+    .object({
+      taxRate: z.number().min(0).max(1).default(0.25),
+      discountRate: z.number().min(0).max(1).default(0.1),
+      inflationRate: z.number().min(0).max(1).default(0.03),
+    })
+    .default({ taxRate: 0.25, discountRate: 0.1, inflationRate: 0.03 }),
 });
 
 // WACC Input Schema
@@ -100,8 +112,14 @@ export const WACCInputSchema = z.object({
 export const RealOptionsInputSchema = z.object({
   initialInvestment: z.number().positive('Initial investment must be positive'),
   expectedCashFlows: z.array(z.number()).min(1, 'At least one cash flow required'),
-  volatility: z.number().min(0, 'Volatility must be between 0 and 1').max(1, 'Volatility must be between 0 and 1'),
-  riskFreeRate: z.number().min(0, 'Risk-free rate must be between 0 and 1').max(1, 'Risk-free rate must be between 0 and 1'),
+  volatility: z
+    .number()
+    .min(0, 'Volatility must be between 0 and 1')
+    .max(1, 'Volatility must be between 0 and 1'),
+  riskFreeRate: z
+    .number()
+    .min(0, 'Risk-free rate must be between 0 and 1')
+    .max(1, 'Risk-free rate must be between 0 and 1'),
   timeToMaturity: z.number().positive('Time to maturity must be positive'),
 
   optionType: z.enum(['expand', 'abandon', 'delay']),

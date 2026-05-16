@@ -60,7 +60,10 @@ describe('CreditScoreImpactTool', () => {
 
   it('exposes the expected metadata', () => {
     expect(CreditScoreImpactTool.toolName).toBe('analyze_credit_score_impact');
-    expect(CreditScoreImpactTool.inputSchema.required).toEqual(['currentCredit', 'creditUtilization']);
+    expect(CreditScoreImpactTool.inputSchema.required).toEqual([
+      'currentCredit',
+      'creditUtilization',
+    ]);
   });
 
   it('projects score improvement from planned actions', async () => {

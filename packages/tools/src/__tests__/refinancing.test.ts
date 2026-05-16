@@ -30,7 +30,11 @@ describe('RefinancingTool', () => {
 
   it('exposes the expected metadata', () => {
     expect(RefinancingTool.toolName).toBe('analyze_refinancing');
-    expect(RefinancingTool.inputSchema.required).toEqual(['currentMortgage', 'newMortgage', 'costs']);
+    expect(RefinancingTool.inputSchema.required).toEqual([
+      'currentMortgage',
+      'newMortgage',
+      'costs',
+    ]);
   });
 
   it('calculates refinance summary values', async () => {

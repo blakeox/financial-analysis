@@ -247,4 +247,3 @@ describe('FinancialRatioAnalyzer', () => {
     expect(result.recommendations).toEqual([]);
   });
 });
-

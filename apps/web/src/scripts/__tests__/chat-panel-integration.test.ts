@@ -18,26 +18,74 @@ const getFieldMappings = (context: CalculatorContext): Record<string, string> =>
 describe('Chat Panel Integration Tests', () => {
   describe('Context Detection Integration', () => {
     const testCases: Array<{ path: string; expected: CalculatorContextKey; label: string }> = [
-      { path: '/calculator/pricing-strategy', expected: 'pricing-strategy', label: 'Pricing Strategy' },
-      { path: '/calculator/amortization', expected: 'amortization', label: 'Mortgage/Loan Calculator' },
+      {
+        path: '/calculator/pricing-strategy',
+        expected: 'pricing-strategy',
+        label: 'Pricing Strategy',
+      },
+      {
+        path: '/calculator/amortization',
+        expected: 'amortization',
+        label: 'Mortgage/Loan Calculator',
+      },
       { path: '/calculator/auto-loan', expected: 'auto-loan', label: 'Auto Loan Calculator' },
       { path: '/calculator/retirement', expected: 'retirement', label: 'Retirement Calculator' },
-      { path: '/calculator/savings-goal', expected: 'savings-goal', label: 'Savings Goal Calculator' },
+      {
+        path: '/calculator/savings-goal',
+        expected: 'savings-goal',
+        label: 'Savings Goal Calculator',
+      },
       { path: '/calculator/debt-payoff', expected: 'debt-payoff', label: 'Debt Payoff Calculator' },
-      { path: '/calculator/student-loans', expected: 'student-loans', label: 'Student Loan Calculator' },
+      {
+        path: '/calculator/student-loans',
+        expected: 'student-loans',
+        label: 'Student Loan Calculator',
+      },
       { path: '/calculator/budget', expected: 'budget', label: 'Budget Planner' },
-      { path: '/calculator/credit-card-payoff', expected: 'credit-card-payoff', label: 'Credit Card Payoff' },
+      {
+        path: '/calculator/credit-card-payoff',
+        expected: 'credit-card-payoff',
+        label: 'Credit Card Payoff',
+      },
       { path: '/calculator/dcf-valuation', expected: 'dcf-valuation', label: 'DCF Valuation' },
       { path: '/calculator/ma-analysis', expected: 'ma-analysis', label: 'M&A Analysis' },
-      { path: '/calculator/risk-management', expected: 'risk-management', label: 'Risk Management' },
-      { path: '/calculator/equipment-lease', expected: 'equipment-lease', label: 'Equipment Lease' },
-      { path: '/calculator/invest-vs-payoff-debt', expected: 'invest-vs-payoff-debt', label: 'Invest vs Pay Off Debt' },
+      {
+        path: '/calculator/risk-management',
+        expected: 'risk-management',
+        label: 'Risk Management',
+      },
+      {
+        path: '/calculator/equipment-lease',
+        expected: 'equipment-lease',
+        label: 'Equipment Lease',
+      },
+      {
+        path: '/calculator/invest-vs-payoff-debt',
+        expected: 'invest-vs-payoff-debt',
+        label: 'Invest vs Pay Off Debt',
+      },
       { path: '/calculator/rent-vs-buy', expected: 'rent-vs-buy', label: 'Rent vs Buy' },
-      { path: '/calculator/mortgage-scenario-planning', expected: 'mortgage-scenario-planning', label: 'Mortgage Scenarios' },
-      { path: '/calculator/side-hustle-income', expected: 'side-hustle-income', label: 'Side Hustle Income' },
+      {
+        path: '/calculator/mortgage-scenario-planning',
+        expected: 'mortgage-scenario-planning',
+        label: 'Mortgage Scenarios',
+      },
+      {
+        path: '/calculator/side-hustle-income',
+        expected: 'side-hustle-income',
+        label: 'Side Hustle Income',
+      },
       { path: '/calculator/break-even', expected: 'break-even', label: 'Break-Even Analysis' },
-      { path: '/calculator/cash-flow-forecast', expected: 'cash-flow-forecast', label: 'Cash Flow Forecast' },
-      { path: '/calculator/business-loan-qualifier', expected: 'business-loan-qualifier', label: 'Business Loan Qualifier' },
+      {
+        path: '/calculator/cash-flow-forecast',
+        expected: 'cash-flow-forecast',
+        label: 'Cash Flow Forecast',
+      },
+      {
+        path: '/calculator/business-loan-qualifier',
+        expected: 'business-loan-qualifier',
+        label: 'Business Loan Qualifier',
+      },
       { path: '/calculator/saas-metrics', expected: 'saas-metrics', label: 'SaaS Metrics' },
       { path: '/lease-analysis', expected: 'lease', label: 'Lease Analysis' },
       { path: '/ebitda-forecasting', expected: 'ebitda', label: 'EBITDA Forecasting' },
@@ -49,7 +97,7 @@ describe('Chat Panel Integration Tests', () => {
       it(`should detect ${expected} context for ${path} and have correct label`, () => {
         const context = detectCalculatorContext(path);
         expect(context).toBe(expected);
-        
+
         const contextDef = CALCULATOR_CONTEXTS[context];
         expect(contextDef).toBeDefined();
         expect(contextDef.label).toBe(label);
@@ -92,13 +140,15 @@ describe('Chat Panel Integration Tests', () => {
             expect(typeof example).toBe('string');
             expect(example.length).toBeGreaterThan(5);
             expect(example).not.toBe('');
-            
+
             // Examples should look like commands/questions
-            const looksLikeCommand = 
-              example.match(/^(set|change|update|what|show|how|try|make|calculate|add|compare|check|which|help)/i) ||
+            const looksLikeCommand =
+              example.match(
+                /^(set|change|update|what|show|how|try|make|calculate|add|compare|check|which|help)/i
+              ) ||
               example.includes('?') ||
               example.toLowerCase().includes('help');
-            
+
             expect(looksLikeCommand).toBeTruthy();
           });
         });
@@ -110,7 +160,7 @@ describe('Chat Panel Integration Tests', () => {
               // Friendly names should be human-readable
               expect(friendlyName).toBeTruthy();
               expect(friendlyName.length).toBeGreaterThan(0);
-              
+
               // Field IDs should be camelCase or kebab-case
               expect(fieldId).toBeTruthy();
               expect(fieldId.length).toBeGreaterThan(0);
@@ -129,52 +179,47 @@ describe('Chat Panel Integration Tests', () => {
   describe('Example Commands Validity', () => {
     it('pricing-strategy examples should match field mappings', () => {
       const context = CALCULATOR_CONTEXTS['pricing-strategy'];
-      const hasMarginExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('margin')
-      );
-      const hasCostExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('cost')
-      );
-      
+      const hasMarginExample = context.examples.some((ex) => ex.toLowerCase().includes('margin'));
+      const hasCostExample = context.examples.some((ex) => ex.toLowerCase().includes('cost'));
+
       expect(hasMarginExample).toBe(true);
       expect(hasCostExample).toBe(true);
     });
 
     it('amortization examples should match field mappings', () => {
       const context = CALCULATOR_CONTEXTS['amortization'];
-      const hasInterestExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('interest') || ex.toLowerCase().includes('rate')
+      const hasInterestExample = context.examples.some(
+        (ex) => ex.toLowerCase().includes('interest') || ex.toLowerCase().includes('rate')
       );
-      const hasTermExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('term') || ex.toLowerCase().includes('year')
+      const hasTermExample = context.examples.some(
+        (ex) => ex.toLowerCase().includes('term') || ex.toLowerCase().includes('year')
       );
-      
+
       expect(hasInterestExample).toBe(true);
       expect(hasTermExample).toBe(true);
     });
 
     it('auto-loan examples should match field mappings', () => {
       const context = CALCULATOR_CONTEXTS['auto-loan'];
-      const hasPriceExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('price') || ex.toLowerCase().includes('car')
+      const hasPriceExample = context.examples.some(
+        (ex) => ex.toLowerCase().includes('price') || ex.toLowerCase().includes('car')
       );
-      
+
       expect(hasPriceExample).toBe(true);
     });
 
     it('retirement examples should match field mappings', () => {
       const context = CALCULATOR_CONTEXTS['retirement'];
-      const hasAgeExample = context.examples.some(ex => 
-        ex.toLowerCase().includes('age')
-      );
-      
+      const hasAgeExample = context.examples.some((ex) => ex.toLowerCase().includes('age'));
+
       expect(hasAgeExample).toBe(true);
     });
   });
 
   describe('Field Mapping Consistency', () => {
-    const calculatorsWithFieldMappings = Object.values(CALCULATOR_CONTEXTS)
-      .filter(c => c.fieldMappings);
+    const calculatorsWithFieldMappings = Object.values(CALCULATOR_CONTEXTS).filter(
+      (c) => c.fieldMappings
+    );
 
     calculatorsWithFieldMappings.forEach((context) => {
       describe(`${context.id} field mappings`, () => {
@@ -242,10 +287,10 @@ describe('Chat Panel Integration Tests', () => {
       it(`should handle ${name}`, () => {
         const fromContext = detectCalculatorContext(from);
         const toContext = detectCalculatorContext(to);
-        
+
         expect(CALCULATOR_CONTEXTS[fromContext].label).toBe(fromLabel);
         expect(CALCULATOR_CONTEXTS[toContext].label).toBe(toLabel);
-        
+
         // Contexts should be different (unless legacy path test)
         if (from !== '/amortization') {
           expect(fromContext).not.toBe(toContext);
@@ -343,4 +388,3 @@ describe('Chat Panel Integration Tests', () => {
     });
   });
 });
-

@@ -31,18 +31,18 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
 
   test('should extract all key lease terms from industrial lease document', async ({ page }) => {
     test.setTimeout(60000);
-    
+
     console.log('\n=== Testing Industrial Lease Field Extraction ===');
 
     // Navigate to page
     await page.goto('/commercial-real-estate-lease');
     await page.waitForLoadState('networkidle');
-    
+
     // Intercept and mock the extraction to return the expected data
     await page.route('**/v1/api/extract/lease-direct', async (route) => {
       const request = route.request();
       const postData = request.postData();
-      
+
       if (!postData) {
         await route.fulfill({
           status: 400,
@@ -51,14 +51,14 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
         });
         return;
       }
-      
+
       // Extract the fileData from the request
       const body = JSON.parse(postData);
-      
+
       console.log('Received extraction request for file:', body.fileName);
       console.log('File type:', body.fileType);
       console.log('Payload size:', postData.length, 'bytes');
-      
+
       // Simulate AI extraction of the lease data
       const extractedData = {
         confidence: {
@@ -94,7 +94,7 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
           'Tenant has exclusive use of 60 parking spaces',
         ],
       };
-      
+
       await route.fulfill({
         status: 200,
         headers: { 'content-type': 'application/json' },
@@ -111,52 +111,69 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
       console.log('\nUploading industrial lease PDF...');
       const fileInput = page.locator('input[type="file"]');
       await fileInput.setInputFiles(industrialLeasePath);
-      
+
       console.log('Waiting for extraction to complete...');
       await page.waitForTimeout(3000);
-      
+
       // Check for extraction preview
-      const previewVisible = await page.locator('text=AI Extraction Preview').isVisible({ timeout: 5000 }).catch(() => false);
-      
+      const previewVisible = await page
+        .locator('text=AI Extraction Preview')
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
+
       if (previewVisible) {
         console.log('✅ Extraction preview appeared');
-        
+
         // Check that key fields are displayed
-        await expect(page.locator('text=leaseType').or(page.locator('text=warehouse-nnn'))).toBeVisible({ timeout: 2000 });
-        
+        await expect(
+          page.locator('text=leaseType').or(page.locator('text=warehouse-nnn'))
+        ).toBeVisible({ timeout: 2000 });
+
         console.log('✅ Key fields displayed in preview');
-        
+
         // Click Apply to Form
         const applyButton = page.locator('button:has-text("Apply to Form")');
         if (await applyButton.isVisible()) {
           console.log('Clicking Apply to Form...');
           await applyButton.click();
           await page.waitForTimeout(1000);
-          
+
           // Verify fields were populated
           // Check lease type
-          const leaseTypeSelect = page.locator('select[id*="leaseType"]').or(page.locator('select[name*="leaseType"]')).first();
+          const leaseTypeSelect = page
+            .locator('select[id*="leaseType"]')
+            .or(page.locator('select[name*="leaseType"]'))
+            .first();
           const leaseTypeValue = await leaseTypeSelect.inputValue().catch(() => '');
           console.log('Lease type value:', leaseTypeValue);
-          
+
           // Check base rent
-          const baseRentInput = page.locator('input[id*="baseRent"]').or(page.locator('input[name*="baseRent"]')).first();
+          const baseRentInput = page
+            .locator('input[id*="baseRent"]')
+            .or(page.locator('input[name*="baseRent"]'))
+            .first();
           const baseRentValue = await baseRentInput.inputValue().catch(() => '');
           console.log('Base rent value:', baseRentValue);
           expect(baseRentValue).toMatch(/45000/);
-          
+
           // Check square footage
-          const squareFootageInput = page.locator('input[id*="squareFeet"]').or(page.locator('input[name*="squareFeet"]')).first();
+          const squareFootageInput = page
+            .locator('input[id*="squareFeet"]')
+            .or(page.locator('input[name*="squareFeet"]'))
+            .first();
           const squareFootageValue = await squareFootageInput.inputValue().catch(() => '');
           console.log('Square footage value:', squareFootageValue);
           expect(squareFootageValue).toMatch(/50000/);
-          
+
           // Check lease term
-          const termInput = page.locator('input[id*="termMonths"]').or(page.locator('input[name*="termMonths"]')).first();
+          const termInput = page
+            .locator('input[id*="termMonths"]')
+            .or(page.locator('input[name*="termMonths"]'))
+            .first();
           const termValue = await termInput.inputValue().catch(() => '');
           console.log('Term value:', termValue);
           expect(termValue).toMatch(/60/);
-          
+
           console.log('\n✅ Fields populated successfully!');
         } else {
           console.log('Apply button not found');
@@ -180,7 +197,7 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
     // This test verifies that triple net leases are correctly identified
     await page.goto('/commercial-real-estate-lease');
     await page.waitForLoadState('networkidle');
-    
+
     // Mock extraction with NNN lease data
     await page.route('**/v1/api/extract/lease-direct', async (route) => {
       await route.fulfill({
@@ -200,20 +217,23 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
         },
       });
     });
-    
+
     // Upload file
     const testFilesPath = path.join(__dirname, '../../../tests/fixtures');
     const pdfPath = path.join(testFilesPath, 'industrial_complex_lease.pdf');
-    
+
     if (fs.existsSync(pdfPath)) {
       const fileInput = page.locator('input[type="file"]');
       await fileInput.setInputFiles(pdfPath);
-      
+
       // Wait and verify
       await page.waitForTimeout(2000);
-      
+
       // Should extract as warehouse-nnn type
-      const previewVisible = await page.locator('text=AI Extraction Preview').isVisible({ timeout: 5000 }).catch(() => false);
+      const previewVisible = await page
+        .locator('text=AI Extraction Preview')
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
       expect(previewVisible).toBe(true);
     }
   });
@@ -222,7 +242,7 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
     // Verify that "3% annually" is extracted as both type and rate
     await page.goto('/commercial-real-estate-lease');
     await page.waitForLoadState('networkidle');
-    
+
     await page.route('**/v1/api/extract/lease-direct', async (route) => {
       await route.fulfill({
         status: 200,
@@ -241,29 +261,22 @@ test.describe('Commercial Real Estate Lease - Field Extraction Verification', ()
         },
       });
     });
-    
+
     const testFilesPath = path.join(__dirname, '../../../tests/fixtures');
     const pdfPath = path.join(testFilesPath, 'industrial_complex_lease.pdf');
-    
+
     if (fs.existsSync(pdfPath)) {
       const fileInput = page.locator('input[type="file"]');
       await fileInput.setInputFiles(pdfPath);
-      
+
       await page.waitForTimeout(3000);
-      
+
       // Verify escalation was extracted
-      const previewVisible = await page.locator('text=AI Extraction Preview').isVisible({ timeout: 5000 }).catch(() => false);
+      const previewVisible = await page
+        .locator('text=AI Extraction Preview')
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
       expect(previewVisible).toBe(true);
     }
   });
 });
-
-
-
-
-
-
-
-
-
-

@@ -53,7 +53,7 @@ describe('MCP Integration Tests', () => {
 
       expect(response.status).toBe(200);
       const result = await response.json();
-      
+
       expect(result).toMatchObject({
         jsonrpc: '2.0',
         id: 1,
@@ -88,7 +88,7 @@ describe('MCP Integration Tests', () => {
 
       expect(response.status).toBe(200);
       const result = (await response.json()) as MCPResponse;
-      
+
       expect(result).toMatchObject({
         jsonrpc: '2.0',
         id: 2,
@@ -99,22 +99,18 @@ describe('MCP Integration Tests', () => {
       expect(tools.length).toBeGreaterThan(0);
 
       // Check for EBITDA forecasting tools
-      const ebitdaTools = tools.filter((tool: MCPTool) => 
-        tool.name.includes('ebitda')
-      );
+      const ebitdaTools = tools.filter((tool: MCPTool) => tool.name.includes('ebitda'));
       expect(ebitdaTools.length).toBeGreaterThanOrEqual(2);
 
       // Verify EBITDA forecasting tool
-      const forecastingTool = tools.find((tool: MCPTool) => 
-        tool.name === 'ebitda_forecasting'
-      );
+      const forecastingTool = tools.find((tool: MCPTool) => tool.name === 'ebitda_forecasting');
       expect(forecastingTool).toBeDefined();
       expect(forecastingTool?.description).toContain('EBITDA forecast');
       expect(forecastingTool?.inputSchema).toBeDefined();
 
       // Verify EBITDA scenario comparison tool
-      const comparisonTool = tools.find((tool: MCPTool) => 
-        tool.name === 'ebitda_scenario_comparison'
+      const comparisonTool = tools.find(
+        (tool: MCPTool) => tool.name === 'ebitda_scenario_comparison'
       );
       expect(comparisonTool).toBeDefined();
       expect(comparisonTool?.description).toContain('scenario');
@@ -125,7 +121,7 @@ describe('MCP Integration Tests', () => {
         currentYear: {
           january: 120000,
           february: 125000,
-          march: 130000
+          march: 130000,
         },
         employees: [
           {
@@ -135,8 +131,8 @@ describe('MCP Integration Tests', () => {
             billableHoursPerMonth: 160,
             hourlyRate: 150,
             department: 'Consulting',
-            isActive: true
-          }
+            isActive: true,
+          },
         ],
         expenseTypes: [
           {
@@ -145,7 +141,7 @@ describe('MCP Integration Tests', () => {
             currentMonthlyAmount: 15000,
             category: 'fixed' as const,
             growthRate: 0.02,
-            isActive: true
+            isActive: true,
           },
           {
             id: 'marketing',
@@ -153,12 +149,12 @@ describe('MCP Integration Tests', () => {
             currentMonthlyAmount: 8000,
             category: 'variable' as const,
             growthRate: 0.05,
-            isActive: true
-          }
+            isActive: true,
+          },
         ],
         projectionMonths: 6,
         revenueGrowthRate: 0.05,
-        marketGrowthFactor: 1.1
+        marketGrowthFactor: 1.1,
       };
 
       const response = await worker.fetch('/mcp', {
@@ -179,7 +175,7 @@ describe('MCP Integration Tests', () => {
 
       expect(response.status).toBe(200);
       const result = (await response.json()) as MCPResponse;
-      
+
       expect(result).toMatchObject({
         jsonrpc: '2.0',
         id: 3,
@@ -193,7 +189,7 @@ describe('MCP Integration Tests', () => {
       expect(Array.isArray(forecast.forecast)).toBe(true);
       expect((forecast.forecast as unknown[]).length).toBe(6);
       expect(forecast.summary).toBeDefined();
-      
+
       // Verify summary contains expected metrics
       const summary = forecast.summary as Record<string, unknown>;
       expect(summary.totalRevenue).toBeGreaterThan(0);
@@ -207,7 +203,7 @@ describe('MCP Integration Tests', () => {
         currentYear: {
           january: 120000,
           february: 125000,
-          march: 130000
+          march: 130000,
         },
         employees: [
           {
@@ -217,8 +213,8 @@ describe('MCP Integration Tests', () => {
             billableHoursPerMonth: 160,
             hourlyRate: 150,
             department: 'Consulting',
-            isActive: true
-          }
+            isActive: true,
+          },
         ],
         expenseTypes: [
           {
@@ -227,12 +223,12 @@ describe('MCP Integration Tests', () => {
             currentMonthlyAmount: 12000,
             category: 'fixed' as const,
             growthRate: 0.02,
-            isActive: true
-          }
+            isActive: true,
+          },
         ],
         projectionMonths: 3,
         revenueGrowthRate: 0.02,
-        marketGrowthFactor: 1.0
+        marketGrowthFactor: 1.0,
       };
 
       const toolInput = {
@@ -242,9 +238,9 @@ describe('MCP Integration Tests', () => {
             ...baseScenario,
             name: 'Aggressive Growth',
             revenueGrowthRate: 0.05,
-            marketGrowthFactor: 1.2
-          }
-        ]
+            marketGrowthFactor: 1.2,
+          },
+        ],
       };
 
       const response = await worker.fetch('/mcp', {
@@ -265,7 +261,7 @@ describe('MCP Integration Tests', () => {
 
       expect(response.status).toBe(200);
       const result = (await response.json()) as MCPResponse;
-      
+
       expect(result).toMatchObject({
         jsonrpc: '2.0',
         id: 4,

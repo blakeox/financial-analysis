@@ -22,10 +22,7 @@ export function formatCurrency(value: number): string {
  * @param fallback - Fallback string to return if value is undefined
  * @returns Formatted currency string or fallback
  */
-export function formatCurrencyOptional(
-  value: number | undefined,
-  fallback: string = '-'
-): string {
+export function formatCurrencyOptional(value: number | undefined, fallback: string = '-'): string {
   return value !== undefined ? formatCurrency(value) : fallback;
 }
 

@@ -70,7 +70,9 @@ class InventoryOptimizationCalculator {
       this.displayResults(result);
     } catch (error) {
       console.error('Inventory Optimization error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to analyze inventory optimization');
+      showError(
+        error instanceof Error ? error.message : 'Failed to analyze inventory optimization'
+      );
     } finally {
       hideLoading();
     }

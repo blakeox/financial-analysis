@@ -2,10 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 import { inputClasses } from '../../lib/classNames';
 
-export type CurrencyFieldProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'type'
-> & {
+export type CurrencyFieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   label?: string;
   error?: string;
   helperText?: string;
@@ -13,18 +10,7 @@ export type CurrencyFieldProps = Omit<
 };
 
 export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      currencySymbol = '$',
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
+  ({ label, error, helperText, currencySymbol = '$', className, id, ...props }, ref) => {
     const fieldId = id ?? React.useId();
     const errorId = error ? `${fieldId}-error` : undefined;
     const helperId = helperText && !error ? `${fieldId}-helper` : undefined;

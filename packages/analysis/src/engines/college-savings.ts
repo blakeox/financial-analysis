@@ -228,10 +228,7 @@ export class CollegeSavingsPlanner {
     };
   }
 
-  private static calculateSuccessProbability(
-    targetAmount: Decimal,
-    gap: number
-  ): number {
+  private static calculateSuccessProbability(targetAmount: Decimal, gap: number): number {
     if (gap <= 0) return 1.0;
     if (gap > targetAmount.toNumber() * 0.5) return 0.2;
     if (gap > targetAmount.toNumber() * 0.3) return 0.5;

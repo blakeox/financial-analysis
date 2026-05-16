@@ -622,7 +622,10 @@ describe('HomeBuyingAffordabilityCalculator', () => {
       const maintenance = parseFloat(result.ongoingCosts.annualMaintenance);
       const totalAnnual = parseFloat(result.ongoingCosts.totalAnnualCosts);
 
-      expect(totalAnnual).toBeCloseTo(monthlyPayment * 12 + propertyTax + insurance + maintenance, 0);
+      expect(totalAnnual).toBeCloseTo(
+        monthlyPayment * 12 + propertyTax + insurance + maintenance,
+        0
+      );
     });
   });
 

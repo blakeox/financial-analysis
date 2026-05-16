@@ -1,6 +1,6 @@
 /**
  * Snapshot Tests for Calculator Results Display
- * 
+ *
  * Ensures consistent HTML output and prevents unintended UI changes
  */
 
@@ -18,9 +18,9 @@ describe('Calculator Results Snapshots', () => {
           </div>
         `.trim();
       };
-      
+
       const card = generateSummaryCard('Monthly Payment', '$2,528', 'P&I only');
-      
+
       expect(card).toContain('Monthly Payment');
       expect(card).toContain('$2,528');
       expect(card).toContain('P&I only');
@@ -33,7 +33,7 @@ describe('Calculator Results Snapshots', () => {
           ⚠️ PMI until month 120 (10y) - Total: $45,000
         </p>
       `.trim();
-      
+
       expect(pmiCard).toContain('PMI');
       expect(pmiCard).toContain('⚠️');
       expect(pmiCard).toMatchSnapshot();
@@ -43,11 +43,13 @@ describe('Calculator Results Snapshots', () => {
       const affordabilityHTML = (dti: number) => {
         const isAffordable = dti <= 28;
         const colorClass = isAffordable ? 'text-emerald-600' : 'text-rose-600';
-        const status = isAffordable ? '✓ Within recommended 28% limit' : '⚠️ Exceeds recommended 28% limit';
-        
+        const status = isAffordable
+          ? '✓ Within recommended 28% limit'
+          : '⚠️ Exceeds recommended 28% limit';
+
         return `<p class="text-xs ${colorClass}">${status}</p>`;
       };
-      
+
       expect(affordabilityHTML(25)).toMatchSnapshot('affordable');
       expect(affordabilityHTML(35)).toMatchSnapshot('not-affordable');
     });
@@ -64,24 +66,28 @@ describe('Calculator Results Snapshots', () => {
       const generateComparisonTable = (strategies: Strategy[]) => {
         return `
           <div class="grid grid-cols-1 md:grid-cols-${strategies.length} gap-4">
-            ${strategies.map(s => `
+            ${strategies
+              .map(
+                (s) => `
               <div class="border rounded-lg p-4">
                 <h3>${s.name}</h3>
                 <p>Payment: ${s.payment}</p>
                 <p>Total: ${s.total}</p>
               </div>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>
         `;
       };
-      
+
       const strategies = [
         { name: 'Pay Debt', payment: '$700', total: '$10,500' },
         { name: 'Invest', payment: '$200', total: '$15,000' },
       ];
-      
+
       const table = generateComparisonTable(strategies);
-      
+
       expect(table).toMatchSnapshot();
     });
   });
@@ -90,20 +96,20 @@ describe('Calculator Results Snapshots', () => {
     it('should generate consistent chart data points', () => {
       const generateChartData = (years: number) => {
         const points: Array<{ year: number; principal: number; interest: number }> = [];
-        
+
         for (let year = 0; year <= years; year++) {
           points.push({
             year,
-            principal: 10000 + (year * 2000),
-            interest: 15000 - (year * 1000),
+            principal: 10000 + year * 2000,
+            interest: 15000 - year * 1000,
           });
         }
-        
+
         return points;
       };
-      
+
       const data = generateChartData(5);
-      
+
       expect(data).toHaveLength(6);
       expect(data[0]).toEqual({ year: 0, principal: 10000, interest: 15000 });
       expect(data[5]).toEqual({ year: 5, principal: 20000, interest: 10000 });
@@ -122,7 +128,7 @@ describe('Calculator Results Snapshots', () => {
           return `Consider both options carefully.`;
         }
       };
-      
+
       expect(generateRecommendation(75000, 'Buy')).toMatchSnapshot('strong-buy');
       expect(generateRecommendation(15000, 'Rent')).toMatchSnapshot('slight-rent');
       expect(generateRecommendation(-10000, 'Buy')).toMatchSnapshot('close-call');
@@ -138,7 +144,7 @@ describe('Calculator Results Snapshots', () => {
           </div>
         `;
       };
-      
+
       expect(generateProgressBar(50)).toMatchSnapshot('half-progress');
       expect(generateProgressBar(100)).toMatchSnapshot('complete-progress');
     });
@@ -152,7 +158,7 @@ describe('Calculator Results Snapshots', () => {
           </div>
         `;
       };
-      
+
       expect(generateMilestone(25, true)).toMatchSnapshot('milestone-achieved');
       expect(generateMilestone(75, false)).toMatchSnapshot('milestone-pending');
     });
@@ -168,7 +174,7 @@ describe('Error Message Snapshots', () => {
       monthlyRent: 'Please enter a valid monthly rent',
       yearsToAnalyze: 'Analysis period must be 1-30 years',
     };
-    
+
     expect(errors).toMatchSnapshot();
   });
 
@@ -179,7 +185,7 @@ describe('Error Message Snapshots', () => {
       negativeBalance: 'Balance cannot be negative',
       unrealisticRate: 'Interest rate seems unrealistic - please verify',
     };
-    
+
     expect(businessErrors).toMatchSnapshot();
   });
 });
@@ -198,7 +204,7 @@ describe('Data Structure Snapshots', () => {
       pmiDropMonth: 0,
       monthlyPaymentWithPMI: 2528,
     };
-    
+
     expect(scenarioResult).toMatchSnapshot();
     expect(Object.keys(scenarioResult)).toEqual([
       'name',
@@ -229,7 +235,7 @@ describe('Data Structure Snapshots', () => {
       difference: 120000,
       recommendation: 'Roth IRA recommended...',
     };
-    
+
     expect(comparison).toMatchSnapshot();
   });
 
@@ -249,7 +255,7 @@ describe('Data Structure Snapshots', () => {
         { month: 24, score: 750 },
       ],
     };
-    
+
     expect(creditScoreImpact).toMatchSnapshot();
   });
 });
@@ -257,8 +263,12 @@ describe('Data Structure Snapshots', () => {
 describe('Formatting Snapshots', () => {
   it('should format currency consistently', () => {
     const formatCurrency = (val: number) =>
-      new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
-    
+      new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      }).format(val);
+
     const examples = {
       small: formatCurrency(100),
       medium: formatCurrency(50000),
@@ -267,20 +277,20 @@ describe('Formatting Snapshots', () => {
       zero: formatCurrency(0),
       negative: formatCurrency(-500),
     };
-    
+
     expect(examples).toMatchSnapshot();
   });
 
   it('should format percentages consistently', () => {
     const formatPercent = (val: number) => `${val.toFixed(2)}%`;
-    
+
     const examples = {
       whole: formatPercent(50),
       decimal: formatPercent(18.99),
       small: formatPercent(0.5),
       large: formatPercent(100),
     };
-    
+
     expect(examples).toMatchSnapshot();
   });
 
@@ -290,13 +300,13 @@ describe('Formatting Snapshots', () => {
       const remainingMonths = months % 12;
       return `${years}y ${remainingMonths}m`;
     };
-    
+
     const examples = {
       oneYear: formatDuration(12),
       fiveYears: formatDuration(60),
       partial: formatDuration(27), // 2y 3m
     };
-    
+
     expect(examples).toMatchSnapshot();
   });
 });
@@ -306,20 +316,20 @@ describe('Calculation Result Snapshots', () => {
     const principal = 400000;
     const rate = 0.065 / 12;
     const months = 360;
-    
-    const monthlyPayment = (principal * (rate * Math.pow(1 + rate, months))) /
-      (Math.pow(1 + rate, months) - 1);
-    
+
+    const monthlyPayment =
+      (principal * (rate * Math.pow(1 + rate, months))) / (Math.pow(1 + rate, months) - 1);
+
     let totalInterest = 0;
     let balance = principal;
-    
+
     for (let i = 0; i < months; i++) {
       const interest = balance * rate;
       totalInterest += interest;
       const principalPayment = monthlyPayment - interest;
       balance -= principalPayment;
     }
-    
+
     const result = {
       principal,
       monthlyPayment: Math.round(monthlyPayment * 100) / 100,
@@ -327,29 +337,29 @@ describe('Calculation Result Snapshots', () => {
       totalPaid: Math.round(principal + totalInterest),
       months,
     };
-    
+
     expect(result).toMatchSnapshot();
   });
 
   it('should have consistent investment growth results', () => {
     const monthlyContribution = 500;
-    const annualReturn = 0.10;
+    const annualReturn = 0.1;
     const monthlyReturn = annualReturn / 12;
     const months = 120;
-    
+
     let balance = 0;
     for (let i = 0; i < months; i++) {
       balance = balance * (1 + monthlyReturn) + monthlyContribution;
     }
-    
+
     const result = {
       monthlyContribution,
       months,
       finalBalance: Math.round(balance),
       totalContributions: monthlyContribution * months,
-      totalGrowth: Math.round(balance - (monthlyContribution * months)),
+      totalGrowth: Math.round(balance - monthlyContribution * months),
     };
-    
+
     expect(result).toMatchSnapshot();
   });
 
@@ -357,11 +367,11 @@ describe('Calculation Result Snapshots', () => {
     const balance = 10000;
     const rate = 0.18 / 12;
     const payment = 500;
-    
+
     let remaining = balance;
     let totalInterest = 0;
     let months = 0;
-    
+
     while (remaining > 0.01) {
       const interest = remaining * rate;
       totalInterest += interest;
@@ -369,7 +379,7 @@ describe('Calculation Result Snapshots', () => {
       remaining -= principal;
       months++;
     }
-    
+
     const result = {
       originalBalance: balance,
       monthlyPayment: payment,
@@ -377,7 +387,7 @@ describe('Calculation Result Snapshots', () => {
       totalInterest: Math.round(totalInterest),
       totalPaid: Math.round(balance + totalInterest),
     };
-    
+
     expect(result).toMatchSnapshot();
   });
 });
@@ -401,13 +411,13 @@ describe('Recommendation Logic Snapshots', () => {
         expected: 'Consider Both',
       },
     ];
-    
-    const recommendations = scenarios.map(s => {
+
+    const recommendations = scenarios.map((s) => {
       if (s.currentTax > s.retirementTax + 5) return 'Traditional IRA/401(k) recommended';
       if (s.retirementTax > s.currentTax + 5) return 'Roth IRA/401(k) recommended';
       return 'Consider Both';
     });
-    
+
     expect(recommendations).toMatchSnapshot();
   });
 
@@ -416,17 +426,23 @@ describe('Recommendation Logic Snapshots', () => {
       { debtRate: 18, investReturn: 10, emergencyFund: true, match: 0, expected: 'Pay off debt' },
       { debtRate: 3.5, investReturn: 10, emergencyFund: true, match: 50, expected: 'Invest' },
       { debtRate: 8, investReturn: 10, emergencyFund: true, match: 0, expected: 'Hybrid' },
-      { debtRate: 10, investReturn: 10, emergencyFund: false, match: 0, expected: 'Build emergency fund' },
+      {
+        debtRate: 10,
+        investReturn: 10,
+        emergencyFund: false,
+        match: 0,
+        expected: 'Build emergency fund',
+      },
     ];
-    
-    const recommendations = scenarios.map(s => {
+
+    const recommendations = scenarios.map((s) => {
       if (!s.emergencyFund) return 'Build emergency fund first';
       if (s.match > 0 && s.debtRate < 10) return 'Invest (get employer match)';
       if (s.debtRate >= 8) return 'Pay off debt';
       if (s.debtRate <= 4) return 'Invest';
       return 'Hybrid approach';
     });
-    
+
     expect(recommendations).toMatchSnapshot();
   });
 });
@@ -439,7 +455,7 @@ describe('Visual Component Snapshots', () => {
       { percent: 75, amount: 37500, date: 'Mar 2026', months: 18, achieved: false },
       { percent: 100, amount: 50000, date: 'Sep 2026', months: 24, achieved: false },
     ];
-    
+
     expect(milestones).toMatchSnapshot();
   });
 
@@ -454,7 +470,7 @@ describe('Visual Component Snapshots', () => {
       status: 'partial',
       recommendation: 'Making progress! Aim for at least 3 months.',
     };
-    
+
     expect(progressData).toMatchSnapshot();
   });
 
@@ -466,7 +482,7 @@ describe('Visual Component Snapshots', () => {
       { month: 18, score: 730 },
       { month: 24, score: 750 },
     ];
-    
+
     expect(timeline).toMatchSnapshot();
   });
 });
@@ -474,33 +490,42 @@ describe('Visual Component Snapshots', () => {
 describe('Tax Calculation Snapshots', () => {
   it('should calculate federal tax brackets consistently', () => {
     const calculateFederalTax = (income: number, status: 'single' | 'married') => {
-      const brackets = status === 'single'
-        ? [[11000, 0.10], [44725, 0.12], [95375, 0.22]]
-        : [[22000, 0.10], [89050, 0.12], [190750, 0.22]];
-      
+      const brackets =
+        status === 'single'
+          ? [
+              [11000, 0.1],
+              [44725, 0.12],
+              [95375, 0.22],
+            ]
+          : [
+              [22000, 0.1],
+              [89050, 0.12],
+              [190750, 0.22],
+            ];
+
       let tax = 0;
       let remaining = income;
       let previousLimit = 0;
-      
+
       for (const [limit, rate] of brackets) {
         const taxableInBracket = Math.min(remaining, (limit as number) - previousLimit);
         if (taxableInBracket <= 0) break;
-        
+
         tax += taxableInBracket * (rate as number);
         remaining -= taxableInBracket;
         previousLimit = limit as number;
-        
+
         if (remaining <= 0) break;
       }
-      
+
       return Math.round(tax);
     };
-    
+
     const taxExamples = {
       single50k: calculateFederalTax(50000, 'single'),
       married100k: calculateFederalTax(100000, 'married'),
     };
-    
+
     expect(taxExamples).toMatchSnapshot();
   });
 
@@ -510,13 +535,13 @@ describe('Tax Calculation Snapshots', () => {
       const seTax = seTaxBase * 0.153;
       return Math.round(seTax);
     };
-    
+
     const examples = {
       low: calculateSETax(20000),
       medium: calculateSETax(54000),
       high: calculateSETax(100000),
     };
-    
+
     expect(examples).toMatchSnapshot();
   });
 });
@@ -538,7 +563,7 @@ describe('Comparison Result Snapshots', () => {
       breakEvenYear: 4,
       winner: 'Buy',
     };
-    
+
     expect(comparison).toMatchSnapshot();
   });
 
@@ -548,7 +573,7 @@ describe('Comparison Result Snapshots', () => {
       { name: 'Invest First', endingWealth: 85000, debtRemaining: 5000, investmentBalance: 90000 },
       { name: 'Hybrid', endingWealth: 80000, debtRemaining: 0, investmentBalance: 80000 },
     ];
-    
+
     expect(strategies).toMatchSnapshot();
   });
 });

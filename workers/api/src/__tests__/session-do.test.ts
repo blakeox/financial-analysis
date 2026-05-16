@@ -76,7 +76,7 @@ describe('SessionDO', () => {
       const response = await sessionDO.fetch(request);
       expect(response.status).toBe(200);
 
-      const data = await response.json() as { ok: boolean; session: Record<string, unknown> };
+      const data = (await response.json()) as { ok: boolean; session: Record<string, unknown> };
       expect(data.ok).toBe(true);
       expect(data.session.sessionId).toBe('test-session-123');
       expect(data.session.trustScore).toBe(100);
@@ -108,7 +108,7 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { allowed: boolean; trustScore: number };
+      const data = (await response.json()) as { allowed: boolean; trustScore: number };
       expect(data.allowed).toBe(true);
       expect(data.trustScore).toBe(100);
     });
@@ -123,7 +123,7 @@ describe('SessionDO', () => {
           body: JSON.stringify({ requestHash }),
         })
       );
-      const firstData = await firstCheck.json() as { allowed: boolean };
+      const firstData = (await firstCheck.json()) as { allowed: boolean };
       expect(firstData.allowed).toBe(true);
 
       // Increment to add to replay cache
@@ -141,7 +141,7 @@ describe('SessionDO', () => {
           body: JSON.stringify({ requestHash }),
         })
       );
-      const secondData = await secondCheck.json() as { allowed: boolean; reason: string };
+      const secondData = (await secondCheck.json()) as { allowed: boolean; reason: string };
       expect(secondData.allowed).toBe(false);
       expect(secondData.reason).toBe('replay_detected');
     });
@@ -165,7 +165,11 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { allowed: boolean; reason: string; retryAfter?: number };
+      const data = (await response.json()) as {
+        allowed: boolean;
+        reason: string;
+        retryAfter?: number;
+      };
       expect(data.allowed).toBe(false);
       expect(data.reason).toBe('rate_limit_exceeded');
       expect(data.retryAfter).toBeGreaterThan(0);
@@ -190,7 +194,7 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { allowed: boolean; reason: string };
+      const data = (await response.json()) as { allowed: boolean; reason: string };
       expect(data.allowed).toBe(false);
       expect(data.reason).toBe('max_messages_exceeded');
     });
@@ -214,7 +218,7 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { allowed: boolean; reason: string };
+      const data = (await response.json()) as { allowed: boolean; reason: string };
       expect(data.allowed).toBe(false);
       expect(data.reason).toBe('max_requests_exceeded');
     });
@@ -245,7 +249,7 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { session: { flags: string[]; trustScore: number } };
+      const data = (await response.json()) as { session: { flags: string[]; trustScore: number } };
       expect(data.session.flags).toContain('prompt_injection');
       expect(data.session.trustScore).toBe(80); // 100 - 20
     });
@@ -266,7 +270,7 @@ describe('SessionDO', () => {
         })
       );
 
-      const data = await response.json() as { session: { flags: string[] } };
+      const data = (await response.json()) as { session: { flags: string[] } };
       const flagCount = data.session.flags.filter((f) => f === 'rate_limit_violation').length;
       expect(flagCount).toBe(1);
     });
@@ -280,10 +284,8 @@ describe('SessionDO', () => {
         })
       );
 
-      let response = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
-      let data = await response.json() as { session: { trustScore: number } };
+      let response = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
+      let data = (await response.json()) as { session: { trustScore: number } };
       expect(data.session.trustScore).toBe(0);
 
       // Try to increase above 100
@@ -294,10 +296,8 @@ describe('SessionDO', () => {
         })
       );
 
-      response = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
-      data = await response.json() as { session: { trustScore: number } };
+      response = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
+      data = (await response.json()) as { session: { trustScore: number } };
       expect(data.session.trustScore).toBe(100);
     });
   });
@@ -315,12 +315,10 @@ describe('SessionDO', () => {
         })
       );
 
-      const response = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
+      const response = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
 
       expect(response.status).toBe(200);
-      const data = await response.json() as { session: { sessionId: string } };
+      const data = (await response.json()) as { session: { sessionId: string } };
       expect(data.session.sessionId).toBe('test');
     });
 
@@ -341,9 +339,7 @@ describe('SessionDO', () => {
       );
       expect(resetResponse.status).toBe(200);
 
-      const getResponse = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
+      const getResponse = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
       expect(getResponse.status).toBe(404);
     });
 
@@ -381,11 +377,9 @@ describe('SessionDO', () => {
         })
       );
 
-      const response = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
+      const response = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
 
-      const data = await response.json() as { session: { requestCount: number } };
+      const data = (await response.json()) as { session: { requestCount: number } };
       expect(data.session.requestCount).toBe(1);
     });
 
@@ -397,11 +391,11 @@ describe('SessionDO', () => {
         })
       );
 
-      const response = await sessionDO.fetch(
-        new Request('http://do/get', { method: 'GET' })
-      );
+      const response = await sessionDO.fetch(new Request('http://do/get', { method: 'GET' }));
 
-      const data = await response.json() as { session: { requestCount: number; messageCount: number } };
+      const data = (await response.json()) as {
+        session: { requestCount: number; messageCount: number };
+      };
       expect(data.session.requestCount).toBe(1);
       expect(data.session.messageCount).toBe(1);
     });

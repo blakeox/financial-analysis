@@ -2,7 +2,10 @@
  * 529 Plan Optimizer MCP Tool
  */
 
-import { FiveTwoNineOptimizer, FiveTwoNineOptimizerInputSchema } from '@financial-analysis/analysis';
+import {
+  FiveTwoNineOptimizer,
+  FiveTwoNineOptimizerInputSchema,
+} from '@financial-analysis/analysis';
 
 export class FiveTwoNineOptimizerTool {
   static readonly toolName = 'analyze_529_optimizer';
@@ -21,7 +24,13 @@ export class FiveTwoNineOptimizerTool {
             enum: ['single', 'married-joint', 'married-separate', 'head-of-household'],
             description: 'Filing status',
           },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
         },
         required: ['stateOfResidence', 'filingStatus'],
       },
@@ -31,8 +40,18 @@ export class FiveTwoNineOptimizerTool {
           type: 'object',
           properties: {
             age: { type: 'number', minimum: 0, maximum: 25, description: 'Child age' },
-            yearsUntilCollege: { type: 'number', minimum: 0, maximum: 25, description: 'Years until college' },
-            expectedCollegeCost: { type: 'number', minimum: 0, default: 0, description: 'Expected 4-year college cost' },
+            yearsUntilCollege: {
+              type: 'number',
+              minimum: 0,
+              maximum: 25,
+              description: 'Years until college',
+            },
+            expectedCollegeCost: {
+              type: 'number',
+              minimum: 0,
+              default: 0,
+              description: 'Expected 4-year college cost',
+            },
             collegeType: {
               type: 'string',
               enum: ['public-in-state', 'public-out-state', 'private', 'unknown'],
@@ -48,15 +67,31 @@ export class FiveTwoNineOptimizerTool {
         type: 'object',
         properties: {
           annualContribution: { type: 'number', minimum: 0, description: 'Annual contribution' },
-          contributionIncrease: { type: 'number', minimum: 0, maximum: 0.1, default: 0.03, description: 'Annual contribution increase' },
+          contributionIncrease: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.1,
+            default: 0.03,
+            description: 'Annual contribution increase',
+          },
         },
         required: ['annualContribution'],
       },
       financialAid: {
         type: 'object',
         properties: {
-          expectFinancialAid: { type: 'boolean', default: true, description: 'Expect financial aid' },
-          expectedAidPercentage: { type: 'number', minimum: 0, maximum: 1, default: 0.3, description: 'Expected aid percentage' },
+          expectFinancialAid: {
+            type: 'boolean',
+            default: true,
+            description: 'Expect financial aid',
+          },
+          expectedAidPercentage: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.3,
+            description: 'Expected aid percentage',
+          },
         },
       },
       strategy: {
@@ -68,15 +103,27 @@ export class FiveTwoNineOptimizerTool {
             default: 'max-tax-benefit',
             description: 'Optimization goal',
           },
-          includeMultiStateComparison: { type: 'boolean', default: true, description: 'Include multi-state comparison' },
+          includeMultiStateComparison: {
+            type: 'boolean',
+            default: true,
+            description: 'Include multi-state comparison',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
           includeProjection: { type: 'boolean', default: true, description: 'Include projection' },
-          includeShortfallAnalysis: { type: 'boolean', default: true, description: 'Include shortfall analysis' },
-          includeRolloverAnalysis: { type: 'boolean', default: true, description: 'Include rollover analysis' },
+          includeShortfallAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include shortfall analysis',
+          },
+          includeRolloverAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include rollover analysis',
+          },
         },
       },
     },
@@ -88,5 +135,3 @@ export class FiveTwoNineOptimizerTool {
     return FiveTwoNineOptimizer.analyze(validated);
   }
 }
-
-

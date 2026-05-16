@@ -7,7 +7,6 @@ import { describe, it, expect } from 'vitest';
 import type { OrchestrationRequest } from '../services/llm-orchestrator';
 
 describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
-
   describe('Error Detection in Orchestrator', () => {
     it('should detect tool errors via hasToolErrors method', () => {
       // Access private method via reflection (for testing)
@@ -51,12 +50,14 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
             continue;
           }
           const outputObj = output as Record<string, unknown>;
-          if (outputObj._mcpError === true || 
-              outputObj._requiresReevaluation === true ||
-              'error' in outputObj ||
-              'errors' in outputObj ||
-              'validationErrors' in outputObj ||
-              (outputObj.success === false)) {
+          if (
+            outputObj._mcpError === true ||
+            outputObj._requiresReevaluation === true ||
+            'error' in outputObj ||
+            'errors' in outputObj ||
+            'validationErrors' in outputObj ||
+            outputObj.success === false
+          ) {
             return true;
           }
         }
@@ -80,24 +81,24 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
 
       // Simulate error extraction logic
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorMessage = '';
         let errorType = 'unknown';
-        
+
         if (outputObj._errorType) {
           errorType = String(outputObj._errorType);
         }
-        
+
         if (outputObj.error) {
           errorMessage = String(outputObj.error);
         }
-        
+
         if (errorMessage) {
           errors.push({ tool: toolName, error: errorMessage, type: errorType });
         }
@@ -121,25 +122,27 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
       };
 
       const errors: Array<{ tool: string; error: string; type?: string }> = [];
-      
+
       for (const [toolName, output] of Object.entries(toolOutputs)) {
         if (!output || typeof output !== 'object') {
           continue;
         }
         const outputObj = output as Record<string, unknown>;
-        
+
         let errorMessage = '';
         let errorType = 'unknown';
-        
+
         if (outputObj.validationErrors && Array.isArray(outputObj.validationErrors)) {
-          errorMessage = outputObj.validationErrors.map((e: unknown) => 
-            typeof e === 'object' && e !== null && 'message' in e 
-              ? String((e as { message: unknown }).message)
-              : String(e)
-          ).join('; ');
+          errorMessage = outputObj.validationErrors
+            .map((e: unknown) =>
+              typeof e === 'object' && e !== null && 'message' in e
+                ? String((e as { message: unknown }).message)
+                : String(e)
+            )
+            .join('; ');
           errorType = 'validation';
         }
-        
+
         if (errorMessage) {
           errors.push({ tool: toolName, error: errorMessage, type: errorType });
         }
@@ -156,12 +159,19 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
     it('should construct proper re-evaluation message', () => {
       const originalMessage = 'Calculate a $300k mortgage at 4.5% for 30 years';
       const errors = [
-        { tool: 'analyze_amortization', error: 'Invalid interest rate: must be between 0 and 1', type: 'validation' },
+        {
+          tool: 'analyze_amortization',
+          error: 'Invalid interest rate: must be between 0 and 1',
+          type: 'validation',
+        },
       ];
 
-      const errorContext = errors.map(e => 
-        `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
-      ).join('\n');
+      const errorContext = errors
+        .map(
+          (e) =>
+            `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
+        )
+        .join('\n');
 
       const reevaluationMessage = `${originalMessage}\n\n⚠️ IMPORTANT: The previous tool call(s) encountered errors:\n${errorContext}\n\nPlease re-evaluate the input and provide corrected parameters or suggest alternative approaches. If this was a field update request, please correct the values and try again.`;
 
@@ -181,9 +191,12 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
         { tool: 'analyze_lease', error: 'Missing monthly rent', type: 'validation' },
       ];
 
-      const errorContext = errors.map(e => 
-        `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
-      ).join('\n');
+      const errorContext = errors
+        .map(
+          (e) =>
+            `Tool "${e.tool}" returned an error: ${e.error}${e.type === 'validation' ? ' (validation error)' : ''}`
+        )
+        .join('\n');
 
       expect(errorContext).toContain('analyze_amortization');
       expect(errorContext).toContain('analyze_lease');
@@ -213,7 +226,7 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
       expect(request.toolOutputs).toBeDefined();
       if (request.toolOutputs) {
         expect(request.toolOutputs['analyze_amortization']).toBeDefined();
-        
+
         const toolOutput = request.toolOutputs['analyze_amortization'] as Record<string, unknown>;
         expect(toolOutput._mcpError).toBe(true);
         expect(toolOutput._requiresReevaluation).toBe(true);
@@ -232,4 +245,3 @@ describe('Tool Error Re-evaluation - Orchestrator Integration', () => {
     });
   });
 });
-

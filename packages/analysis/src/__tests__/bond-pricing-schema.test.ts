@@ -24,19 +24,25 @@ describe('BondPricingInputSchema', () => {
   });
 
   it('requires zero-coupon bonds to have zero couponRate', () => {
-    const invalid = BondPricingInputSchema.safeParse(buildInput({
-      bondType: 'zero-coupon',
-      couponRate: 0.02,
-    }));
+    const invalid = BondPricingInputSchema.safeParse(
+      buildInput({
+        bondType: 'zero-coupon',
+        couponRate: 0.02,
+      })
+    );
     expect(invalid.success).toBe(false);
     if (!invalid.success) {
-      expect(invalid.error.issues[0].message).toContain('Zero-coupon bonds must have couponRate of 0');
+      expect(invalid.error.issues[0].message).toContain(
+        'Zero-coupon bonds must have couponRate of 0'
+      );
     }
 
-    const parsed = BondPricingInputSchema.parse(buildInput({
-      bondType: 'zero-coupon',
-      couponRate: 0,
-    }));
+    const parsed = BondPricingInputSchema.parse(
+      buildInput({
+        bondType: 'zero-coupon',
+        couponRate: 0,
+      })
+    );
     expect(parsed.couponRate).toBe(0);
   });
 
@@ -44,17 +50,21 @@ describe('BondPricingInputSchema', () => {
     const invalid = BondPricingInputSchema.safeParse(buildInput({ bondType: 'floating-rate' }));
     expect(invalid.success).toBe(false);
     if (!invalid.success) {
-      expect(invalid.error.issues[0].message).toContain('Floating rate bonds require floatingRateFeatures');
+      expect(invalid.error.issues[0].message).toContain(
+        'Floating rate bonds require floatingRateFeatures'
+      );
     }
 
-    const parsed = BondPricingInputSchema.parse(buildInput({
-      bondType: 'floating-rate',
-      floatingRateFeatures: {
-        referenceRate: 'SOFR',
-        spread: 0.01,
-        resetFrequency: 'quarterly',
-      },
-    }));
+    const parsed = BondPricingInputSchema.parse(
+      buildInput({
+        bondType: 'floating-rate',
+        floatingRateFeatures: {
+          referenceRate: 'SOFR',
+          spread: 0.01,
+          resetFrequency: 'quarterly',
+        },
+      })
+    );
     expect(parsed.floatingRateFeatures?.referenceRate).toBe('SOFR');
   });
 
@@ -62,17 +72,21 @@ describe('BondPricingInputSchema', () => {
     const invalid = BondPricingInputSchema.safeParse(buildInput({ bondType: 'convertible' }));
     expect(invalid.success).toBe(false);
     if (!invalid.success) {
-      expect(invalid.error.issues[0].message).toContain('Convertible bonds require convertibleFeatures');
+      expect(invalid.error.issues[0].message).toContain(
+        'Convertible bonds require convertibleFeatures'
+      );
     }
 
-    const parsed = BondPricingInputSchema.parse(buildInput({
-      bondType: 'convertible',
-      convertibleFeatures: {
-        conversionRatio: 1.5,
-        conversionPrice: 50,
-        currentStockPrice: 45,
-      },
-    }));
+    const parsed = BondPricingInputSchema.parse(
+      buildInput({
+        bondType: 'convertible',
+        convertibleFeatures: {
+          conversionRatio: 1.5,
+          conversionPrice: 50,
+          currentStockPrice: 45,
+        },
+      })
+    );
     expect(parsed.convertibleFeatures?.conversionRatio).toBe(1.5);
   });
 
@@ -80,17 +94,21 @@ describe('BondPricingInputSchema', () => {
     const invalid = BondPricingInputSchema.safeParse(buildInput({ bondType: 'inflation-linked' }));
     expect(invalid.success).toBe(false);
     if (!invalid.success) {
-      expect(invalid.error.issues[0].message).toContain('Inflation-linked bonds require inflationLinkedFeatures');
+      expect(invalid.error.issues[0].message).toContain(
+        'Inflation-linked bonds require inflationLinkedFeatures'
+      );
     }
 
-    const parsed = BondPricingInputSchema.parse(buildInput({
-      bondType: 'inflation-linked',
-      inflationLinkedFeatures: {
-        realYield: 0.01,
-        inflationRate: 0.02,
-        indexRatio: 1.05,
-      },
-    }));
+    const parsed = BondPricingInputSchema.parse(
+      buildInput({
+        bondType: 'inflation-linked',
+        inflationLinkedFeatures: {
+          realYield: 0.01,
+          inflationRate: 0.02,
+          indexRatio: 1.05,
+        },
+      })
+    );
     expect(parsed.inflationLinkedFeatures?.indexRatio).toBe(1.05);
   });
 });

@@ -76,9 +76,11 @@ describe('InvestmentPortfolioAnalyzer', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(baseInput) as any;
 
       expect(result.rebalancingRecommendations.length).toBeGreaterThan(0);
-      
+
       // Should recommend increasing stocks (from 15% to 60%)
-      const stocksRec = result.rebalancingRecommendations.find((r: any) => r.assetClass === 'stocks');
+      const stocksRec = result.rebalancingRecommendations.find(
+        (r: any) => r.assetClass === 'stocks'
+      );
       expect(stocksRec).toBeDefined();
       expect(stocksRec.action).toBe('Increase');
       expect(stocksRec.currentPercent).toBe('15.0');
@@ -326,7 +328,9 @@ describe('InvestmentPortfolioAnalyzer', () => {
     it('should recommend rebalancing for drift > 10%', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(baseInput) as any;
 
-      expect(result.recommendations).toContain('Rebalance your portfolio to align with target allocation');
+      expect(result.recommendations).toContain(
+        'Rebalance your portfolio to align with target allocation'
+      );
     });
 
     it('should recommend diversification for sector concentration > 40%', () => {
@@ -367,21 +371,27 @@ describe('InvestmentPortfolioAnalyzer', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(input) as any;
 
       // All holdings in Technology = 1.0 concentration (> 0.4)
-      expect(result.recommendations).toContain('Diversify across more sectors to reduce concentration risk');
+      expect(result.recommendations).toContain(
+        'Diversify across more sectors to reduce concentration risk'
+      );
     });
 
     it('should recommend investing excess cash', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(baseInput) as any;
 
       // Cash is 85% vs target of 10% (8.5x target)
-      expect(result.recommendations).toContain('Consider investing excess cash to meet target allocation');
+      expect(result.recommendations).toContain(
+        'Consider investing excess cash to meet target allocation'
+      );
     });
 
     it('should recommend increasing stocks when < 80% of target', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(baseInput) as any;
 
       // Stocks are 15% vs target of 60% (0.25x target < 0.8)
-      expect(result.recommendations).toContain('Increase stock allocation to meet target for your risk tolerance');
+      expect(result.recommendations).toContain(
+        'Increase stock allocation to meet target for your risk tolerance'
+      );
     });
 
     it('should not recommend increasing stocks when >= 80% of target', () => {
@@ -406,7 +416,9 @@ describe('InvestmentPortfolioAnalyzer', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(input) as any;
 
       // Stocks are 48% vs target of 60% (0.8x target = 80%)
-      expect(result.recommendations).not.toContain('Increase stock allocation to meet target for your risk tolerance');
+      expect(result.recommendations).not.toContain(
+        'Increase stock allocation to meet target for your risk tolerance'
+      );
     });
 
     it('should handle portfolio with bonds', () => {
@@ -522,7 +534,9 @@ describe('InvestmentPortfolioAnalyzer', () => {
       const result = InvestmentPortfolioAnalyzer.analyze(perfectInput) as any;
 
       expect(result.insights[0]).toContain('well aligned');
-      expect(result.insights[3]).toBe('Your portfolio is well-balanced and aligned with your goals');
+      expect(result.insights[3]).toBe(
+        'Your portfolio is well-balanced and aligned with your goals'
+      );
     });
 
     it('should generate insights for moderately aligned portfolio', () => {

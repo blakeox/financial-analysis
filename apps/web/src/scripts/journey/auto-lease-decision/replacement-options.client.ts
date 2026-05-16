@@ -71,12 +71,20 @@ const parseNumber = (value: FormDataEntryValue | string | number | null | undefi
 
 const formatCurrency = (value: number) =>
   typeof value === 'number' && Number.isFinite(value)
-    ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+    ? value.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      })
     : '$0';
 
 const formatPerMile = (value: number) =>
   typeof value === 'number' && Number.isFinite(value)
-    ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 })
+    ? value.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 3,
+      })
     : '$0';
 
 const computeOption = (inputs: OptionInputs): ComparisonOption => {
@@ -98,7 +106,14 @@ const computeOption = (inputs: OptionInputs): ComparisonOption => {
 
   const horizon = horizonMonths || 36;
   const miles = annualMiles || 12000;
-  const base = monthly * horizon + upfront + insurance * horizon + maintenance * horizon + fuel * horizon + fees + gapInsurance;
+  const base =
+    monthly * horizon +
+    upfront +
+    insurance * horizon +
+    maintenance * horizon +
+    fuel * horizon +
+    fees +
+    gapInsurance;
   const afterIncentives = base - incentives;
   const total = subtractResale ? afterIncentives - resale : afterIncentives;
 
@@ -168,9 +183,12 @@ const getStringEntriesFromForm = (form: HTMLFormElement): PersistedSection => {
     details.cashNotOption = cashNotOptionEl.checked ? 'on' : '';
   }
 
-  if (details.leaseUpfront && !details.leaseDownPayment) details.leaseDownPayment = details.leaseUpfront;
-  if (details.financeUpfront && !details.financeDownPayment) details.financeDownPayment = details.financeUpfront;
-  if (details.financeResale && !details.financeResaleValue) details.financeResaleValue = details.financeResale;
+  if (details.leaseUpfront && !details.leaseDownPayment)
+    details.leaseDownPayment = details.leaseUpfront;
+  if (details.financeUpfront && !details.financeDownPayment)
+    details.financeDownPayment = details.financeUpfront;
+  if (details.financeResale && !details.financeResaleValue)
+    details.financeResaleValue = details.financeResale;
 
   return details;
 };
@@ -209,8 +227,14 @@ const renderResults = (results: ReplacementResults, cashNotOption: boolean, show
   const wrapper = document.getElementById('replacement-results');
   if (!leaseResult || !financeResult || !cashResult || !recommendation || !wrapper) return;
 
-  const leaseIncentiveInfo = results.lease.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.lease.totalIncentives)} incentives)` : '';
-  const financeIncentiveInfo = results.finance.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.finance.totalIncentives)} incentives)` : '';
+  const leaseIncentiveInfo =
+    results.lease.totalIncentives > 0
+      ? ` (incl. ${formatCurrency(results.lease.totalIncentives)} incentives)`
+      : '';
+  const financeIncentiveInfo =
+    results.finance.totalIncentives > 0
+      ? ` (incl. ${formatCurrency(results.finance.totalIncentives)} incentives)`
+      : '';
 
   if (showNpv) {
     leaseResult.textContent = `${formatCurrency(results.lease.total)} total, NPV: ${formatCurrency(results.lease.npvTotal)} (${formatPerMile(results.lease.costPerMile)}/mi)${leaseIncentiveInfo}`;
@@ -221,9 +245,14 @@ const renderResults = (results: ReplacementResults, cashNotOption: boolean, show
   }
 
   if (cashNotOption || !results.cash) {
-    cashResult.textContent = cashNotOption ? 'Skipped — marked not an option' : 'Enter purchase price to compare';
+    cashResult.textContent = cashNotOption
+      ? 'Skipped — marked not an option'
+      : 'Enter purchase price to compare';
   } else {
-    const cashIncentiveInfo = results.cash.totalIncentives > 0 ? ` (incl. ${formatCurrency(results.cash.totalIncentives)} incentives)` : '';
+    const cashIncentiveInfo =
+      results.cash.totalIncentives > 0
+        ? ` (incl. ${formatCurrency(results.cash.totalIncentives)} incentives)`
+        : '';
     if (showNpv) {
       cashResult.textContent = `${formatCurrency(results.cash.total)} total, NPV: ${formatCurrency(results.cash.npvTotal)} (${formatPerMile(results.cash.costPerMile)}/mi)${cashIncentiveInfo}`;
     } else {
@@ -246,7 +275,9 @@ const renderResults = (results: ReplacementResults, cashNotOption: boolean, show
   if (showNpv) {
     recText += ' NPV accounts for the time value of money.';
   }
-  recText += cashNotOption ? ' Cash path skipped due to limited savings.' : ' Check maintenance/insurance swings that could change the ranking.';
+  recText += cashNotOption
+    ? ' Cash path skipped due to limited savings.'
+    : ' Check maintenance/insurance swings that could change the ranking.';
 
   recommendation.textContent = recText;
   wrapper.classList.remove('hidden');
@@ -257,18 +288,25 @@ const hydrateForm = () => {
   if (!details) return;
 
   const normalized = { ...details };
-  if (normalized.leaseUpfront && !normalized.leaseDownPayment) normalized.leaseDownPayment = normalized.leaseUpfront;
-  if (normalized.financeUpfront && !normalized.financeDownPayment) normalized.financeDownPayment = normalized.financeUpfront;
-  if (normalized.financeResale && !normalized.financeResaleValue) normalized.financeResaleValue = normalized.financeResale;
+  if (normalized.leaseUpfront && !normalized.leaseDownPayment)
+    normalized.leaseDownPayment = normalized.leaseUpfront;
+  if (normalized.financeUpfront && !normalized.financeDownPayment)
+    normalized.financeDownPayment = normalized.financeUpfront;
+  if (normalized.financeResale && !normalized.financeResaleValue)
+    normalized.financeResaleValue = normalized.financeResale;
 
   Object.entries(normalized).forEach(([key, value]) => {
     const input = document.querySelector(`[name="${key}"]`);
     if (input instanceof HTMLInputElement && input.type === 'checkbox') {
       input.checked = value === 'on' || value === 'true';
-     } else if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement || input instanceof HTMLSelectElement) {
-       input.value = value;
-     }
-   });
+    } else if (
+      input instanceof HTMLInputElement ||
+      input instanceof HTMLTextAreaElement ||
+      input instanceof HTMLSelectElement
+    ) {
+      input.value = value;
+    }
+  });
   toggleCashFields();
   const statusEl = document.getElementById('replacement-status');
   if (statusEl) statusEl.textContent = 'Loaded from last session';
@@ -290,7 +328,8 @@ const runComparison = () => {
   const collegeGradRebate = parseNumber(formData.get('collegeGradRebate'));
 
   const brandIncentive = Math.max(loyaltyBonus, conquestCash);
-  const totalIncentives = brandIncentive + evFederalCredit + evStateCredit + dealerRebate + collegeGradRebate;
+  const totalIncentives =
+    brandIncentive + evFederalCredit + evStateCredit + dealerRebate + collegeGradRebate;
   const discountRate = parseNumber(formData.get('discountRate'));
   const newLeaseGapInsurance = parseNumber(formData.get('newLeaseGapInsurance'));
   const financeGapInsurance = parseNumber(formData.get('financeGapInsurance'));
@@ -326,7 +365,10 @@ const runComparison = () => {
     horizonMonths,
     financeMonthlyPayment
   );
-  const financeNetResaleAtHorizon = Math.max(0, financeResaleValue - financeRemainingBalanceAtHorizon);
+  const financeNetResaleAtHorizon = Math.max(
+    0,
+    financeResaleValue - financeRemainingBalanceAtHorizon
+  );
 
   const finance = computeOption({
     monthly: financeMonthlyPayment,
@@ -347,7 +389,9 @@ const runComparison = () => {
     ? null
     : computeOption({
         monthly: 0,
-        upfront: (parseNumber(formData.get('cashPrice')) || 0) + (parseNumber(formData.get('cashTaxesFees')) || 0),
+        upfront:
+          (parseNumber(formData.get('cashPrice')) || 0) +
+          (parseNumber(formData.get('cashTaxesFees')) || 0),
         insurance: parseNumber(formData.get('cashInsurance')),
         maintenance: parseNumber(formData.get('cashMaintenance')),
         fuel: parseNumber(formData.get('cashFuel')),

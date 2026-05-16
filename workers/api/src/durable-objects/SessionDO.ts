@@ -65,15 +65,15 @@ export class SessionDO {
    */
   async alarm(): Promise<void> {
     const now = Date.now();
-    
+
     if (!this.session) {
       // No session, nothing to clean up
       return;
     }
-    
+
     const age = now - this.session.createdAt;
     const inactiveTime = now - this.session.lastActivity;
-    
+
     // Check if session should be cleaned up
     if (age > this.limits.sessionMaxLifetimeMs) {
       console.log(`Session expired (max lifetime): ${this.session.sessionId}`);
@@ -81,20 +81,20 @@ export class SessionDO {
       this.session = null;
       return;
     }
-    
+
     if (inactiveTime > this.limits.sessionTimeoutMs) {
       console.log(`Session expired (inactivity): ${this.session.sessionId}`);
       await this.state.storage.deleteAll();
       this.session = null;
       return;
     }
-    
+
     // Still active, schedule next check
     const nextCheckTime = Math.min(
       this.session.createdAt + this.limits.sessionMaxLifetimeMs,
       this.session.lastActivity + this.limits.sessionTimeoutMs
     );
-    
+
     await this.state.storage.setAlarm(nextCheckTime);
   }
 
@@ -122,10 +122,10 @@ export class SessionDO {
       }
     } catch (error) {
       console.error('SessionDO error:', error);
-      return new Response(
-        JSON.stringify({ error: 'Internal error' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Internal error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
 
@@ -134,7 +134,7 @@ export class SessionDO {
    * POST /init with { sessionId, ipAddress, userAgent }
    */
   private async handleInit(request: Request): Promise<Response> {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       sessionId: string;
       ipAddress: string;
       userAgent: string;
@@ -174,25 +174,24 @@ export class SessionDO {
    * POST /check with { requestHash, isMessage }
    */
   private async handleCheck(request: Request): Promise<Response> {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       requestHash?: string;
       isMessage?: boolean;
     };
 
     if (!this.session) {
-      return new Response(
-        JSON.stringify({ allowed: false, reason: 'session_not_found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ allowed: false, reason: 'session_not_found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const now = Date.now();
     const checks = this.performChecks(now, body.requestHash, body.isMessage || false);
 
-    return new Response(
-      JSON.stringify(checks),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(checks), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   /**
@@ -200,16 +199,16 @@ export class SessionDO {
    * POST /increment with { requestHash, isMessage }
    */
   private async handleIncrement(request: Request): Promise<Response> {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       requestHash?: string;
       isMessage?: boolean;
     };
 
     if (!this.session) {
-      return new Response(
-        JSON.stringify({ error: 'session_not_found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'session_not_found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const now = Date.now();
@@ -251,16 +250,16 @@ export class SessionDO {
    * POST /flag with { flag, scoreAdjustment }
    */
   private async handleFlag(request: Request): Promise<Response> {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       flag: string;
       scoreAdjustment?: number;
     };
 
     if (!this.session) {
-      return new Response(
-        JSON.stringify({ error: 'session_not_found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'session_not_found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Add flag if not already present
@@ -290,16 +289,15 @@ export class SessionDO {
    */
   private async handleGet(): Promise<Response> {
     if (!this.session) {
-      return new Response(
-        JSON.stringify({ error: 'session_not_found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'session_not_found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ session: this.serializeSession(this.session) }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ session: this.serializeSession(this.session) }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   /**
@@ -310,10 +308,9 @@ export class SessionDO {
     await this.state.storage.deleteAll();
     this.session = null;
 
-    return new Response(
-      JSON.stringify({ ok: true }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   /**
@@ -377,9 +374,7 @@ export class SessionDO {
 
     // Check rate limiting (sliding window)
     const windowStart = now - 60 * 1000; // 1 minute
-    const recentRequests = this.session.requestTimestamps.filter(
-      (ts) => ts >= windowStart
-    );
+    const recentRequests = this.session.requestTimestamps.filter((ts) => ts >= windowStart);
 
     if (recentRequests.length >= this.limits.requestsPerMinute) {
       const oldestInWindow = Math.min(...recentRequests);

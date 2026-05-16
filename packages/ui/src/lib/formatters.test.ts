@@ -29,7 +29,7 @@ describe('formatters', () => {
 
     it('rounds to nearest dollar', () => {
       expect(formatCurrency(1234.49)).toBe('$1,234');
-      expect(formatCurrency(1234.50)).toBe('$1,235');
+      expect(formatCurrency(1234.5)).toBe('$1,235');
       expect(formatCurrency(1234.99)).toBe('$1,235');
     });
 

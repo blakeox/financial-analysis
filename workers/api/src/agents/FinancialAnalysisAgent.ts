@@ -162,8 +162,7 @@ export class FinancialAnalysisAgent extends Think<Env> {
               : {}),
             ...(this.env.BROWSER_RENDERING_PATH_PREFIXES
               ? {
-                  browserRenderingPathPrefixes: this.env.BROWSER_RENDERING_PATH_PREFIXES
-                    .split(',')
+                  browserRenderingPathPrefixes: this.env.BROWSER_RENDERING_PATH_PREFIXES.split(',')
                     .map((prefix) => prefix.trim())
                     .filter(Boolean),
                 }

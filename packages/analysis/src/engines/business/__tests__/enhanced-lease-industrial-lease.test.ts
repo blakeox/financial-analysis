@@ -5,7 +5,7 @@ import type { EnhancedLeaseInput } from '../../../schemas/enhanced-lease';
 /**
  * This test verifies that the enhanced lease analysis engine can handle
  * the specific industrial lease data extracted from the test PDF:
- * 
+ *
  * Base Rent: Year 1 $45,000/month
  * Lease Term: 5 years (60 months)
  * Square Footage: 50,000 RSF
@@ -46,7 +46,7 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
       annualRate: 0.05, // Default rate
       principal: 0, // Real estate lease
       residualValue: 0,
-      
+
       // Escalation: 3% annually
       escalation: {
         type: 'fixed', // 'percentage' maps to 'fixed' in the schema
@@ -54,7 +54,7 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
         schedule: [],
         cpiBase: 0,
       },
-      
+
       // NNN lease - tenant pays 100% of operating expenses
       // In practice, these would be calculated and passed in monthly
       additionalCosts: {
@@ -73,13 +73,13 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
         landscaping: 0,
         wasteManagement: 0,
       },
-      
+
       // Security deposit
       securityDeposit: {
         amount: extractedData.securityDeposit,
         interestRate: 0,
       },
-      
+
       // Building space details
       buildingSpace: {
         squareFeet: extractedData.squareFootage,
@@ -97,7 +97,7 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
           'Ancillary office',
         ],
       },
-      
+
       // Default values
       discountRate: 0.08,
       renewalOptions: [],
@@ -164,14 +164,14 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
       annualRate: 0.05,
       principal: 0,
       residualValue: 0,
-      
+
       escalation: {
         type: 'fixed',
         rate: 0.03, // 3% annually
         schedule: [],
         cpiBase: 0,
       },
-      
+
       discountRate: 0.08,
       renewalOptions: [],
     };
@@ -196,8 +196,14 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
     expect(result.schedule[47]!.escalatedPayment).toBeCloseTo(45000 * 1.03 * 1.03 * 1.03, 0.01);
 
     // Year 5: $49,172.72 * 1.03 = $50,647.90/month (months 49-60)
-    expect(result.schedule[48]!.escalatedPayment).toBeCloseTo(45000 * 1.03 * 1.03 * 1.03 * 1.03, 0.01);
-    expect(result.schedule[59]!.escalatedPayment).toBeCloseTo(45000 * 1.03 * 1.03 * 1.03 * 1.03, 0.01);
+    expect(result.schedule[48]!.escalatedPayment).toBeCloseTo(
+      45000 * 1.03 * 1.03 * 1.03 * 1.03,
+      0.01
+    );
+    expect(result.schedule[59]!.escalatedPayment).toBeCloseTo(
+      45000 * 1.03 * 1.03 * 1.03 * 1.03,
+      0.01
+    );
   });
 
   it('should calculate total lease commitment correctly', () => {
@@ -208,14 +214,14 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
       annualRate: 0.05,
       principal: 0,
       residualValue: 0,
-      
+
       escalation: {
         type: 'fixed',
         rate: 0.03,
         schedule: [],
         cpiBase: 0,
       },
-      
+
       discountRate: 0.08,
       renewalOptions: [],
     };
@@ -243,4 +249,3 @@ describe('EnhancedLeaseAnalyzer - Industrial Lease from Extracted PDF', () => {
     expect(result.metrics.averageMonthlyPayment).toBeLessThan(lastMonth);
   });
 });
-

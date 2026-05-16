@@ -114,7 +114,11 @@ export class EmployerMatch401kOptimizer {
   private static optimizeContribution(
     employeeInfo: EmployerMatch401kInput['employeeInfo'],
     currentMatch: { annualMatch: number },
-    maximumMatch: { optimalContributionPercent: number; optimalContributionAmount: number; annualMatch: number }
+    maximumMatch: {
+      optimalContributionPercent: number;
+      optimalContributionAmount: number;
+      annualMatch: number;
+    }
   ): {
     currentContributionPercent: number;
     optimalContributionPercent: number;
@@ -184,9 +188,10 @@ export class EmployerMatch401kOptimizer {
     };
   }
 
-  private static analyzeTaxBenefits(
-    maximumMatch: { optimalContributionAmount: number; totalAnnualContribution: number }
-  ): {
+  private static analyzeTaxBenefits(maximumMatch: {
+    optimalContributionAmount: number;
+    totalAnnualContribution: number;
+  }): {
     taxSavings: number;
     effectiveContribution: number;
     interpretation: string;

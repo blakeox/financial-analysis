@@ -13,7 +13,10 @@ afterEach(() => {
 });
 
 const helpers = EnhancedLeaseAnalyzer as unknown as {
-  calculateEquipmentPayment: (input: EnhancedLeaseInput) => { basePayment: number; interestRate: number };
+  calculateEquipmentPayment: (input: EnhancedLeaseInput) => {
+    basePayment: number;
+    interestRate: number;
+  };
   applyEscalation: (
     basePayment: number,
     month: number,
@@ -73,7 +76,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0, // Real estate lease, no equipment
         residualValue: 0,
-        
+
         // Escalation: 3% annually
         escalation: {
           type: 'fixed',
@@ -81,7 +84,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           schedule: [],
           cpiBase: 0,
         },
-        
+
         // Additional costs (NNN lease - tenant pays these)
         additionalCosts: {
           camCharges: 5000, // CAM charges
@@ -99,26 +102,26 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 400,
           wasteManagement: 600,
         },
-        
+
         // Security deposit
         securityDeposit: {
           amount: 90000, // $90,000
           interestRate: 0,
         },
-        
+
         // Building space details
         buildingSpace: {
           squareFeet: 50000, // 50,000 RSF
           usableSquareFeet: 47500, // Usable square footage
           loadFactor: 1.05, // 5% load factor
-          pricePerSquareFoot: 10.80, // $45,000 * 12 / 50,000
+          pricePerSquareFoot: 10.8, // $45,000 * 12 / 50,000
           floors: ['1'],
           parkingSpaces: 60, // 60 exclusive parking spaces
           exclusiveAreas: ['Loading docks', 'Storage area'],
           zoningType: 'Industrial',
           permittedUses: ['Precision machining', 'Metal fabrication', 'Warehousing'],
         },
-        
+
         discountRate: 0.08,
         renewalOptions: [],
       };
@@ -141,7 +144,8 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
       expect(result.schedule[0]!.additionalCosts.hvacMaintenance).toBe(1200);
 
       // Total first month payment should include all costs
-      const firstMonthTotal = 45000 + 5000 + 3000 + 1500 + 2000 + 1000 + 500 + 500 + 300 + 200 + 1200 + 400 + 600;
+      const firstMonthTotal =
+        45000 + 5000 + 3000 + 1500 + 2000 + 1000 + 500 + 500 + 300 + 200 + 1200 + 400 + 600;
       expect(result.schedule[0]!.totalPayment).toBeCloseTo(firstMonthTotal, 0.01);
 
       // Verify escalation is applied
@@ -171,14 +175,14 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         escalation: {
           type: 'fixed',
           rate: 0.03,
           schedule: [],
           cpiBase: 0,
         },
-        
+
         // NNN lease where tenant pays 100% of operating expenses
         // These would be calculated separately and passed in as additional costs
         // For this test, we're setting them to 0 to verify the engine handles it
@@ -198,7 +202,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 0,
           wasteManagement: 0,
         },
-        
+
         discountRate: 0.08,
         renewalOptions: [],
       };
@@ -225,14 +229,14 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         escalation: {
           type: 'fixed',
           rate: 0.03, // 3% annually
           schedule: [],
           cpiBase: 0,
         },
-        
+
         additionalCosts: {
           camCharges: 5000,
           propertyTaxes: 3000,
@@ -249,7 +253,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 400,
           wasteManagement: 600,
         },
-        
+
         discountRate: 0.08,
         renewalOptions: [],
       };
@@ -267,7 +271,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
       // Last year should be roughly 3% higher than first year (compounded over 4 years)
       const expectedIncrease = 0.03 * 4; // 12% total increase over 4 years
       const actualIncrease = (lastYearAvg - firstYearAvg) / firstYearAvg;
-      
+
       // Allow for rounding tolerance - base rent increases but total includes fixed additional costs
       // So actual increase will be less than 12% as additional costs don't escalate
       expect(actualIncrease).toBeGreaterThan(expectedIncrease * 0.6); // At least 60% of expected
@@ -282,14 +286,14 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         escalation: {
           type: 'fixed',
           rate: 0.03,
           schedule: [],
           cpiBase: 0,
         },
-        
+
         additionalCosts: {
           camCharges: 5000,
           propertyTaxes: 3000,
@@ -306,7 +310,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 0,
           wasteManagement: 0,
         },
-        
+
         discountRate: 0.08, // 8% discount rate
         renewalOptions: [],
       };
@@ -315,10 +319,10 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
 
       // Present value should be less than total cost due to discounting
       expect(result.metrics.presentValue).toBeLessThan(result.metrics.totalCost);
-      
+
       // Present value should be reasonable (not negative, not zero)
       expect(result.metrics.presentValue).toBeGreaterThan(0);
-      
+
       // Each payment's present value should decrease over time
       expect(result.schedule[0]!.presentValue).toBeGreaterThan(result.schedule[59]!.presentValue);
     });
@@ -331,14 +335,14 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         percentageRent: {
           enabled: true,
           percentage: 0.06, // 6% of gross sales
           breakpoint: 2000000, // $2M annual breakpoint
           annualSalesEstimate: 3000000, // $3M annual sales estimate
         },
-        
+
         additionalCosts: {
           camCharges: 2000,
           propertyTaxes: 1500,
@@ -355,7 +359,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 0,
           wasteManagement: 0,
         },
-        
+
         discountRate: 0.08,
         renewalOptions: [],
       };
@@ -372,7 +376,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
       // Total payment should include base rent, additional costs, and percentage rent
       const expectedTotal = 10000 + 2000 + 1500 + 800 + 500 + expectedPercentageRent;
       expect(result.schedule[0]!.totalPayment).toBeCloseTo(expectedTotal, 0.01);
-      
+
       // Verify percentage rent is included in the schedule
       expect(result.schedule[0]!.percentageRent).toBeCloseTo(expectedPercentageRent, 0.01);
     });
@@ -385,20 +389,20 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         escalation: {
           type: 'fixed',
           rate: 0.03,
           schedule: [],
           cpiBase: 0,
         },
-        
+
         earlyTermination: {
           allowed: true,
           penaltyMonths: 3,
           penaltyAmount: 0,
         },
-        
+
         renewalOptions: [
           {
             termMonths: 60,
@@ -408,7 +412,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
             escalationRate: 0.03,
           },
         ],
-        
+
         discountRate: 0.08,
       };
 
@@ -416,16 +420,16 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
 
       // Risk analysis should be present
       expect(result.riskAnalysis).toBeDefined();
-      
+
       // With early termination option, flexibility score should be higher
       expect(result.riskAnalysis.flexibilityScore).toBeGreaterThan(50);
-      
+
       // With renewal options, renewal risk should be lower
       expect(result.riskAnalysis.renewalRisk).toBe('low');
-      
+
       // With escalation, rate escalation risk should not be low
       expect(result.riskAnalysis.rateEscalationRisk).not.toBe('low');
-      
+
       // Early termination cost should be reasonable
       expect(result.riskAnalysis.earlyTerminationCost).toBeGreaterThan(0);
     });
@@ -438,14 +442,14 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
         annualRate: 0.05,
         principal: 0,
         residualValue: 0,
-        
+
         escalation: {
           type: 'fixed',
           rate: 0.03,
           schedule: [],
           cpiBase: 0,
         },
-        
+
         additionalCosts: {
           camCharges: 5000,
           propertyTaxes: 3000,
@@ -462,7 +466,7 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
           landscaping: 0,
           wasteManagement: 0,
         },
-        
+
         discountRate: 0.08,
         renewalOptions: [],
       };
@@ -471,11 +475,11 @@ describe('EnhancedLeaseAnalyzer - Commercial Real Estate Scenarios', () => {
 
       // Sensitivity analysis should be present
       expect(result.sensitivity).toBeDefined();
-      
+
       // Rate increase sensitivity should show increased costs
       expect(result.sensitivity!.rateIncrease1Percent.totalCostChange).toBeGreaterThan(0);
       expect(result.sensitivity!.rateIncrease1Percent.monthlyPaymentChange).toBeGreaterThan(0);
-      
+
       // Term extension sensitivity should show increased costs
       expect(result.sensitivity!.termExtension6Months.totalCostChange).toBeGreaterThan(0);
     });
@@ -591,29 +595,36 @@ describe('EnhancedLeaseAnalyzer helper coverage', () => {
   });
 
   it('skips purchase option analysis when the option is disabled', () => {
-    const result = helpers.analyzePurchaseOption(createBaseInput({
-      purchaseOption: { enabled: false },
-    }));
+    const result = helpers.analyzePurchaseOption(
+      createBaseInput({
+        purchaseOption: { enabled: false },
+      })
+    );
 
     expect(result).toBeUndefined();
   });
 
   it('falls back to residual value when purchase option fixed amount is missing', () => {
-    const result = helpers.analyzePurchaseOption(createBaseInput({
-      residualValue: 18000,
-      purchaseOption: { enabled: true },
-    }));
+    const result = helpers.analyzePurchaseOption(
+      createBaseInput({
+        residualValue: 18000,
+        purchaseOption: { enabled: true },
+      })
+    );
 
     expect(result?.purchasePrice).toBe(18000);
   });
 
   it('returns undefined for lease-vs-buy comparisons without purchase price', () => {
     const metrics = createMetrics();
-    const result = helpers.analyzeLeaseVsBuy(createBaseInput({
-      compareAlternatives: {
-        loanRate: 0.05,
-      },
-    }), metrics);
+    const result = helpers.analyzeLeaseVsBuy(
+      createBaseInput({
+        compareAlternatives: {
+          loanRate: 0.05,
+        },
+      }),
+      metrics
+    );
 
     expect(result).toBeUndefined();
   });
@@ -622,21 +633,24 @@ describe('EnhancedLeaseAnalyzer helper coverage', () => {
     const purchasePrice = 90000;
     const termMonths = 36;
     const metrics = createMetrics();
-    const analysis = helpers.analyzeLeaseVsBuy(createBaseInput({
-      termMonths,
-      compareAlternatives: {
-        purchasePrice,
-      },
-    }), metrics);
+    const analysis = helpers.analyzeLeaseVsBuy(
+      createBaseInput({
+        termMonths,
+        compareAlternatives: {
+          purchasePrice,
+        },
+      }),
+      metrics
+    );
 
     expect(analysis).toBeDefined();
 
     const fallbackRate = 0.06;
     const monthlyRate = fallbackRate / 12;
-    const expectedPayment = purchasePrice * (
-      (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
-      (Math.pow(1 + monthlyRate, termMonths) - 1)
-    );
+    const expectedPayment =
+      purchasePrice *
+      ((monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+        (Math.pow(1 + monthlyRate, termMonths) - 1));
 
     expect(analysis!.buyOption.loanPayment).toBeCloseTo(expectedPayment, 2);
     expect(analysis!.buyOption.totalLoanCost).toBeCloseTo(expectedPayment * termMonths, 2);
@@ -653,18 +667,21 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
       presentValue: 190000,
     });
 
-    const risk = helpers.analyzeRisk(createBaseInput({
-      earlyTermination: {
-        allowed: true,
-        penaltyMonths: 2,
-      },
-      escalation: {
-        type: 'none',
-        rate: 0,
-        schedule: [],
-        cpiBase: 0,
-      },
-    }), metrics);
+    const risk = helpers.analyzeRisk(
+      createBaseInput({
+        earlyTermination: {
+          allowed: true,
+          penaltyMonths: 2,
+        },
+        escalation: {
+          type: 'none',
+          rate: 0,
+          schedule: [],
+          cpiBase: 0,
+        },
+      }),
+      metrics
+    );
 
     expect(risk.earlyTerminationCost).toBeCloseTo(4200 * 2, 2);
     expect(risk.rateEscalationRisk).toBe('low');
@@ -673,13 +690,16 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
   it('prefers an explicit early termination penalty amount when provided', () => {
     const metrics = createMetrics({ averageMonthlyPayment: 3000 });
 
-    const risk = helpers.analyzeRisk(createBaseInput({
-      earlyTermination: {
-        allowed: true,
-        penaltyAmount: 10000,
-        penaltyMonths: 12,
-      },
-    }), metrics);
+    const risk = helpers.analyzeRisk(
+      createBaseInput({
+        earlyTermination: {
+          allowed: true,
+          penaltyAmount: 10000,
+          penaltyMonths: 12,
+        },
+      }),
+      metrics
+    );
 
     expect(risk.earlyTerminationCost).toBe(10000);
   });
@@ -687,11 +707,14 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
   it('defaults penalty months to three when not specified', () => {
     const metrics = createMetrics({ averageMonthlyPayment: 2500 });
 
-    const risk = helpers.analyzeRisk(createBaseInput({
-      earlyTermination: {
-        allowed: true,
-      },
-    }), metrics);
+    const risk = helpers.analyzeRisk(
+      createBaseInput({
+        earlyTermination: {
+          allowed: true,
+        },
+      }),
+      metrics
+    );
 
     expect(risk.earlyTerminationCost).toBeCloseTo(2500 * 3, 2);
   });
@@ -703,11 +726,14 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
       costPerYear: 60000,
     });
 
-    const risk = helpers.analyzeRisk(createBaseInput({
-      earlyTermination: {
-        allowed: false,
-      },
-    }), metrics);
+    const risk = helpers.analyzeRisk(
+      createBaseInput({
+        earlyTermination: {
+          allowed: false,
+        },
+      }),
+      metrics
+    );
 
     expect(risk.earlyTerminationCost).toBe(metrics.totalCost);
     expect(risk.flexibilityScore).toBe(25);
@@ -723,14 +749,18 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
       rateEscalationRisk: 'low',
     };
 
-    const insights = helpers.generateInsights(createBaseInput({
-      escalation: {
-        type: 'none',
-        rate: 0,
-        schedule: [],
-        cpiBase: 0,
-      },
-    }), metrics, risk);
+    const insights = helpers.generateInsights(
+      createBaseInput({
+        escalation: {
+          type: 'none',
+          rate: 0,
+          schedule: [],
+          cpiBase: 0,
+        },
+      }),
+      metrics,
+      risk
+    );
 
     expect(insights.recommendations).toHaveLength(0);
     expect(insights.flexibilityRating).toBe('High');
@@ -746,17 +776,23 @@ describe('EnhancedLeaseAnalyzer risk and insights coverage', () => {
       rateEscalationRisk: 'medium',
     };
 
-    const insights = helpers.generateInsights(createBaseInput({
-      escalation: {
-        type: 'fixed',
-        rate: 0.03,
-        schedule: [],
-        cpiBase: 0,
-      },
-    }), metrics, risk);
+    const insights = helpers.generateInsights(
+      createBaseInput({
+        escalation: {
+          type: 'fixed',
+          rate: 0.03,
+          schedule: [],
+          cpiBase: 0,
+        },
+      }),
+      metrics,
+      risk
+    );
 
     expect(insights.flexibilityRating).toBe('Medium');
-    expect(insights.recommendations).toContain('Monitor escalation clauses to ensure they align with market conditions');
+    expect(insights.recommendations).toContain(
+      'Monitor escalation clauses to ensure they align with market conditions'
+    );
   });
 });
 
@@ -835,7 +871,8 @@ describe('EnhancedLeaseAnalyzer equipment scenario coverage', () => {
 
     const recs = result.insights.recommendations;
     expect(recs).toContain('Consider negotiating early termination options for flexibility');
-    expect(recs).toContain('Monitor escalation clauses to ensure they align with market conditions');
+    expect(recs).toContain(
+      'Monitor escalation clauses to ensure they align with market conditions'
+    );
   });
 });
-

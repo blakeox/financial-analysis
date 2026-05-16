@@ -15,7 +15,7 @@ export interface HelpResponse {
  */
 export function isHelpQuery(message: string): boolean {
   const normalized = message.trim().toLowerCase();
-  
+
   const helpPatterns = [
     /^what (tools|calculators|models) (are )?(available|can you use)/i,
     /^what can you (help|do|assist)/i,
@@ -26,8 +26,8 @@ export function isHelpQuery(message: string): boolean {
     /^help$/i,
     /^what.*help/i,
   ];
-  
-  return helpPatterns.some(pattern => pattern.test(normalized));
+
+  return helpPatterns.some((pattern) => pattern.test(normalized));
 }
 
 /**
@@ -39,15 +39,15 @@ export function generateHelpResponse(
   context: string
 ): HelpResponse {
   const normalized = message.trim().toLowerCase();
-  
+
   // Check if this is a help query
   if (!isHelpQuery(message)) {
     return { shouldIntercept: false, response: '' };
   }
-  
+
   // Organize tools by category
   const toolsByCategory = organizeToolsByCategory(availableTools);
-  
+
   // Generate response based on query type
   if (/tools|calculators|models.*available/i.test(normalized)) {
     return {
@@ -55,14 +55,14 @@ export function generateHelpResponse(
       response: generateToolsListResponse(toolsByCategory, context),
     };
   }
-  
+
   if (/what can you (help|do|assist)/i.test(normalized)) {
     return {
       shouldIntercept: true,
       response: generateCapabilitiesResponse(toolsByCategory, context),
     };
   }
-  
+
   // Generic help response
   return {
     shouldIntercept: true,
@@ -73,21 +73,19 @@ export function generateHelpResponse(
 /**
  * Organize tools by category
  */
-function organizeToolsByCategory(
-  tools: readonly ToolSummary[]
-): Record<string, ToolSummary[]> {
+function organizeToolsByCategory(tools: readonly ToolSummary[]): Record<string, ToolSummary[]> {
   const categories: Record<string, ToolSummary[]> = {
     'Personal Finance': [],
     'Business Finance': [],
     'Real Estate': [],
-    'Investment': [],
-    'Other': [],
+    Investment: [],
+    Other: [],
   };
-  
+
   for (const tool of tools) {
     const description = tool.description.toLowerCase();
     let category = 'Other';
-    
+
     if (
       description.includes('mortgage') ||
       description.includes('loan') ||
@@ -142,13 +140,13 @@ function organizeToolsByCategory(
     ) {
       category = 'Investment';
     }
-    
+
     if (!categories[category]) {
       categories[category] = [];
     }
     categories[category].push(tool);
   }
-  
+
   return categories;
 }
 
@@ -159,23 +157,20 @@ function generateToolsListResponse(
   toolsByCategory: Record<string, ToolSummary[]>,
   _context: string
 ): string {
-  const totalTools = Object.values(toolsByCategory).reduce(
-    (sum, tools) => sum + tools.length,
-    0
-  );
-  
+  const totalTools = Object.values(toolsByCategory).reduce((sum, tools) => sum + tools.length, 0);
+
   if (totalTools === 0) {
     return 'I can help with financial calculations and analysis. What would you like to calculate?';
   }
-  
+
   let response = `I have access to ${totalTools} financial analysis tools organized by category:\n\n`;
-  
+
   for (const [category, tools] of Object.entries(toolsByCategory)) {
     if (tools.length === 0) continue;
-    
+
     const emoji = getCategoryEmoji(category);
     response += `${emoji} ${category} (${tools.length} tool${tools.length > 1 ? 's' : ''}):\n`;
-    
+
     // Show first 5 tools per category
     const toolsToShow = tools.slice(0, 5);
     for (const tool of toolsToShow) {
@@ -187,16 +182,17 @@ function generateToolsListResponse(
         response += `• ${name} - ${tool.description}\n`;
       }
     }
-    
+
     if (tools.length > 5) {
       response += `• ... and ${tools.length - 5} more\n`;
     }
-    
+
     response += '\n';
   }
-  
-  response += 'You can ask me to use any of these tools, or ask for help with a specific calculation. What would you like to do?';
-  
+
+  response +=
+    'You can ask me to use any of these tools, or ask for help with a specific calculation. What would you like to do?';
+
   return response;
 }
 
@@ -207,48 +203,44 @@ function generateCapabilitiesResponse(
   toolsByCategory: Record<string, ToolSummary[]>,
   _context: string
 ): string {
-  const totalTools = Object.values(toolsByCategory).reduce(
-    (sum, tools) => sum + tools.length,
-    0
-  );
-  
+  const totalTools = Object.values(toolsByCategory).reduce((sum, tools) => sum + tools.length, 0);
+
   if (totalTools === 0) {
     return 'I can help with financial calculations, analysis, and planning. What would you like to work on?';
   }
-  
+
   let response = `I can help you with ${totalTools} different financial analysis tools:\n\n`;
-  
+
   // List capabilities by category
   const capabilities: string[] = [];
-  
+
   if (toolsByCategory['Personal Finance'].length > 0) {
     capabilities.push(
       `Personal Finance: Calculate mortgages, loans, retirement savings, debt payoff, and more`
     );
   }
-  
+
   if (toolsByCategory['Business Finance'].length > 0) {
     capabilities.push(
       `Business Finance: Forecast EBITDA, analyze cash flow, value businesses, and plan growth`
     );
   }
-  
+
   if (toolsByCategory['Real Estate'].length > 0) {
     capabilities.push(
       `Real Estate: Analyze leases, compare rent vs buy, and calculate mortgage scenarios`
     );
   }
-  
+
   if (toolsByCategory['Investment'].length > 0) {
-    capabilities.push(
-      `Investment: Price bonds, analyze options, and evaluate portfolios`
-    );
+    capabilities.push(`Investment: Price bonds, analyze options, and evaluate portfolios`);
   }
-  
+
   response += capabilities.join('\n');
   response += '\n\n';
-  response += 'You can ask me to calculate specific scenarios, update model parameters, or explain financial concepts. What would you like to do?';
-  
+  response +=
+    'You can ask me to calculate specific scenarios, update model parameters, or explain financial concepts. What would you like to do?';
+
   return response;
 }
 
@@ -270,8 +262,8 @@ function getCategoryEmoji(category: string): string {
     'Personal Finance': '💰',
     'Business Finance': '📊',
     'Real Estate': '🏠',
-    'Investment': '📈',
-    'Other': '🔧',
+    Investment: '📈',
+    Other: '🔧',
   };
   return emojiMap[category] || '🔧';
 }
@@ -293,7 +285,7 @@ function getToolUrl(toolName: string): string | null {
     analyze_budget: '/calculator/budget',
     analyze_pricing_strategy: '/calculator/pricing-strategy',
   };
-  
+
   return urlMap[toolName] || null;
 }
 
@@ -304,7 +296,7 @@ function formatToolName(toolName: string): string {
   // Convert snake_case to Title Case
   return toolName
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
     .replace(/analyze /i, '');
 }

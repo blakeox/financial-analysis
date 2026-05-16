@@ -247,6 +247,3 @@ export class HSAOptimizer {
     return recommendations;
   }
 }
-
-
-

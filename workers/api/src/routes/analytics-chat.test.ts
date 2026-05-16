@@ -25,18 +25,15 @@ describe('Chat Analytics Routes', () => {
 
   it('registers POST /v1/api/analytics/chat route', () => {
     registerAnalyticsRoutes(mockRouter);
-    
-    expect(mockRouter.post).toHaveBeenCalledWith(
-      '/v1/api/analytics/chat',
-      expect.any(Function)
-    );
+
+    expect(mockRouter.post).toHaveBeenCalledWith('/v1/api/analytics/chat', expect.any(Function));
   });
 
   describe('POST /v1/api/analytics/chat', () => {
     it('accepts valid chat analytics payload', async () => {
       registerAnalyticsRoutes(mockRouter);
       // Find the handler for /v1/api/analytics/chat
-      const call = mockRouter.post.mock.calls.find(call => call[0] === '/v1/api/analytics/chat');
+      const call = mockRouter.post.mock.calls.find((call) => call[0] === '/v1/api/analytics/chat');
       const handler = call?.[1];
       if (!handler) throw new Error('Handler not registered');
 
@@ -45,11 +42,11 @@ describe('Chat Analytics Routes', () => {
           sessionId: 'chat_123',
           startTime: new Date().toISOString(),
           messageCount: 5,
-          toolUsage: { 'calculator': 2 },
+          toolUsage: { calculator: 2 },
           errorCount: 0,
           averageResponseTime: 150,
           contextSwitches: 1,
-          offlineTime: 0
+          offlineTime: 0,
         },
         behaviorMetrics: {
           sessionId: 'chat_123',
@@ -58,10 +55,10 @@ describe('Chat Analytics Routes', () => {
           timeToFirstMessage: 2000,
           messagesPerMinute: 2,
           toolRequestsPerSession: 2,
-          errorRate: 0
+          errorRate: 0,
         },
         performanceMetrics: [],
-        recentMetrics: []
+        recentMetrics: [],
       };
 
       const request = new Request('http://localhost/v1/api/analytics/chat', {
@@ -79,7 +76,7 @@ describe('Chat Analytics Routes', () => {
 
     it('writes chat metrics to Analytics Engine', async () => {
       registerAnalyticsRoutes(mockRouter);
-      const call = mockRouter.post.mock.calls.find(call => call[0] === '/v1/api/analytics/chat');
+      const call = mockRouter.post.mock.calls.find((call) => call[0] === '/v1/api/analytics/chat');
       const handler = call?.[1];
       if (!handler) throw new Error('Handler not registered');
 
@@ -88,11 +85,11 @@ describe('Chat Analytics Routes', () => {
           sessionId: 'chat_123',
           startTime: new Date().toISOString(),
           messageCount: 5,
-          toolUsage: { 'calculator': 2 },
+          toolUsage: { calculator: 2 },
           errorCount: 0,
           averageResponseTime: 150,
           contextSwitches: 1,
-          offlineTime: 0
+          offlineTime: 0,
         },
         behaviorMetrics: {
           sessionId: 'chat_123',
@@ -101,10 +98,10 @@ describe('Chat Analytics Routes', () => {
           timeToFirstMessage: 2000,
           messagesPerMinute: 2,
           toolRequestsPerSession: 2,
-          errorRate: 0
+          errorRate: 0,
         },
         performanceMetrics: [],
-        recentMetrics: []
+        recentMetrics: [],
       };
 
       const request = new Request('http://localhost/v1/api/analytics/chat', {

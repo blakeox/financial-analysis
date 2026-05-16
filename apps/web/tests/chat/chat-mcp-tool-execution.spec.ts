@@ -36,10 +36,7 @@ async function stubChatTransport(page: Page): Promise<void> {
   });
 }
 
-async function loadEmbeddedChatAndTools(
-  page: Page,
-  path: string
-): Promise<ToolCatalogResponse> {
+async function loadEmbeddedChatAndTools(page: Page, path: string): Promise<ToolCatalogResponse> {
   const toolsResponsePromise = page.waitForResponse(
     (response) => response.url().includes('/api/v1/mcp/tools') && response.ok()
   );
@@ -114,7 +111,10 @@ test.describe('Chat MCP request contracts', () => {
 
     const names = toolNames(requestBody.availableTools);
     expect(
-      names.some((name) => name.includes('amortization') || name.includes('mortgage') || name.includes('loan'))
+      names.some(
+        (name) =>
+          name.includes('amortization') || name.includes('mortgage') || name.includes('loan')
+      )
     ).toBe(true);
   });
 
@@ -136,7 +136,8 @@ test.describe('Chat MCP request contracts', () => {
 
     expect(
       amortizationNames.some(
-        (name) => name.includes('amortization') || name.includes('mortgage') || name.includes('loan')
+        (name) =>
+          name.includes('amortization') || name.includes('mortgage') || name.includes('loan')
       )
     ).toBe(true);
     expect(

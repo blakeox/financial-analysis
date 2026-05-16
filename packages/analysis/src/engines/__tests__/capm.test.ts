@@ -10,4 +10,3 @@ describe('CAPMCalculator', () => {
     expect(result.expectedReturn).toBeCloseTo(0.09, 10);
   });
 });
-

@@ -57,11 +57,17 @@ class CarLeaseVsBuyCalculator {
           annualMaintenance: parseFloat((formData.get('annualMaintenance') as string) || '0'),
           annualRepairs: parseFloat((formData.get('annualRepairs') as string) || '0'),
           fuelCost: parseFloat((formData.get('fuelCost') as string) || '0'),
-          expectedOwnershipYears: parseInt((formData.get('expectedOwnershipYears') as string) || '6'),
+          expectedOwnershipYears: parseInt(
+            (formData.get('expectedOwnershipYears') as string) || '6'
+          ),
         },
         financialAssumptions: {
-          opportunityCostRate: parseFloat((formData.get('opportunityCostRate') as string) || '0.07'),
-          expectedDepreciation: parseFloat((formData.get('expectedDepreciation') as string) || '0.15'),
+          opportunityCostRate: parseFloat(
+            (formData.get('opportunityCostRate') as string) || '0.07'
+          ),
+          expectedDepreciation: parseFloat(
+            (formData.get('expectedDepreciation') as string) || '0.15'
+          ),
         },
         analysis: {
           analysisPeriod: parseInt((formData.get('analysisPeriod') as string) || '3'),

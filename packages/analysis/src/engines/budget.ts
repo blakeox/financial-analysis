@@ -1,5 +1,5 @@
-import Decimal from "decimal.js";
-import type { BudgetInput } from "../schemas/budget.js";
+import Decimal from 'decimal.js';
+import type { BudgetInput } from '../schemas/budget.js';
 import type {
   BudgetResult,
   IncomeSummary,
@@ -9,7 +9,7 @@ import type {
   SpendingAnalysis,
   OptimizedBudget,
   BudgetRuleAnalysis,
-} from "../types/budget-result.js";
+} from '../types/budget-result.js';
 
 /**
  * Analyzes budget and provides optimization recommendations.
@@ -31,12 +31,7 @@ export function analyze(input: BudgetInput): BudgetResult {
   const spendingAnalysis = analyzeSpending(input, incomeSummary, expenseSummary);
 
   // Generate optimized budget
-  const optimizedBudget = generateOptimizedBudget(
-    input,
-    incomeSummary,
-    expenseSummary,
-    metrics
-  );
+  const optimizedBudget = generateOptimizedBudget(input, incomeSummary, expenseSummary, metrics);
 
   // Analyze 50/30/20 rule
   const budgetRuleAnalysis = analyze503020Rule(incomeSummary, expenseSummary);
@@ -71,7 +66,7 @@ export function analyze(input: BudgetInput): BudgetResult {
     recommendations,
     metadata: {
       calculatedAt: new Date().toISOString(),
-      version: "1.0.0",
+      version: '1.0.0',
     },
   };
 }
@@ -139,10 +134,10 @@ function analyzeExpenses(input: BudgetInput): ExpenseSummary {
 function analyzeDebts(input: BudgetInput): DebtSummary {
   if (input.debts.length === 0) {
     return {
-      totalDebtBalance: "0.00",
-      totalMonthlyDebtPayment: "0.00",
-      debtToIncomeRatio: "0.0",
-      weightedAverageInterestRate: "0.0",
+      totalDebtBalance: '0.00',
+      totalMonthlyDebtPayment: '0.00',
+      debtToIncomeRatio: '0.0',
+      weightedAverageInterestRate: '0.0',
       debts: [],
     };
   }
@@ -152,7 +147,8 @@ function analyzeDebts(input: BudgetInput): DebtSummary {
   const totalIncome = input.income.reduce((sum, source) => sum + source.monthlyAmount, 0);
 
   const weightedRate =
-    input.debts.reduce((sum, debt) => sum + debt.totalBalance * debt.interestRate, 0) / totalBalance;
+    input.debts.reduce((sum, debt) => sum + debt.totalBalance * debt.interestRate, 0) /
+    totalBalance;
 
   const dti = new Decimal(totalPayment).div(totalIncome).times(100);
 
@@ -187,7 +183,7 @@ function calculateMetrics(
   // Calculate housing ratio (housing expenses as % of income)
   const housingExpenses = new Decimal(
     expenseSummary.categories
-      .filter((c) => c.type === "housing")
+      .filter((c) => c.type === 'housing')
       .reduce((sum, c) => sum + parseFloat(c.monthlyAmount), 0)
   );
   const housingRatio = income.gt(0) ? housingExpenses.div(income).times(100) : new Decimal(0);
@@ -196,7 +192,7 @@ function calculateMetrics(
 
   // Estimate emergency fund coverage (assume 6 months is ideal)
   // Without actual savings data, we'll use a placeholder
-  const emergencyFundCoverage = "0.0"; // Would need current savings input
+  const emergencyFundCoverage = '0.0'; // Would need current savings input
 
   // Calculate financial health score (0-100)
   let healthScore = 0;
@@ -247,10 +243,10 @@ function analyzeSpending(
 
   // Check each expense category against typical guidelines
   const guidelines = [
-    { type: "housing", max: 0.3, name: "Housing" },
-    { type: "transportation", max: 0.15, name: "Transportation" },
-    { type: "food", max: 0.15, name: "Food" },
-    { type: "entertainment", max: 0.1, name: "Entertainment" },
+    { type: 'housing', max: 0.3, name: 'Housing' },
+    { type: 'transportation', max: 0.15, name: 'Transportation' },
+    { type: 'food', max: 0.15, name: 'Food' },
+    { type: 'entertainment', max: 0.1, name: 'Entertainment' },
   ];
 
   for (const guideline of guidelines) {
@@ -278,7 +274,7 @@ function analyzeSpending(
       `Found ${overspendingCategories.length} categories where you may be overspending`
     );
   } else {
-    recommendations.push("Your spending appears balanced across major categories");
+    recommendations.push('Your spending appears balanced across major categories');
   }
 
   // Check discretionary spending
@@ -317,7 +313,7 @@ function generateOptimizedBudget(
 
   let totalReduction = new Decimal(0);
 
-  if (goal === "maximize_savings") {
+  if (goal === 'maximize_savings') {
     // Target 20% savings rate
     const targetSavings = income.times(0.2);
     const currentSavings = income.minus(currentExpenses);
@@ -350,7 +346,7 @@ function generateOptimizedBudget(
         }
       }
     }
-  } else if (goal === "reduce_debt") {
+  } else if (goal === 'reduce_debt') {
     // Redirect discretionary spending to debt payment (20% reduction to free up cash)
     const discretionaryExpenses = expenseSummary.categories.filter((c) => !c.isEssential);
 
@@ -368,7 +364,7 @@ function generateOptimizedBudget(
         changePercent: reduction.div(current).times(-100).toFixed(1),
       });
     }
-  } else if (goal === "reduce_discretionary") {
+  } else if (goal === 'reduce_discretionary') {
     // Cut discretionary by 20%
     const discretionaryExpenses = expenseSummary.categories.filter((c) => !c.isEssential);
 
@@ -383,7 +379,7 @@ function generateOptimizedBudget(
         currentAmount: current.toFixed(2),
         recommendedAmount: recommended.toFixed(2),
         change: reduction.neg().toFixed(2),
-        changePercent: "-20.0",
+        changePercent: '-20.0',
       });
     }
   } else {
@@ -421,10 +417,10 @@ function generateOptimizedBudget(
   }
 
   const implementation: string[] = [
-    "Review and adjust discretionary spending categories",
-    "Set up automatic transfers for increased savings",
-    "Track spending weekly to stay on target",
-    "Use budgeting apps or spreadsheets for accountability",
+    'Review and adjust discretionary spending categories',
+    'Set up automatic transfers for increased savings',
+    'Track spending weekly to stay on target',
+    'Use budgeting apps or spreadsheets for accountability',
   ];
 
   return {
@@ -488,21 +484,21 @@ function analyze503020Rule(
       current: needs.toFixed(2),
       currentPercent: needsPercent.toFixed(1),
       recommended: targetNeeds.toFixed(2),
-      recommendedPercent: "50.0",
+      recommendedPercent: '50.0',
       variance: needsVariance.toFixed(2),
     },
     wants: {
       current: wants.toFixed(2),
       currentPercent: wantsPercent.toFixed(1),
       recommended: targetWants.toFixed(2),
-      recommendedPercent: "30.0",
+      recommendedPercent: '30.0',
       variance: wantsVariance.toFixed(2),
     },
     savings: {
       current: currentSavings.toFixed(2),
       currentPercent: savingsPercent.toFixed(1),
       recommended: targetSavings.toFixed(2),
-      recommendedPercent: "20.0",
+      recommendedPercent: '20.0',
       variance: savingsVariance.toFixed(2),
     },
     analysis,
@@ -521,11 +517,13 @@ function generateRecommendations(
   // Financial health score
   const healthScore = metrics.financialHealthScore;
   if (healthScore >= 80) {
-    recommendations.push("Excellent financial health! Keep up the great work.");
+    recommendations.push('Excellent financial health! Keep up the great work.');
   } else if (healthScore >= 60) {
-    recommendations.push("Good financial health with room for improvement.");
+    recommendations.push('Good financial health with room for improvement.');
   } else {
-    recommendations.push("Your financial health needs attention. Focus on the recommendations below.");
+    recommendations.push(
+      'Your financial health needs attention. Focus on the recommendations below.'
+    );
   }
 
   // Spending analysis
@@ -538,7 +536,7 @@ function generateRecommendations(
   const savingsRate = new Decimal(metrics.savingsRate);
   if (savingsRate.lt(10)) {
     recommendations.push(
-      "Your savings rate is below 10%. Aim for at least 10-20% of income for long-term security."
+      'Your savings rate is below 10%. Aim for at least 10-20% of income for long-term security.'
     );
   }
 
@@ -554,17 +552,17 @@ function generateRecommendations(
   const dti = new Decimal(metrics.debtToIncomeRatio);
   if (dti.gt(43)) {
     recommendations.push(
-      "Debt-to-income ratio is high (>43%). Prioritize debt payoff to improve financial flexibility."
+      'Debt-to-income ratio is high (>43%). Prioritize debt payoff to improve financial flexibility.'
     );
   } else if (dti.gt(36)) {
     recommendations.push(
-      "Debt-to-income ratio is manageable but could be improved. Consider debt reduction strategies."
+      'Debt-to-income ratio is manageable but could be improved. Consider debt reduction strategies.'
     );
   }
 
   // Emergency fund
   recommendations.push(
-    "Build an emergency fund covering 3-6 months of expenses for financial security"
+    'Build an emergency fund covering 3-6 months of expenses for financial security'
   );
 
   // Optimization

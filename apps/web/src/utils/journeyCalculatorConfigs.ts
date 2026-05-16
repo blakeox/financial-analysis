@@ -600,8 +600,3 @@ export function getJourneyCalculatorConfigs(scenarioId: string): JourneyCalculat
 export function hasJourneySpecificConfig(scenarioId: string, calculatorId: string): boolean {
   return getJourneyCalculatorConfig(scenarioId, calculatorId) !== null;
 }
-
-
-
-
-

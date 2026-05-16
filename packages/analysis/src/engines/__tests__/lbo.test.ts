@@ -123,9 +123,17 @@ describe('LBOModel', () => {
 
     const result = LBOModel.analyze(highRiskInput);
     expect(result.riskAssessment?.overallRisk).toBe('high');
-    expect(result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'High Debt-to-EBITDA')).toBe(true);
-    expect(result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'High Leverage')).toBe(true);
-    expect(result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'Negative Cash Flow Periods')).toBe(true);
+    expect(
+      result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'High Debt-to-EBITDA')
+    ).toBe(true);
+    expect(
+      result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'High Leverage')
+    ).toBe(true);
+    expect(
+      result.riskAssessment?.riskFactors.some(
+        (risk: any) => risk.factor === 'Negative Cash Flow Periods'
+      )
+    ).toBe(true);
     expect(result.recommendations).toContain(
       'High risk transaction - ensure strong operational improvements and exit strategy'
     );
@@ -153,7 +161,11 @@ describe('LBOModel', () => {
     };
 
     const result = LBOModel.analyze(moderateRiskInput);
-    expect(result.riskAssessment?.riskFactors.some((risk: any) => risk.factor === 'Moderate Debt-to-EBITDA')).toBe(true);
+    expect(
+      result.riskAssessment?.riskFactors.some(
+        (risk: any) => risk.factor === 'Moderate Debt-to-EBITDA'
+      )
+    ).toBe(true);
   });
 
   it('handles zero equity contribution and zero EBITDA', () => {

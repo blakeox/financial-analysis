@@ -1,4 +1,8 @@
-import { appEventBus, type ModelContextEvent, type SerializedContext } from '@financial-analysis/tools';
+import {
+  appEventBus,
+  type ModelContextEvent,
+  type SerializedContext,
+} from '@financial-analysis/tools';
 import type { ModelMetadata } from './types';
 
 export type ModelSelectionState = {

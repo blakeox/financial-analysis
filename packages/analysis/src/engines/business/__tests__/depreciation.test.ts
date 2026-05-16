@@ -1,4 +1,3 @@
-
 import { describe, expect, it } from 'vitest';
 import type { DepreciationInput } from '../../../schemas/depreciation.js';
 import { DepreciationCalculator } from '../depreciation.js';
@@ -92,7 +91,7 @@ describe('DepreciationCalculator Coverage Tests', () => {
   });
 
   it('should calculate Sum of Years Digits correctly', () => {
-     const input: DepreciationInput = {
+    const input: DepreciationInput = {
       assetInfo: baseAsset, // 100k cost, 10k salvage, 5 yr life
       depreciationMethod: 'sum-of-years-digits',
       taxInfo: baseTax,
@@ -106,7 +105,7 @@ describe('DepreciationCalculator Coverage Tests', () => {
     // Depreciable Base = 90,000
     // Year 1: 90,000 * (5/15) = 30,000
     expect(schedule[0].depreciation).toBe(30000);
-    
+
     // Year 5: 90,000 * (1/15) = 6,000
     expect(schedule[4].depreciation).toBe(6000);
   });
@@ -209,8 +208,8 @@ describe('DepreciationCalculator Coverage Tests', () => {
       disposal: {
         disposalDate: '2029-01-01',
         disposalProceeds: 20000, // Sold for 20k
-        includeDisposalAnalysis: true
-      }
+        includeDisposalAnalysis: true,
+      },
     };
 
     const result = DepreciationCalculator.analyze(input) as any;
@@ -233,8 +232,8 @@ describe('DepreciationCalculator Coverage Tests', () => {
       disposal: {
         disposalDate: '2029-01-01',
         disposalProceeds: 5000, // Sold for 5k
-        includeDisposalAnalysis: true
-      }
+        includeDisposalAnalysis: true,
+      },
     };
 
     const result = DepreciationCalculator.analyze(input) as any;
@@ -245,7 +244,7 @@ describe('DepreciationCalculator Coverage Tests', () => {
     // Loss = -5,000
     expect(disposal.gainOrLoss).toBe(-5000);
     // Calculated logic says tax is 0 if loss (simplified)
-    expect(disposal.taxOnDisposal).toBe(0); 
+    expect(disposal.taxOnDisposal).toBe(0);
   });
 
   it('should analyze disposal without schedule when schedule disabled', () => {

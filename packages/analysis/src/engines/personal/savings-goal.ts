@@ -1,12 +1,12 @@
-import Decimal from "decimal.js";
-import type { SavingsGoalInput } from "../../schemas/savings-goal.js";
+import Decimal from 'decimal.js';
+import type { SavingsGoalInput } from '../../schemas/savings-goal.js';
 import type {
   SavingsGoalResult,
   SavingsMonth,
   SavingsGoalSummary,
   AlternativeScenario,
   GoalRecommendations,
-} from "../../types/savings-goal-result.js";
+} from '../../types/savings-goal-result.js';
 
 const MAX_MONTHS = 600; // 50 years safety limit
 
@@ -118,7 +118,7 @@ export function analyze(input: SavingsGoalInput): SavingsGoalResult {
     recommendations,
     metadata: {
       calculatedAt: new Date().toISOString(),
-      version: "1.0.0",
+      version: '1.0.0',
     },
   };
 }
@@ -181,7 +181,7 @@ function calculateAlternativeScenarios(
   );
   if (monthsWithDoubled < currentMonthsToGoal) {
     alternatives.push({
-      description: "Double your monthly contribution",
+      description: 'Double your monthly contribution',
       requiredMonthlyContribution: doubledContribution.toFixed(2),
       monthsToGoal: monthsWithDoubled,
       yearsToGoal: new Decimal(monthsWithDoubled).div(12).toFixed(1),
@@ -200,10 +200,10 @@ function calculateAlternativeScenarios(
     );
     if (requiredForFiveYears && requiredForFiveYears.gt(0)) {
       alternatives.push({
-        description: "Reach goal in 5 years",
+        description: 'Reach goal in 5 years',
         requiredMonthlyContribution: requiredForFiveYears.toFixed(2),
         monthsToGoal: fiveYears,
-        yearsToGoal: "5.0",
+        yearsToGoal: '5.0',
         totalContributions: requiredForFiveYears.times(fiveYears).toFixed(2),
       });
     }
@@ -243,32 +243,34 @@ function generateRecommendations(
   const goalType = input.goalType;
 
   // Goal-specific recommendations
-  if (goalType === "emergency_fund") {
+  if (goalType === 'emergency_fund') {
     const monthlyExpenses = new Decimal(input.goalAmount).div(6); // Assume 6 months
     recommendations.push(
       `Build an emergency fund covering 3-6 months of expenses (~$${monthlyExpenses.toFixed(0)}/month)`
     );
-    recommendations.push("Keep funds in a high-yield savings account for liquidity");
-    recommendations.push("Start with $1,000 mini emergency fund, then build to full target");
-  } else if (goalType === "home_down_payment") {
-    recommendations.push("Consider high-yield savings or short-term bonds for safety");
-    recommendations.push("Explore first-time homebuyer programs for down payment assistance");
-    recommendations.push("Budget for closing costs (2-5% of home price) in addition to down payment");
-  } else if (goalType === "education") {
-    recommendations.push("Explore 529 college savings plans for tax advantages");
-    recommendations.push("Consider scholarships, grants, and work-study programs");
-    recommendations.push("Start early to maximize compound growth");
-  } else if (goalType === "retirement") {
-    recommendations.push("Maximize employer 401(k) match before other savings");
-    recommendations.push("Consider Roth IRA for tax-free growth");
-    recommendations.push("Diversify investments based on time horizon and risk tolerance");
+    recommendations.push('Keep funds in a high-yield savings account for liquidity');
+    recommendations.push('Start with $1,000 mini emergency fund, then build to full target');
+  } else if (goalType === 'home_down_payment') {
+    recommendations.push('Consider high-yield savings or short-term bonds for safety');
+    recommendations.push('Explore first-time homebuyer programs for down payment assistance');
+    recommendations.push(
+      'Budget for closing costs (2-5% of home price) in addition to down payment'
+    );
+  } else if (goalType === 'education') {
+    recommendations.push('Explore 529 college savings plans for tax advantages');
+    recommendations.push('Consider scholarships, grants, and work-study programs');
+    recommendations.push('Start early to maximize compound growth');
+  } else if (goalType === 'retirement') {
+    recommendations.push('Maximize employer 401(k) match before other savings');
+    recommendations.push('Consider Roth IRA for tax-free growth');
+    recommendations.push('Diversify investments based on time horizon and risk tolerance');
   }
 
   // General recommendations based on analysis
   const effectiveReturn = new Decimal(summary.effectiveAnnualReturn);
   if (effectiveReturn.lt(2)) {
     recommendations.push(
-      "Your effective return (after inflation) is low. Consider higher-yield investments if time horizon allows."
+      'Your effective return (after inflation) is low. Consider higher-yield investments if time horizon allows.'
     );
   }
 
@@ -283,17 +285,17 @@ function generateRecommendations(
   const yearsToGoal = new Decimal(summary.yearsToGoal);
   if (yearsToGoal.gt(10)) {
     recommendations.push(
-      "With a long time horizon, consider more aggressive growth investments (stocks, index funds)."
+      'With a long time horizon, consider more aggressive growth investments (stocks, index funds).'
     );
   } else if (yearsToGoal.lt(3)) {
     recommendations.push(
-      "With a short time horizon, prioritize capital preservation (savings accounts, CDs, short-term bonds)."
+      'With a short time horizon, prioritize capital preservation (savings accounts, CDs, short-term bonds).'
     );
   }
 
   return {
     goalType,
     recommendations,
-    targetMultiplier: goalType === "emergency_fund" ? "6" : undefined,
+    targetMultiplier: goalType === 'emergency_fund' ? '6' : undefined,
   };
 }

@@ -23,4 +23,3 @@ export class CAPMTool {
     return CAPMCalculator.analyze(validated);
   }
 }
-

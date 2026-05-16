@@ -91,7 +91,7 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
   }
 
   const size = parseInt(contentLength, 10);
-  
+
   if (isNaN(size) || size < 0) {
     return {
       valid: false,
@@ -120,7 +120,11 @@ export function detectThreats(input: string): string[] {
   const threats: string[] = [];
 
   // SQL injection patterns
-  if (/(\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b).*(\bFROM\b|\bWHERE\b)/i.test(input)) {
+  if (
+    /(\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b).*(\bFROM\b|\bWHERE\b)/i.test(
+      input
+    )
+  ) {
     threats.push('SQL_INJECTION');
   }
 

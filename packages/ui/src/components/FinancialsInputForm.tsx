@@ -99,12 +99,10 @@ export function FinancialsInputForm({
         </div>
         <div className="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/80">
           <div className={cn('text-sm', textColors.secondary)}>
-            <strong>Total Revenue:</strong>{' '}
-            ${totalRevenue.toLocaleString()}
+            <strong>Total Revenue:</strong> ${totalRevenue.toLocaleString()}
           </div>
           <div className={cn('text-sm', textColors.secondary)}>
-            <strong>Average Monthly:</strong>{' '}
-            ${averageRevenue.toLocaleString()}
+            <strong>Average Monthly:</strong> ${averageRevenue.toLocaleString()}
           </div>
         </div>
       </CardContent>

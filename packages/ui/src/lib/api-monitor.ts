@@ -59,7 +59,7 @@ class ApiMonitor {
   ): Promise<{ data: T; metrics: ApiCallMetrics }> {
     const method = options?.method || 'GET';
     const endpoint = new URL(url, window.location.origin).pathname;
-    
+
     const metrics: ApiCallMetrics = {
       endpoint,
       method,
@@ -75,19 +75,19 @@ class ApiMonitor {
 
     try {
       const response = await fetch(url, options);
-      
+
       metrics.endTime = Date.now();
       metrics.duration = metrics.endTime - metrics.startTime;
       metrics.statusCode = response.status;
       metrics.success = response.ok;
-      
+
       // Check for cache hit header
       metrics.cacheHit = response.headers.get('X-Cache') === 'HIT';
 
       // Parse response
       const responseText = await response.text();
       metrics.responseSize = new Blob([responseText]).size;
-      
+
       let data: T;
       try {
         data = JSON.parse(responseText) as T;
@@ -153,7 +153,7 @@ class ApiMonitor {
     retryDelay: number = 1000
   ): Promise<{ data: T; metrics: ApiCallMetrics }> {
     let lastError: Error | null = null;
-    
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const result = await this.monitoredFetch<T>(url, options);
@@ -163,12 +163,10 @@ class ApiMonitor {
         return result;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+
         if (attempt < maxRetries) {
           // Exponential backoff
-          await new Promise((resolve) => 
-            setTimeout(resolve, retryDelay * Math.pow(2, attempt))
-          );
+          await new Promise((resolve) => setTimeout(resolve, retryDelay * Math.pow(2, attempt)));
         }
       }
     }
@@ -201,14 +199,14 @@ class ApiMonitor {
       existing.callCount++;
       if (metrics.success) existing.successCount++;
       else existing.errorCount++;
-      
+
       if (metrics.duration !== undefined) {
         existing.totalDuration += metrics.duration;
         existing.averageDuration = existing.totalDuration / existing.callCount;
         existing.minDuration = Math.min(existing.minDuration, metrics.duration);
         existing.maxDuration = Math.max(existing.maxDuration, metrics.duration);
       }
-      
+
       if (metrics.cacheHit) existing.cacheHits++;
     } else {
       this.endpointStats.set(key, {
@@ -241,17 +239,14 @@ class ApiMonitor {
       .sort((a, b) => (b.duration || 0) - (a.duration || 0))
       .slice(0, 10);
 
-    const recentErrors = this.callHistory
-      .filter((c) => !c.success)
-      .slice(0, 10);
+    const recentErrors = this.callHistory.filter((c) => !c.success).slice(0, 10);
 
     return {
       totalCalls,
       successRate: totalCalls > 0 ? (successfulCalls / totalCalls) * 100 : 0,
       errorRate: totalCalls > 0 ? ((totalCalls - successfulCalls) / totalCalls) * 100 : 0,
-      averageDuration: durations.length > 0 
-        ? durations.reduce((a, b) => a + b, 0) / durations.length 
-        : 0,
+      averageDuration:
+        durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0,
       cacheHitRate: totalCalls > 0 ? (cachedCalls / totalCalls) * 100 : 0,
       slowestCalls,
       recentErrors,

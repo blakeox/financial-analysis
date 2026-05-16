@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 // Cash flow type enumeration
 export const CashFlowTypeSchema = z.enum([
-  'operating',      // Operating activities
-  'investing',      // Investing activities
-  'financing',      // Financing activities
+  'operating', // Operating activities
+  'investing', // Investing activities
+  'financing', // Financing activities
 ]);
 
 // Cash flow category (more specific)
@@ -15,14 +15,14 @@ export const CashFlowCategorySchema = z.enum([
   'operating-expenses',
   'taxes',
   'working-capital-change',
-  
+
   // Investing
   'capital-expenditure',
   'asset-sale',
   'acquisition',
   'investment-purchase',
   'investment-sale',
-  
+
   // Financing
   'debt-issuance',
   'debt-repayment',
@@ -33,17 +33,12 @@ export const CashFlowCategorySchema = z.enum([
 ]);
 
 // Cash flow frequency
-export const CashFlowFrequencySchema = z.enum([
-  'monthly',
-  'quarterly',
-  'annual',
-  'one-time',
-]);
+export const CashFlowFrequencySchema = z.enum(['monthly', 'quarterly', 'annual', 'one-time']);
 
 // Analysis method
 export const AnalysisMethodSchema = z.enum([
-  'direct',         // Direct method - actual cash receipts and payments
-  'indirect',       // Indirect method - starts with net income
+  'direct', // Direct method - actual cash receipts and payments
+  'indirect', // Indirect method - starts with net income
 ]);
 
 // Individual cash flow item
@@ -74,7 +69,9 @@ export const WorkingCapitalSchema = z.object({
 
 // Depreciation and amortization
 export const DepreciationSchema = z.object({
-  method: z.enum(['straight-line', 'declining-balance', 'units-of-production']).default('straight-line'),
+  method: z
+    .enum(['straight-line', 'declining-balance', 'units-of-production'])
+    .default('straight-line'),
   assetCost: z.number().positive(),
   salvageValue: z.number().min(0).default(0),
   usefulLife: z.number().int().positive(), // In years
@@ -99,71 +96,80 @@ export const ScenarioSchema = z.object({
 });
 
 // Cash flow analysis input schema
-export const CashFlowAnalysisInputSchema = z.object({
-  // Basic information
-  companyName: z.string().optional(),
-  analysisStartDate: z.string(), // ISO date
-  analysisPeriodMonths: z.number().int().positive().default(12),
-  
-  // Cash flow items
-  cashFlowItems: z.array(CashFlowItemSchema).min(1),
-  
-  // Opening cash balance
-  openingCashBalance: z.number().default(0),
-  
-  // Minimum cash balance requirement
-  minimumCashBalance: z.number().min(0).default(0),
-  
-  // Working capital
-  workingCapital: WorkingCapitalSchema.optional(),
-  
-  // Depreciation schedules
-  depreciationSchedules: z.array(DepreciationSchema).default([]),
-  
-  // Debt service
-  debtObligations: z.array(DebtServiceSchema).default([]),
-  
-  // Analysis method
-  method: AnalysisMethodSchema.default('direct'),
-  
-  // Starting net income (for indirect method)
-  netIncome: z.number().optional(),
-  
-  // Tax rate
-  taxRate: z.number().min(0).max(1).default(0),
-  
-  // Discount rate for NPV
-  discountRate: z.number().min(0).max(1).default(0.10),
-  
-  // Scenarios for sensitivity analysis
-  scenarios: z.array(ScenarioSchema).default([]),
-  
-  // Analysis options
-  includeSeasonality: z.boolean().default(false),
-  seasonalityFactors: z.array(z.number()).length(12).optional(), // Monthly multipliers
-  
-  // Forecast parameters
-  forecastGrowthRate: z.number().default(0), // Overall growth rate
-  inflationRate: z.number().default(0),
-}).refine((data) => {
-  // Indirect method requires net income
-  if (data.method === 'indirect') {
-    return data.netIncome !== undefined;
-  }
-  return true;
-}, {
-  message: "Indirect method requires netIncome",
-  path: ['netIncome'],
-}).refine((data) => {
-  // If seasonality is enabled, factors must be provided
-  if (data.includeSeasonality) {
-    return data.seasonalityFactors !== undefined;
-  }
-  return true;
-}, {
-  message: "Seasonality requires seasonalityFactors (12 monthly multipliers)",
-  path: ['seasonalityFactors'],
-});
+export const CashFlowAnalysisInputSchema = z
+  .object({
+    // Basic information
+    companyName: z.string().optional(),
+    analysisStartDate: z.string(), // ISO date
+    analysisPeriodMonths: z.number().int().positive().default(12),
+
+    // Cash flow items
+    cashFlowItems: z.array(CashFlowItemSchema).min(1),
+
+    // Opening cash balance
+    openingCashBalance: z.number().default(0),
+
+    // Minimum cash balance requirement
+    minimumCashBalance: z.number().min(0).default(0),
+
+    // Working capital
+    workingCapital: WorkingCapitalSchema.optional(),
+
+    // Depreciation schedules
+    depreciationSchedules: z.array(DepreciationSchema).default([]),
+
+    // Debt service
+    debtObligations: z.array(DebtServiceSchema).default([]),
+
+    // Analysis method
+    method: AnalysisMethodSchema.default('direct'),
+
+    // Starting net income (for indirect method)
+    netIncome: z.number().optional(),
+
+    // Tax rate
+    taxRate: z.number().min(0).max(1).default(0),
+
+    // Discount rate for NPV
+    discountRate: z.number().min(0).max(1).default(0.1),
+
+    // Scenarios for sensitivity analysis
+    scenarios: z.array(ScenarioSchema).default([]),
+
+    // Analysis options
+    includeSeasonality: z.boolean().default(false),
+    seasonalityFactors: z.array(z.number()).length(12).optional(), // Monthly multipliers
+
+    // Forecast parameters
+    forecastGrowthRate: z.number().default(0), // Overall growth rate
+    inflationRate: z.number().default(0),
+  })
+  .refine(
+    (data) => {
+      // Indirect method requires net income
+      if (data.method === 'indirect') {
+        return data.netIncome !== undefined;
+      }
+      return true;
+    },
+    {
+      message: 'Indirect method requires netIncome',
+      path: ['netIncome'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If seasonality is enabled, factors must be provided
+      if (data.includeSeasonality) {
+        return data.seasonalityFactors !== undefined;
+      }
+      return true;
+    },
+    {
+      message: 'Seasonality requires seasonalityFactors (12 monthly multipliers)',
+      path: ['seasonalityFactors'],
+    }
+  );
 
 export type CashFlowAnalysisInput = z.infer<typeof CashFlowAnalysisInputSchema>;
 export type CashFlowItem = z.infer<typeof CashFlowItemSchema>;

@@ -22,7 +22,8 @@ export class CashFlowAnalysisTool {
       analysisMethod: {
         type: 'string',
         enum: ['direct', 'indirect'],
-        description: 'Method of cash flow analysis (direct = cash transactions, indirect = accrual-based)',
+        description:
+          'Method of cash flow analysis (direct = cash transactions, indirect = accrual-based)',
         default: 'direct',
       },
       operatingItems: {
@@ -230,7 +231,8 @@ export class CashFlowAnalysisTool {
       },
       seasonalityFactors: {
         type: 'array',
-        description: 'Monthly seasonality factors (12 numbers, where 1.0 = average, 1.2 = 20% above average)',
+        description:
+          'Monthly seasonality factors (12 numbers, where 1.0 = average, 1.2 = 20% above average)',
         items: {
           type: 'number',
           minimum: 0,

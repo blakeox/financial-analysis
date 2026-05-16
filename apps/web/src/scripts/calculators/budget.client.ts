@@ -40,16 +40,18 @@ function calculateEmergencyFundProgress(
   const percentComplete = (currentAmount / targetAmount) * 100;
   const remaining = Math.max(0, targetAmount - currentAmount);
   const monthsToComplete = monthlySavings > 0 ? Math.ceil(remaining / monthlySavings) : Infinity;
-  
+
   let status: EmergencyFundProgress['status'] = 'none';
   let recommendation = '';
-  
+
   if (monthsOfExpenses === 0) {
     status = 'none';
-    recommendation = 'Start building your emergency fund! Aim for at least 1 month of expenses first.';
+    recommendation =
+      'Start building your emergency fund! Aim for at least 1 month of expenses first.';
   } else if (monthsOfExpenses < 1) {
     status = 'starter';
-    recommendation = 'Good start! Continue building toward 3-6 months of expenses for full protection.';
+    recommendation =
+      'Good start! Continue building toward 3-6 months of expenses for full protection.';
   } else if (monthsOfExpenses < 3) {
     status = 'partial';
     recommendation = 'Making progress! Aim for at least 3 months to cover most emergencies.';
@@ -58,12 +60,14 @@ function calculateEmergencyFundProgress(
     recommendation = `Almost there! ${(targetMonths - monthsOfExpenses).toFixed(1)} more months to reach your ${targetMonths}-month goal.`;
   } else if (monthsOfExpenses >= targetMonths && monthsOfExpenses < targetMonths + 3) {
     status = 'complete';
-    recommendation = 'Excellent! You have a solid emergency fund. Consider investing excess savings.';
+    recommendation =
+      'Excellent! You have a solid emergency fund. Consider investing excess savings.';
   } else {
     status = 'excess';
-    recommendation = 'Your emergency fund is well-funded! Consider investing excess funds for growth.';
+    recommendation =
+      'Your emergency fund is well-funded! Consider investing excess funds for growth.';
   }
-  
+
   return {
     currentAmount,
     targetAmount,
@@ -103,7 +107,11 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
   // Calculate emergency fund progress
   const monthlyExpenses = parseFloat(result.expenseSummary.totalMonthlyExpenses || '0');
   const monthlySavings = parseFloat(result.metrics.monthlyNetIncome || '0');
-  const emergencyFund = calculateEmergencyFundProgress(emergencyFundAmount, monthlyExpenses, monthlySavings);
+  const emergencyFund = calculateEmergencyFundProgress(
+    emergencyFundAmount,
+    monthlyExpenses,
+    monthlySavings
+  );
 
   // Render summary cards with emergency fund
   summaryCards.innerHTML = `

@@ -23,7 +23,8 @@ describe('RetirementTool', () => {
     });
 
     it('supports multiple account types', () => {
-      const accountTypes = RetirementTool.inputSchema.properties.accounts.items.properties.accountType.enum;
+      const accountTypes =
+        RetirementTool.inputSchema.properties.accounts.items.properties.accountType.enum;
       expect(accountTypes).toContain('401k');
       expect(accountTypes).toContain('roth_401k');
       expect(accountTypes).toContain('traditional_ira');

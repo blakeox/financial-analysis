@@ -5,6 +5,4 @@ export const PLAYWRIGHT_PROJECT_DEVICE_MAP = Object.freeze({
   'mobile-safari': 'iPhone 13',
 });
 
-export const PLAYWRIGHT_MATRIX_PROJECTS = Object.freeze(
-  Object.keys(PLAYWRIGHT_PROJECT_DEVICE_MAP)
-);
+export const PLAYWRIGHT_MATRIX_PROJECTS = Object.freeze(Object.keys(PLAYWRIGHT_PROJECT_DEVICE_MAP));

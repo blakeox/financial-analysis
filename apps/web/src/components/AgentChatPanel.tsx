@@ -1,7 +1,15 @@
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import { useMemo, useState } from 'react';
-import { Button, Card, CardContent, CardHeader, CardTitle, cn, inputClasses } from '@financial-analysis/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  cn,
+  inputClasses,
+} from '@financial-analysis/ui';
 
 const SESSION_STORAGE_KEY = 'fanalyx-project-think-session';
 
@@ -120,9 +128,7 @@ export function AgentChatPanel() {
           submitMessage(input);
         }}
       >
-        <label className="fa-field-label mb-2">
-          Message
-        </label>
+        <label className="fa-field-label mb-2">Message</label>
         <div className="flex flex-col gap-3 md:flex-row">
           <textarea
             value={input}

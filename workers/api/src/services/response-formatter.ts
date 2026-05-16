@@ -9,16 +9,16 @@ export class ResponseFormatter {
    */
   formatToolResponse(toolName: string, result: any, context?: any): string {
     const formatters: Record<string, (result: any, context?: any) => string> = {
-      'analyze_amortization': this.formatAmortizationResponse.bind(this),
-      'analyze_lease': this.formatLeaseResponse.bind(this),
-      'analyze_enhanced_lease': this.formatLeaseResponse.bind(this),
-      'analyze_auto_loan': this.formatAutoLoanResponse.bind(this),
-      'analyze_debt_payoff': this.formatDebtPayoffResponse.bind(this),
-      'analyze_retirement_savings': this.formatRetirementResponse.bind(this),
-      'analyze_savings_goal': this.formatSavingsGoalResponse.bind(this),
-      'analyze_student_loans': this.formatStudentLoanResponse.bind(this),
-      'optimize_budget': this.formatBudgetResponse.bind(this),
-      'analyze_financial_journey': this.formatFinancialJourneyResponse.bind(this),
+      analyze_amortization: this.formatAmortizationResponse.bind(this),
+      analyze_lease: this.formatLeaseResponse.bind(this),
+      analyze_enhanced_lease: this.formatLeaseResponse.bind(this),
+      analyze_auto_loan: this.formatAutoLoanResponse.bind(this),
+      analyze_debt_payoff: this.formatDebtPayoffResponse.bind(this),
+      analyze_retirement_savings: this.formatRetirementResponse.bind(this),
+      analyze_savings_goal: this.formatSavingsGoalResponse.bind(this),
+      analyze_student_loans: this.formatStudentLoanResponse.bind(this),
+      optimize_budget: this.formatBudgetResponse.bind(this),
+      analyze_financial_journey: this.formatFinancialJourneyResponse.bind(this),
       // Add more formatters as needed
     };
 
@@ -54,16 +54,22 @@ ${insights.length > 0 ? `**Key Insights:**\n${insights.join('\n')}\n\n` : ''}${r
     const insights: string[] = [];
 
     if (result.totalInterest > result.principal) {
-      insights.push(`⚠️ You'll pay more in interest (${this.formatCurrency(result.totalInterest)}) than the principal amount`);
+      insights.push(
+        `⚠️ You'll pay more in interest (${this.formatCurrency(result.totalInterest)}) than the principal amount`
+      );
     }
 
     if (result.monthlyPayment > 3000) {
-      insights.push(`💡 Your monthly payment is quite high - consider if this fits your budget comfortably`);
+      insights.push(
+        `💡 Your monthly payment is quite high - consider if this fits your budget comfortably`
+      );
     }
 
     const interestRatio = result.totalInterest / result.totalPayment;
     if (interestRatio > 0.3) {
-      insights.push(`📉 High interest proportion: ${(interestRatio * 100).toFixed(0)}% of your payment goes to interest`);
+      insights.push(
+        `📉 High interest proportion: ${(interestRatio * 100).toFixed(0)}% of your payment goes to interest`
+      );
     }
 
     return insights;
@@ -80,13 +86,17 @@ ${insights.length > 0 ? `**Key Insights:**\n${insights.join('\n')}\n\n` : ''}${r
       recommendations.push(`This loan looks affordable for most budgets`);
     }
 
-    recommendations.push(`Try different scenarios to find the best balance between monthly payment and total cost`);
+    recommendations.push(
+      `Try different scenarios to find the best balance between monthly payment and total cost`
+    );
 
     return recommendations;
   }
 
   private formatLeaseResponse(result: any): string {
-    const monthly = this.formatCurrency(result.metrics?.averageMonthlyPayment || result.metrics?.totalCost / result.termMonths || 0);
+    const monthly = this.formatCurrency(
+      result.metrics?.averageMonthlyPayment || result.metrics?.totalCost / result.termMonths || 0
+    );
     const total = this.formatCurrency(result.metrics?.totalCost || 0);
     const effectiveRate = result.metrics?.effectiveAnnualRate
       ? `${(result.metrics.effectiveAnnualRate * 100).toFixed(2)}%`
@@ -114,7 +124,14 @@ ${result.insights?.recommendations?.length > 0 ? `**Recommendations:**\n${result
 💵 **Total Interest:** ${totalInterest}
 📊 **Total Cost:** ${totalCost}
 
-${result.insights?.length > 0 ? `**Key Points:**\n${result.insights.slice(0, 3).map((i: string) => `• ${i}`).join('\n')}\n\n` : ''}`;
+${
+  result.insights?.length > 0
+    ? `**Key Points:**\n${result.insights
+        .slice(0, 3)
+        .map((i: string) => `• ${i}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatDebtPayoffResponse(result: any): string {
@@ -143,7 +160,14 @@ ${recommended.reasoning ? `**Why this strategy:** ${recommended.reasoning}\n\n` 
 💰 **Monthly Contribution Needed:** ${monthlyNeeded}
 🏦 **Projected Retirement Fund:** ${retirementFund}
 
-${result.insights?.length > 0 ? `**Important Insights:**\n${result.insights.slice(0, 3).map((i: string) => `• ${i}`).join('\n')}\n\n` : ''}`;
+${
+  result.insights?.length > 0
+    ? `**Important Insights:**\n${result.insights
+        .slice(0, 3)
+        .map((i: string) => `• ${i}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatSavingsGoalResponse(result: any): string {
@@ -157,7 +181,14 @@ ${result.insights?.length > 0 ? `**Important Insights:**\n${result.insights.slic
 💰 **Monthly Savings:** ${monthlyNeeded}
 📅 **Timeline:** ${timeline} months
 
-${result.recommendations?.length > 0 ? `**Recommendations:**\n${result.recommendations.slice(0, 3).map((r: string) => `• ${r}`).join('\n')}\n\n` : ''}`;
+${
+  result.recommendations?.length > 0
+    ? `**Recommendations:**\n${result.recommendations
+        .slice(0, 3)
+        .map((r: string) => `• ${r}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatStudentLoanResponse(result: any): string {
@@ -171,7 +202,14 @@ ${result.recommendations?.length > 0 ? `**Recommendations:**\n${result.recommend
 💵 **Total Interest:** ${totalInterest}
 📅 **Payoff Date:** ${payoffDate}
 
-${result.recommendations?.length > 0 ? `**Recommendations:**\n${result.recommendations.slice(0, 3).map((r: string) => `• ${r}`).join('\n')}\n\n` : ''}`;
+${
+  result.recommendations?.length > 0
+    ? `**Recommendations:**\n${result.recommendations
+        .slice(0, 3)
+        .map((r: string) => `• ${r}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatBudgetResponse(result: any): string {
@@ -183,7 +221,14 @@ ${result.recommendations?.length > 0 ? `**Recommendations:**\n${result.recommend
 
 ${hasDeficit ? `⚠️ **Monthly Deficit:** ${deficit}` : `✅ **Monthly Surplus:** ${surplus}`}
 
-${result.recommendations?.length > 0 ? `**To improve your budget:**\n${result.recommendations.slice(0, 3).map((r: string) => `• ${r}`).join('\n')}\n\n` : ''}`;
+${
+  result.recommendations?.length > 0
+    ? `**To improve your budget:**\n${result.recommendations
+        .slice(0, 3)
+        .map((r: string) => `• ${r}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatFinancialJourneyResponse(result: any): string {
@@ -197,17 +242,24 @@ ${result.recommendations?.length > 0 ? `**To improve your budget:**\n${result.re
 📊 **Financial Health Score:** ${score}/100
 🚀 **Next Milestone:** ${nextMilestone}
 
-${result.recommendations?.length > 0 ? `**Next Steps:**\n${result.recommendations.slice(0, 3).map((r: string) => `• ${r}`).join('\n')}\n\n` : ''}`;
+${
+  result.recommendations?.length > 0
+    ? `**Next Steps:**\n${result.recommendations
+        .slice(0, 3)
+        .map((r: string) => `• ${r}`)
+        .join('\n')}\n\n`
+    : ''
+}`;
   }
 
   private formatStageName(stage: string): string {
     const stageNames: Record<string, string> = {
       'getting-started': 'Getting Started',
       'building-foundations': 'Building Foundations',
-      'acceleration': 'Acceleration Phase',
-      'optimization': 'Optimization',
-      'preparation': 'Preparation',
-      'independence': 'Financial Independence',
+      acceleration: 'Acceleration Phase',
+      optimization: 'Optimization',
+      preparation: 'Preparation',
+      independence: 'Financial Independence',
     };
     return stageNames[stage] || stage;
   }
@@ -221,13 +273,13 @@ ${result.recommendations?.length > 0 ? `**Next Steps:**\n${result.recommendation
     if (typeof result === 'object' && result !== null) {
       // Try to extract key information
       const summary = result.summary || result.result || result;
-      
+
       if (summary && typeof summary === 'object') {
         const keyPoints = Object.entries(summary)
           .slice(0, 5)
           .map(([key, value]) => `**${key}:** ${value}`)
           .join('\n');
-        
+
         return `Analysis Results:\n\n${keyPoints}`;
       }
     }
@@ -236,5 +288,3 @@ ${result.recommendations?.length > 0 ? `**Next Steps:**\n${result.recommendation
     return JSON.stringify(result, null, 2).slice(0, 2000);
   }
 }
-
-

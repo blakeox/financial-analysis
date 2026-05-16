@@ -179,27 +179,27 @@ describe('Mortgage Scenario Planning - Utils', () => {
     it('should indicate significant savings for >$10k difference', () => {
       const base = createScenario(500000);
       const refinanced = createScenario(480000);
-      
+
       const result = findRefinanceSavings(base, refinanced);
-      
+
       expect(result).toContain('significant');
     });
 
     it('should indicate modest savings for $0-$10k difference', () => {
       const base = createScenario(500000);
       const refinanced = createScenario(495000);
-      
+
       const result = findRefinanceSavings(base, refinanced);
-      
+
       expect(result).toContain('modest');
     });
 
     it('should indicate not beneficial when refinance costs more', () => {
       const base = createScenario(500000);
       const refinanced = createScenario(510000);
-      
+
       const result = findRefinanceSavings(base, refinanced);
-      
+
       expect(result).toContain('not be beneficial');
     });
   });

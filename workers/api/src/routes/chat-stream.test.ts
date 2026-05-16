@@ -18,7 +18,7 @@ const { mockOrchestrator } = vi.hoisted(() => {
     stream: vi.fn().mockReturnValue(mockStream),
     handle: vi.fn(),
   };
-  
+
   return { mockOrchestrator };
 });
 
@@ -62,7 +62,7 @@ describe('Chat Stream Route', () => {
     } as unknown as RouterType;
 
     registerChatRoutes(mockRouter);
-    
+
     env = {
       ENVIRONMENT: 'test',
       AI: {} as unknown,

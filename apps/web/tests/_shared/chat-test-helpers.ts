@@ -28,7 +28,7 @@ export const GENERIC_RESPONSE_PATTERNS = [
  */
 export function isGenericResponse(text: string): boolean {
   const normalized = text.trim().toLowerCase();
-  return GENERIC_RESPONSE_PATTERNS.some(pattern => pattern.test(normalized));
+  return GENERIC_RESPONSE_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
 /**
@@ -43,14 +43,14 @@ export async function sendChatMessage(
     const chatInput = page.locator('#chat-input');
     await chatInput.waitFor({ state: 'visible', timeout: 5000 });
     await chatInput.fill(message);
-    
+
     const sendButton = page.locator('#chat-send');
     await sendButton.waitFor({ state: 'visible', timeout: 5000 });
     await sendButton.click();
-    
+
     // Wait for response - look for new assistant message
     const initialCount = await page.locator('.message.assistant').count();
-    
+
     // Wait for a new message to appear (up to timeout)
     await page.waitForFunction(
       (initial) => {
@@ -60,15 +60,15 @@ export async function sendChatMessage(
       initialCount,
       { timeout }
     );
-    
+
     // Get the last assistant message
     const assistantMessages = page.locator('.message.assistant');
     const count = await assistantMessages.count();
-    
+
     if (count === 0) {
       return '';
     }
-    
+
     const lastMessage = assistantMessages.last();
     await lastMessage.waitFor({ state: 'visible', timeout: 2000 });
     const text = await lastMessage.textContent();
@@ -93,7 +93,7 @@ export async function openChatPanel(page: Page): Promise<void> {
   const chatToggle = page.locator('#chat-toggle');
   await chatToggle.waitFor({ state: 'visible', timeout: 5000 });
   await chatToggle.click();
-  
+
   // Wait for panel to be visible
   await page.waitForSelector('#chat-panel.visible', { timeout: 3000 });
 }
@@ -123,36 +123,36 @@ export function isHelpfulResponse(response: string, question: string): boolean {
   if (!response || response.trim().length === 0) {
     return false;
   }
-  
+
   // Should not be generic
   if (isGenericResponse(response)) {
     return false;
   }
-  
+
   // Should have meaningful content
   if (response.length < 20) {
     return false;
   }
-  
+
   // Should not just repeat the question
   const responseLower = response.toLowerCase().trim();
   const questionLower = question.toLowerCase().trim();
-  
+
   if (responseLower === questionLower) {
     return false;
   }
-  
+
   // If it contains the question, should add significant value
   if (responseLower.includes(questionLower) && questionLower.length > 10) {
     return response.length > question.length + 20;
   }
-  
+
   // Should contain some actual content (not just punctuation or whitespace)
   const hasContent = /[a-zA-Z0-9]/.test(response);
   if (!hasContent) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -166,11 +166,11 @@ export async function verifyFieldUpdate(
 ): Promise<boolean> {
   const field = page.locator(fieldSelector).first();
   const count = await field.count();
-  
+
   if (count === 0) {
     return false;
   }
-  
+
   const value = await field.inputValue();
   return value === expectedValue || value.includes(expectedValue);
 }
@@ -183,7 +183,7 @@ export const TEST_PAGES = [
   { path: '/', name: 'Home', type: 'home' },
   { path: '/models', name: 'Models', type: 'models' },
   { path: '/calculators', name: 'Calculators', type: 'list' },
-  
+
   // Calculator pages
   { path: '/amortization', name: 'Amortization', type: 'calculator' },
   { path: '/ebitda-forecasting', name: 'EBITDA Forecasting', type: 'calculator' },
@@ -195,18 +195,34 @@ export const TEST_PAGES = [
   { path: '/calculator/debt-payoff', name: 'Debt Payoff', type: 'calculator' },
   { path: '/calculator/student-loans', name: 'Student Loans', type: 'calculator' },
   { path: '/calculator/budget', name: 'Budget', type: 'calculator' },
-  
+
   // Journey pages
   { path: '/journey/startup-planning', name: 'Startup Planning', type: 'journey' },
   { path: '/journey/home-buying', name: 'Home Buying', type: 'journey' },
   { path: '/journey/young-professional', name: 'Young Professional', type: 'journey' },
   { path: '/journey/family-planning', name: 'Family Planning', type: 'journey' },
   { path: '/journey/business-growth', name: 'Business Growth', type: 'journey' },
-  
+
   // Journey step pages
-  { path: '/journey/home-buying/step/financial-snapshot', name: 'Financial Snapshot', type: 'journey-step' },
+  {
+    path: '/journey/home-buying/step/financial-snapshot',
+    name: 'Financial Snapshot',
+    type: 'journey-step',
+  },
   { path: '/journey/home-buying/step/goal-planning', name: 'Goal Planning', type: 'journey-step' },
-  { path: '/journey/young-professional/step/financial-snapshot', name: 'Financial Snapshot', type: 'journey-step' },
-  { path: '/journey/startup-planning/step/initial-capital-investment', name: 'Initial Capital Investment', type: 'journey-step' },
-  { path: '/journey/startup-planning/step/startup-budget', name: 'Startup Budget', type: 'journey-step' },
+  {
+    path: '/journey/young-professional/step/financial-snapshot',
+    name: 'Financial Snapshot',
+    type: 'journey-step',
+  },
+  {
+    path: '/journey/startup-planning/step/initial-capital-investment',
+    name: 'Initial Capital Investment',
+    type: 'journey-step',
+  },
+  {
+    path: '/journey/startup-planning/step/startup-budget',
+    name: 'Startup Budget',
+    type: 'journey-step',
+  },
 ] as const;

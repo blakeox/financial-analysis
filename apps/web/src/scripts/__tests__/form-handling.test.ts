@@ -50,7 +50,7 @@ describe('Mortgage Scenario Planning - Form Handling', () => {
   describe('parseFormInput', () => {
     const createMockForm = (data: Record<string, string>): HTMLFormElement => {
       const form = document.createElement('form');
-      
+
       Object.entries(data).forEach(([name, value]) => {
         const input = document.createElement('input');
         input.name = name;
@@ -177,9 +177,7 @@ describe('Mortgage Scenario Planning - Form Handling', () => {
       const input = {
         homePrice: 400000,
         loanTermYears: 30,
-        scenarios: [
-          { downPayment: 80000, rate: 6.5, extraPayment: 0, closingCosts: 0 },
-        ],
+        scenarios: [{ downPayment: 80000, rate: 6.5, extraPayment: 0, closingCosts: 0 }],
       };
 
       const result = validateInput(input);

@@ -1,4 +1,8 @@
-import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import {
+  OpenAPIRegistry,
+  OpenApiGeneratorV3,
+  extendZodWithOpenApi,
+} from '@asteasolutions/zod-to-openapi';
 import { AutoLoanAnalysisInputSchema, z } from '@financial-analysis/analysis';
 
 // Extend Zod to support OpenAPI metadata (.openapi) on the same Zod instance
@@ -102,9 +106,13 @@ const ScenarioInputOpenAPISchema = z
       .object({
         marketGrowth: z.number().min(-1).max(1).default(0).openapi({ example: 0.0 }),
         competitionFactor: z.number().min(0).max(2).default(1).openapi({ example: 1.0 }),
-        seasonalityFactors: z.array(z.number().min(0).max(5)).length(12).optional().openapi({
-          example: [0.8, 0.85, 1.1, 1.15, 1.05, 0.95, 0.75, 0.8, 1.2, 1.25, 1.1, 0.9],
-        }),
+        seasonalityFactors: z
+          .array(z.number().min(0).max(5))
+          .length(12)
+          .optional()
+          .openapi({
+            example: [0.8, 0.85, 1.1, 1.15, 1.05, 0.95, 0.75, 0.8, 1.2, 1.25, 1.1, 0.9],
+          }),
       })
       .optional(),
   })
@@ -431,7 +439,13 @@ registry.registerPath({
   },
 });
 
-const AnalysisTypeEnum = z.enum(['lease', 'amortization', 'cashflow', 'ebitda-forecast', 'auto-loan-analysis']);
+const AnalysisTypeEnum = z.enum([
+  'lease',
+  'amortization',
+  'cashflow',
+  'ebitda-forecast',
+  'auto-loan-analysis',
+]);
 registry.registerPath({
   method: 'get',
   path: '/v1/api/analysis',
@@ -569,8 +583,28 @@ registry.registerPath({
             description: '12‑month forecast with moderate growth and seasonality',
             forecastPeriodMonths: 12,
             currentMonthlyFinancials: [
-              { month: 1, year: 2025, revenue: 120000, costOfGoodsSold: 0, operatingExpenses: 45000, depreciation: 2000, amortization: 0, interestExpense: 0, taxes: 0 },
-              { month: 2, year: 2025, revenue: 125000, costOfGoodsSold: 0, operatingExpenses: 46000, depreciation: 2000, amortization: 0, interestExpense: 0, taxes: 0 }
+              {
+                month: 1,
+                year: 2025,
+                revenue: 120000,
+                costOfGoodsSold: 0,
+                operatingExpenses: 45000,
+                depreciation: 2000,
+                amortization: 0,
+                interestExpense: 0,
+                taxes: 0,
+              },
+              {
+                month: 2,
+                year: 2025,
+                revenue: 125000,
+                costOfGoodsSold: 0,
+                operatingExpenses: 46000,
+                depreciation: 2000,
+                amortization: 0,
+                interestExpense: 0,
+                taxes: 0,
+              },
             ],
             currentEmployees: [
               {
@@ -583,23 +617,43 @@ registry.registerPath({
                 salary: 160000,
                 benefits: 25000,
                 startDate: '2025-01-01T00:00:00Z',
-                isActive: true
-              }
+                isActive: true,
+              },
             ],
             newEmployees: [],
             revenueGrowthRate: 0.04,
             billableHoursGrowthRate: 0,
             additionalExpenses: [
-              { id: 'exp-1', name: 'Headquarters Lease', category: 'fixed', amount: 18000, frequency: 'monthly', isRecurring: true, description: 'Office lease', growthRate: 0, startMonth: 1 },
-              { id: 'exp-2', name: 'Cloud Infrastructure', category: 'semi-variable', amount: 9000, frequency: 'monthly', isRecurring: true, description: 'Core hosting costs', growthRate: 0.01, startMonth: 1 }
+              {
+                id: 'exp-1',
+                name: 'Headquarters Lease',
+                category: 'fixed',
+                amount: 18000,
+                frequency: 'monthly',
+                isRecurring: true,
+                description: 'Office lease',
+                growthRate: 0,
+                startMonth: 1,
+              },
+              {
+                id: 'exp-2',
+                name: 'Cloud Infrastructure',
+                category: 'semi-variable',
+                amount: 9000,
+                frequency: 'monthly',
+                isRecurring: true,
+                description: 'Core hosting costs',
+                growthRate: 0.01,
+                startMonth: 1,
+              },
             ],
             operatingExpenseGrowthRate: 0.01,
             inflationRate: 0.03,
             economicFactors: {
               marketGrowth: 0.0,
               competitionFactor: 1.0,
-              seasonalityFactors: [1,1,1.05,1.07,1.1,1.05,0.95,0.9,1.05,1.1,1.08,1.02]
-            }
+              seasonalityFactors: [1, 1, 1.05, 1.07, 1.1, 1.05, 0.95, 0.9, 1.05, 1.1, 1.08, 1.02],
+            },
           },
         },
       },
@@ -616,8 +670,8 @@ registry.registerPath({
               name: 'Baseline SaaS Plan',
               forecastPeriodMonths: 12,
               economicFactors: {
-                seasonalityFactors: [1,1,1.05,1.07,1.1,1.05,0.95,0.9,1.05,1.1,1.08,1.02]
-              }
+                seasonalityFactors: [1, 1, 1.05, 1.07, 1.1, 1.05, 0.95, 0.9, 1.05, 1.1, 1.08, 1.02],
+              },
             },
             forecast: [
               {
@@ -639,8 +693,8 @@ registry.registerPath({
                 employeeCosts: 15333.33,
                 employeeCount: 1,
                 marginPercent: 62.5,
-                ebitdaMargin: 62.5
-              }
+                ebitdaMargin: 62.5,
+              },
             ],
             summary: {
               totalRevenue: 120000,
@@ -650,8 +704,8 @@ registry.registerPath({
               totalOperatingExpenses: 45000,
               finalEmployeeCount: 1,
               revenueGrowth: 0,
-              ebitdaGrowth: 0
-            }
+              ebitdaGrowth: 0,
+            },
           },
         },
       },

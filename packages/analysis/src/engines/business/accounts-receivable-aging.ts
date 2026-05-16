@@ -55,14 +55,18 @@ export class AccountsReceivableAgingAnalyzer {
         overdueAmount: agingAnalysis?.overdueAmount || 0,
         estimatedBadDebt: badDebtForecast?.estimatedBadDebt || 0,
       },
-      dsoAnalysis: dsoAnalysis ? {
-        ...dsoAnalysis,
-        daysSalesOutstanding: dsoAnalysis.dso,
-      } : undefined,
-      agingAnalysis: agingAnalysis ? {
-        ...agingAnalysis,
-        agingBuckets: agingAnalysis.buckets,
-      } : undefined,
+      dsoAnalysis: dsoAnalysis
+        ? {
+            ...dsoAnalysis,
+            daysSalesOutstanding: dsoAnalysis.dso,
+          }
+        : undefined,
+      agingAnalysis: agingAnalysis
+        ? {
+            ...agingAnalysis,
+            agingBuckets: agingAnalysis.buckets,
+          }
+        : undefined,
       badDebtForecast,
       collectionRecommendations: collectionRecommendations?.recommendations,
       creditPolicyOptimization,
@@ -80,9 +84,10 @@ export class AccountsReceivableAgingAnalyzer {
     dsoVariance: number;
     interpretation: string;
   } {
-    const dso = historical.annualCreditSales > 0
-      ? (receivables.totalReceivables / historical.annualCreditSales) * 365
-      : 0;
+    const dso =
+      historical.annualCreditSales > 0
+        ? (receivables.totalReceivables / historical.annualCreditSales) * 365
+        : 0;
     const targetDSO = creditPolicy.paymentTerms || 30;
     const dsoVariance = dso - targetDSO;
 
@@ -101,9 +106,7 @@ export class AccountsReceivableAgingAnalyzer {
     };
   }
 
-  private static performAgingAnalysis(
-    receivables: AccountsReceivableAgingInput['receivables']
-  ): {
+  private static performAgingAnalysis(receivables: AccountsReceivableAgingInput['receivables']): {
     buckets: Array<{
       bucket: string;
       amount: number;
@@ -116,7 +119,8 @@ export class AccountsReceivableAgingAnalyzer {
     const buckets = ['current', '1-30', '31-60', '61-90', 'over-90'].map((bucket) => {
       const bucketInvoices = receivables.invoices.filter((inv) => inv.agingBucket === bucket);
       const amount = bucketInvoices.reduce((sum, inv) => sum + inv.amountOutstanding, 0);
-      const percentage = receivables.totalReceivables > 0 ? (amount / receivables.totalReceivables) * 100 : 0;
+      const percentage =
+        receivables.totalReceivables > 0 ? (amount / receivables.totalReceivables) * 100 : 0;
 
       return {
         bucket,
@@ -156,16 +160,17 @@ export class AccountsReceivableAgingAnalyzer {
 
     // Bad debt probabilities by aging bucket
     const badDebtRates: Record<string, number> = {
-      'current': 0.01,
+      current: 0.01,
       '1-30': 0.05,
       '31-60': 0.15,
-      '61-90': 0.30,
-      'over-90': 0.50,
+      '61-90': 0.3,
+      'over-90': 0.5,
     };
 
     const byBucket = aging.buckets.map((bucket) => ({
       bucket: bucket.bucket,
-      estimatedBadDebt: bucket.amount * (badDebtRates[bucket.bucket] || historical.badDebtPercentage),
+      estimatedBadDebt:
+        bucket.amount * (badDebtRates[bucket.bucket] || historical.badDebtPercentage),
     }));
 
     const estimatedBadDebt = byBucket.reduce((sum, b) => sum + b.estimatedBadDebt, 0);
@@ -228,7 +233,8 @@ export class AccountsReceivableAgingAnalyzer {
   } {
     // Optimize payment terms based on industry and DSO
     const recommendedTerms = historical.averageCollectionPeriod > 45 ? 30 : _policy.paymentTerms;
-    const recommendedCreditLimit = _policy.creditLimit > 0 ? _policy.creditLimit : receivables.totalReceivables * 1.5;
+    const recommendedCreditLimit =
+      _policy.creditLimit > 0 ? _policy.creditLimit : receivables.totalReceivables * 1.5;
     const expectedDSO = recommendedTerms;
 
     return {
@@ -268,6 +274,3 @@ export class AccountsReceivableAgingAnalyzer {
     return recommendations;
   }
 }
-
-
-

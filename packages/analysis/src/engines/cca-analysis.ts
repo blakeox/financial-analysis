@@ -406,7 +406,7 @@ export class CCAValuationEngine {
     for (const multipleType of input.analysis.multiplesToCalculate) {
       // Convert hyphenated key to camelCase to match peer multiples property names
       const camelCaseKey = this.toCamelCase(multipleType);
-      
+
       const values = peerCompanies
         .map((company) => company.multiples[camelCaseKey])
         .filter((value) => value !== undefined && !isNaN(value) && isFinite(value));

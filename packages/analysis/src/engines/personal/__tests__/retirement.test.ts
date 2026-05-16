@@ -50,7 +50,7 @@ describe('Retirement Analysis Engine', () => {
       const result = analyze(basicInput);
 
       const firstYear = result.projectionSchedule[0]!;
-      
+
       expect(firstYear.totalContribution).toBeDefined();
       expect(firstYear.totalGrowth).toBeDefined();
       expect(firstYear.totalBalance).toBeDefined();
@@ -162,7 +162,9 @@ describe('Retirement Analysis Engine', () => {
     it('estimates portfolio longevity', () => {
       const result = analyze(basicInput);
 
-      expect(result.withdrawalAnalysis.portfolioLastsUntilAge).toBeGreaterThanOrEqual(basicInput.retirementAge);
+      expect(result.withdrawalAnalysis.portfolioLastsUntilAge).toBeGreaterThanOrEqual(
+        basicInput.retirementAge
+      );
     });
 
     it('handles fixed_amount withdrawal strategy', () => {

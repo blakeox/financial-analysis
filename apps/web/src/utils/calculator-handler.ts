@@ -1,6 +1,6 @@
 /**
  * Unified Calculator Handler
- * 
+ *
  * Provides a standardized pattern for calculator implementations to reduce
  * duplication and ensure consistency across all calculators.
  */
@@ -25,22 +25,22 @@ type MaybePromise<T> = T | Promise<T>;
 export interface CalculatorConfig<InputType, ResultType> {
   /** Calculator ID for events and storage */
   calculatorId: string;
-  
+
   /** Parse form data to calculator input */
   parseInput: (form: HTMLFormElement) => InputType;
-  
+
   /** Run calculator analysis */
   analyze: (input: InputType) => MaybePromise<ResultType>;
-  
+
   /** Display results in the UI */
   displayResults: (result: ResultType, input: InputType) => void;
-  
+
   /** Optional: validate input before analysis */
   validateInput?: (input: InputType) => void;
-  
+
   /** Optional: custom error handling */
   onError?: (error: unknown) => void;
-  
+
   /** Optional: custom success handling */
   onSuccess?: (result: ResultType, input: InputType) => void;
 }
@@ -60,16 +60,17 @@ export function createCalculatorHandler<InputType, ResultType>(
     return;
   }
 
-  const activeCalculateBtn = calculateBtn instanceof HTMLButtonElement
-    ? calculateBtn
-    : submitBtn instanceof HTMLButtonElement
-      ? submitBtn
-      : null;
+  const activeCalculateBtn =
+    calculateBtn instanceof HTMLButtonElement
+      ? calculateBtn
+      : submitBtn instanceof HTMLButtonElement
+        ? submitBtn
+        : null;
 
   // Setup form submission handler
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    
+
     if (!activeCalculateBtn) {
       console.error(`[${config.calculatorId}] Calculate button not found`);
       return;
@@ -113,7 +114,7 @@ export function createCalculatorHandler<InputType, ResultType>(
     } catch (error) {
       const errorMessage = handleCalculatorError(error);
       showError(errorMessage);
-      
+
       // Custom error handler
       if (config.onError) {
         config.onError(error);
@@ -171,4 +172,3 @@ export function createSimpleAsyncCalculator<InputType, ResultType>(
     displayResults,
   });
 }
-

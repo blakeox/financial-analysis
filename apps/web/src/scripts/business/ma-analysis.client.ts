@@ -86,7 +86,10 @@ function getFieldValue(form: HTMLFormElement, fieldName: string): string {
 function parseNumberField(form: HTMLFormElement, fieldName: string, fallback = 0): number {
   const raw = getFieldValue(form, fieldName);
   if (!raw) return fallback;
-  const sanitized = raw.replace(/[$,%\s]/g, '').replace(/,/g, '').trim();
+  const sanitized = raw
+    .replace(/[$,%\s]/g, '')
+    .replace(/,/g, '')
+    .trim();
   const parsed = Number.parseFloat(sanitized);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
@@ -94,7 +97,10 @@ function parseNumberField(form: HTMLFormElement, fieldName: string, fallback = 0
 function parseOptionalNumberField(form: HTMLFormElement, fieldName: string): number | undefined {
   const raw = getFieldValue(form, fieldName);
   if (!raw) return undefined;
-  const sanitized = raw.replace(/[$,%\s]/g, '').replace(/,/g, '').trim();
+  const sanitized = raw
+    .replace(/[$,%\s]/g, '')
+    .replace(/,/g, '')
+    .trim();
   const parsed = Number.parseFloat(sanitized);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
@@ -132,9 +138,7 @@ function parseSynergyCategories(
   return categories;
 }
 
-function parseIntegrationRisks(
-  raw: string
-): Array<{
+function parseIntegrationRisks(raw: string): Array<{
   category: string;
   description: string;
   probability: number;
@@ -218,7 +222,8 @@ function buildMAInput(form: HTMLFormElement): Record<string, unknown> {
   const acquirerTotalDebt = parseNumberField(form, 'acquirerTotalDebt', 0);
   const acquirerCashAndEquivalents = parseNumberField(form, 'acquirerCashAndEquivalents', 0);
   const acquirerMarketCap = acquirerSharesOutstanding * acquirerCurrentPrice;
-  const acquirerEnterpriseValue = acquirerMarketCap + acquirerTotalDebt - acquirerCashAndEquivalents;
+  const acquirerEnterpriseValue =
+    acquirerMarketCap + acquirerTotalDebt - acquirerCashAndEquivalents;
 
   const targetSharesOutstanding = parseNumberField(form, 'targetSharesOutstanding', 0);
   const targetCurrentPrice = parseNumberField(form, 'targetCurrentPrice', 0);
@@ -239,7 +244,8 @@ function buildMAInput(form: HTMLFormElement): Record<string, unknown> {
   const premium = premiumPercent !== undefined ? premiumPercent / 100 : derivedPremium;
 
   const exchangeRatioRaw = parseOptionalNumberField(form, 'exchangeRatio');
-  const exchangeRatio = exchangeRatioRaw !== undefined && exchangeRatioRaw > 0 ? exchangeRatioRaw : undefined;
+  const exchangeRatio =
+    exchangeRatioRaw !== undefined && exchangeRatioRaw > 0 ? exchangeRatioRaw : undefined;
 
   const financingNewDebt = parseNumberField(form, 'financingNewDebt', 0);
   const financingCashOnHand = parseNumberField(form, 'financingCashOnHand', 0);
@@ -267,7 +273,10 @@ function buildMAInput(form: HTMLFormElement): Record<string, unknown> {
   const annualRevenueSynergies = parseNumberField(form, 'annualRevenueSynergies', 0);
   const annualTaxSynergies = parseNumberField(form, 'annualTaxSynergies', 0);
 
-  const costSynergyRealizationPeriod = parseOptionalNumberField(form, 'costSynergyRealizationPeriod');
+  const costSynergyRealizationPeriod = parseOptionalNumberField(
+    form,
+    'costSynergyRealizationPeriod'
+  );
   const costSynergyProbability = parseOptionalNumberField(form, 'costSynergyProbability');
   const revenueSynergyRealizationPeriod = parseOptionalNumberField(
     form,
@@ -277,7 +286,9 @@ function buildMAInput(form: HTMLFormElement): Record<string, unknown> {
   const taxSynergyRealizationPeriod = parseOptionalNumberField(form, 'taxSynergyRealizationPeriod');
   const taxSynergyProbability = parseOptionalNumberField(form, 'taxSynergyProbability');
 
-  const costSynergyCategories = parseSynergyCategories(getFieldValue(form, 'costSynergyCategories'));
+  const costSynergyCategories = parseSynergyCategories(
+    getFieldValue(form, 'costSynergyCategories')
+  );
   const revenueSynergyCategories = parseSynergyCategories(
     getFieldValue(form, 'revenueSynergyCategories')
   );
@@ -422,15 +433,11 @@ function displayResults(result: unknown): void {
     if (!Array.isArray(items)) return '';
     const safe = items.filter((x) => typeof x === 'string') as string[];
     if (safe.length === 0) return '';
-    return `<ul class="list-disc pl-5 space-y-1">${safe
-      .map((s) => `<li>${s}</li>`)
-      .join('')}</ul>`;
+    return `<ul class="list-disc pl-5 space-y-1">${safe.map((s) => `<li>${s}</li>`).join('')}</ul>`;
   };
 
   const premiumText =
-    typeof premium === 'number' && Number.isFinite(premium)
-      ? formatPercentDecimal(premium)
-      : 'N/A';
+    typeof premium === 'number' && Number.isFinite(premium) ? formatPercentDecimal(premium) : 'N/A';
 
   const evText =
     typeof enterpriseValue === 'number' && Number.isFinite(enterpriseValue)

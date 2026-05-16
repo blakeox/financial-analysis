@@ -962,9 +962,7 @@ router.post(
         : {}),
       ...(parsed.data.paths ? { paths: parsed.data.paths } : {}),
       ...(parsed.data.warmCache !== undefined ? { warmCache: parsed.data.warmCache } : {}),
-      ...(parsed.data.delaySeconds !== undefined
-        ? { delaySeconds: parsed.data.delaySeconds }
-        : {}),
+      ...(parsed.data.delaySeconds !== undefined ? { delaySeconds: parsed.data.delaySeconds } : {}),
     });
 
     return new Response(

@@ -4,10 +4,7 @@
   "testRunner": "vitest",
   "coverageAnalysis": "perTest",
   "reporters": ["clear-text", "progress", "html"],
-  "mutate": [
-    "src/engines/options.ts",
-    "src/engines/real-options.ts"
-  ],
+  "mutate": ["src/engines/options.ts", "src/engines/real-options.ts"],
   "vitest": {
     "configFile": "vitest.config.mjs"
   },

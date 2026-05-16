@@ -1,13 +1,17 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
-import { CashFlowAnalysisInputSchema, type CashFlowAnalysisInput, type CashFlowItem } from '../schemas/cash-flow.js';
-import type { 
-  CashFlowAnalysisResult, 
-  MonthlyCashFlow, 
+import {
+  CashFlowAnalysisInputSchema,
+  type CashFlowAnalysisInput,
+  type CashFlowItem,
+} from '../schemas/cash-flow.js';
+import type {
+  CashFlowAnalysisResult,
+  MonthlyCashFlow,
   CashFlowByCategory,
   CashFlowMetrics,
   LiquidityAnalysis,
-  RiskAssessment
+  RiskAssessment,
 } from '../types/cash-flow-result.js';
 
 export class CashFlowAnalyzer {
@@ -16,33 +20,33 @@ export class CashFlowAnalyzer {
    */
   static analyze(input: z.infer<typeof CashFlowAnalysisInputSchema>): CashFlowAnalysisResult {
     const validated = CashFlowAnalysisInputSchema.parse(input);
-    
+
     const startDate = new Date(validated.analysisStartDate);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + validated.analysisPeriodMonths);
-    
+
     // Generate monthly cash flows
     const monthlyCashFlows = this.generateMonthlyCashFlows(validated, startDate);
-    
+
     // Summarize by category
     const cashFlowByCategory = this.summarizeByCategory(validated.cashFlowItems, monthlyCashFlows);
-    
+
     // Calculate metrics
     const metrics = this.calculateMetrics(validated, monthlyCashFlows);
-    
+
     // Liquidity analysis
     const liquidityAnalysis = this.analyzeLiquidity(validated, monthlyCashFlows);
-    
+
     // Risk assessment
     const riskAssessment = this.assessRisk(monthlyCashFlows, liquidityAnalysis);
-    
+
     // Generate insights
     const insights = this.generateInsights(metrics, liquidityAnalysis, riskAssessment);
     const warnings = this.generateWarnings(liquidityAnalysis, riskAssessment);
     const recommendations = this.generateRecommendations(metrics, liquidityAnalysis);
-    
+
     const overallHealth = this.assessOverallHealth(metrics, liquidityAnalysis, riskAssessment);
-    
+
     const result: CashFlowAnalysisResult = {
       analysisStartDate: startDate.toISOString(),
       analysisEndDate: endDate.toISOString(),
@@ -61,12 +65,12 @@ export class CashFlowAnalyzer {
       calculationDate: new Date().toISOString(),
       assumptions: this.buildAssumptions(validated),
     };
-    
+
     // Add companyName only if it exists
     if (validated.companyName) {
       result.companyName = validated.companyName;
     }
-    
+
     return result;
   }
 
@@ -77,17 +81,17 @@ export class CashFlowAnalyzer {
     const cashFlows: MonthlyCashFlow[] = [];
     let cumulativeCashFlow = new Decimal(0);
     let currentBalance = new Decimal(input.openingCashBalance);
-    
+
     for (let month = 0; month < input.analysisPeriodMonths; month++) {
       const monthDate = new Date(startDate);
       monthDate.setMonth(monthDate.getMonth() + month);
-      
+
       const monthData = this.calculateMonthCashFlow(input, month, monthDate);
-      
+
       const netCashFlow = new Decimal(monthData.totalInflows).minus(monthData.totalOutflows);
       cumulativeCashFlow = cumulativeCashFlow.plus(netCashFlow);
       const closingBalance = currentBalance.plus(netCashFlow);
-      
+
       cashFlows.push({
         month: month + 1,
         date: monthDate.toISOString(),
@@ -107,10 +111,10 @@ export class CashFlowAnalyzer {
         closingBalance: closingBalance.toNumber(),
         cumulativeCashFlow: cumulativeCashFlow.toNumber(),
       });
-      
+
       currentBalance = closingBalance;
     }
-    
+
     return cashFlows;
   }
 
@@ -125,10 +129,10 @@ export class CashFlowAnalyzer {
     let investingOutflows = 0;
     let financingInflows = 0;
     let financingOutflows = 0;
-    
+
     input.cashFlowItems.forEach((item) => {
       const amount = this.getCashFlowAmount(item, monthIndex, input);
-      
+
       if (amount !== 0) {
         switch (item.type) {
           case 'operating':
@@ -146,13 +150,13 @@ export class CashFlowAnalyzer {
         }
       }
     });
-    
+
     // Add debt service
     input.debtObligations?.forEach((debt) => {
       const debtPayment = this.calculateDebtPayment(debt, monthIndex, monthDate);
       financingOutflows += debtPayment;
     });
-    
+
     return {
       operatingInflows,
       operatingOutflows,
@@ -165,7 +169,11 @@ export class CashFlowAnalyzer {
     };
   }
 
-  private static getCashFlowAmount(item: CashFlowItem, monthIndex: number, input: CashFlowAnalysisInput): number {
+  private static getCashFlowAmount(
+    item: CashFlowItem,
+    monthIndex: number,
+    input: CashFlowAnalysisInput
+  ): number {
     if (!item.isRecurring && item.date) {
       // One-time item
       const itemDate = new Date(item.date);
@@ -175,13 +183,13 @@ export class CashFlowAnalyzer {
       );
       return itemMonth === monthIndex ? item.amount : 0;
     }
-    
+
     // Recurring item
     if (item.frequency === 'monthly') {
       const yearFraction = monthIndex / 12;
       const growthMultiplier = Math.pow(1 + item.growthRate, yearFraction);
       let amount = item.amount * growthMultiplier;
-      
+
       // Apply seasonality if enabled
       if (input.includeSeasonality && input.seasonalityFactors) {
         const seasonalMonth = monthIndex % 12;
@@ -190,7 +198,7 @@ export class CashFlowAnalyzer {
           amount *= factor;
         }
       }
-      
+
       return amount;
     } else if (item.frequency === 'quarterly') {
       if (monthIndex % 3 === 0) {
@@ -207,28 +215,36 @@ export class CashFlowAnalyzer {
       }
       return 0;
     }
-    
+
     return 0;
   }
 
-  private static calculateDebtPayment(debt: { principal: number; interestRate: number; termMonths: number }, monthIndex: number, _monthDate: Date): number {
+  private static calculateDebtPayment(
+    debt: { principal: number; interestRate: number; termMonths: number },
+    monthIndex: number,
+    _monthDate: Date
+  ): number {
     // Simplified debt payment calculation
     const monthlyRate = debt.interestRate / 12;
-    const payment = (debt.principal * monthlyRate * Math.pow(1 + monthlyRate, debt.termMonths)) /
-                    (Math.pow(1 + monthlyRate, debt.termMonths) - 1);
-    
+    const payment =
+      (debt.principal * monthlyRate * Math.pow(1 + monthlyRate, debt.termMonths)) /
+      (Math.pow(1 + monthlyRate, debt.termMonths) - 1);
+
     return monthIndex < debt.termMonths ? payment : 0;
   }
 
-  private static summarizeByCategory(items: CashFlowItem[], monthlyCashFlows: MonthlyCashFlow[]): CashFlowByCategory[] {
+  private static summarizeByCategory(
+    items: CashFlowItem[],
+    monthlyCashFlows: MonthlyCashFlow[]
+  ): CashFlowByCategory[] {
     const categorySummary = new Map<string, { inflow: Decimal; outflow: Decimal }>();
-    
+
     items.forEach((item) => {
       const key = item.category;
       if (!categorySummary.has(key)) {
         categorySummary.set(key, { inflow: new Decimal(0), outflow: new Decimal(0) });
       }
-      
+
       const summary = categorySummary.get(key)!;
       if (item.amount > 0) {
         summary.inflow = summary.inflow.plus(Math.abs(item.amount) * monthlyCashFlows.length);
@@ -236,9 +252,9 @@ export class CashFlowAnalyzer {
         summary.outflow = summary.outflow.plus(Math.abs(item.amount) * monthlyCashFlows.length);
       }
     });
-    
+
     const totalCashFlow = monthlyCashFlows.reduce((sum, m) => sum + Math.abs(m.netCashFlow), 0);
-    
+
     return Array.from(categorySummary.entries()).map(([category, summary]) => {
       const netCashFlow = summary.inflow.minus(summary.outflow).toNumber();
       return {
@@ -252,34 +268,49 @@ export class CashFlowAnalyzer {
     });
   }
 
-  private static calculateMetrics(input: CashFlowAnalysisInput, monthlyCashFlows: MonthlyCashFlow[]): CashFlowMetrics {
-    const totalOperatingCashFlow = monthlyCashFlows.reduce((sum, m) => sum + m.netOperatingCashFlow, 0);
-    const totalInvestingCashFlow = monthlyCashFlows.reduce((sum, m) => sum + m.netInvestingCashFlow, 0);
-    const totalFinancingCashFlow = monthlyCashFlows.reduce((sum, m) => sum + m.netFinancingCashFlow, 0);
-    
+  private static calculateMetrics(
+    input: CashFlowAnalysisInput,
+    monthlyCashFlows: MonthlyCashFlow[]
+  ): CashFlowMetrics {
+    const totalOperatingCashFlow = monthlyCashFlows.reduce(
+      (sum, m) => sum + m.netOperatingCashFlow,
+      0
+    );
+    const totalInvestingCashFlow = monthlyCashFlows.reduce(
+      (sum, m) => sum + m.netInvestingCashFlow,
+      0
+    );
+    const totalFinancingCashFlow = monthlyCashFlows.reduce(
+      (sum, m) => sum + m.netFinancingCashFlow,
+      0
+    );
+
     // Capital expenditure (negative investing outflows)
     const capitalExpenditure = Math.abs(
       monthlyCashFlows.reduce((sum, m) => sum + Math.min(0, m.netInvestingCashFlow), 0)
     );
-    
+
     const freeCashFlow = totalOperatingCashFlow - capitalExpenditure;
-    
+
     const averageMonthlyOperatingCF = totalOperatingCashFlow / monthlyCashFlows.length;
     const averageMonthlyFreeCF = freeCashFlow / monthlyCashFlows.length;
-    
+
     // Calculate NPV
     const npv = this.calculateNPV(monthlyCashFlows, input.discountRate);
-    
+
     // Burn rate (for negative cash flow companies)
-    const negativeCashFlowMonths = monthlyCashFlows.filter(m => m.netCashFlow < 0);
-    const burnRate = negativeCashFlowMonths.length > 0
-      ? Math.abs(negativeCashFlowMonths.reduce((sum, m) => sum + m.netCashFlow, 0) / negativeCashFlowMonths.length)
-      : 0;
-    
-    const runway = burnRate > 0 && input.openingCashBalance > 0
-      ? input.openingCashBalance / burnRate
-      : 0;
-    
+    const negativeCashFlowMonths = monthlyCashFlows.filter((m) => m.netCashFlow < 0);
+    const burnRate =
+      negativeCashFlowMonths.length > 0
+        ? Math.abs(
+            negativeCashFlowMonths.reduce((sum, m) => sum + m.netCashFlow, 0) /
+              negativeCashFlowMonths.length
+          )
+        : 0;
+
+    const runway =
+      burnRate > 0 && input.openingCashBalance > 0 ? input.openingCashBalance / burnRate : 0;
+
     return {
       totalOperatingCashFlow,
       totalInvestingCashFlow,
@@ -317,22 +348,32 @@ export class CashFlowAnalyzer {
     };
   }
 
-  private static analyzeLiquidity(input: CashFlowAnalysisInput, monthlyCashFlows: MonthlyCashFlow[]): LiquidityAnalysis {
-    const minimumBalance = monthlyCashFlows.reduce((min, m) => Math.min(min, m.closingBalance), Infinity);
-    const violations = monthlyCashFlows.filter(m => m.closingBalance < input.minimumCashBalance).length;
-    
-    const avgMonthlyOutflow = monthlyCashFlows.reduce((sum, m) => sum + m.totalOutflows, 0) / monthlyCashFlows.length;
-    const monthsOfCoverage = avgMonthlyOutflow > 0 ? input.openingCashBalance / avgMonthlyOutflow : Infinity;
-    
+  private static analyzeLiquidity(
+    input: CashFlowAnalysisInput,
+    monthlyCashFlows: MonthlyCashFlow[]
+  ): LiquidityAnalysis {
+    const minimumBalance = monthlyCashFlows.reduce(
+      (min, m) => Math.min(min, m.closingBalance),
+      Infinity
+    );
+    const violations = monthlyCashFlows.filter(
+      (m) => m.closingBalance < input.minimumCashBalance
+    ).length;
+
+    const avgMonthlyOutflow =
+      monthlyCashFlows.reduce((sum, m) => sum + m.totalOutflows, 0) / monthlyCashFlows.length;
+    const monthsOfCoverage =
+      avgMonthlyOutflow > 0 ? input.openingCashBalance / avgMonthlyOutflow : Infinity;
+
     const maxDrawdown = Math.abs(Math.min(0, minimumBalance));
-    
+
     let currentLiquidity: 'Excellent' | 'Good' | 'Adequate' | 'Poor' | 'Critical';
     if (monthsOfCoverage > 12) currentLiquidity = 'Excellent';
     else if (monthsOfCoverage > 6) currentLiquidity = 'Good';
     else if (monthsOfCoverage > 3) currentLiquidity = 'Adequate';
     else if (monthsOfCoverage > 1) currentLiquidity = 'Poor';
     else currentLiquidity = 'Critical';
-    
+
     return {
       currentLiquidity,
       monthsOfCoverage,
@@ -341,29 +382,38 @@ export class CashFlowAnalyzer {
     };
   }
 
-  private static assessRisk(monthlyCashFlows: MonthlyCashFlow[], liquidity: LiquidityAnalysis): RiskAssessment {
-    const cashFlowValues = monthlyCashFlows.map(m => m.netCashFlow);
+  private static assessRisk(
+    monthlyCashFlows: MonthlyCashFlow[],
+    liquidity: LiquidityAnalysis
+  ): RiskAssessment {
+    const cashFlowValues = monthlyCashFlows.map((m) => m.netCashFlow);
     const mean = cashFlowValues.reduce((sum, v) => sum + v, 0) / cashFlowValues.length;
-    const variance = cashFlowValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / cashFlowValues.length;
+    const variance =
+      cashFlowValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / cashFlowValues.length;
     const stdDev = Math.sqrt(variance);
-    
+
     const coefficientOfVariation = mean !== 0 ? stdDev / Math.abs(mean) : Infinity;
-    
-    const liquidityRisk = liquidity.currentLiquidity === 'Critical' || liquidity.currentLiquidity === 'Poor' ? 'High' :
-                         liquidity.currentLiquidity === 'Adequate' ? 'Medium' : 'Low';
-    
-    const operatingRisk = coefficientOfVariation > 1 ? 'High' :
-                          coefficientOfVariation > 0.5 ? 'Medium' : 'Low';
-    
+
+    const liquidityRisk =
+      liquidity.currentLiquidity === 'Critical' || liquidity.currentLiquidity === 'Poor'
+        ? 'High'
+        : liquidity.currentLiquidity === 'Adequate'
+          ? 'Medium'
+          : 'Low';
+
+    const operatingRisk =
+      coefficientOfVariation > 1 ? 'High' : coefficientOfVariation > 0.5 ? 'Medium' : 'Low';
+
     const riskFactors: string[] = [];
     if (liquidityRisk === 'High') riskFactors.push('Insufficient cash reserves');
     if (operatingRisk === 'High') riskFactors.push('Highly volatile cash flows');
-    if (liquidity.minimumBalanceViolations > 0) riskFactors.push('Minimum balance violations detected');
-    
+    if (liquidity.minimumBalanceViolations > 0)
+      riskFactors.push('Minimum balance violations detected');
+
     const mitigationStrategies: string[] = [];
     if (liquidityRisk !== 'Low') mitigationStrategies.push('Build cash reserves');
     if (operatingRisk !== 'Low') mitigationStrategies.push('Diversify revenue streams');
-    
+
     return {
       cashFlowVolatility: stdDev,
       coefficientOfVariation,
@@ -375,61 +425,74 @@ export class CashFlowAnalyzer {
     };
   }
 
-  private static generateInsights(metrics: CashFlowMetrics, liquidity: LiquidityAnalysis, _risk: RiskAssessment): string[] {
+  private static generateInsights(
+    metrics: CashFlowMetrics,
+    liquidity: LiquidityAnalysis,
+    _risk: RiskAssessment
+  ): string[] {
     const insights: string[] = [];
-    
+
     if (metrics.freeCashFlow > 0) {
       insights.push(`Positive free cash flow of $${metrics.freeCashFlow.toLocaleString()}`);
     } else {
-      insights.push(`Negative free cash flow of $${Math.abs(metrics.freeCashFlow).toLocaleString()} - requires financing`);
+      insights.push(
+        `Negative free cash flow of $${Math.abs(metrics.freeCashFlow).toLocaleString()} - requires financing`
+      );
     }
-    
+
     if (liquidity.monthsOfCoverage < 3) {
       insights.push(`⚠️ Only ${liquidity.monthsOfCoverage.toFixed(1)} months of cash coverage`);
     } else {
       insights.push(`${liquidity.monthsOfCoverage.toFixed(1)} months of cash coverage available`);
     }
-    
+
     if (metrics.runway > 0) {
       insights.push(`Current runway: ${metrics.runway.toFixed(1)} months at current burn rate`);
     }
-    
+
     return insights;
   }
 
   private static generateWarnings(liquidity: LiquidityAnalysis, risk: RiskAssessment): string[] {
     const warnings: string[] = [];
-    
+
     if (liquidity.currentLiquidity === 'Critical' || liquidity.currentLiquidity === 'Poor') {
       warnings.push('⚠️ Critical liquidity situation - immediate action required');
     }
-    
+
     if (liquidity.minimumBalanceViolations > 0) {
-      warnings.push(`⚠️ Minimum cash balance violated in ${liquidity.minimumBalanceViolations} months`);
+      warnings.push(
+        `⚠️ Minimum cash balance violated in ${liquidity.minimumBalanceViolations} months`
+      );
     }
-    
+
     if (risk.liquidityRisk === 'High') {
       warnings.push('⚠️ High liquidity risk detected');
     }
-    
+
     return warnings;
   }
 
-  private static generateRecommendations(metrics: CashFlowMetrics, liquidity: LiquidityAnalysis): string[] {
+  private static generateRecommendations(
+    metrics: CashFlowMetrics,
+    liquidity: LiquidityAnalysis
+  ): string[] {
     const recommendations: string[] = [];
-    
+
     if (metrics.freeCashFlow < 0) {
-      recommendations.push('Focus on improving operating cash flow or reducing capital expenditures');
+      recommendations.push(
+        'Focus on improving operating cash flow or reducing capital expenditures'
+      );
     }
-    
+
     if (liquidity.monthsOfCoverage < 6) {
       recommendations.push('Build cash reserves to at least 6 months of operating expenses');
     }
-    
+
     if (metrics.burnRate > 0) {
       recommendations.push('Explore cost reduction opportunities to extend runway');
     }
-    
+
     return recommendations;
   }
 

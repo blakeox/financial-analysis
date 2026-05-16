@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  EbitdaForecaster, 
+import {
+  EbitdaForecaster,
   ScenarioInputSchema,
   MonthlyFinancialsSchema,
   EmployeeSchema,
-  ExpenseTypeSchema
+  ExpenseTypeSchema,
 } from '../engines/ebitda-forecasting';
 
 describe('EbitdaForecaster', () => {
@@ -98,7 +98,7 @@ describe('EbitdaForecaster', () => {
   describe('Basic Forecasting', () => {
     it('should generate a 12-month forecast', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       expect(result.forecast).toHaveLength(12);
       expect(result.scenario.name).toBe('Base Scenario');
       expect(result.scenario.forecastPeriodMonths).toBe(12);
@@ -106,12 +106,12 @@ describe('EbitdaForecaster', () => {
 
     it('should calculate revenue growth correctly', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       // With 5% monthly growth, month 1 should be 105,000
       const month1 = result.forecast[0];
       expect(month1).toBeDefined();
       expect(month1!.revenue).toBeCloseTo(105000, 0);
-      
+
       // Month 12 should be significantly higher due to compound growth
       const month12 = result.forecast[11];
       expect(month12).toBeDefined();
@@ -120,8 +120,8 @@ describe('EbitdaForecaster', () => {
 
     it('should calculate EBITDA correctly', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
-      result.forecast.forEach(month => {
+
+      result.forecast.forEach((month) => {
         expect(month.ebitda).toBe(month.grossProfit - month.operatingExpenses);
         expect(month.grossProfit).toBe(month.revenue - month.costOfGoodsSold);
         expect(month.ebit).toBe(month.ebitda - month.depreciation - month.amortization);
@@ -130,8 +130,8 @@ describe('EbitdaForecaster', () => {
 
     it('should track employee costs and count', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
-      result.forecast.forEach(month => {
+
+      result.forecast.forEach((month) => {
         expect(month.employeeCount).toBe(1); // Only one employee
         expect(month.employeeCosts).toBeGreaterThan(0);
         // Employee costs should include salary + benefits + inflation adjustment
@@ -141,7 +141,7 @@ describe('EbitdaForecaster', () => {
 
     it('should calculate summary metrics correctly', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       expect(result.summary.totalRevenue).toBeGreaterThan(0);
       expect(result.summary.totalEbitda).toBeGreaterThan(0);
       expect(result.summary.averageEbitdaMargin).toBeGreaterThan(0);
@@ -151,7 +151,7 @@ describe('EbitdaForecaster', () => {
 
     it('should calculate key metrics correctly', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       expect(result.keyMetrics.revenuePerEmployee).toBeGreaterThan(0);
       expect(result.keyMetrics.ebitdaPerEmployee).toBeGreaterThan(0);
       expect(result.keyMetrics.averageBillableHours).toBeGreaterThan(0);
@@ -180,16 +180,16 @@ describe('EbitdaForecaster', () => {
       };
 
       const result = EbitdaForecaster.forecast(scenarioWithNewEmployees);
-      
+
       // Month 5 should have 1 employee
       expect(result.forecast[4]!.employeeCount).toBe(1);
-      
+
       // Month 6 should have 2 employees
       expect(result.forecast[5]!.employeeCount).toBe(2);
-      
+
       // Month 9 should have 3 employees
       expect(result.forecast[8]!.employeeCount).toBe(3);
-      
+
       // Employee costs should increase accordingly
       expect(result.forecast[5]!.employeeCosts).toBeGreaterThan(result.forecast[4]!.employeeCosts);
       expect(result.forecast[8]!.employeeCosts).toBeGreaterThan(result.forecast[7]!.employeeCosts);
@@ -197,7 +197,7 @@ describe('EbitdaForecaster', () => {
 
     it('should handle billable hours growth', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       // Billable hours should grow month over month
       expect(result.forecast[1]!.billableHours).toBeGreaterThan(result.forecast[0]!.billableHours);
       expect(result.forecast[11]!.billableHours).toBeGreaterThan(result.forecast[0]!.billableHours);
@@ -231,14 +231,14 @@ describe('EbitdaForecaster', () => {
       };
 
       const result = EbitdaForecaster.forecast(scenarioWithExpenses);
-      
+
       // Month 2 should not have the monthly expense yet
       const month2OpEx = result.forecast[1]!.operatingExpenses;
-      
+
       // Month 3 should have the additional monthly expense
       const month3OpEx = result.forecast[2]!.operatingExpenses;
       expect(month3OpEx).toBeGreaterThan(month2OpEx);
-      
+
       // Month 12 should have the annual expense
       const month12OpEx = result.forecast[11]!.operatingExpenses;
       expect(month12OpEx).toBeGreaterThan(month3OpEx);
@@ -246,7 +246,7 @@ describe('EbitdaForecaster', () => {
 
     it('should apply inflation to expenses', () => {
       const result = EbitdaForecaster.forecast(baseScenario);
-      
+
       // Operating expenses should increase over time due to inflation
       const month1OpEx = result.forecast[0]!.operatingExpenses;
       const month12OpEx = result.forecast[11]!.operatingExpenses;
@@ -266,15 +266,15 @@ describe('EbitdaForecaster', () => {
       };
 
       const result = EbitdaForecaster.forecast(scenarioWithSeasonality);
-      
+
       // January (month 1) should have higher revenue due to 1.2 multiplier
-      const jan = result.forecast.find(f => f.month === 1);
+      const jan = result.forecast.find((f) => f.month === 1);
       // June (month 6) should have lower revenue due to 0.7 multiplier
-      const june = result.forecast.find(f => f.month === 6);
-      
+      const june = result.forecast.find((f) => f.month === 6);
+
       expect(jan).toBeDefined();
       expect(june).toBeDefined();
-      
+
       // Note: We need to account for growth rate, so we compare relative differences
       // rather than absolute values
     });
@@ -290,7 +290,7 @@ describe('EbitdaForecaster', () => {
 
       const baseResult = EbitdaForecaster.forecast(baseScenario);
       const marketResult = EbitdaForecaster.forecast(scenarioWithMarketFactors);
-      
+
       // Revenue should be affected by market factors
       expect(marketResult.summary.totalRevenue).not.toBe(baseResult.summary.totalRevenue);
     });
@@ -312,17 +312,21 @@ describe('EbitdaForecaster', () => {
 
       const result1 = EbitdaForecaster.forecast(scenario1);
       const result2 = EbitdaForecaster.forecast(scenario2);
-      
+
       const comparison = EbitdaForecaster.compareScenarios([result1, result2]);
-      
+
       expect(comparison.comparison).toHaveLength(2);
       expect(comparison.bestScenario).toBe('Aggressive Growth');
       expect(comparison.insights.length).toBeGreaterThanOrEqual(2); // Should generate at least 2 insights
-      
+
       // Aggressive growth should have higher EBITDA
-      const aggressiveScenario = comparison.comparison.find(c => c.scenarioName === 'Aggressive Growth');
-      const conservativeScenario = comparison.comparison.find(c => c.scenarioName === 'Conservative Growth');
-      
+      const aggressiveScenario = comparison.comparison.find(
+        (c) => c.scenarioName === 'Aggressive Growth'
+      );
+      const conservativeScenario = comparison.comparison.find(
+        (c) => c.scenarioName === 'Conservative Growth'
+      );
+
       expect(aggressiveScenario).toBeDefined();
       expect(conservativeScenario).toBeDefined();
       expect(aggressiveScenario!.totalEbitda).toBeGreaterThan(conservativeScenario!.totalEbitda);
@@ -331,7 +335,7 @@ describe('EbitdaForecaster', () => {
     it('should handle edge cases in scenario comparison', () => {
       const singleScenario = EbitdaForecaster.forecast(baseScenario);
       const comparison = EbitdaForecaster.compareScenarios([singleScenario]);
-      
+
       expect(comparison.comparison).toHaveLength(1);
       expect(comparison.bestScenario).toBe('Base Scenario');
       expect(comparison.insights).toHaveLength(1); // Only efficiency insight for single scenario
@@ -342,10 +346,12 @@ describe('EbitdaForecaster', () => {
     it('should handle zero revenue baseline', () => {
       const zeroRevenueScenario = {
         ...baseScenario,
-        currentMonthlyFinancials: [{
-          ...baseMonthlyFinancials,
-          revenue: 0,
-        }],
+        currentMonthlyFinancials: [
+          {
+            ...baseMonthlyFinancials,
+            revenue: 0,
+          },
+        ],
       };
 
       const result = EbitdaForecaster.forecast(zeroRevenueScenario);
@@ -361,7 +367,7 @@ describe('EbitdaForecaster', () => {
       };
 
       const result = EbitdaForecaster.forecast(negativeGrowthScenario);
-      
+
       // Revenue should decline over time
       expect(result.forecast[11]!.revenue).toBeLessThan(result.forecast[0]!.revenue);
       expect(result.summary.revenueGrowth).toBeLessThan(0);

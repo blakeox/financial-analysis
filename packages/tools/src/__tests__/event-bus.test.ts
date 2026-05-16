@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { GLOBAL_BUS_SYMBOL, createEventBus, getOrCreateGlobalBus, type EventMap } from '../event-bus';
+import {
+  GLOBAL_BUS_SYMBOL,
+  createEventBus,
+  getOrCreateGlobalBus,
+  type EventMap,
+} from '../event-bus';
 
 interface TestEvents extends EventMap {
   'alpha:event': { value: number };

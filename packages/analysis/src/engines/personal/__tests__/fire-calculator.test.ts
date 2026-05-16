@@ -75,14 +75,14 @@ describe('FIRECalculator', () => {
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = FIRECalculator.analyze(baseInput);
-    
+
     // Check summary
     expect(result.summary).toBeDefined();
     expect(result.summary.fireNumber).toBeDefined();
     expect(result.summary.yearsToFIRE).toBeDefined();
     expect(result.summary.projectedRetirementAge).toBeDefined();
     expect(result.summary.onTrack).toBeDefined();
-    
+
     // Check recommendations
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
@@ -111,7 +111,9 @@ describe('FIRECalculator', () => {
 
     const result = FIRECalculator.analyze(offTrackInput);
     expect(result.recommendations.some((rec: string) => rec.includes('Off track'))).toBe(true);
-    expect(result.recommendations.some((rec: string) => rec.includes('Required monthly savings'))).toBe(true);
+    expect(
+      result.recommendations.some((rec: string) => rec.includes('Required monthly savings'))
+    ).toBe(true);
   });
 
   it('returns Coast FIRE status when at or past target age', () => {
@@ -143,7 +145,9 @@ describe('FIRECalculator', () => {
 
     const result = FIRECalculator.analyze(optimizedInput);
     expect(result.expenseOptimization?.recommendations.length).toBeGreaterThan(0);
-    expect(result.recommendations.some((rec: string) => rec.includes('Reducing expenses'))).toBe(true);
+    expect(result.recommendations.some((rec: string) => rec.includes('Reducing expenses'))).toBe(
+      true
+    );
   });
 
   it('omits optional analysis outputs when flags are false', () => {

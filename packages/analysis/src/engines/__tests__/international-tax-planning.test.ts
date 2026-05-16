@@ -298,4 +298,3 @@ describe('InternationalTaxPlanningCalculator', () => {
     expect(result.taxTreatyAnalysis.treatyCountry).toBe('Unknown');
   });
 });
-

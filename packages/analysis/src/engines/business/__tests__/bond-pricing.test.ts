@@ -167,8 +167,8 @@ describe('BondPricingAnalyzer', () => {
       const result = BondPricingAnalyzer.analyze(basicInput);
 
       const curve = result.sensitivityAnalysis.priceYieldCurve;
-      const lowYield = curve.find(p => p.yield < 0.05);
-      const highYield = curve.find(p => p.yield > 0.07);
+      const lowYield = curve.find((p) => p.yield < 0.05);
+      const highYield = curve.find((p) => p.yield > 0.07);
 
       if (lowYield && highYield) {
         expect(lowYield.price).toBeGreaterThan(highYield.price);
@@ -313,7 +313,8 @@ describe('BondPricingAnalyzer', () => {
       const result = BondPricingAnalyzer.analyze(monthlyInput);
 
       expect(result.couponSchedule.length).toBeGreaterThan(
-        BondPricingAnalyzer.analyze({ ...basicInput, couponFrequency: 'quarterly' }).couponSchedule.length
+        BondPricingAnalyzer.analyze({ ...basicInput, couponFrequency: 'quarterly' }).couponSchedule
+          .length
       );
     });
 

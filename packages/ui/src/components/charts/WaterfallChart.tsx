@@ -1,4 +1,13 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
 
 export interface WaterfallDataPoint {
   name: string;
@@ -35,12 +44,12 @@ export function WaterfallChart({
         displayValue: item.value,
       };
     }
-    
+
     // Calculate running total for intermediate items
     const previousTotal = data
       .slice(0, index)
       .reduce((sum, d) => sum + (d.isTotal ? 0 : d.value), 0);
-    
+
     return {
       ...item,
       start: item.value < 0 ? previousTotal + item.value : previousTotal,

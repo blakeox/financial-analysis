@@ -4,20 +4,48 @@ import type { BudgetInput } from '../../../schemas/budget';
 
 describe('Budget Analysis Engine', () => {
   const basicInput: BudgetInput = {
-    income: [
-      { name: 'Salary', type: 'salary', monthlyAmount: 8000, recurring: true },
-    ],
+    income: [{ name: 'Salary', type: 'salary', monthlyAmount: 8000, recurring: true }],
     expenses: [
       { name: 'Rent', type: 'housing', monthlyAmount: 2000, isFixed: true, isEssential: true },
-      { name: 'Utilities', type: 'utilities', monthlyAmount: 200, isFixed: true, isEssential: true },
+      {
+        name: 'Utilities',
+        type: 'utilities',
+        monthlyAmount: 200,
+        isFixed: true,
+        isEssential: true,
+      },
       { name: 'Groceries', type: 'food', monthlyAmount: 600, isFixed: false, isEssential: true },
-      { name: 'Transportation', type: 'transportation', monthlyAmount: 400, isFixed: true, isEssential: true },
-      { name: 'Entertainment', type: 'entertainment', monthlyAmount: 500, isFixed: false, isEssential: false },
+      {
+        name: 'Transportation',
+        type: 'transportation',
+        monthlyAmount: 400,
+        isFixed: true,
+        isEssential: true,
+      },
+      {
+        name: 'Entertainment',
+        type: 'entertainment',
+        monthlyAmount: 500,
+        isFixed: false,
+        isEssential: false,
+      },
       { name: 'Dining Out', type: 'food', monthlyAmount: 300, isFixed: false, isEssential: false },
     ],
     debts: [
-      { name: 'Credit Card', type: 'credit_card', totalBalance: 5000, monthlyPayment: 200, interestRate: 0.18 },
-      { name: 'Car Loan', type: 'auto', totalBalance: 15000, monthlyPayment: 400, interestRate: 0.05 },
+      {
+        name: 'Credit Card',
+        type: 'credit_card',
+        totalBalance: 5000,
+        monthlyPayment: 200,
+        interestRate: 0.18,
+      },
+      {
+        name: 'Car Loan',
+        type: 'auto',
+        totalBalance: 15000,
+        monthlyPayment: 400,
+        interestRate: 0.05,
+      },
     ],
     savingsGoalMonthly: 1000,
     optimizationGoal: 'balance',
@@ -173,7 +201,13 @@ describe('Budget Analysis Engine', () => {
         ...basicInput,
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 4000, isFixed: true, isEssential: true }, // 50% of income - over limit
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 1500, isFixed: false, isEssential: false }, // 18.75% - over limit
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 1500,
+            isFixed: false,
+            isEssential: false,
+          }, // 18.75% - over limit
         ],
       };
 
@@ -232,8 +266,20 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 4000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1000, isFixed: true, isEssential: true },
-          { name: 'Utilities', type: 'utilities', monthlyAmount: 200, isFixed: true, isEssential: true },
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 1000, isFixed: false, isEssential: false },
+          {
+            name: 'Utilities',
+            type: 'utilities',
+            monthlyAmount: 200,
+            isFixed: true,
+            isEssential: true,
+          },
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 1000,
+            isFixed: false,
+            isEssential: false,
+          },
           { name: 'Dining', type: 'food', monthlyAmount: 1000, isFixed: false, isEssential: false },
         ],
         debts: [],
@@ -281,7 +327,13 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 10000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1500, isFixed: true, isEssential: true },
-          { name: 'Groceries', type: 'food', monthlyAmount: 300, isFixed: false, isEssential: true },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 300,
+            isFixed: false,
+            isEssential: true,
+          },
         ],
         debts: [],
         savingsGoalMonthly: 2000,
@@ -290,7 +342,9 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(excellentInput);
 
-      expect(result.recommendations).toContain('Excellent financial health! Keep up the great work.');
+      expect(result.recommendations).toContain(
+        'Excellent financial health! Keep up the great work.'
+      );
     });
 
     it('shows good health message when score 60-79', () => {
@@ -299,12 +353,30 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 5000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1800, isFixed: true, isEssential: true }, // 36% housing
-          { name: 'Groceries', type: 'food', monthlyAmount: 500, isFixed: false, isEssential: true },
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 300, isFixed: false, isEssential: false },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 500,
+            isFixed: false,
+            isEssential: true,
+          },
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 300,
+            isFixed: false,
+            isEssential: false,
+          },
           { name: 'Other', type: 'other', monthlyAmount: 1600, isFixed: false, isEssential: false },
         ],
         debts: [
-          { name: 'Car Loan', type: 'auto', totalBalance: 10000, monthlyPayment: 200, interestRate: 0.05 },
+          {
+            name: 'Car Loan',
+            type: 'auto',
+            totalBalance: 10000,
+            monthlyPayment: 200,
+            interestRate: 0.05,
+          },
         ],
         savingsGoalMonthly: 500,
         optimizationGoal: 'balance',
@@ -324,13 +396,37 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 4000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1800, isFixed: true, isEssential: true }, // 45% housing
-          { name: 'Groceries', type: 'food', monthlyAmount: 600, isFixed: false, isEssential: true },
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 500, isFixed: false, isEssential: false },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 600,
+            isFixed: false,
+            isEssential: true,
+          },
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 500,
+            isFixed: false,
+            isEssential: false,
+          },
           { name: 'Other', type: 'other', monthlyAmount: 1500, isFixed: false, isEssential: false },
         ],
         debts: [
-          { name: 'Credit Card', type: 'credit_card', totalBalance: 15000, monthlyPayment: 600, interestRate: 0.22 },
-          { name: 'Personal Loan', type: 'personal', totalBalance: 10000, monthlyPayment: 400, interestRate: 0.15 },
+          {
+            name: 'Credit Card',
+            type: 'credit_card',
+            totalBalance: 15000,
+            monthlyPayment: 600,
+            interestRate: 0.22,
+          },
+          {
+            name: 'Personal Loan',
+            type: 'personal',
+            totalBalance: 10000,
+            monthlyPayment: 400,
+            interestRate: 0.15,
+          },
         ],
         savingsGoalMonthly: 200,
         optimizationGoal: 'balance',
@@ -339,7 +435,9 @@ describe('Budget Analysis Engine', () => {
       const result = analyze(poorInput);
       // Score should be below 60
       expect(result.metrics.financialHealthScore).toBeLessThan(60);
-      expect(result.recommendations).toContain('Your financial health needs attention. Focus on the recommendations below.');
+      expect(result.recommendations).toContain(
+        'Your financial health needs attention. Focus on the recommendations below.'
+      );
     });
 
     it('warns when savings rate is below 10%', () => {
@@ -348,11 +446,35 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 5000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1500, isFixed: true, isEssential: true },
-          { name: 'Groceries', type: 'food', monthlyAmount: 600, isFixed: false, isEssential: true },
-          { name: 'Utilities', type: 'utilities', monthlyAmount: 200, isFixed: true, isEssential: true },
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 800, isFixed: false, isEssential: false },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 600,
+            isFixed: false,
+            isEssential: true,
+          },
+          {
+            name: 'Utilities',
+            type: 'utilities',
+            monthlyAmount: 200,
+            isFixed: true,
+            isEssential: true,
+          },
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 800,
+            isFixed: false,
+            isEssential: false,
+          },
           { name: 'Dining', type: 'food', monthlyAmount: 700, isFixed: false, isEssential: false },
-          { name: 'Shopping', type: 'other', monthlyAmount: 800, isFixed: false, isEssential: false },
+          {
+            name: 'Shopping',
+            type: 'other',
+            monthlyAmount: 800,
+            isFixed: false,
+            isEssential: false,
+          },
         ],
         debts: [],
         savingsGoalMonthly: 100,
@@ -361,9 +483,9 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(lowSavingsInput);
 
-      expect(result.recommendations.some(r => 
-        r.includes('savings rate is below 10%')
-      )).toBe(true);
+      expect(result.recommendations.some((r) => r.includes('savings rate is below 10%'))).toBe(
+        true
+      );
     });
 
     it('warns when housing ratio exceeds 30%', () => {
@@ -372,7 +494,13 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 5000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 2000, isFixed: true, isEssential: true }, // 40%
-          { name: 'Groceries', type: 'food', monthlyAmount: 400, isFixed: false, isEssential: true },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 400,
+            isFixed: false,
+            isEssential: true,
+          },
         ],
         debts: [],
         savingsGoalMonthly: 500,
@@ -381,9 +509,11 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(highHousingInput);
 
-      expect(result.recommendations.some(r => 
-        r.includes('Housing costs are') && r.includes('ideal: 25-30%')
-      )).toBe(true);
+      expect(
+        result.recommendations.some(
+          (r) => r.includes('Housing costs are') && r.includes('ideal: 25-30%')
+        )
+      ).toBe(true);
     });
 
     it('warns when debt-to-income ratio exceeds 43%', () => {
@@ -392,12 +522,36 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 4000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 800, isFixed: true, isEssential: true },
-          { name: 'Groceries', type: 'food', monthlyAmount: 300, isFixed: false, isEssential: true },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 300,
+            isFixed: false,
+            isEssential: true,
+          },
         ],
         debts: [
-          { name: 'Credit Card', type: 'credit_card', totalBalance: 20000, monthlyPayment: 800, interestRate: 0.22 },
-          { name: 'Car Loan', type: 'auto', totalBalance: 25000, monthlyPayment: 600, interestRate: 0.06 },
-          { name: 'Personal', type: 'personal', totalBalance: 15000, monthlyPayment: 500, interestRate: 0.12 },
+          {
+            name: 'Credit Card',
+            type: 'credit_card',
+            totalBalance: 20000,
+            monthlyPayment: 800,
+            interestRate: 0.22,
+          },
+          {
+            name: 'Car Loan',
+            type: 'auto',
+            totalBalance: 25000,
+            monthlyPayment: 600,
+            interestRate: 0.06,
+          },
+          {
+            name: 'Personal',
+            type: 'personal',
+            totalBalance: 15000,
+            monthlyPayment: 500,
+            interestRate: 0.12,
+          },
         ],
         savingsGoalMonthly: 200,
         optimizationGoal: 'balance',
@@ -405,9 +559,9 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(highDtiInput);
 
-      expect(result.recommendations.some(r => 
-        r.includes('Debt-to-income ratio is high (>43%)')
-      )).toBe(true);
+      expect(
+        result.recommendations.some((r) => r.includes('Debt-to-income ratio is high (>43%)'))
+      ).toBe(true);
     });
 
     it('warns when debt-to-income ratio is between 36% and 43%', () => {
@@ -416,12 +570,36 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 5000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1200, isFixed: true, isEssential: true },
-          { name: 'Groceries', type: 'food', monthlyAmount: 400, isFixed: false, isEssential: true },
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 400,
+            isFixed: false,
+            isEssential: true,
+          },
         ],
         debts: [
-          { name: 'Credit Card', type: 'credit_card', totalBalance: 10000, monthlyPayment: 400, interestRate: 0.20 },
-          { name: 'Car Loan', type: 'auto', totalBalance: 20000, monthlyPayment: 500, interestRate: 0.05 },
-          { name: 'Student Loan', type: 'student', totalBalance: 30000, monthlyPayment: 1100, interestRate: 0.06 },
+          {
+            name: 'Credit Card',
+            type: 'credit_card',
+            totalBalance: 10000,
+            monthlyPayment: 400,
+            interestRate: 0.2,
+          },
+          {
+            name: 'Car Loan',
+            type: 'auto',
+            totalBalance: 20000,
+            monthlyPayment: 500,
+            interestRate: 0.05,
+          },
+          {
+            name: 'Student Loan',
+            type: 'student',
+            totalBalance: 30000,
+            monthlyPayment: 1100,
+            interestRate: 0.06,
+          },
         ],
         savingsGoalMonthly: 300,
         optimizationGoal: 'balance',
@@ -429,9 +607,9 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(moderateDtiInput);
 
-      expect(result.recommendations.some(r => 
-        r.includes('manageable but could be improved')
-      )).toBe(true);
+      expect(
+        result.recommendations.some((r) => r.includes('manageable but could be improved'))
+      ).toBe(true);
     });
 
     it('suggests optimization savings when projected savings are positive', () => {
@@ -443,10 +621,28 @@ describe('Budget Analysis Engine', () => {
         income: [{ name: 'Salary', type: 'salary', monthlyAmount: 5000, recurring: true }],
         expenses: [
           { name: 'Rent', type: 'housing', monthlyAmount: 1500, isFixed: true, isEssential: true },
-          { name: 'Groceries', type: 'food', monthlyAmount: 500, isFixed: false, isEssential: true },
-          { name: 'Entertainment', type: 'entertainment', monthlyAmount: 800, isFixed: false, isEssential: false }, // discretionary
+          {
+            name: 'Groceries',
+            type: 'food',
+            monthlyAmount: 500,
+            isFixed: false,
+            isEssential: true,
+          },
+          {
+            name: 'Entertainment',
+            type: 'entertainment',
+            monthlyAmount: 800,
+            isFixed: false,
+            isEssential: false,
+          }, // discretionary
           { name: 'Dining', type: 'food', monthlyAmount: 600, isFixed: false, isEssential: false }, // discretionary
-          { name: 'Shopping', type: 'other', monthlyAmount: 700, isFixed: false, isEssential: false }, // discretionary
+          {
+            name: 'Shopping',
+            type: 'other',
+            monthlyAmount: 700,
+            isFixed: false,
+            isEssential: false,
+          }, // discretionary
         ],
         debts: [],
         savingsGoalMonthly: 500,
@@ -460,9 +656,11 @@ describe('Budget Analysis Engine', () => {
       // Additional needed: 1000 - 900 = 100
       // Should suggest reducing discretionary expenses
       expect(parseFloat(result.optimizedBudget.projectedMonthlySavings)).toBeGreaterThan(0);
-      expect(result.recommendations.some(r => 
-        r.includes('Implementing the optimized budget could save you')
-      )).toBe(true);
+      expect(
+        result.recommendations.some((r) =>
+          r.includes('Implementing the optimized budget could save you')
+        )
+      ).toBe(true);
     });
   });
 
@@ -494,7 +692,7 @@ describe('Budget Analysis Engine', () => {
 
       const result = analyze(multiIncomeInput);
 
-      const salarySource = result.incomeSummary.sources.find(s => s.name === 'Salary');
+      const salarySource = result.incomeSummary.sources.find((s) => s.name === 'Salary');
       expect(parseFloat(salarySource!.percentOfTotal)).toBeCloseTo(80, 0);
     });
   });

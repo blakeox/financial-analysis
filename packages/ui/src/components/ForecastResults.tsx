@@ -150,18 +150,19 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
   // Calculate trends (comparing last vs first month)
   const firstMonth = forecast[0];
   const lastMonth = forecast[forecast.length - 1];
-  
-  const revenueTrend = firstMonth && lastMonth
-    ? ((lastMonth.revenue - firstMonth.revenue) / firstMonth.revenue) * 100
-    : 0;
-  
-  const ebitdaTrend = firstMonth && lastMonth && firstMonth.ebitda !== 0
-    ? ((lastMonth.ebitda - firstMonth.ebitda) / Math.abs(firstMonth.ebitda)) * 100
-    : 0;
 
-  const marginTrend = firstMonth && lastMonth
-    ? ((lastMonth.ebitdaMargin ?? 0) - (firstMonth.ebitdaMargin ?? 0))
-    : 0;
+  const revenueTrend =
+    firstMonth && lastMonth
+      ? ((lastMonth.revenue - firstMonth.revenue) / firstMonth.revenue) * 100
+      : 0;
+
+  const ebitdaTrend =
+    firstMonth && lastMonth && firstMonth.ebitda !== 0
+      ? ((lastMonth.ebitda - firstMonth.ebitda) / Math.abs(firstMonth.ebitda)) * 100
+      : 0;
+
+  const marginTrend =
+    firstMonth && lastMonth ? (lastMonth.ebitdaMargin ?? 0) - (firstMonth.ebitdaMargin ?? 0) : 0;
 
   // Prepare chart data
   const revenueMarginData = forecast.map((month) => ({
@@ -208,42 +209,42 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
           ))}
         </TabsList>
 
-      {/* Tab Content */}
-      <TabsContent value="overview">
-        <div className="space-y-6">
-          {/* Enhanced KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <EnhancedMetricCard
-              title="Total Revenue"
-              value={summary.totalRevenue}
-              formatter={formatCompactCurrency}
+        {/* Tab Content */}
+        <TabsContent value="overview">
+          <div className="space-y-6">
+            {/* Enhanced KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <EnhancedMetricCard
+                title="Total Revenue"
+                value={summary.totalRevenue}
+                formatter={formatCompactCurrency}
                 trend={revenueTrend}
                 trendLabel="vs first month"
                 icon="💰"
                 colorClass="text-emerald-600 dark:text-emerald-300"
               />
-            <EnhancedMetricCard
-              title="Total EBITDA"
-              value={summary.totalEbitda}
-              formatter={formatCompactCurrency}
-              trend={ebitdaTrend}
-              trendLabel="vs first month"
-              icon="📈"
+              <EnhancedMetricCard
+                title="Total EBITDA"
+                value={summary.totalEbitda}
+                formatter={formatCompactCurrency}
+                trend={ebitdaTrend}
+                trendLabel="vs first month"
+                icon="📈"
                 colorClass={
                   summary.totalEbitda >= 0
                     ? 'text-emerald-600 dark:text-emerald-300'
                     : 'text-rose-600 dark:text-rose-300'
                 }
               />
-            <EnhancedMetricCard
-              title="Avg EBITDA Margin"
-              value={formatPercentage(summary.averageEbitdaMargin)}
+              <EnhancedMetricCard
+                title="Avg EBITDA Margin"
+                value={formatPercentage(summary.averageEbitdaMargin)}
                 trend={marginTrend}
                 trendLabel="vs first month"
                 icon="📊"
                 colorClass="text-violet-600 dark:text-violet-300"
               />
-            <EnhancedMetricCard
+              <EnhancedMetricCard
                 title="Break Even"
                 value={breakEvenLabel}
                 icon="🎯"
@@ -251,212 +252,214 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
               />
             </div>
 
-          {/* Primary Charts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue & Margin Over Time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DualAxisChart
-                data={revenueMarginData}
-                value1Label="Revenue"
-                value2Label="EBITDA Margin %"
-                value1Formatter={formatCompactCurrency}
-                value2Formatter={(val) => `${val.toFixed(1)}%`}
-              />
-            </CardContent>
-          </Card>
+            {/* Primary Charts */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue & Margin Over Time</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DualAxisChart
+                  data={revenueMarginData}
+                  value1Label="Revenue"
+                  value2Label="EBITDA Margin %"
+                  value1Formatter={formatCompactCurrency}
+                  value2Formatter={(val) => `${val.toFixed(1)}%`}
+                />
+              </CardContent>
+            </Card>
 
-          {keyMetrics && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-center">
+            {keyMetrics && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
                       <div className="text-2xl font-bold text-violet-600 dark:text-violet-300">
                         {formatCurrency(keyMetrics.revenuePerEmployee)}
                       </div>
-                      <div className={cn('text-sm', textColors.secondary)}>
-                        Revenue / Employee
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-center">
+                      <div className={cn('text-sm', textColors.secondary)}>Revenue / Employee</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
                       <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">
                         {formatCurrency(keyMetrics.ebitdaPerEmployee)}
                       </div>
-                      <div className={cn('text-sm', textColors.secondary)}>
-                        EBITDA / Employee
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-center">
+                      <div className={cn('text-sm', textColors.secondary)}>EBITDA / Employee</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
                       <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">
                         {keyMetrics.averageBillableHours.toFixed(0)}
                       </div>
-                      <div className={cn('text-sm', textColors.secondary)}>
-                        Avg Billable Hours
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-center">
+                      <div className={cn('text-sm', textColors.secondary)}>Avg Billable Hours</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
                       <div className="text-2xl font-bold text-amber-600 dark:text-amber-300">
                         {formatCurrency(keyMetrics.revenuePerBillableHour)}
                       </div>
                       <div className={cn('text-sm', textColors.secondary)}>
                         Revenue / Billable Hour
                       </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="charts">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue & EBITDA Margin Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DualAxisChart
-                data={revenueMarginData}
-                value1Label="Revenue"
-                value2Label="EBITDA Margin %"
-                value1Formatter={formatCompactCurrency}
-                value2Formatter={(val) => `${val.toFixed(1)}%`}
-                height={450}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>EBITDA Bridge (First Month)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <WaterfallChart data={waterfallData} formatter={formatCompactCurrency} height={400} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Expense Breakdown (First 6 Months)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StackedBarChart
-                data={expenseData}
-                stacks={expenseStacks}
-                formatter={formatCompactCurrency}
-                height={400}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-
-      {showDetails && <TabsContent value="details">
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800">
-                    <th className="text-left p-2">Month</th>
-                    <th className="text-right p-2">Revenue</th>
-                    <th className="text-right p-2">EBITDA</th>
-                    <th className="text-right p-2">Margin %</th>
-                    <th className="text-right p-2">Employees</th>
-                    <th className="text-right p-2">Total Expenses</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {forecast.map((month, index) => (
-                    <tr
-                      key={index}
-                        className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900/50"
-                    >
-                      <td className="p-2">
-                        {getMonthName(month.month)} {month.year}
-                      </td>
-                      <td className="text-right p-2 font-medium text-emerald-600 dark:text-emerald-300">
-                        {formatCurrency(month.revenue)}
-                      </td>
-                      <td
-                        className={`text-right p-2 font-medium ${
-                          month.ebitda >= 0
-                            ? 'text-emerald-600 dark:text-emerald-300'
-                            : 'text-rose-600 dark:text-rose-300'
-                        }`}
-                      >
-                        {formatCurrency(month.ebitda)}
-                      </td>
-                      <td className="text-right p-2">{formatPercentage(month.ebitdaMargin ?? 0)}</td>
-                      <td className="text-right p-2">{month.employeeCount}</td>
-                      <td className="text-right p-2 text-rose-600 dark:text-rose-300">
-                        {formatCurrency(month.totalExpenses ?? 0)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>}
-
-      <TabsContent value="export">
-        <Card>
-          <CardHeader>
-            <CardTitle>Export Data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className={cn('text-sm', textColors.secondary)}>
-                Export your forecast data and charts in various formats:
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  onClick={() => exportToCSV(forecast)}
-                  className="justify-center gap-2 px-4 py-3"
-                >
-                  <span>📄</span>
-                  <span>Export to CSV</span>
-                </Button>
-                <Button
-                  onClick={() => copyToClipboard(forecast)}
-                  variant="success"
-                  className="justify-center gap-2 px-4 py-3"
-                >
-                  <span>📋</span>
-                  <span>Copy to Clipboard</span>
-                </Button>
-                <Button
-                  onClick={() => alert('Chart export feature coming soon!')}
-                  variant="secondary"
-                  className="justify-center gap-2 px-4 py-3"
-                >
-                  <span>📊</span>
-                  <span>Export Charts</span>
-                </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="charts">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue & EBITDA Margin Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DualAxisChart
+                  data={revenueMarginData}
+                  value1Label="Revenue"
+                  value2Label="EBITDA Margin %"
+                  value1Formatter={formatCompactCurrency}
+                  value2Formatter={(val) => `${val.toFixed(1)}%`}
+                  height={450}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>EBITDA Bridge (First Month)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WaterfallChart
+                  data={waterfallData}
+                  formatter={formatCompactCurrency}
+                  height={400}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Expense Breakdown (First 6 Months)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <StackedBarChart
+                  data={expenseData}
+                  stacks={expenseStacks}
+                  formatter={formatCompactCurrency}
+                  height={400}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {showDetails && (
+          <TabsContent value="details">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800">
+                        <th className="text-left p-2">Month</th>
+                        <th className="text-right p-2">Revenue</th>
+                        <th className="text-right p-2">EBITDA</th>
+                        <th className="text-right p-2">Margin %</th>
+                        <th className="text-right p-2">Employees</th>
+                        <th className="text-right p-2">Total Expenses</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {forecast.map((month, index) => (
+                        <tr
+                          key={index}
+                          className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900/50"
+                        >
+                          <td className="p-2">
+                            {getMonthName(month.month)} {month.year}
+                          </td>
+                          <td className="text-right p-2 font-medium text-emerald-600 dark:text-emerald-300">
+                            {formatCurrency(month.revenue)}
+                          </td>
+                          <td
+                            className={`text-right p-2 font-medium ${
+                              month.ebitda >= 0
+                                ? 'text-emerald-600 dark:text-emerald-300'
+                                : 'text-rose-600 dark:text-rose-300'
+                            }`}
+                          >
+                            {formatCurrency(month.ebitda)}
+                          </td>
+                          <td className="text-right p-2">
+                            {formatPercentage(month.ebitdaMargin ?? 0)}
+                          </td>
+                          <td className="text-right p-2">{month.employeeCount}</td>
+                          <td className="text-right p-2 text-rose-600 dark:text-rose-300">
+                            {formatCurrency(month.totalExpenses ?? 0)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        <TabsContent value="export">
+          <Card>
+            <CardHeader>
+              <CardTitle>Export Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className={cn('text-sm', textColors.secondary)}>
+                  Export your forecast data and charts in various formats:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button
+                    onClick={() => exportToCSV(forecast)}
+                    className="justify-center gap-2 px-4 py-3"
+                  >
+                    <span>📄</span>
+                    <span>Export to CSV</span>
+                  </Button>
+                  <Button
+                    onClick={() => copyToClipboard(forecast)}
+                    variant="success"
+                    className="justify-center gap-2 px-4 py-3"
+                  >
+                    <span>📋</span>
+                    <span>Copy to Clipboard</span>
+                  </Button>
+                  <Button
+                    onClick={() => alert('Chart export feature coming soon!')}
+                    variant="secondary"
+                    className="justify-center gap-2 px-4 py-3"
+                  >
+                    <span>📊</span>
+                    <span>Export Charts</span>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -504,14 +507,7 @@ function exportToCSV(forecast: MonthlyForecast[]) {
 }
 
 function copyToClipboard(forecast: MonthlyForecast[]) {
-  const headers = [
-    'Month',
-    'Year',
-    'Revenue',
-    'EBITDA',
-    'EBITDA Margin %',
-    'Employees',
-  ];
+  const headers = ['Month', 'Year', 'Revenue', 'EBITDA', 'EBITDA Margin %', 'Employees'];
 
   const rows = forecast.map((month) => [
     getMonthName(month.month),

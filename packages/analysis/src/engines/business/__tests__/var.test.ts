@@ -69,16 +69,18 @@ describe('VaRCalculator', () => {
     const result = VaRCalculator.analyze(stressInput) as any;
     expect(result.stressTesting).toBeDefined();
     expect(result.stressTesting?.scenarios.length).toBeGreaterThan(0);
-    expect(result.recommendations.some((rec: string) => rec.includes('Maximum stress VaR'))).toBe(true);
+    expect(result.recommendations.some((rec: string) => rec.includes('Maximum stress VaR'))).toBe(
+      true
+    );
   });
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = VaRCalculator.analyze(baseInput) as any;
-    
+
     // Check summary
     expect(result.summary).toBeDefined();
     expect(result.summary.confidenceLevel).toBe(baseInput.parameters.confidenceLevel);
-    
+
     // Check recommendations
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
@@ -102,7 +104,12 @@ describe('VaRCalculator', () => {
   it('uses default volatility and 99% z-score in parametric VaR', () => {
     const input: VaRInput = {
       ...baseInput,
-      parameters: { ...baseInput.parameters, method: 'parametric', confidenceLevel: 0.99, timeHorizon: 252 },
+      parameters: {
+        ...baseInput.parameters,
+        method: 'parametric',
+        confidenceLevel: 0.99,
+        timeHorizon: 252,
+      },
       marketData: { volatilities: [] },
     };
 
@@ -113,7 +120,12 @@ describe('VaRCalculator', () => {
   it('uses fallback z-score for non-95/99 confidence', () => {
     const input: VaRInput = {
       ...baseInput,
-      parameters: { ...baseInput.parameters, method: 'parametric', confidenceLevel: 0.9, timeHorizon: 252 },
+      parameters: {
+        ...baseInput.parameters,
+        method: 'parametric',
+        confidenceLevel: 0.9,
+        timeHorizon: 252,
+      },
       marketData: { volatilities: [0.1] },
     };
 
@@ -141,8 +153,8 @@ describe('VaRCalculator', () => {
       analysis: { ...baseInput.analysis, includeBacktesting: true },
       marketData: {
         historicalReturns: [
-          -0.02, -0.018, -0.017, -0.016, -0.015, -0.014, -0.013, -0.012, -0.011, -0.01,
-          -0.009, -0.008, -0.007, -0.006, -0.005, -0.004, -0.003, -0.002, -0.001, 0.001,
+          -0.02, -0.018, -0.017, -0.016, -0.015, -0.014, -0.013, -0.012, -0.011, -0.01, -0.009,
+          -0.008, -0.007, -0.006, -0.005, -0.004, -0.003, -0.002, -0.001, 0.001,
         ],
         volatilities: [0.01],
       },
@@ -150,6 +162,8 @@ describe('VaRCalculator', () => {
 
     const result = VaRCalculator.analyze(input) as any;
     expect(result.backtesting.violations).toBeGreaterThan(2);
-    expect(result.backtesting.backtestResult).toBe('VaR model may underestimate risk - consider recalibration');
+    expect(result.backtesting.backtestResult).toBe(
+      'VaR model may underestimate risk - consider recalibration'
+    );
   });
 });

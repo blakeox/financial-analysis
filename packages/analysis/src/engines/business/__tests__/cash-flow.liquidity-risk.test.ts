@@ -3,7 +3,6 @@ import { CashFlowAnalyzer } from '../cash-flow.js';
 import { CashFlowAnalysisInputSchema } from '../../../schemas/cash-flow.js';
 
 describe('CashFlowAnalyzer liquidity and risk scenarios', () => {
-
   describe('liquidity levels', () => {
     it('assesses Good liquidity (6-12 months coverage)', () => {
       const input = CashFlowAnalysisInputSchema.parse({
@@ -263,7 +262,9 @@ describe('CashFlowAnalyzer liquidity and risk scenarios', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      expect(result.warnings).toContain('⚠️ Critical liquidity situation - immediate action required');
+      expect(result.warnings).toContain(
+        '⚠️ Critical liquidity situation - immediate action required'
+      );
       expect(result.warnings.some((w) => w.includes('High liquidity risk'))).toBe(true);
     });
 
@@ -328,7 +329,9 @@ describe('CashFlowAnalyzer liquidity and risk scenarios', () => {
       const result = CashFlowAnalyzer.analyze(input);
 
       expect(result.liquidityAnalysis.currentLiquidity).toBe('Poor');
-      expect(result.warnings).toContain('⚠️ Critical liquidity situation - immediate action required');
+      expect(result.warnings).toContain(
+        '⚠️ Critical liquidity situation - immediate action required'
+      );
     });
   });
 
@@ -435,7 +438,9 @@ describe('CashFlowAnalyzer liquidity and risk scenarios', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      expect(result.insights.some((i) => i.includes('⚠️') && i.includes('months of cash coverage'))).toBe(true);
+      expect(
+        result.insights.some((i) => i.includes('⚠️') && i.includes('months of cash coverage'))
+      ).toBe(true);
     });
 
     it('generates runway insight when burn rate is positive', () => {
@@ -509,8 +514,10 @@ describe('CashFlowAnalyzer liquidity and risk scenarios', () => {
       const result = CashFlowAnalyzer.analyze(input);
 
       expect(
-        result.recommendations.some((r) =>
-          r.includes('improving operating cash flow') || r.includes('reducing capital expenditures')
+        result.recommendations.some(
+          (r) =>
+            r.includes('improving operating cash flow') ||
+            r.includes('reducing capital expenditures')
         )
       ).toBe(true);
     });

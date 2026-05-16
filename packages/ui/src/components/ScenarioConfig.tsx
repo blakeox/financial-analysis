@@ -144,7 +144,9 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Billable Hours Growth (%)"
             type="number"
             value={(data.billableHoursGrowthRate * 100).toFixed(2)}
-            onChange={(e) => updateField('billableHoursGrowthRate', parsers.percentage(e.target.value))}
+            onChange={(e) =>
+              updateField('billableHoursGrowthRate', parsers.percentage(e.target.value))
+            }
             step="0.1"
             min="-50"
             max="100"
@@ -237,7 +239,9 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         {/* Seasonality Factors */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Seasonality Factors (Optional)</h4>
+            <h4 className="font-semibold text-slate-900 dark:text-white">
+              Seasonality Factors (Optional)
+            </h4>
             {!readonly && (
               <div className="space-x-2">
                 {!hasSeasonalityFactors ? (

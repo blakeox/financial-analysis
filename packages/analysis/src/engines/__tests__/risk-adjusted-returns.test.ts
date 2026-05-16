@@ -41,4 +41,3 @@ describe('RiskAdjustedReturnsCalculator', () => {
     expect(result.annualizedVolatility).toBe(0);
   });
 });
-

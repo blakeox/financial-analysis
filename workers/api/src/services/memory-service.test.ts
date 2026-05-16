@@ -3,20 +3,21 @@ import { MemoryService } from './memory-service';
 import { D1Database, D1PreparedStatement, D1Result } from '@cloudflare/workers-types';
 
 // Mock D1 types
-const mockD1Result = (results: unknown[], meta: Record<string, unknown> = {}): D1Result => ({
-  results,
-  success: true,
-  meta: {
-    duration: 0,
-    size_after: 0,
-    rows_read: 0,
-    rows_written: 0,
-    last_row_id: null,
-    changed_db: false,
-    changes: 0,
-    ...meta,
-  },
-} as unknown as D1Result);
+const mockD1Result = (results: unknown[], meta: Record<string, unknown> = {}): D1Result =>
+  ({
+    results,
+    success: true,
+    meta: {
+      duration: 0,
+      size_after: 0,
+      rows_read: 0,
+      rows_written: 0,
+      last_row_id: null,
+      changed_db: false,
+      changes: 0,
+      ...meta,
+    },
+  }) as unknown as D1Result;
 
 const createMockStatement = (results: unknown[] = [], lastRowId: number | null = null) => {
   const stmt = {

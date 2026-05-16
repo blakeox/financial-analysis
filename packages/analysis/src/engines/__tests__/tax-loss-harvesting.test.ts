@@ -111,4 +111,3 @@ describe('TaxLossHarvestingOptimizer', () => {
     expect(result.recommendedActions.length).toBe(0);
   });
 });
-

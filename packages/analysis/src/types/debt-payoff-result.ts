@@ -67,18 +67,18 @@ export interface DebtPayoffResult {
     extraMonthlyPayment: string;
     strategy: 'avalanche' | 'snowball';
   };
-  
+
   // Primary strategy results
   payoffSchedule: PayoffMonth[];
   summary: PayoffStrategySummary;
-  
+
   // Alternative strategy comparison
   alternativeStrategy?: PayoffStrategySummary;
   comparisonSavings: string; // How much better is chosen strategy
-  
+
   // Balance transfer analysis (if applicable)
   balanceTransfer?: BalanceTransferAnalysis | undefined;
-  
+
   metadata: {
     timestamp: string;
     calculationMethod: string;

@@ -1,11 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import {
-  STEP_PATHS,
-  clearAutoLeaseState,
-  gotoAutoLeasePage,
-  seedAutoLeaseState,
-} from './helpers';
+import { STEP_PATHS, clearAutoLeaseState, gotoAutoLeasePage, seedAutoLeaseState } from './helpers';
 
 test.describe('Auto lease decision-review contract', () => {
   test.beforeEach(async ({ page }) => {

@@ -1388,7 +1388,8 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         placeholder: 'IT|Systems integration|0.4|high|Dedicated integration PMO',
         group: 'Integration (Advanced)',
         advancedOnly: true,
-        helpText: 'One per line: Category|Description|Probability(0-1)|Impact(low/medium/high)|Mitigation',
+        helpText:
+          'One per line: Category|Description|Probability(0-1)|Impact(low/medium/high)|Mitigation',
       },
 
       {

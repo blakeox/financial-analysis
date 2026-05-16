@@ -174,9 +174,7 @@ describe('RealEstateInvestmentAnalyzer', () => {
 
     expect(result.cashFlow.monthlyCashFlow).toBeLessThan(0);
     expect(result.recommendations).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Negative cash flow'),
-      ])
+      expect.arrayContaining([expect.stringContaining('Negative cash flow')])
     );
     expect(result.cashOnCash?.interpretation).toContain('Negative cash flow');
   });

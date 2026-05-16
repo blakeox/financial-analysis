@@ -27,7 +27,7 @@ test.describe('Amortization chart view toggle', () => {
     await page.fill('#annualRate', '5');
     await page.fill('#termMonths', '360');
     await page.click('#analyze-btn');
-    
+
     // Wait for results to appear
     const results = page.locator('#results-section');
     await expect(results).toBeVisible({ timeout: 10000 });
@@ -39,7 +39,7 @@ test.describe('Amortization chart view toggle', () => {
     // Verify schedule table exists
     const scheduleTable = page.locator('#schedule-content table');
     await expect(scheduleTable).toBeVisible();
-    
+
     // Verify table has expected columns
     await expect(scheduleTable).toContainText(/month|payment|principal|interest|balance/i);
   });

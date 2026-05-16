@@ -30,9 +30,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
     try {
       const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const timeoutId =
-        controller && timeoutMs > 0
-          ? setTimeout(() => controller.abort(), timeoutMs)
-          : undefined;
+        controller && timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -80,7 +78,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
     try {
       const targetEndpoint = streamEndpoint || endpoint;
       console.log('[ChatTransport] Starting stream request to:', targetEndpoint);
-      
+
       const response = await fetch(targetEndpoint, {
         method: 'POST',
         headers: {
@@ -107,7 +105,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
         console.error('[ChatTransport] No response body reader available');
         throw new Error('No response body');
       }
-      
+
       console.log('[ChatTransport] Got reader, starting to read chunks...');
 
       let buffer = '';
@@ -118,14 +116,21 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
           console.log('[ChatTransport] Stream done, total chunks read:', chunkCount);
           break;
         }
-        
+
         chunkCount++;
         const decoded = decoder.decode(value, { stream: true });
-        console.log('[ChatTransport] Chunk', chunkCount, 'received, length:', decoded.length, 'preview:', decoded.substring(0, 100));
+        console.log(
+          '[ChatTransport] Chunk',
+          chunkCount,
+          'received, length:',
+          decoded.length,
+          'preview:',
+          decoded.substring(0, 100)
+        );
 
         buffer += decoded;
         const lines = buffer.split('\n');
-        
+
         // Keep the last line in the buffer if it's incomplete
         buffer = lines.pop() || '';
 
@@ -147,21 +152,21 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
           }
         }
       }
-      
+
       // Process any remaining buffer
       if (buffer.startsWith('data: ')) {
         const data = buffer.slice(6);
         if (data !== '[DONE]') {
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.token) {
-                onChunk(parsed.token);
-              } else if (parsed.functionCallingResults) {
-                onChunk(parsed);
-              }
-            } catch (e) {
-              console.warn('Failed to parse SSE message:', e);
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.token) {
+              onChunk(parsed.token);
+            } else if (parsed.functionCallingResults) {
+              onChunk(parsed);
             }
+          } catch (e) {
+            console.warn('Failed to parse SSE message:', e);
+          }
         }
       }
     } catch (error) {

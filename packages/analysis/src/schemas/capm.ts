@@ -7,4 +7,3 @@ export const CAPMInputSchema = z.object({
 });
 
 export type CAPMInput = z.infer<typeof CAPMInputSchema>;
-

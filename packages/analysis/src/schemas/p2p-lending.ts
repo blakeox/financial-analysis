@@ -10,4 +10,3 @@ export const P2PLendingInputSchema = z.object({
 });
 
 export type P2PLendingInput = z.infer<typeof P2PLendingInputSchema>;
-

@@ -11,19 +11,34 @@ const XIcon = () => (
 
 const SendIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+    />
   </svg>
 );
 
 const BotIcon = ({ className }: { className?: string }) => (
-  <svg className={className || "w-4 h-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  <svg className={className || 'w-4 h-4'} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+    />
   </svg>
 );
 
 const UserIcon = ({ className }: { className?: string }) => (
-  <svg className={className || "w-4 h-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  <svg className={className || 'w-4 h-4'} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+    />
   </svg>
 );
 
@@ -49,7 +64,7 @@ export function VSCodeChatPanel({
   onSendMessage,
   messages,
   isLoading = false,
-  className = "",
+  className = '',
 }: VSCodeChatPanelProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -71,7 +86,7 @@ export function VSCodeChatPanel({
 
     const message = inputValue.trim();
     setInputValue('');
-    
+
     // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -93,7 +108,7 @@ export function VSCodeChatPanel({
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
-    
+
     // Auto-resize textarea
     const textarea = e.target;
     textarea.style.height = 'auto';
@@ -104,8 +119,7 @@ export function VSCodeChatPanel({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const mobileShellClasses =
-    'fixed inset-0 z-50 bg-white/95 dark:bg-slate-950/96 md:hidden';
+  const mobileShellClasses = 'fixed inset-0 z-50 bg-white/95 dark:bg-slate-950/96 md:hidden';
   const desktopShellClasses =
     'fixed top-0 right-0 z-40 hidden h-full w-96 border-l border-slate-200/80 bg-white/95 shadow-2xl dark:border-slate-800 dark:bg-slate-950/96 md:block';
   const headerClasses =
@@ -136,7 +150,10 @@ export function VSCodeChatPanel({
         </div>
 
         {/* Mobile Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{height: 'calc(100vh - 140px)'}}>
+        <div
+          className="flex-1 overflow-y-auto p-4 space-y-4"
+          style={{ height: 'calc(100vh - 140px)' }}
+        >
           {messages.length === 0 ? (
             <div className={emptyStateClasses}>
               <BotIcon className="mx-auto mb-4 h-12 w-12 text-slate-300 dark:text-slate-600" />
@@ -172,7 +189,7 @@ export function VSCodeChatPanel({
               </div>
             ))
           )}
-          
+
           {isLoading && (
             <div className="flex space-x-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 dark:bg-slate-300">
@@ -180,12 +197,20 @@ export function VSCodeChatPanel({
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">Assistant</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">
+                    Assistant
+                  </span>
                 </div>
                 <div className="flex space-x-1">
                   <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{animationDelay: '0.1s'}}></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{animationDelay: '0.2s'}}></div>
+                  <div
+                    className="h-2 w-2 animate-bounce rounded-full bg-slate-400"
+                    style={{ animationDelay: '0.1s' }}
+                  ></div>
+                  <div
+                    className="h-2 w-2 animate-bounce rounded-full bg-slate-400"
+                    style={{ animationDelay: '0.2s' }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -239,7 +264,10 @@ export function VSCodeChatPanel({
         </div>
 
         {/* Desktop Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{height: 'calc(100vh - 140px)'}}>
+        <div
+          className="flex-1 overflow-y-auto p-4 space-y-4"
+          style={{ height: 'calc(100vh - 140px)' }}
+        >
           {messages.length === 0 ? (
             <div className={emptyStateClasses}>
               <BotIcon className="mx-auto mb-4 h-12 w-12 text-slate-300 dark:text-slate-600" />
@@ -275,7 +303,7 @@ export function VSCodeChatPanel({
               </div>
             ))
           )}
-          
+
           {isLoading && (
             <div className="flex space-x-3">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-700 dark:bg-slate-300">
@@ -283,12 +311,20 @@ export function VSCodeChatPanel({
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-xs font-medium text-slate-900 dark:text-white">Assistant</span>
+                  <span className="text-xs font-medium text-slate-900 dark:text-white">
+                    Assistant
+                  </span>
                 </div>
                 <div className="flex space-x-1">
                   <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"></div>
-                  <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" style={{animationDelay: '0.1s'}}></div>
-                  <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" style={{animationDelay: '0.2s'}}></div>
+                  <div
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"
+                    style={{ animationDelay: '0.1s' }}
+                  ></div>
+                  <div
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"
+                    style={{ animationDelay: '0.2s' }}
+                  ></div>
                 </div>
               </div>
             </div>

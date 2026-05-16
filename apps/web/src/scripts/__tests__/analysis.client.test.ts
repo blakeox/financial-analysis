@@ -56,14 +56,12 @@ describe('analysis.client', () => {
       ],
     };
 
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(
-        new Response(JSON.stringify(mockResponse), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
 
     await import('../analysis/analysis.client');
 
@@ -127,19 +125,15 @@ describe('analysis.client', () => {
       monthlyPayment: 1500,
       totalPayments: 96000,
       totalInterest: 5000,
-      schedule: [
-        { month: 1, payment: 1500, principal: 1200, interest: 300, balance: 73800 },
-      ],
+      schedule: [{ month: 1, payment: 1500, principal: 1200, interest: 300, balance: 73800 }],
     };
 
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(
-        new Response(JSON.stringify(mockResponse), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
 
     await import('../analysis/analysis.client');
 

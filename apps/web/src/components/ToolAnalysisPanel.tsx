@@ -105,10 +105,13 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
   const getToolColor = (toolName: string): string => {
     const colorMap: Record<string, string> = {
-      analyze_amortization: 'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-200',
+      analyze_amortization:
+        'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-200',
       analyze_lease: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
-      analyze_enhanced_lease: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
-      analyze_auto_loan: 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950/40 dark:text-fuchsia-200',
+      analyze_enhanced_lease:
+        'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
+      analyze_auto_loan:
+        'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950/40 dark:text-fuchsia-200',
       analyze_debt_payoff: 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200',
       analyze_savings_goal: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200',
       analyze_student_loans:
@@ -118,8 +121,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
       optimize_budget: 'bg-pink-100 text-pink-800 dark:bg-pink-950/40 dark:text-pink-200',
       ebitda_forecasting: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-200',
       analyze_bond_pricing: 'bg-teal-100 text-teal-800 dark:bg-teal-950/40 dark:text-teal-200',
-      analyze_options_pricing:
-        'bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200',
+      analyze_options_pricing: 'bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200',
       analyze_cash_flow: 'bg-lime-100 text-lime-800 dark:bg-lime-950/40 dark:text-lime-200',
     };
     return colorMap[toolName] || 'fa-chip-muted';
@@ -214,12 +216,8 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
           <div className="p-4 fa-panel-divider">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="fa-scenario-title">
-                  Tool Analysis
-                </h3>
-                <p className="fa-help-copy">
-                  {getContextDisplayName()}
-                </p>
+                <h3 className="fa-scenario-title">Tool Analysis</h3>
+                <p className="fa-help-copy">{getContextDisplayName()}</p>
               </div>
               <button onClick={() => setIsExpanded(false)} className="fa-shell-icon-button h-9 w-9">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,9 +251,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
                     <div className="fa-scenario-title truncate text-sm">
                       {formatToolName(analysis.toolName)}
                     </div>
-                    <div className="fa-help-copy">
-                      {formatTimestamp(analysis.timestamp)}
-                    </div>
+                    <div className="fa-help-copy">{formatTimestamp(analysis.timestamp)}</div>
                   </div>
                   <div className="fa-help-copy">
                     {analysis.insights.length > 0 && (
@@ -275,9 +271,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
             <div className="fa-subcard fa-panel-divider-top rounded-t-none">
               <div className="space-y-3">
                 <div>
-                  <h4 className="fa-scenario-title mb-2 text-sm">
-                    Analysis Results
-                  </h4>
+                  <h4 className="fa-scenario-title mb-2 text-sm">Analysis Results</h4>
                   <div className="fa-list-copy text-sm whitespace-pre-wrap">
                     {selectedAnalysis.analysis}
                   </div>
@@ -285,16 +279,11 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
                 {selectedAnalysis.insights.length > 0 && (
                   <div>
-                    <h4 className="fa-scenario-title mb-2 text-sm">
-                      Key Insights
-                    </h4>
+                    <h4 className="fa-scenario-title mb-2 text-sm">Key Insights</h4>
                     <ul className="space-y-1">
                       {selectedAnalysis.insights.map((insight, index) => (
-                        <li
-                          key={index}
-                          className="fa-list-copy text-sm flex items-start"
-                        >
-                      <span className="mr-2 text-violet-500">•</span>
+                        <li key={index} className="fa-list-copy text-sm flex items-start">
+                          <span className="mr-2 text-violet-500">•</span>
                           {insight}
                         </li>
                       ))}

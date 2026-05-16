@@ -14,11 +14,7 @@ describe('CAPMTool', () => {
     });
 
     it('requires risk free rate, beta, and market premium', () => {
-      expect(CAPMTool.inputSchema.required).toEqual([
-        'riskFreeRate',
-        'beta',
-        'marketRiskPremium',
-      ]);
+      expect(CAPMTool.inputSchema.required).toEqual(['riskFreeRate', 'beta', 'marketRiskPremium']);
     });
   });
 

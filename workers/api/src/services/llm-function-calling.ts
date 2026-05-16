@@ -103,7 +103,10 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, toolName: string
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Tool ${toolName} timed out after ${timeoutMs}ms`)), timeoutMs)
+      setTimeout(
+        () => reject(new Error(`Tool ${toolName} timed out after ${timeoutMs}ms`)),
+        timeoutMs
+      )
     ),
   ]);
 }
@@ -145,13 +148,9 @@ function mcpToolToCloudflareFormat(tool: MCPTool): CloudflareTool {
         executionTimeMs: 0,
         success: false,
       };
-      
+
       try {
-        const result = await withTimeout(
-          tool.execute(args),
-          TOOL_EXECUTION_TIMEOUT_MS,
-          tool.name
-        );
+        const result = await withTimeout(tool.execute(args), TOOL_EXECUTION_TIMEOUT_MS, tool.name);
         metrics.executionTimeMs = Date.now() - startTime;
         metrics.success = true;
         currentRequestMetrics.push(metrics);
@@ -162,7 +161,7 @@ function mcpToolToCloudflareFormat(tool: MCPTool): CloudflareTool {
         metrics.error = error instanceof Error ? error.message : 'Unknown error';
         metrics.timedOut = error instanceof Error && error.message.includes('timed out');
         currentRequestMetrics.push(metrics);
-        
+
         if (globalVerbose) {
           console.error(`Tool ${tool.name} execution error:`, error);
         }
@@ -186,11 +185,11 @@ function mcpToolToCloudflareFormat(tool: MCPTool): CloudflareTool {
  */
 function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknown> | undefined {
   const changes: Record<string, unknown> = {};
-  
+
   for (const call of toolCalls) {
     // Check if the tool result contains form field updates
     const result = call.result as Record<string, unknown>;
-    
+
     if (result && typeof result === 'object') {
       // Look for common patterns in tool results that indicate field changes
       if ('formValues' in result) {
@@ -199,7 +198,7 @@ function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknow
       if ('modelChanges' in result) {
         Object.assign(changes, result.modelChanges);
       }
-      
+
       // Use centralized metadata to extract tool-specific output fields
       const meta = getToolMetadata(call.toolName);
       if (meta.outputFields) {
@@ -211,7 +210,7 @@ function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknow
       }
     }
   }
-  
+
   return Object.keys(changes).length > 0 ? changes : undefined;
 }
 
@@ -221,19 +220,19 @@ function extractModelChanges(toolCalls: ToolCallResult[]): Record<string, unknow
  */
 function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
   const message = userMessage.toLowerCase();
-  
+
   // Score each tool based on keyword matches from centralized metadata
-  const scoredTools = tools.map(tool => {
+  const scoredTools = tools.map((tool) => {
     const meta = getToolMetadata(tool.name);
     const keywords = meta.keywords;
     let score = 0;
-    
+
     for (const keyword of keywords) {
       if (message.includes(keyword)) {
         score += keyword.length; // Longer matches are more specific
       }
     }
-    
+
     // Also check if tool name or description matches
     if (message.includes(tool.name.replace(/_/g, ' '))) {
       score += 10;
@@ -244,24 +243,31 @@ function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
         score += 2;
       }
     }
-    
+
     return { tool, score };
   });
 
   // Sort by score and take top matches
   const sorted = scoredTools.sort((a, b) => b.score - a.score);
-  
+
   // Take tools with score > 0, or top 5 if none match
-  const filtered = sorted.filter(t => t.score > 0);
-  const result = filtered.length > 0 
-    ? filtered.slice(0, 8).map(t => t.tool) // Max 8 relevant tools
-    : sorted.slice(0, 5).map(t => t.tool);  // Fallback to top 5
-  
+  const filtered = sorted.filter((t) => t.score > 0);
+  const result =
+    filtered.length > 0
+      ? filtered.slice(0, 8).map((t) => t.tool) // Max 8 relevant tools
+      : sorted.slice(0, 5).map((t) => t.tool); // Fallback to top 5
+
   // Only log in verbose mode
   if (globalVerbose) {
     console.log('[preFilterTools] User message:', userMessage.substring(0, 100));
-    console.log('[preFilterTools] Tools with scores:', sorted.slice(0, 10).map(t => `${t.tool.name}:${t.score}`));
-    console.log('[preFilterTools] Selected tools:', result.map(t => t.name));
+    console.log(
+      '[preFilterTools] Tools with scores:',
+      sorted.slice(0, 10).map((t) => `${t.tool.name}:${t.score}`)
+    );
+    console.log(
+      '[preFilterTools] Selected tools:',
+      result.map((t) => t.name)
+    );
   }
   return result;
 }
@@ -301,9 +307,11 @@ export class FunctionCallingService {
     fullMessages.push(...messages);
 
     // Pre-filter tools based on user message to stay within context limits
-    const userMessage = messages.find(m => m.role === 'user')?.content || '';
+    const userMessage = messages.find((m) => m.role === 'user')?.content || '';
     const filteredTools = preFilterTools(tools, userMessage);
-    this.log.debug(`[FunctionCallingService] Filtered from ${tools.length} to ${filteredTools.length} tools`);
+    this.log.debug(
+      `[FunctionCallingService] Filtered from ${tools.length} to ${filteredTools.length} tools`
+    );
 
     // Convert MCP tools to Cloudflare format
     const cloudflareTools = filteredTools.map(mcpToolToCloudflareFormat);
@@ -327,30 +335,35 @@ export class FunctionCallingService {
       this.log.debug('[FunctionCallingService] tools count:', tools.length);
       this.log.debug('[FunctionCallingService] cloudflareTools count:', cloudflareTools.length);
       this.log.debug('[FunctionCallingService] trackedTools count:', trackedTools.length);
-      
+
       // Validate AI binding
       this.log.debug('[FunctionCallingService] ai binding exists:', !!this.ai);
       this.log.debug('[FunctionCallingService] ai binding type:', typeof this.ai);
       if (!this.ai) {
         throw new Error('AI binding is undefined - check worker bindings');
       }
-      
+
       // Log first few tools in detail for debugging (only in verbose mode)
       if (this.config.verbose && trackedTools.length > 0) {
         const firstTool = trackedTools[0];
         if (firstTool) {
-          this.log.debug('[FunctionCallingService] first tool structure:', JSON.stringify({
-            name: firstTool.name,
-            description: firstTool.description?.substring(0, 50),
-            hasFunction: typeof firstTool.function === 'function',
-            hasParameters: !!firstTool.parameters,
-            parametersType: firstTool.parameters?.type,
-            hasProperties: !!firstTool.parameters?.properties,
-            propertiesKeys: firstTool.parameters?.properties ? Object.keys(firstTool.parameters.properties).slice(0, 5) : [],
-          }));
+          this.log.debug(
+            '[FunctionCallingService] first tool structure:',
+            JSON.stringify({
+              name: firstTool.name,
+              description: firstTool.description?.substring(0, 50),
+              hasFunction: typeof firstTool.function === 'function',
+              hasParameters: !!firstTool.parameters,
+              parametersType: firstTool.parameters?.type,
+              hasProperties: !!firstTool.parameters?.properties,
+              propertiesKeys: firstTool.parameters?.properties
+                ? Object.keys(firstTool.parameters.properties).slice(0, 5)
+                : [],
+            })
+          );
         }
       }
-      
+
       this.log.debug('[FunctionCallingService] messages count:', fullMessages.length);
       this.log.debug('[FunctionCallingService] first message role:', fullMessages[0]?.role);
 
@@ -361,7 +374,7 @@ export class FunctionCallingService {
         verbose?: boolean;
         trimFunction?: typeof autoTrimTools;
       } = {};
-      
+
       if (this.config.maxRecursiveToolRuns !== undefined) {
         options.maxRecursiveToolRuns = this.config.maxRecursiveToolRuns;
       }
@@ -387,10 +400,19 @@ export class FunctionCallingService {
         })),
         tools: trackedTools,
       };
-      
-      this.log.debug('[FunctionCallingService] calling runWithTools with model:', FUNCTION_CALLING_MODEL);
-      this.log.debug('[FunctionCallingService] input messages length:', runWithToolsInput.messages.length);
-      this.log.debug('[FunctionCallingService] input tools length:', runWithToolsInput.tools.length);
+
+      this.log.debug(
+        '[FunctionCallingService] calling runWithTools with model:',
+        FUNCTION_CALLING_MODEL
+      );
+      this.log.debug(
+        '[FunctionCallingService] input messages length:',
+        runWithToolsInput.messages.length
+      );
+      this.log.debug(
+        '[FunctionCallingService] input tools length:',
+        runWithToolsInput.tools.length
+      );
 
       // Use runWithTools for embedded function calling
       const aiResponse = await runWithTools(
@@ -399,7 +421,7 @@ export class FunctionCallingService {
         runWithToolsInput,
         options
       );
-      
+
       this.log.debug('[FunctionCallingService] runWithTools response type:', typeof aiResponse);
 
       // Extract response content
@@ -442,10 +464,7 @@ export class FunctionCallingService {
   /**
    * Simple chat without function calling (fallback)
    */
-  async simpleChat(
-    messages: FunctionCallingMessage[],
-    systemPrompt?: string
-  ): Promise<string> {
+  async simpleChat(messages: FunctionCallingMessage[], systemPrompt?: string): Promise<string> {
     const fullMessages: FunctionCallingMessage[] = [];
     if (systemPrompt) {
       fullMessages.push({ role: 'system', content: systemPrompt });

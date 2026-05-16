@@ -12,7 +12,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
           key: 'uploads/test-doc-123.pdf',
           fileName: 'test-lease.pdf',
           fileSize: 1024,
-          contentType: 'application/pdf'
+          contentType: 'application/pdf',
         },
       });
     });
@@ -53,11 +53,11 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
   test('drag and drop file upload visual feedback', async ({ page }) => {
     // Select the upload area container by its distinctive classes
     const uploadArea = page.locator('.border-2.border-dashed.rounded-lg.touch-manipulation');
-    
+
     // Initial state should show default styling
     await expect(uploadArea).toBeVisible();
     await expect(uploadArea).toContainText('Drag & drop your lease document here');
-    
+
     // Test file input click
     const fileInput = page.locator('input[type="file"]');
     await expect(fileInput).toBeHidden(); // Should be visually hidden but present
@@ -69,7 +69,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     const uploadButton = page.getByRole('button', { name: /choose file/i });
     await uploadButton.click();
     const fileChooser = await fileChooserPromise;
-    
+
     // Create a mock PDF file
     await fileChooser.setFiles({
       name: 'test-lease.pdf',
@@ -79,19 +79,19 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
 
     // Wait for extraction preview to appear
     await expect(page.locator('text=AI Extraction Preview')).toBeVisible({ timeout: 10000 });
-    
-  // Check confidence indicators (three gauges)
-  await expect(page.getByText('Overall')).toBeVisible();
-  // Verify key sections render
-  await expect(page.getByText(/Basic Terms/i)).toBeVisible();
-  await expect(page.getByText(/Additional Costs/i)).toBeVisible();
+
+    // Check confidence indicators (three gauges)
+    await expect(page.getByText('Overall')).toBeVisible();
+    // Verify key sections render
+    await expect(page.getByText(/Basic Terms/i)).toBeVisible();
+    await expect(page.getByText(/Additional Costs/i)).toBeVisible();
 
     const applyButton = page.getByRole('button', { name: /apply to form/i });
-  await expect(applyButton).toBeVisible();
+    await expect(applyButton).toBeVisible();
 
-  // Test Apply to Form functionality
+    // Test Apply to Form functionality
     await applyButton.click();
-    
+
     // Wait for preview dismissal to ensure form state updates before checking fields
     await expect(page.locator('text=AI Extraction Preview')).not.toBeVisible({ timeout: 10000 });
 
@@ -106,7 +106,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     const uploadButton = page.getByRole('button', { name: /choose file/i });
     await uploadButton.click();
     const fileChooser = await fileChooserPromise;
-    
+
     await fileChooser.setFiles({
       name: 'test-lease.pdf',
       mimeType: 'application/pdf',
@@ -115,11 +115,11 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
 
     // Wait for preview
     await expect(page.getByText(/AI Extraction Preview/i)).toBeVisible({ timeout: 10000 });
-    
+
     // Click dismiss/close button
     const dismissButton = page.getByRole('button', { name: /close|dismiss/i }).first();
     await dismissButton.click();
-    
+
     // Preview should be hidden
     await expect(page.getByText(/AI Extraction Preview/i)).not.toBeVisible();
   });
@@ -141,7 +141,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     const fileChooserPromise = page.waitForEvent('filechooser');
     await page.click('button:has-text("Choose File")');
     const fileChooser = await fileChooserPromise;
-    
+
     await fileChooser.setFiles({
       name: 'invalid-file.txt',
       mimeType: 'text/plain',
@@ -150,7 +150,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
 
     // Should show error message somewhere on page
     await expect(page.getByText(/unable|error|failed/i)).toBeVisible({ timeout: 10000 });
-    
+
     // Preview should not appear
     await expect(page.getByText(/AI Extraction Preview/i)).not.toBeVisible();
   });
@@ -159,7 +159,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     // Mock slow extraction to see progress
     await page.route('**/v1/api/extract/lease', async (route) => {
       // Delay response to simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await route.fulfill({
         status: 200,
         headers: { 'content-type': 'application/json' },
@@ -179,7 +179,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     const uploadButton = page.getByRole('button', { name: /choose file/i });
     await uploadButton.click();
     const fileChooser = await fileChooserPromise;
-    
+
     await fileChooser.setFiles({
       name: 'test-lease.pdf',
       mimeType: 'application/pdf',
@@ -187,17 +187,21 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     });
 
     // Should show some processing indicator (spinner, progress, etc)
-    const processingIndicator = page.locator('.animate-spin, [class*="processing"], [class*="loading"]').first();
+    const processingIndicator = page
+      .locator('.animate-spin, [class*="processing"], [class*="loading"]')
+      .first();
     // Give it a moment to appear
     await page.waitForTimeout(100);
     const indicatorVisible = await processingIndicator.isVisible().catch(() => false);
-    
+
     // Eventually should show success
     if (indicatorVisible) {
       await expect(processingIndicator).toBeVisible();
     }
 
-    await expect(page.getByText(/AI Extraction Preview|success|complete/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/AI Extraction Preview|success|complete/i)).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('file type validation', async ({ page }) => {
@@ -207,7 +211,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
         status: 400,
         headers: { 'content-type': 'application/json' },
         json: {
-          error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.'
+          error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.',
         },
       });
     });
@@ -217,7 +221,7 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     const uploadButton = page.getByRole('button', { name: /choose file/i });
     await uploadButton.click();
     const fileChooser = await fileChooserPromise;
-    
+
     await fileChooser.setFiles({
       name: 'image.jpg',
       mimeType: 'image/jpeg',
@@ -225,6 +229,8 @@ test.describe('Enhanced Lease Analysis - File Upload & AI Features', () => {
     });
 
     // Should show file type error
-    await expect(page.getByText(/invalid.*file.*type|please upload.*pdf/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/invalid.*file.*type|please upload.*pdf/i)).toBeVisible({
+      timeout: 5000,
+    });
   });
 });

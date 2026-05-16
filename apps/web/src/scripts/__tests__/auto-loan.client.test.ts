@@ -57,7 +57,9 @@ describe('auto-loan.client', () => {
       expect(() => parseAutoLoanInput(badTax)).toThrow('Sales tax rate must be between 0 and 100.');
 
       const badInterest = buildFormData({ interestRate: '-1' });
-      expect(() => parseAutoLoanInput(badInterest)).toThrow('Interest rate must be between 0 and 100.');
+      expect(() => parseAutoLoanInput(badInterest)).toThrow(
+        'Interest rate must be between 0 and 100.'
+      );
 
       const badTerm = buildFormData({ loanTerm: '0' });
       expect(() => parseAutoLoanInput(badTerm)).toThrow('Please enter a valid loan term.');

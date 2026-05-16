@@ -150,7 +150,7 @@ describe('OptionsPricingTool', () => {
     it('handles high volatility scenarios', async () => {
       const result = await OptionsPricingTool.execute({
         ...baseCallOption,
-        volatility: 0.80,
+        volatility: 0.8,
       });
 
       expect(result).toBeDefined();
@@ -161,7 +161,7 @@ describe('OptionsPricingTool', () => {
     it('handles low volatility scenarios', async () => {
       const result = await OptionsPricingTool.execute({
         ...baseCallOption,
-        volatility: 0.10,
+        volatility: 0.1,
       });
 
       expect(result).toBeDefined();

@@ -1,6 +1,6 @@
 /**
  * Equipment Lease Calculator Client Script
- * 
+ *
  * Handles form submission, data parsing, API calls, and result rendering
  * for equipment lease calculations.
  */
@@ -52,7 +52,7 @@ async function handleSubmit(e: Event) {
 
   const form = e.target as HTMLFormElement;
   const formData = parseEquipmentLeaseInput(form);
-  
+
   if (!validateInput(formData)) {
     console.error('Invalid equipment lease input');
     return;
@@ -183,7 +183,8 @@ function displayResults(result: EquipmentLeaseResult) {
   // Display lease vs buy comparison if available
   if (result.leaseVsBuy) {
     const comparisonContainer = document.createElement('div');
-    comparisonContainer.className = 'mt-6 bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6';
+    comparisonContainer.className =
+      'mt-6 bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6';
     comparisonContainer.innerHTML = `
       <h3 class="text-lg font-semibold mb-4">Lease vs Buy Comparison</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -206,7 +207,7 @@ function displayResults(result: EquipmentLeaseResult) {
         </p>
       </div>
     `;
-    
+
     const resultsContent = document.getElementById('results-content');
     if (resultsContent) {
       resultsContent.appendChild(comparisonContainer);
@@ -275,7 +276,3 @@ function showError(message: string) {
 }
 
 export {};
-
-
-
-

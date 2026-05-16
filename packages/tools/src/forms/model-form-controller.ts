@@ -1,4 +1,9 @@
-import { appEventBus, type ModelContextEvent, type ModelSubmitEvent, type SerializedContext } from '../event-bus';
+import {
+  appEventBus,
+  type ModelContextEvent,
+  type ModelSubmitEvent,
+  type SerializedContext,
+} from '../event-bus';
 import { z } from 'zod';
 
 type ObjectSchema = z.ZodType<Record<string, unknown>>;

@@ -67,14 +67,14 @@ describe('EstatePlanningCalculator', () => {
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = EstatePlanningCalculator.analyze(baseInput);
-    
+
     // Check summary
     expect(result.summary).toBeDefined();
     expect(result.summary.currentEstateValue).toBeDefined();
     expect(result.summary.projectedEstateValue).toBeDefined();
     expect(result.summary.estimatedEstateTax).toBeDefined();
     expect(result.summary.netInheritance).toBeDefined();
-    
+
     // Check recommendations
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);

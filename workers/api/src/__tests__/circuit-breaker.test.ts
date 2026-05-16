@@ -123,7 +123,7 @@ describe('CircuitBreaker', () => {
       // Should have transitioned to HALF_OPEN, but needs successThreshold (2) calls to close
       expect(newState.state).toBe('HALF_OPEN');
       expect(newState.successes).toBe(1);
-      
+
       // Second success should close the circuit
       await breaker.execute(fn);
       newState = breaker.getState();
@@ -225,10 +225,10 @@ describe('CircuitBreaker', () => {
 
       expect(states['service-1']).toBeDefined();
       expect(states['service-2']).toBeDefined();
-      
+
       const state1 = states['service-1'];
       const state2 = states['service-2'];
-      
+
       if (state1 && state2) {
         expect(state1.failures).toBe(1);
         expect(state2.failures).toBe(0);

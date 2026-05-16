@@ -17,9 +17,7 @@ export class EmployeeStockOptionsValuator {
     const analysis = input.analysis;
 
     // Value options
-    const optionValuation = analysis.includeValuation
-      ? this.valueOptions(options)
-      : undefined;
+    const optionValuation = analysis.includeValuation ? this.valueOptions(options) : undefined;
 
     // Tax analysis
     const taxAnalysis = analysis.includeTaxAnalysis
@@ -53,9 +51,7 @@ export class EmployeeStockOptionsValuator {
     };
   }
 
-  private static valueOptions(
-    options: EmployeeStockOptionsInput['options']
-  ): {
+  private static valueOptions(options: EmployeeStockOptionsInput['options']): {
     options: Array<{
       grantId: string | undefined;
       intrinsicValue: number;
@@ -66,7 +62,10 @@ export class EmployeeStockOptionsValuator {
     totalBlackScholesValue: number;
   } {
     const optionValues = options.map((option) => {
-      const intrinsicValue = Math.max(0, (option.currentStockPrice - option.grantPrice) * option.numberOfOptions);
+      const intrinsicValue = Math.max(
+        0,
+        (option.currentStockPrice - option.grantPrice) * option.numberOfOptions
+      );
       const blackScholesValue = this.calculateBlackScholes(option);
       const timeValue = blackScholesValue - intrinsicValue;
 
@@ -79,7 +78,10 @@ export class EmployeeStockOptionsValuator {
     });
 
     const totalIntrinsicValue = optionValues.reduce((sum, opt) => sum + opt.intrinsicValue, 0);
-    const totalBlackScholesValue = optionValues.reduce((sum, opt) => sum + opt.blackScholesValue, 0);
+    const totalBlackScholesValue = optionValues.reduce(
+      (sum, opt) => sum + opt.blackScholesValue,
+      0
+    );
 
     return {
       options: optionValues,
@@ -121,7 +123,7 @@ export class EmployeeStockOptionsValuator {
     x = Math.abs(x) / Math.sqrt(2.0);
 
     const t = 1.0 / (1.0 + p * x);
-    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    const y = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
 
     return 0.5 * (1.0 + sign * y);
   }
@@ -150,7 +152,10 @@ export class EmployeeStockOptionsValuator {
     totalTaxOnSale: number;
   } {
     const taxAnalysis = options.map((option) => {
-      const intrinsicValue = Math.max(0, (option.currentStockPrice - option.grantPrice) * option.numberOfOptions);
+      const intrinsicValue = Math.max(
+        0,
+        (option.currentStockPrice - option.grantPrice) * option.numberOfOptions
+      );
 
       // Exercise tax depends on option type
       let exerciseTax = 0;
@@ -165,7 +170,9 @@ export class EmployeeStockOptionsValuator {
 
       // Sale tax (assuming immediate sale)
       const saleProceeds = option.currentStockPrice * option.numberOfOptions;
-      const saleTax = (saleProceeds - option.grantPrice * option.numberOfOptions) * taxInfo.federalTaxRate.capitalGains;
+      const saleTax =
+        (saleProceeds - option.grantPrice * option.numberOfOptions) *
+        taxInfo.federalTaxRate.capitalGains;
       const totalTax = exerciseTax + saleTax;
       const afterTaxValue = saleProceeds - totalTax;
 
@@ -206,15 +213,22 @@ export class EmployeeStockOptionsValuator {
       {
         scenario: 'Exercise Now',
         exerciseAmount: strategy.exerciseAmount || 0,
-        taxCost: (strategy.exerciseAmount || 0) * (taxInfo.federalTaxRate.ordinary + taxInfo.stateTaxRate),
+        taxCost:
+          (strategy.exerciseAmount || 0) * (taxInfo.federalTaxRate.ordinary + taxInfo.stateTaxRate),
         netValue: (strategy.exerciseAmount || 0) * 0.6, // Simplified
         recommendation: 'Consider tax implications before exercising',
       },
       {
         scenario: 'Exercise at Vest',
-        exerciseAmount: options.reduce((sum, opt) => sum + opt.numberOfOptions * opt.currentStockPrice, 0),
+        exerciseAmount: options.reduce(
+          (sum, opt) => sum + opt.numberOfOptions * opt.currentStockPrice,
+          0
+        ),
         taxCost: 0, // Simplified
-        netValue: options.reduce((sum, opt) => sum + opt.numberOfOptions * opt.currentStockPrice, 0),
+        netValue: options.reduce(
+          (sum, opt) => sum + opt.numberOfOptions * opt.currentStockPrice,
+          0
+        ),
         recommendation: 'Exercise at vesting to start capital gains clock',
       },
       {
@@ -222,7 +236,10 @@ export class EmployeeStockOptionsValuator {
         exerciseAmount: 0,
         taxCost: 0,
         netValue: options.reduce((sum, opt) => {
-          const intrinsic = Math.max(0, (opt.currentStockPrice - opt.grantPrice) * opt.numberOfOptions);
+          const intrinsic = Math.max(
+            0,
+            (opt.currentStockPrice - opt.grantPrice) * opt.numberOfOptions
+          );
           return sum + intrinsic;
         }, 0),
         recommendation: 'Hold if expecting stock price appreciation',
@@ -261,6 +278,3 @@ export class EmployeeStockOptionsValuator {
     return recommendations;
   }
 }
-
-
-

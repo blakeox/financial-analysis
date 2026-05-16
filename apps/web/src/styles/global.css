@@ -2170,7 +2170,10 @@
     font-size: 0.875rem;
     font-weight: 500;
     padding: 0.5rem 1rem;
-    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
   }
 
   .fa-tab-inactive:hover {

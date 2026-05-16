@@ -120,4 +120,3 @@ describe('CarLeaseVsBuyCalculator', () => {
     expect(result.recommendations).toContain('Buying provides equity and no mileage restrictions');
   });
 });
-

@@ -174,10 +174,7 @@ describe('InsuranceNeedsCalculator risk assessment', () => {
         },
       };
 
-      const assessment = helpers.performRiskAssessment.call(
-        InsuranceNeedsCalculator,
-        lowRiskInput
-      );
+      const assessment = helpers.performRiskAssessment.call(InsuranceNeedsCalculator, lowRiskInput);
 
       expect(assessment.overallRiskLevel).toBe('low');
       expect(assessment.riskFactors).toHaveLength(0);
@@ -209,17 +206,22 @@ describe('InsuranceNeedsCalculator risk assessment', () => {
 
       expect(assessment.overallRiskLevel).toBe('low');
       expect(assessment.riskFactors).toHaveLength(1);
-      expect(assessment.riskFactors[0]).toMatchObject({ factor: 'Dependents', riskLevel: 'medium' });
+      expect(assessment.riskFactors[0]).toMatchObject({
+        factor: 'Dependents',
+        riskLevel: 'medium',
+      });
     });
   });
 
   describe('risk recommendation helper', () => {
     it('returns targeted guidance for each high-risk factor', () => {
-      const generateRiskRecommendations = (InsuranceNeedsCalculator as unknown as {
-        generateRiskRecommendations: (
-          riskFactors: InsuranceNeedsResult['riskAssessment']['riskFactors']
-        ) => string[];
-      }).generateRiskRecommendations;
+      const generateRiskRecommendations = (
+        InsuranceNeedsCalculator as unknown as {
+          generateRiskRecommendations: (
+            riskFactors: InsuranceNeedsResult['riskAssessment']['riskFactors']
+          ) => string[];
+        }
+      ).generateRiskRecommendations;
 
       const recommendations = generateRiskRecommendations([
         {
@@ -242,8 +244,12 @@ describe('InsuranceNeedsCalculator risk assessment', () => {
         },
       ]);
 
-      expect(recommendations).toContain('Consider purchasing insurance while younger and healthier');
-      expect(recommendations).toContain('Focus on improving health habits to reduce insurance costs');
+      expect(recommendations).toContain(
+        'Consider purchasing insurance while younger and healthier'
+      );
+      expect(recommendations).toContain(
+        'Focus on improving health habits to reduce insurance costs'
+      );
       expect(recommendations).toContain('Consider occupational-specific disability insurance');
     });
   });
@@ -296,9 +302,11 @@ describe('InsuranceNeedsCalculator risk assessment', () => {
     });
 
     it('exposes helper for case-insensitive occupation matching', () => {
-      const isHighRiskOccupation = (InsuranceNeedsCalculator as unknown as {
-        isHighRiskOccupation: (occupation: string) => boolean;
-      }).isHighRiskOccupation;
+      const isHighRiskOccupation = (
+        InsuranceNeedsCalculator as unknown as {
+          isHighRiskOccupation: (occupation: string) => boolean;
+        }
+      ).isHighRiskOccupation;
 
       expect(isHighRiskOccupation('FireFighter')).toBe(true);
       expect(isHighRiskOccupation('Lead Roofer Foreman')).toBe(true);

@@ -134,7 +134,8 @@ describe('LeaseAnalyzer', () => {
       const result = LeaseAnalyzer.analyze(zeroRateInput);
 
       // With zero interest, payment = (principal - residual) / termMonths
-      const expectedPayment = (basicInput.principal - basicInput.residualValue) / basicInput.termMonths;
+      const expectedPayment =
+        (basicInput.principal - basicInput.residualValue) / basicInput.termMonths;
       expect(result.monthlyPayment).toBeCloseTo(expectedPayment, 2);
       expect(result.totalInterest).toBeCloseTo(0, 0);
     });

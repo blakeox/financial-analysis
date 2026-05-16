@@ -72,7 +72,7 @@ class SimpleRetirementCalculator {
 
     const yearsToRetirement = retirementAge - currentAge;
     let annualContribution = monthlyContribution * 12;
-    
+
     // Calculate catch-up contributions for age 50+
     let catchUpContributionsTotal = 0;
     let yearsCatchUp = 0;
@@ -82,15 +82,18 @@ class SimpleRetirementCalculator {
       const catchUpAnnual = 7500;
       catchUpContributionsTotal = catchUpAnnual * yearsCatchUp;
     }
-    
+
     // Calculate employer match (typically 3-6% of salary, max 50% of contribution)
     const employerMatchRate = employerMatch / 100;
     let employerMatchTotal = 0;
     for (let year = 0; year < yearsToRetirement; year++) {
       const salaryThisYear = currentIncome * Math.pow(1 + incomeIncreaseRate / 100, year);
       const contributionThisYear = Math.min(annualContribution, salaryThisYear * 0.25); // Cap at 25% of salary
-      const matchThisYear = Math.min(contributionThisYear * employerMatchRate, salaryThisYear * 0.06); // Cap at 6% of salary
-      
+      const matchThisYear = Math.min(
+        contributionThisYear * employerMatchRate,
+        salaryThisYear * 0.06
+      ); // Cap at 6% of salary
+
       // Add to total with growth
       const yearsOfGrowth = yearsToRetirement - year;
       employerMatchTotal += matchThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
@@ -106,21 +109,27 @@ class SimpleRetirementCalculator {
     let futureValueOfContributions = 0;
     for (let year = 0; year < yearsToRetirement; year++) {
       let contributionThisYear = annualContribution;
-      
+
       // Add catch-up if applicable
       if (currentAge + year >= 50) {
         contributionThisYear += 7500; // Annual catch-up
       }
-      
+
       const yearsOfGrowth = yearsToRetirement - year;
-      futureValueOfContributions += contributionThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
+      futureValueOfContributions +=
+        contributionThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
     }
 
-    const projectedBalanceAtRetirement = futureValueOfCurrentSavings + futureValueOfContributions + employerMatchTotal;
-    const totalGrowth = projectedBalanceAtRetirement - currentSavings - totalContributions - employerMatchTotal;
+    const projectedBalanceAtRetirement =
+      futureValueOfCurrentSavings + futureValueOfContributions + employerMatchTotal;
+    const totalGrowth =
+      projectedBalanceAtRetirement - currentSavings - totalContributions - employerMatchTotal;
 
     // Inflation adjustment to keep figures in today's dollars
-    const inflationAdjustmentFactor = Math.pow(1 + inflationRate / 100, Math.max(yearsToRetirement, 0));
+    const inflationAdjustmentFactor = Math.pow(
+      1 + inflationRate / 100,
+      Math.max(yearsToRetirement, 0)
+    );
     const inflationAdjustedBalance = projectedBalanceAtRetirement / inflationAdjustmentFactor;
 
     // Calculate retirement income using 4% rule
@@ -131,47 +140,53 @@ class SimpleRetirementCalculator {
     const finalSalary = currentIncome * Math.pow(1 + incomeIncreaseRate / 100, yearsToRetirement);
     const replacementRatio = (monthlyRetirementIncome * 12) / finalSalary;
     const finalSalaryReal = finalSalary / inflationAdjustmentFactor;
-    const realReplacementRatio = finalSalaryReal > 0 ? (realMonthlyIncome * 12) / finalSalaryReal : 0;
+    const realReplacementRatio =
+      finalSalaryReal > 0 ? (realMonthlyIncome * 12) / finalSalaryReal : 0;
 
     // Calculate savings rate
     const savingsRate = (annualContribution / currentIncome) * 100;
-    
+
     // Calculate tax implications
     const currentTaxRateDecimal = currentTaxRate / 100;
     const retirementTaxRateDecimal = retirementTaxRate / 100;
-    
-    const taxSavingsNow = accountType === 'traditional' ? totalContributions * currentTaxRateDecimal : 0;
-    const afterTaxBalance = accountType === 'traditional' 
-      ? projectedBalanceAtRetirement * (1 - retirementTaxRateDecimal)
-      : projectedBalanceAtRetirement; // Roth is already tax-free
+
+    const taxSavingsNow =
+      accountType === 'traditional' ? totalContributions * currentTaxRateDecimal : 0;
+    const afterTaxBalance =
+      accountType === 'traditional'
+        ? projectedBalanceAtRetirement * (1 - retirementTaxRateDecimal)
+        : projectedBalanceAtRetirement; // Roth is already tax-free
     const afterTaxMonthlyIncome = (afterTaxBalance * 0.04) / 12;
-    
+
     // Roth vs Traditional comparison
     let rothVsTraditional: RetirementResults['rothVsTraditional'];
-    
+
     if (accountType === 'both') {
       // Traditional scenario
       const traditionalBalance = projectedBalanceAtRetirement;
       const traditionalAfterTax = traditionalBalance * (1 - retirementTaxRateDecimal);
       const traditionalMonthlyAfterTax = (traditionalAfterTax * 0.04) / 12;
-      
+
       // Roth scenario - same contributions but after-tax, so less principal growth in taxable account
       // Assume you invest the tax savings from Traditional in a taxable account
       const rothBalance = projectedBalanceAtRetirement; // Same pre-tax growth
       const rothAfterTax = rothBalance; // Tax-free withdrawals
       const rothMonthlyAfterTax = (rothAfterTax * 0.04) / 12;
-      
+
       const difference = rothAfterTax - traditionalAfterTax;
-      
+
       let recommendation = '';
       if (currentTaxRate > retirementTaxRate + 5) {
-        recommendation = 'Traditional IRA/401(k) recommended: Your tax rate is significantly higher now than expected in retirement. Lock in tax savings today.';
+        recommendation =
+          'Traditional IRA/401(k) recommended: Your tax rate is significantly higher now than expected in retirement. Lock in tax savings today.';
       } else if (retirementTaxRate > currentTaxRate + 5) {
-        recommendation = 'Roth IRA/401(k) recommended: Your tax rate is expected to be higher in retirement. Pay taxes now at a lower rate.';
+        recommendation =
+          'Roth IRA/401(k) recommended: Your tax rate is expected to be higher in retirement. Pay taxes now at a lower rate.';
       } else {
-        recommendation = 'Consider Both: Tax rates are similar. Split contributions for tax diversification and flexibility.';
+        recommendation =
+          'Consider Both: Tax rates are similar. Split contributions for tax diversification and flexibility.';
       }
-      
+
       rothVsTraditional = {
         traditional: {
           balance: traditionalBalance,
@@ -255,7 +270,9 @@ const displayResults = (result: RetirementResults): void => {
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    ${result.rothVsTraditional ? `
+    ${
+      result.rothVsTraditional
+        ? `
     <!-- Roth vs Traditional Comparison -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -319,7 +336,9 @@ const displayResults = (result: RetirementResults): void => {
         <p class="fa-script-copy-muted">${result.rothVsTraditional.recommendation}</p>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Retirement Projection</h3>
@@ -347,7 +366,9 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        ${result.employerMatchTotal ? `
+        ${
+          result.employerMatchTotal
+            ? `
         <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Employer Match</span>
@@ -357,7 +378,9 @@ const displayResults = (result: RetirementResults): void => {
             <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.employerMatchTotal)}</span>
           </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
         
         <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
@@ -369,7 +392,9 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        ${result.taxSavingsNow ? `
+        ${
+          result.taxSavingsNow
+            ? `
         <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Tax Savings (Now)</span>
@@ -379,7 +404,9 @@ const displayResults = (result: RetirementResults): void => {
             <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.taxSavingsNow)}</span>
           </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
         
         <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>

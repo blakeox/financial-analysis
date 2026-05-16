@@ -16,68 +16,68 @@ const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => unde
 const createMockElements = () => {
   // Clear any existing elements
   document.body.innerHTML = '';
-  
+
   const panel = document.createElement('div');
   panel.id = 'chat-panel';
   document.body.appendChild(panel);
-  
+
   const toggle = document.createElement('button');
   toggle.id = 'chat-toggle';
   document.body.appendChild(toggle);
-  
+
   const closeBtn = document.createElement('button');
   closeBtn.id = 'chat-close';
   panel.appendChild(closeBtn);
-  
+
   const form = document.createElement('form');
   form.id = 'chat-form';
   panel.appendChild(form);
-  
+
   const input = document.createElement('textarea');
   input.id = 'chat-input';
   form.appendChild(input);
-  
+
   const sendBtn = document.createElement('button');
   sendBtn.id = 'chat-send';
   form.appendChild(sendBtn);
-  
+
   const messages = document.createElement('div');
   messages.id = 'chat-messages';
   panel.appendChild(messages);
-  
+
   const thinkingIndicator = document.createElement('div');
   thinkingIndicator.id = 'thinking-indicator';
   thinkingIndicator.classList.add('hidden');
   panel.appendChild(thinkingIndicator);
-  
+
   const contextIndicator = document.createElement('span');
   contextIndicator.id = 'context-indicator';
   panel.appendChild(contextIndicator);
-  
+
   const charCounter = document.createElement('span');
   charCounter.id = 'chat-char-counter';
   form.appendChild(charCounter);
-  
+
   const errorDisplay = document.createElement('div');
   errorDisplay.id = 'chat-error';
   errorDisplay.classList.add('hidden');
   panel.appendChild(errorDisplay);
-  
+
   const retryBtn = document.createElement('button');
   retryBtn.id = 'chat-retry';
   errorDisplay.appendChild(retryBtn);
-  
+
   const offlineIndicator = document.createElement('div');
   offlineIndicator.id = 'chat-offline';
   offlineIndicator.classList.add('hidden');
   panel.appendChild(offlineIndicator);
-  
+
   // Add system message placeholder
   const systemMessage = document.createElement('div');
   systemMessage.className = 'system-message';
   systemMessage.innerHTML = '<p>System ready</p>';
   messages.appendChild(systemMessage);
-  
+
   return {
     panel,
     toggle,
@@ -156,11 +156,11 @@ describe('Chatbot Integration Tests', () => {
 
       // Button should be enabled with valid input
       expect(mockElements.sendBtn.disabled).toBe(false);
-      
+
       // Test with empty message
       mockElements.input.value = '';
       mockElements.input.dispatchEvent(new Event('input'));
-      
+
       // Button should be disabled with empty input
       expect(mockElements.sendBtn.disabled).toBe(true);
     });
@@ -699,7 +699,7 @@ describe('End-to-End Integration Tests', () => {
       }
 
       await Promise.all(promises);
-      
+
       // Wait for all async operations to complete
       await new Promise((resolve) => setTimeout(resolve, 200));
 
@@ -865,7 +865,7 @@ describe('Error Scenarios and Edge Cases', () => {
       // Verify first attempt was made
       expect(mockFetch).toHaveBeenCalled();
       expect(callCount).toBeGreaterThanOrEqual(1);
-      
+
       // Retry button handling depends on error recovery implementation
       // Just verify the system handled the error gracefully
       expect(errorRecovery.getCircuitBreakerStats()).toBeDefined();

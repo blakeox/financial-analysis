@@ -1,4 +1,13 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export interface StackedBarChartProps {
   data: Array<{
@@ -51,12 +60,7 @@ export function StackedBarChart({
           }
           labelStyle={{ fontWeight: 'bold', marginBottom: '8px' }}
         />
-        {showLegend && (
-          <Legend
-            wrapperStyle={{ paddingTop: '20px' }}
-            iconType="rect"
-          />
-        )}
+        {showLegend && <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />}
         {stacks.map((stack) => (
           <Bar
             key={stack.dataKey}

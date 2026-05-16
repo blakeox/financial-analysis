@@ -51,7 +51,9 @@ describe('HSAOptimizationTool', () => {
 
     expect(result.summary.maxContribution).toBeCloseTo(9300, 6);
     expect(result.summary.totalTaxSavings).toBeCloseTo(2425.5, 6);
-    expect(result.summary.projectedBalanceAtRetirement).toBeGreaterThan(validInput.personalInfo.currentHSABalance);
+    expect(result.summary.projectedBalanceAtRetirement).toBeGreaterThan(
+      validInput.personalInfo.currentHSABalance
+    );
   });
 
   it('rejects invalid input', async () => {
