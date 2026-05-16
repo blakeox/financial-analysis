@@ -774,15 +774,19 @@ describe('Model Assumptions', () => {
 // PROPERTY-BASED INVARIANTS
 // ============================================================================
 
+/** fast-check 4 may emit NaN from fc.double; filter for valid financial inputs */
+const finiteDouble = (constraints: { min: number; max: number }) =>
+  fc.double(constraints).filter((n): n is number => Number.isFinite(n));
+
 describe('Property-based invariants', () => {
   it('should have monotonic call price with underlying', () => {
     fc.assert(
       fc.property(
-        fc.double({ min: 50, max: 150 }),
-        fc.double({ min: 50, max: 150 }),
-        fc.double({ min: 0.01, max: 0.8 }),
-        fc.double({ min: 0.0, max: 0.1 }),
-        fc.double({ min: 0.05, max: 2 }),
+        finiteDouble({ min: 50, max: 150 }),
+        finiteDouble({ min: 50, max: 150 }),
+        finiteDouble({ min: 0.01, max: 0.8 }),
+        finiteDouble({ min: 0.0, max: 0.1 }),
+        finiteDouble({ min: 0.05, max: 2 }),
         (s1, s2, vol, r, T) => {
           const [lowS, highS] = s1 <= s2 ? [s1, s2] : [s2, s1];
           const low = OptionsPricingAnalyzer.analyze(
@@ -802,11 +806,11 @@ describe('Property-based invariants', () => {
   it('should satisfy put-call parity within tolerance', () => {
     fc.assert(
       fc.property(
-        fc.double({ min: 50, max: 150 }),
-        fc.double({ min: 50, max: 150 }),
-        fc.double({ min: 0.01, max: 0.8 }),
-        fc.double({ min: 0.0, max: 0.1 }),
-        fc.double({ min: 0.05, max: 2 }),
+        finiteDouble({ min: 50, max: 150 }),
+        finiteDouble({ min: 50, max: 150 }),
+        finiteDouble({ min: 0.01, max: 0.8 }),
+        finiteDouble({ min: 0.0, max: 0.1 }),
+        finiteDouble({ min: 0.05, max: 2 }),
         (S, K, vol, r, T) => {
           const call = OptionsPricingAnalyzer.analyze(
             createBasicInput({ underlyingPrice: S, strikePrice: K, volatility: vol, riskFreeRate: r, timeToExpiry: T })
