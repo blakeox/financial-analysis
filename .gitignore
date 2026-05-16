@@ -1,8 +1,11 @@
-# macOS Finder duplicate copies (e.g. "file 2.md")
+# macOS Finder duplicate copies (e.g. "file 2.md", "config 2.yml")
+* 2
+* 2.*
 * 2.md
 * 2.yml
 * 2.ts
 * 2.json
+* 2.tsbuildinfo
 .nvmrc 2
 
 # Dependencies

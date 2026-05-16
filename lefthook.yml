@@ -1,5 +1,7 @@
 pre-commit:
   commands:
+    duplicates:
+      run: pnpm run check:duplicates
     lint:
       run: pnpm lint
     typecheck:

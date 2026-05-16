@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { gotoPath, setViewportDesktop, waitForNavReady } from '../utils/nav';
+import { gotoPath, setViewportDesktop, waitForNavReady } from '../_shared/nav';
 
 const NAV_ROOT = '#site-nav';
 

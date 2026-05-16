@@ -239,7 +239,8 @@ pnpm --filter @financial-analysis/web exec node scripts/test-runner.mjs --playwr
 
 Notes:
 
-- `test:layout` prevents duplicate Playwright spec basenames in `apps/web/tests`.
+- `pnpm run check:duplicates` fails on macOS Finder copies, identical test files, and duplicate Playwright spec basenames.
+- `test:layout` (included in `check:duplicates`) enforces the Playwright tests layout under `apps/web/tests`.
 - `typecheck:tests` statically checks Playwright specs/helpers before browser runs.
 - `test:coverage` currently gates the web logic/framework modules that already have strong Vitest protection; expand that scope as more app logic gets dedicated tests.
 

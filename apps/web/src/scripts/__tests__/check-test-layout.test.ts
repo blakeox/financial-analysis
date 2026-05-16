@@ -2,7 +2,11 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { tmpdir } from 'os';
 import { afterEach, describe, expect, it } from 'vitest';
-import { findDuplicateBasenames } from '../../../scripts/check-test-layout.mjs';
+import {
+  findDuplicateBasenames,
+  findForbiddenDuplicateModules,
+  findIdenticalContent,
+} from '../../../scripts/check-test-layout.mjs';
 
 const tempDirs: string[] = [];
 
@@ -34,6 +38,27 @@ describe('check-test-layout', () => {
     writeTestFile(rootDir, 'tests/nav/nav.spec.ts');
 
     expect(findDuplicateBasenames(join(rootDir, 'tests'), rootDir)).toEqual([]);
+  });
+
+  it('reports forbidden legacy duplicate modules', () => {
+    const rootDir = createTempTestTree();
+    writeTestFile(rootDir, 'tests/_shared/nav.ts', 'export const nav = 1;');
+    writeTestFile(rootDir, 'tests/utils/nav.ts', 'export const nav = 1;');
+
+    expect(findForbiddenDuplicateModules(rootDir)).toEqual([
+      { canonical: 'tests/_shared/nav.ts', legacy: 'tests/utils/nav.ts' },
+    ]);
+  });
+
+  it('reports identical file content under tests/', () => {
+    const rootDir = createTempTestTree();
+    const body = 'export const helper = true;';
+    writeTestFile(rootDir, 'tests/_shared/helper.ts', body);
+    writeTestFile(rootDir, 'tests/legacy/helper.ts', body);
+
+    expect(findIdenticalContent(join(rootDir, 'tests'), rootDir)).toEqual([
+      ['tests/_shared/helper.ts', 'tests/legacy/helper.ts'],
+    ]);
   });
 
   it('reports duplicate basenames across different folders', () => {
