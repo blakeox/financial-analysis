@@ -1,8 +1,14 @@
 # Financial Analysis Tooling
 
 ![CI](https://github.com/blakeox/financial-analysis/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/github/license/blakeox/financial-analysis)
+![GitHub contributors](https://img.shields.io/github/contributors/blakeox/financial-analysis)
 
 Advanced financial analysis tooling with LLM-powered insights, built with modern web technologies and Cloudflare infrastructure.
+
+## Open Source
+
+This project is open source under the [MIT License](./LICENSE). Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) and [Security Policy](./SECURITY.md) before participating.
 
 ## 🚀 Features
 
@@ -418,6 +424,8 @@ Note on COMMIT_SHA:
 - [API Documentation](./docs/API.md)
 - [Deployment Guide](./docs/DEPLOYMENT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
+- [Security Policy](./SECURITY.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)
 

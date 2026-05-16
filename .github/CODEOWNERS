@@ -18,7 +18,8 @@ packages/ui/ @blakeox
 
 # Documentation
 docs/ @blakeox
-*.md @blakeox
+SECURITY.md @blakeox
+CODE_OF_CONDUCT.md @blakeox
 
 # Configuration Files
 .github/ @blakeox

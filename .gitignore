@@ -14,10 +14,15 @@ out/
 
 # Environment variables
 .env
+.env.*
+!.env.example
+!.env.*.example
 .env.local
 .env.production
 .env.worker
 .env.development
+*.env.bak
+.env*.bak
 
 # Cloudflare Workers
 .wrangler/state/
@@ -67,6 +72,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+*.bak
 .cache/
 .parcel-cache/
 

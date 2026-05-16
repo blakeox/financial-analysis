@@ -1,12 +1,13 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # Root workspace (shared devDependencies and tooling)
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
       time: '09:00'
+      timezone: 'America/New_York'
     open-pull-requests-limit: 10
     assignees:
       - 'blakeox'
@@ -17,14 +18,63 @@ updates:
     labels:
       - 'dependencies'
       - 'automated'
+    groups:
+      development-dependencies:
+        dependency-type: 'development'
+        patterns:
+          - '*'
 
-  # Enable version updates for GitHub Actions
+  - package-ecosystem: 'npm'
+    directory: '/apps/web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'frontend'
+
+  - package-ecosystem: 'npm'
+    directory: '/workers/api'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'backend'
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/analysis'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
       time: '09:00'
+      timezone: 'America/New_York'
     open-pull-requests-limit: 5
     assignees:
       - 'blakeox'
@@ -34,3 +84,7 @@ updates:
     labels:
       - 'github-actions'
       - 'automated'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
