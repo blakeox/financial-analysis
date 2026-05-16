@@ -15,12 +15,7 @@ export default defineConfig({
     ],
     // Reduce parallel execution to avoid KV database locking
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: false,
-        maxForks: 4, // Limit concurrency to reduce SQLITE_BUSY errors
-      },
-    },
+    maxWorkers: 4,
     // Retry flaky tests once before failing
     retry: 1,
     slowTestThreshold: 2000,
