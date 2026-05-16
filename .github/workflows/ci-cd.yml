@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check for duplicate files
+        run: pnpm run check:duplicates
+
       - name: TypeScript type checking
         run: pnpm run typecheck
 
