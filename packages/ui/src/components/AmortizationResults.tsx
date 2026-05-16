@@ -3,6 +3,7 @@ import {
   computeAmortizationInsights,
 } from '@financial-analysis/analysis';
 import React, { useMemo } from 'react';
+import { parseCalendarDate } from '../lib/formatters';
 import { cn } from '../lib/utils';
 import { AmortizationChart } from './AmortizationChart';
 import { Card, CardContent } from './Card';
@@ -323,7 +324,7 @@ export function AmortizationResults({
               Final payment date
             </p>
             <p className="text-2xl font-semibold text-slate-900 dark:text-white">
-              {dateFormatter.format(new Date(result.payoffDate))}
+              {dateFormatter.format(parseCalendarDate(result.payoffDate))}
             </p>
           </CardContent>
         </Card>

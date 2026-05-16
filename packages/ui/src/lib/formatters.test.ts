@@ -132,6 +132,11 @@ describe('formatters', () => {
       expect(formatted).toContain('2025');
     });
 
+    it('formats ISO date-only strings as calendar dates in UTC', () => {
+      const formatted = formatDate('2024-10-01');
+      expect(formatted).toBe('Oct 1, 2024');
+    });
+
     it('formats with custom options', () => {
       const date = new Date('2025-10-11T12:00:00Z');
       const formatted = formatDate(date, { year: 'numeric', month: 'long' });

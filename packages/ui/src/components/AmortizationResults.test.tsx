@@ -243,7 +243,7 @@ describe('AmortizationResults', () => {
 
     expect(screen.getByText('$72.84')).toBeInTheDocument(); // Interest saved
     expect(screen.getByText('2')).toBeInTheDocument(); // Months reduced (shown as "0 y 2 m")
-    expect(screen.getByText('Sep 30, 2024')).toBeInTheDocument(); // Formatted payoff date
+    expect(screen.getByText('Oct 1, 2024')).toBeInTheDocument(); // Formatted payoff date
     const extraPaymentsCard = screen.getByText(/extra payments/i).closest('div');
     expect(extraPaymentsCard).not.toBeNull();
     expect(
