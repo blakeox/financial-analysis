@@ -70,7 +70,8 @@ export function DualAxisChart({
             borderRadius: '8px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
-          formatter={(value: number, name: string) => {
+          formatter={(value, name) => {
+            if (typeof value !== 'number') return value;
             if (name === value1Label) return value1Formatter(value);
             if (name === value2Label) return value2Formatter(value);
             return value;
