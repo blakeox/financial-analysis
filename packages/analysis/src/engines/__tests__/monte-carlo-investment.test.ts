@@ -19,8 +19,12 @@ describe('MonteCarloInvestmentSimulator', () => {
     const r1 = MonteCarloInvestmentSimulator.analyze(input);
     const r2 = MonteCarloInvestmentSimulator.analyze(input);
     expect(r1).toEqual(r2);
-    expect(r1.endingValue.percentiles['0.05']).toBeLessThanOrEqual(r1.endingValue.percentiles['0.5']);
-    expect(r1.endingValue.percentiles['0.5']).toBeLessThanOrEqual(r1.endingValue.percentiles['0.95']);
+    expect(r1.endingValue.percentiles['0.05']).toBeLessThanOrEqual(
+      r1.endingValue.percentiles['0.5']
+    );
+    expect(r1.endingValue.percentiles['0.5']).toBeLessThanOrEqual(
+      r1.endingValue.percentiles['0.95']
+    );
   });
 
   it('handles percentile bounds and exact indices', () => {
@@ -63,4 +67,3 @@ describe('MonteCarloInvestmentSimulator', () => {
     expect(result.endingValue.max).toBe(0);
   });
 });
-

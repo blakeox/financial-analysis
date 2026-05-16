@@ -1,5 +1,8 @@
 import React from 'react';
-import type { AmortizationAnalysisResult, AmortizationMilestone } from '@financial-analysis/analysis';
+import type {
+  AmortizationAnalysisResult,
+  AmortizationMilestone,
+} from '@financial-analysis/analysis';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -93,18 +96,24 @@ describe('AmortizationChart', () => {
 
     const slider = screen.getByRole('slider', { name: /highlight month/i });
     await user.click(slider);
-    
+
     // Change slider value
     fireEvent.change(slider, { target: { value: '6' } });
     await waitFor(() => expect(slider).toHaveValue('6'));
   });
 
   it('displays payment breakdown when month is highlighted', () => {
-    render(<AmortizationChart schedule={sampleResult.schedule} milestones={sampleMilestones} highlightMonth={6} />);
+    render(
+      <AmortizationChart
+        schedule={sampleResult.schedule}
+        milestones={sampleMilestones}
+        highlightMonth={6}
+      />
+    );
 
     // Should show breakdown for month 6
     expect(screen.getByText('$823.78')).toBeInTheDocument(); // Principal for month 6
-    expect(screen.getByText('$32.29')).toBeInTheDocument();  // Interest for month 6
+    expect(screen.getByText('$32.29')).toBeInTheDocument(); // Interest for month 6
   });
 
   it('handles empty milestones gracefully', () => {
@@ -139,5 +148,4 @@ describe('AmortizationChart', () => {
     expect(milestone1).toHaveAttribute('aria-pressed');
     expect(milestone2).toHaveAttribute('aria-pressed');
   });
-
 });

@@ -51,9 +51,7 @@ export function Select({
       {helperText && !error && (
         <p className="text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
       )}
-      {error && (
-        <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>
-      )}
+      {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
     </div>
   );
 }

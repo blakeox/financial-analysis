@@ -26,7 +26,8 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
       const input = createBasicCashflowInput();
       const result = CashFlowAnalyzer.analyze(input);
 
-      const expectedNet = result.cashFlowSummary.totalInflows - result.cashFlowSummary.totalOutflows;
+      const expectedNet =
+        result.cashFlowSummary.totalInflows - result.cashFlowSummary.totalOutflows;
       expect(result.cashFlowSummary.netCashFlow).toBeCloseTo(expectedNet, 0);
     });
 
@@ -60,11 +61,11 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
       const result = CashFlowAnalyzer.analyze(input);
 
       // Period 0 should have discount factor of 1
-      const period0 = result.detailedCashFlows.find(cf => cf.period === 0);
+      const period0 = result.detailedCashFlows.find((cf) => cf.period === 0);
       expect(period0?.discountFactor).toBeCloseTo(1, 4);
 
       // Period 1 should have discount factor of 1/(1+r)
-      const period1 = result.detailedCashFlows.find(cf => cf.period === 1);
+      const period1 = result.detailedCashFlows.find((cf) => cf.period === 1);
       expect(period1?.discountFactor).toBeCloseTo(1 / 1.1, 4);
     });
 
@@ -72,7 +73,7 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
       const input = createBasicCashflowInput();
       const result = CashFlowAnalyzer.analyze(input);
 
-      result.detailedCashFlows.forEach(cf => {
+      result.detailedCashFlows.forEach((cf) => {
         const expectedPV = cf.originalCashFlow * cf.discountFactor;
         expect(cf.presentValue).toBeCloseTo(expectedPV, 1);
       });
@@ -84,7 +85,7 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       // Cumulative PV should match sum of individual PVs
       let runningSum = 0;
-      result.detailedCashFlows.forEach(cf => {
+      result.detailedCashFlows.forEach((cf) => {
         runningSum += cf.presentValue;
         expect(cf.cumulativePV).toBeCloseTo(runningSum, 1);
       });
@@ -214,7 +215,9 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      const discountRateSensitivity = result.sensitivity.find(s => s.parameter === 'discountRate');
+      const discountRateSensitivity = result.sensitivity.find(
+        (s) => s.parameter === 'discountRate'
+      );
       expect(discountRateSensitivity).toBeDefined();
       expect(discountRateSensitivity?.scenarios.length).toBeGreaterThan(0);
     });
@@ -231,8 +234,8 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      result.sensitivity.forEach(param => {
-        param.scenarios.forEach(scenario => {
+      result.sensitivity.forEach((param) => {
+        param.scenarios.forEach((scenario) => {
           expect(scenario).toHaveProperty('npv');
           expect(scenario).toHaveProperty('irr');
           expect(scenario).toHaveProperty('paybackPeriod');
@@ -252,7 +255,7 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      result.sensitivity.forEach(param => {
+      result.sensitivity.forEach((param) => {
         expect(param.tornadoChart).toBeDefined();
         expect(param.tornadoChart.length).toBeGreaterThan(0);
         expect(param.tornadoChart[0]).toHaveProperty('impact');
@@ -289,7 +292,7 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
       expect(result.scenarios).toBeDefined();
       expect(result.scenarios.length).toBe(3);
 
-      const scenarioNames = result.scenarios.map(s => s.name);
+      const scenarioNames = result.scenarios.map((s) => s.name);
       expect(scenarioNames).toContain('Base Case');
       expect(scenarioNames).toContain('Optimistic');
       expect(scenarioNames).toContain('Pessimistic');
@@ -321,8 +324,8 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      const baseCase = result.scenarios.find(s => s.name === 'Base Case');
-      const optimistic = result.scenarios.find(s => s.name === 'Optimistic');
+      const baseCase = result.scenarios.find((s) => s.name === 'Base Case');
+      const optimistic = result.scenarios.find((s) => s.name === 'Optimistic');
 
       expect(optimistic?.npv).toBeGreaterThan(baseCase?.npv ?? 0);
     });
@@ -338,8 +341,8 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      const baseCase = result.scenarios.find(s => s.name === 'Base Case');
-      const pessimistic = result.scenarios.find(s => s.name === 'Pessimistic');
+      const baseCase = result.scenarios.find((s) => s.name === 'Base Case');
+      const pessimistic = result.scenarios.find((s) => s.name === 'Pessimistic');
 
       expect(pessimistic?.npv).toBeLessThan(baseCase?.npv ?? 0);
     });
@@ -355,7 +358,7 @@ describe('CashFlowAnalyzer - Analysis Outputs', () => {
 
       const result = CashFlowAnalyzer.analyze(input);
 
-      result.scenarios.forEach(scenario => {
+      result.scenarios.forEach((scenario) => {
         expect(scenario.description).toBeDefined();
         expect(scenario.description.length).toBeGreaterThan(0);
       });

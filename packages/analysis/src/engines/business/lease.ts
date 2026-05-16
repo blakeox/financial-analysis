@@ -31,9 +31,7 @@ export class LeaseAnalyzer {
 
     if (monthlyRate.eq(0)) {
       // Zero interest rate: simple division
-      monthlyPayment = Number(
-        new Decimal(principal - residualValue).div(termMonths).toFixed(2)
-      );
+      monthlyPayment = Number(new Decimal(principal - residualValue).div(termMonths).toFixed(2));
     } else {
       // Standard present value annuity formula for lease payments
       // PV = principal, FV = residualValue

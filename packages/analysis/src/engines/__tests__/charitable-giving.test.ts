@@ -3,7 +3,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { CharitableGivingInputSchema, type CharitableGivingInput } from '../../schemas/charitable-giving.js';
+import {
+  CharitableGivingInputSchema,
+  type CharitableGivingInput,
+} from '../../schemas/charitable-giving.js';
 import { CharitableGivingOptimizer } from '../charitable-giving.js';
 
 describe('CharitableGivingOptimizer', () => {
@@ -84,4 +87,3 @@ describe('CharitableGivingOptimizer', () => {
     expect(result.totalTaxSavings).toBeGreaterThan(0);
   });
 });
-

@@ -90,31 +90,49 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
       <CardContent className="space-y-6">
         {/* Summary */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.accent)}>
               {employees.filter((emp) => emp.isActive).length}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Active Employees</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalAnnualSalaries)}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Annual Payroll</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.warning)}>
               {formatCurrency(totalMonthlySalaries)}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Monthly Payroll</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30'
+            )}
+          >
             <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">
               {formatCurrency(totalMonthlyRevenuePotential)}
             </div>
-            <div className={cn('text-sm', textColors.secondary)}>
-              Monthly Revenue Potential
-            </div>
+            <div className={cn('text-sm', textColors.secondary)}>Monthly Revenue Potential</div>
           </div>
         </div>
 
@@ -153,7 +171,11 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                   type="number"
                   value={employee.billableHoursPerMonth}
                   onChange={(e) =>
-                    updateEmployee(employee.id, 'billableHoursPerMonth', parsers.number(e.target.value))
+                    updateEmployee(
+                      employee.id,
+                      'billableHoursPerMonth',
+                      parsers.number(e.target.value)
+                    )
                   }
                   disabled={readonly}
                   min="0"
@@ -230,7 +252,10 @@ export function EmployeeManager({ employees, onChange, readonly = false }: Emplo
                 type="number"
                 value={newEmployee.billableHoursPerMonth || ''}
                 onChange={(e) =>
-                  setNewEmployee({ ...newEmployee, billableHoursPerMonth: parsers.number(e.target.value) })
+                  setNewEmployee({
+                    ...newEmployee,
+                    billableHoursPerMonth: parsers.number(e.target.value),
+                  })
                 }
                 placeholder="160"
                 min="0"

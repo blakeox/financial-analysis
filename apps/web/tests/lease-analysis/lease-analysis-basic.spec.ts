@@ -23,11 +23,11 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
             payment: 2000,
             interest: 500,
             principal: 1500,
-            balance: 100000 - (1500 * (i + 1)),
-            escalatedPayment: 2000 + (i * 10),
+            balance: 100000 - 1500 * (i + 1),
+            escalatedPayment: 2000 + i * 10,
             additionalCosts: { total: 300 },
-            totalPayment: 2300 + (i * 10),
-            cumulativePaid: (2300 + (i * 10)) * (i + 1),
+            totalPayment: 2300 + i * 10,
+            cumulativePaid: (2300 + i * 10) * (i + 1),
           })),
           renewalOptions: [],
           riskAnalysis: {
@@ -68,7 +68,7 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
 
     // Check main header
     await expect(page.locator('text=🏗️ Enhanced Lease Analysis')).toBeVisible();
-    
+
     // Check main sections are present
     await expect(page.locator('text=🤖 AI-Powered Document Analysis')).toBeVisible();
     await expect(page.locator('text=Quick Start Templates')).toBeVisible();
@@ -104,7 +104,7 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
     // Wait for form to be ready and React to hydrate
     await expect(page.locator('[role="tablist"]')).toBeVisible();
     await page.waitForTimeout(500); // Brief wait for React hydration
-    
+
     // Fill out basic form fields using getByLabel for proper label association
     await page.getByLabel('Equipment Cost').fill('100000');
     await page.getByLabel('Annual Interest Rate').fill('6.5');
@@ -113,14 +113,14 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
 
     // Submit the analysis - look for button with "Analyze Lease" text
     const analyzeButton = page.locator('button:has-text("Analyze Lease")');
-    
+
     // Set up a promise to wait for the API call
-    const responsePromise = page.waitForResponse(response => 
-      response.url().includes('/v1/api/analysis/') && response.status() === 200
+    const responsePromise = page.waitForResponse(
+      (response) => response.url().includes('/v1/api/analysis/') && response.status() === 200
     );
-    
+
     await analyzeButton.click();
-    
+
     // Wait for API response
     await responsePromise;
 
@@ -132,7 +132,7 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
     // Wait for form to be ready and React to hydrate
     await expect(page.locator('[role="tablist"]')).toBeVisible();
     await page.waitForTimeout(500); // Brief wait for React hydration
-    
+
     // Mock API to return an error
     await page.route('**/v1/api/analysis/**', async (route) => {
       await route.fulfill({
@@ -145,16 +145,16 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
         },
       });
     });
-    
+
     // Fill valid looking data (component should handle negative validation or API will reject)
     await page.getByLabel('Equipment Cost').fill('100000');
     await page.getByLabel('Annual Interest Rate').fill('6.5');
     await page.getByLabel('Residual Value').fill('10000');
     await page.getByLabel('Lease Term (Months)').fill('48');
-    
+
     // Try to submit
     await page.click('button:has-text("Analyze Lease")');
-    
+
     // Should show error message, not financial summary
     await page.waitForTimeout(1000); // Wait for error to appear
     await expect(page.locator('text=Financial Summary')).not.toBeVisible();
@@ -166,7 +166,7 @@ test.describe('Enhanced Lease Analysis - Basic Functionality', () => {
 
     // Check that mobile-optimized elements are visible
     await expect(page.locator('[role="tablist"]')).toBeVisible();
-    
+
     // Tabs should stack on mobile (2 columns instead of 4)
     const tabsList = page.locator('[role="tablist"]');
     await expect(tabsList).toHaveClass(/grid-cols-2/);

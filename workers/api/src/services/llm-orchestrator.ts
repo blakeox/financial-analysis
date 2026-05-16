@@ -47,11 +47,13 @@ export interface OrchestrationResponse {
   response: string;
   toolUsed?: string | undefined;
   fromCache?: boolean | undefined;
-  metadata?: {
-    intent?: string | undefined;
-    latency?: number | undefined;
-    attempt?: number | undefined;
-  } | undefined;
+  metadata?:
+    | {
+        intent?: string | undefined;
+        latency?: number | undefined;
+        attempt?: number | undefined;
+      }
+    | undefined;
   tooling?: {
     availableTools: string[];
     toolOutputsIncluded: number;
@@ -99,14 +101,14 @@ export class LLMOrchestrator {
       ...(env.AI_GATEWAY_ID ? { gatewayId: env.AI_GATEWAY_ID } : {}),
     });
     this.toolSelector = new IntelligentToolSelector(ai);
-    
+
     // Initialize function calling service and MCP tools
     this.functionCalling = createFunctionCallingService(ai, {
       maxRecursiveToolRuns: 3,
       verbose: false,
     });
     this.mcpTools = createMCPTools();
-    
+
     // Initialize context manager with document cache when bindings exist
     const docCacheConfig: DocumentCacheConfig = {};
     let hasDocCacheConfig = false;
@@ -130,8 +132,7 @@ export class LLMOrchestrator {
       docCacheConfig.browser = env.BROWSER;
       docCacheConfig.browserRenderingEnabled = env.BROWSER_RENDERING_ENABLED === 'true';
       if (env.BROWSER_RENDERING_PATH_PREFIXES) {
-        docCacheConfig.browserRenderingPathPrefixes = env.BROWSER_RENDERING_PATH_PREFIXES
-          .split(',')
+        docCacheConfig.browserRenderingPathPrefixes = env.BROWSER_RENDERING_PATH_PREFIXES.split(',')
           .map((prefix) => prefix.trim())
           .filter(Boolean);
       }
@@ -179,11 +180,12 @@ export class LLMOrchestrator {
 
     // Auto-load MCP tools when function calling is enabled but no tools provided
     // This allows the frontend to simply pass enableFunctionCalling: true
-    const effectiveTools = availableTools.length > 0 
-      ? availableTools 
-      : enableFunctionCalling 
-        ? this.mcpTools.map(t => ({ name: t.name, description: t.description }))
-        : [];
+    const effectiveTools =
+      availableTools.length > 0
+        ? availableTools
+        : enableFunctionCalling
+          ? this.mcpTools.map((t) => ({ name: t.name, description: t.description }))
+          : [];
 
     console.log('[LLMOrchestrator] effectiveTools.length:', effectiveTools.length);
 
@@ -191,10 +193,8 @@ export class LLMOrchestrator {
     // 1. Explicitly enabled by the request
     // 2. Tools are available (either provided or auto-loaded)
     // 3. No tool outputs already provided (avoid re-executing)
-    const shouldUseFunctionCalling = 
-      enableFunctionCalling && 
-      effectiveTools.length > 0 && 
-      Object.keys(toolOutputs).length === 0;
+    const shouldUseFunctionCalling =
+      enableFunctionCalling && effectiveTools.length > 0 && Object.keys(toolOutputs).length === 0;
 
     console.log('[LLMOrchestrator] shouldUseFunctionCalling:', shouldUseFunctionCalling);
     console.log('[LLMOrchestrator] toolOutputs keys:', Object.keys(toolOutputs).length);
@@ -257,8 +257,8 @@ export class LLMOrchestrator {
     contextLabel: string | null | undefined
   ): Promise<OrchestrationResponse> {
     // Filter MCP tools to only those available for this request
-    const availableToolNames = new Set(availableTools.map(t => t.name));
-    const toolsForExecution = this.mcpTools.filter(t => availableToolNames.has(t.name));
+    const availableToolNames = new Set(availableTools.map((t) => t.name));
+    const toolsForExecution = this.mcpTools.filter((t) => availableToolNames.has(t.name));
 
     // Build system prompt with context about current model state
     const systemPrompt = this.buildFunctionCallingSystemPrompt(
@@ -270,15 +270,15 @@ export class LLMOrchestrator {
 
     // Build conversation messages
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
-    
+
     // Add conversation history if available
     if (memoryContext?.conversationHistory) {
       messages.push({
         role: 'system',
-        content: `Previous conversation:\n${memoryContext.conversationHistory}`
+        content: `Previous conversation:\n${memoryContext.conversationHistory}`,
       });
     }
-    
+
     messages.push({ role: 'user', content: message });
 
     try {
@@ -305,9 +305,9 @@ export class LLMOrchestrator {
 
       // Include function calling results if tools were executed
       if (fcResponse.toolCalls.length > 0) {
-        response.toolUsed = fcResponse.toolCalls.map(tc => tc.toolName).join(', ');
+        response.toolUsed = fcResponse.toolCalls.map((tc) => tc.toolName).join(', ');
         const functionResults: OrchestrationResponse['functionCallingResults'] = {
-          toolsExecuted: fcResponse.toolCalls.map(tc => ({
+          toolsExecuted: fcResponse.toolCalls.map((tc) => ({
             toolName: tc.toolName,
             arguments: tc.arguments,
             result: tc.result,
@@ -483,7 +483,7 @@ export class LLMOrchestrator {
       fromCache: llmResponse.fromCache,
       tooling: toolingMetadata,
     };
-    
+
     if (llmResponse.latency !== undefined || llmResponse.metadata?.attempt !== undefined) {
       response.metadata = {
         intent: 'llm_question',
@@ -491,7 +491,7 @@ export class LLMOrchestrator {
         attempt: llmResponse.metadata?.attempt || undefined,
       };
     }
-    
+
     return response;
   }
 
@@ -583,5 +583,4 @@ export class LLMOrchestrator {
       }
     }
   }
-
 }

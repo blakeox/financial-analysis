@@ -8,7 +8,10 @@ import { BusinessExpansionLoanTool as DirectBusinessExpansionLoanTool } from '..
 import { EmployerMatch401kTool as DirectEmployerMatch401kTool } from '../tools/401k-match';
 import { MonteCarloInvestmentTool as DirectMonteCarloInvestmentTool } from '../tools/monte-carlo-investment';
 import { SocialSecurityTool as DirectSocialSecurityTool } from '../tools/social-security';
-import { createMCPTools as directCreateMCPTools, handleMCPRequest as directHandleMCPRequest } from '../mcp/tools';
+import {
+  createMCPTools as directCreateMCPTools,
+  handleMCPRequest as directHandleMCPRequest,
+} from '../mcp/tools';
 import {
   buildToolCategoryPrompt as directBuildToolCategoryPrompt,
   categoryDescriptions as directCategoryDescriptions,

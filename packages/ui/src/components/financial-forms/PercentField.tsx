@@ -2,10 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 import { inputClasses } from '../../lib/classNames';
 
-export type PercentFieldProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'type'
-> & {
+export type PercentFieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   label?: string;
   error?: string;
   helperText?: string;
@@ -13,10 +10,7 @@ export type PercentFieldProps = Omit<
 };
 
 export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps>(
-  (
-    { label, error, helperText, suffix = '%', className, id, ...props },
-    ref
-  ) => {
+  ({ label, error, helperText, suffix = '%', className, id, ...props }, ref) => {
     const fieldId = id ?? React.useId();
     const errorId = error ? `${fieldId}-error` : undefined;
     const helperId = helperText && !error ? `${fieldId}-helper` : undefined;

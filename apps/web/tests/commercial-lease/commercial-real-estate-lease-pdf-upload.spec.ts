@@ -54,21 +54,21 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
   test('should upload industrial complex lease PDF successfully', async ({ page }) => {
     // Verify page loaded
     await expect(page.locator('text=AI-Powered Document Analysis')).toBeVisible();
-    
+
     // Check file exists
     expect(fs.existsSync(industrialLeasePath)).toBe(true);
-    
+
     // Upload the PDF
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(industrialLeasePath);
 
     // Wait for extraction progress
     await page.waitForTimeout(500);
-    
+
     // Should show processing state (not error immediately)
     const uploadArea = page.locator('.border-2.border-dashed.rounded-lg');
     await expect(uploadArea).toBeVisible();
-    
+
     // Wait for extraction to complete or timeout
     try {
       await expect(page.locator('text=AI Extraction Preview')).toBeVisible({ timeout: 10000 });
@@ -84,10 +84,10 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
   test('should upload service complex lease PDF successfully', async ({ page }) => {
     // Verify page loaded
     await expect(page.locator('text=AI-Powered Document Analysis')).toBeVisible();
-    
+
     // Check file exists
     expect(fs.existsSync(serviceLeasePath)).toBe(true);
-    
+
     // Get file size
     const stats = fs.statSync(serviceLeasePath);
     console.log(`Uploading service complex lease: ${stats.size} bytes`);
@@ -98,11 +98,11 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
 
     // Wait for processing
     await page.waitForTimeout(1000);
-    
+
     // Check for success or error
     const uploadArea = page.locator('.border-2.border-dashed.rounded-lg');
     await expect(uploadArea).toBeVisible();
-    
+
     try {
       await expect(page.locator('text=AI Extraction Preview')).toBeVisible({ timeout: 15000 });
     } catch {
@@ -118,14 +118,14 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
   test('should handle large PDF files without payload errors', async ({ page }) => {
     // This test verifies that the API can handle large base64-encoded files
     const filePath = industrialLeasePath;
-    
+
     if (!fs.existsSync(filePath)) {
       test.skip();
     }
 
     const stats = fs.statSync(filePath);
     console.log(`Testing file size: ${stats.size} bytes (${(stats.size / 1024).toFixed(2)} KB)`);
-    
+
     // Monitor network requests
     const responses: string[] = [];
     page.on('response', async (response) => {
@@ -144,19 +144,19 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
 
     // Wait for API response
     await page.waitForTimeout(3000);
-    
+
     // Should not get 413 Payload Too Large error
     const errorMsg = await page.locator('.bg-red-50').first();
     if (await errorMsg.isVisible()) {
       const errorText = await errorMsg.textContent();
       console.log('Error shown to user:', errorText);
-      
+
       // Fail test if it's a payload size error
       if (errorText?.includes('JSON body too large') || errorText?.includes('65536')) {
         throw new Error('Still getting payload size limit error');
       }
     }
-    
+
     // Log final status
     console.log('Responses received:', responses);
   });
@@ -167,7 +167,7 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
 
   test('should show upload progress indicators', async ({ page }) => {
     const filePath = industrialLeasePath;
-    
+
     if (!fs.existsSync(filePath)) {
       test.skip();
     }
@@ -177,27 +177,34 @@ test.describe('Commercial Real Estate Lease Analysis - PDF Upload & Extraction',
 
     // Check for processing state (progress bar, spinner, or uploading message)
     await page.waitForTimeout(500);
-    
+
     const uploadArea = page.locator('.border-2.border-dashed');
     const areaClass = await uploadArea.getAttribute('class');
-    
+
     // Should show active state (not the default gray border)
     expect(areaClass).toBeTruthy();
-    
+
     // Should have either yellow (processing) or green (success) border at some point
-    const processing = await uploadArea.evaluate((el) => {
-      return window.getComputedStyle(el).borderColor.includes('yellow') || 
-             window.getComputedStyle(el).borderColor.includes('rgb(234, 179, 8)');
-    }).catch(() => false);
-    
+    const processing = await uploadArea
+      .evaluate((el) => {
+        return (
+          window.getComputedStyle(el).borderColor.includes('yellow') ||
+          window.getComputedStyle(el).borderColor.includes('rgb(234, 179, 8)')
+        );
+      })
+      .catch(() => false);
+
     // Or might be green if very fast
-    const success = await uploadArea.evaluate((el) => {
-      return window.getComputedStyle(el).borderColor.includes('green') ||
-             window.getComputedStyle(el).borderColor.includes('rgb(34, 197, 94)');
-    }).catch(() => false);
-    
+    const success = await uploadArea
+      .evaluate((el) => {
+        return (
+          window.getComputedStyle(el).borderColor.includes('green') ||
+          window.getComputedStyle(el).borderColor.includes('rgb(34, 197, 94)')
+        );
+      })
+      .catch(() => false);
+
     // Should be in some active state
     expect(processing || success).toBe(true);
   });
 });
-

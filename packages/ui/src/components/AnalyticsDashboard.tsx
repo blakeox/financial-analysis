@@ -14,9 +14,9 @@ export interface AnalyticsDashboardProps {
   refreshInterval?: number;
 }
 
-export function AnalyticsDashboard({ 
-  autoRefresh = true, 
-  refreshInterval = 5000 
+export function AnalyticsDashboard({
+  autoRefresh = true,
+  refreshInterval = 5000,
 }: AnalyticsDashboardProps) {
   const [analysis, setAnalysis] = useState<ApiAnalysis | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -61,7 +61,9 @@ export function AnalyticsDashboard({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-slate-950 dark:text-white">{analysis.totalCalls}</p>
+            <p className="text-3xl font-bold text-slate-950 dark:text-white">
+              {analysis.totalCalls}
+            </p>
           </CardContent>
         </Card>
 
@@ -116,30 +118,62 @@ export function AnalyticsDashboard({
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Endpoint
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Method
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Duration
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Status
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {analysis.slowestCalls.slice(0, 5).map((call: ApiCallMetrics, i: number) => (
-                    <tr key={i} className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20">
-                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">{call.endpoint}</td>
+                    <tr
+                      key={i}
+                      className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20"
+                    >
+                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">
+                        {call.endpoint}
+                      </td>
                       <td className="px-4 py-2 text-sm">
-                        <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', badgeVariants.primary)}>
+                        <span
+                          className={cn(
+                            'rounded-full px-2.5 py-1 text-xs font-semibold',
+                            badgeVariants.primary
+                          )}
+                        >
                           {call.method}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">{call.duration}ms</td>
+                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">
+                        {call.duration}ms
+                      </td>
                       <td className="px-4 py-2 text-sm">
                         <span
                           className={cn(
@@ -201,28 +235,60 @@ export function AnalyticsDashboard({
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Endpoint
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Calls
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Success
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Avg Duration
                     </th>
-                    <th className={cn('px-4 py-2 text-left text-xs font-medium uppercase', textColors.muted)}>
+                    <th
+                      className={cn(
+                        'px-4 py-2 text-left text-xs font-medium uppercase',
+                        textColors.muted
+                      )}
+                    >
                       Cache Hits
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {Array.from(analysis.endpointStats.values()).map((stats, i) => (
-                    <tr key={i} className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20">
-                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">{stats.endpoint}</td>
-                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">{stats.callCount}</td>
+                    <tr
+                      key={i}
+                      className="transition-colors hover:bg-violet-50/40 dark:hover:bg-violet-950/20"
+                    >
+                      <td className="px-4 py-2 text-sm font-mono text-slate-900 dark:text-slate-100">
+                        {stats.endpoint}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200">
+                        {stats.callCount}
+                      </td>
                       <td className="px-4 py-2 text-sm">
                         <span
                           className={cn(
@@ -240,7 +306,12 @@ export function AnalyticsDashboard({
                       </td>
                       <td className="px-4 py-2 text-sm">
                         {stats.cacheHits > 0 ? (
-                          <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', badgeVariants.primary)}>
+                          <span
+                            className={cn(
+                              'rounded-full px-2.5 py-1 text-xs font-semibold',
+                              badgeVariants.primary
+                            )}
+                          >
                             {stats.cacheHits}
                           </span>
                         ) : (

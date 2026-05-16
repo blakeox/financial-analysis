@@ -39,4 +39,3 @@ export class RiskAdjustedReturnsTool {
     return RiskAdjustedReturnsCalculator.analyze(validated);
   }
 }
-

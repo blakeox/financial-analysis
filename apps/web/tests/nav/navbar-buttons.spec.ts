@@ -193,8 +193,11 @@ test.describe('Navbar buttons functionality', () => {
     await expect(nav).toBeVisible();
 
     // Test Models link - more flexible selector
-    const modelsLink = nav.locator('a').filter({ hasText: /Models/i }).first();
-    if (await modelsLink.count() > 0) {
+    const modelsLink = nav
+      .locator('a')
+      .filter({ hasText: /Models/i })
+      .first();
+    if ((await modelsLink.count()) > 0) {
       await expect(modelsLink).toBeVisible();
       await modelsLink.click();
       await expect(page).toHaveURL(/\/models/);
@@ -205,8 +208,11 @@ test.describe('Navbar buttons functionality', () => {
     await expect(nav).toBeVisible();
 
     // Test Analysis link - more flexible selector
-    const analysisLink = nav.locator('a').filter({ hasText: /Analysis|Lease/i }).first();
-    if (await analysisLink.count() > 0) {
+    const analysisLink = nav
+      .locator('a')
+      .filter({ hasText: /Analysis|Lease/i })
+      .first();
+    if ((await analysisLink.count()) > 0) {
       await expect(analysisLink).toBeVisible();
       await analysisLink.click();
       await expect(page).toHaveURL(/\/analysis|lease/i);

@@ -58,18 +58,18 @@ describe('DocumentCache', () => {
 
     const mockVectorize = {
       query: vi.fn().mockResolvedValue({
-        matches: [
-          { metadata: { url: 'https://example.com/doc1' } },
-        ],
+        matches: [{ metadata: { url: 'https://example.com/doc1' } }],
       }),
     } as unknown as VectorizeIndex;
 
     const mockKv = {
-      get: vi.fn().mockResolvedValue(JSON.stringify({
-        url: 'https://example.com/doc1',
-        content: 'Document content',
-        expiresAt: Date.now() + 10000,
-      })),
+      get: vi.fn().mockResolvedValue(
+        JSON.stringify({
+          url: 'https://example.com/doc1',
+          content: 'Document content',
+          expiresAt: Date.now() + 10000,
+        })
+      ),
     } as unknown as KVNamespace;
 
     const cache = new DocumentCache({

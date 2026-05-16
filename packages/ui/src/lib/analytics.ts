@@ -82,20 +82,20 @@ class AnalyticsTracker {
 
   private detectApiBase(): string {
     if (typeof window === 'undefined') return '';
-    
+
     // Check environment variable first
     const envBase = (window as { __PUBLIC_API_BASE_URL__?: string }).__PUBLIC_API_BASE_URL__;
     if (envBase) return envBase;
 
     // Default to current origin in production, localhost in dev
-    return window.location.hostname === 'localhost' 
+    return window.location.hostname === 'localhost'
       ? 'http://127.0.0.1:8787'
       : window.location.origin;
   }
 
   private getOrCreateSessionId(): string {
     if (typeof window === 'undefined') return 'ssr-session';
-    
+
     const key = 'fanalyx_session_id';
     let sessionId = sessionStorage.getItem(key);
     if (!sessionId) {
@@ -107,7 +107,7 @@ class AnalyticsTracker {
 
   private getOrCreateVisitorId(): string {
     if (typeof window === 'undefined') return 'ssr-visitor';
-    
+
     const key = 'fanalyx_visitor_id';
     let visitorId = localStorage.getItem(key);
     if (!visitorId) {
@@ -124,10 +124,8 @@ class AnalyticsTracker {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
-      const scrollPercent = Math.round(
-        ((scrollTop + windowHeight) / documentHeight) * 100
-      );
-      
+      const scrollPercent = Math.round(((scrollTop + windowHeight) / documentHeight) * 100);
+
       if (scrollPercent > this.maxScrollDepth) {
         this.maxScrollDepth = scrollPercent;
       }
@@ -169,10 +167,7 @@ class AnalyticsTracker {
     try {
       if (synchronous && typeof navigator !== 'undefined' && navigator.sendBeacon) {
         // Use sendBeacon for synchronous unload tracking
-        navigator.sendBeacon(
-          `${this.apiBase}/v1/api/analytics/events`,
-          JSON.stringify(payload)
-        );
+        navigator.sendBeacon(`${this.apiBase}/v1/api/analytics/events`, JSON.stringify(payload));
       } else {
         // Standard async fetch
         await fetch(`${this.apiBase}/v1/api/analytics/events`, {
@@ -193,9 +188,9 @@ class AnalyticsTracker {
 
   private queueEvent(event: PageInteractionEvent): void {
     if (!this.enabled) return;
-    
+
     this.eventQueue.push(event);
-    
+
     // Flush immediately for critical events
     if (event.type === 'error' || event.type === 'api_result') {
       this.flush();

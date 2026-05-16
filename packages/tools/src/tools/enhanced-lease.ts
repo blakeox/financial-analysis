@@ -1,25 +1,30 @@
-import { EnhancedLeaseAnalyzer, type EnhancedLeaseAnalysisResult } from '@financial-analysis/analysis';
+import {
+  EnhancedLeaseAnalyzer,
+  type EnhancedLeaseAnalysisResult,
+} from '@financial-analysis/analysis';
 import { z } from 'zod';
 
 // MCP-compatible input schema for enhanced lease analysis
 const EnhancedLeaseToolInputSchema = z.object({
   // Basic lease information
-  leaseType: z.enum([
-    'equipment',
-    'office-gross',
-    'office-nnn',
-    'office-modified',
-    'warehouse-gross',
-    'warehouse-nnn',
-    'retail-base',
-    'retail-percentage',
-    'medical-gross',
-    'medical-nnn',
-    'mixed-use',
-    'commercial-gross',
-    'commercial-nnn',
-    'commercial-modified',
-  ]).default('equipment'),
+  leaseType: z
+    .enum([
+      'equipment',
+      'office-gross',
+      'office-nnn',
+      'office-modified',
+      'warehouse-gross',
+      'warehouse-nnn',
+      'retail-base',
+      'retail-percentage',
+      'medical-gross',
+      'medical-nnn',
+      'mixed-use',
+      'commercial-gross',
+      'commercial-nnn',
+      'commercial-modified',
+    ])
+    .default('equipment'),
   principal: z.number().min(0).default(0),
   baseRent: z.number().positive().optional(),
   annualRate: z.number().min(0).max(1).default(0),
@@ -277,7 +282,11 @@ export class EnhancedLeaseTool {
         properties: {
           enabled: { type: 'boolean', default: false },
           fixedAmount: { type: 'number', description: 'Fixed purchase price' },
-          fairMarketValue: { type: 'boolean', description: 'Use fair market value', default: false },
+          fairMarketValue: {
+            type: 'boolean',
+            description: 'Use fair market value',
+            default: false,
+          },
           percentage: { type: 'number', description: 'Percentage of original cost' },
         },
       },
@@ -326,7 +335,11 @@ export class EnhancedLeaseTool {
           enabled: { type: 'boolean', default: false },
           percentage: { type: 'number', description: 'Percentage of gross sales', default: 0 },
           breakpoint: { type: 'number', description: 'Sales breakpoint', default: 0 },
-          annualSalesEstimate: { type: 'number', description: 'Estimated annual sales', default: 0 },
+          annualSalesEstimate: {
+            type: 'number',
+            description: 'Estimated annual sales',
+            default: 0,
+          },
         },
       },
       compareAlternatives: {

@@ -43,9 +43,7 @@ export const postAnalysisRequest = async <TResponse>(
       signal: options.signal,
     });
   } catch (error) {
-    throw new AnalysisRequestError(
-      error instanceof Error ? error.message : DEFAULT_ERROR_MESSAGE
-    );
+    throw new AnalysisRequestError(error instanceof Error ? error.message : DEFAULT_ERROR_MESSAGE);
   }
 
   let data: unknown = null;
@@ -56,10 +54,7 @@ export const postAnalysisRequest = async <TResponse>(
   }
 
   if (!response.ok) {
-    const message = extractErrorMessage(
-      data,
-      `Analysis request failed (${response.status})`
-    );
+    const message = extractErrorMessage(data, `Analysis request failed (${response.status})`);
     throw new AnalysisRequestError(message);
   }
 

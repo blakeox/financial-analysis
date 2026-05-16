@@ -1,91 +1,91 @@
-import { describe, it, expect } from "vitest";
-import * as StudentLoanEngine from "../engines/student-loan.js";
-import type { StudentLoanInput } from "../schemas/student-loan.js";
+import { describe, it, expect } from 'vitest';
+import * as StudentLoanEngine from '../engines/student-loan.js';
+import type { StudentLoanInput } from '../schemas/student-loan.js';
 
-describe("StudentLoanEngine", () => {
-  it("should calculate avalanche strategy for student loans", () => {
+describe('StudentLoanEngine', () => {
+  it('should calculate avalanche strategy for student loans', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Federal Subsidized",
+          name: 'Federal Subsidized',
           balance: 15000,
           interestRate: 0.045,
           minimumPayment: 200,
-          loanType: "federal_subsidized",
+          loanType: 'federal_subsidized',
         },
         {
-          name: "Federal Unsubsidized",
+          name: 'Federal Unsubsidized',
           balance: 20000,
           interestRate: 0.065,
           minimumPayment: 250,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
         {
-          name: "Private Loan",
+          name: 'Private Loan',
           balance: 10000,
           interestRate: 0.085,
           minimumPayment: 150,
-          loanType: "private",
+          loanType: 'private',
         },
       ],
       extraMonthlyPayment: 300,
-      paymentStrategy: "avalanche",
+      paymentStrategy: 'avalanche',
     };
 
     const result = StudentLoanEngine.analyze(input);
 
-    expect(result.summary.strategy).toBe("avalanche");
+    expect(result.summary.strategy).toBe('avalanche');
     expect(result.summary.totalMonthsToPayoff).toBeGreaterThan(0);
     expect(result.summary.totalMonthsToPayoff).toBeLessThan(120);
     expect(result.summary.loanSummaries.length).toBe(3);
-    
-    const privateHighest = result.summary.loanSummaries.find(s => s.name === "Private Loan");
+
+    const privateHighest = result.summary.loanSummaries.find((s) => s.name === 'Private Loan');
     expect(privateHighest).toBeDefined();
   });
 
-  it("should calculate snowball strategy", () => {
+  it('should calculate snowball strategy', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Loan A - Small",
+          name: 'Loan A - Small',
           balance: 3000,
           interestRate: 0.04,
           minimumPayment: 100,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
         {
-          name: "Loan B - Large",
+          name: 'Loan B - Large',
           balance: 15000,
           interestRate: 0.08,
           minimumPayment: 250,
-          loanType: "private",
+          loanType: 'private',
         },
       ],
       extraMonthlyPayment: 200,
-      paymentStrategy: "snowball",
+      paymentStrategy: 'snowball',
     };
 
     const result = StudentLoanEngine.analyze(input);
 
-    expect(result.summary.strategy).toBe("snowball");
+    expect(result.summary.strategy).toBe('snowball');
     expect(result.payoffSchedule.length).toBeGreaterThan(0);
   });
 
-  it("should analyze income-driven repayment plan", () => {
+  it('should analyze income-driven repayment plan', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Federal Loan 1",
+          name: 'Federal Loan 1',
           balance: 50000,
           interestRate: 0.055,
           minimumPayment: 500,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
       ],
       extraMonthlyPayment: 0,
-      paymentStrategy: "standard",
+      paymentStrategy: 'standard',
       incomeDrivenPlan: {
-        planType: "PAYE",
+        planType: 'PAYE',
         annualIncome: 45000,
         familySize: 1,
         expectedAnnualIncreaseRate: 0.03,
@@ -96,25 +96,25 @@ describe("StudentLoanEngine", () => {
 
     expect(result.incomeDrivenAnalysis).toBeDefined();
     if (result.incomeDrivenAnalysis) {
-      expect(result.incomeDrivenAnalysis.planType).toBe("PAYE");
+      expect(result.incomeDrivenAnalysis.planType).toBe('PAYE');
       expect(parseFloat(result.incomeDrivenAnalysis.monthlyPaymentYear1)).toBeGreaterThan(0);
       expect(result.incomeDrivenAnalysis.comparisonToStandard).toBeDefined();
     }
   });
 
-  it("should analyze refinancing options", () => {
+  it('should analyze refinancing options', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "High Rate Loan",
+          name: 'High Rate Loan',
           balance: 30000,
           interestRate: 0.08,
           minimumPayment: 400,
-          loanType: "private",
+          loanType: 'private',
         },
       ],
       extraMonthlyPayment: 0,
-      paymentStrategy: "standard",
+      paymentStrategy: 'standard',
       refinancingOption: {
         newInterestRate: 0.05,
         newTermMonths: 120,
@@ -126,31 +126,31 @@ describe("StudentLoanEngine", () => {
 
     expect(result.refinancingAnalysis).toBeDefined();
     if (result.refinancingAnalysis) {
-      expect(result.refinancingAnalysis.newInterestRate).toBe("5.00");
+      expect(result.refinancingAnalysis.newInterestRate).toBe('5.00');
       expect(result.refinancingAnalysis.newTermMonths).toBe(120);
       expect(parseFloat(result.refinancingAnalysis.totalSavings)).toBeDefined();
     }
   });
 
-  it("should generate month-by-month schedule", () => {
+  it('should generate month-by-month schedule', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Test Loan",
+          name: 'Test Loan',
           balance: 10000,
           interestRate: 0.06,
           minimumPayment: 200,
-          loanType: "federal_subsidized",
+          loanType: 'federal_subsidized',
         },
       ],
       extraMonthlyPayment: 100,
-      paymentStrategy: "standard",
+      paymentStrategy: 'standard',
     };
 
     const result = StudentLoanEngine.analyze(input);
 
     expect(result.payoffSchedule.length).toBeGreaterThan(0);
-    
+
     const firstMonth = result.payoffSchedule[0];
     expect(firstMonth).toBeDefined();
     if (firstMonth) {
@@ -160,33 +160,33 @@ describe("StudentLoanEngine", () => {
     }
   });
 
-  it("should handle multiple federal loans", () => {
+  it('should handle multiple federal loans', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Federal Sub 1",
+          name: 'Federal Sub 1',
           balance: 5500,
           interestRate: 0.045,
           minimumPayment: 100,
-          loanType: "federal_subsidized",
+          loanType: 'federal_subsidized',
         },
         {
-          name: "Federal Unsub 1",
+          name: 'Federal Unsub 1',
           balance: 7500,
           interestRate: 0.055,
           minimumPayment: 120,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
         {
-          name: "Federal Unsub 2",
+          name: 'Federal Unsub 2',
           balance: 10000,
           interestRate: 0.065,
           minimumPayment: 150,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
       ],
       extraMonthlyPayment: 150,
-      paymentStrategy: "avalanche",
+      paymentStrategy: 'avalanche',
       forgivenessEligible: false,
     };
 
@@ -197,19 +197,19 @@ describe("StudentLoanEngine", () => {
     expect(result.recommendations.length).toBeGreaterThan(0);
   });
 
-  it("should provide recommendations", () => {
+  it('should provide recommendations', () => {
     const input: StudentLoanInput = {
       loans: [
         {
-          name: "Mixed Loans",
+          name: 'Mixed Loans',
           balance: 25000,
           interestRate: 0.07,
           minimumPayment: 300,
-          loanType: "federal_unsubsidized",
+          loanType: 'federal_unsubsidized',
         },
       ],
       extraMonthlyPayment: 0,
-      paymentStrategy: "standard",
+      paymentStrategy: 'standard',
     };
 
     const result = StudentLoanEngine.analyze(input);

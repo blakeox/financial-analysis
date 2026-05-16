@@ -45,7 +45,9 @@ describe('validation', () => {
     it('returns error for disallowed file types', () => {
       const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
       const allowedTypes = ['application/pdf', 'image/png'];
-  expect(validateFile(file, { allowedTypes })).toBe('Invalid file type. Please upload a PDF, Word document, or text file.');
+      expect(validateFile(file, { allowedTypes })).toBe(
+        'Invalid file type. Please upload a PDF, Word document, or text file.'
+      );
     });
 
     it('validates both size and type together', () => {

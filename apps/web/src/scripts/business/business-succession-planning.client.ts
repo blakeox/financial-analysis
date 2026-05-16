@@ -116,4 +116,3 @@ if (document.readyState === 'loading') {
 } else {
   new BusinessSuccessionPlanningCalculator();
 }
-

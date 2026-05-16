@@ -119,9 +119,13 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
       },
     });
 
-    expect(result.comparison?.recommendation).toBe('Tax savings may not justify exchange complexity');
+    expect(result.comparison?.recommendation).toBe(
+      'Tax savings may not justify exchange complexity'
+    );
     expect(result.recommendations).toContain('Tax on boot received: $2500');
-    expect(result.recommendations).toContain('CRITICAL: Use qualified intermediary for valid exchange');
+    expect(result.recommendations).toContain(
+      'CRITICAL: Use qualified intermediary for valid exchange'
+    );
   });
 
   it('should omit optional analyses when flags are disabled', () => {
@@ -157,7 +161,9 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
       },
     });
 
-    expect(result.comparison?.recommendation).toBe('1031 exchange provides significant tax deferral');
+    expect(result.comparison?.recommendation).toBe(
+      '1031 exchange provides significant tax deferral'
+    );
   });
 
   it('should handle comparison without tax deferral', () => {
@@ -174,4 +180,3 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
     expect(result.comparison?.taxWithExchange).toBe(0);
   });
 });
-

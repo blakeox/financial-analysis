@@ -129,6 +129,14 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 - **Cloudflare stack:** Use Workers for APIs, R2 for file storage, D1 for relational data, KV for sessions, Queues for long tasks
 - **Deterministic math:** Financial calculations must be pure, testable TypeScript functions
 
+### Pre-push verification
+
+Run the same checks as CI locally:
+
+```bash
+pnpm run verify
+```
+
 ### Duplicate files
 
 Never commit duplicate copies. The repo enforces this via `pnpm run check:duplicates` (also runs on pre-commit and PRs).

@@ -61,7 +61,7 @@ describe('EmergencyFundCalculator', () => {
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = EmergencyFundCalculator.analyze(baseInput);
-    
+
     // Check summary
     expect(result.summary).toBeDefined();
     expect(result.summary.targetFund).toBeDefined();
@@ -69,7 +69,7 @@ describe('EmergencyFundCalculator', () => {
     expect(result.summary.shortfall).toBeDefined();
     expect(result.summary.monthsToBuild).toBeDefined();
     expect(result.summary.onTrack).toBeDefined();
-    
+
     // Check recommendations
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);

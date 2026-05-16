@@ -13,10 +13,12 @@ export interface ContextBuilder {
   message: string;
   contextKey: string;
   contextData?: Record<string, unknown> | undefined;
-  memoryContext?: {
-    conversationHistory?: string;
-    modelStates?: string;
-  } | undefined;
+  memoryContext?:
+    | {
+        conversationHistory?: string;
+        modelStates?: string;
+      }
+    | undefined;
   availableTools?: ToolSummary[] | undefined;
   toolOutputs?: Record<string, unknown> | undefined;
   enableAutoRAG?: boolean | undefined;
@@ -29,14 +31,16 @@ export interface BuiltContext {
   systemPrompt?: string | undefined;
   cacheKey?: string | undefined;
   websiteContent?: string | undefined;
-    metadata?: {
-      contextKey: string;
-      hasWebsiteContent: boolean;
-      hasConversationHistory: boolean;
-      toolsAvailable: number;
-      toolOutputsIncluded: number;
-      autoragSource?: 'ai-search' | 'cache' | 'live' | 'none';
-    } | undefined;
+  metadata?:
+    | {
+        contextKey: string;
+        hasWebsiteContent: boolean;
+        hasConversationHistory: boolean;
+        toolsAvailable: number;
+        toolOutputsIncluded: number;
+        autoragSource?: 'ai-search' | 'cache' | 'live' | 'none';
+      }
+    | undefined;
 }
 
 export class ContextManager {
@@ -110,12 +114,11 @@ export class ContextManager {
 
       // Build prompt from template
       const fullPrompt = buildPrompt('startupPlanningAssistant', promptContext);
-      
+
       // Split into system and user
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
-
     } else if (contextKey === 'mortgage-scenario-planning' && contextData) {
       // Mortgage Scenario Planner - CFP Assistant
       const mortgageData = contextData as {
@@ -158,7 +161,6 @@ export class ContextManager {
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
-
     } else if (contextKey === 'general' || !contextKey) {
       // General context - use chat assistant template
       // Include available tools so AI can intelligently decide when to use them
@@ -177,7 +179,6 @@ export class ContextManager {
       const split = this.splitPrompt(fullPrompt);
       systemPrompt = split.systemPrompt;
       basePrompt = split.userPrompt;
-
     } else {
       // Calculator-specific contexts - use calculator assistant template
       // This gives AI context about calculator families and how to help
@@ -202,12 +203,15 @@ export class ContextManager {
     // Retrieve website content via AutoRAG if enabled
     let websiteContent: string | undefined;
     let autoragSource: 'ai-search' | 'cache' | 'live' | 'none' = 'none';
-    
+
     if (builder.enableAutoRAG && this.documentCache) {
       try {
         // Prefer managed AI Search when configured, otherwise fall back to the legacy cache path.
-        const { documents: searchResults, source } = await this.documentCache.searchWithSource(message, 3);
-        
+        const { documents: searchResults, source } = await this.documentCache.searchWithSource(
+          message,
+          3
+        );
+
         if (searchResults.length > 0) {
           // Format cached results
           const formattedResults = searchResults
@@ -217,7 +221,7 @@ export class ContextManager {
               return `${idx + 1}. **${title}** (${doc.url})\n   ${preview}${doc.content.length > 500 ? '...' : ''}`;
             })
             .join('\n\n');
-          
+
           websiteContent = `\n\nRelevant information from our website:\n${formattedResults}\n\nUse this information to provide specific, cited guidance.`;
           autoragSource = source;
         }
@@ -267,7 +271,11 @@ export class ContextManager {
     for (let i = 0; i < lines.length; i++) {
       const line = (lines[i] || '').toLowerCase();
       // Look for transition markers
-      if (line.includes('user question:') || line.includes('user message:') || line.includes('context:')) {
+      if (
+        line.includes('user question:') ||
+        line.includes('user message:') ||
+        line.includes('context:')
+      ) {
         systemEndIndex = i;
         break;
       }
@@ -302,20 +310,21 @@ export class ContextManager {
     const messageHash = message.substring(0, 100); // First 100 chars
     const dataHash = contextData ? JSON.stringify(contextData).substring(0, 50) : '';
     const toolOutputsHash = toolOutputs ? JSON.stringify(toolOutputs).substring(0, 50) : '';
-    
+
     // Include prompt version to bust cache when prompts are updated
     // Change this version number whenever system prompts are significantly updated
     const promptVersion = 'v7'; // Updated 2026-02-14: Tool outputs included and prompt context enriched
-    
+
     return `${promptVersion}:${contextKey}:${messageHash}:${dataHash}:${toolOutputsHash}`;
   }
 
   /**
    * Build a readable summary of recent tool outputs for the prompt
    */
-  private buildToolOutputsSection(
-    toolOutputs?: Record<string, unknown>
-  ): { sectionText?: string; entryCount: number } {
+  private buildToolOutputsSection(toolOutputs?: Record<string, unknown>): {
+    sectionText?: string;
+    entryCount: number;
+  } {
     if (!toolOutputs || typeof toolOutputs !== 'object') {
       return { entryCount: 0 };
     }
@@ -417,9 +426,7 @@ export class ContextManager {
       }
       const toolName = tool.name.toLowerCase();
       const toolDescription = tool.description.toLowerCase();
-      return tokens.some(
-        (token) => toolName.includes(token) || toolDescription.includes(token)
-      );
+      return tokens.some((token) => toolName.includes(token) || toolDescription.includes(token));
     });
 
     const list = candidates.length > 0 ? candidates : availableTools;

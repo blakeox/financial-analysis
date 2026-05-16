@@ -111,7 +111,10 @@ describe('InsuranceNeedsCalculator life coverage scenarios', () => {
         ) => InsuranceNeedsResult['lifeInsuranceAnalysis'];
       };
 
-      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(InsuranceNeedsCalculator, baseInput);
+      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(
+        InsuranceNeedsCalculator,
+        baseInput
+      );
 
       const adequateInput: InsuranceNeedsInput = {
         ...baseInput,
@@ -146,7 +149,10 @@ describe('InsuranceNeedsCalculator life coverage scenarios', () => {
         ) => InsuranceNeedsResult['lifeInsuranceAnalysis'];
       };
 
-      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(InsuranceNeedsCalculator, baseInput);
+      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(
+        InsuranceNeedsCalculator,
+        baseInput
+      );
       const targetCoverage = baseNeeds.totalRecommendedCoverage;
 
       const overinsuredInput: InsuranceNeedsInput = {
@@ -205,7 +211,10 @@ describe('InsuranceNeedsCalculator life coverage scenarios', () => {
         ) => InsuranceNeedsResult['lifeInsuranceAnalysis'];
       };
 
-      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(InsuranceNeedsCalculator, baseInput);
+      const baseNeeds = helpers.calculateLifeInsuranceNeeds.call(
+        InsuranceNeedsCalculator,
+        baseInput
+      );
 
       const wholeLifeOnlyInput: InsuranceNeedsInput = {
         ...baseInput,

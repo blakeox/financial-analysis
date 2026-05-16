@@ -2,7 +2,10 @@
  * Cryptocurrency Tax MCP Tool
  */
 
-import { CryptocurrencyTaxInputSchema, CryptocurrencyTaxCalculator } from '@financial-analysis/analysis';
+import {
+  CryptocurrencyTaxInputSchema,
+  CryptocurrencyTaxCalculator,
+} from '@financial-analysis/analysis';
 
 export class CryptocurrencyTaxTool {
   static readonly toolName = 'analyze_cryptocurrency_tax';
@@ -15,14 +18,32 @@ export class CryptocurrencyTaxTool {
       personalInfo: {
         type: 'object',
         properties: {
-          taxYear: { type: 'number', minimum: 2000, maximum: 2100, default: 2024, description: 'Tax year' },
+          taxYear: {
+            type: 'number',
+            minimum: 2000,
+            maximum: 2100,
+            default: 2024,
+            description: 'Tax year',
+          },
           filingStatus: {
             type: 'string',
             enum: ['single', 'married-joint', 'married-separate', 'head-of-household'],
             description: 'Filing status',
           },
-          federalTaxRate: { type: 'number', minimum: 0, maximum: 0.5, default: 0.22, description: 'Federal tax rate' },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
+          federalTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            default: 0.22,
+            description: 'Federal tax rate',
+          },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
         },
         required: ['taxYear', 'filingStatus', 'federalTaxRate'],
       },
@@ -42,7 +63,11 @@ export class CryptocurrencyTaxTool {
             costBasis: { type: 'number', minimum: 0, default: 0, description: 'Cost basis' },
             fairMarketValue: { type: 'number', minimum: 0, description: 'Fair market value' },
             proceeds: { type: 'number', minimum: 0, default: 0, description: 'Proceeds' },
-            holdingPeriod: { type: 'string', enum: ['short-term', 'long-term'], description: 'Holding period' },
+            holdingPeriod: {
+              type: 'string',
+              enum: ['short-term', 'long-term'],
+              description: 'Holding period',
+            },
           },
           required: ['transactionType', 'asset', 'date', 'amount', 'fairMarketValue'],
         },
@@ -57,9 +82,21 @@ export class CryptocurrencyTaxTool {
       analysis: {
         type: 'object',
         properties: {
-          includeCapitalGains: { type: 'boolean', default: true, description: 'Include capital gains' },
-          includeOrdinaryIncome: { type: 'boolean', default: true, description: 'Include ordinary income' },
-          includeWashSaleAnalysis: { type: 'boolean', default: true, description: 'Include wash sale analysis' },
+          includeCapitalGains: {
+            type: 'boolean',
+            default: true,
+            description: 'Include capital gains',
+          },
+          includeOrdinaryIncome: {
+            type: 'boolean',
+            default: true,
+            description: 'Include ordinary income',
+          },
+          includeWashSaleAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include wash sale analysis',
+          },
           includeForm8949: { type: 'boolean', default: true, description: 'Include Form 8949' },
         },
       },
@@ -72,5 +109,3 @@ export class CryptocurrencyTaxTool {
     return CryptocurrencyTaxCalculator.analyze(validated);
   }
 }
-
-

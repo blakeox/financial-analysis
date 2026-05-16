@@ -4,6 +4,3 @@
  */
 
 export { CarLeaseVsBuyCalculator } from './personal/car-lease-vs-buy.js';
-
-
-

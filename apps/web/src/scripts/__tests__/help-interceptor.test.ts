@@ -9,7 +9,8 @@ describe('help-interceptor', () => {
       [
         {
           name: 'calculate_capm',
-          description: 'Calculate expected return using CAPM (risk-free rate + beta × market risk premium)',
+          description:
+            'Calculate expected return using CAPM (risk-free rate + beta × market risk premium)',
         },
         {
           name: 'analyze_risk_adjusted_returns',
@@ -47,4 +48,3 @@ describe('help-interceptor', () => {
     expect(response.response).toContain('Calculate Npv Irr');
   });
 });
-

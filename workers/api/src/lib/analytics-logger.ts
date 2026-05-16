@@ -33,7 +33,7 @@ export interface AnalyticsEventData {
  */
 export function writeAnalyticsEvent(
   analytics: AnalyticsEngineDataset | undefined,
-  event: AnalyticsEventData,
+  event: AnalyticsEventData
 ): void {
   if (!analytics) {
     return;
@@ -42,7 +42,12 @@ export function writeAnalyticsEvent(
   try {
     analytics.writeDataPoint({
       // Use fingerprint, event type, and IP as indexes for efficient querying
-      indexes: [event.fingerprint, event.type, event.ipAddress || 'unknown', event.endpoint || 'unknown'],
+      indexes: [
+        event.fingerprint,
+        event.type,
+        event.ipAddress || 'unknown',
+        event.endpoint || 'unknown',
+      ],
       // Store numeric values: trustScore, allowed (1/0), statusCode, duration
       doubles: [
         event.trustScore,
@@ -55,7 +60,10 @@ export function writeAnalyticsEvent(
     });
   } catch (error) {
     // Don't fail request if analytics fails
-    console.warn('Analytics Engine write failed:', error instanceof Error ? error.message : String(error));
+    console.warn(
+      'Analytics Engine write failed:',
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 
@@ -67,7 +75,7 @@ export function logRateLimitViolation(
   fingerprint: string,
   ipAddress: string,
   endpoint: string,
-  trustScore: number,
+  trustScore: number
 ): void {
   writeAnalyticsEvent(analytics, {
     type: 'rate_limit',
@@ -86,13 +94,18 @@ export function logRateLimitViolation(
  */
 export function logSecurityEventAnalytics(
   analytics: AnalyticsEngineDataset | undefined,
-  eventType: 'session_created' | 'session_check' | 'session_unavailable' | 'session_denied' | 'suspicious_activity',
+  eventType:
+    | 'session_created'
+    | 'session_check'
+    | 'session_unavailable'
+    | 'session_denied'
+    | 'suspicious_activity',
   fingerprint: string,
   ipAddress: string,
   trustScore: number,
   flags: string[],
   allowed: boolean,
-  endpoint: string = 'unknown',
+  endpoint: string = 'unknown'
 ): void {
   writeAnalyticsEvent(analytics, {
     type: eventType,
@@ -115,7 +128,7 @@ export function logCircuitBreakerEvent(
   ipAddress: string,
   endpoint: string,
   state: 'open' | 'half_open' | 'closed',
-  failureCount: number,
+  failureCount: number
 ): void {
   writeAnalyticsEvent(analytics, {
     type: 'circuit_breaker',
@@ -137,7 +150,7 @@ export function logAuthFailure(
   fingerprint: string,
   ipAddress: string,
   endpoint: string,
-  reason: string,
+  reason: string
 ): void {
   writeAnalyticsEvent(analytics, {
     type: 'auth_failure',
@@ -160,9 +173,7 @@ export function extractRequestMetrics(request: Request): {
   userAgent: string;
 } {
   const clientIP =
-    request.headers.get('CF-Connecting-IP') ||
-    request.headers.get('X-Forwarded-For') ||
-    'unknown';
+    request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
 
   const url = new URL(request.url);
   const endpoint = url.pathname;

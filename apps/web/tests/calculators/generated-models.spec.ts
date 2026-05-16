@@ -1,24 +1,22 @@
-
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_URL || 'http://localhost:8788';
 
 test.describe('Generated Model Tests', () => {
-
   test('should run amortization calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/amortization/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -29,7 +27,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -37,17 +35,17 @@ test.describe('Generated Model Tests', () => {
   test('should run auto-loan calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/auto-loan/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -58,7 +56,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -66,17 +64,17 @@ test.describe('Generated Model Tests', () => {
   test('should run retirement calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/retirement/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -87,7 +85,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -95,17 +93,17 @@ test.describe('Generated Model Tests', () => {
   test('should run savings-goal calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/savings-goal/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -117,7 +115,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -125,17 +123,17 @@ test.describe('Generated Model Tests', () => {
   test('should run debt-payoff calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/debt-payoff/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -145,7 +143,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -153,17 +151,17 @@ test.describe('Generated Model Tests', () => {
   test('should run student-loans calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/student-loans/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -175,7 +173,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -183,17 +181,17 @@ test.describe('Generated Model Tests', () => {
   test('should run budget calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/budget/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -206,7 +204,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -214,17 +212,17 @@ test.describe('Generated Model Tests', () => {
   test('should run dcf-valuation calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/dcf-valuation/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -241,7 +239,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -249,17 +247,17 @@ test.describe('Generated Model Tests', () => {
   test('should run ma-analysis calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/ma-analysis/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -278,7 +276,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -286,17 +284,17 @@ test.describe('Generated Model Tests', () => {
   test('should run risk-management calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/risk-management/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -311,7 +309,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -319,17 +317,17 @@ test.describe('Generated Model Tests', () => {
   test('should run equipment-lease calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/equipment-lease/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -341,7 +339,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -349,17 +347,17 @@ test.describe('Generated Model Tests', () => {
   test('should run invest-vs-payoff-debt calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/invest-vs-payoff-debt/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -375,7 +373,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -383,17 +381,17 @@ test.describe('Generated Model Tests', () => {
   test('should run rent-vs-buy calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/rent-vs-buy/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = true;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -422,7 +420,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -430,17 +428,17 @@ test.describe('Generated Model Tests', () => {
   test('should run mortgage-scenario-planning calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/mortgage-scenario-planning/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -457,7 +455,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -465,17 +463,17 @@ test.describe('Generated Model Tests', () => {
   test('should run side-hustle-income calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/side-hustle-income/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -490,7 +488,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -498,17 +496,17 @@ test.describe('Generated Model Tests', () => {
   test('should run credit-card-payoff calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/credit-card-payoff/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -524,7 +522,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -532,17 +530,17 @@ test.describe('Generated Model Tests', () => {
   test('should run break-even calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/break-even/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -554,7 +552,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -562,17 +560,17 @@ test.describe('Generated Model Tests', () => {
   test('should run cash-flow-forecast calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/cash-flow-forecast/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -586,7 +584,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -594,17 +592,17 @@ test.describe('Generated Model Tests', () => {
   test('should run business-loan-qualifier calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/business-loan-qualifier/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -620,7 +618,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -628,17 +626,17 @@ test.describe('Generated Model Tests', () => {
   test('should run pricing-strategy calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/pricing-strategy/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -651,7 +649,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -659,17 +657,17 @@ test.describe('Generated Model Tests', () => {
   test('should run saas-metrics calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/saas-metrics/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -684,7 +682,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -692,17 +690,17 @@ test.describe('Generated Model Tests', () => {
   test('should run business-financial-health calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/business-financial-health/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -718,7 +716,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -726,17 +724,17 @@ test.describe('Generated Model Tests', () => {
   test('should run debt-capacity calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/debt-capacity/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -750,7 +748,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -758,17 +756,17 @@ test.describe('Generated Model Tests', () => {
   test('should run dscr calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/dscr/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -779,7 +777,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -787,17 +785,17 @@ test.describe('Generated Model Tests', () => {
   test('should run business-loan-scenarios calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/business-loan-scenarios/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -812,7 +810,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -820,17 +818,17 @@ test.describe('Generated Model Tests', () => {
   test('should run social-security calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/social-security/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -846,7 +844,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -854,17 +852,17 @@ test.describe('Generated Model Tests', () => {
   test('should run heloc calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/heloc/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -881,7 +879,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -889,17 +887,17 @@ test.describe('Generated Model Tests', () => {
   test('should run refinancing calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/refinancing/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -914,7 +912,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -922,17 +920,17 @@ test.describe('Generated Model Tests', () => {
   test('should run fire-calculator calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/fire-calculator/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -948,7 +946,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -956,17 +954,17 @@ test.describe('Generated Model Tests', () => {
   test('should run estate-planning calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/estate-planning/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -982,7 +980,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -990,17 +988,17 @@ test.describe('Generated Model Tests', () => {
   test('should run emergency-fund calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/emergency-fund/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1014,7 +1012,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1022,17 +1020,17 @@ test.describe('Generated Model Tests', () => {
   test('should run net-worth calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/net-worth/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1048,7 +1046,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1056,17 +1054,17 @@ test.describe('Generated Model Tests', () => {
   test('should run 401k-match calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/401k-match/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1078,7 +1076,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1086,17 +1084,17 @@ test.describe('Generated Model Tests', () => {
   test('should run capital-structure calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/capital-structure/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1109,7 +1107,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1117,17 +1115,17 @@ test.describe('Generated Model Tests', () => {
   test('should run project-finance calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/project-finance/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1141,7 +1139,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1149,17 +1147,17 @@ test.describe('Generated Model Tests', () => {
   test('should run real-estate-investment calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/real-estate-investment/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1174,7 +1172,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1182,17 +1180,17 @@ test.describe('Generated Model Tests', () => {
   test('should run lbo calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/lbo/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1208,7 +1206,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1216,17 +1214,17 @@ test.describe('Generated Model Tests', () => {
   test('should run credit-risk calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/credit-risk/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1240,7 +1238,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1248,17 +1246,17 @@ test.describe('Generated Model Tests', () => {
   test('should run working-capital calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/working-capital/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1271,7 +1269,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1279,17 +1277,17 @@ test.describe('Generated Model Tests', () => {
   test('should run var calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/var/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1300,7 +1298,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });
@@ -1308,17 +1306,17 @@ test.describe('Generated Model Tests', () => {
   test('should run portfolio-optimization calculator', async ({ page }) => {
     await page.goto(`${BASE_URL}/calculator/portfolio-optimization/`);
     await expect(page.locator('#calculator-form')).toBeVisible();
-    
+
     // Check for advanced fields and toggle if necessary
     const hasAdvancedFields = false;
     if (hasAdvancedFields) {
-        const toggle = page.locator('#mode-toggle');
-        await expect(toggle).toBeVisible();
-        const isChecked = await toggle.getAttribute('aria-checked') === 'true';
-        if (!isChecked) {
-            await toggle.click();
-            await expect(toggle).toHaveAttribute('aria-checked', 'true');
-        }
+      const toggle = page.locator('#mode-toggle');
+      await expect(toggle).toBeVisible();
+      const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
+      if (!isChecked) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+      }
     }
 
     // Fill fields
@@ -1329,7 +1327,7 @@ test.describe('Generated Model Tests', () => {
 
     // Submit form
     await page.click('button[type="submit"]');
-    
+
     // Check results
     await expect(page.locator('#results-section')).not.toBeHidden({ timeout: 10000 });
   });

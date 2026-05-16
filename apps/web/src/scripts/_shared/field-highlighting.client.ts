@@ -201,7 +201,8 @@ export function highlightFieldChange(
   field.classList.add('ai-modified-field');
 
   // Create AI indicator badge with error state if validation failed
-  const container = (field.closest('.field-container') as HTMLElement | null) || field.parentElement;
+  const container =
+    (field.closest('.field-container') as HTMLElement | null) || field.parentElement;
   if (container && showBadge && !container.querySelector('.ai-indicator')) {
     const badge = document.createElement('div');
     badge.className = 'ai-indicator';
@@ -246,4 +247,3 @@ export function highlightFieldChange(
 if (typeof window !== 'undefined') {
   window.highlightFieldChange = highlightFieldChange;
 }
-

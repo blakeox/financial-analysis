@@ -34,7 +34,10 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
     isActive: true,
   });
 
-  const validateName = useCallback((value: string) => (value.trim() ? null : 'Name is required'), []);
+  const validateName = useCallback(
+    (value: string) => (value.trim() ? null : 'Name is required'),
+    []
+  );
   const validateAmount = useCallback((value: number | undefined) => {
     if (value === undefined) {
       return 'Amount is required';
@@ -49,7 +52,7 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
   }, []);
 
   const addLease = () => {
-  const trimmedName = newLease.name.trim();
+    const trimmedName = newLease.name.trim();
     if (
       !trimmedName ||
       typeof newLease.monthlyPayment !== 'number' ||
@@ -92,17 +95,32 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.accent)}>{leases.length}</div>
             <div className={cn('text-sm', textColors.secondary)}>Leases</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-sky-200 bg-sky-50/90 dark:border-sky-900/70 dark:bg-sky-950/30'
+            )}
+          >
             <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">
               {formatCurrency(totalMonthlyLeaseCost)}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Monthly Lease Cost</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalMonthlyLeaseCost * 12)}
             </div>
@@ -137,7 +155,9 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
                   label="Term (months)"
                   type="number"
                   value={lease.termMonths}
-                  onValueChange={(value) => updateLease(lease.id, 'termMonths', Math.max(1, Math.floor(value ?? 0)))}
+                  onValueChange={(value) =>
+                    updateLease(lease.id, 'termMonths', Math.max(1, Math.floor(value ?? 0)))
+                  }
                   validator={validateTerm}
                   disabled={readonly}
                   min="1"

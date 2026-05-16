@@ -25,4 +25,3 @@ export class BreakEvenTool {
     return BreakEvenAnalyzer.analyze(validated);
   }
 }
-

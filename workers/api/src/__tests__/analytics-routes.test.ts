@@ -25,20 +25,14 @@ describe('Analytics Routes', () => {
 
   it('registers POST /v1/api/analytics/events route', () => {
     registerAnalyticsRoutes(mockRouter);
-    
-    expect(mockRouter.post).toHaveBeenCalledWith(
-      '/v1/api/analytics/events',
-      expect.any(Function)
-    );
+
+    expect(mockRouter.post).toHaveBeenCalledWith('/v1/api/analytics/events', expect.any(Function));
   });
 
   it('registers GET /v1/api/analytics/summary route', () => {
     registerAnalyticsRoutes(mockRouter);
-    
-    expect(mockRouter.get).toHaveBeenCalledWith(
-      '/v1/api/analytics/summary',
-      expect.any(Function)
-    );
+
+    expect(mockRouter.get).toHaveBeenCalledWith('/v1/api/analytics/summary', expect.any(Function));
   });
 
   describe('POST /v1/api/analytics/events', () => {

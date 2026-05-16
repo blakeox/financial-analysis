@@ -49,41 +49,47 @@ function calculateTCO(
   insuranceMonthly: number = 150,
   maintenanceYearly: number = 1200,
   fuelMpg: number = 25,
-  gasPrice: number = 3.50
+  gasPrice: number = 3.5
 ): TCOCalculation {
   const loanYears = loanTermMonths / 12;
-  
+
   // Loan costs (already calculated)
   const monthlyPayment = toNumber(result.summary.monthlyPayment);
   const totalLoanCost = toNumber(result.summary.totalCost);
   const totalInterest = toNumber(result.summary.totalInterest);
-  
+
   // Insurance (typically $100-$200/month depending on age, location, vehicle)
   const insuranceTotal = insuranceMonthly * loanTermMonths;
-  
+
   // Maintenance (oil changes, tires, brakes, etc. - typically $1,000-$1,500/year)
   const maintenanceMonthly = maintenanceYearly / 12;
   const maintenanceTotal = maintenanceYearly * loanYears;
-  
+
   // Fuel costs
   const milesPerMonth = annualMileage / 12;
   const gallonsPerMonth = milesPerMonth / fuelMpg;
   const fuelMonthly = gallonsPerMonth * gasPrice;
   const fuelTotal = fuelMonthly * loanTermMonths;
-  
+
   // Depreciation (new cars typically lose ~20% first year, ~15% each year after)
   // Use straight-line for simplicity: new cars retain ~40-50% after 5 years
-  const deprecationRate = vehiclePrice > 30000 ? 0.60 : 0.55; // Luxury cars depreciate faster
+  const deprecationRate = vehiclePrice > 30000 ? 0.6 : 0.55; // Luxury cars depreciate faster
   const estimatedResaleValue = vehiclePrice * (1 - deprecationRate * (loanYears / 5));
   const depreciation = Math.max(0, vehiclePrice - estimatedResaleValue);
-  
+
   // Calculate totals
-  const monthlyTCO = monthlyPayment + insuranceMonthly + maintenanceMonthly + fuelMonthly + (depreciation / loanTermMonths);
+  const monthlyTCO =
+    monthlyPayment +
+    insuranceMonthly +
+    maintenanceMonthly +
+    fuelMonthly +
+    depreciation / loanTermMonths;
   const annualTCO = monthlyTCO * 12;
-  const totalOverLoanTerm = totalLoanCost + insuranceTotal + maintenanceTotal + fuelTotal + depreciation;
+  const totalOverLoanTerm =
+    totalLoanCost + insuranceTotal + maintenanceTotal + fuelTotal + depreciation;
   const totalMiles = annualMileage * loanYears;
   const costPerMile = totalOverLoanTerm / totalMiles;
-  
+
   return {
     loanCosts: {
       monthlyPayment,
@@ -109,7 +115,10 @@ const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
   const checkboxElement = document.getElementById(checkboxId);
   const inputElement = document.getElementById(inputId);
 
-  if (!(checkboxElement instanceof HTMLInputElement) || !(inputElement instanceof HTMLInputElement)) {
+  if (
+    !(checkboxElement instanceof HTMLInputElement) ||
+    !(inputElement instanceof HTMLInputElement)
+  ) {
     return;
   }
 
@@ -200,18 +209,19 @@ export const renderAutoLoanResults = (
   }
 
   // Calculate TCO if enabled
-  const tco = enableTCO && vehiclePrice > 0
-    ? calculateTCO(
-        result,
-        vehiclePrice,
-        termMonths,
-        annualMileage ?? 12000,
-        insuranceMonthly ?? 150,
-        maintenanceYearly ?? 1200,
-        fuelMpg ?? 25,
-        gasPrice ?? 3.5
-      )
-    : null;
+  const tco =
+    enableTCO && vehiclePrice > 0
+      ? calculateTCO(
+          result,
+          vehiclePrice,
+          termMonths,
+          annualMileage ?? 12000,
+          insuranceMonthly ?? 150,
+          maintenanceYearly ?? 1200,
+          fuelMpg ?? 25,
+          gasPrice ?? 3.5
+        )
+      : null;
 
   // Render summary cards with TCO
   summaryCards.innerHTML = `

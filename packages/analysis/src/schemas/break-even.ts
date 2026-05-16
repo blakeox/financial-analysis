@@ -8,4 +8,3 @@ export const BreakEvenInputSchema = z.object({
 });
 
 export type BreakEvenInput = z.infer<typeof BreakEvenInputSchema>;
-

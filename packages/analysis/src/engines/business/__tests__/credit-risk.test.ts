@@ -94,7 +94,7 @@ describe('CreditRiskAnalyzer', () => {
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = analyze({});
-    
+
     // Check summary
     expect(result.summary).toBeDefined();
     expect(result.summary.pd).toBeDefined();
@@ -102,7 +102,7 @@ describe('CreditRiskAnalyzer', () => {
     expect(result.summary.expectedLoss).toBeDefined();
     expect(result.summary.creditRating).toBeDefined();
     expect(result.summary.riskLevel).toBeDefined();
-    
+
     // Check recommendations
     expect(result.recommendations).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
@@ -147,7 +147,9 @@ describe('CreditRiskAnalyzer', () => {
     expect(result.probabilityOfDefault.pd).toBe(0.5);
     expect(result.probabilityOfDefault.pdRating).toBe('Very High');
     expect(result.probabilityOfDefault.factors.join('\n')).toContain('Very high debt-to-EBITDA');
-    expect(result.probabilityOfDefault.factors.join('\n')).toContain('Cannot cover interest payments');
+    expect(result.probabilityOfDefault.factors.join('\n')).toContain(
+      'Cannot cover interest payments'
+    );
     expect(result.probabilityOfDefault.factors.join('\n')).toContain('Current ratio below 1.0');
     expect(result.probabilityOfDefault.factors.join('\n')).toContain('Newer business');
   });

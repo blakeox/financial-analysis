@@ -149,10 +149,9 @@ export const AccountsPayableOptimizationInputSchema = z
 
     const paymentTerms = {
       standardTerms: standardTermsDays,
-      earlyPaymentDiscounts:
-        input.paymentTerms?.earlyPaymentDiscounts.length
-          ? input.paymentTerms.earlyPaymentDiscounts
-          : derivedEarlyDiscounts,
+      earlyPaymentDiscounts: input.paymentTerms?.earlyPaymentDiscounts.length
+        ? input.paymentTerms.earlyPaymentDiscounts
+        : derivedEarlyDiscounts,
     };
 
     const cashFlow =
@@ -190,6 +189,3 @@ export const AccountsPayableOptimizationInputSchema = z
 export type AccountsPayableOptimizationInput = z.infer<
   typeof AccountsPayableOptimizationInputSchema
 >;
-
-
-

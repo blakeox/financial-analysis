@@ -58,12 +58,20 @@ const parseNumber = (value: FormDataEntryValue | string | number | null | undefi
 
 const formatCurrency = (value: FormDataEntryValue | string | number | null | undefined) => {
   const num = parseNumber(value);
-  return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  return num.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
 };
 
 const formatPerMonth = (value: FormDataEntryValue | string | number | null | undefined) => {
   const num = parseNumber(value);
-  return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  return num.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+  });
 };
 
 const calculatePayment = (principal: number, apr: number, months: number) => {
@@ -116,7 +124,8 @@ const renderResults = ({
   const recommendation = document.getElementById('recommendation');
   const resultsWrapper = document.getElementById('lease-buyout-results');
 
-  if (!leaseCostSummary || !buyoutSummary || !equitySummary || !recommendation || !resultsWrapper) return;
+  if (!leaseCostSummary || !buyoutSummary || !equitySummary || !recommendation || !resultsWrapper)
+    return;
 
   const totalBuyoutWithGap = buyoutTotal + gapInsuranceCost;
   leaseCostSummary.textContent = `${formatCurrency(leaseCost)} total (${monthsRemaining} months)`;
@@ -131,7 +140,8 @@ const renderResults = ({
   const exitOptions = [];
   if (tradeInValue > 0) exitOptions.push(`trade-in: ${formatCurrency(tradeInValue)}`);
   if (privateSaleValue > 0) exitOptions.push(`private sale: ${formatCurrency(privateSaleValue)}`);
-  if (instantOfferValue > 0) exitOptions.push(`instant offer: ${formatCurrency(instantOfferValue)}`);
+  if (instantOfferValue > 0)
+    exitOptions.push(`instant offer: ${formatCurrency(instantOfferValue)}`);
 
   let exitInfo = '';
   if (exitOptions.length > 0) {
@@ -214,9 +224,9 @@ const hydrateForm = () => {
       if (toKey.startsWith('_')) return;
       const value = leaseProfile[fromKey];
       if (value === undefined || value === null || value === '') return;
-      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        `[name="${toKey}"]`
-      );
+      const input = document.querySelector<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >(`[name="${toKey}"]`);
       if (input && !input.value) {
         input.value = String(value);
       }
@@ -226,9 +236,9 @@ const hydrateForm = () => {
   const details = normalizeSection(collectedData['lease-vs-buyout']);
   if (details) {
     Object.entries(details).forEach(([key, value]) => {
-      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        `[name="${key}"]`
-      );
+      const input = document.querySelector<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >(`[name="${key}"]`);
       if (input) {
         input.value = String(value ?? '');
       }
@@ -237,7 +247,11 @@ const hydrateForm = () => {
 
   const statusEl = document.getElementById('lease-buyout-status');
   if (statusEl) {
-    statusEl.textContent = details ? 'Loaded from last session' : (leaseProfile ? 'Pre-filled from lease profile' : '');
+    statusEl.textContent = details
+      ? 'Loaded from last session'
+      : leaseProfile
+        ? 'Pre-filled from lease profile'
+        : '';
   }
 };
 
@@ -272,7 +286,8 @@ const runComparison = () => {
   const buyoutOutOfPocketToLeaseEnd = payment * horizonMonths;
 
   const equityNow = parseNumber(formData.get('expectedValueNow')) - buyoutPrincipal;
-  const equityFuture = parseNumber(formData.get('expectedValueFuture')) - remainingBalanceAtLeaseEnd;
+  const equityFuture =
+    parseNumber(formData.get('expectedValueFuture')) - remainingBalanceAtLeaseEnd;
 
   const gapInsuranceCost = parseNumber(formData.get('gapInsurance'));
   const tradeInValue = parseNumber(formData.get('tradeInValue'));
@@ -285,9 +300,10 @@ const runComparison = () => {
     { name: 'instant offer', value: instantOfferValue },
   ].filter((opt) => opt.value > 0);
 
-  const bestExit = exitOptions.length > 0
-    ? exitOptions.reduce((best, curr) => (curr.value > best.value ? curr : best))
-    : { name: '', value: 0 };
+  const bestExit =
+    exitOptions.length > 0
+      ? exitOptions.reduce((best, curr) => (curr.value > best.value ? curr : best))
+      : { name: '', value: 0 };
 
   renderResults({
     leaseCost,

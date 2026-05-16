@@ -9,19 +9,23 @@ import { coerceNumber, isFiniteNumber } from '../../utils/calculator-utilities';
 /**
  * Calculate PMI (Private Mortgage Insurance) details
  */
-export function calculatePMI(principal: number, downPayment: number, homePrice: number): {
+export function calculatePMI(
+  principal: number,
+  downPayment: number,
+  homePrice: number
+): {
   hasPMI: boolean;
   pmiMonthly: number;
   pmiDropMonth: number;
   pmiTotalCost: number;
 } {
   const downPaymentPercent = (downPayment / homePrice) * 100;
-  
+
   // No PMI if down payment >= 20%
   if (downPaymentPercent >= 20) {
     return { hasPMI: false, pmiMonthly: 0, pmiDropMonth: 0, pmiTotalCost: 0 };
   }
-  
+
   // Calculate PMI rate based on down payment amount
   let pmiRate = 0.01; // 1% annual default
   if (downPaymentPercent >= 15) {
@@ -33,22 +37,22 @@ export function calculatePMI(principal: number, downPayment: number, homePrice: 
   } else {
     pmiRate = 0.012; // 1.2% for <5% down (FHA territory)
   }
-  
+
   const pmiAnnual = principal * pmiRate;
   const pmiMonthly = pmiAnnual / 12;
-  
+
   // PMI drops off when equity reaches 20% (80% LTV)
-  const equityNeeded = homePrice * 0.20;
+  const equityNeeded = homePrice * 0.2;
   const equityToGain = equityNeeded - downPayment;
-  
+
   // Rough estimate: divide equity needed by average monthly principal payment
   const avgMonthlyPrincipal = principal / 360; // Conservative estimate
   const pmiDropMonth = Math.ceil(equityToGain / avgMonthlyPrincipal);
-  
+
   // Cap at loan term
   const actualDropMonth = Math.min(pmiDropMonth, 360);
   const pmiTotalCost = pmiMonthly * actualDropMonth;
-  
+
   return {
     hasPMI: true,
     pmiMonthly,
@@ -107,20 +111,20 @@ export async function calculateScenario(
       extraMonthlyPayment: extraPayment > 0 ? extraPayment : undefined,
     }
   );
-  
+
   const monthlyPayment = result.monthlyPayment;
   const totalInterest = getTotalInterest(result);
   const payoffMonths = result.totalPayments || termMonths;
   // Include closing costs in total cost calculation
-  const totalCost = (monthlyPayment * payoffMonths) + closingCosts;
-  
+  const totalCost = monthlyPayment * payoffMonths + closingCosts;
+
   // Validate payoff months is reasonable (max 30 years = 360 months)
   const validatedPayoffMonths = payoffMonths > 0 && payoffMonths <= 360 ? payoffMonths : termMonths;
-  
+
   // Calculate PMI
   const pmi = calculatePMI(principal, downPayment, homePrice);
   const monthlyPaymentWithPMI = monthlyPayment + pmi.pmiMonthly;
-  
+
   return {
     name,
     downPayment,
@@ -161,12 +165,12 @@ export async function calculateRefinanceScenario(
       extraMonthlyPayment: original.extraPayment > 0 ? original.extraPayment : undefined,
     }
   );
-  
+
   // Find the balance at the refinance month
   const schedule = result.schedule;
   const refiEntry = schedule?.[refiMonth - 1];
   const remainingBalance = refiEntry ? coerceNumber(refiEntry.balance, 0) : original.principal;
-  
+
   // Calculate new loan with refinance rate
   const remainingTerm = originalTermMonths - refiMonth;
   const refiResult = await postAnalysisRequest<AmortizationAnalysisResult>(
@@ -178,18 +182,18 @@ export async function calculateRefinanceScenario(
       extraMonthlyPayment: original.extraPayment > 0 ? original.extraPayment : undefined,
     }
   );
-  
+
   // Total costs = payments before refinance + payments after refinance
   const beforeRefiTotal = original.monthlyPayment * refiMonth;
   const afterRefiMonthly = refiResult.monthlyPayment;
   const afterRefiTotal = afterRefiMonthly * refiResult.totalPayments;
   const totalCost = beforeRefiTotal + afterRefiTotal + original.closingCosts;
-  
+
   // Total interest = interest before refi + interest after refi
   const beforeRefiInterest = beforeRefiTotal - (original.principal - remainingBalance);
   const afterRefiInterest = getTotalInterest(refiResult);
   const totalInterest = beforeRefiInterest + afterRefiInterest;
-  
+
   return {
     name,
     downPayment: 0,

@@ -32,46 +32,46 @@ export interface SecurityMiddlewareOptions {
 /**
  * Generate SHA-256 fingerprint from IP and User-Agent
  */
-export async function generateFingerprint(
-	ip: string,
-	userAgent: string,
-): Promise<string> {
-	const data = `${ip}:${userAgent}`;
-	const hash = await crypto.subtle.digest(
-		'SHA-256',
-		new TextEncoder().encode(data),
-	);
-	return Array.from(new Uint8Array(hash))
-		.map((b) => b.toString(16).padStart(2, '0'))
-		.join('');
+export async function generateFingerprint(ip: string, userAgent: string): Promise<string> {
+  const data = `${ip}:${userAgent}`;
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /**
  * Log security event to Analytics Engine
  */
 export function logSecurityEvent(
-	analytics: AnalyticsEngineDataset | undefined,
-	event: {
-		type: 'rate_limit' | 'circuit_breaker' | 'session_created' | 'session_check' | 'suspicious_activity' | 'session_denied';
-		fingerprint: string;
-		trustScore: number;
-		flags: string[];
-		allowed: boolean;
-		ipAddress?: string;
-	}
+  analytics: AnalyticsEngineDataset | undefined,
+  event: {
+    type:
+      | 'rate_limit'
+      | 'circuit_breaker'
+      | 'session_created'
+      | 'session_check'
+      | 'suspicious_activity'
+      | 'session_denied';
+    fingerprint: string;
+    trustScore: number;
+    flags: string[];
+    allowed: boolean;
+    ipAddress?: string;
+  }
 ): void {
-	if (!analytics) return;
+  if (!analytics) return;
 
-	try {
-		analytics.writeDataPoint({
-			indexes: [event.fingerprint, event.type, event.ipAddress || 'unknown'],
-			doubles: [event.trustScore, event.allowed ? 1 : 0],
-			blobs: event.flags,
-		});
-	} catch (error) {
-		// Don't fail request if analytics fails
-		console.warn('Analytics Engine write failed:', error);
-	}
+  try {
+    analytics.writeDataPoint({
+      indexes: [event.fingerprint, event.type, event.ipAddress || 'unknown'],
+      doubles: [event.trustScore, event.allowed ? 1 : 0],
+      blobs: event.flags,
+    });
+  } catch (error) {
+    // Don't fail request if analytics fails
+    console.warn('Analytics Engine write failed:', error);
+  }
 }
 
 /**
@@ -83,22 +83,22 @@ const SESSION_DO_FAILURE_THRESHOLD = 5;
 const SESSION_DO_RECOVERY_WINDOW = 60000; // 1 minute
 
 function shouldSkipSessionDO(): boolean {
-	const now = Date.now();
-	if (now - sessionDOLastFailure > SESSION_DO_RECOVERY_WINDOW) {
-		// Reset after recovery window
-		sessionDOFailureCount = 0;
-		return false;
-	}
-	return sessionDOFailureCount >= SESSION_DO_FAILURE_THRESHOLD;
+  const now = Date.now();
+  if (now - sessionDOLastFailure > SESSION_DO_RECOVERY_WINDOW) {
+    // Reset after recovery window
+    sessionDOFailureCount = 0;
+    return false;
+  }
+  return sessionDOFailureCount >= SESSION_DO_FAILURE_THRESHOLD;
 }
 
 function recordSessionDOFailure(): void {
-	sessionDOFailureCount++;
-	sessionDOLastFailure = Date.now();
+  sessionDOFailureCount++;
+  sessionDOLastFailure = Date.now();
 }
 
 function resetSessionDOFailures(): void {
-	sessionDOFailureCount = 0;
+  sessionDOFailureCount = 0;
 }
 
 /**
@@ -120,10 +120,7 @@ async function generateRequestHash(
 /**
  * Get or create a Session Durable Object stub
  */
-function getSessionStub(
-  namespace: DurableObjectNamespace,
-  sessionId: string
-) {
+function getSessionStub(namespace: DurableObjectNamespace, sessionId: string) {
   const id = namespace.idFromName(sessionId);
   return namespace.get(id);
 }
@@ -177,7 +174,7 @@ async function checkSession(
     throw new Error(`Session check failed: ${response.status}`);
   }
 
-  return await response.json() as {
+  return (await response.json()) as {
     allowed: boolean;
     reason?: string;
     retryAfter?: number;
@@ -239,7 +236,8 @@ export async function buildSecurityContext(
   // Generate fingerprint
   const ipAddress = requestContext.clientIP || 'unknown';
   const userAgent = requestContext.userAgent || 'unknown';
-  const fingerprint = options.customFingerprint || await generateFingerprint(ipAddress, userAgent);
+  const fingerprint =
+    options.customFingerprint || (await generateFingerprint(ipAddress, userAgent));
 
   // Get Session DO stub
   if (!env.SESSION_DO) {
@@ -256,7 +254,7 @@ export async function buildSecurityContext(
       denyReason: 'session_unavailable',
       retryAfter: 60,
     };
-    
+
     // Log to Analytics Engine
     logSecurityEventAnalytics(
       env.ANALYTICS,
@@ -268,7 +266,7 @@ export async function buildSecurityContext(
       false,
       requestContext.path
     );
-    
+
     return context;
   }
 
@@ -286,7 +284,7 @@ export async function buildSecurityContext(
       isAllowed: true, // Allow but with reduced trust
       denyReason: undefined,
     };
-    
+
     // Log to Analytics Engine
     logCircuitBreakerEvent(
       env.ANALYTICS,
@@ -296,7 +294,7 @@ export async function buildSecurityContext(
       'open',
       sessionDOFailureCount
     );
-    
+
     return context;
   }
 
@@ -320,7 +318,7 @@ export async function buildSecurityContext(
       // Re-check after initialization
       const recheckResult = await checkSession(stub, requestHash, options.isMessageRequest);
       resetSessionDOFailures(); // Success, reset failures
-      
+
       const context = {
         ...requestContext,
         sessionId: fingerprint,
@@ -331,7 +329,7 @@ export async function buildSecurityContext(
         denyReason: recheckResult.reason,
         retryAfter: recheckResult.retryAfter,
       };
-      
+
       // Log to Analytics Engine
       logSecurityEventAnalytics(
         env.ANALYTICS,
@@ -343,12 +341,12 @@ export async function buildSecurityContext(
         recheckResult.allowed,
         requestContext.path
       );
-      
+
       return context;
     }
 
     resetSessionDOFailures(); // Success, reset failures
-    
+
     const context = {
       ...requestContext,
       sessionId: fingerprint,
@@ -359,7 +357,7 @@ export async function buildSecurityContext(
       denyReason: checkResult.reason,
       retryAfter: checkResult.retryAfter,
     };
-    
+
     // Log to Analytics Engine
     logSecurityEventAnalytics(
       env.ANALYTICS,
@@ -371,14 +369,17 @@ export async function buildSecurityContext(
       checkResult.allowed,
       requestContext.path
     );
-    
+
     return context;
   } catch (error) {
     // Record failure and potentially open circuit breaker
     recordSessionDOFailure();
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`Session DO operation failed: ${errorMessage}`, { fingerprint, failureCount: sessionDOFailureCount });
-    
+    console.error(`Session DO operation failed: ${errorMessage}`, {
+      fingerprint,
+      failureCount: sessionDOFailureCount,
+    });
+
     // Graceful degradation: allow request but with reduced trust
     const context = {
       ...requestContext,
@@ -389,7 +390,7 @@ export async function buildSecurityContext(
       isAllowed: true,
       denyReason: undefined,
     };
-    
+
     // Log to Analytics Engine
     logSecurityEventAnalytics(
       env.ANALYTICS,
@@ -401,7 +402,7 @@ export async function buildSecurityContext(
       true,
       requestContext.path
     );
-    
+
     return context;
   }
 }
@@ -423,7 +424,7 @@ export async function commitSecurityContext(
 
 /**
  * Middleware wrapper for routes
- * 
+ *
  * Usage:
  * router.post('/api/chat', withSecurityContext(async (request, env, securityContext) => {
  *   if (!securityContext.isAllowed) {
@@ -438,11 +439,7 @@ export async function commitSecurityContext(
  * }));
  */
 export function withSecurityContext(
-  handler: (
-    request: Request,
-    env: Env,
-    securityContext: SecurityContext
-  ) => Promise<Response>,
+  handler: (request: Request, env: Env, securityContext: SecurityContext) => Promise<Response>,
   options?: SecurityMiddlewareOptions
 ) {
   return async (request: Request, env: Env): Promise<Response> => {

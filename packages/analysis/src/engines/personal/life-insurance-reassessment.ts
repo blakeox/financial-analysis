@@ -50,17 +50,24 @@ export class LifeInsuranceReassessmentCalculator {
         currentCoverage: currentCoverageAnalysis.totalCoverage,
         coverageGap: gapAnalysis?.gap || 0,
         excessCoverage: gapAnalysis?.excess || 0,
-        recommendation: gapAnalysis && gapAnalysis.gap > 0 ? 'increase' : gapAnalysis && gapAnalysis.excess > totalNeeds.totalCoverage * 0.2 ? 'decrease' : 'maintain',
+        recommendation:
+          gapAnalysis && gapAnalysis.gap > 0
+            ? 'increase'
+            : gapAnalysis && gapAnalysis.excess > totalNeeds.totalCoverage * 0.2
+              ? 'decrease'
+              : 'maintain',
       },
       needsAnalysis: {
         ...totalNeeds,
         totalNeeded: totalNeeds.totalCoverage,
       },
       currentCoverageAnalysis,
-      coverageGapAnalysis: gapAnalysis ? {
-        ...gapAnalysis,
-        coverageGap: gapAnalysis.gap,
-      } : undefined,
+      coverageGapAnalysis: gapAnalysis
+        ? {
+            ...gapAnalysis,
+            coverageGap: gapAnalysis.gap,
+          }
+        : undefined,
       policyOptimization: optimization,
       termVsPermanentComparison,
       recommendations,
@@ -104,12 +111,17 @@ export class LifeInsuranceReassessmentCalculator {
     estateTaxes: number;
     totalCoverage: number;
   } {
-    const incomeReplacement = (financial.annualIncome * needs.incomeReplacement.yearsOfIncome) * needs.incomeReplacement.replacementPercentage;
+    const incomeReplacement =
+      financial.annualIncome *
+      needs.incomeReplacement.yearsOfIncome *
+      needs.incomeReplacement.replacementPercentage;
     const debtPayoff = needs.debtPayoff.mortgageBalance + needs.debtPayoff.otherDebt;
-    const educationFunding = needs.educationFunding.childrenCount * needs.educationFunding.educationCostPerChild;
+    const educationFunding =
+      needs.educationFunding.childrenCount * needs.educationFunding.educationCostPerChild;
     const finalExpenses = needs.finalExpenses;
     const estateTaxes = needs.estateTaxes;
-    const totalCoverage = incomeReplacement + debtPayoff + educationFunding + finalExpenses + estateTaxes;
+    const totalCoverage =
+      incomeReplacement + debtPayoff + educationFunding + finalExpenses + estateTaxes;
 
     return {
       incomeReplacement,
@@ -238,17 +250,18 @@ export class LifeInsuranceReassessmentCalculator {
         recommendations.push(`Coverage gap: $${gap.gap.toFixed(0)} - consider increasing coverage`);
       }
       if (gap.excess > needs.totalCoverage * 0.2) {
-        recommendations.push(`Excess coverage: $${gap.excess.toFixed(0)} - consider reducing or canceling unnecessary policies`);
+        recommendations.push(
+          `Excess coverage: $${gap.excess.toFixed(0)} - consider reducing or canceling unnecessary policies`
+        );
       }
     }
 
     if (optimization && optimization.potentialSavings > 0) {
-      recommendations.push(`Potential savings: $${optimization.potentialSavings.toFixed(0)}/year with optimized coverage`);
+      recommendations.push(
+        `Potential savings: $${optimization.potentialSavings.toFixed(0)}/year with optimized coverage`
+      );
     }
 
     return recommendations;
   }
 }
-
-
-

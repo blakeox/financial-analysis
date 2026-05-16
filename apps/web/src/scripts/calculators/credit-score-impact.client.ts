@@ -39,7 +39,9 @@ class CreditScoreImpactCalculator {
         creditUtilization: {
           totalCreditLimit: parseFloat((formData.get('totalCreditLimit') as string) || '0'),
           totalCreditUsed: parseFloat((formData.get('totalCreditUsed') as string) || '0'),
-          utilizationPercentage: parseFloat((formData.get('utilizationPercentage') as string) || '0'),
+          utilizationPercentage: parseFloat(
+            (formData.get('utilizationPercentage') as string) || '0'
+          ),
         },
         paymentHistory: {
           onTimePayments: parseFloat((formData.get('onTimePayments') as string) || '100'),

@@ -15,9 +15,21 @@ export class DividendReinvestmentTool {
       sharePrice: { type: 'number', minimum: 0 },
       years: { type: 'number', minimum: 0 },
       annualDividendYield: { type: 'number', minimum: 0, description: 'Dividend yield (decimal)' },
-      dividendFrequency: { type: 'string', enum: ['monthly', 'quarterly', 'annual'], default: 'quarterly' },
-      sharePriceGrowthRate: { type: 'number', default: 0, description: 'Share price growth rate (decimal)' },
-      dividendGrowthRate: { type: 'number', default: 0, description: 'Dividend growth rate (decimal)' },
+      dividendFrequency: {
+        type: 'string',
+        enum: ['monthly', 'quarterly', 'annual'],
+        default: 'quarterly',
+      },
+      sharePriceGrowthRate: {
+        type: 'number',
+        default: 0,
+        description: 'Share price growth rate (decimal)',
+      },
+      dividendGrowthRate: {
+        type: 'number',
+        default: 0,
+        description: 'Dividend growth rate (decimal)',
+      },
       annualContribution: { type: 'number', minimum: 0, default: 0 },
     },
     required: ['initialInvestment', 'sharePrice', 'years', 'annualDividendYield'],
@@ -28,4 +40,3 @@ export class DividendReinvestmentTool {
     return DividendReinvestmentCalculator.analyze(validated);
   }
 }
-

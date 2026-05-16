@@ -48,11 +48,7 @@ export class RothVsTraditionalIRACalculator {
 
     // Conversion analysis
     const conversionAnalysis = analysis.includeConversionAnalysis
-      ? this.analyzeConversion(
-          accountDetails.currentTraditionalBalance,
-          taxInfo,
-          personalInfo
-        )
+      ? this.analyzeConversion(accountDetails.currentTraditionalBalance, taxInfo, personalInfo)
       : undefined;
 
     // Recommendations
@@ -70,8 +66,13 @@ export class RothVsTraditionalIRACalculator {
         rothFinalValue: rothProjection.finalValue,
         traditionalAfterTax: traditionalProjection.afterTaxValue,
         rothAfterTax: rothProjection.afterTaxValue,
-        betterOption: rothProjection.afterTaxValue > traditionalProjection.afterTaxValue ? 'roth' : 'traditional',
-        taxSavingsDifference: Math.abs(rothProjection.afterTaxValue - traditionalProjection.afterTaxValue),
+        betterOption:
+          rothProjection.afterTaxValue > traditionalProjection.afterTaxValue
+            ? 'roth'
+            : 'traditional',
+        taxSavingsDifference: Math.abs(
+          rothProjection.afterTaxValue - traditionalProjection.afterTaxValue
+        ),
       },
       traditionalProjection,
       rothProjection,
@@ -144,7 +145,8 @@ export class RothVsTraditionalIRACalculator {
     annualProjections: Array<{ year: number; balance: number; contributions: number }>;
   } {
     const contributionTaxRate = taxInfo.currentMarginalTaxRate + taxInfo.stateTaxRate;
-    const afterTaxContribution = contributions.annualContribution + contributions.catchUpContribution;
+    const afterTaxContribution =
+      contributions.annualContribution + contributions.catchUpContribution;
     const taxOnContribution = afterTaxContribution * contributionTaxRate;
 
     let balance = new Decimal(currentBalance);
@@ -248,12 +250,11 @@ export class RothVsTraditionalIRACalculator {
     }
 
     if (personalInfo.age < 40) {
-      recommendations.push('Younger investors benefit more from Roth due to longer tax-free growth');
+      recommendations.push(
+        'Younger investors benefit more from Roth due to longer tax-free growth'
+      );
     }
 
     return recommendations;
   }
 }
-
-
-

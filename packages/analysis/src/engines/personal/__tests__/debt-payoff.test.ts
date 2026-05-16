@@ -42,7 +42,9 @@ describe('Debt Payoff Engine', () => {
       const firstMonth = result.payoffSchedule[0]!;
       const lastMonth = result.payoffSchedule[result.payoffSchedule.length - 1]!;
 
-      expect(parseFloat(lastMonth.remainingBalance)).toBeLessThan(parseFloat(firstMonth.remainingBalance));
+      expect(parseFloat(lastMonth.remainingBalance)).toBeLessThan(
+        parseFloat(firstMonth.remainingBalance)
+      );
     });
 
     it('ends with zero remaining balance', () => {
@@ -65,8 +67,8 @@ describe('Debt Payoff Engine', () => {
 
       // With avalanche, Credit Card (18%) should receive extra payment
       const firstMonth = result.payoffSchedule[0]!;
-      const creditCardPayment = firstMonth.payments.find(p => p.debtName === 'Credit Card');
-      
+      const creditCardPayment = firstMonth.payments.find((p) => p.debtName === 'Credit Card');
+
       // Should be more than minimum (150) because it gets extra payment
       expect(parseFloat(creditCardPayment!.payment)).toBeGreaterThan(150);
     });
@@ -94,8 +96,8 @@ describe('Debt Payoff Engine', () => {
 
       // With snowball, Credit Card ($5000 lowest balance) should receive extra payment
       const firstMonth = result.payoffSchedule[0]!;
-      const creditCardPayment = firstMonth.payments.find(p => p.debtName === 'Credit Card');
-      
+      const creditCardPayment = firstMonth.payments.find((p) => p.debtName === 'Credit Card');
+
       // Should be more than minimum (150) because it gets extra payment
       expect(parseFloat(creditCardPayment!.payment)).toBeGreaterThan(150);
     });
@@ -117,7 +119,7 @@ describe('Debt Payoff Engine', () => {
 
     it('avalanche typically saves more interest than snowball', () => {
       const avalancheResult = analyze(basicInput);
-      
+
       const snowballInput: DebtPayoffInput = {
         ...basicInput,
         strategy: 'snowball',
@@ -125,8 +127,9 @@ describe('Debt Payoff Engine', () => {
       const snowballResult = analyze(snowballInput);
 
       // Avalanche should have less total interest (saves money)
-      expect(parseFloat(avalancheResult.summary.totalInterestPaid))
-        .toBeLessThanOrEqual(parseFloat(snowballResult.summary.totalInterestPaid));
+      expect(parseFloat(avalancheResult.summary.totalInterestPaid)).toBeLessThanOrEqual(
+        parseFloat(snowballResult.summary.totalInterestPaid)
+      );
     });
   });
 
@@ -224,9 +227,7 @@ describe('Debt Payoff Engine', () => {
   describe('single debt', () => {
     it('handles single debt correctly', () => {
       const singleDebtInput: DebtPayoffInput = {
-        debts: [
-          { name: 'Credit Card', balance: 5000, interestRate: 0.18, minimumPayment: 150 },
-        ],
+        debts: [{ name: 'Credit Card', balance: 5000, interestRate: 0.18, minimumPayment: 150 }],
         extraMonthlyPayment: 100,
         strategy: 'avalanche',
       };
@@ -250,7 +251,9 @@ describe('Debt Payoff Engine', () => {
       expect(result.payoffSchedule.length).toBeGreaterThan(0);
       // Should take longer without extra payments
       const withExtra = analyze(basicInput);
-      expect(result.summary.totalMonthsToPayoff).toBeGreaterThanOrEqual(withExtra.summary.totalMonthsToPayoff);
+      expect(result.summary.totalMonthsToPayoff).toBeGreaterThanOrEqual(
+        withExtra.summary.totalMonthsToPayoff
+      );
     });
   });
 

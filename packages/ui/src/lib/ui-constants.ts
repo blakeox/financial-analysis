@@ -35,7 +35,8 @@ export const TRANSITION_COLORS = 'transition-colors duration-200';
 export const TRANSITION_ALL = 'transition-all duration-200';
 
 // Button base styles
-export const BTN_BASE = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+export const BTN_BASE =
+  'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 export const BTN_PRIMARY = 'bg-violet-600 text-white hover:bg-violet-700 active:bg-violet-800';
 export const BTN_SECONDARY = 'bg-slate-600 text-white hover:bg-slate-700 active:bg-slate-800';
 export const BTN_OUTLINE =

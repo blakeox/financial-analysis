@@ -21,33 +21,83 @@ export class HSAOptimizationTool {
             enum: ['single', 'married-joint', 'married-separate', 'head-of-household'],
             description: 'Tax filing status',
           },
-          currentHSABalance: { type: 'number', minimum: 0, default: 0, description: 'Current HSA balance' },
+          currentHSABalance: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Current HSA balance',
+          },
         },
         required: ['age', 'filingStatus'],
       },
       contributionLimits: {
         type: 'object',
         properties: {
-          individualLimit: { type: 'number', minimum: 0, default: 4150, description: 'Individual contribution limit' },
-          familyLimit: { type: 'number', minimum: 0, default: 8300, description: 'Family contribution limit' },
-          catchUpContribution: { type: 'number', minimum: 0, default: 1000, description: 'Catch-up contribution (age 55+)' },
+          individualLimit: {
+            type: 'number',
+            minimum: 0,
+            default: 4150,
+            description: 'Individual contribution limit',
+          },
+          familyLimit: {
+            type: 'number',
+            minimum: 0,
+            default: 8300,
+            description: 'Family contribution limit',
+          },
+          catchUpContribution: {
+            type: 'number',
+            minimum: 0,
+            default: 1000,
+            description: 'Catch-up contribution (age 55+)',
+          },
         },
       },
       hsaDetails: {
         type: 'object',
         properties: {
-          annualContribution: { type: 'number', minimum: 0, description: 'Annual HSA contribution' },
-          employerContribution: { type: 'number', minimum: 0, default: 0, description: 'Employer contribution' },
-          investmentReturn: { type: 'number', minimum: 0, maximum: 0.2, default: 0.07, description: 'Expected investment return' },
+          annualContribution: {
+            type: 'number',
+            minimum: 0,
+            description: 'Annual HSA contribution',
+          },
+          employerContribution: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Employer contribution',
+          },
+          investmentReturn: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0.07,
+            description: 'Expected investment return',
+          },
         },
         required: ['annualContribution'],
       },
       medicalExpenses: {
         type: 'object',
         properties: {
-          annualMedicalExpenses: { type: 'number', minimum: 0, default: 0, description: 'Annual medical expenses' },
-          expectedRetirementMedicalCosts: { type: 'number', minimum: 0, default: 0, description: 'Expected retirement medical costs' },
-          yearsUntilRetirement: { type: 'number', minimum: 0, default: 30, description: 'Years until retirement' },
+          annualMedicalExpenses: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Annual medical expenses',
+          },
+          expectedRetirementMedicalCosts: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Expected retirement medical costs',
+          },
+          yearsUntilRetirement: {
+            type: 'number',
+            minimum: 0,
+            default: 30,
+            description: 'Years until retirement',
+          },
         },
       },
       strategy: {
@@ -59,16 +109,42 @@ export class HSAOptimizationTool {
             default: 'hybrid',
             description: 'Optimization strategy',
           },
-          useForCurrentExpenses: { type: 'boolean', default: false, description: 'Use HSA for current expenses' },
-          saveReceipts: { type: 'boolean', default: true, description: 'Save receipts for future reimbursement' },
+          useForCurrentExpenses: {
+            type: 'boolean',
+            default: false,
+            description: 'Use HSA for current expenses',
+          },
+          saveReceipts: {
+            type: 'boolean',
+            default: true,
+            description: 'Save receipts for future reimbursement',
+          },
         },
       },
       taxInfo: {
         type: 'object',
         properties: {
-          federalTaxRate: { type: 'number', minimum: 0, maximum: 0.5, default: 0.22, description: 'Federal tax rate' },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
-          ficaTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0.0765, description: 'FICA tax rate' },
+          federalTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            default: 0.22,
+            description: 'Federal tax rate',
+          },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
+          ficaTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0.0765,
+            description: 'FICA tax rate',
+          },
         },
       },
     },
@@ -80,5 +156,3 @@ export class HSAOptimizationTool {
     return HSAOptimizer.analyze(validated);
   }
 }
-
-

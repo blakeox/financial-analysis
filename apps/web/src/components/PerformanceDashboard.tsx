@@ -202,16 +202,12 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
 
         <div className="fa-subcard">
           <div className="fa-meta-copy text-sm">Response Time</div>
-          <div className="fa-panel-title text-2xl">
-            {formatDuration(health.responseTime)}
-          </div>
+          <div className="fa-panel-title text-2xl">{formatDuration(health.responseTime)}</div>
         </div>
 
         <div className="fa-subcard">
           <div className="fa-meta-copy text-sm">Error Rate</div>
-          <div className="fa-panel-title text-2xl">
-            {(health.errorRate * 100).toFixed(1)}%
-          </div>
+          <div className="fa-panel-title text-2xl">{(health.errorRate * 100).toFixed(1)}%</div>
         </div>
 
         <div className="fa-subcard">
@@ -226,7 +222,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
           <h4 className="fa-scenario-title mb-2 text-sm">Recent Alerts</h4>
           <div className="space-y-2">
             {alerts.slice(0, 3).map((alert, index) => (
-                <div key={index} className={`rounded-xl p-2 ${getSeverityColor(alert.severity)}`}>
+              <div key={index} className={`rounded-xl p-2 ${getSeverityColor(alert.severity)}`}>
                 <div className="fa-list-copy-strong">{alert.name}</div>
                 <div className="text-xs opacity-75">
                   {new Date(alert.timestamp).toLocaleTimeString()}
@@ -271,11 +267,11 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Successful:</span>
-                      <span className={textColors.success}>{stats.successfulRequests}</span>
+                    <span className={textColors.success}>{stats.successfulRequests}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Failed:</span>
-                      <span className={textColors.danger}>{stats.failedRequests}</span>
+                    <span className={textColors.danger}>{stats.failedRequests}</span>
                   </div>
                 </div>
               </div>
@@ -291,9 +287,15 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900/80">
                       <tr>
-                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Operation</th>
-                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>
-                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Avg Duration</th>
+                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">
+                          Operation
+                        </th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">
+                          Count
+                        </th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">
+                          Avg Duration
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -301,7 +303,9 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                         <tr key={index} className="fa-panel-divider-top">
                           <td className="px-4 py-2 fa-list-copy-strong">{op.operation}</td>
                           <td className="px-4 py-2 text-right fa-list-copy">{op.count}</td>
-                          <td className="px-4 py-2 text-right fa-list-copy">{formatDuration(op.avgDuration)}</td>
+                          <td className="px-4 py-2 text-right fa-list-copy">
+                            {formatDuration(op.avgDuration)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -320,14 +324,20 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900/80">
                       <tr>
-                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Error Code</th>
-                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>
+                        <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">
+                          Error Code
+                        </th>
+                        <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">
+                          Count
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {stats.topErrors.map((error, index) => (
                         <tr key={index} className="fa-panel-divider-top">
-                          <td className={cn('px-4 py-2 font-medium', textColors.danger)}>{error.errorCode}</td>
+                          <td className={cn('px-4 py-2 font-medium', textColors.danger)}>
+                            {error.errorCode}
+                          </td>
                           <td className="px-4 py-2 text-right fa-list-copy">{error.count}</td>
                         </tr>
                       ))}
@@ -345,10 +355,10 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
             </div>
 
             <div className="flex space-x-2">
-               <Button
-                 onClick={() => {
-                   const data = dashboard.exportMetrics('json');
-                   const blob = new Blob([data], { type: 'application/json' });
+              <Button
+                onClick={() => {
+                  const data = dashboard.exportMetrics('json');
+                  const blob = new Blob([data], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
@@ -356,10 +366,10 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                 className="text-sm"
-               >
-                 Export JSON
-               </Button>
+                className="text-sm"
+              >
+                Export JSON
+              </Button>
 
               <Button
                 onClick={() => {
@@ -378,11 +388,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
                 Export CSV
               </Button>
 
-              <Button
-                onClick={() => dashboard.clearMetrics()}
-                variant="destructive"
-                size="sm"
-              >
+              <Button onClick={() => dashboard.clearMetrics()} variant="destructive" size="sm">
                 Clear Data
               </Button>
             </div>

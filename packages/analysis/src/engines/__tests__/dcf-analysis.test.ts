@@ -376,7 +376,7 @@ describe('DCFValuationEngine', () => {
           riskFreeRate: 0.08,
           marketRiskPremium: 0.12,
           beta: 2.0,
-          costOfDebt: 0.10,
+          costOfDebt: 0.1,
         },
       };
 
@@ -400,7 +400,11 @@ describe('DCFValuationEngine', () => {
 
       const result = DCFValuationEngine.analyze(lowWaccInput);
 
-      expect(result.insights.some((i: string) => i.includes('Low cost of capital') || i.includes('stable cash flows'))).toBe(true);
+      expect(
+        result.insights.some(
+          (i: string) => i.includes('Low cost of capital') || i.includes('stable cash flows')
+        )
+      ).toBe(true);
     });
 
     it('should generate high growth insight when avg growth > 10%', () => {
@@ -421,7 +425,9 @@ describe('DCFValuationEngine', () => {
 
       const result = DCFValuationEngine.analyze(highGrowthInput);
 
-      expect(result.insights.some((i: string) => i.includes('High growth') || i.includes('market size'))).toBe(true);
+      expect(
+        result.insights.some((i: string) => i.includes('High growth') || i.includes('market size'))
+      ).toBe(true);
     });
 
     it('should generate high margin insight when avg margin > 30%', () => {
@@ -442,7 +448,11 @@ describe('DCFValuationEngine', () => {
 
       const result = DCFValuationEngine.analyze(highMarginInput);
 
-      expect(result.insights.some((i: string) => i.includes('High EBITDA margins') || i.includes('competitive advantages'))).toBe(true);
+      expect(
+        result.insights.some(
+          (i: string) => i.includes('High EBITDA margins') || i.includes('competitive advantages')
+        )
+      ).toBe(true);
     });
   });
 
@@ -458,7 +468,11 @@ describe('DCFValuationEngine', () => {
 
       const result = DCFValuationEngine.analyze(highTerminalGrowthInput);
 
-      expect(result.warnings.some((w: string) => w.includes('High terminal growth rate') || w.includes('unrealistic'))).toBe(true);
+      expect(
+        result.warnings.some(
+          (w: string) => w.includes('High terminal growth rate') || w.includes('unrealistic')
+        )
+      ).toBe(true);
     });
 
     it('should handle WACC close to risk-free rate warning branch', () => {
@@ -501,7 +515,11 @@ describe('DCFValuationEngine', () => {
 
       const result = DCFValuationEngine.analyze(veryHighGrowthInput);
 
-      expect(result.warnings.some((w: string) => w.includes('Very high growth') || w.includes('strong justification'))).toBe(true);
+      expect(
+        result.warnings.some(
+          (w: string) => w.includes('Very high growth') || w.includes('strong justification')
+        )
+      ).toBe(true);
     });
   });
 

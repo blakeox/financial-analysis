@@ -351,8 +351,7 @@ export class PerformanceDashboard {
    * Notify all subscribers
    */
   private notifySubscribers(data?: DashboardEvent): void {
-    const updateData: DashboardEvent =
-      data || {
+    const updateData: DashboardEvent = data || {
       type: 'update',
       data: {
         health: this.getSystemHealth(),

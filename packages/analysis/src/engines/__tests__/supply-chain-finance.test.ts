@@ -126,9 +126,7 @@ describe('SupplyChainFinanceOptimizer', () => {
     });
 
     const result = SupplyChainFinanceOptimizer.analyze(input) as any;
-    expect(result.supplierBenefits.suppliers[0].benefit).toBe(
-      'Access to financing at lower cost'
-    );
+    expect(result.supplierBenefits.suppliers[0].benefit).toBe('Access to financing at lower cost');
   });
 
   it('should mark overall risk as high when cash conversion cycle is extended', () => {
@@ -186,4 +184,3 @@ describe('SupplyChainFinanceOptimizer', () => {
     expect(result.riskAnalysis).toBeUndefined();
   });
 });
-

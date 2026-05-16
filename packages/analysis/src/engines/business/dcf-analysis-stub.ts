@@ -6,10 +6,10 @@ export class DCFAnalysisEngine {
         enterpriseValue: 1000000,
         equityValue: 800000,
         sharePrice: 50,
-        valuationRange: { low: 40, high: 60 }
+        valuationRange: { low: 40, high: 60 },
       },
       recommendations: ['Review growth assumptions', 'Validate terminal value'],
-      insights: ['Company appears fairly valued', 'Consider sensitivity analysis']
+      insights: ['Company appears fairly valued', 'Consider sensitivity analysis'],
     };
   }
 }

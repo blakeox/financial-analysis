@@ -4,7 +4,7 @@ test.describe('Amortization (dev proxy smoke)', () => {
   test('submits and renders results via /v1 proxy', async ({ page }) => {
     // Go to analysis page
     await page.goto('/analysis');
-    
+
     // Wait for page to load
     await expect(page.locator('#analysis-form')).toBeVisible();
 

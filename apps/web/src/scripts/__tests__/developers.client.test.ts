@@ -18,8 +18,8 @@ describe('developers.client', () => {
   it('initializes pricing estimate based on slider value', async () => {
     await import('../_shared/developers.client');
 
-  expect(document.getElementById('request-count')?.textContent).toBe('75,000');
-  expect(document.getElementById('estimated-price')?.textContent).toBe('$79');
+    expect(document.getElementById('request-count')?.textContent).toBe('75,000');
+    expect(document.getElementById('estimated-price')?.textContent).toBe('$79');
     expect(document.getElementById('recommended-tier')?.textContent).toContain('Enterprise Tier');
   });
 

@@ -14,7 +14,11 @@ describe('knowledge reindex service', () => {
 
   it('builds absolute URLs and deduplicates them', () => {
     expect(
-      buildKnowledgeReindexUrls('https://fanalyx.com/', ['/developers', 'developers', '/developers'])
+      buildKnowledgeReindexUrls('https://fanalyx.com/', [
+        '/developers',
+        'developers',
+        '/developers',
+      ])
     ).toEqual(['https://fanalyx.com/developers']);
   });
 
@@ -52,11 +56,12 @@ describe('knowledge reindex service', () => {
   });
 
   it('processes a knowledge reindex job by warming cache and triggering AI Search', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
-      new Response('Developer docs body', {
-        status: 200,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () =>
+        new Response('Developer docs body', {
+          status: 200,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        })
     );
 
     const jobsCreate = vi.fn().mockResolvedValue({ id: 'job-123' });
@@ -97,10 +102,7 @@ describe('knowledge reindex service', () => {
       >
     );
 
-    expect(result.urls).toEqual([
-      'https://fanalyx.com/developers',
-      'https://fanalyx.com/agent',
-    ]);
+    expect(result.urls).toEqual(['https://fanalyx.com/developers', 'https://fanalyx.com/agent']);
     expect(result.warmedCount).toBe(2);
     expect(result.aiSearchJobId).toBe('job-123');
     expect(jobsCreate).toHaveBeenCalledWith({

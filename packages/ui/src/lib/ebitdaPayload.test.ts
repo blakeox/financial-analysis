@@ -119,7 +119,7 @@ describe('buildScenarioPayload', () => {
           marketGrowthFactor: 1,
           competitionFactor: 1,
         } as DashboardScenarioConfig,
-      }),
+      })
     ).toThrowError(/at least one month/);
   });
 });

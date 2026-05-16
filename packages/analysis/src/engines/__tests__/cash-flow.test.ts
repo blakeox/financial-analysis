@@ -455,7 +455,7 @@ describe('CashFlowAnalyzer', () => {
             amount: 50000,
             isRecurring: true,
             frequency: 'annual',
-            growthRate: 0.10,
+            growthRate: 0.1,
           },
         ],
       });
@@ -466,7 +466,7 @@ describe('CashFlowAnalyzer', () => {
       expect(result.monthlyCashFlows[0]!.operatingInflows).toBeGreaterThan(0);
       expect(result.monthlyCashFlows[11]!.operatingInflows).toBe(0);
       expect(result.monthlyCashFlows[12]!.operatingInflows).toBeGreaterThan(0);
-      
+
       // Second year should show growth
       expect(result.monthlyCashFlows[12]!.operatingInflows).toBeGreaterThan(
         result.monthlyCashFlows[0]!.operatingInflows
@@ -563,7 +563,7 @@ describe('CashFlowAnalyzer', () => {
 
       // One-time item in March (approximately index 2)
       // Find the month with investing inflows
-      const monthWithInflows = result.monthlyCashFlows.find(m => m.investingInflows > 0);
+      const monthWithInflows = result.monthlyCashFlows.find((m) => m.investingInflows > 0);
       expect(monthWithInflows).toBeDefined();
       expect(monthWithInflows!.investingInflows).toBe(25000);
       expect(monthWithInflows!.netInvestingCashFlow).toBeGreaterThan(0);

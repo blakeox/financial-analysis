@@ -78,9 +78,14 @@ export class StartupFinancialModel {
     netBurnRate: number;
     burnRateTrend: string;
   } {
-    const fixedCosts = expenses.fixedCosts.salaries + expenses.fixedCosts.rent + expenses.fixedCosts.utilities + expenses.fixedCosts.insurance + expenses.fixedCosts.otherFixed;
+    const fixedCosts =
+      expenses.fixedCosts.salaries +
+      expenses.fixedCosts.rent +
+      expenses.fixedCosts.utilities +
+      expenses.fixedCosts.insurance +
+      expenses.fixedCosts.otherFixed;
     const grossBurnRate = fixedCosts / 12;
-    const netBurnRate = grossBurnRate - (current.currentRevenue / 12);
+    const netBurnRate = grossBurnRate - current.currentRevenue / 12;
     const monthlyBurnRate = netBurnRate;
 
     let trend = 'stable';
@@ -115,9 +120,8 @@ export class StartupFinancialModel {
       };
     }
 
-    const runwayMonths = burnRate.monthlyBurnRate > 0
-      ? current.currentCash / burnRate.monthlyBurnRate
-      : 999;
+    const runwayMonths =
+      burnRate.monthlyBurnRate > 0 ? current.currentCash / burnRate.monthlyBurnRate : 999;
     const runwayDate = new Date();
     runwayDate.setMonth(runwayDate.getMonth() + Math.floor(runwayMonths));
     const fundingNeeded = Math.max(0, burnRate.monthlyBurnRate * 6 - current.currentCash); // 6 months buffer
@@ -140,13 +144,23 @@ export class StartupFinancialModel {
     paybackPeriod: number;
     grossMargin: number;
   } {
-    const cac = expenses.variableCosts.customerAcquisitionCost || (expenses.variableCosts.marketing * (revenue.revenueModel === 'subscription' ? current.currentMRR : current.currentRevenue)) / (current.currentCustomers || 1);
-    const arpu = revenue.revenueModel === 'subscription' ? (current.currentMRR / (current.currentCustomers || 1)) * 12 : (current.currentRevenue / (current.currentCustomers || 1));
+    const cac =
+      expenses.variableCosts.customerAcquisitionCost ||
+      (expenses.variableCosts.marketing *
+        (revenue.revenueModel === 'subscription' ? current.currentMRR : current.currentRevenue)) /
+        (current.currentCustomers || 1);
+    const arpu =
+      revenue.revenueModel === 'subscription'
+        ? (current.currentMRR / (current.currentCustomers || 1)) * 12
+        : current.currentRevenue / (current.currentCustomers || 1);
     const churnRate = revenue.monthlyRevenue[0]?.churnRate || 0.05;
     const ltv = arpu / churnRate;
     const ltvCacRatio = cac > 0 ? ltv / cac : 0;
     const paybackPeriod = arpu > 0 ? cac / (arpu / 12) : 0;
-    const grossMargin = revenue.revenueModel === 'subscription' ? (1 - expenses.variableCosts.costOfGoodsSold) * 100 : (1 - expenses.variableCosts.costOfGoodsSold) * 100;
+    const grossMargin =
+      revenue.revenueModel === 'subscription'
+        ? (1 - expenses.variableCosts.costOfGoodsSold) * 100
+        : (1 - expenses.variableCosts.costOfGoodsSold) * 100;
 
     return {
       cac,
@@ -270,6 +284,3 @@ export class StartupFinancialModel {
     return recommendations;
   }
 }
-
-
-

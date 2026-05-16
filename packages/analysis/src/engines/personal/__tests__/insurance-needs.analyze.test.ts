@@ -26,8 +26,18 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
             wholeLife: { coverage: 1000000, cashValue: 200000, monthlyPremium: 300 },
           },
           disabilityInsurance: {
-            shortTerm: { coverage: 100000, waitingPeriod: 14, benefitPeriod: 90, monthlyPremium: 100 },
-            longTerm: { coverage: 100000, waitingPeriod: 90, benefitPeriod: 60, monthlyPremium: 150 },
+            shortTerm: {
+              coverage: 100000,
+              waitingPeriod: 14,
+              benefitPeriod: 90,
+              monthlyPremium: 100,
+            },
+            longTerm: {
+              coverage: 100000,
+              waitingPeriod: 90,
+              benefitPeriod: 60,
+              monthlyPremium: 150,
+            },
           },
           longTermCare: {
             coverage: 500000,
@@ -76,13 +86,15 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
     });
 
     it('exercises helper logic for gap, adequate, and risk insights', () => {
-      const generateInsights = (InsuranceNeedsCalculator as unknown as {
-        generateInsights: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          riskAssessment: InsuranceNeedsResult['riskAssessment']
-        ) => string[];
-      }).generateInsights;
+      const generateInsights = (
+        InsuranceNeedsCalculator as unknown as {
+          generateInsights: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            riskAssessment: InsuranceNeedsResult['riskAssessment']
+          ) => string[];
+        }
+      ).generateInsights;
 
       const gapSummary: InsuranceNeedsResult['insuranceSummary'] = {
         totalRecommendedCoverage: 300000,
@@ -159,17 +171,21 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
       };
 
       const result = InsuranceNeedsCalculator.analyze(input);
-      expect(result.warnings.some((w) => w.includes('coverage gap') || w.includes('health score'))).toBe(true);
+      expect(
+        result.warnings.some((w) => w.includes('coverage gap') || w.includes('health score'))
+      ).toBe(true);
     });
 
     it('only emits coverage gap warning when exceeding helper threshold', () => {
-      const generateWarnings = (InsuranceNeedsCalculator as unknown as {
-        generateWarnings: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          riskAssessment: InsuranceNeedsResult['riskAssessment']
-        ) => string[];
-      }).generateWarnings;
+      const generateWarnings = (
+        InsuranceNeedsCalculator as unknown as {
+          generateWarnings: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            riskAssessment: InsuranceNeedsResult['riskAssessment']
+          ) => string[];
+        }
+      ).generateWarnings;
 
       const baseSummary: InsuranceNeedsResult['insuranceSummary'] = {
         totalRecommendedCoverage: 300000,
@@ -186,7 +202,9 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
         recommendations: [],
       });
 
-      expect(warnings).toContain('Large coverage gap detected - consider increasing insurance coverage');
+      expect(warnings).toContain(
+        'Large coverage gap detected - consider increasing insurance coverage'
+      );
 
       const boundaryWarnings = generateWarnings(
         baseInput,
@@ -207,13 +225,15 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
     });
 
     it('includes explicit warning when insurance health score falls below 50', () => {
-      const generateWarnings = (InsuranceNeedsCalculator as unknown as {
-        generateWarnings: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          riskAssessment: InsuranceNeedsResult['riskAssessment']
-        ) => string[];
-      }).generateWarnings;
+      const generateWarnings = (
+        InsuranceNeedsCalculator as unknown as {
+          generateWarnings: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            riskAssessment: InsuranceNeedsResult['riskAssessment']
+          ) => string[];
+        }
+      ).generateWarnings;
 
       const warnings = generateWarnings(
         baseInput,
@@ -278,8 +298,18 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
             wholeLife: { coverage: 500000, cashValue: 100000, monthlyPremium: 200 },
           },
           disabilityInsurance: {
-            shortTerm: { coverage: 50000, waitingPeriod: 14, benefitPeriod: 90, monthlyPremium: 50 },
-            longTerm: { coverage: 50000, waitingPeriod: 90, benefitPeriod: 60, monthlyPremium: 100 },
+            shortTerm: {
+              coverage: 50000,
+              waitingPeriod: 14,
+              benefitPeriod: 90,
+              monthlyPremium: 50,
+            },
+            longTerm: {
+              coverage: 50000,
+              waitingPeriod: 90,
+              benefitPeriod: 60,
+              monthlyPremium: 100,
+            },
           },
           longTermCare: {
             coverage: 400000,
@@ -352,21 +382,23 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
 
       const result = InsuranceNeedsCalculator.analyze(input);
       if (result.costAnalysis.affordabilityAssessment === 'stretch') {
-        const stretchRec = result.recommendations.find((r) =>
-          r.includes('manageable') || r.includes('budget')
+        const stretchRec = result.recommendations.find(
+          (r) => r.includes('manageable') || r.includes('budget')
         );
         expect(stretchRec).toBeDefined();
       }
     });
 
     it('mirrors stretch affordability guidance when budgets are tight', () => {
-      const generateRecommendations = (InsuranceNeedsCalculator as unknown as {
-        generateRecommendations: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          costAnalysis: InsuranceNeedsResult['costAnalysis']
-        ) => string[];
-      }).generateRecommendations;
+      const generateRecommendations = (
+        InsuranceNeedsCalculator as unknown as {
+          generateRecommendations: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            costAnalysis: InsuranceNeedsResult['costAnalysis']
+          ) => string[];
+        }
+      ).generateRecommendations;
 
       const recommendations = generateRecommendations(
         baseInput,
@@ -397,13 +429,15 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
     });
 
     it('emits priority call-to-action when summary has high priority gaps', () => {
-      const generateRecommendations = (InsuranceNeedsCalculator as unknown as {
-        generateRecommendations: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          costAnalysis: InsuranceNeedsResult['costAnalysis']
-        ) => string[];
-      }).generateRecommendations;
+      const generateRecommendations = (
+        InsuranceNeedsCalculator as unknown as {
+          generateRecommendations: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            costAnalysis: InsuranceNeedsResult['costAnalysis']
+          ) => string[];
+        }
+      ).generateRecommendations;
 
       const recommendations = generateRecommendations(
         baseInput,
@@ -441,13 +475,15 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
     });
 
     it('includes unaffordable guidance when affordability assessment is unaffordable', () => {
-      const generateRecommendations = (InsuranceNeedsCalculator as unknown as {
-        generateRecommendations: (
-          input: InsuranceNeedsInput,
-          insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
-          costAnalysis: InsuranceNeedsResult['costAnalysis']
-        ) => string[];
-      }).generateRecommendations;
+      const generateRecommendations = (
+        InsuranceNeedsCalculator as unknown as {
+          generateRecommendations: (
+            input: InsuranceNeedsInput,
+            insuranceSummary: InsuranceNeedsResult['insuranceSummary'],
+            costAnalysis: InsuranceNeedsResult['costAnalysis']
+          ) => string[];
+        }
+      ).generateRecommendations;
 
       const recommendations = generateRecommendations(
         baseInput,
@@ -523,14 +559,16 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
   describe('priority recommendation helper', () => {
     it('elevates life and disability gaps above fifty percent to high priority', () => {
       const baseResult = InsuranceNeedsCalculator.analyze(baseInput);
-      const generatePriorityRecommendations = (InsuranceNeedsCalculator as unknown as {
-        generatePriorityRecommendations: (
-          input: InsuranceNeedsInput,
-          life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
-          disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
-          ltc: InsuranceNeedsResult['longTermCareAnalysis']
-        ) => InsuranceNeedsResult['insuranceSummary']['priorityRecommendations'];
-      }).generatePriorityRecommendations;
+      const generatePriorityRecommendations = (
+        InsuranceNeedsCalculator as unknown as {
+          generatePriorityRecommendations: (
+            input: InsuranceNeedsInput,
+            life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
+            disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
+            ltc: InsuranceNeedsResult['longTermCareAnalysis']
+          ) => InsuranceNeedsResult['insuranceSummary']['priorityRecommendations'];
+        }
+      ).generatePriorityRecommendations;
 
       const recommendations = generatePriorityRecommendations(
         baseInput,
@@ -580,8 +618,18 @@ describe('InsuranceNeedsCalculator analyze flow', () => {
         currentInsurance: {
           ...baseInput.currentInsurance,
           disabilityInsurance: {
-            shortTerm: { coverage: 30000, waitingPeriod: 14, benefitPeriod: 90, monthlyPremium: 50 },
-            longTerm: { coverage: 35000, waitingPeriod: 90, benefitPeriod: 60, monthlyPremium: 100 },
+            shortTerm: {
+              coverage: 30000,
+              waitingPeriod: 14,
+              benefitPeriod: 90,
+              monthlyPremium: 50,
+            },
+            longTerm: {
+              coverage: 35000,
+              waitingPeriod: 90,
+              benefitPeriod: 60,
+              monthlyPremium: 100,
+            },
           },
         },
       };

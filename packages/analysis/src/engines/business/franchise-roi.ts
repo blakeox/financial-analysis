@@ -13,19 +13,26 @@ export class FranchiseROICalculator {
     // Handle potential missing fields or property mismatches from test input
     const initialInvestment = {
       ...input.initialInvestment,
-      totalInvestment: input.initialInvestment.totalInvestment || (
+      totalInvestment:
+        input.initialInvestment.totalInvestment ||
         input.initialInvestment.franchiseFee +
-        (input.initialInvestment.realEstate || (input.initialInvestment as any).realEstateCost || 0) +
-        (input.initialInvestment.equipment || (input.initialInvestment as any).equipmentCost || 0) +
-        (input.initialInvestment.inventory || 0) +
-        input.initialInvestment.workingCapital +
-        (input.initialInvestment.otherCosts || 0)
-      ),
+          (input.initialInvestment.realEstate ||
+            (input.initialInvestment as any).realEstateCost ||
+            0) +
+          (input.initialInvestment.equipment ||
+            (input.initialInvestment as any).equipmentCost ||
+            0) +
+          (input.initialInvestment.inventory || 0) +
+          input.initialInvestment.workingCapital +
+          (input.initialInvestment.otherCosts || 0),
     };
 
     const ongoingCosts = {
       ...input.ongoingCosts,
-      annualOperatingExpenses: input.ongoingCosts.annualOperatingExpenses || (input.ongoingCosts as any).annualOperatingCosts || 0,
+      annualOperatingExpenses:
+        input.ongoingCosts.annualOperatingExpenses ||
+        (input.ongoingCosts as any).annualOperatingCosts ||
+        0,
     };
 
     const revenueProjections = input.revenueProjections;
@@ -36,7 +43,10 @@ export class FranchiseROICalculator {
     };
     const analysis = {
       ...input.analysis,
-      includeSensitivityAnalysis: input.analysis.includeSensitivityAnalysis || (input.analysis as any).includeScenarioAnalysis || false,
+      includeSensitivityAnalysis:
+        input.analysis.includeSensitivityAnalysis ||
+        (input.analysis as any).includeScenarioAnalysis ||
+        false,
     };
 
     // Calculate cash flows
@@ -59,12 +69,8 @@ export class FranchiseROICalculator {
       : undefined;
 
     // NPV and IRR
-    const npv = analysis.includeNPV
-      ? this.calculateNPV(cashFlows, 0.1)
-      : undefined;
-    const irr = analysis.includeIRR
-      ? this.calculateIRR(cashFlows)
-      : undefined;
+    const npv = analysis.includeNPV ? this.calculateNPV(cashFlows, 0.1) : undefined;
+    const irr = analysis.includeIRR ? this.calculateIRR(cashFlows) : undefined;
 
     // Break-even analysis
     const breakEven = analysis.includeBreakEven
@@ -101,10 +107,12 @@ export class FranchiseROICalculator {
       paybackPeriod,
       npv,
       irr,
-      breakEvenAnalysis: breakEven ? {
-        ...breakEven,
-        breakEvenMonth: breakEven.year * 12,
-      } : undefined,
+      breakEvenAnalysis: breakEven
+        ? {
+            ...breakEven,
+            breakEvenMonth: breakEven.year * 12,
+          }
+        : undefined,
       breakEven,
       scenarioAnalysis: sensitivity,
       sensitivity,
@@ -118,16 +126,36 @@ export class FranchiseROICalculator {
     revenue: FranchiseROIInput['revenueProjections'],
     _analysis: FranchiseROIInput['analysis']
   ): {
-    annualCashFlows: Array<{ year: number; revenue: number; expenses: number; netCashFlow: number; cumulativeCashFlow: number }>;
+    annualCashFlows: Array<{
+      year: number;
+      revenue: number;
+      expenses: number;
+      netCashFlow: number;
+      cumulativeCashFlow: number;
+    }>;
   } {
-    const cashFlows: Array<{ year: number; revenue: number; expenses: number; netCashFlow: number; cumulativeCashFlow: number }> = [];
+    const cashFlows: Array<{
+      year: number;
+      revenue: number;
+      expenses: number;
+      netCashFlow: number;
+      cumulativeCashFlow: number;
+    }> = [];
     let cumulativeCashFlow = -initial.totalInvestment;
 
     for (let year = 1; year <= revenue.revenueProjectionYears; year++) {
-      const yearRevenue = revenue.firstYearRevenue * Math.pow(1 + revenue.revenueGrowthRate, year - 1);
+      const yearRevenue =
+        revenue.firstYearRevenue * Math.pow(1 + revenue.revenueGrowthRate, year - 1);
       const royaltyFee = yearRevenue * ongoing.royaltyFee;
       const marketingFee = yearRevenue * ongoing.marketingFee;
-      const totalExpenses = royaltyFee + marketingFee + ongoing.annualOperatingExpenses + ongoing.annualRent + ongoing.annualUtilities + ongoing.annualInsurance + ongoing.annualSalaries;
+      const totalExpenses =
+        royaltyFee +
+        marketingFee +
+        ongoing.annualOperatingExpenses +
+        ongoing.annualRent +
+        ongoing.annualUtilities +
+        ongoing.annualInsurance +
+        ongoing.annualSalaries;
       const netCashFlow = yearRevenue - totalExpenses;
       cumulativeCashFlow += netCashFlow;
 
@@ -158,7 +186,8 @@ export class FranchiseROICalculator {
     const exitValue = exit.expectedExitValue;
     const totalReturn = totalCashFlow + exitValue;
     const totalROI = ((totalReturn - initial.totalInvestment) / initial.totalInvestment) * 100;
-    const annualizedROI = (Math.pow(totalReturn / initial.totalInvestment, 1 / exit.expectedExitYear) - 1) * 100;
+    const annualizedROI =
+      (Math.pow(totalReturn / initial.totalInvestment, 1 / exit.expectedExitYear) - 1) * 100;
 
     return {
       totalROI,
@@ -192,9 +221,9 @@ export class FranchiseROICalculator {
     return npv;
   }
 
-  private static calculateIRR(
-    cashFlows: { annualCashFlows: Array<{ netCashFlow: number }> }
-  ): number {
+  private static calculateIRR(cashFlows: {
+    annualCashFlows: Array<{ netCashFlow: number }>;
+  }): number {
     // Simplified IRR calculation using trial and error
     let irr = 0.1;
     const maxIterations = 100;
@@ -234,14 +263,20 @@ export class FranchiseROICalculator {
     monthlyRevenue: number;
     breakEvenRevenue: number;
   } {
-    const fixedCosts = ongoing.annualOperatingExpenses + ongoing.annualRent + ongoing.annualUtilities + ongoing.annualInsurance + ongoing.annualSalaries;
+    const fixedCosts =
+      ongoing.annualOperatingExpenses +
+      ongoing.annualRent +
+      ongoing.annualUtilities +
+      ongoing.annualInsurance +
+      ongoing.annualSalaries;
     const variableCostRate = ongoing.royaltyFee + ongoing.marketingFee;
     const breakEvenRevenue = fixedCosts / (1 - variableCostRate);
 
     // Find year when revenue exceeds break-even
     let year = 1;
     while (year <= revenue.revenueProjectionYears) {
-      const yearRevenue = revenue.firstYearRevenue * Math.pow(1 + revenue.revenueGrowthRate, year - 1);
+      const yearRevenue =
+        revenue.firstYearRevenue * Math.pow(1 + revenue.revenueGrowthRate, year - 1);
       if (yearRevenue >= breakEvenRevenue) {
         break;
       }
@@ -262,7 +297,14 @@ export class FranchiseROICalculator {
   ): {
     scenarios: Array<{ scenario: string; npv: number; irr: number }>;
   } {
-    const baseCashFlows = this.calculateCashFlows(initial, ongoing, revenue, { includeROI: true, includePaybackPeriod: true, includeNPV: true, includeIRR: true, includeBreakEven: true, includeSensitivityAnalysis: false });
+    const baseCashFlows = this.calculateCashFlows(initial, ongoing, revenue, {
+      includeROI: true,
+      includePaybackPeriod: true,
+      includeNPV: true,
+      includeIRR: true,
+      includeBreakEven: true,
+      includeSensitivityAnalysis: false,
+    });
     const baseNPV = this.calculateNPV(baseCashFlows, 0.1);
     const baseIRR = this.calculateIRR(baseCashFlows);
 
@@ -274,13 +316,71 @@ export class FranchiseROICalculator {
       },
       {
         scenario: 'Optimistic (+20% Revenue)',
-        npv: this.calculateNPV(this.calculateCashFlows(initial, ongoing, { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 1.2 }, { includeROI: true, includePaybackPeriod: true, includeNPV: true, includeIRR: true, includeBreakEven: true, includeSensitivityAnalysis: false }), 0.1),
-        irr: this.calculateIRR(this.calculateCashFlows(initial, ongoing, { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 1.2 }, { includeROI: true, includePaybackPeriod: true, includeNPV: true, includeIRR: true, includeBreakEven: true, includeSensitivityAnalysis: false })),
+        npv: this.calculateNPV(
+          this.calculateCashFlows(
+            initial,
+            ongoing,
+            { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 1.2 },
+            {
+              includeROI: true,
+              includePaybackPeriod: true,
+              includeNPV: true,
+              includeIRR: true,
+              includeBreakEven: true,
+              includeSensitivityAnalysis: false,
+            }
+          ),
+          0.1
+        ),
+        irr: this.calculateIRR(
+          this.calculateCashFlows(
+            initial,
+            ongoing,
+            { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 1.2 },
+            {
+              includeROI: true,
+              includePaybackPeriod: true,
+              includeNPV: true,
+              includeIRR: true,
+              includeBreakEven: true,
+              includeSensitivityAnalysis: false,
+            }
+          )
+        ),
       },
       {
         scenario: 'Pessimistic (-20% Revenue)',
-        npv: this.calculateNPV(this.calculateCashFlows(initial, ongoing, { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 0.8 }, { includeROI: true, includePaybackPeriod: true, includeNPV: true, includeIRR: true, includeBreakEven: true, includeSensitivityAnalysis: false }), 0.1),
-        irr: this.calculateIRR(this.calculateCashFlows(initial, ongoing, { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 0.8 }, { includeROI: true, includePaybackPeriod: true, includeNPV: true, includeIRR: true, includeBreakEven: true, includeSensitivityAnalysis: false })),
+        npv: this.calculateNPV(
+          this.calculateCashFlows(
+            initial,
+            ongoing,
+            { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 0.8 },
+            {
+              includeROI: true,
+              includePaybackPeriod: true,
+              includeNPV: true,
+              includeIRR: true,
+              includeBreakEven: true,
+              includeSensitivityAnalysis: false,
+            }
+          ),
+          0.1
+        ),
+        irr: this.calculateIRR(
+          this.calculateCashFlows(
+            initial,
+            ongoing,
+            { ...revenue, firstYearRevenue: revenue.firstYearRevenue * 0.8 },
+            {
+              includeROI: true,
+              includePaybackPeriod: true,
+              includeNPV: true,
+              includeIRR: true,
+              includeBreakEven: true,
+              includeSensitivityAnalysis: false,
+            }
+          )
+        ),
       },
     ];
 
@@ -325,6 +425,3 @@ export class FranchiseROICalculator {
     return recommendations;
   }
 }
-
-
-

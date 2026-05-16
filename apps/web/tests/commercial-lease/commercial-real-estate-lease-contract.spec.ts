@@ -89,7 +89,9 @@ test.describe('Commercial real estate lease contracts', () => {
 
     await page.locator('input[type="file"]').setInputFiles(pdfUpload);
 
-    await expect(page.getByText(/Uploading document|Analyzing content|Extracting lease data/)).toBeVisible();
+    await expect(
+      page.getByText(/Uploading document|Analyzing content|Extracting lease data/)
+    ).toBeVisible();
     await expect(page.locator('.absolute.top-0.left-0.w-full.h-1')).toBeVisible();
 
     releaseResponse();

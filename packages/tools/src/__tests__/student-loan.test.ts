@@ -56,9 +56,27 @@ describe('StudentLoanTool', () => {
     it('handles multiple loans with different types', async () => {
       const result = await StudentLoanTool.execute({
         loans: [
-          { name: 'Subsidized Loan', balance: 15000, interestRate: 0.045, minimumPayment: 150, loanType: 'federal_subsidized' },
-          { name: 'Unsubsidized Loan', balance: 25000, interestRate: 0.065, minimumPayment: 280, loanType: 'federal_unsubsidized' },
-          { name: 'Private Loan', balance: 10000, interestRate: 0.08, minimumPayment: 150, loanType: 'private' },
+          {
+            name: 'Subsidized Loan',
+            balance: 15000,
+            interestRate: 0.045,
+            minimumPayment: 150,
+            loanType: 'federal_subsidized',
+          },
+          {
+            name: 'Unsubsidized Loan',
+            balance: 25000,
+            interestRate: 0.065,
+            minimumPayment: 280,
+            loanType: 'federal_unsubsidized',
+          },
+          {
+            name: 'Private Loan',
+            balance: 10000,
+            interestRate: 0.08,
+            minimumPayment: 150,
+            loanType: 'private',
+          },
         ],
       });
 
@@ -68,21 +86,19 @@ describe('StudentLoanTool', () => {
 
     it('handles extra monthly payment', async () => {
       const resultWithoutExtra = await StudentLoanTool.execute({
-        loans: [
-          { name: 'Loan', balance: 20000, interestRate: 0.06, minimumPayment: 250 },
-        ],
+        loans: [{ name: 'Loan', balance: 20000, interestRate: 0.06, minimumPayment: 250 }],
         extraMonthlyPayment: 0,
       });
 
       const resultWithExtra = await StudentLoanTool.execute({
-        loans: [
-          { name: 'Loan', balance: 20000, interestRate: 0.06, minimumPayment: 250 },
-        ],
+        loans: [{ name: 'Loan', balance: 20000, interestRate: 0.06, minimumPayment: 250 }],
         extraMonthlyPayment: 200,
       });
 
       // Extra payment should reduce total months
-      expect(resultWithExtra.summary.totalMonthsToPayoff).toBeLessThan(resultWithoutExtra.summary.totalMonthsToPayoff);
+      expect(resultWithExtra.summary.totalMonthsToPayoff).toBeLessThan(
+        resultWithoutExtra.summary.totalMonthsToPayoff
+      );
     });
 
     it('supports avalanche strategy', async () => {
@@ -114,7 +130,13 @@ describe('StudentLoanTool', () => {
     it('handles income-driven repayment plan', async () => {
       const result = await StudentLoanTool.execute({
         loans: [
-          { name: 'Federal Loan', balance: 40000, interestRate: 0.065, minimumPayment: 450, loanType: 'federal_unsubsidized' },
+          {
+            name: 'Federal Loan',
+            balance: 40000,
+            interestRate: 0.065,
+            minimumPayment: 450,
+            loanType: 'federal_unsubsidized',
+          },
         ],
         incomeDrivenPlan: {
           planType: 'PAYE',
@@ -130,8 +152,20 @@ describe('StudentLoanTool', () => {
     it('handles refinancing option', async () => {
       const result = await StudentLoanTool.execute({
         loans: [
-          { name: 'Loan 1', balance: 25000, interestRate: 0.07, minimumPayment: 300, loanType: 'federal_unsubsidized' },
-          { name: 'Loan 2', balance: 15000, interestRate: 0.08, minimumPayment: 200, loanType: 'private' },
+          {
+            name: 'Loan 1',
+            balance: 25000,
+            interestRate: 0.07,
+            minimumPayment: 300,
+            loanType: 'federal_unsubsidized',
+          },
+          {
+            name: 'Loan 2',
+            balance: 15000,
+            interestRate: 0.08,
+            minimumPayment: 200,
+            loanType: 'private',
+          },
         ],
         refinancingOption: {
           newInterestRate: 0.045,
@@ -147,7 +181,13 @@ describe('StudentLoanTool', () => {
     it('handles forgiveness eligibility', async () => {
       const result = await StudentLoanTool.execute({
         loans: [
-          { name: 'Federal Loan', balance: 80000, interestRate: 0.065, minimumPayment: 800, loanType: 'federal_unsubsidized' },
+          {
+            name: 'Federal Loan',
+            balance: 80000,
+            interestRate: 0.065,
+            minimumPayment: 800,
+            loanType: 'federal_unsubsidized',
+          },
         ],
         incomeDrivenPlan: {
           planType: 'PAYE',
@@ -172,9 +212,7 @@ describe('StudentLoanTool', () => {
     it('rejects negative balance', async () => {
       await expect(
         StudentLoanTool.execute({
-          loans: [
-            { name: 'Invalid', balance: -1000, interestRate: 0.06, minimumPayment: 100 },
-          ],
+          loans: [{ name: 'Invalid', balance: -1000, interestRate: 0.06, minimumPayment: 100 }],
         })
       ).rejects.toThrow();
     });

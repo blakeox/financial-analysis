@@ -58,7 +58,11 @@ class AIFieldHighlighter {
   /**
    * Highlight a field change with animation and validation
    */
-  highlightFieldChange(fieldName: string, newValue: HighlightValue, options: HighlightOptions = {}): boolean {
+  highlightFieldChange(
+    fieldName: string,
+    newValue: HighlightValue,
+    options: HighlightOptions = {}
+  ): boolean {
     const {
       duration = 2000,
       showBadge = true,
@@ -88,7 +92,12 @@ class AIFieldHighlighter {
     }
 
     // Handle step constraints
-    if (field instanceof HTMLInputElement && field.step && field.step !== 'any' && typeof normalizedValue === 'number') {
+    if (
+      field instanceof HTMLInputElement &&
+      field.step &&
+      field.step !== 'any' &&
+      typeof normalizedValue === 'number'
+    ) {
       const step = parseFloat(field.step);
       if (step > 0) {
         normalizedValue = Math.round(normalizedValue / step) * step;
@@ -133,9 +142,7 @@ class AIFieldHighlighter {
           const remainder = fixedValue % step;
           if (remainder !== 0) {
             fixedValue = Math.round(fixedValue / step) * step;
-            fixedValue = parseFloat(
-              fixedValue.toFixed(step.toString().split('.')[1]?.length || 0)
-            );
+            fixedValue = parseFloat(fixedValue.toFixed(step.toString().split('.')[1]?.length || 0));
           }
         }
 

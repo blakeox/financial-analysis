@@ -94,9 +94,14 @@ describe('NetWorthTracker', () => {
     } as NetWorthInput);
 
     expect(result.summary.yearsToTarget).toBe(1);
-    expect(result.milestones?.milestones.some((m: { milestone: string }) => m.milestone === 'Target Net Worth'))
-      .toBe(true);
-    expect(result.recommendations.some((rec: string) => rec.includes('Years to reach target'))).toBe(true);
+    expect(
+      result.milestones?.milestones.some(
+        (m: { milestone: string }) => m.milestone === 'Target Net Worth'
+      )
+    ).toBe(true);
+    expect(
+      result.recommendations.some((rec: string) => rec.includes('Years to reach target'))
+    ).toBe(true);
   });
 
   it('handles negative net worth and debt recommendations', () => {
@@ -128,8 +133,12 @@ describe('NetWorthTracker', () => {
     } as NetWorthInput);
 
     expect(result.debtAnalysis.debtToNetWorth).toBe(999);
-    expect(result.debtAnalysis.recommendations.some((rec: string) => rec.includes('High-interest debt'))).toBe(true);
-    expect(result.debtAnalysis.recommendations.some((rec: string) => rec.includes('debt-to-assets'))).toBe(true);
+    expect(
+      result.debtAnalysis.recommendations.some((rec: string) => rec.includes('High-interest debt'))
+    ).toBe(true);
+    expect(
+      result.debtAnalysis.recommendations.some((rec: string) => rec.includes('debt-to-assets'))
+    ).toBe(true);
   });
 
   it('clamps diversification score to 100', () => {
@@ -161,7 +170,9 @@ describe('NetWorthTracker', () => {
     } as NetWorthInput);
 
     expect(result.assetAllocation.diversificationScore).toBe(100);
-    expect(result.recommendations.some((rec: string) => rec.includes('Years to reach target'))).toBe(false);
+    expect(
+      result.recommendations.some((rec: string) => rec.includes('Years to reach target'))
+    ).toBe(false);
   });
 
   it('should skip target milestone when target net worth is already met', () => {
@@ -193,8 +204,11 @@ describe('NetWorthTracker', () => {
     } as NetWorthInput);
 
     expect(result.summary.yearsToTarget).toBeUndefined();
-    expect(result.milestones?.milestones.some((m: { milestone: string }) => m.milestone === 'Target Net Worth'))
-      .toBe(false);
+    expect(
+      result.milestones?.milestones.some(
+        (m: { milestone: string }) => m.milestone === 'Target Net Worth'
+      )
+    ).toBe(false);
   });
 
   it('should omit standard milestones when current net worth exceeds all thresholds', () => {

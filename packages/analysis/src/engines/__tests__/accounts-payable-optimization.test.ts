@@ -194,4 +194,3 @@ describe('AccountsPayableOptimizer', () => {
     expect(result.vendorAnalysis).toBeUndefined();
   });
 });
-

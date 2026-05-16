@@ -18,11 +18,11 @@ describe('EnhancedLeaseAnalyzer', () => {
       expect(result.schedule).toHaveLength(36);
       expect(result.metrics.totalCost).toBeGreaterThan(0);
       expect(result.metrics.presentValue).toBeGreaterThan(0);
-      
+
       // First payment should be reasonable
       expect(result.schedule[0]?.totalPayment).toBeGreaterThan(1000);
       expect(result.schedule[0]?.totalPayment).toBeLessThan(2000);
-      
+
       // Risk analysis should be present
       expect(result.riskAnalysis.flexibilityScore).toBeGreaterThanOrEqual(0);
       expect(result.riskAnalysis.flexibilityScore).toBeLessThanOrEqual(100);
@@ -44,7 +44,7 @@ describe('EnhancedLeaseAnalyzer', () => {
       expect(result.escalationSummary).toBeDefined();
       expect(result.escalationSummary?.type).toBe('fixed');
       expect(result.escalationSummary?.averageAnnualIncrease).toBe(0.03);
-      
+
       // Payment in month 13 should be higher than month 1 due to escalation
       const firstYearPayment = result.schedule[0]?.escalatedPayment || 0;
       const secondYearPayment = result.schedule[12]?.escalatedPayment || 0;
@@ -121,7 +121,7 @@ describe('EnhancedLeaseAnalyzer', () => {
       });
 
       expect(result.escalationSummary?.type).toBe('cpi');
-      
+
       // Second year payment should be escalated
       const firstYearTotal = result.schedule[0]?.totalPayment || 0;
       const secondYearTotal = result.schedule[12]?.totalPayment || 0;
@@ -154,9 +154,10 @@ describe('EnhancedLeaseAnalyzer', () => {
 
       expect(result.leaseType).toBe('medical-nnn');
       expect(result.schedule[0]?.basePayment).toBe(6000);
-      
+
       // Calculate total additional costs
-      const expectedAdditionalTotal = 300 + 400 + 250 + 500 + 200 + 100 + 150 + 200 + 300 + 100 + 50 + 150 + 75 + 50;
+      const expectedAdditionalTotal =
+        300 + 400 + 250 + 500 + 200 + 100 + 150 + 200 + 300 + 100 + 50 + 150 + 75 + 50;
       expect(result.schedule[0]?.additionalCosts.total).toBe(expectedAdditionalTotal);
       expect(result.schedule[0]?.totalPayment).toBe(6000 + expectedAdditionalTotal);
     });
@@ -178,7 +179,7 @@ describe('EnhancedLeaseAnalyzer', () => {
       });
 
       expect(result.schedule[0]?.percentageRent).toBeGreaterThan(0);
-      
+
       // Should have percentage rent since sales exceed breakpoint
       const monthlySales = 800000 / 12; // ~$66.7k
       const monthlyBreakpoint = 600000 / 12; // $50k

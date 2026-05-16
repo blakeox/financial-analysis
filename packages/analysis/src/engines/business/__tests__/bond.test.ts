@@ -33,7 +33,9 @@ describe('Bond Schema', () => {
       bondType: 'corporate',
     };
 
-    expect(() => BondSchema.parse(invalidFrequencyBond)).toThrow(/Frequency must be 1, 2, 4, or 12/);
+    expect(() => BondSchema.parse(invalidFrequencyBond)).toThrow(
+      /Frequency must be 1, 2, 4, or 12/
+    );
   });
 });
 

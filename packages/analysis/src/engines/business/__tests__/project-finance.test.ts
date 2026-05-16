@@ -191,11 +191,41 @@ describe('ProjectFinanceAnalyzer', () => {
       cashFlows: {
         initialInvestment: 400000,
         annualCashFlows: [
-          { year: 1, revenue: 500000, operatingExpenses: 180000, capitalExpenditures: 20000, workingCapital: 5000 },
-          { year: 2, revenue: 550000, operatingExpenses: 190000, capitalExpenditures: 20000, workingCapital: 5000 },
-          { year: 3, revenue: 600000, operatingExpenses: 200000, capitalExpenditures: 20000, workingCapital: 5000 },
-          { year: 4, revenue: 650000, operatingExpenses: 210000, capitalExpenditures: 20000, workingCapital: 5000 },
-          { year: 5, revenue: 700000, operatingExpenses: 220000, capitalExpenditures: 20000, workingCapital: 5000 },
+          {
+            year: 1,
+            revenue: 500000,
+            operatingExpenses: 180000,
+            capitalExpenditures: 20000,
+            workingCapital: 5000,
+          },
+          {
+            year: 2,
+            revenue: 550000,
+            operatingExpenses: 190000,
+            capitalExpenditures: 20000,
+            workingCapital: 5000,
+          },
+          {
+            year: 3,
+            revenue: 600000,
+            operatingExpenses: 200000,
+            capitalExpenditures: 20000,
+            workingCapital: 5000,
+          },
+          {
+            year: 4,
+            revenue: 650000,
+            operatingExpenses: 210000,
+            capitalExpenditures: 20000,
+            workingCapital: 5000,
+          },
+          {
+            year: 5,
+            revenue: 700000,
+            operatingExpenses: 220000,
+            capitalExpenditures: 20000,
+            workingCapital: 5000,
+          },
         ],
       },
       financing: {

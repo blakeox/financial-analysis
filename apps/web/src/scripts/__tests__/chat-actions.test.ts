@@ -11,8 +11,13 @@ describe('chat-actions', () => {
   const captureContext = () => {
     const contexts: Array<{ label: string | null; data: Record<string, unknown> | null }> = [];
     const listener = (event: Event) => {
-      const detail = (event as CustomEvent<{ label?: string | null; data?: Record<string, unknown> | null }>).detail;
-      contexts.push({ label: detail?.label ?? null, data: (detail?.data ?? null) as Record<string, unknown> | null });
+      const detail = (
+        event as CustomEvent<{ label?: string | null; data?: Record<string, unknown> | null }>
+      ).detail;
+      contexts.push({
+        label: detail?.label ?? null,
+        data: (detail?.data ?? null) as Record<string, unknown> | null,
+      });
     };
     window.addEventListener('chat-panel-context', listener as EventListener);
     return {
@@ -35,7 +40,10 @@ describe('chat-actions', () => {
     openChatWithContext('Lease Analysis', { principal: 1000 });
 
     expect(toggleSpy).toHaveBeenCalledOnce();
-    expect(recorder.contexts.at(-1)).toEqual({ label: 'Lease Analysis', data: { principal: 1000 } });
+    expect(recorder.contexts.at(-1)).toEqual({
+      label: 'Lease Analysis',
+      data: { principal: 1000 },
+    });
     recorder.dispose();
   });
 

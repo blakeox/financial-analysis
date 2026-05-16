@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Advanced Playwright Tests for Commercial Real Estate Lease Analysis
- * 
+ *
  * These tests cover:
  * 1. Template loading and customization
  * 2. AI extraction workflow
@@ -26,20 +26,20 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
     test('should load and apply Industrial Warehouse NNN template', async ({ page }) => {
       // Find and click the "Load Template" button for Industrial Warehouse
       const loadTemplateButton = page.getByRole('button', { name: /industrial warehouse/i });
-      
+
       if (await loadTemplateButton.isVisible()) {
         await loadTemplateButton.click();
-        
+
         // Verify the form is populated with template values
         const baseRentInput = page.getByLabel(/base rent/i);
         const baseRentValue = await baseRentInput.inputValue();
         expect(baseRentValue).toMatch(/45000/);
-        
+
         // Verify lease type is set
         const leaseTypeSelect = page.locator('select').first();
         const leaseType = await leaseTypeSelect.inputValue();
         expect(leaseType).toContain('warehouse-nnn');
-        
+
         // Verify term is set to 60 months
         const termInput = page.getByLabel(/term/i);
         const termValue = await termInput.inputValue();
@@ -49,12 +49,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
     test('should display all available templates', async ({ page }) => {
       // Look for template cards or buttons
-      const templates = [
-        /industrial warehouse/i,
-        /office building/i,
-        /retail/i,
-        /medical office/i,
-      ];
+      const templates = [/industrial warehouse/i, /office building/i, /retail/i, /medical office/i];
 
       for (const template of templates) {
         const templateElement = page.getByRole('button', { name: template });
@@ -68,13 +63,16 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       if (await officeTemplate.isVisible()) {
         await officeTemplate.click();
         await page.waitForTimeout(1000);
-        
+
         // Verify office-specific fields are shown
         const baseRentInput = page.getByLabel(/base rent/i);
         expect(await baseRentInput.isVisible()).toBeTruthy();
-        
+
         // Verify additional costs section is populated
-        const camChargesInput = page.getByLabel(/cam/i).or(page.getByLabel(/common area maintenance/i)).first();
+        const camChargesInput = page
+          .getByLabel(/cam/i)
+          .or(page.getByLabel(/common area maintenance/i))
+          .first();
         if (await camChargesInput.isVisible()) {
           const camValue = await camChargesInput.inputValue();
           expect(Number(camValue)).toBeGreaterThan(0);
@@ -89,10 +87,10 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       await page.route('**/v1/api/extract/lease-direct', async (route) => {
         const request = route.request();
         const postData = request.postData();
-        
+
         if (postData) {
           const body = JSON.parse(postData);
-          
+
           // Return mock extraction data
           await route.fulfill({
             status: 200,
@@ -127,10 +125,10 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
       // Find file input
       const fileInput = page.locator('input[type="file"]');
-      
+
       // Create a mock PDF file
       const fileBuffer = Buffer.from('mock PDF content');
-      
+
       await fileInput.setInputFiles({
         name: 'test-lease.pdf',
         mimeType: 'application/pdf',
@@ -139,11 +137,13 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
       // Wait for upload to complete
       await page.waitForTimeout(2000);
-      
+
       // Look for extraction preview
-      const previewVisible = await page.getByText(/AI Extraction Preview/i).isVisible({ timeout: 10000 });
+      const previewVisible = await page
+        .getByText(/AI Extraction Preview/i)
+        .isVisible({ timeout: 10000 });
       expect(previewVisible).toBeTruthy();
-      
+
       // Verify confidence scores are displayed
       const confidenceDisplay = page.getByText(/95%/i);
       if (await confidenceDisplay.isVisible()) {
@@ -153,17 +153,17 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
     test('should show error for unsupported file type', async ({ page }) => {
       const fileInput = page.locator('input[type="file"]');
-      
+
       // Try to upload an unsupported file
       await fileInput.setInputFiles({
         name: 'test.txt',
         mimeType: 'text/plain',
         buffer: Buffer.from('test content'),
       });
-      
+
       // Look for error message
       await page.waitForTimeout(1000);
-      
+
       // Check for file validation error
       const errorMessage = page.getByText(/supported.*pdf.*doc/i);
       expect(await errorMessage.isVisible()).toBeTruthy();
@@ -181,7 +181,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
       const fileInput = page.locator('input[type="file"]');
       const fileBuffer = Buffer.from('mock PDF');
-      
+
       await fileInput.setInputFiles({
         name: 'test.pdf',
         mimeType: 'application/pdf',
@@ -189,7 +189,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       });
 
       await page.waitForTimeout(2000);
-      
+
       // Verify error is displayed
       const errorDisplay = await page.getByText(/failed/i).isVisible();
       expect(errorDisplay).toBeTruthy();
@@ -221,13 +221,13 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       });
 
       await page.waitForTimeout(2000);
-      
+
       // Click "Apply to Form" button
       const applyButton = page.getByRole('button', { name: /apply to form/i });
       if (await applyButton.isVisible()) {
         await applyButton.click();
         await page.waitForTimeout(1000);
-        
+
         // Verify form fields are populated
         const baseRentInput = page.getByLabel(/base rent/i);
         const baseRent = await baseRentInput.inputValue();
@@ -240,11 +240,11 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
     test('should validate base rent is positive', async ({ page }) => {
       const baseRentInput = page.getByLabel(/base rent/i);
       await baseRentInput.fill('-1000');
-      
+
       // Try to run analysis
       const analyzeButton = page.getByRole('button', { name: /analyze/i });
       await analyzeButton.click();
-      
+
       // Look for validation error
       await page.waitForTimeout(500);
       const errorMessage = await page.getByText(/must be positive/i).isVisible();
@@ -254,12 +254,12 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
     test('should validate lease term is within reasonable range', async ({ page }) => {
       const termInput = page.getByLabel(/term/i);
       await termInput.fill('999'); // Unrealistic term
-      
+
       const analyzeButton = page.getByRole('button', { name: /analyze/i });
       await analyzeButton.click();
-      
+
       await page.waitForTimeout(500);
-      
+
       // Form should either show error or prevent submission
       const errorVisible = await page.getByText(/invalid.*term/i).isVisible();
       if (errorVisible) {
@@ -272,12 +272,12 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       const escalationInput = page.getByLabel(/escalation rate/i);
       if (await escalationInput.isVisible()) {
         await escalationInput.fill('150'); // 150% is unreasonable
-        
+
         const analyzeButton = page.getByRole('button', { name: /analyze/i });
         await analyzeButton.click();
-        
+
         await page.waitForTimeout(500);
-        
+
         // Should show validation error
         const errorMessage = await page.getByText(/escalation.*reasonable/i).isVisible();
         if (errorMessage) {
@@ -352,21 +352,21 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       // Fill in basic form data
       const baseRentInput = page.getByLabel(/base rent/i);
       await baseRentInput.fill('45000');
-      
+
       const termInput = page.getByLabel(/term/i);
       await termInput.fill('60');
-      
+
       // Click analyze
       const analyzeButton = page.getByRole('button', { name: /analyze/i });
       await analyzeButton.click();
-      
+
       // Wait for results
       await page.waitForTimeout(3000);
-      
+
       // Verify results are displayed
       const resultsVisible = await page.getByText(/total cost/i).isVisible();
       expect(resultsVisible).toBeTruthy();
-      
+
       // Verify key metrics are shown
       const totalCostDisplay = page.getByText(/3,300,000/i);
       expect(await totalCostDisplay.isVisible()).toBeTruthy();
@@ -408,7 +408,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       await page.getByLabel(/base rent/i).fill('45000');
       await page.getByRole('button', { name: /analyze/i }).click();
       await page.waitForTimeout(3000);
-      
+
       // Look for payment schedule
       const scheduleVisible = await page.getByText(/payment schedule/i).isVisible();
       expect(scheduleVisible).toBeTruthy();
@@ -426,9 +426,9 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
       await page.getByLabel(/base rent/i).fill('45000');
       await page.getByRole('button', { name: /analyze/i }).click();
-      
+
       await page.waitForTimeout(2000);
-      
+
       // Verify error message is shown
       const errorVisible = await page.getByText(/failed/i).isVisible();
       expect(errorVisible).toBeTruthy();
@@ -436,18 +436,20 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
   });
 
   test.describe('Scenario Modeling', () => {
-    test('should generate optimistic, conservative, and pessimistic scenarios', async ({ page }) => {
+    test('should generate optimistic, conservative, and pessimistic scenarios', async ({
+      page,
+    }) => {
       // Mock scenario analysis
       await page.route('**/v1/api/analysis/enhanced-lease', async (route) => {
         const url = new URL(route.request().url());
         const body = JSON.parse(route.request().postData() || '{}');
-        
+
         // Return different results based on scenario
         let totalCost = 3000000;
         if (body.escalation?.rate) {
           totalCost = 3000000 * (1 + (body.escalation.rate - 0.03) * 20);
         }
-        
+
         await route.fulfill({
           status: 200,
           headers: { 'content-type': 'application/json' },
@@ -464,13 +466,13 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       await page.getByLabel(/base rent/i).fill('45000');
       await page.getByRole('button', { name: /analyze/i }).click();
       await page.waitForTimeout(3000);
-      
+
       // Look for scenario analysis option
       const scenarioButton = page.getByRole('button', { name: /scenario/i });
       if (await scenarioButton.isVisible()) {
         await scenarioButton.click();
         await page.waitForTimeout(2000);
-        
+
         // Verify scenarios are shown
         const optimisticVisible = await page.getByText(/optimistic/i).isVisible();
         expect(optimisticVisible).toBeTruthy();
@@ -497,17 +499,17 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       await page.getByLabel(/base rent/i).fill('45000');
       await page.getByRole('button', { name: /analyze/i }).click();
       await page.waitForTimeout(3000);
-      
+
       // Look for save button
       const saveButton = page.getByRole('button', { name: /save/i });
       if (await saveButton.isVisible()) {
         await saveButton.click();
-        
+
         // Fill save modal
         const nameInput = page.getByLabel(/name/i);
         if (await nameInput.isVisible()) {
           await nameInput.fill('Test Lease Analysis');
-          
+
           const submitButton = page.getByRole('button', { name: /save.*analysis/i });
           await submitButton.click();
           await page.waitForTimeout(1000);
@@ -533,13 +535,13 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       await page.getByLabel(/base rent/i).fill('45000');
       await page.getByRole('button', { name: /analyze/i }).click();
       await page.waitForTimeout(3000);
-      
+
       // Look for share button
       const shareButton = page.getByRole('button', { name: /share/i });
       if (await shareButton.isVisible()) {
         await shareButton.click();
         await page.waitForTimeout(1000);
-        
+
         // Verify shareable link is generated
         const linkDisplay = page.locator('input[readonly]').or(page.getByText(/http/));
         expect(await linkDisplay.isVisible()).toBeTruthy();
@@ -551,15 +553,15 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
     test('should display correctly on mobile viewport', async ({ page }) => {
       // Set mobile viewport
       await page.setViewportSize({ width: 375, height: 667 });
-      
+
       // Verify page loads
       const header = page.getByRole('heading').first();
       expect(await header.isVisible()).toBeTruthy();
-      
+
       // Verify form is accessible
       const baseRentInput = page.getByLabel(/base rent/i);
       expect(await baseRentInput.isVisible()).toBeTruthy();
-      
+
       // Verify buttons are clickable
       const analyzeButton = page.getByRole('button', { name: /analyze/i });
       expect(await analyzeButton.isVisible()).toBeTruthy();
@@ -567,7 +569,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
 
     test('should handle mobile file upload', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      
+
       // Mock extraction
       await page.route('**/v1/api/extract/lease-direct', async (route) => {
         await route.fulfill({
@@ -586,9 +588,9 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
         mimeType: 'application/pdf',
         buffer: Buffer.from('mock'),
       });
-      
+
       await page.waitForTimeout(2000);
-      
+
       // Verify upload feedback is visible on mobile
       const uploadFeedback = page.getByText(/upload/i);
       expect(await uploadFeedback.isVisible()).toBeTruthy();
@@ -600,7 +602,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       // Check for proper form labels
       const baseRentInput = page.getByLabel(/base rent/i);
       expect(await baseRentInput.isVisible()).toBeTruthy();
-      
+
       // Check for button labels
       const analyzeButton = page.getByRole('button', { name: /analyze/i });
       expect(await analyzeButton.isVisible()).toBeTruthy();
@@ -610,7 +612,7 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
       // Tab through form
       await page.keyboard.press('Tab');
       await page.keyboard.press('Tab');
-      
+
       // Should be able to interact with form elements
       const focusedElement = page.locator(':focus');
       expect(await focusedElement.count()).toBeGreaterThan(0);
@@ -619,22 +621,12 @@ test.describe('Commercial Real Estate Lease Analysis - Advanced Tests', () => {
     test('should have proper heading hierarchy', async ({ page }) => {
       const h1 = page.locator('h1');
       const h2 = page.locator('h2');
-      
+
       expect(await h1.count()).toBeGreaterThan(0);
-      
+
       // Verify at least one heading exists
-      const headingsVisible = await h1.isVisible() || await h2.isVisible();
+      const headingsVisible = (await h1.isVisible()) || (await h2.isVisible());
       expect(headingsVisible).toBeTruthy();
     });
   });
 });
-
-
-
-
-
-
-
-
-
-

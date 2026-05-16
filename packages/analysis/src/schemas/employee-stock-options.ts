@@ -65,6 +65,3 @@ export const EmployeeStockOptionsInputSchema = z.object({
 });
 
 export type EmployeeStockOptionsInput = z.infer<typeof EmployeeStockOptionsInputSchema>;
-
-
-

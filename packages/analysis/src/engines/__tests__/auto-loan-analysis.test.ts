@@ -661,7 +661,9 @@ describe('AutoLoanAnalysisEngine', () => {
         })
       );
 
-      expect(highRate.loanAnalysis.totalInterest).toBeGreaterThan(lowRate.loanAnalysis.totalInterest);
+      expect(highRate.loanAnalysis.totalInterest).toBeGreaterThan(
+        lowRate.loanAnalysis.totalInterest
+      );
     });
   });
 

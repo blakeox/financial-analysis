@@ -6,7 +6,7 @@ const formatCurrency = (value: number): string =>
     maximumFractionDigits: 0,
   }).format(value);
 
-type AnalyzerClass = typeof import('@financial-analysis/analysis')['AmortizationAnalyzer'];
+type AnalyzerClass = (typeof import('@financial-analysis/analysis'))['AmortizationAnalyzer'];
 type AnalyzerInput = Parameters<AnalyzerClass['analyze']>[0];
 
 const getNumericField = (data: FormData, key: string, fallback = 0): number => {
@@ -74,7 +74,7 @@ const initMortgageComparison = async () => {
   const journeyScenarioId = form.dataset.journeyScenarioId ?? 'home-buying';
 
   if (compareBtn instanceof HTMLButtonElement) {
-    compareBtn.addEventListener('click', event => {
+    compareBtn.addEventListener('click', (event) => {
       event.preventDefault();
 
       const formData = new FormData(form);
@@ -88,11 +88,23 @@ const initMortgageComparison = async () => {
       const scenario1Principal = Math.max(0, homePrice - scenario1Down);
       const scenario2Principal = Math.max(0, homePrice - scenario2Down);
 
-      const scenario1 = calculateScenario(analyzer, scenario1Principal, scenario1Rate, loanTermYears);
-      const scenario2 = calculateScenario(analyzer, scenario2Principal, scenario2Rate, loanTermYears);
+      const scenario1 = calculateScenario(
+        analyzer,
+        scenario1Principal,
+        scenario1Rate,
+        loanTermYears
+      );
+      const scenario2 = calculateScenario(
+        analyzer,
+        scenario2Principal,
+        scenario2Rate,
+        loanTermYears
+      );
 
-      const scenario1TotalCost = scenario1.totalPayments ?? scenario1.monthlyPayment * scenario1.schedule.length;
-      const scenario2TotalCost = scenario2.totalPayments ?? scenario2.monthlyPayment * scenario2.schedule.length;
+      const scenario1TotalCost =
+        scenario1.totalPayments ?? scenario1.monthlyPayment * scenario1.schedule.length;
+      const scenario2TotalCost =
+        scenario2.totalPayments ?? scenario2.monthlyPayment * scenario2.schedule.length;
 
       const monthlySavings = scenario1.monthlyPayment - scenario2.monthlyPayment;
       const totalInterestSavings = scenario1.totalInterest - scenario2.totalInterest;
@@ -114,11 +126,7 @@ const initMortgageComparison = async () => {
           }">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💼 Scenario 1</h4>
-              ${
-                winner === 'scenario1'
-                  ? '<span class="fa-badge-success">Best Value</span>'
-                  : ''
-              }
+              ${winner === 'scenario1' ? '<span class="fa-badge-success">Best Value</span>' : ''}
             </div>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">
@@ -153,11 +161,7 @@ const initMortgageComparison = async () => {
           }">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💰 Scenario 2</h4>
-              ${
-                winner === 'scenario2'
-                  ? '<span class="fa-badge-success">Best Value</span>'
-                  : ''
-              }
+              ${winner === 'scenario2' ? '<span class="fa-badge-success">Best Value</span>' : ''}
             </div>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">
@@ -242,7 +246,7 @@ const initMortgageComparison = async () => {
   }
 
   if (saveBtn instanceof HTMLButtonElement) {
-    saveBtn.addEventListener('click', event => {
+    saveBtn.addEventListener('click', (event) => {
       event.preventDefault();
 
       const formData = new FormData(form);

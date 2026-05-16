@@ -21,9 +21,7 @@ type StudentLoanAnalysisResult = ReturnType<typeof StudentLoanEngine.analyze>;
 type StudentLoanResultOverrides = {
   input?: Partial<StudentLoanAnalysisResult['input']>;
   summary?: Partial<StudentLoanAnalysisResult['summary']> & {
-    loanSummaries?: Array<
-      Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>
-    >;
+    loanSummaries?: Array<Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>>;
   };
   payoffSchedule?: StudentLoanAnalysisResult['payoffSchedule'];
   incomeDrivenAnalysis?: StudentLoanAnalysisResult['incomeDrivenAnalysis'];
@@ -73,17 +71,23 @@ const createMockStudentLoanResult = (
     payoffSchedule: overrides?.payoffSchedule ?? [],
     summary: {
       ...baseSummary,
-        ...summaryOverrides,
-        loanSummaries: overrideLoanSummaries
-        ? overrideLoanSummaries.map((loan: Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>, index: number) => ({
-            name: loan.name ?? `Student Loan ${index + 1}`,
-            loanType: loan.loanType ?? 'federal_unsubsidized',
-            originalBalance: loan.originalBalance ?? '50000.00',
-            totalPaid: loan.totalPaid ?? baseSummary.loanSummaries[0]?.totalPaid ?? '69077.60',
-            totalInterest:
-              loan.totalInterest ?? baseSummary.loanSummaries[0]?.totalInterest ?? '19077.60',
-            monthsToPayoff: loan.monthsToPayoff ?? baseSummary.loanSummaries[0]?.monthsToPayoff ?? 120,
-          }))
+      ...summaryOverrides,
+      loanSummaries: overrideLoanSummaries
+        ? overrideLoanSummaries.map(
+            (
+              loan: Partial<StudentLoanAnalysisResult['summary']['loanSummaries'][number]>,
+              index: number
+            ) => ({
+              name: loan.name ?? `Student Loan ${index + 1}`,
+              loanType: loan.loanType ?? 'federal_unsubsidized',
+              originalBalance: loan.originalBalance ?? '50000.00',
+              totalPaid: loan.totalPaid ?? baseSummary.loanSummaries[0]?.totalPaid ?? '69077.60',
+              totalInterest:
+                loan.totalInterest ?? baseSummary.loanSummaries[0]?.totalInterest ?? '19077.60',
+              monthsToPayoff:
+                loan.monthsToPayoff ?? baseSummary.loanSummaries[0]?.monthsToPayoff ?? 120,
+            })
+          )
         : baseSummary.loanSummaries,
     },
     incomeDrivenAnalysis: overrides?.incomeDrivenAnalysis,

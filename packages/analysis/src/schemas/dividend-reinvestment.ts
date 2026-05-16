@@ -12,4 +12,3 @@ export const DividendReinvestmentInputSchema = z.object({
 });
 
 export type DividendReinvestmentInput = z.infer<typeof DividendReinvestmentInputSchema>;
-

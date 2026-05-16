@@ -17,18 +17,20 @@ describe('BusinessSuccessionPlanningCalculator', () => {
       totalDebt: 200000,
     },
     ownership: {
-      currentOwners: [{
-        name: 'Owner 1',
-        ownershipPercentage: 1,
-        age: 55,
-        expectedExitAge: 65
-      }],
-      totalOwnership: 1
+      currentOwners: [
+        {
+          name: 'Owner 1',
+          ownershipPercentage: 1,
+          age: 55,
+          expectedExitAge: 65,
+        },
+      ],
+      totalOwnership: 1,
     },
     valuation: {
       valuationMethod: 'market-multiple',
       estimatedValue: 2500000,
-      valuationMultiple: 5
+      valuationMultiple: 5,
     },
     successionOptions: {
       transferMethod: 'family-transfer',
@@ -43,7 +45,7 @@ describe('BusinessSuccessionPlanningCalculator', () => {
     },
     buySellAgreement: {
       hasAgreement: false,
-      fundingMethod: 'life-insurance'
+      fundingMethod: 'life-insurance',
     },
     analysis: {
       includeTaxAnalysis: true,
@@ -166,4 +168,3 @@ describe('BusinessSuccessionPlanningCalculator', () => {
     expect(result).toHaveProperty('recommendations');
   });
 });
-

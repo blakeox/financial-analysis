@@ -40,16 +40,16 @@ Return JSON matching ExtractedLeaseData schema.`,
 
     examples: [
       {
-        input: "Monthly rent $5,000, 5-year term, NNN lease, 5% annual escalation",
+        input: 'Monthly rent $5,000, 5-year term, NNN lease, 5% annual escalation',
         output: JSON.stringify({
           baseRent: 5000,
           termMonths: 60,
-          leaseType: "office-nnn",
-          escalation: { type: "percentage", rate: 0.05, frequency: "annual" },
-          confidence: { overall: 0.95, financial: 0.95, property: 0.7 }
-        })
-      }
-    ]
+          leaseType: 'office-nnn',
+          escalation: { type: 'percentage', rate: 0.05, frequency: 'annual' },
+          confidence: { overall: 0.95, financial: 0.95, property: 0.7 },
+        }),
+      },
+    ],
   },
 
   chatAssistant: {
@@ -191,7 +191,7 @@ Guidelines for responses:
 
 Be intelligent about when to use tools vs when to chat naturally.`,
 
-    outputFormat: 'natural language text OR tool call decision'
+    outputFormat: 'natural language text OR tool call decision',
   },
 
   fieldExtraction: {
@@ -202,7 +202,7 @@ Extract specific field values from user input.`,
 Extract the requested field value from the user's input.
 Return ONLY the value, no explanations or formatting.`,
 
-    outputFormat: 'single value'
+    outputFormat: 'single value',
   },
 
   startupPlanningAssistant: {
@@ -309,7 +309,7 @@ Always be helpful, accurate, and encouraging while being realistic about challen
 
     examples: [
       {
-        input: "How much equity should I give up for my seed round?",
+        input: 'How much equity should I give up for my seed round?',
         output: `For a seed round, founders typically give up 10-25% equity. Here's the framework:
 
 1. **Typical Range**: 15-20% for $500K-$2M seed rounds
@@ -326,7 +326,7 @@ Always be helpful, accurate, and encouraging while being realistic about challen
 **Use Phase 1 to model**: Enter your total investment needs and see how different valuations affect equity and dilution.`,
       },
       {
-        input: "How do I know if my budget is realistic?",
+        input: 'How do I know if my budget is realistic?',
         output: `Looking at your Phase 1 capital ($1.5M at 20% dilution) and Phase 2 budget projections, here's my analysis:
 
 **Cross-Phase Analysis:**
@@ -376,7 +376,7 @@ Always be helpful, accurate, and encouraging while being realistic about challen
       },
     ],
 
-    outputFormat: 'natural language text with structured guidance'
+    outputFormat: 'natural language text with structured guidance',
   },
 
   mortgageScenarioCFP: {
@@ -449,7 +449,7 @@ Help users understand what to enter for each field with examples and context.`,
 
     examples: [
       {
-        input: "Which scenario is better for me?",
+        input: 'Which scenario is better for me?',
         output: `Based on your comparison, here's my CFP analysis:
 
 **Best Value Recommendation**
@@ -481,10 +481,10 @@ The [X]% rate vs [Y]% saves you $[Z] in total interest over the loan life.
 2. Shop rates from 3-5 lenders to confirm you're getting the best deal
 3. Consider [specific suggestion]
 
-Would you like me to analyze a specific aspect in more detail?`
+Would you like me to analyze a specific aspect in more detail?`,
       },
       {
-        input: "Help me fill out the form",
+        input: 'Help me fill out the form',
         output: `I'll guide you through each field:
 
 **📋 Loan Basics:**
@@ -530,11 +530,11 @@ Would you like me to analyze a specific aspect in more detail?`
 
 Ready to compare! Fill these in and click "Calculate Scenarios".
 
-Need help with specific values? Just ask!`
+Need help with specific values? Just ask!`,
       },
     ],
 
-    outputFormat: 'natural language with specific financial analysis'
+    outputFormat: 'natural language with specific financial analysis',
   },
 
   calculatorAssistant: {
@@ -608,17 +608,14 @@ When helping users, be aware of these calculator families:
 - Do NOT give generic advice if you can calculate a specific answer.
 - Do NOT list tools unless the user asks "what can you do?" or "what tools do you have?".`,
 
-    outputFormat: 'natural language with specific guidance'
-  }
+    outputFormat: 'natural language with specific guidance',
+  },
 };
 
 /**
  * Build a complete prompt from template
  */
-export function buildPrompt(
-  templateName: string,
-  context: Record<string, unknown>
-): string {
+export function buildPrompt(templateName: string, context: Record<string, unknown>): string {
   const template = PromptTemplates[templateName];
   if (!template) {
     throw new Error(`Template ${templateName} not found`);
@@ -640,7 +637,11 @@ export function buildPrompt(
   }
 
   // Format available tools in a readable way (not raw JSON)
-  if (context.availableTools && Array.isArray(context.availableTools) && context.availableTools.length > 0) {
+  if (
+    context.availableTools &&
+    Array.isArray(context.availableTools) &&
+    context.availableTools.length > 0
+  ) {
     prompt += '\n\n**Available MCP Tools:**\n';
     for (const tool of context.availableTools) {
       prompt += `- ${tool.name}: ${tool.description}\n`;
@@ -648,18 +649,24 @@ export function buildPrompt(
     prompt += '\n**MCP Usage Requirements:**\n';
     prompt += '- Always review this list before responding.\n';
     prompt += '- Prefer invoking an MCP tool when the user request aligns with its capabilities.\n';
-    prompt += '- When citing numeric results, reference the tool name (e.g., "According to analyze_cash_flow...").\n';
+    prompt +=
+      '- When citing numeric results, reference the tool name (e.g., "According to analyze_cash_flow...").\n';
     prompt += '- If no tool applies, explain why and proceed with transparent reasoning.\n';
   }
 
   // Add negative constraints if present
-  if (context.negative_constraints && Array.isArray(context.negative_constraints) && context.negative_constraints.length > 0) {
+  if (
+    context.negative_constraints &&
+    Array.isArray(context.negative_constraints) &&
+    context.negative_constraints.length > 0
+  ) {
     prompt += '\n\n**CRITICAL: NEGATIVE CONSTRAINTS (FORBIDDEN RESPONSES):**\n';
     prompt += 'You MUST NOT use any of the following phrases or patterns:\n';
     for (const constraint of context.negative_constraints) {
       prompt += `- ${constraint}\n`;
     }
-    prompt += '\nIf you are about to generate a response that matches one of these patterns, STOP and generate a specific, helpful response instead.\n';
+    prompt +=
+      '\nIf you are about to generate a response that matches one of these patterns, STOP and generate a specific, helpful response instead.\n';
   }
 
   // Add user message
@@ -669,7 +676,11 @@ export function buildPrompt(
 
   // Add conversation history if present
   const conversationHistory = context.conversationHistory;
-  if (conversationHistory && typeof conversationHistory === 'string' && conversationHistory.length > 0) {
+  if (
+    conversationHistory &&
+    typeof conversationHistory === 'string' &&
+    conversationHistory.length > 0
+  ) {
     prompt += `\n\n**Previous Conversation:**\n${conversationHistory}`;
   }
 
@@ -698,4 +709,3 @@ export function buildPrompt(
 export function getPromptTemplate(name: string): PromptTemplate | null {
   return PromptTemplates[name] || null;
 }
-

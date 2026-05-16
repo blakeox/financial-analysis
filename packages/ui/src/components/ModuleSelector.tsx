@@ -1,7 +1,13 @@
 import React from 'react';
 import { badgeVariants, cn, textColors } from '../lib/classNames';
 
-export type ModuleType = 'financials' | 'employees' | 'expenses' | 'scenario' | 'fixed-assets' | 'leases';
+export type ModuleType =
+  | 'financials'
+  | 'employees'
+  | 'expenses'
+  | 'scenario'
+  | 'fixed-assets'
+  | 'leases';
 
 export interface ModuleDefinition {
   id: ModuleType;
@@ -17,42 +23,48 @@ const AVAILABLE_MODULES: ModuleDefinition[] = [
     label: 'Monthly Revenue',
     icon: '💰',
     description: 'Add monthly revenue data',
-    cardClass: 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300 hover:bg-emerald-100/90 dark:border-emerald-900/70 dark:bg-emerald-950/25',
+    cardClass:
+      'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300 hover:bg-emerald-100/90 dark:border-emerald-900/70 dark:bg-emerald-950/25',
   },
   {
     id: 'employees',
     label: 'Employees',
     icon: '👥',
     description: 'Add employee data and hiring plans',
-    cardClass: 'border-violet-200 bg-violet-50/90 hover:border-violet-300 hover:bg-violet-100/90 dark:border-violet-900/70 dark:bg-violet-950/25',
+    cardClass:
+      'border-violet-200 bg-violet-50/90 hover:border-violet-300 hover:bg-violet-100/90 dark:border-violet-900/70 dark:bg-violet-950/25',
   },
   {
     id: 'expenses',
     label: 'Expenses',
     icon: '📊',
     description: 'Add expense categories',
-    cardClass: 'border-amber-200 bg-amber-50/90 hover:border-amber-300 hover:bg-amber-100/90 dark:border-amber-900/70 dark:bg-amber-950/25',
+    cardClass:
+      'border-amber-200 bg-amber-50/90 hover:border-amber-300 hover:bg-amber-100/90 dark:border-amber-900/70 dark:bg-amber-950/25',
   },
   {
     id: 'fixed-assets',
     label: 'Fixed Assets',
     icon: '🏗️',
     description: 'Add assets with depreciation',
-    cardClass: 'border-sky-200 bg-sky-50/90 hover:border-sky-300 hover:bg-sky-100/90 dark:border-sky-900/70 dark:bg-sky-950/25',
+    cardClass:
+      'border-sky-200 bg-sky-50/90 hover:border-sky-300 hover:bg-sky-100/90 dark:border-sky-900/70 dark:bg-sky-950/25',
   },
   {
     id: 'leases',
     label: 'Leases',
     icon: '🧾',
     description: 'Add recurring lease payments',
-    cardClass: 'border-cyan-200 bg-cyan-50/90 hover:border-cyan-300 hover:bg-cyan-100/90 dark:border-cyan-900/70 dark:bg-cyan-950/25',
+    cardClass:
+      'border-cyan-200 bg-cyan-50/90 hover:border-cyan-300 hover:bg-cyan-100/90 dark:border-cyan-900/70 dark:bg-cyan-950/25',
   },
   {
     id: 'scenario',
     label: 'Scenario Config',
     icon: '⚙️',
     description: 'Configure projection parameters',
-    cardClass: 'border-fuchsia-200 bg-fuchsia-50/90 hover:border-fuchsia-300 hover:bg-fuchsia-100/90 dark:border-fuchsia-900/70 dark:bg-fuchsia-950/25',
+    cardClass:
+      'border-fuchsia-200 bg-fuchsia-50/90 hover:border-fuchsia-300 hover:bg-fuchsia-100/90 dark:border-fuchsia-900/70 dark:bg-fuchsia-950/25',
   },
 ];
 
@@ -61,13 +73,8 @@ interface ModuleSelectorProps {
   onAddModule: (moduleType: ModuleType) => void;
 }
 
-export const ModuleSelector: React.FC<ModuleSelectorProps> = ({
-  activeModules,
-  onAddModule,
-}) => {
-  const availableToAdd = AVAILABLE_MODULES.filter(
-    (module) => !activeModules.includes(module.id)
-  );
+export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ activeModules, onAddModule }) => {
+  const availableToAdd = AVAILABLE_MODULES.filter((module) => !activeModules.includes(module.id));
 
   if (availableToAdd.length === 0) {
     return null;
@@ -102,11 +109,14 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({
                 <div className="mb-1 font-semibold text-slate-900 dark:text-white">
                   {module.label}
                 </div>
-                <div className={cn('text-sm', textColors.secondary)}>
-                  {module.description}
-                </div>
+                <div className={cn('text-sm', textColors.secondary)}>{module.description}</div>
                 <div className="mt-3">
-                  <span className={cn('inline-flex rounded-full px-2.5 py-1 text-xs font-semibold', badgeVariants.default)}>
+                  <span
+                    className={cn(
+                      'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                      badgeVariants.default
+                    )}
+                  >
                     Add section
                   </span>
                 </div>

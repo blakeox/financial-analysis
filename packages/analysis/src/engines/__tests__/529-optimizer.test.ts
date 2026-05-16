@@ -205,9 +205,7 @@ describe('FiveTwoNineOptimizer', () => {
     const result = FiveTwoNineOptimizer.analyze(input);
     expect(result.projections?.totalBalance).toBe(0);
     expect(result.projections?.perChildProjections[0]?.projectedBalance).toBe(0);
-    expect(result.aidImpact?.recommendation).toBe(
-      '529 plan may reduce financial aid eligibility'
-    );
+    expect(result.aidImpact?.recommendation).toBe('529 plan may reduce financial aid eligibility');
   });
 
   it('adds shortfall and optimal state recommendations when applicable', () => {
@@ -254,4 +252,3 @@ describe('FiveTwoNineOptimizer', () => {
     expect(result.recommendations.some((rec) => rec.includes('financial aid'))).toBe(true);
   });
 });
-

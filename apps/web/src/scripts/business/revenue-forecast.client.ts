@@ -1,10 +1,14 @@
 /**
  * Revenue Forecast Calculator - Client Side
- * 
+ *
  * Projects future revenue using growth rates, seasonality, and customer-based models
  */
 
-import type { RevenueForecastInput, RevenueForecastResult, RevenueStream } from '@financial-analysis/analysis';
+import type {
+  RevenueForecastInput,
+  RevenueForecastResult,
+  RevenueStream,
+} from '@financial-analysis/analysis';
 import { RevenueForecastEngine } from '@financial-analysis/analysis';
 import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
@@ -18,14 +22,23 @@ type RevenueForecastStreamSummary = RevenueForecastResult['streamBreakdown'][num
  */
 export const collectRevenueStreams = (formData: FormData, maxStreams: number): RevenueStream[] => {
   const streams: RevenueStream[] = [];
-  
+
   for (let i = 0; i < maxStreams; i++) {
     const name = formData.get(`stream-name-${i}`) as string;
     const currentMonthlyRevenue = parseNumber(formData.get(`stream-revenue-${i}`));
     const growthRate = parseNumber(formData.get(`stream-growth-${i}`));
-    const seasonality = formData.get(`stream-seasonality-${i}`) as 'none' | 'retail' | 'b2b' | 'custom';
-    
-    if (name && currentMonthlyRevenue !== null && currentMonthlyRevenue > 0 && growthRate !== null) {
+    const seasonality = formData.get(`stream-seasonality-${i}`) as
+      | 'none'
+      | 'retail'
+      | 'b2b'
+      | 'custom';
+
+    if (
+      name &&
+      currentMonthlyRevenue !== null &&
+      currentMonthlyRevenue > 0 &&
+      growthRate !== null
+    ) {
       streams.push({
         name,
         currentMonthlyRevenue,
@@ -34,7 +47,7 @@ export const collectRevenueStreams = (formData: FormData, maxStreams: number): R
       });
     }
   }
-  
+
   return streams;
 };
 
@@ -44,22 +57,23 @@ export const collectRevenueStreams = (formData: FormData, maxStreams: number): R
 export const parseRevenueForecastInput = (formData: FormData): RevenueForecastInput => {
   const forecastMonths = parseNumber(formData.get('forecastMonths')) || 12;
   const revenueStreams = collectRevenueStreams(formData, 10);
-  
+
   // Optional customer-based inputs
   const existingCustomers = parseNumber(formData.get('existingCustomers')) || undefined;
-  const averageRevenuePerCustomer = parseNumber(formData.get('averageRevenuePerCustomer')) || undefined;
+  const averageRevenuePerCustomer =
+    parseNumber(formData.get('averageRevenuePerCustomer')) || undefined;
   const monthlyChurnRate = parseNumber(formData.get('monthlyChurnRate')) || undefined;
   const newCustomersPerMonth = parseNumber(formData.get('newCustomersPerMonth')) || undefined;
-  
+
   // Validation
   if (revenueStreams.length === 0) {
     throw new Error('Please add at least one revenue stream');
   }
-  
+
   if (forecastMonths < 1 || forecastMonths > 36) {
     throw new Error('Forecast period must be between 1 and 36 months');
   }
-  
+
   return {
     revenueStreams,
     forecastMonths,
@@ -76,13 +90,13 @@ export const parseRevenueForecastInput = (formData: FormData): RevenueForecastIn
 export const displayResults = (result: RevenueForecastResult): void => {
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
-  
+
   if (!resultsContainer || !summaryCards) return;
-  
+
   // Show results
   const resultsSection = document.getElementById('results-section');
   resultsSection?.classList.remove('hidden');
-  
+
   // Populate summary cards
   summaryCards.innerHTML = `
     <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 col-span-2">
@@ -101,7 +115,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
       <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">CMGR: ${result.summary.compoundMonthlyGrowthRate.toFixed(2)}%</p>
     </div>
   `;
-  
+
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Monthly Forecast Table -->
@@ -112,33 +126,49 @@ export const displayResults = (result: RevenueForecastResult): void => {
           <thead>
             <tr class="border-b-2 border-slate-300 dark:border-slate-700">
               <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
-              ${Object.keys(result.monthlyForecasts[0].revenueByStream).map(stream => `
+              ${Object.keys(result.monthlyForecasts[0].revenueByStream)
+                .map(
+                  (stream) => `
                 <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${stream}</th>
-              `).join('')}
+              `
+                )
+                .join('')}
               <th class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">Total</th>
               ${result.customerMetrics ? '<th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>' : ''}
               <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Growth</th>
             </tr>
           </thead>
           <tbody>
-            ${result.monthlyForecasts.map((month: RevenueForecastMonth) => `
+            ${result.monthlyForecasts
+              .map(
+                (month: RevenueForecastMonth) => `
               <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50">
                 <td class="py-2 px-3 text-slate-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
-                ${Object.values(month.revenueByStream).map((rev) => `
+                ${Object.values(month.revenueByStream)
+                  .map(
+                    (rev) => `
                   <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
-                `).join('')}
+                `
+                  )
+                  .join('')}
                 <td class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
                 ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${month.customers.toFixed(0)}</td>` : ''}
                 <td class="text-right py-2 px-3 ${month.growthVsPreviousMonth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                   ${month.growthVsPreviousMonth >= 0 ? '+' : ''}${month.growthVsPreviousMonth.toFixed(1)}%
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
             <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-semibold">
               <td class="py-3 px-3 text-slate-900 dark:text-white">TOTAL</td>
-              ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => `
+              ${result.streamBreakdown
+                .map(
+                  (stream: RevenueForecastStreamSummary) => `
                 <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
-              `).join('')}
+              `
+                )
+                .join('')}
               <td class="text-right py-3 px-3 text-slate-900 dark:text-white text-lg">${formatCurrency(result.summary.totalForecastRevenue)}</td>
               ${result.customerMetrics ? `<td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</td>` : ''}
               <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.summary.totalGrowth.toFixed(1)}%</td>
@@ -156,9 +186,10 @@ export const displayResults = (result: RevenueForecastResult): void => {
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Revenue Stream Breakdown</h4>
       <div class="space-y-4">
-        ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => {
-          const widthPercent = Math.min(100, Math.max(10, stream.percentOfTotal));
-          return `
+        ${result.streamBreakdown
+          .map((stream: RevenueForecastStreamSummary) => {
+            const widthPercent = Math.min(100, Math.max(10, stream.percentOfTotal));
+            return `
             <div>
               <div class="flex justify-between mb-2">
                 <span class="font-medium text-slate-900 dark:text-white">${stream.name}</span>
@@ -175,12 +206,15 @@ export const displayResults = (result: RevenueForecastResult): void => {
               </div>
             </div>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
     </div>
     
     <!-- Customer Metrics -->
-    ${result.customerMetrics ? `
+    ${
+      result.customerMetrics
+        ? `
       <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Customer Growth Analysis</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -204,45 +238,71 @@ export const displayResults = (result: RevenueForecastResult): void => {
           </div>
         </div>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Insights -->
-    ${result.insights.length > 0 ? `
+    ${
+      result.insights.length > 0
+        ? `
       <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
         <ul class="space-y-2">
-          ${result.insights.map((insight: string) => `
+          ${result.insights
+            .map(
+              (insight: string) => `
             <li class="text-slate-700 dark:text-slate-300">${insight}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Risks -->
-    ${result.risks.length > 0 ? `
+    ${
+      result.risks.length > 0
+        ? `
       <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 mb-6 border-l-4 border-yellow-500">
         <h4 class="text-lg font-semibold mb-4 text-yellow-900 dark:text-yellow-100">⚠️ Risks & Considerations</h4>
         <ul class="space-y-2">
-          ${result.risks.map((risk: string) => `
+          ${result.risks
+            .map(
+              (risk: string) => `
             <li class="text-yellow-800 dark:text-yellow-200">${risk}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Recommendations -->
-    ${result.recommendations.length > 0 ? `
+    ${
+      result.recommendations.length > 0
+        ? `
       <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-6">
         <h4 class="text-lg font-semibold mb-4 text-emerald-900 dark:text-emerald-100">💡 Growth Recommendations</h4>
         <ul class="space-y-2">
-          ${result.recommendations.map((rec: string) => `
+          ${result.recommendations
+            .map(
+              (rec: string) => `
             <li class="text-slate-700 dark:text-slate-300">${rec}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
   `;
-  
+
   // Scroll to results
   resultsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -253,42 +313,42 @@ export const displayResults = (result: RevenueForecastResult): void => {
 export const initRevenueForecastCalculator = (): void => {
   const form = document.getElementById('calculator-form') as HTMLFormElement;
   if (!form) return;
-  
+
   // Setup dynamic stream addition
   setupDynamicStreams();
-  
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement;
     const errorState = document.getElementById('error-state');
     const errorMessage = document.getElementById('error-message');
-    
+
     try {
       // Hide previous errors
       errorState?.classList.add('hidden');
-      
+
       // Disable button during calculation
       if (calculateBtn) {
         calculateBtn.disabled = true;
         calculateBtn.textContent = 'Forecasting...';
       }
-      
+
       const formData = new FormData(form);
       const input = parseRevenueForecastInput(formData);
       const result = RevenueForecastEngine.analyze(input);
-      
+
       // Store result for AI assistant
       storeAnalysisResult('revenue-forecast', result);
-      
+
       // Display results
       displayResults(result);
-      
     } catch (error) {
       console.error('Revenue forecast calculation error:', error);
       if (errorState && errorMessage) {
         errorState.classList.remove('hidden');
-        errorMessage.textContent = error instanceof Error ? error.message : 'An error occurred during calculation';
+        errorMessage.textContent =
+          error instanceof Error ? error.message : 'An error occurred during calculation';
       }
     } finally {
       // Re-enable button
@@ -298,7 +358,7 @@ export const initRevenueForecastCalculator = (): void => {
       }
     }
   });
-  
+
   // Register chat button for AI analysis
   registerChatButton('#revenue-forecast-chat-button', 'Revenue Forecast Calculator');
 };
@@ -309,21 +369,22 @@ export const initRevenueForecastCalculator = (): void => {
 function setupDynamicStreams(): void {
   const addStreamBtn = document.getElementById('add-stream-btn');
   const streamsContainer = document.getElementById('revenue-streams-container');
-  
+
   if (!addStreamBtn || !streamsContainer) return;
-  
+
   let streamCount = 1;
-  
+
   addStreamBtn.addEventListener('click', () => {
     if (streamCount >= 10) {
       alert('Maximum 10 revenue streams allowed');
       return;
     }
-    
+
     const streamDiv = document.createElement('div');
-    streamDiv.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
+    streamDiv.className =
+      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     streamDiv.id = `stream-${streamCount}`;
-    
+
     streamDiv.innerHTML = `
       <div>
         <label class="fa-field-label mb-1">
@@ -367,7 +428,7 @@ function setupDynamicStreams(): void {
         </button>
       </div>
     `;
-    
+
     streamsContainer.appendChild(streamDiv);
     streamCount++;
   });
@@ -376,8 +437,10 @@ function setupDynamicStreams(): void {
 // Auto-initialize if on revenue forecast page
 if (typeof window !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('/revenue-forecast') || 
-        window.location.pathname.includes('/calculator/revenue-forecast')) {
+    if (
+      window.location.pathname.includes('/revenue-forecast') ||
+      window.location.pathname.includes('/calculator/revenue-forecast')
+    ) {
       initRevenueForecastCalculator();
     }
   });

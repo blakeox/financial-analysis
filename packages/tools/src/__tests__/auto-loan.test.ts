@@ -53,8 +53,12 @@ describe('AutoLoanTool', () => {
 
       // With down payment, monthly payment should be lower
       // monthlyPayment is a formatted string like "$574.85", so we parse it
-      const paymentWithoutDown = parseFloat(resultWithoutDown.summary.monthlyPayment.replace(/[$,]/g, ''));
-      const paymentWithDown = parseFloat(resultWithDown.summary.monthlyPayment.replace(/[$,]/g, ''));
+      const paymentWithoutDown = parseFloat(
+        resultWithoutDown.summary.monthlyPayment.replace(/[$,]/g, '')
+      );
+      const paymentWithDown = parseFloat(
+        resultWithDown.summary.monthlyPayment.replace(/[$,]/g, '')
+      );
       expect(paymentWithDown).toBeLessThan(paymentWithoutDown);
     });
 

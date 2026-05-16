@@ -16,16 +16,12 @@ export class InventoryOptimizer {
     const analysis = input.analysis;
 
     // EOQ analysis
-    const eoqDetails = analysis.includeEOQ
-      ? this.calculateEOQ(inventoryData, costs)
-      : undefined;
+    const eoqDetails = analysis.includeEOQ ? this.calculateEOQ(inventoryData, costs) : undefined;
     // Root tests expect `eoqAnalysis` to be an array.
     const eoqAnalysis = eoqDetails?.items;
 
     // ABC analysis
-    const abcAnalysis = analysis.includeABC
-      ? this.performABCAnalysis(inventoryData)
-      : undefined;
+    const abcAnalysis = analysis.includeABC ? this.performABCAnalysis(inventoryData) : undefined;
 
     // Safety stock calculation
     const safetyStockAnalysis = analysis.includeSafetyStock
@@ -84,7 +80,7 @@ export class InventoryOptimizer {
       const holdingCostPerUnit = item.unitCost * costs.holdingCostRate;
       const eoq = Math.sqrt((2 * item.annualDemand * costs.orderingCost) / holdingCostPerUnit);
       const annualOrders = item.annualDemand / eoq;
-      const totalCost = (costs.orderingCost * annualOrders) + (holdingCostPerUnit * (eoq / 2));
+      const totalCost = costs.orderingCost * annualOrders + holdingCostPerUnit * (eoq / 2);
 
       return {
         sku: item.sku,
@@ -102,17 +98,17 @@ export class InventoryOptimizer {
     };
   }
 
-  private static performABCAnalysis(
-    inventory: InventoryOptimizationInput['inventoryData']
-  ): {
+  private static performABCAnalysis(inventory: InventoryOptimizationInput['inventoryData']): {
     aItems: Array<{ sku: string; value: number; percentage: number }>;
     bItems: Array<{ sku: string; value: number; percentage: number }>;
     cItems: Array<{ sku: string; value: number; percentage: number }>;
   } {
-    const items = inventory.currentInventory.map((item) => ({
-      sku: item.sku,
-      value: item.currentStock * item.unitCost,
-    })).sort((a, b) => b.value - a.value);
+    const items = inventory.currentInventory
+      .map((item) => ({
+        sku: item.sku,
+        value: item.currentStock * item.unitCost,
+      }))
+      .sort((a, b) => b.value - a.value);
 
     const totalValue = items.reduce((sum, item) => sum + item.value, 0);
     let cumulativePercentage = 0;
@@ -151,10 +147,13 @@ export class InventoryOptimizer {
     const items = inventory.currentInventory.map((item) => {
       const demandVariability = item.annualDemand * item.demandVariability;
       const leadTimeVariability = item.leadTimeVariability || 0;
-      const safetyStock = serviceLevel.safetyStockMultiplier * Math.sqrt(
-        (demandVariability * item.leadTime / 365) + (leadTimeVariability * item.annualDemand / 365)
-      );
-      const reorderPoint = (item.annualDemand * item.leadTime / 365) + safetyStock;
+      const safetyStock =
+        serviceLevel.safetyStockMultiplier *
+        Math.sqrt(
+          (demandVariability * item.leadTime) / 365 +
+            (leadTimeVariability * item.annualDemand) / 365
+        );
+      const reorderPoint = (item.annualDemand * item.leadTime) / 365 + safetyStock;
 
       return {
         sku: item.sku,
@@ -198,7 +197,8 @@ export class InventoryOptimizer {
   } {
     const currentTotalCost = inventory.totalInventoryValue * costs.holdingCostRate;
     const optimizedTotalCost = eoq
-      ? eoq.items.reduce((sum, item) => sum + item.totalCost, 0) + (safetyStock?.totalSafetyStock || 0) * costs.holdingCostRate
+      ? eoq.items.reduce((sum, item) => sum + item.totalCost, 0) +
+        (safetyStock?.totalSafetyStock || 0) * costs.holdingCostRate
       : currentTotalCost;
     const potentialSavings = currentTotalCost - optimizedTotalCost;
 
@@ -236,6 +236,3 @@ export class InventoryOptimizer {
     return recommendations;
   }
 }
-
-
-

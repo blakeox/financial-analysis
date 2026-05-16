@@ -27,7 +27,9 @@ describe('analysis public API barrel', () => {
 
   it('re-exports representative newer schemas from the source barrel', () => {
     expect(analysis.BusinessExpansionLoanInputSchema).toBe(DirectBusinessExpansionLoanInputSchema);
-    expect(analysis.BusinessFinancialHealthInputSchema).toBe(DirectBusinessFinancialHealthInputSchema);
+    expect(analysis.BusinessFinancialHealthInputSchema).toBe(
+      DirectBusinessFinancialHealthInputSchema
+    );
     expect(analysis.DebtCapacityInputSchema).toBe(DirectDebtCapacityInputSchema);
     expect(analysis.DSCRInputSchema).toBe(DirectDSCRInputSchema);
     expect(analysis.InvestmentPortfolioInputSchema).toBe(DirectInvestmentPortfolioInputSchema);

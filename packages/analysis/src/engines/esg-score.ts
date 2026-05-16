@@ -31,13 +31,14 @@ export class ESGScoringCalculator {
   static analyze(input: ESGScoreInput): ESGScoreResult {
     const weights = input.weights ?? { environmental: 1, social: 1, governance: 1 };
     const weightSum = weights.environmental + weights.social + weights.governance;
-    const normalized = weightSum > 0
-      ? {
-          environmental: weights.environmental / weightSum,
-          social: weights.social / weightSum,
-          governance: weights.governance / weightSum,
-        }
-      : { environmental: 1 / 3, social: 1 / 3, governance: 1 / 3 };
+    const normalized =
+      weightSum > 0
+        ? {
+            environmental: weights.environmental / weightSum,
+            social: weights.social / weightSum,
+            governance: weights.governance / weightSum,
+          }
+        : { environmental: 1 / 3, social: 1 / 3, governance: 1 / 3 };
 
     const score = new Decimal(input.environmentalScore)
       .times(normalized.environmental)
@@ -57,4 +58,3 @@ export class ESGScoringCalculator {
     };
   }
 }
-

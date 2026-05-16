@@ -1,6 +1,6 @@
 /**
  * Unit Economics Calculator - Client Side
- * 
+ *
  * Analyzes customer-level profitability for SaaS, subscription, and e-commerce businesses
  */
 
@@ -29,15 +29,17 @@ export const parseUnitEconomicsInput = (formData: FormData): UnitEconomicsInput 
   const averageMonthlyRevenue = parseNumber(formData.get('averageMonthlyRevenue'));
   const averageCustomerLifespanMonths = parseNumber(formData.get('averageCustomerLifespanMonths'));
   const costOfGoodsSoldPercent = parseNumber(formData.get('costOfGoodsSoldPercent'));
-  const variableServicingCostPerCustomer = parseNumber(formData.get('variableServicingCostPerCustomer'));
+  const variableServicingCostPerCustomer = parseNumber(
+    formData.get('variableServicingCostPerCustomer')
+  );
   const monthlyChurnRate = parseNumber(formData.get('monthlyChurnRate'));
-  
+
   // Optional fields
   const organicGrowthPercent = parseNumber(formData.get('organicGrowthPercent')) || undefined;
   const referralRate = parseNumber(formData.get('referralRate')) || undefined;
   const discountRate = parseNumber(formData.get('discountRate')) || undefined;
   const revenueGrowthRate = parseNumber(formData.get('revenueGrowthRate')) || undefined;
-  
+
   // Validation
   if (monthlyMarketingSpend === null || monthlyMarketingSpend < 0) {
     throw new Error('Please enter a valid monthly marketing spend');
@@ -51,7 +53,11 @@ export const parseUnitEconomicsInput = (formData: FormData): UnitEconomicsInput 
   if (averageCustomerLifespanMonths === null || averageCustomerLifespanMonths <= 0) {
     throw new Error('Please enter a valid average customer lifespan');
   }
-  if (costOfGoodsSoldPercent === null || costOfGoodsSoldPercent < 0 || costOfGoodsSoldPercent > 100) {
+  if (
+    costOfGoodsSoldPercent === null ||
+    costOfGoodsSoldPercent < 0 ||
+    costOfGoodsSoldPercent > 100
+  ) {
     throw new Error('Please enter a valid COGS percentage (0-100)');
   }
   if (variableServicingCostPerCustomer === null || variableServicingCostPerCustomer < 0) {
@@ -60,7 +66,7 @@ export const parseUnitEconomicsInput = (formData: FormData): UnitEconomicsInput 
   if (monthlyChurnRate === null || monthlyChurnRate < 0 || monthlyChurnRate > 100) {
     throw new Error('Please enter a valid monthly churn rate (0-100)');
   }
-  
+
   return {
     monthlyMarketingSpend,
     newCustomersPerMonth,
@@ -82,13 +88,13 @@ export const parseUnitEconomicsInput = (formData: FormData): UnitEconomicsInput 
 export const displayResults = (result: UnitEconomicsResult): void => {
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
-  
+
   if (!resultsContainer || !summaryCards) return;
-  
+
   // Show results
   const resultsSection = document.getElementById('results-section');
   resultsSection?.classList.remove('hidden');
-  
+
   // Populate summary cards
   summaryCards.innerHTML = `
     <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
@@ -122,22 +128,25 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Target: 70%+</p>
     </div>
   `;
-  
+
   // Overall health indicator
   const healthColors = {
-    excellent: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700',
+    excellent:
+      'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700',
     good: 'bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 border-violet-300 dark:border-violet-700',
-    'needs-improvement': 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
-    critical: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700',
+    'needs-improvement':
+      'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700',
+    critical:
+      'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700',
   } as const;
-  
+
   const healthLabels = {
     excellent: '🌟 Excellent',
     good: '✅ Good',
     'needs-improvement': '⚠️ Needs Improvement',
     critical: '🚨 Critical',
   } as const;
-  
+
   const overallHealthValue = result.summary.overallHealth;
   const overallHealth: keyof typeof healthLabels =
     typeof overallHealthValue === 'string' && isHealthKey(overallHealthValue)
@@ -145,7 +154,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       : 'critical';
   const healthColor = healthColors[overallHealth];
   const healthLabel = healthLabels[overallHealth];
-  
+
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Overall Health -->
@@ -154,9 +163,11 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       <p class="text-sm">
         Your business ${result.summary.profitPerCustomer >= 0 ? 'generates' : 'loses'} 
         <strong>${formatCurrency(Math.abs(result.summary.profitPerCustomer))}</strong> profit per customer.
-        ${result.summary.monthsToPositiveCashFlow < 999 
-          ? `Break-even occurs at month ${result.summary.monthsToPositiveCashFlow}.`
-          : 'Current metrics do not reach break-even in 24 months.'}
+        ${
+          result.summary.monthsToPositiveCashFlow < 999
+            ? `Break-even occurs at month ${result.summary.monthsToPositiveCashFlow}.`
+            : 'Current metrics do not reach break-even in 24 months.'
+        }
       </p>
     </div>
     
@@ -259,7 +270,10 @@ export const displayResults = (result: UnitEconomicsResult): void => {
             </tr>
           </thead>
           <tbody>
-            ${result.cohortAnalysis.slice(0, 24).map((cohort: CohortAnalysisRow) => `
+            ${result.cohortAnalysis
+              .slice(0, 24)
+              .map(
+                (cohort: CohortAnalysisRow) => `
               <tr class="border-b border-slate-100 dark:border-slate-800 ${cohort.cumulativeProfit >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''}">
                 <td class="py-2 px-3 text-slate-900 dark:text-white">${cohort.month}</td>
                 <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${cohort.customersRemaining.toFixed(1)}</td>
@@ -268,7 +282,9 @@ export const displayResults = (result: UnitEconomicsResult): void => {
                 <td class="text-right py-2 px-3 ${cohort.cumulativeProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(cohort.cumulativeProfit)}</td>
                 <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(cohort.lifetimeValue)}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
       </div>
@@ -278,42 +294,66 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     </div>
     
     <!-- Insights -->
-    ${result.insights.length > 0 ? `
+    ${
+      result.insights.length > 0
+        ? `
       <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
         <ul class="space-y-2">
-          ${result.insights.map((insight: string) => `
+          ${result.insights
+            .map(
+              (insight: string) => `
             <li class="text-slate-700 dark:text-slate-300">${insight}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Warnings -->
-    ${result.warnings.length > 0 ? `
+    ${
+      result.warnings.length > 0
+        ? `
       <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 mb-6 border-l-4 border-rose-500">
         <h4 class="text-lg font-semibold mb-4 text-rose-900 dark:text-rose-100">⚠️ Warnings</h4>
         <ul class="space-y-2">
-          ${result.warnings.map((warning: string) => `
+          ${result.warnings
+            .map(
+              (warning: string) => `
             <li class="text-rose-700 dark:text-rose-300">${warning}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Recommendations -->
-    ${result.recommendations.length > 0 ? `
+    ${
+      result.recommendations.length > 0
+        ? `
       <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-6">
         <h4 class="text-lg font-semibold mb-4 text-emerald-900 dark:text-emerald-100">💡 Recommendations</h4>
         <ul class="space-y-2">
-          ${result.recommendations.map((rec: string) => `
+          ${result.recommendations
+            .map(
+              (rec: string) => `
             <li class="text-slate-700 dark:text-slate-300">${rec}</li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
   `;
-  
+
   // Scroll to results
   resultsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -330,13 +370,13 @@ function renderBenchmark(
     warning: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
     poor: 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200',
   };
-  
+
   const statusIcons = {
     good: '✅',
     warning: '⚠️',
     poor: '🚨',
   };
-  
+
   return `
     <div class="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-800 last:border-0">
       <span class="text-slate-700 dark:text-slate-300">${label}</span>
@@ -359,39 +399,39 @@ function renderBenchmark(
 export const initUnitEconomicsCalculator = (): void => {
   const form = document.getElementById('calculator-form') as HTMLFormElement;
   if (!form) return;
-  
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement;
     const errorState = document.getElementById('error-state');
     const errorMessage = document.getElementById('error-message');
-    
+
     try {
       // Hide previous errors
       errorState?.classList.add('hidden');
-      
+
       // Disable button during calculation
       if (calculateBtn) {
         calculateBtn.disabled = true;
         calculateBtn.textContent = 'Calculating...';
       }
-      
+
       const formData = new FormData(form);
       const input = parseUnitEconomicsInput(formData);
       const result = UnitEconomicsEngine.analyze(input);
-      
+
       // Store result for AI assistant
       storeAnalysisResult('unit-economics', result);
-      
+
       // Display results
       displayResults(result);
-      
     } catch (error) {
       console.error('Unit economics calculation error:', error);
       if (errorState && errorMessage) {
         errorState.classList.remove('hidden');
-        errorMessage.textContent = error instanceof Error ? error.message : 'An error occurred during calculation';
+        errorMessage.textContent =
+          error instanceof Error ? error.message : 'An error occurred during calculation';
       }
     } finally {
       // Re-enable button
@@ -401,7 +441,7 @@ export const initUnitEconomicsCalculator = (): void => {
       }
     }
   });
-  
+
   // Register chat button for AI analysis
   registerChatButton('#unit-economics-chat-button', 'Unit Economics Calculator');
 };
@@ -409,8 +449,10 @@ export const initUnitEconomicsCalculator = (): void => {
 // Auto-initialize if on unit economics page
 if (typeof window !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('/unit-economics') || 
-        window.location.pathname.includes('/calculator/unit-economics')) {
+    if (
+      window.location.pathname.includes('/unit-economics') ||
+      window.location.pathname.includes('/calculator/unit-economics')
+    ) {
       initUnitEconomicsCalculator();
     }
   });

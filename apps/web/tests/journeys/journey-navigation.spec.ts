@@ -22,7 +22,7 @@ test.describe('Journey Navigation Tests', () => {
           // Verify page loaded
           const h1 = page.locator('h1').first();
           await expect(h1).toBeVisible();
-          
+
           const h1Text = await h1.textContent();
           expect(h1Text).toContain(step.name);
 
@@ -35,9 +35,10 @@ test.describe('Journey Navigation Tests', () => {
           if (index === 0) {
             expect(await prevButton.count()).toBe(0);
             // Should have either next or complete button
-            const hasNextOrComplete = (await nextButton.count()) > 0 || (await completeButton.count()) > 0;
+            const hasNextOrComplete =
+              (await nextButton.count()) > 0 || (await completeButton.count()) > 0;
             expect(hasNextOrComplete).toBe(true);
-          } 
+          }
           // Last step should have previous button and complete button
           else if (index === journey.models.length - 1) {
             expect(await prevButton.count()).toBeGreaterThan(0);
@@ -82,11 +83,13 @@ test.describe('Journey Navigation Tests', () => {
           expect(currentUrl).toContain(currentStep.id);
 
           // Click next button
-          const nextButton = page.locator(`a[href="/journey/${journeyId}/step/${nextStep.id}"]`).first();
-          if (await nextButton.count() > 0) {
+          const nextButton = page
+            .locator(`a[href="/journey/${journeyId}/step/${nextStep.id}"]`)
+            .first();
+          if ((await nextButton.count()) > 0) {
             await nextButton.click();
             await page.waitForLoadState('networkidle');
-            
+
             // Verify we navigated to next step
             const newUrl = page.url();
             expect(newUrl).toContain(nextStep.id);
@@ -114,11 +117,13 @@ test.describe('Journey Navigation Tests', () => {
           expect(currentUrl).toContain(currentStep.id);
 
           // Click previous button
-          const prevButton = page.locator(`a[href="/journey/${journeyId}/step/${prevStep.id}"]`).first();
-          if (await prevButton.count() > 0) {
+          const prevButton = page
+            .locator(`a[href="/journey/${journeyId}/step/${prevStep.id}"]`)
+            .first();
+          if ((await prevButton.count()) > 0) {
             await prevButton.click();
             await page.waitForLoadState('networkidle');
-            
+
             // Verify we navigated to previous step
             const newUrl = page.url();
             expect(newUrl).toContain(prevStep.id);
@@ -128,4 +133,3 @@ test.describe('Journey Navigation Tests', () => {
     });
   });
 });
-

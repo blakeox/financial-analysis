@@ -42,11 +42,15 @@ class FiveTwoNineOptimizerCalculator {
         children,
         contributionPlan: {
           annualContribution: parseFloat((formData.get('annualContribution') as string) || '0'),
-          contributionIncrease: parseFloat((formData.get('contributionIncrease') as string) || '0.03'),
+          contributionIncrease: parseFloat(
+            (formData.get('contributionIncrease') as string) || '0.03'
+          ),
         },
         financialAid: {
           expectFinancialAid: formData.get('expectFinancialAid') !== 'false',
-          expectedAidPercentage: parseFloat((formData.get('expectedAidPercentage') as string) || '0.3'),
+          expectedAidPercentage: parseFloat(
+            (formData.get('expectedAidPercentage') as string) || '0.3'
+          ),
         },
         strategy: {
           optimizeFor: (formData.get('optimizeFor') as string) || 'max-tax-benefit',

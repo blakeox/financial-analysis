@@ -1,6 +1,6 @@
 /**
  * Stripe Integration for API Monetization
- * 
+ *
  * Handles subscription management, webhook processing, and usage-based billing.
  */
 
@@ -105,17 +105,14 @@ export const STRIPE_PRODUCTS: Record<ApiTier, StripeProduct> = {
 /**
  * Verify Stripe webhook signature
  */
-export async function verifyStripeWebhook(
-  request: Request,
-  secret: string
-): Promise<boolean> {
+export async function verifyStripeWebhook(request: Request, secret: string): Promise<boolean> {
   const signature = request.headers.get('stripe-signature');
   if (!signature) return false;
 
   const body = await request.text();
   const elements = signature.split(',');
-  const timestampElement = elements.find(e => e.startsWith('t='));
-  const signatureElement = elements.find(e => e.startsWith('v1='));
+  const timestampElement = elements.find((e) => e.startsWith('t='));
+  const signatureElement = elements.find((e) => e.startsWith('v1='));
 
   if (!timestampElement || !signatureElement) return false;
 
@@ -133,14 +130,10 @@ export async function verifyStripeWebhook(
     ['sign']
   );
 
-  const signature_bytes = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(signedPayload)
-  );
+  const signature_bytes = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
 
   const expectedSignature = Array.from(new Uint8Array(signature_bytes))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
   // Compare signatures
@@ -156,28 +149,25 @@ export async function verifyStripeWebhook(
 /**
  * Process Stripe webhook event
  */
-export async function handleStripeWebhook(
-  request: Request,
-  env: Env
-): Promise<Response> {
+export async function handleStripeWebhook(request: Request, env: Env): Promise<Response> {
   if (!env.STRIPE_WEBHOOK_SECRET) {
-    return new Response(
-      JSON.stringify({ error: 'Stripe webhook secret not configured' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Stripe webhook secret not configured' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // Verify webhook signature
   const isValid = await verifyStripeWebhook(request, env.STRIPE_WEBHOOK_SECRET);
   if (!isValid) {
-    return new Response(
-      JSON.stringify({ error: 'Invalid webhook signature' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Invalid webhook signature' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // Parse event
-  const event = await request.json() as StripeEvent;
+  const event = (await request.json()) as StripeEvent;
   console.log(`[Stripe Webhook] Event type: ${event.type}`);
 
   try {
@@ -203,16 +193,16 @@ export async function handleStripeWebhook(
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
 
-    return new Response(
-      JSON.stringify({ received: true }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('[Stripe Webhook] Error processing event:', error);
-    return new Response(
-      JSON.stringify({ error: 'Webhook processing failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Webhook processing failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -240,7 +230,8 @@ async function handleSubscriptionUpdate(subscription: StripeSubscription, env: E
 
   // Update or create API key for this customer
   if (status === 'active' || status === 'trialing') {
-    await env.DB?.prepare(`
+    await env.DB?.prepare(
+      `
       INSERT INTO api_keys (
         key_hash, key_prefix, customer_id, customer_email, tier,
         active, monthly_quota, rate_limit_per_sec, metadata
@@ -249,24 +240,28 @@ async function handleSubscriptionUpdate(subscription: StripeSubscription, env: E
       WHERE NOT EXISTS (
         SELECT 1 FROM api_keys WHERE customer_id = ? AND active = 1
       )
-    `).bind(
-      '', // Will be set when key is generated via API
-      '',
-      customerId,
-      subscription.customer_email || '',
-      tier,
-      product.monthlyQuota,
-      product.rateLimitPerSec,
-      JSON.stringify({
-        stripe_subscription_id: subscription.id,
-        stripe_customer_id: customerId,
-        price_id: priceId,
-      }),
-      customerId
-    ).run();
+    `
+    )
+      .bind(
+        '', // Will be set when key is generated via API
+        '',
+        customerId,
+        subscription.customer_email || '',
+        tier,
+        product.monthlyQuota,
+        product.rateLimitPerSec,
+        JSON.stringify({
+          stripe_subscription_id: subscription.id,
+          stripe_customer_id: customerId,
+          price_id: priceId,
+        }),
+        customerId
+      )
+      .run();
 
     // Update existing key tier if customer already has one
-    await env.DB?.prepare(`
+    await env.DB?.prepare(
+      `
       UPDATE api_keys
       SET tier = ?,
           monthly_quota = ?,
@@ -278,15 +273,18 @@ async function handleSubscriptionUpdate(subscription: StripeSubscription, env: E
             '$.price_id', ?
           )
       WHERE customer_id = ? AND active = 1
-    `).bind(
-      tier,
-      product.monthlyQuota,
-      product.rateLimitPerSec,
-      subscription.id,
-      customerId,
-      priceId,
-      customerId
-    ).run();
+    `
+    )
+      .bind(
+        tier,
+        product.monthlyQuota,
+        product.rateLimitPerSec,
+        subscription.id,
+        customerId,
+        priceId,
+        customerId
+      )
+      .run();
 
     console.log(`[Stripe] Updated customer ${customerId} to ${tier} tier`);
   }
@@ -295,12 +293,16 @@ async function handleSubscriptionUpdate(subscription: StripeSubscription, env: E
 /**
  * Handle subscription cancellation
  */
-async function handleSubscriptionCancellation(subscription: StripeSubscription, env: Env): Promise<void> {
+async function handleSubscriptionCancellation(
+  subscription: StripeSubscription,
+  env: Env
+): Promise<void> {
   const customerId = subscription.customer;
 
   // Downgrade to free tier
   const freeProduct = STRIPE_PRODUCTS.free;
-  await env.DB?.prepare(`
+  await env.DB?.prepare(
+    `
     UPDATE api_keys
     SET tier = 'free',
         monthly_quota = ?,
@@ -310,11 +312,10 @@ async function handleSubscriptionCancellation(subscription: StripeSubscription, 
           '$.stripe_subscription_id'
         )
     WHERE customer_id = ? AND active = 1
-  `).bind(
-    freeProduct.monthlyQuota,
-    freeProduct.rateLimitPerSec,
-    customerId
-  ).run();
+  `
+  )
+    .bind(freeProduct.monthlyQuota, freeProduct.rateLimitPerSec, customerId)
+    .run();
 
   console.log(`[Stripe] Downgraded customer ${customerId} to free tier`);
 }
@@ -330,7 +331,8 @@ async function handlePaymentSuccess(invoice: StripeInvoice, env: Env): Promise<v
   const now = new Date();
   const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  await env.DB?.prepare(`
+  await env.DB?.prepare(
+    `
     UPDATE api_key_usage_monthly
     SET total_requests = 0,
         successful_requests = 0,
@@ -342,7 +344,10 @@ async function handlePaymentSuccess(invoice: StripeInvoice, env: Env): Promise<v
     WHERE api_key_id IN (
       SELECT id FROM api_keys WHERE customer_id = ? AND active = 1
     ) AND year_month = ?
-  `).bind(customerId, yearMonth).run();
+  `
+  )
+    .bind(customerId, yearMonth)
+    .run();
 }
 
 /**
@@ -393,17 +398,17 @@ export async function createCheckoutSession(
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      'mode': 'subscription',
-      'customer_email': customerEmail,
-      'client_reference_id': customerId,
+      mode: 'subscription',
+      customer_email: customerEmail,
+      client_reference_id: customerId,
       'line_items[0][price]': product.priceId,
       'line_items[0][quantity]': '1',
-      'success_url': `${env.BASE_URL || 'https://fanalyx.com'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      'cancel_url': `${env.BASE_URL || 'https://fanalyx.com'}/pricing`,
+      success_url: `${env.BASE_URL || 'https://fanalyx.com'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.BASE_URL || 'https://fanalyx.com'}/pricing`,
       'metadata[customer_id]': customerId,
       'metadata[tier]': tier,
     }),
@@ -415,27 +420,28 @@ export async function createCheckoutSession(
     return null;
   }
 
-  const session = await response.json() as StripeSession;
+  const session = (await response.json()) as StripeSession;
   return session.url;
 }
 
 /**
  * Create Stripe Customer Portal session
  */
-export async function createPortalSession(
-  customerId: string,
-  env: Env
-): Promise<string | null> {
+export async function createPortalSession(customerId: string, env: Env): Promise<string | null> {
   if (!env.STRIPE_SECRET_KEY) {
     throw new Error('Stripe secret key not configured');
   }
 
   // Get Stripe customer ID from API key metadata
-  const result = await env.DB?.prepare(`
+  const result = await env.DB?.prepare(
+    `
     SELECT metadata FROM api_keys
     WHERE customer_id = ? AND active = 1
     LIMIT 1
-  `).bind(customerId).first<{ metadata: string }>();
+  `
+  )
+    .bind(customerId)
+    .first<{ metadata: string }>();
 
   if (!result?.metadata) {
     return null;
@@ -451,12 +457,12 @@ export async function createPortalSession(
   const response = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      'customer': stripeCustomerId,
-      'return_url': `${env.BASE_URL || 'https://fanalyx.com'}/dashboard`,
+      customer: stripeCustomerId,
+      return_url: `${env.BASE_URL || 'https://fanalyx.com'}/dashboard`,
     }),
   });
 
@@ -466,7 +472,7 @@ export async function createPortalSession(
     return null;
   }
 
-  const session = await response.json() as StripeSession;
+  const session = (await response.json()) as StripeSession;
   return session.url;
 }
 
@@ -479,16 +485,24 @@ export async function calculateOverageCharges(
   env: Env
 ): Promise<number> {
   // Get key info and usage
-  const keyResult = await env.DB?.prepare(`
+  const keyResult = await env.DB?.prepare(
+    `
     SELECT tier, monthly_quota FROM api_keys WHERE id = ?
-  `).bind(apiKeyId).first<{ tier: ApiTier; monthly_quota: number }>();
+  `
+  )
+    .bind(apiKeyId)
+    .first<{ tier: ApiTier; monthly_quota: number }>();
 
   if (!keyResult) return 0;
 
-  const usageResult = await env.DB?.prepare(`
+  const usageResult = await env.DB?.prepare(
+    `
     SELECT total_requests FROM api_key_usage_monthly
     WHERE api_key_id = ? AND year_month = ?
-  `).bind(apiKeyId, yearMonth).first<{ total_requests: number }>();
+  `
+  )
+    .bind(apiKeyId, yearMonth)
+    .first<{ total_requests: number }>();
 
   if (!usageResult) return 0;
 
@@ -510,9 +524,13 @@ export async function reportUsageToStripe(
   if (!env.STRIPE_SECRET_KEY) return;
 
   // Get subscription item ID from metadata
-  const result = await env.DB?.prepare(`
+  const result = await env.DB?.prepare(
+    `
     SELECT metadata FROM api_keys WHERE id = ?
-  `).bind(apiKeyId).first<{ metadata: string }>();
+  `
+  )
+    .bind(apiKeyId)
+    .first<{ metadata: string }>();
 
   if (!result?.metadata) return;
 
@@ -522,16 +540,19 @@ export async function reportUsageToStripe(
   if (!subscriptionItemId) return;
 
   // Create usage record
-  await fetch('https://api.stripe.com/v1/subscription_items/' + subscriptionItemId + '/usage_records', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      'quantity': quantity.toString(),
-      'timestamp': Math.floor(Date.now() / 1000).toString(),
-      'action': 'increment',
-    }),
-  });
+  await fetch(
+    'https://api.stripe.com/v1/subscription_items/' + subscriptionItemId + '/usage_records',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        quantity: quantity.toString(),
+        timestamp: Math.floor(Date.now() / 1000).toString(),
+        action: 'increment',
+      }),
+    }
+  );
 }

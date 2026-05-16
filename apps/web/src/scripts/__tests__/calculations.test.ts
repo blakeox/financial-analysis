@@ -43,7 +43,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
       const result = calculatePMI(principal, downPayment, homePrice);
 
       expect(result.hasPMI).toBe(true);
-      expect(result.pmiMonthly).toBeCloseTo(principal * 0.005 / 12, 2);
+      expect(result.pmiMonthly).toBeCloseTo((principal * 0.005) / 12, 2);
     });
 
     it('should calculate PMI for 10-14.99% down payment (0.75% rate)', () => {
@@ -54,7 +54,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
       const result = calculatePMI(principal, downPayment, homePrice);
 
       expect(result.hasPMI).toBe(true);
-      expect(result.pmiMonthly).toBeCloseTo(principal * 0.0075 / 12, 2);
+      expect(result.pmiMonthly).toBeCloseTo((principal * 0.0075) / 12, 2);
     });
 
     it('should calculate PMI for 5-9.99% down payment (1% rate)', () => {
@@ -65,7 +65,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
       const result = calculatePMI(principal, downPayment, homePrice);
 
       expect(result.hasPMI).toBe(true);
-      expect(result.pmiMonthly).toBeCloseTo(principal * 0.01 / 12, 2);
+      expect(result.pmiMonthly).toBeCloseTo((principal * 0.01) / 12, 2);
     });
 
     it('should calculate PMI for less than 5% down payment (1.2% rate)', () => {
@@ -76,7 +76,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
       const result = calculatePMI(principal, downPayment, homePrice);
 
       expect(result.hasPMI).toBe(true);
-      expect(result.pmiMonthly).toBeCloseTo(principal * 0.012 / 12, 2);
+      expect(result.pmiMonthly).toBeCloseTo((principal * 0.012) / 12, 2);
     });
 
     it('should calculate PMI drop month correctly', () => {
@@ -98,10 +98,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
 
       const result = calculatePMI(principal, downPayment, homePrice);
 
-      expect(result.pmiTotalCost).toBeCloseTo(
-        result.pmiMonthly * result.pmiDropMonth,
-        2
-      );
+      expect(result.pmiTotalCost).toBeCloseTo(result.pmiMonthly * result.pmiDropMonth, 2);
     });
 
     it('should handle edge case of 0 down payment', () => {
@@ -113,7 +110,7 @@ describe('Mortgage Scenario Planning - Calculations', () => {
 
       expect(result.hasPMI).toBe(true);
       // Should use highest PMI rate (1.2%)
-      expect(result.pmiMonthly).toBeCloseTo(principal * 0.012 / 12, 2);
+      expect(result.pmiMonthly).toBeCloseTo((principal * 0.012) / 12, 2);
     });
 
     it('should handle very high down payment (>20%)', () => {

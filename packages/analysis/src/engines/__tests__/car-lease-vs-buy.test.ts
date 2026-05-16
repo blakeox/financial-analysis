@@ -83,4 +83,3 @@ describe('CarLeaseVsBuyCalculator', () => {
     expect(result.purchaseAnalysis.opportunityCost).toBeDefined();
   });
 });
-

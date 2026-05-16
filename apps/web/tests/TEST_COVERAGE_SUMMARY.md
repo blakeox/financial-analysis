@@ -6,17 +6,17 @@ The chat panel test suite now covers **every page type** in the application:
 
 ### Pages Tested (9 total)
 
-| Page Route | Test Coverage | Context Verified |
-|------------|---------------|------------------|
-| `/` | ✅ Full | Home page context |
-| `/analysis` | ✅ Full | Lease/amortization context |
-| `/lease-analysis` | ✅ Full | Lease context |
-| `/enhanced-lease` | ✅ Full | Lease context |
-| `/amortization` | ✅ Full | Amortization context |
-| `/ebitda-forecasting` | ✅ Full | EBITDA context |
-| `/models` | ✅ Full | Models context |
-| `/status` | ✅ Full | Status page context |
-| `/debug` | ✅ Full | Debug page context |
+| Page Route            | Test Coverage | Context Verified           |
+| --------------------- | ------------- | -------------------------- |
+| `/`                   | ✅ Full       | Home page context          |
+| `/analysis`           | ✅ Full       | Lease/amortization context |
+| `/lease-analysis`     | ✅ Full       | Lease context              |
+| `/enhanced-lease`     | ✅ Full       | Lease context              |
+| `/amortization`       | ✅ Full       | Amortization context       |
+| `/ebitda-forecasting` | ✅ Full       | EBITDA context             |
+| `/models`             | ✅ Full       | Models context             |
+| `/status`             | ✅ Full       | Status page context        |
+| `/debug`              | ✅ Full       | Debug page context         |
 
 ## Test Statistics
 
@@ -37,13 +37,16 @@ The chat panel test suite now covers **every page type** in the application:
 ## Key Features Tested
 
 ### 1. Universal Functionality
+
 - ✅ Chat panel works on all 9 page types
 - ✅ Toggle button visible and clickable on all pages
 - ✅ Open/close behavior consistent across pages
 - ✅ Context detection adapts to each page
 
 ### 2. Context Detection
+
 Each page type has dedicated context detection tests:
+
 - Home page: General context indicator
 - Analysis/Lease pages: Lease-specific context
 - Amortization page: Amortization-specific context
@@ -52,6 +55,7 @@ Each page type has dedicated context detection tests:
 - Status/Debug pages: Page-aware context
 
 ### 3. UI Interactions (All Pages)
+
 - Toggle button (open/close)
 - Close button
 - Escape key
@@ -60,17 +64,20 @@ Each page type has dedicated context detection tests:
 - Proper z-index layering (999999)
 
 ### 4. Accessibility (All Pages)
+
 - ARIA attributes (role, modal, labels)
 - Focus management
 - Keyboard navigation
 - Screen reader support
 
 ### 5. Mobile Responsiveness (All Pages)
+
 - 375x667 mobile viewport
 - Full-width panel on mobile
 - Button repositioning when panel opens
 
 ### 6. Navigation Compatibility (All Pages)
+
 - No z-index conflicts with nav
 - Navigation works when chat open
 - Navigation works when chat closed
@@ -79,12 +86,14 @@ Each page type has dedicated context detection tests:
 ## Execution
 
 ### Quick Test
+
 ```bash
 cd apps/web
 npx playwright test chat-panel.spec.ts --reporter=list
 ```
 
 ### Full Test with Servers
+
 ```bash
 # Terminal 1: Start dev servers
 cd /Users/blakepowell/Documents/GitHub/financial-analysis
@@ -96,6 +105,7 @@ npx playwright test chat-panel.spec.ts
 ```
 
 ### Specific Page Test
+
 ```bash
 npx playwright test chat-panel.spec.ts -g "lease-analysis"
 ```
@@ -103,14 +113,19 @@ npx playwright test chat-panel.spec.ts -g "lease-analysis"
 ## Maintenance
 
 ### Adding New Page Types
+
 When adding a new page to the application:
 
 1. Add context detection test in "Context Detection" describe block:
+
 ```typescript
 test('detects context on new-page', async ({ page }) => {
   await page.goto('/new-page');
   const toggle = await getChatToggle(page);
-  if (!toggle) { test.skip(); return; }
+  if (!toggle) {
+    test.skip();
+    return;
+  }
   await toggle.click();
   const contextIndicator = page.locator('#context-indicator');
   await expect(contextIndicator).toBeVisible();
@@ -118,10 +133,11 @@ test('detects context on new-page', async ({ page }) => {
 ```
 
 2. Add page to "Cross-page Functionality" test:
+
 ```typescript
 const pages = [
   // ... existing pages
-  '/new-page'
+  '/new-page',
 ];
 ```
 
@@ -130,6 +146,7 @@ const pages = [
 ## Confidence Level
 
 ✅ **Production Ready**
+
 - All page types covered
 - All interaction patterns tested
 - Mobile and desktop tested

@@ -182,7 +182,12 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
 
             {cta ? (
               <div className="pt-2">
-                <a href={cta.href} aria-label={cta.label} onClick={() => setMobileMenuOpen(false)} className="block">
+                <a
+                  href={cta.href}
+                  aria-label={cta.label}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block"
+                >
                   <Button className="w-full">{cta.label}</Button>
                 </a>
               </div>

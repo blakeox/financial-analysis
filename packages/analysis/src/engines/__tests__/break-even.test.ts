@@ -41,4 +41,3 @@ describe('BreakEvenAnalyzer', () => {
     expect(result.contributionMarginRatio).toBe(0);
   });
 });
-

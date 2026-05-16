@@ -13,7 +13,7 @@ export function TrendIndicator({
 }: TrendIndicatorProps) {
   const isPositive = value > 0;
   const isNegative = value < 0;
-  
+
   // For metrics like expenses, positive is bad (red), negative is good (green)
   const colorClass = invertColors
     ? isPositive
@@ -28,7 +28,7 @@ export function TrendIndicator({
         : 'text-slate-600 dark:text-slate-400';
 
   const icon = isPositive ? '↑' : isNegative ? '↓' : '→';
-  
+
   const displayValue = formatter
     ? formatter(Math.abs(value))
     : showPercentage

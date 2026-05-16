@@ -78,6 +78,3 @@ export const BusinessSuccessionPlanningInputSchema = z.object({
 });
 
 export type BusinessSuccessionPlanningInput = z.infer<typeof BusinessSuccessionPlanningInputSchema>;
-
-
-

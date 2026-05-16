@@ -243,7 +243,9 @@ const toggleLoadingState = (
     !(scheduleContent instanceof HTMLElement)
   ) {
     if (import.meta.env.DEV) {
-      console.warn('[analysis.client] Required DOM elements were not found, skipping initialization.');
+      console.warn(
+        '[analysis.client] Required DOM elements were not found, skipping initialization.'
+      );
     }
     return;
   }

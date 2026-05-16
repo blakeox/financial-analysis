@@ -116,7 +116,4 @@ export {
 
 // Form Controllers
 export { createModelFormController } from './forms/model-form-controller';
-export type {
-  FormControllerState,
-  FormValidationError,
-} from './forms/model-form-controller';
+export type { FormControllerState, FormValidationError } from './forms/model-form-controller';

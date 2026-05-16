@@ -155,7 +155,8 @@ describe('InventoryOptimizer', () => {
     });
 
     expect(result.totalCostAnalysis.potentialSavings).toBe(0);
-    expect(result.recommendations.some((item: string) => item.includes('Potential cost savings'))).toBe(false);
+    expect(
+      result.recommendations.some((item: string) => item.includes('Potential cost savings'))
+    ).toBe(false);
   });
 });
-

@@ -293,4 +293,3 @@ describe('AccountsReceivableAgingAnalyzer', () => {
     expect(result.recommendations).toBeDefined();
   });
 });
-

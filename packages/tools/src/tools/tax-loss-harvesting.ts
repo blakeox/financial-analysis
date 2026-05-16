@@ -2,7 +2,10 @@
  * Tax Loss Harvesting MCP Tool
  */
 
-import { TaxLossHarvestingInputSchema, TaxLossHarvestingOptimizer } from '@financial-analysis/analysis';
+import {
+  TaxLossHarvestingInputSchema,
+  TaxLossHarvestingOptimizer,
+} from '@financial-analysis/analysis';
 
 export class TaxLossHarvestingTool {
   static readonly toolName = 'analyze_tax_loss_harvesting';
@@ -23,11 +26,26 @@ export class TaxLossHarvestingTool {
                 symbol: { type: 'string', description: 'Stock symbol' },
                 shares: { type: 'number', minimum: 0, description: 'Number of shares' },
                 costBasis: { type: 'number', minimum: 0, description: 'Cost basis per share' },
-                currentPrice: { type: 'number', minimum: 0, description: 'Current price per share' },
+                currentPrice: {
+                  type: 'number',
+                  minimum: 0,
+                  description: 'Current price per share',
+                },
                 purchaseDate: { type: 'string', description: 'Purchase date (ISO format)' },
-                holdingPeriod: { type: 'string', enum: ['short-term', 'long-term'], description: 'Holding period' },
+                holdingPeriod: {
+                  type: 'string',
+                  enum: ['short-term', 'long-term'],
+                  description: 'Holding period',
+                },
               },
-              required: ['symbol', 'shares', 'costBasis', 'currentPrice', 'purchaseDate', 'holdingPeriod'],
+              required: [
+                'symbol',
+                'shares',
+                'costBasis',
+                'currentPrice',
+                'purchaseDate',
+                'holdingPeriod',
+              ],
             },
           },
           totalValue: { type: 'number', minimum: 0, description: 'Total portfolio value' },
@@ -40,30 +58,80 @@ export class TaxLossHarvestingTool {
           federalTaxRate: {
             type: 'object',
             properties: {
-              shortTerm: { type: 'number', minimum: 0, maximum: 0.5, description: 'Short-term capital gains rate' },
-              longTerm: { type: 'number', minimum: 0, maximum: 0.3, description: 'Long-term capital gains rate' },
+              shortTerm: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.5,
+                description: 'Short-term capital gains rate',
+              },
+              longTerm: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.3,
+                description: 'Long-term capital gains rate',
+              },
             },
             required: ['shortTerm', 'longTerm'],
           },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
-          incomeBracket: { type: 'number', minimum: 0, maximum: 0.5, description: 'Income tax bracket' },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
+          incomeBracket: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            description: 'Income tax bracket',
+          },
         },
         required: ['federalTaxRate', 'incomeBracket'],
       },
       realizedGains: {
         type: 'object',
         properties: {
-          shortTermGains: { type: 'number', minimum: 0, default: 0, description: 'Short-term realized gains' },
-          longTermGains: { type: 'number', minimum: 0, default: 0, description: 'Long-term realized gains' },
-          ordinaryIncome: { type: 'number', minimum: 0, default: 0, description: 'Ordinary income' },
+          shortTermGains: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Short-term realized gains',
+          },
+          longTermGains: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Long-term realized gains',
+          },
+          ordinaryIncome: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Ordinary income',
+          },
         },
       },
       harvestingStrategy: {
         type: 'object',
         properties: {
-          maxHarvestAmount: { type: 'number', minimum: 0, default: 3000, description: 'Maximum annual harvest amount' },
-          includeWashSaleRules: { type: 'boolean', default: true, description: 'Include wash sale rules' },
-          washSaleWindow: { type: 'number', minimum: 0, default: 30, description: 'Wash sale window (days)' },
+          maxHarvestAmount: {
+            type: 'number',
+            minimum: 0,
+            default: 3000,
+            description: 'Maximum annual harvest amount',
+          },
+          includeWashSaleRules: {
+            type: 'boolean',
+            default: true,
+            description: 'Include wash sale rules',
+          },
+          washSaleWindow: {
+            type: 'number',
+            minimum: 0,
+            default: 30,
+            description: 'Wash sale window (days)',
+          },
           replacementSecuritySimilarity: {
             type: 'string',
             enum: ['exact', 'similar', 'different'],
@@ -75,9 +143,23 @@ export class TaxLossHarvestingTool {
       analysis: {
         type: 'object',
         properties: {
-          includeTaxSavingsProjection: { type: 'boolean', default: true, description: 'Include tax savings projection' },
-          includeCarryForwardAnalysis: { type: 'boolean', default: true, description: 'Include carry-forward analysis' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 10, default: 5, description: 'Projection years' },
+          includeTaxSavingsProjection: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax savings projection',
+          },
+          includeCarryForwardAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include carry-forward analysis',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 10,
+            default: 5,
+            description: 'Projection years',
+          },
         },
       },
     },

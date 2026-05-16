@@ -179,10 +179,11 @@ describe('formUtils', () => {
     it('returns empty object when all rules pass', () => {
       const values = { email: 'test@example.com', age: 25 };
       const rules = {
-        email: (value: unknown) => (typeof value === 'string' && value.includes('@') ? null : 'Invalid email'),
+        email: (value: unknown) =>
+          typeof value === 'string' && value.includes('@') ? null : 'Invalid email',
         age: (value: unknown) => (typeof value === 'number' && value >= 18 ? null : 'Must be 18+'),
       };
-      
+
       const errors = validateForm(values, rules);
       expect(errors).toEqual({});
     });
@@ -190,10 +191,11 @@ describe('formUtils', () => {
     it('returns errors when rules fail', () => {
       const values = { email: 'invalid', age: 15 };
       const rules = {
-        email: (value: unknown) => (typeof value === 'string' && value.includes('@') ? null : 'Invalid email'),
+        email: (value: unknown) =>
+          typeof value === 'string' && value.includes('@') ? null : 'Invalid email',
         age: (value: unknown) => (typeof value === 'number' && value >= 18 ? null : 'Must be 18+'),
       };
-      
+
       const errors = validateForm(values, rules);
       expect(errors).toEqual({
         email: 'Invalid email',
@@ -204,9 +206,10 @@ describe('formUtils', () => {
     it('validates only specified fields', () => {
       const values = { email: 'test@example.com', age: 25, name: '' };
       const rules = {
-        email: (value: unknown) => (typeof value === 'string' && value.includes('@') ? null : 'Invalid email'),
+        email: (value: unknown) =>
+          typeof value === 'string' && value.includes('@') ? null : 'Invalid email',
       };
-      
+
       const errors = validateForm(values, rules);
       expect(errors).toEqual({});
     });
@@ -216,7 +219,7 @@ describe('formUtils', () => {
       const rules = {
         email: (value: unknown) => (value ? null : 'Required'),
       };
-      
+
       const errors = validateForm(values, rules);
       expect(errors).toEqual({ email: 'Required' });
     });

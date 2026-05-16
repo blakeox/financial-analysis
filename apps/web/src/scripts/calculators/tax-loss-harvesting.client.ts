@@ -55,7 +55,8 @@ class TaxLossHarvestingCalculator {
           maxHarvestAmount: parseFloat((formData.get('maxHarvestAmount') as string) || '3000'),
           includeWashSaleRules: formData.get('includeWashSaleRules') !== 'false',
           washSaleWindow: parseInt((formData.get('washSaleWindow') as string) || '30'),
-          replacementSecuritySimilarity: (formData.get('replacementSecuritySimilarity') as string) || 'similar',
+          replacementSecuritySimilarity:
+            (formData.get('replacementSecuritySimilarity') as string) || 'similar',
         },
         analysis: {
           includeTaxSavingsProjection: formData.get('includeTaxSavingsProjection') !== 'false',

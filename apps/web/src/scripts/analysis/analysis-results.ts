@@ -16,26 +16,26 @@ declare global {
  */
 export function storeAnalysisResult(toolName: string, result: unknown): void {
   if (typeof window === 'undefined') return;
-  
+
   if (!window.analysisResults) {
     window.analysisResults = {};
   }
-  
+
   window.analysisResults[toolName] = result;
-  
+
   // Also store in data attribute on results container if it exists
   const resultsContainer = document.getElementById('results');
   if (resultsContainer) {
     resultsContainer.setAttribute('data-tool-name', toolName);
     resultsContainer.setAttribute('data-analysis-result', JSON.stringify(result));
   }
-  
+
   // Notify chat panel of new results
   const event = new CustomEvent('analysis-result-updated', {
-    detail: { toolName, result }
+    detail: { toolName, result },
   });
   window.dispatchEvent(event);
-  
+
   if (import.meta.env.DEV) {
     console.log(`[AnalysisResults] Stored result for tool: ${toolName}`);
   }
@@ -62,11 +62,11 @@ export function getAllAnalysisResults(): AnalysisResults {
  */
 export function clearAnalysisResult(toolName: string): void {
   if (typeof window === 'undefined') return;
-  
+
   if (window.analysisResults) {
     delete window.analysisResults[toolName];
   }
-  
+
   const resultsContainer = document.getElementById('results');
   if (resultsContainer) {
     resultsContainer.removeAttribute('data-tool-name');

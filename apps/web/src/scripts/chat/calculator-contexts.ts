@@ -89,18 +89,14 @@ function buildFieldMappingsFromConfig(calculatorId: string): Record<string, stri
  */
 export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext> = {
   // Personal Finance Calculators
-  'amortization': {
+  amortization: {
     id: 'amortization',
     label: 'Mortgage/Loan Calculator',
     intro: 'Hi — I can help with mortgage and loan calculations.',
-    examples: [
-      'Set interest rate to 4.5%',
-      'Show a 20-year term',
-      'What if I put 20% down?',
-    ],
+    examples: ['Set interest rate to 4.5%', 'Show a 20-year term', 'What if I put 20% down?'],
     fieldMappings: buildFieldMappingsFromConfig('amortization'),
   },
-  
+
   'auto-loan': {
     id: 'auto-loan',
     label: 'Auto Loan Calculator',
@@ -112,8 +108,8 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: buildFieldMappingsFromConfig('auto-loan'),
   },
-  
-  'retirement': {
+
+  retirement: {
     id: 'retirement',
     label: 'Retirement Calculator',
     intro: 'Hi — I can help plan your retirement savings.',
@@ -124,7 +120,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: buildFieldMappingsFromConfig('retirement'),
   },
-  
+
   'savings-goal': {
     id: 'savings-goal',
     label: 'Savings Goal Calculator',
@@ -136,7 +132,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: buildFieldMappingsFromConfig('savings-goal'),
   },
-  
+
   'debt-payoff': {
     id: 'debt-payoff',
     label: 'Debt Payoff Calculator',
@@ -147,7 +143,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Compare avalanche vs snowball',
     ],
   },
-  
+
   'student-loans': {
     id: 'student-loans',
     label: 'Student Loan Calculator',
@@ -159,18 +155,18 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: buildFieldMappingsFromConfig('student-loans'),
   },
-  
-  'budget': {
+
+  budget: {
     id: 'budget',
     label: 'Budget Planner',
     intro: 'Hi — I can help create and analyze your budget.',
     examples: [
       'Set monthly income to $5,000',
       'Add $1,200 for rent',
-      'Check if I\'m following 50/30/20 rule',
+      "Check if I'm following 50/30/20 rule",
     ],
   },
-  
+
   // Investment Calculators
   'dcf-valuation': {
     id: 'dcf-valuation',
@@ -182,7 +178,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What if discount rate is 12%?',
     ],
   },
-  
+
   'ma-analysis': {
     id: 'ma-analysis',
     label: 'M&A Analysis',
@@ -190,10 +186,10 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     examples: [
       'Set purchase price to $5M',
       'Change synergy value to $500K',
-      'What\'s the payback period?',
+      "What's the payback period?",
     ],
   },
-  
+
   'risk-management': {
     id: 'risk-management',
     label: 'Risk Management',
@@ -201,10 +197,10 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     examples: [
       'Set portfolio value to $100,000',
       'Change risk tolerance to moderate',
-      'What\'s my risk-adjusted return?',
+      "What's my risk-adjusted return?",
     ],
   },
-  
+
   // Real Estate Calculators
   'equipment-lease': {
     id: 'equipment-lease',
@@ -216,7 +212,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What if monthly payment is $1,500?',
     ],
   },
-  
+
   'rent-vs-buy': {
     id: 'rent-vs-buy',
     label: 'Rent vs Buy',
@@ -224,10 +220,10 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     examples: [
       'Set home price to $400,000',
       'Change monthly rent to $2,000',
-      'What\'s the break-even point?',
+      "What's the break-even point?",
     ],
   },
-  
+
   'mortgage-scenario-planning': {
     id: 'mortgage-scenario-planning',
     label: 'Mortgage Scenarios',
@@ -238,8 +234,8 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Which scenario saves more?',
     ],
   },
-  
-  'lease': {
+
+  lease: {
     id: 'lease',
     label: 'Lease Analysis',
     intro: 'Hi — I can help with lease vs purchase analysis.',
@@ -249,7 +245,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Compare lease vs buy options',
     ],
   },
-  
+
   // Business Calculators
   'pricing-strategy': {
     id: 'pricing-strategy',
@@ -262,23 +258,19 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: buildFieldMappingsFromConfig('pricing-strategy'),
   },
-  
-  'ebitda': {
+
+  ebitda: {
     id: 'ebitda',
     label: 'EBITDA Forecasting',
     intro: 'Hi — I can help forecast EBITDA for your business.',
-    examples: [
-      'Set revenue to $500,000',
-      'Change growth rate to 15%',
-      'What if COGS is 35%?',
-    ],
+    examples: ['Set revenue to $500,000', 'Change growth rate to 15%', 'What if COGS is 35%?'],
     fieldMappings: {
-      'revenue': 'annual-revenue',
-      'growth': 'growth-rate',
-      'cogs': 'cost-of-goods-sold',
+      revenue: 'annual-revenue',
+      growth: 'growth-rate',
+      cogs: 'cost-of-goods-sold',
     },
   },
-  
+
   'break-even': {
     id: 'break-even',
     label: 'Break-Even Analysis',
@@ -289,7 +281,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What if variable cost is $25?',
     ],
   },
-  
+
   'cash-flow-forecast': {
     id: 'cash-flow-forecast',
     label: 'Cash Flow Forecast',
@@ -300,7 +292,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What if expenses increase 10%?',
     ],
   },
-  
+
   'business-loan-qualifier': {
     id: 'business-loan-qualifier',
     label: 'Business Loan Qualifier',
@@ -311,18 +303,14 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What loan amount do I qualify for?',
     ],
   },
-  
+
   'saas-metrics': {
     id: 'saas-metrics',
     label: 'SaaS Metrics',
     intro: 'Hi — I can help analyze SaaS business metrics.',
-    examples: [
-      'Set MRR to $50,000',
-      'Change churn rate to 5%',
-      'What\'s my LTV/CAC ratio?',
-    ],
+    examples: ['Set MRR to $50,000', 'Change churn rate to 5%', "What's my LTV/CAC ratio?"],
   },
-  
+
   'side-hustle-income': {
     id: 'side-hustle-income',
     label: 'Side Hustle Income',
@@ -333,18 +321,14 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What are my tax obligations?',
     ],
   },
-  
+
   'credit-card-payoff': {
     id: 'credit-card-payoff',
     label: 'Credit Card Payoff',
     intro: 'Hi — I can help create a credit card payoff plan.',
-    examples: [
-      'Set balance to $8,000',
-      'Change APR to 18.99%',
-      'What if I pay $300 monthly?',
-    ],
+    examples: ['Set balance to $8,000', 'Change APR to 18.99%', 'What if I pay $300 monthly?'],
   },
-  
+
   'invest-vs-payoff-debt': {
     id: 'invest-vs-payoff-debt',
     label: 'Invest vs Pay Off Debt',
@@ -355,7 +339,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Which option is better financially?',
     ],
   },
-  
+
   // Journey/General
   'unit-economics': {
     id: 'unit-economics',
@@ -368,14 +352,14 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: {
       'marketing spend': 'monthlyMarketingSpend',
-      'customers': 'newCustomersPerMonth',
-      'revenue': 'averageMonthlyRevenue',
-      'churn': 'monthlyChurnRate',
+      customers: 'newCustomersPerMonth',
+      revenue: 'averageMonthlyRevenue',
+      churn: 'monthlyChurnRate',
       'churn rate': 'monthlyChurnRate',
-      'cogs': 'costOfGoodsSoldPercent',
+      cogs: 'costOfGoodsSoldPercent',
     },
   },
-  
+
   'business-valuation': {
     id: 'business-valuation',
     label: 'Business Valuation',
@@ -386,14 +370,14 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What multiples apply to my industry?',
     ],
     fieldMappings: {
-      'revenue': 'annualRevenue',
+      revenue: 'annualRevenue',
       'annual revenue': 'annualRevenue',
-      'ebitda': 'annualEbitda',
-      'growth': 'revenueGrowthRate',
+      ebitda: 'annualEbitda',
+      growth: 'revenueGrowthRate',
       'growth rate': 'revenueGrowthRate',
     },
   },
-  
+
   'revenue-forecast': {
     id: 'revenue-forecast',
     label: 'Revenue Forecast',
@@ -405,12 +389,12 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
     ],
     fieldMappings: {
       'forecast months': 'forecastMonths',
-      'months': 'forecastMonths',
-      'growth': 'stream-growth-0',
+      months: 'forecastMonths',
+      growth: 'stream-growth-0',
       'growth rate': 'stream-growth-0',
     },
   },
-  
+
   'business-growth': {
     id: 'business-growth',
     label: 'Business Growth',
@@ -421,7 +405,7 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Project my revenue for next year?',
     ],
   },
-  
+
   'startup-planning': {
     id: 'startup-planning',
     label: 'Startup Planning',
@@ -432,8 +416,8 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'Calculate my burn rate',
     ],
   },
-  
-  'models': {
+
+  models: {
     id: 'models',
     label: 'Calculator Selection',
     intro: 'Hi — I can help you find the right financial calculator.',
@@ -443,8 +427,8 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'I need help with retirement planning',
     ],
   },
-  
-  'general': {
+
+  general: {
     id: 'general',
     label: 'General',
     intro: 'Hi — I can help with finance tools and quick analysis.',
@@ -462,16 +446,16 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
 export function detectCalculatorContext(pathname: string): CalculatorContextKey {
   // Normalize pathname: remove query params, hash, collapse multiple slashes, remove trailing slashes
   let normalizedPath = pathname
-    .split('?')[0]        // Remove query params
-    .split('#')[0]        // Remove hash
+    .split('?')[0] // Remove query params
+    .split('#')[0] // Remove hash
     .replace(/\/+/g, '/') // Collapse multiple slashes
-    .replace(/\/$/, '');  // Remove trailing slash
-  
+    .replace(/\/$/, ''); // Remove trailing slash
+
   // Handle empty path
   if (!normalizedPath || normalizedPath === '/') {
     return 'general';
   }
-  
+
   // Check journey pages first
   if (normalizedPath.includes('/journey/')) {
     const journeyMatch = normalizedPath.match(/\/journey\/([^/]+)/);
@@ -491,21 +475,21 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
       return journeyContextMap[journeyId] || 'general';
     }
   }
-  
+
   // Check calculator pages - handle both /calculator/[id] and direct paths
   const calculatorMatch = normalizedPath.match(/\/(calculator\/)?([^/]+)/);
   if (calculatorMatch) {
     const path = calculatorMatch[2];
-    
+
     // Direct mapping for calculator paths
     const pathToContext: Record<string, CalculatorContextKey> = {
-      'amortization': 'amortization',
+      amortization: 'amortization',
       'auto-loan': 'auto-loan',
-      'retirement': 'retirement',
+      retirement: 'retirement',
       'savings-goal': 'savings-goal',
       'debt-payoff': 'debt-payoff',
       'student-loans': 'student-loans',
-      'budget': 'budget',
+      budget: 'budget',
       'dcf-valuation': 'dcf-valuation',
       'ma-analysis': 'ma-analysis',
       'risk-management': 'risk-management',
@@ -523,18 +507,18 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
       'lease-analysis': 'lease',
       'commercial-real-estate-lease': 'lease',
       'ebitda-forecasting': 'ebitda',
-      'ebitda': 'ebitda',
+      ebitda: 'ebitda',
       'unit-economics': 'unit-economics',
       'business-valuation': 'business-valuation',
       'revenue-forecast': 'revenue-forecast',
-      'models': 'models',
+      models: 'models',
     };
-    
+
     if (pathToContext[path]) {
       return pathToContext[path];
     }
   }
-  
+
   // Fallback to general
   return 'general';
 }
@@ -543,7 +527,10 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
  * Parse natural language field updates
  * E.g., "Set target margin to 70" -> { field: 'target-margin', value: '70' }
  */
-export function parseFieldUpdate(message: string, context: CalculatorContextKey): {
+export function parseFieldUpdate(
+  message: string,
+  context: CalculatorContextKey
+): {
   field: string | null;
   value: string | null;
   fieldLabel: string | null;
@@ -552,19 +539,19 @@ export function parseFieldUpdate(message: string, context: CalculatorContextKey)
   if (!contextDef?.fieldMappings) {
     return null;
   }
-  
+
   // Common patterns for setting values
   const patterns = [
     /(?:set|change|update|make)\s+(.+?)\s+(?:to|at|=)\s+([0-9,.]+%?)/i,
     /(?:what if|try)\s+(.+?)\s+(?:was|is)\s+([0-9,.]+%?)/i,
   ];
-  
+
   for (const pattern of patterns) {
     const match = message.match(pattern);
     if (match) {
       const fieldName = normalizeFieldAlias(match[1]);
       const value = match[2].trim();
-      
+
       // Prefer the most specific alias when several match the same phrase.
       const sortedMappings = Object.entries(contextDef.fieldMappings).sort(
         ([left], [right]) => normalizeFieldAlias(right).length - normalizeFieldAlias(left).length
@@ -581,6 +568,6 @@ export function parseFieldUpdate(message: string, context: CalculatorContextKey)
       }
     }
   }
-  
+
   return null;
 }

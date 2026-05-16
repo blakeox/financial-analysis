@@ -8,12 +8,12 @@ describe('IntelligentToolSelector', () => {
   const availableTools = [
     { name: 'analyze_lease', description: 'Analyzes a commercial lease agreement' },
     { name: 'analyze_amortization', description: 'Calculates loan amortization schedule' },
-    { name: 'ebitda_forecasting', description: 'Forecasts EBITDA for a business' }
+    { name: 'ebitda_forecasting', description: 'Forecasts EBITDA for a business' },
   ];
 
   beforeEach(() => {
     mockAi = {
-      run: vi.fn()
+      run: vi.fn(),
     };
     selector = new IntelligentToolSelector(mockAi);
   });
@@ -25,8 +25,8 @@ describe('IntelligentToolSelector', () => {
         secondaryTools: [],
         reasoning: 'User is asking about a lease',
         confidence: 0.95,
-        suggestedParameters: {}
-      })
+        suggestedParameters: {},
+      }),
     };
 
     mockAi.run.mockResolvedValue(mockResponse);

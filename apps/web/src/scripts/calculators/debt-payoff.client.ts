@@ -44,39 +44,43 @@ function estimateCreditScoreImpact(
 ): CreditScoreImpact {
   // Current credit utilization (30% of score)
   const currentUtilization = (totalDebt / totalCreditLimit) * 100;
-  
+
   // Estimate current score based on utilization
   let currentScore = 580; // Start with fair credit
   if (currentUtilization < 10) currentScore = 750;
   else if (currentUtilization < 30) currentScore = 700;
   else if (currentUtilization < 50) currentScore = 650;
   else if (currentUtilization < 75) currentScore = 600;
-  
+
   // Adjust for payment history (35% of score)
   if (currentPaymentHistory >= 100) currentScore += 50;
   else if (currentPaymentHistory >= 95) currentScore += 30;
   else if (currentPaymentHistory >= 90) currentScore += 10;
   else currentScore -= 20;
-  
+
   // Projected improvement
   const projectedUtilization = 0; // Debt-free
   let projectedScore = 750; // Excellent credit after payoff
-  
+
   // Calculate improvement trajectory
   const scoreImprovement = projectedScore - currentScore;
   const monthlyImprovement = scoreImprovement / monthsToPayoff;
-  
+
   // Generate timeline
   const timeline: Array<{ month: number; score: number }> = [];
-  for (let month = 0; month <= monthsToPayoff; month += Math.max(1, Math.floor(monthsToPayoff / 10))) {
-    const score = Math.min(850, Math.round(currentScore + (monthlyImprovement * month)));
+  for (
+    let month = 0;
+    month <= monthsToPayoff;
+    month += Math.max(1, Math.floor(monthsToPayoff / 10))
+  ) {
+    const score = Math.min(850, Math.round(currentScore + monthlyImprovement * month));
     timeline.push({ month, score });
   }
-  
+
   // Debt-to-income ratio
   const currentDTI = monthlyIncome > 0 ? ((totalDebt * 0.03) / monthlyIncome) * 100 : 0; // Assume 3% monthly payment
   const projectedDTI = 0;
-  
+
   return {
     currentEstimate: Math.round(currentScore),
     projectedImprovement: Math.round(scoreImprovement),
@@ -85,12 +89,18 @@ function estimateCreditScoreImpact(
       paymentHistory: {
         current: currentPaymentHistory,
         projected: 100,
-        impact: currentPaymentHistory < 100 ? 'Maintaining on-time payments will boost your score' : 'Keep up the great payment history!',
+        impact:
+          currentPaymentHistory < 100
+            ? 'Maintaining on-time payments will boost your score'
+            : 'Keep up the great payment history!',
       },
       creditUtilization: {
         current: Math.round(currentUtilization),
         projected: Math.round(projectedUtilization),
-        impact: currentUtilization > 30 ? 'Reducing utilization below 30% will significantly improve your score' : 'Your utilization is healthy',
+        impact:
+          currentUtilization > 30
+            ? 'Reducing utilization below 30% will significantly improve your score'
+            : 'Your utilization is healthy',
       },
       debtToIncome: {
         current: Math.round(currentDTI),
@@ -184,8 +194,8 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
   if (summary) {
     summary.debtSummaries
       .slice()
-       .sort((a: DebtSummary, b: DebtSummary) => a.monthsToPayoff - b.monthsToPayoff)
-       .forEach((debt: DebtSummary) => {
+      .sort((a: DebtSummary, b: DebtSummary) => a.monthsToPayoff - b.monthsToPayoff)
+      .forEach((debt: DebtSummary) => {
         if (Number.isFinite(debt.monthsToPayoff)) {
           timelineEntries.push({ name: debt.name, monthsToPayoff: debt.monthsToPayoff });
         }
@@ -204,7 +214,10 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
     .join('');
 };
 
-export const displayResults = (result: DebtPayoffResult, enableCreditScore: boolean = true): void => {
+export const displayResults = (
+  result: DebtPayoffResult,
+  enableCreditScore: boolean = true
+): void => {
   // Use the generic results structure from IndividualCalculatorPage.astro
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
@@ -230,8 +243,11 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
   // Calculate debt-free date
   const debtFreeDate = new Date();
   debtFreeDate.setMonth(debtFreeDate.getMonth() + primary.totalMonthsToPayoff);
-  const debtFreeDateStr = debtFreeDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-  
+  const debtFreeDateStr = debtFreeDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+  });
+
   // Calculate credit score impact
   // Render summary cards with enhancements
   summaryCards.innerHTML = `
@@ -259,7 +275,9 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
 
   // Render detailed comparison
   resultsContainer.innerHTML = `
-    ${creditScore ? `
+    ${
+      creditScore
+        ? `
     <!-- Credit Score Impact -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -310,7 +328,9 @@ export const displayResults = (result: DebtPayoffResult, enableCreditScore: bool
         </div>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Strategy Comparison</h3>

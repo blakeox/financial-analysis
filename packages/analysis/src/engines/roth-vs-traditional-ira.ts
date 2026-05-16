@@ -48,11 +48,7 @@ export class RothVsTraditionalIRACalculator {
 
     // Conversion analysis
     const conversionAnalysis = analysis.includeConversionAnalysis
-      ? this.analyzeConversion(
-          accountDetails.currentTraditionalBalance,
-          taxInfo,
-          personalInfo
-        )
+      ? this.analyzeConversion(accountDetails.currentTraditionalBalance, taxInfo, personalInfo)
       : undefined;
 
     // Recommendations
@@ -73,7 +69,9 @@ export class RothVsTraditionalIRACalculator {
       rothAfterTaxValue: rothProjection.afterTaxValue,
       traditionalAfterTaxValue: traditionalProjection.afterTaxValue,
       betterOption,
-      taxSavingsDifference: Math.abs(rothProjection.afterTaxValue - traditionalProjection.afterTaxValue),
+      taxSavingsDifference: Math.abs(
+        rothProjection.afterTaxValue - traditionalProjection.afterTaxValue
+      ),
     };
 
     const recommendation = {
@@ -181,7 +179,8 @@ export class RothVsTraditionalIRACalculator {
     annualProjections: Array<{ year: number; balance: number; contributions: number }>;
   } {
     const contributionTaxRate = taxInfo.currentMarginalTaxRate + taxInfo.stateTaxRate;
-    const afterTaxContribution = contributions.annualContribution + contributions.catchUpContribution;
+    const afterTaxContribution =
+      contributions.annualContribution + contributions.catchUpContribution;
     const taxOnContribution = afterTaxContribution * contributionTaxRate;
 
     let balance = new Decimal(currentBalance);
@@ -285,12 +284,11 @@ export class RothVsTraditionalIRACalculator {
     }
 
     if (personalInfo.age < 40) {
-      recommendations.push('Younger investors benefit more from Roth due to longer tax-free growth');
+      recommendations.push(
+        'Younger investors benefit more from Roth due to longer tax-free growth'
+      );
     }
 
     return recommendations;
   }
 }
-
-
-

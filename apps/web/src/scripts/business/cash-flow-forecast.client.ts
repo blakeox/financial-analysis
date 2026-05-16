@@ -1,6 +1,6 @@
 /**
  * Cash Flow Forecasting Calculator
- * 
+ *
  * 12-month cash flow projection including AR/AP, working capital,
  * burn rate, and cash runway analysis.
  */
@@ -69,65 +69,84 @@ export interface CashFlowResult {
 // ============================================================================
 
 function calculateCashFlow(input: CashFlowInput): CashFlowResult {
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   const projections: MonthlyProjection[] = [];
-  
+
   let cashBalance = input.startingCash;
   let accumulatedAR = 0; // Accounts Receivable
   let accumulatedAP = 0; // Accounts Payable
-  
+
   const collectionDelay = Math.floor(input.averageCollectionDays / 30);
   const paymentDelay = Math.floor(input.averagePaymentDays / 30);
-  
+
   const revenueByMonth: number[] = [];
   const expensesByMonth: number[] = [];
-  
+
   for (let month = 0; month < 12; month++) {
     // Calculate revenue for this month with growth
-    let monthlyRevenue = input.monthlyRevenue * Math.pow(1 + (input.revenueGrowthRate / 100 / 12), month);
-    
+    let monthlyRevenue =
+      input.monthlyRevenue * Math.pow(1 + input.revenueGrowthRate / 100 / 12, month);
+
     // Apply seasonality if applicable
-    if (input.seasonalityMonths && input.seasonalityMonths.includes(month) && input.seasonalityFactor) {
-      monthlyRevenue *= (1 + (input.seasonalityFactor / 100));
+    if (
+      input.seasonalityMonths &&
+      input.seasonalityMonths.includes(month) &&
+      input.seasonalityFactor
+    ) {
+      monthlyRevenue *= 1 + input.seasonalityFactor / 100;
     }
-    
+
     // Add one-time revenue
-    const oneTimeRev = input.oneTimeRevenue?.find(r => r.month === month);
+    const oneTimeRev = input.oneTimeRevenue?.find((r) => r.month === month);
     if (oneTimeRev) {
       monthlyRevenue += oneTimeRev.amount;
     }
-    
+
     revenueByMonth.push(monthlyRevenue);
-    
+
     // Calculate expenses for this month with growth
-    let monthlyExpenses = input.monthlyExpenses * Math.pow(1 + (input.expenseGrowthRate / 100 / 12), month);
-    
+    let monthlyExpenses =
+      input.monthlyExpenses * Math.pow(1 + input.expenseGrowthRate / 100 / 12, month);
+
     // Add one-time expenses
-    const oneTimeExp = input.oneTimeExpenses?.find(e => e.month === month);
+    const oneTimeExp = input.oneTimeExpenses?.find((e) => e.month === month);
     if (oneTimeExp) {
       monthlyExpenses += oneTimeExp.amount;
     }
-    
+
     expensesByMonth.push(monthlyExpenses);
-    
+
     // Cash collected this month (from revenue N months ago)
     const collectionMonth = month - collectionDelay;
     const cashCollected = collectionMonth >= 0 ? revenueByMonth[collectionMonth] : 0;
-    
+
     // Cash paid this month (for expenses N months ago)
     const paymentMonth = month - paymentDelay;
     const cashPaid = paymentMonth >= 0 ? expensesByMonth[paymentMonth] : monthlyExpenses;
-    
+
     // Net cash flow
     const netCashFlow = cashCollected - cashPaid;
     cashBalance += netCashFlow;
-    
+
     // Burn rate (if negative)
     const burnRate = netCashFlow < 0 ? Math.abs(netCashFlow) : 0;
-    
+
     // Runway (months until cash runs out)
     const runwayMonths = burnRate > 0 ? cashBalance / burnRate : Infinity;
-    
+
     projections.push({
       month: month + 1,
       monthName: monthNames[month],
@@ -140,11 +159,11 @@ function calculateCashFlow(input: CashFlowInput): CashFlowResult {
       burnRate,
       runwayMonths,
     });
-    
-    accumulatedAR += (monthlyRevenue - cashCollected);
-    accumulatedAP += (monthlyExpenses - cashPaid);
+
+    accumulatedAR += monthlyRevenue - cashCollected;
+    accumulatedAP += monthlyExpenses - cashPaid;
   }
-  
+
   // Summary calculations
   const totalRevenue = revenueByMonth.reduce((sum, r) => sum + r, 0);
   const totalCashCollected = projections.reduce((sum, p) => sum + p.cashCollected, 0);
@@ -152,74 +171,96 @@ function calculateCashFlow(input: CashFlowInput): CashFlowResult {
   const totalCashPaid = projections.reduce((sum, p) => sum + p.cashPaid, 0);
   const netCashFlow = totalCashCollected - totalCashPaid;
   const endingCash = projections[11].endingCash;
-  
+
   // Find lowest and highest cash months
-  const lowestCashMonth = projections.reduce((min, p) => p.endingCash < min.endingCash ? p : min);
-  const highestCashMonth = projections.reduce((max, p) => p.endingCash > max.endingCash ? p : max);
-  
+  const lowestCashMonth = projections.reduce((min, p) => (p.endingCash < min.endingCash ? p : min));
+  const highestCashMonth = projections.reduce((max, p) =>
+    p.endingCash > max.endingCash ? p : max
+  );
+
   const lowestCash = {
     month: lowestCashMonth.month,
     amount: lowestCashMonth.endingCash,
     monthName: lowestCashMonth.monthName,
   };
-  
+
   const highestCash = {
     month: highestCashMonth.month,
     amount: highestCashMonth.endingCash,
     monthName: highestCashMonth.monthName,
   };
-  
+
   // Average burn rate
-  const negativeCashFlowMonths = projections.filter(p => p.netCashFlow < 0);
-  const averageBurnRate = negativeCashFlowMonths.length > 0
-    ? negativeCashFlowMonths.reduce((sum, p) => sum + Math.abs(p.netCashFlow), 0) / negativeCashFlowMonths.length
-    : 0;
-  
+  const negativeCashFlowMonths = projections.filter((p) => p.netCashFlow < 0);
+  const averageBurnRate =
+    negativeCashFlowMonths.length > 0
+      ? negativeCashFlowMonths.reduce((sum, p) => sum + Math.abs(p.netCashFlow), 0) /
+        negativeCashFlowMonths.length
+      : 0;
+
   // Cash runway
   const cashRunway = averageBurnRate > 0 ? endingCash / averageBurnRate : Infinity;
-  
+
   // Working capital needs (AR + inventory - AP)
   const workingCapitalNeeds = accumulatedAR - accumulatedAP;
-  
+
   // Generate warnings
   const warnings: string[] = [];
-  
+
   if (lowestCash.amount < 0) {
-    warnings.push(`🚨 Cash runs out in ${lowestCash.monthName}! You'll be ${formatCurrency(Math.abs(lowestCash.amount))} short.`);
+    warnings.push(
+      `🚨 Cash runs out in ${lowestCash.monthName}! You'll be ${formatCurrency(Math.abs(lowestCash.amount))} short.`
+    );
   } else if (lowestCash.amount < input.monthlyExpenses) {
-    warnings.push(`⚠️ Cash drops to ${formatCurrency(lowestCash.amount)} in ${lowestCash.monthName} - less than 1 month of expenses.`);
+    warnings.push(
+      `⚠️ Cash drops to ${formatCurrency(lowestCash.amount)} in ${lowestCash.monthName} - less than 1 month of expenses.`
+    );
   }
-  
+
   if (cashRunway < 3 && cashRunway !== Infinity) {
-    warnings.push(`⚠️ Only ${cashRunway.toFixed(1)} months of runway remaining. Raise capital or cut costs immediately.`);
+    warnings.push(
+      `⚠️ Only ${cashRunway.toFixed(1)} months of runway remaining. Raise capital or cut costs immediately.`
+    );
   }
-  
+
   if (input.averageCollectionDays > 60) {
-    warnings.push(`⚠️ ${input.averageCollectionDays} days to collect payment is slow. Aim for <45 days to improve cash flow.`);
+    warnings.push(
+      `⚠️ ${input.averageCollectionDays} days to collect payment is slow. Aim for <45 days to improve cash flow.`
+    );
   }
-  
+
   // Generate recommendations
   const recommendations: string[] = [];
-  
+
   if (input.averageCollectionDays > input.averagePaymentDays + 15) {
-    recommendations.push('💡 You collect slower than you pay. Negotiate faster payment terms with customers or slower terms with vendors.');
+    recommendations.push(
+      '💡 You collect slower than you pay. Negotiate faster payment terms with customers or slower terms with vendors.'
+    );
   }
 
   const reserveTarget = input.monthlyExpenses * 3;
   if (lowestCash.amount > reserveTarget) {
-    recommendations.push('✓ Strong cash position. You have over 3 months of operating expenses in reserves.');
+    recommendations.push(
+      '✓ Strong cash position. You have over 3 months of operating expenses in reserves.'
+    );
   }
-  
+
   if (averageBurnRate > 0) {
-    recommendations.push(`💸 Average burn rate: ${formatCurrency(averageBurnRate)}/month. Focus on reaching profitability or extending runway.`);
+    recommendations.push(
+      `💸 Average burn rate: ${formatCurrency(averageBurnRate)}/month. Focus on reaching profitability or extending runway.`
+    );
   }
-  
+
   if (endingCash > input.startingCash * 1.5) {
-    recommendations.push('✓ Cash is accumulating. Consider investing excess cash or expanding operations.');
+    recommendations.push(
+      '✓ Cash is accumulating. Consider investing excess cash or expanding operations.'
+    );
   }
-  
-  recommendations.push(`📊 Working capital tied up: ${formatCurrency(workingCapitalNeeds)}. This is cash you've earned but haven't collected yet.`);
-  
+
+  recommendations.push(
+    `📊 Working capital tied up: ${formatCurrency(workingCapitalNeeds)}. This is cash you've earned but haven't collected yet.`
+  );
+
   return {
     projections,
     summary: {
@@ -275,17 +316,21 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    ${result.warnings.length > 0 ? `
+    ${
+      result.warnings.length > 0
+        ? `
     <!-- Warnings -->
     <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 mb-6 border-l-4 border-rose-500">
       <h2 class="text-xl font-semibold mb-3 text-rose-900 dark:text-rose-100 flex items-center gap-2">
         <span>⚠️</span> Cash Flow Warnings
       </h2>
       <div class="space-y-2">
-        ${result.warnings.map(w => `<p class="text-sm text-rose-800 dark:text-rose-200">${w}</p>`).join('')}
+        ${result.warnings.map((w) => `<p class="text-sm text-rose-800 dark:text-rose-200">${w}</p>`).join('')}
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- 12-Month Cash Flow Table -->
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6 overflow-x-auto">
@@ -306,7 +351,9 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
           </tr>
         </thead>
         <tbody>
-          ${result.projections.map(p => `
+          ${result.projections
+            .map(
+              (p) => `
             <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700">
               <td class="py-2 px-2 font-medium">${p.monthName}</td>
               <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.revenue)}</td>
@@ -316,7 +363,9 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
               <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.netCashFlow)}</td>
               <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.endingCash)}</td>
             </tr>
-          `).join('')}
+          `
+            )
+            .join('')}
           <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold">
             <td class="py-3 px-2">TOTAL</td>
             <td class="text-right py-3 px-2">${formatCurrency(result.summary.totalRevenue)}</td>
@@ -376,11 +425,15 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
       </h2>
       
       <div class="space-y-3">
-        ${result.recommendations.map(rec => `
+        ${result.recommendations
+          .map(
+            (rec) => `
           <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
         
         <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 mt-4">
           <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Best Practices</h4>
@@ -396,7 +449,7 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -443,14 +496,16 @@ function initializeCashFlowForecast(): void {
     try {
       const input = parseFormInput(form);
       validateInput(input);
-      
+
       const result = calculateCashFlow(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'cash-flow-forecast', result, formData: input },
-      }));
-      
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'cash-flow-forecast', result, formData: input },
+        })
+      );
+
       if (typeof gtag !== 'undefined') {
         gtag('event', 'cash_flow_calculated', {
           ending_cash: result.summary.endingCash,

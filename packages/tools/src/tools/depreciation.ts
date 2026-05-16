@@ -18,14 +18,25 @@ export class DepreciationTool {
           purchaseDate: { type: 'string', description: 'Purchase date (ISO format)' },
           purchaseCost: { type: 'number', minimum: 0, description: 'Purchase cost' },
           salvageValue: { type: 'number', minimum: 0, default: 0, description: 'Salvage value' },
-          usefulLife: { type: 'number', minimum: 1, maximum: 50, description: 'Useful life (years)' },
+          usefulLife: {
+            type: 'number',
+            minimum: 1,
+            maximum: 50,
+            description: 'Useful life (years)',
+          },
           assetClass: {
             type: 'string',
             enum: ['equipment', 'vehicle', 'building', 'furniture', 'computer', 'other'],
             default: 'equipment',
             description: 'Asset class',
           },
-          businessUsePercentage: { type: 'number', minimum: 0, maximum: 1, default: 1, description: 'Business use percentage' },
+          businessUsePercentage: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 1,
+            description: 'Business use percentage',
+          },
         },
         required: ['purchaseDate', 'purchaseCost', 'usefulLife'],
       },
@@ -46,11 +57,40 @@ export class DepreciationTool {
       taxInfo: {
         type: 'object',
         properties: {
-          taxYear: { type: 'number', minimum: 2000, maximum: 2100, default: 2024, description: 'Tax year' },
-          federalTaxRate: { type: 'number', minimum: 0, maximum: 0.5, default: 0.21, description: 'Federal tax rate' },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
-          section179Limit: { type: 'number', minimum: 0, default: 1080000, description: 'Section 179 limit' },
-          bonusDepreciationPercentage: { type: 'number', minimum: 0, maximum: 1, default: 0.6, description: 'Bonus depreciation percentage' },
+          taxYear: {
+            type: 'number',
+            minimum: 2000,
+            maximum: 2100,
+            default: 2024,
+            description: 'Tax year',
+          },
+          federalTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            default: 0.21,
+            description: 'Federal tax rate',
+          },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
+          section179Limit: {
+            type: 'number',
+            minimum: 0,
+            default: 1080000,
+            description: 'Section 179 limit',
+          },
+          bonusDepreciationPercentage: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.6,
+            description: 'Bonus depreciation percentage',
+          },
         },
         required: ['taxYear', 'federalTaxRate'],
       },
@@ -59,7 +99,16 @@ export class DepreciationTool {
         properties: {
           propertyClass: {
             type: 'string',
-            enum: ['3-year', '5-year', '7-year', '10-year', '15-year', '20-year', '27.5-year', '39-year'],
+            enum: [
+              '3-year',
+              '5-year',
+              '7-year',
+              '10-year',
+              '15-year',
+              '20-year',
+              '27.5-year',
+              '39-year',
+            ],
             default: '5-year',
             description: 'MACRS property class',
           },
@@ -74,10 +123,23 @@ export class DepreciationTool {
       analysis: {
         type: 'object',
         properties: {
-          includeSchedule: { type: 'boolean', default: true, description: 'Include depreciation schedule' },
+          includeSchedule: {
+            type: 'boolean',
+            default: true,
+            description: 'Include depreciation schedule',
+          },
           includeTaxSavings: { type: 'boolean', default: true, description: 'Include tax savings' },
-          includeMethodComparison: { type: 'boolean', default: false, description: 'Include method comparison' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 50, description: 'Projection years' },
+          includeMethodComparison: {
+            type: 'boolean',
+            default: false,
+            description: 'Include method comparison',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 50,
+            description: 'Projection years',
+          },
         },
         required: ['projectionYears'],
       },
@@ -90,5 +152,3 @@ export class DepreciationTool {
     return DepreciationCalculator.analyze(validated);
   }
 }
-
-

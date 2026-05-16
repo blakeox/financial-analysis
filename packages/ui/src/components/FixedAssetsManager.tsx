@@ -24,14 +24,21 @@ type FixedAssetDraft = {
   isActive: boolean;
 };
 
-export function FixedAssetsManager({ assets, onChange, readonly = false }: FixedAssetsManagerProps) {
+export function FixedAssetsManager({
+  assets,
+  onChange,
+  readonly = false,
+}: FixedAssetsManagerProps) {
   const [newAsset, setNewAsset] = useState<FixedAssetDraft>({
     name: '',
     monthlyDepreciation: 0,
     isActive: true,
   });
 
-  const validateName = useCallback((value: string) => (value.trim() ? null : 'Name is required'), []);
+  const validateName = useCallback(
+    (value: string) => (value.trim() ? null : 'Name is required'),
+    []
+  );
   const validateAmount = useCallback((value: number | undefined) => {
     if (value === undefined) {
       return 'Amount is required';
@@ -40,8 +47,8 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
   }, []);
 
   const addAsset = () => {
-  const trimmedName = newAsset.name.trim();
-  if (!trimmedName || typeof newAsset.monthlyDepreciation !== 'number') {
+    const trimmedName = newAsset.name.trim();
+    if (!trimmedName || typeof newAsset.monthlyDepreciation !== 'number') {
       return;
     }
 
@@ -60,7 +67,11 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
     onChange(assets.filter((a) => a.id !== id));
   };
 
-  const updateAsset = <K extends keyof FixedAssetData>(id: string, field: K, value: FixedAssetData[K]) => {
+  const updateAsset = <K extends keyof FixedAssetData>(
+    id: string,
+    field: K,
+    value: FixedAssetData[K]
+  ) => {
     onChange(assets.map((a) => (a.id === id ? { ...a, [field]: value } : a)));
   };
 
@@ -78,17 +89,32 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.accent)}>{assets.length}</div>
             <div className={cn('text-sm', textColors.secondary)}>Assets</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.warning)}>
               {formatCurrency(totalMonthlyDepreciation)}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Monthly Depreciation</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalMonthlyDepreciation * 12)}
             </div>
@@ -114,7 +140,9 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
                   label="Monthly Depreciation"
                   type="number"
                   value={asset.monthlyDepreciation}
-                  onValueChange={(value) => updateAsset(asset.id, 'monthlyDepreciation', value ?? 0)}
+                  onValueChange={(value) =>
+                    updateAsset(asset.id, 'monthlyDepreciation', value ?? 0)
+                  }
                   validator={validateAmount}
                   disabled={readonly}
                   min="0"
@@ -176,7 +204,9 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
             <div className="mt-3">
               <Button
                 onClick={addAsset}
-                disabled={!newAsset.name?.trim() || typeof newAsset.monthlyDepreciation !== 'number'}
+                disabled={
+                  !newAsset.name?.trim() || typeof newAsset.monthlyDepreciation !== 'number'
+                }
               >
                 Add Asset
               </Button>

@@ -12,8 +12,15 @@ export class FXHedgingTool {
       domesticRate: { type: 'number', description: 'Domestic interest rate (decimal)' },
       foreignRate: { type: 'number', description: 'Foreign interest rate (decimal)' },
       tenorYears: { type: 'number', minimum: 0 },
-      expectedSpotRateAtMaturity: { type: 'number', minimum: 0, description: 'Optional expected future spot rate' },
-      foreignAssetReturn: { type: 'number', description: 'Optional foreign asset return over tenor (decimal)' },
+      expectedSpotRateAtMaturity: {
+        type: 'number',
+        minimum: 0,
+        description: 'Optional expected future spot rate',
+      },
+      foreignAssetReturn: {
+        type: 'number',
+        description: 'Optional foreign asset return over tenor (decimal)',
+      },
     },
     required: ['spotRate', 'domesticRate', 'foreignRate', 'tenorYears'],
   };
@@ -23,4 +30,3 @@ export class FXHedgingTool {
     return FXHedgingAnalyzer.analyze(validated);
   }
 }
-

@@ -500,10 +500,11 @@ export default function JourneyAnalysisResults({
   });
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-emerald-600 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950/30';
-    if (score >= 80) return 'text-violet-600 bg-violet-100 dark:text-violet-300 dark:bg-violet-950/30';
-    if (score >= 70)
-      return 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/30';
+    if (score >= 90)
+      return 'text-emerald-600 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950/30';
+    if (score >= 80)
+      return 'text-violet-600 bg-violet-100 dark:text-violet-300 dark:bg-violet-950/30';
+    if (score >= 70) return 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/30';
     return 'text-rose-600 bg-rose-100 dark:text-rose-300 dark:bg-rose-950/30';
   };
 

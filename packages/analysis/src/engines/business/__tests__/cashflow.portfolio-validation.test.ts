@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  CashFlowAnalyzer,
-  CashFlowInputSchema,
-  type CashFlowInput,
-} from '../cashflow';
+import { CashFlowAnalyzer, CashFlowInputSchema, type CashFlowInput } from '../cashflow';
 import { createBasicCashflowInput } from './fixtures/cashflow';
 
 /**
@@ -144,7 +140,7 @@ describe('CashFlowAnalyzer - Portfolio & Validation', () => {
         { name: 'Project B', input: projectB },
       ]);
 
-      comparison.projects.forEach(project => {
+      comparison.projects.forEach((project) => {
         expect(project.capitalRequired).toBeGreaterThan(0);
       });
     });
@@ -155,7 +151,7 @@ describe('CashFlowAnalyzer - Portfolio & Validation', () => {
         { name: 'Project B', input: projectB },
       ]);
 
-      comparison.projects.forEach(project => {
+      comparison.projects.forEach((project) => {
         expect(project).toHaveProperty('name');
         expect(project).toHaveProperty('npv');
         expect(project).toHaveProperty('irr');
@@ -171,7 +167,12 @@ describe('CashFlowAnalyzer - Portfolio & Validation', () => {
     it('applies inflation adjustments when specified', () => {
       const input = createBasicCashflowInput({
         cashFlows: [
-          { period: 0, cashFlow: -100000, category: 'capital-expenditure', inflationAdjusted: false },
+          {
+            period: 0,
+            cashFlow: -100000,
+            category: 'capital-expenditure',
+            inflationAdjusted: false,
+          },
           { period: 1, cashFlow: 30000, category: 'revenue', inflationAdjusted: true },
           { period: 2, cashFlow: 30000, category: 'revenue', inflationAdjusted: true },
         ],
@@ -192,7 +193,12 @@ describe('CashFlowAnalyzer - Portfolio & Validation', () => {
     it('does not adjust period 0 cash flows', () => {
       const input = createBasicCashflowInput({
         cashFlows: [
-          { period: 0, cashFlow: -100000, category: 'capital-expenditure', inflationAdjusted: true },
+          {
+            period: 0,
+            cashFlow: -100000,
+            category: 'capital-expenditure',
+            inflationAdjusted: true,
+          },
           { period: 1, cashFlow: 30000, category: 'revenue' },
         ],
         analysis: {

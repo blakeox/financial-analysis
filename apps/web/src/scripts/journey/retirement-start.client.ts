@@ -25,7 +25,7 @@ const formatCurrency = (value: number): string => {
   return value.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   });
 };
 
@@ -48,7 +48,7 @@ const renderResults = (
     monthlyWithdrawal,
     meetsGoal,
     monthlyMatch,
-    annualMatch
+    annualMatch,
   } = options;
 
   container.innerHTML = `
@@ -99,7 +99,11 @@ const renderResults = (
   `;
 };
 
-const savePlan = (scenarioId: string, planData: Record<string, unknown>, button: HTMLButtonElement) => {
+const savePlan = (
+  scenarioId: string,
+  planData: Record<string, unknown>,
+  button: HTMLButtonElement
+) => {
   const storageKey = `${JOURNEY_STORAGE_PREFIX}${scenarioId}`;
   const journeyState = JSON.parse(localStorage.getItem(storageKey) || '{}');
   journeyState.collectedData = journeyState.collectedData || {};
@@ -136,7 +140,7 @@ const initializeRetirementStartCalculator = () => {
   const journeyScenarioId = form.dataset.journeyScenarioId ?? 'retirement-start';
 
   if (calculateBtn instanceof HTMLButtonElement) {
-    calculateBtn.addEventListener('click', event => {
+    calculateBtn.addEventListener('click', (event) => {
       event.preventDefault();
 
       const formData = new FormData(form);
@@ -160,7 +164,10 @@ const initializeRetirementStartCalculator = () => {
       const monthlyReturn = annualReturn / 12;
       const totalMonths = yearsToRetirement * 12;
       const growthFactor = Math.pow(1 + annualReturn, yearsToRetirement);
-      const annuityFactor = monthlyReturn === 0 ? totalMonths : (Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn;
+      const annuityFactor =
+        monthlyReturn === 0
+          ? totalMonths
+          : (Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn;
 
       const futureValue = currentBalance * growthFactor + totalMonthlyContribution * annuityFactor;
       const annualWithdrawal = futureValue * 0.04;
@@ -174,7 +181,7 @@ const initializeRetirementStartCalculator = () => {
         monthlyWithdrawal,
         meetsGoal,
         monthlyMatch,
-        annualMatch
+        annualMatch,
       });
 
       resultsSection.classList.remove('hidden');
@@ -182,7 +189,7 @@ const initializeRetirementStartCalculator = () => {
   }
 
   if (saveBtn instanceof HTMLButtonElement) {
-    saveBtn.addEventListener('click', event => {
+    saveBtn.addEventListener('click', (event) => {
       event.preventDefault();
 
       const formData = new FormData(form);
@@ -191,21 +198,21 @@ const initializeRetirementStartCalculator = () => {
           age: getTextField(formData, 'age'),
           retirementAge: getTextField(formData, 'retirementAge'),
           currentSalary: getTextField(formData, 'currentSalary'),
-          currentBalance: getTextField(formData, 'currentRetirementBalance')
+          currentBalance: getTextField(formData, 'currentRetirementBalance'),
         },
         employerBenefits: {
           match: getTextField(formData, 'employerMatch'),
-          matchLimit: getTextField(formData, 'matchLimit')
+          matchLimit: getTextField(formData, 'matchLimit'),
         },
         goals: {
           retirementIncome: getTextField(formData, 'retirementIncome'),
-          monthlyContribution: getTextField(formData, 'monthlyContribution')
+          monthlyContribution: getTextField(formData, 'monthlyContribution'),
         },
         strategy: {
           riskTolerance: getTextField(formData, 'riskTolerance'),
-          preferences: getMultiSelect(formData, 'investmentPrefs')
+          preferences: getMultiSelect(formData, 'investmentPrefs'),
         },
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
       };
 
       savePlan(journeyScenarioId, planData, saveBtn);
@@ -215,8 +222,8 @@ const initializeRetirementStartCalculator = () => {
           detail: {
             calculatorId: 'retirement-start',
             result: planData,
-            formData: planData
-          }
+            formData: planData,
+          },
         })
       );
     });

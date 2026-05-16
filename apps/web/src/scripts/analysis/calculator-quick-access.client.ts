@@ -49,8 +49,7 @@ class CalculatorQuickAccess {
     const favorites = CalculatorFavorites.getFavoriteCalculators();
 
     if (favorites.length === 0) {
-      this.favoritesList.innerHTML =
-        '<p class="fa-script-copy-subtle">No favorites yet</p>';
+      this.favoritesList.innerHTML = '<p class="fa-script-copy-subtle">No favorites yet</p>';
       return;
     }
 
@@ -66,8 +65,7 @@ class CalculatorQuickAccess {
     const recent = UserPreferencesManager.getRecentCalculators();
 
     if (recent.length === 0) {
-      this.recentList.innerHTML =
-        '<p class="fa-script-copy-subtle">No recent calculators</p>';
+      this.recentList.innerHTML = '<p class="fa-script-copy-subtle">No recent calculators</p>';
       return;
     }
 

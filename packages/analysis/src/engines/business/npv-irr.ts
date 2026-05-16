@@ -14,10 +14,12 @@ export interface NPVIRRResult {
 function npv(cashFlows: number[], discountRate: number): number {
   const onePlusR = new Decimal(1).plus(discountRate);
   if (onePlusR.lte(0)) return Number.NaN;
-  return cashFlows.reduce((sum, cf, t) => {
-    const pv = new Decimal(cf).div(onePlusR.pow(t));
-    return sum.plus(pv);
-  }, new Decimal(0)).toNumber();
+  return cashFlows
+    .reduce((sum, cf, t) => {
+      const pv = new Decimal(cf).div(onePlusR.pow(t));
+      return sum.plus(pv);
+    }, new Decimal(0))
+    .toNumber();
 }
 
 function tryComputePaybackPeriod(cashFlows: number[]): number | null {
@@ -28,7 +30,7 @@ function tryComputePaybackPeriod(cashFlows: number[]): number | null {
     cumulative += cf;
     if (t > 0 && prev < 0 && cumulative >= 0) {
       const fraction = cf !== 0 ? Math.abs(prev) / Math.abs(cf) : 0;
-      return (t - 1) + fraction;
+      return t - 1 + fraction;
     }
   }
   return null;
@@ -98,4 +100,3 @@ export class NPVIRRCalculator {
     };
   }
 }
-

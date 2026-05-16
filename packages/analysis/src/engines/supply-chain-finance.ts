@@ -123,14 +123,18 @@ export class SupplyChainFinanceOptimizer {
           ? options.dynamicDiscounting.annualVolume * options.dynamicDiscounting.discountRate
           : 0,
         annualSavings: options.dynamicDiscounting.enabled
-          ? totalPayables * costOfCapital.opportunityCostRate * (30 - options.dynamicDiscounting.earlyPaymentDays) / 365
+          ? (totalPayables *
+              costOfCapital.opportunityCostRate *
+              (30 - options.dynamicDiscounting.earlyPaymentDays)) /
+            365
           : 0,
         netBenefit: 0,
       },
       {
         method: 'reverse-factoring',
         annualCost: options.reverseFactoring.enabled
-          ? options.reverseFactoring.annualVolume * (options.reverseFactoring.financingRate + options.reverseFactoring.programFee)
+          ? options.reverseFactoring.annualVolume *
+            (options.reverseFactoring.financingRate + options.reverseFactoring.programFee)
           : 0,
         annualSavings: options.reverseFactoring.enabled
           ? totalPayables * costOfCapital.wacc * 0.5 // 50% of payables financed
@@ -140,7 +144,8 @@ export class SupplyChainFinanceOptimizer {
       {
         method: 'supply-chain-finance',
         annualCost: options.supplyChainFinance.enabled
-          ? options.supplyChainFinance.annualVolume * (options.supplyChainFinance.financingRate + options.supplyChainFinance.programFee)
+          ? options.supplyChainFinance.annualVolume *
+            (options.supplyChainFinance.financingRate + options.supplyChainFinance.programFee)
           : 0,
         annualSavings: options.supplyChainFinance.enabled
           ? totalPayables * costOfCapital.wacc * 0.6 // 60% of payables financed
@@ -228,7 +233,8 @@ export class SupplyChainFinanceOptimizer {
     risks: Array<{ risk: string; severity: 'low' | 'medium' | 'high'; mitigation: string }>;
     overallRisk: string;
   } {
-    const risks: Array<{ risk: string; severity: 'low' | 'medium' | 'high'; mitigation: string }> = [];
+    const risks: Array<{ risk: string; severity: 'low' | 'medium' | 'high'; mitigation: string }> =
+      [];
 
     if (workingCapital.cashConversionCycle > 90) {
       risks.push({
@@ -246,7 +252,11 @@ export class SupplyChainFinanceOptimizer {
       });
     }
 
-    const overallRisk = risks.some((r) => r.severity === 'high') ? 'high' : risks.length > 0 ? 'medium' : 'low';
+    const overallRisk = risks.some((r) => r.severity === 'high')
+      ? 'high'
+      : risks.length > 0
+        ? 'medium'
+        : 'low';
 
     return {
       risks,
@@ -264,7 +274,9 @@ export class SupplyChainFinanceOptimizer {
     const recommendations: string[] = [];
 
     if (optimization && optimization.improvement > 0) {
-      recommendations.push(`Cash conversion cycle improvement: ${optimization.improvement.toFixed(0)} days`);
+      recommendations.push(
+        `Cash conversion cycle improvement: ${optimization.improvement.toFixed(0)} days`
+      );
     }
 
     if (financing) {
@@ -283,6 +295,3 @@ export class SupplyChainFinanceOptimizer {
     return recommendations;
   }
 }
-
-
-

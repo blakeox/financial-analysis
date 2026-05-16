@@ -94,7 +94,9 @@ describe('FIRECalculator', () => {
 
     const result = FIRECalculator.analyze(offTrackInput);
     expect(result.recommendations.some((rec: string) => rec.includes('Off track'))).toBe(true);
-    expect(result.recommendations.some((rec: string) => rec.includes('Required monthly savings'))).toBe(true);
+    expect(
+      result.recommendations.some((rec: string) => rec.includes('Required monthly savings'))
+    ).toBe(true);
   });
 
   it('returns Coast FIRE status when at or past target age', () => {
@@ -126,7 +128,9 @@ describe('FIRECalculator', () => {
 
     const result = FIRECalculator.analyze(optimizedInput);
     expect(result.expenseOptimization?.recommendations.length).toBeGreaterThan(0);
-    expect(result.recommendations.some((rec: string) => rec.includes('Reducing expenses'))).toBe(true);
+    expect(result.recommendations.some((rec: string) => rec.includes('Reducing expenses'))).toBe(
+      true
+    );
   });
 
   it('omits optional analysis outputs when flags are false', () => {

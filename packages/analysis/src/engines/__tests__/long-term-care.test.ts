@@ -154,4 +154,3 @@ describe('LongTermCareCalculator', () => {
     expect(result.selfFundingAnalysis.coveragePercentage).toBe(100);
   });
 });
-

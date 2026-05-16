@@ -17,10 +17,8 @@ class MockSessionDO {
 
   async fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     // Handle both stub.fetch(url, options) and stub.fetch(Request)
-    const request = input instanceof Request 
-      ? input 
-      : new Request(input.toString(), init);
-    
+    const request = input instanceof Request ? input : new Request(input.toString(), init);
+
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -186,7 +184,7 @@ describe('withSecurityContext', () => {
     const response = await wrappedHandler(request, mockEnv);
 
     expect(response.status).toBe(200);
-    const data = await response.json() as { allowed: boolean };
+    const data = (await response.json()) as { allowed: boolean };
     expect(data.allowed).toBe(true);
   });
 
@@ -234,7 +232,7 @@ describe('withSecurityContext', () => {
     const response = await wrappedHandler(request, mockEnv);
 
     expect(response.status).toBe(429);
-    const data = await response.json() as { error: string; retryAfter?: number };
+    const data = (await response.json()) as { error: string; retryAfter?: number };
     expect(data.error).toBe('rate_limit_exceeded');
     expect(data.retryAfter).toBe(30);
   });

@@ -42,6 +42,3 @@ export const AccountsReceivableAgingInputSchema = z.object({
 });
 
 export type AccountsReceivableAgingInput = z.infer<typeof AccountsReceivableAgingInputSchema>;
-
-
-

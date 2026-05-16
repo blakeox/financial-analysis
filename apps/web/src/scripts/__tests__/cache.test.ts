@@ -13,7 +13,11 @@ import {
   getSavedScenarios,
   deleteSavedScenario,
 } from '../mortgage-scenario-planning/cache';
-import { CACHE_KEY, CACHE_DURATION, SAVED_SCENARIOS_KEY } from '../mortgage-scenario-planning/constants';
+import {
+  CACHE_KEY,
+  CACHE_DURATION,
+  SAVED_SCENARIOS_KEY,
+} from '../mortgage-scenario-planning/constants';
 import type { MortgageScenarioPlanningInput, Scenario } from '../mortgage-scenario-planning/types';
 
 // Mock alert globally
@@ -105,18 +109,13 @@ describe('Mortgage Scenario Planning - Cache', () => {
     it('should store results in localStorage', () => {
       cacheResults(mockInput, mockScenarios);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        CACHE_KEY,
-        expect.any(String)
-      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(CACHE_KEY, expect.any(String));
     });
 
     it('should store correct data structure', () => {
       cacheResults(mockInput, mockScenarios);
 
-      const storedData = JSON.parse(
-        localStorageMock.setItem.mock.calls[0][1]
-      );
+      const storedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
 
       expect(storedData).toHaveProperty('timestamp');
       expect(storedData).toHaveProperty('input');

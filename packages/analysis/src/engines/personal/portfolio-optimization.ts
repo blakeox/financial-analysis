@@ -182,8 +182,7 @@ export class PortfolioOptimizer {
     // Calculate optimized metrics
     const expectedReturns = marketData.expectedReturns;
     const optimizedReturn =
-      expectedReturns &&
-      expectedReturns.length === normalizedAllocations.length
+      expectedReturns && expectedReturns.length === normalizedAllocations.length
         ? normalizedAllocations.reduce(
             (sum, alloc, i) => sum + alloc.allocation * expectedReturns[i]!,
             0

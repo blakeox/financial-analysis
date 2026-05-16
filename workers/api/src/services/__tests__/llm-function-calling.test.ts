@@ -40,9 +40,7 @@ describe('FunctionCallingService', () => {
       mockAi.run.mockResolvedValue({ response: 'Hello! How can I help you?' });
 
       const service = createFunctionCallingService(mockAi as unknown as Ai);
-      const messages: FunctionCallingMessage[] = [
-        { role: 'user', content: 'Hi there' },
-      ];
+      const messages: FunctionCallingMessage[] = [{ role: 'user', content: 'Hi there' }];
 
       const result = await service.simpleChat(messages);
 
@@ -54,18 +52,14 @@ describe('FunctionCallingService', () => {
       mockAi.run.mockResolvedValue({ response: 'I am a financial assistant.' });
 
       const service = createFunctionCallingService(mockAi as unknown as Ai);
-      const messages: FunctionCallingMessage[] = [
-        { role: 'user', content: 'What are you?' },
-      ];
+      const messages: FunctionCallingMessage[] = [{ role: 'user', content: 'What are you?' }];
 
       await service.simpleChat(messages, 'You are a financial assistant.');
 
       expect(mockAi.run).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({ role: 'system' }),
-          ]),
+          messages: expect.arrayContaining([expect.objectContaining({ role: 'system' })]),
         })
       );
     });
@@ -89,24 +83,24 @@ describe('Tool Pre-filtering (keyword matching concepts)', () => {
     // This tests the keyword matching logic conceptually
     const message = 'calculate bond price for a treasury bond';
     const keywords = ['bond', 'coupon', 'yield', 'maturity'];
-    
-    const hasMatch = keywords.some(k => message.toLowerCase().includes(k));
+
+    const hasMatch = keywords.some((k) => message.toLowerCase().includes(k));
     expect(hasMatch).toBe(true);
   });
 
   it('filters tools based on auto loan keywords', () => {
     const message = 'what is the monthly payment for a car loan';
     const keywords = ['auto', 'car', 'vehicle', 'auto loan'];
-    
-    const hasMatch = keywords.some(k => message.toLowerCase().includes(k));
+
+    const hasMatch = keywords.some((k) => message.toLowerCase().includes(k));
     expect(hasMatch).toBe(true);
   });
 
   it('filters tools based on debt keywords', () => {
     const message = 'how do I pay off my credit card debt';
     const keywords = ['debt', 'payoff', 'credit card'];
-    
-    const hasMatch = keywords.some(k => message.toLowerCase().includes(k));
+
+    const hasMatch = keywords.some((k) => message.toLowerCase().includes(k));
     expect(hasMatch).toBe(true);
   });
 });
@@ -172,7 +166,7 @@ describe('preFilterTools (actual function)', () => {
     ];
 
     const result = preFilterTools(tools, 'calculate bond yield for treasury');
-    expect(result.map(t => t.name)).toContain('analyze_bond_pricing');
+    expect(result.map((t) => t.name)).toContain('analyze_bond_pricing');
   });
 
   it('filters tools based on auto loan keywords', () => {
@@ -183,7 +177,7 @@ describe('preFilterTools (actual function)', () => {
     ];
 
     const result = preFilterTools(tools, 'what is my car payment');
-    expect(result.map(t => t.name)).toContain('analyze_auto_loan');
+    expect(result.map((t) => t.name)).toContain('analyze_auto_loan');
   });
 
   it('filters tools based on mortgage keywords', () => {
@@ -194,14 +188,11 @@ describe('preFilterTools (actual function)', () => {
     ];
 
     const result = preFilterTools(tools, 'mortgage loan monthly payment schedule');
-    expect(result.map(t => t.name)).toContain('analyze_amortization');
+    expect(result.map((t) => t.name)).toContain('analyze_amortization');
   });
 
   it('returns all tools when no keywords match', () => {
-    const tools = [
-      createMockTool('analyze_bond_pricing'),
-      createMockTool('analyze_auto_loan'),
-    ];
+    const tools = [createMockTool('analyze_bond_pricing'), createMockTool('analyze_auto_loan')];
 
     const result = preFilterTools(tools, 'hello world');
     // Should return all tools as fallback
@@ -220,10 +211,7 @@ describe('preFilterTools (actual function)', () => {
   });
 
   it('scores tools by multiple keyword matches', () => {
-    const tools = [
-      createMockTool('analyze_lease'),
-      createMockTool('analyze_enhanced_lease'),
-    ];
+    const tools = [createMockTool('analyze_lease'), createMockTool('analyze_enhanced_lease')];
 
     const result = preFilterTools(tools, 'commercial lease rent analysis cam');
     // analyze_enhanced_lease should score higher with more keyword matches
@@ -233,16 +221,18 @@ describe('preFilterTools (actual function)', () => {
 
 describe('extractModelChanges (actual function)', () => {
   it('extracts fields from formValues', () => {
-    const toolCalls = [{
-      toolName: 'bond_price_calculator',
-      arguments: {},
-      result: {
-        formValues: {
-          principal: 1000,
-          couponRate: 0.05,
+    const toolCalls = [
+      {
+        toolName: 'bond_price_calculator',
+        arguments: {},
+        result: {
+          formValues: {
+            principal: 1000,
+            couponRate: 0.05,
+          },
         },
       },
-    }];
+    ];
 
     const changes = extractModelChanges(toolCalls);
     expect(changes).toEqual({
@@ -252,16 +242,18 @@ describe('extractModelChanges (actual function)', () => {
   });
 
   it('extracts fields from modelChanges', () => {
-    const toolCalls = [{
-      toolName: 'auto_loan_calculator',
-      arguments: {},
-      result: {
-        modelChanges: {
-          monthlyPayment: 500,
-          loanAmount: 25000,
+    const toolCalls = [
+      {
+        toolName: 'auto_loan_calculator',
+        arguments: {},
+        result: {
+          modelChanges: {
+            monthlyPayment: 500,
+            loanAmount: 25000,
+          },
         },
       },
-    }];
+    ];
 
     const changes = extractModelChanges(toolCalls);
     expect(changes).toEqual({
@@ -272,15 +264,17 @@ describe('extractModelChanges (actual function)', () => {
 
   it('extracts fields based on tool metadata outputFields', () => {
     // analyze_bond_pricing has outputFields: ['price', 'yield', 'duration', 'convexity']
-    const toolCalls = [{
-      toolName: 'analyze_bond_pricing',
-      arguments: {},
-      result: {
-        price: 950.25,
-        yield: 0.0526,
-        duration: 4.5,
+    const toolCalls = [
+      {
+        toolName: 'analyze_bond_pricing',
+        arguments: {},
+        result: {
+          price: 950.25,
+          yield: 0.0526,
+          duration: 4.5,
+        },
       },
-    }];
+    ];
 
     const changes = extractModelChanges(toolCalls);
     // Should extract fields defined in tool metadata
@@ -296,11 +290,13 @@ describe('extractModelChanges (actual function)', () => {
   });
 
   it('returns undefined when no extractable fields', () => {
-    const toolCalls = [{
-      toolName: 'unknown_tool',
-      arguments: {},
-      result: { message: 'completed' },
-    }];
+    const toolCalls = [
+      {
+        toolName: 'unknown_tool',
+        arguments: {},
+        result: { message: 'completed' },
+      },
+    ];
 
     const changes = extractModelChanges(toolCalls);
     expect(changes).toBeUndefined();
@@ -336,12 +332,12 @@ describe('withTimeout', () => {
   });
 
   it('rejects when promise times out', async () => {
-    const slowPromise = new Promise(resolve => setTimeout(resolve, 5000));
+    const slowPromise = new Promise((resolve) => setTimeout(resolve, 5000));
     await expect(withTimeout(slowPromise, 50, 'slow-tool')).rejects.toThrow('timed out');
   });
 
   it('includes tool name in timeout error', async () => {
-    const slowPromise = new Promise(resolve => setTimeout(resolve, 5000));
+    const slowPromise = new Promise((resolve) => setTimeout(resolve, 5000));
     await expect(withTimeout(slowPromise, 50, 'my_tool')).rejects.toThrow('Tool my_tool timed out');
   });
 });

@@ -52,9 +52,7 @@ describe('Calculator Context Detection', () => {
     });
 
     it('should detect credit-card-payoff from /calculator/credit-card-payoff', () => {
-      expect(detectCalculatorContext('/calculator/credit-card-payoff')).toBe(
-        'credit-card-payoff'
-      );
+      expect(detectCalculatorContext('/calculator/credit-card-payoff')).toBe('credit-card-payoff');
     });
 
     it('should detect invest-vs-payoff-debt from /calculator/invest-vs-payoff-debt', () => {
@@ -104,9 +102,7 @@ describe('Calculator Context Detection', () => {
     });
 
     it('should detect cash-flow-forecast from /calculator/cash-flow-forecast', () => {
-      expect(detectCalculatorContext('/calculator/cash-flow-forecast')).toBe(
-        'cash-flow-forecast'
-      );
+      expect(detectCalculatorContext('/calculator/cash-flow-forecast')).toBe('cash-flow-forecast');
     });
 
     it('should detect business-loan-qualifier from /calculator/business-loan-qualifier', () => {
@@ -120,9 +116,7 @@ describe('Calculator Context Detection', () => {
     });
 
     it('should detect side-hustle-income from /calculator/side-hustle-income', () => {
-      expect(detectCalculatorContext('/calculator/side-hustle-income')).toBe(
-        'side-hustle-income'
-      );
+      expect(detectCalculatorContext('/calculator/side-hustle-income')).toBe('side-hustle-income');
     });
 
     // Investment Calculators

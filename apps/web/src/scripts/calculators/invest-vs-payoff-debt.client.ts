@@ -1,6 +1,6 @@
 /**
  * Invest vs Pay Off Debt Calculator
- * 
+ *
  * Compares the financial outcome of using extra money to pay off debt
  * versus investing it, considering interest rates, returns, and risk.
  */
@@ -69,36 +69,36 @@ export interface InvestVsDebtResult {
 function calculatePayOffDebtStrategy(input: InvestVsDebtInput): StrategyResult {
   const monthlyRate = input.debtInterestRate / 100 / 12;
   const totalMonths = input.timeHorizonYears * 12;
-  
+
   let debtBalance = input.debtBalance;
   let totalInterestPaid = 0;
   let monthsToPayoff = 0;
-  
+
   // Apply extra money to debt
   const monthlyPayment = input.debtMinimumPayment + input.extraMoney;
-  
+
   for (let month = 0; month < totalMonths && debtBalance > 0; month++) {
     const interestCharge = debtBalance * monthlyRate;
     const principalPayment = Math.min(monthlyPayment - interestCharge, debtBalance);
-    
+
     totalInterestPaid += interestCharge;
     debtBalance = Math.max(0, debtBalance - principalPayment);
     monthsToPayoff = month + 1;
   }
-  
+
   // Once debt is paid, invest extra money
   let investmentBalance = 0;
   const monthlyInvestmentReturn = input.expectedInvestmentReturn / 100 / 12;
-  
+
   if (monthsToPayoff < totalMonths) {
     const monthsInvesting = totalMonths - monthsToPayoff;
     for (let month = 0; month < monthsInvesting; month++) {
       investmentBalance = investmentBalance * (1 + monthlyInvestmentReturn) + input.extraMoney;
     }
   }
-  
+
   const endingWealth = investmentBalance;
-  
+
   return {
     name: 'Pay Off Debt First',
     endingWealth,
@@ -117,36 +117,36 @@ function calculateInvestStrategy(input: InvestVsDebtInput): StrategyResult {
   const debtMonthlyRate = input.debtInterestRate / 100 / 12;
   const investmentMonthlyReturn = input.expectedInvestmentReturn / 100 / 12;
   const totalMonths = input.timeHorizonYears * 12;
-  
+
   let debtBalance = input.debtBalance;
   let investmentBalance = 0;
   let totalInterestPaid = 0;
-  
+
   // Make minimum payments, invest extra
   for (let month = 0; month < totalMonths; month++) {
     // Pay minimum on debt
     if (debtBalance > 0) {
       const interestCharge = debtBalance * debtMonthlyRate;
       const principalPayment = Math.min(input.debtMinimumPayment - interestCharge, debtBalance);
-      
+
       totalInterestPaid += interestCharge;
       debtBalance = Math.max(0, debtBalance - principalPayment);
     }
-    
+
     // Invest extra money
     let monthlyInvestment = input.extraMoney;
-    
+
     // Add employer match if applicable
     if (input.employerMatch > 0 && input.debtType !== 'credit-card') {
       monthlyInvestment += input.extraMoney * (input.employerMatch / 100);
     }
-    
+
     investmentBalance = investmentBalance * (1 + investmentMonthlyReturn) + monthlyInvestment;
   }
-  
-  const investmentGains = investmentBalance - (input.extraMoney * totalMonths);
+
+  const investmentGains = investmentBalance - input.extraMoney * totalMonths;
   const endingWealth = investmentBalance - debtBalance;
-  
+
   return {
     name: 'Invest While Making Minimum Payments',
     endingWealth,
@@ -165,46 +165,49 @@ function calculateHybridStrategy(input: InvestVsDebtInput): StrategyResult {
   const debtMonthlyRate = input.debtInterestRate / 100 / 12;
   const investmentMonthlyReturn = input.expectedInvestmentReturn / 100 / 12;
   const totalMonths = input.timeHorizonYears * 12;
-  
+
   // Split extra money 50/50 between debt and investing
   const extraToDebt = input.extraMoney * 0.5;
   const extraToInvest = input.extraMoney * 0.5;
-  
+
   let debtBalance = input.debtBalance;
   let investmentBalance = 0;
   let totalInterestPaid = 0;
   let monthsToPayoff = totalMonths;
-  
+
   for (let month = 0; month < totalMonths; month++) {
     // Pay debt
     if (debtBalance > 0) {
       const interestCharge = debtBalance * debtMonthlyRate;
-      const principalPayment = Math.min((input.debtMinimumPayment + extraToDebt) - interestCharge, debtBalance);
-      
+      const principalPayment = Math.min(
+        input.debtMinimumPayment + extraToDebt - interestCharge,
+        debtBalance
+      );
+
       totalInterestPaid += interestCharge;
       debtBalance = Math.max(0, debtBalance - principalPayment);
-      
+
       if (debtBalance === 0 && monthsToPayoff === totalMonths) {
         monthsToPayoff = month + 1;
       }
     }
-    
+
     // Invest
     let monthlyInvestment = extraToInvest;
     if (debtBalance === 0) {
       monthlyInvestment += extraToDebt; // Redirect debt payment to investing once paid off
     }
-    
+
     if (input.employerMatch > 0) {
       monthlyInvestment += monthlyInvestment * (input.employerMatch / 100);
     }
-    
+
     investmentBalance = investmentBalance * (1 + investmentMonthlyReturn) + monthlyInvestment;
   }
-  
-  const investmentGains = investmentBalance - (input.extraMoney * totalMonths);
+
+  const investmentGains = investmentBalance - input.extraMoney * totalMonths;
   const endingWealth = investmentBalance - debtBalance;
-  
+
   return {
     name: 'Hybrid Approach (50/50 Split)',
     endingWealth,
@@ -223,28 +226,29 @@ function compareStrategies(input: InvestVsDebtInput): InvestVsDebtResult {
   const payOffDebt = calculatePayOffDebtStrategy(input);
   const invest = calculateInvestStrategy(input);
   const hybrid = calculateHybridStrategy(input);
-  
+
   // Determine best strategy
   const strategies = [
     { name: 'payOffDebt', result: payOffDebt },
     { name: 'invest', result: invest },
     { name: 'hybrid', result: hybrid },
   ];
-  
-  const mathWinner = strategies.reduce((best, current) => 
+
+  const mathWinner = strategies.reduce((best, current) =>
     current.result.endingWealth > best.result.endingWealth ? current : best
   );
-  
+
   // Risk-adjusted recommendation
   const interestRateDiff = input.expectedInvestmentReturn - input.debtInterestRate;
   const guaranteedReturn = input.debtInterestRate;
-  
+
   let riskAdjustedWinner = '';
   let reasoning = '';
-  
+
   if (!input.hasEmergencyFund) {
     riskAdjustedWinner = 'Build emergency fund first';
-    reasoning = '⚠️ Priority #1: Build a 3-6 month emergency fund before paying extra on debt or investing. Without this safety net, unexpected expenses could force you into more debt.';
+    reasoning =
+      '⚠️ Priority #1: Build a 3-6 month emergency fund before paying extra on debt or investing. Without this safety net, unexpected expenses could force you into more debt.';
   } else if (input.employerMatch > 0 && input.debtInterestRate < 10) {
     riskAdjustedWinner = 'Invest (get employer match)';
     reasoning = `🎯 With ${input.employerMatch}% employer match, you get an immediate ${input.employerMatch}% return - that's guaranteed free money! Contribute enough to get the full match, then tackle debt.`;
@@ -261,7 +265,7 @@ function compareStrategies(input: InvestVsDebtInput): InvestVsDebtResult {
     riskAdjustedWinner = 'Pay off debt';
     reasoning = `🎯 When investment returns barely exceed debt interest, the guaranteed return from debt payoff is safer. Plus, you'll have the psychological benefit of being debt-free.`;
   }
-  
+
   return {
     payOffDebt,
     invest,
@@ -274,8 +278,13 @@ function compareStrategies(input: InvestVsDebtInput): InvestVsDebtResult {
       factors: {
         interestRateDifference: interestRateDiff,
         guaranteedReturn: guaranteedReturn,
-        psychologicalBenefit: input.debtInterestRate > 6 ? 'High debt weighs heavily - peace of mind is valuable' : 'Lower rate debt is less stressful',
-        emergencyFundStatus: input.hasEmergencyFund ? 'Protected' : '⚠️ Build emergency fund first!',
+        psychologicalBenefit:
+          input.debtInterestRate > 6
+            ? 'High debt weighs heavily - peace of mind is valuable'
+            : 'Lower rate debt is less stressful',
+        emergencyFundStatus: input.hasEmergencyFund
+          ? 'Protected'
+          : '⚠️ Build emergency fund first!',
       },
     },
   };
@@ -296,8 +305,12 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
   }
 
   // Find best strategy by wealth
-  const bestWealth = Math.max(result.payOffDebt.endingWealth, result.invest.endingWealth, result.hybrid.endingWealth);
-  
+  const bestWealth = Math.max(
+    result.payOffDebt.endingWealth,
+    result.invest.endingWealth,
+    result.hybrid.endingWealth
+  );
+
   summaryCards.innerHTML = `
     <div class="fa-metric-card fa-metric-card-info">
       <h5 class="text-sm font-medium">Pay Debt First</h5>
@@ -338,9 +351,10 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        ${[result.payOffDebt, result.invest, result.hybrid].map(strategy => {
-          const isBest = strategy.endingWealth === bestWealth;
-          return `
+        ${[result.payOffDebt, result.invest, result.hybrid]
+          .map((strategy) => {
+            const isBest = strategy.endingWealth === bestWealth;
+            return `
             <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST MATH</div>' : ''}
               <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">${strategy.name}</h3>
@@ -371,7 +385,8 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
               </div>
             </div>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
     </div>
     
@@ -424,7 +439,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
           </div>
         </div>
         
-        ${!input.hasEmergencyFund ? `
+        ${
+          !input.hasEmergencyFund
+            ? `
         <div class="fa-callout-danger">
           <h4 class="mb-2 font-semibold">⚠️ Critical: Build Emergency Fund First</h4>
           <p class="text-sm">
@@ -432,7 +449,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
             Aim for 3-6 months of expenses in a high-yield savings account.
           </p>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
     </div>
     
@@ -444,11 +463,15 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         <p><strong>Expected Return (Investing):</strong> ${input.expectedInvestmentReturn.toFixed(2)}% (not guaranteed)</p>
         <p><strong>Difference:</strong> ${result.recommendation.factors.interestRateDifference.toFixed(2)}% in favor of ${result.recommendation.factors.interestRateDifference > 0 ? 'investing' : 'debt payoff'}</p>
         
-        ${input.employerMatch > 0 ? `
+        ${
+          input.employerMatch > 0
+            ? `
         <div class="fa-metric-card fa-metric-card-success mt-4">
           <p><strong>Employer Match Boost:</strong> ${input.employerMatch}% match adds ${input.employerMatch}% to your effective return, making investing even more attractive.</p>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
         
         <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
           <p class="text-xs text-yellow-800 dark:text-yellow-200">
@@ -459,7 +482,7 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -474,7 +497,8 @@ function parseFormInput(form: HTMLFormElement): InvestVsDebtInput {
     debtBalance: coerceNumber(formData.get('debtBalance'), 0),
     debtInterestRate: coerceNumber(formData.get('debtInterestRate'), 0),
     debtMinimumPayment: coerceNumber(formData.get('debtMinimumPayment'), 0),
-    debtType: (formData.get('debtType') as string || 'credit-card') as InvestVsDebtInput['debtType'],
+    debtType: ((formData.get('debtType') as string) ||
+      'credit-card') as InvestVsDebtInput['debtType'],
     expectedInvestmentReturn: coerceNumber(formData.get('expectedInvestmentReturn'), 7),
     taxRate: coerceNumber(formData.get('taxRate'), 22),
     timeHorizonYears: coerceNumber(formData.get('timeHorizonYears'), 10),
@@ -506,25 +530,27 @@ function initializeInvestVsDebt(): void {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     hideError();
     showLoading(calculateBtn);
 
     try {
       const input = parseFormInput(form);
       validateInput(input);
-      
+
       const result = compareStrategies(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: {
-          calculatorId: 'invest-vs-payoff-debt',
-          result,
-          formData: input,
-        },
-      }));
-      
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: {
+            calculatorId: 'invest-vs-payoff-debt',
+            result,
+            formData: input,
+          },
+        })
+      );
+
       if (typeof gtag !== 'undefined') {
         gtag('event', 'invest_vs_debt_calculated', {
           debt_type: input.debtType,

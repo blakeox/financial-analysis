@@ -18,9 +18,7 @@ describe('InsuranceNeedsCalculator cost analysis', () => {
       expect(cost.recommendedMonthlyPremiums).toBeGreaterThan(0);
       expect(typeof cost.premiumIncrease).toBe('number');
       expect(cost.costBenefitAnalysis.totalProtectionValue).toBeGreaterThan(0);
-      expect(cost.costBenefitAnalysis.totalPremiumCost).toBe(
-        cost.recommendedMonthlyPremiums * 12
-      );
+      expect(cost.costBenefitAnalysis.totalPremiumCost).toBe(cost.recommendedMonthlyPremiums * 12);
       expect(cost.costBenefitAnalysis.protectionRatio).toBeGreaterThan(0);
     });
 
@@ -99,14 +97,16 @@ describe('InsuranceNeedsCalculator cost analysis', () => {
 
   describe('cost analysis helper', () => {
     it('computes premium deltas, protection ratio, and affordability', () => {
-      const calculateCostAnalysis = (InsuranceNeedsCalculator as unknown as {
-        calculateCostAnalysis: (
-          input: InsuranceNeedsInput,
-          life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
-          disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
-          longTermCare: InsuranceNeedsResult['longTermCareAnalysis']
-        ) => InsuranceNeedsResult['costAnalysis'];
-      }).calculateCostAnalysis;
+      const calculateCostAnalysis = (
+        InsuranceNeedsCalculator as unknown as {
+          calculateCostAnalysis: (
+            input: InsuranceNeedsInput,
+            life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
+            disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
+            longTermCare: InsuranceNeedsResult['longTermCareAnalysis']
+          ) => InsuranceNeedsResult['costAnalysis'];
+        }
+      ).calculateCostAnalysis;
 
       const input: InsuranceNeedsInput = {
         ...baseInput,
@@ -115,7 +115,10 @@ describe('InsuranceNeedsCalculator cost analysis', () => {
           ...baseInput.currentInsurance,
           lifeInsurance: {
             termLife: { ...baseInput.currentInsurance.lifeInsurance.termLife, monthlyPremium: 60 },
-            wholeLife: { ...baseInput.currentInsurance.lifeInsurance.wholeLife, monthlyPremium: 20 },
+            wholeLife: {
+              ...baseInput.currentInsurance.lifeInsurance.wholeLife,
+              monthlyPremium: 20,
+            },
           },
           disabilityInsurance: {
             shortTerm: {
@@ -203,14 +206,16 @@ describe('InsuranceNeedsCalculator cost analysis', () => {
     });
 
     it('reports a negative premium increase when recommendations lower total spend', () => {
-      const calculateCostAnalysis = (InsuranceNeedsCalculator as unknown as {
-        calculateCostAnalysis: (
-          input: InsuranceNeedsInput,
-          life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
-          disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
-          longTermCare: InsuranceNeedsResult['longTermCareAnalysis']
-        ) => InsuranceNeedsResult['costAnalysis'];
-      }).calculateCostAnalysis;
+      const calculateCostAnalysis = (
+        InsuranceNeedsCalculator as unknown as {
+          calculateCostAnalysis: (
+            input: InsuranceNeedsInput,
+            life: InsuranceNeedsResult['lifeInsuranceAnalysis'],
+            disability: InsuranceNeedsResult['disabilityInsuranceAnalysis'],
+            longTermCare: InsuranceNeedsResult['longTermCareAnalysis']
+          ) => InsuranceNeedsResult['costAnalysis'];
+        }
+      ).calculateCostAnalysis;
 
       const heavyPremiumInput: InsuranceNeedsInput = {
         ...baseInput,
@@ -222,7 +227,10 @@ describe('InsuranceNeedsCalculator cost analysis', () => {
           ...baseInput.currentInsurance,
           lifeInsurance: {
             termLife: { ...baseInput.currentInsurance.lifeInsurance.termLife, monthlyPremium: 180 },
-            wholeLife: { ...baseInput.currentInsurance.lifeInsurance.wholeLife, monthlyPremium: 120 },
+            wholeLife: {
+              ...baseInput.currentInsurance.lifeInsurance.wholeLife,
+              monthlyPremium: 120,
+            },
           },
           disabilityInsurance: {
             shortTerm: {

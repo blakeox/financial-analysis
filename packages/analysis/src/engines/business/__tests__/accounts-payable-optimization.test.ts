@@ -222,4 +222,3 @@ describe('AccountsPayableOptimizer', () => {
     expect(result.recommendations).toBeDefined();
   });
 });
-

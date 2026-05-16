@@ -9,7 +9,7 @@ test.describe('Chat Stream Debug', () => {
 
     // Capture SSE response body
     let responseChunks: string[] = [];
-    
+
     // Listen for network requests
     page.on('request', (request) => {
       if (request.url().includes('/v1/chat')) {
@@ -21,7 +21,7 @@ test.describe('Chat Stream Debug', () => {
       if (response.url().includes('/v1/chat/stream')) {
         console.log(`[Network Response] ${response.status()} ${response.url()}`);
         console.log(`[Network Response] Headers:`, response.headers());
-        
+
         // Try to capture the response body
         try {
           const body = await response.text();
@@ -58,10 +58,9 @@ test.describe('Chat Stream Debug', () => {
     console.log('[Test] Filled input with "Hello"');
 
     // Listen for the stream request
-    const streamRequestPromise = page.waitForRequest(
-      (request) => request.url().includes('/v1/chat/stream'),
-      { timeout: 10000 }
-    ).catch(() => null);
+    const streamRequestPromise = page
+      .waitForRequest((request) => request.url().includes('/v1/chat/stream'), { timeout: 10000 })
+      .catch(() => null);
 
     // Submit the form - the button is #chat-send not #send-btn
     const sendButton = page.locator('#chat-send');

@@ -94,7 +94,9 @@ describe('EquipmentLeaseVsBuyCalculator', () => {
       5
     );
 
-    expect(recommendations.some((item: string) => item.includes('Leasing provides tax benefits'))).toBe(true);
+    expect(
+      recommendations.some((item: string) => item.includes('Leasing provides tax benefits'))
+    ).toBe(true);
   });
 
   it('should generate buying recommendation messaging', () => {
@@ -103,7 +105,9 @@ describe('EquipmentLeaseVsBuyCalculator', () => {
       5
     );
 
-    expect(recommendations.some((item: string) => item.includes('Buying provides ownership'))).toBe(true);
+    expect(recommendations.some((item: string) => item.includes('Buying provides ownership'))).toBe(
+      true
+    );
   });
 
   it('uses useful life as analysis period when missing', () => {
@@ -276,4 +280,3 @@ describe('EquipmentLeaseVsBuyCalculator', () => {
     expect(result.recommendation.recommendedOption).toBe('buy');
   });
 });
-

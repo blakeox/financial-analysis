@@ -10,4 +10,3 @@ export const FXHedgingInputSchema = z.object({
 });
 
 export type FXHedgingInput = z.infer<typeof FXHedgingInputSchema>;
-

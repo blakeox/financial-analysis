@@ -61,4 +61,3 @@ describe('DividendReinvestmentCalculator', () => {
     expect(result.cagr).toBeNull();
   });
 });
-

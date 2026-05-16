@@ -53,7 +53,9 @@ class LongTermCareCalculator {
         financialResources: {
           currentAssets: parseFloat((formData.get('currentAssets') as string) || '0'),
           annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-          expectedRetirementAssets: parseFloat((formData.get('expectedRetirementAssets') as string) || '0'),
+          expectedRetirementAssets: parseFloat(
+            (formData.get('expectedRetirementAssets') as string) || '0'
+          ),
         },
         strategy: {
           fundingMethod: (formData.get('fundingMethod') as string) || 'hybrid',

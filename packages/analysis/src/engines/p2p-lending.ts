@@ -24,9 +24,17 @@ export class P2PLendingAnalyzer {
       .times(new Decimal(1).minus(input.defaultProbability))
       .toNumber();
 
-    const netInterest = new Decimal(expectedInterest).times(new Decimal(1).minus(input.feeRate)).toNumber();
-    const expectedEndingValue = new Decimal(input.principal).plus(netInterest).minus(expectedLoss).toNumber();
-    const expectedTotalReturn = new Decimal(expectedEndingValue).div(input.principal).minus(1).toNumber();
+    const netInterest = new Decimal(expectedInterest)
+      .times(new Decimal(1).minus(input.feeRate))
+      .toNumber();
+    const expectedEndingValue = new Decimal(input.principal)
+      .plus(netInterest)
+      .minus(expectedLoss)
+      .toNumber();
+    const expectedTotalReturn = new Decimal(expectedEndingValue)
+      .div(input.principal)
+      .minus(1)
+      .toNumber();
 
     const expectedAnnualizedReturn =
       input.termYears > 0 ? Math.pow(1 + expectedTotalReturn, 1 / input.termYears) - 1 : null;
@@ -41,4 +49,3 @@ export class P2PLendingAnalyzer {
     };
   }
 }
-

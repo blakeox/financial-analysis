@@ -40,12 +40,12 @@ export class FiveTwoNineOptimizer {
 
     // State comparison
     const stateComparison = strategy.includeMultiStateComparison
-      ? (state529Options
+      ? state529Options
         ? this.compareStates(state529Options, personalInfo, contributionPlan)
         : {
-          states: [],
-          bestState: personalInfo.stateOfResidence,
-        })
+            states: [],
+            bestState: personalInfo.stateOfResidence,
+          }
       : undefined;
 
     // Financial aid impact
@@ -66,9 +66,9 @@ export class FiveTwoNineOptimizer {
     const shortfallTotal = Math.max(0, educationCosts.totalCost - projectedBalance);
     const shortfallAnalysis = analysis.includeShortfallAnalysis
       ? {
-        totalShortfall: shortfallTotal,
-        perChild: projections?.perChildProjections ?? [],
-      }
+          totalShortfall: shortfallTotal,
+          perChild: projections?.perChildProjections ?? [],
+        }
       : undefined;
 
     return {
@@ -84,10 +84,10 @@ export class FiveTwoNineOptimizer {
       projections,
       projection: projections
         ? {
-          projectedBalance: projections.totalBalance,
-          perChildProjections: projections.perChildProjections,
-          annualProjections: projections.annualProjections,
-        }
+            projectedBalance: projections.totalBalance,
+            perChildProjections: projections.perChildProjections,
+            annualProjections: projections.annualProjections,
+          }
         : undefined,
       stateComparison,
       aidImpact,
@@ -269,7 +269,17 @@ export class FiveTwoNineOptimizer {
 
   private static generateRecommendations(
     costs: { totalCost: number },
-    projections: { totalBalance: number; perChildProjections: Array<{ childAge: number; projectedBalance: number; shortfall: number }>; annualProjections: Array<{ year: number; balance: number; contributions: number }> } | undefined,
+    projections:
+      | {
+          totalBalance: number;
+          perChildProjections: Array<{
+            childAge: number;
+            projectedBalance: number;
+            shortfall: number;
+          }>;
+          annualProjections: Array<{ year: number; balance: number; contributions: number }>;
+        }
+      | undefined,
     stateComparison: { bestState: string } | undefined,
     aidImpact: { aidReduction: number; net529Benefit: number; recommendation: string } | undefined,
     _strategy: FiveTwoNineOptimizerInput['strategy']
@@ -280,7 +290,10 @@ export class FiveTwoNineOptimizer {
 
     if (projections) {
       recommendations.push(`Projected 529 balance: $${projections.totalBalance.toFixed(0)}`);
-      const totalShortfall = projections.perChildProjections.reduce((sum, child) => sum + child.shortfall, 0);
+      const totalShortfall = projections.perChildProjections.reduce(
+        (sum, child) => sum + child.shortfall,
+        0
+      );
       if (totalShortfall > 0) {
         recommendations.push(
           `Shortfall: $${totalShortfall.toFixed(0)} - consider increasing contributions`
@@ -299,4 +312,3 @@ export class FiveTwoNineOptimizer {
     return recommendations;
   }
 }
-

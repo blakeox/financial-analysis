@@ -8,10 +8,13 @@ test.describe('Status page with mocked storage states', () => {
     await expect(page.getByRole('heading', { name: /System Status/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /R2 Storage/i })).toBeVisible();
 
-    await page.waitForFunction(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return Boolean((window as any).__FA_STORAGE_TEST_READY__);
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return Boolean((window as any).__FA_STORAGE_TEST_READY__);
+      },
+      { timeout: 10000 }
+    );
 
     const sendMockUpdate = async (payload: Record<string, unknown>, delay = 0) => {
       await page.evaluate(

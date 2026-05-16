@@ -13,8 +13,9 @@ let cachedRandomUUID: (() => string) | null = null;
     const { randomUUID } = await import('node:crypto');
     cachedRandomUUID = randomUUID;
   } catch {
-    cachedRandomUUID = () => crypto.randomUUID?.() || 
-           `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    cachedRandomUUID = () =>
+      crypto.randomUUID?.() ||
+      `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   }
 })();
 
@@ -27,15 +28,19 @@ export function generateSecureId(): string {
     return cachedRandomUUID();
   }
   // Fallback if not initialized yet
-  return crypto.randomUUID?.() || 
-         `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return (
+    crypto.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+  );
 }
 
 /**
  * Enhanced cryptographic hashing for financial data integrity
  * Uses Node.js crypto for better performance and compatibility
  */
-export async function hashFinancialData(data: string, algorithm: 'sha256' | 'sha512' = 'sha256'): Promise<string> {
+export async function hashFinancialData(
+  data: string,
+  algorithm: 'sha256' | 'sha512' = 'sha256'
+): Promise<string> {
   try {
     // Try to use Node.js crypto which is now available and more performant
     const { createHash } = await import('node:crypto');
@@ -48,7 +53,7 @@ export async function hashFinancialData(data: string, algorithm: 'sha256' | 'sha
     const dataBuffer = encoder.encode(data);
     const hashBuffer = await crypto.subtle.digest(algorithm.toUpperCase(), dataBuffer);
     return Array.from(new Uint8Array(hashBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
+      .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
   }
 }
@@ -57,7 +62,11 @@ export async function hashFinancialData(data: string, algorithm: 'sha256' | 'sha
  * Secure key derivation for session management and API keys
  * Uses Node.js PBKDF2 for enhanced security
  */
-export async function deriveKey(password: string, salt: string, iterations: number = 100000): Promise<string> {
+export async function deriveKey(
+  password: string,
+  salt: string,
+  iterations: number = 100000
+): Promise<string> {
   try {
     // Try to use Node.js PBKDF2 which is now available on Workers
     const { pbkdf2 } = await import('node:crypto');
@@ -72,24 +81,24 @@ export async function deriveKey(password: string, salt: string, iterations: numb
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
     const saltBuffer = encoder.encode(salt);
-    
-    const key = await crypto.subtle.importKey(
-      'raw', passwordBuffer, 'PBKDF2', false, ['deriveBits']
-    );
-    
+
+    const key = await crypto.subtle.importKey('raw', passwordBuffer, 'PBKDF2', false, [
+      'deriveBits',
+    ]);
+
     const derivedBits = await crypto.subtle.deriveBits(
       {
         name: 'PBKDF2',
         salt: saltBuffer,
         iterations,
-        hash: 'SHA-512'
+        hash: 'SHA-512',
       },
       key,
       256
     );
-    
+
     return Array.from(new Uint8Array(derivedBits))
-      .map(b => b.toString(16).padStart(2, '0'))
+      .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
   }
 }
@@ -155,25 +164,29 @@ export class TempFileManager {
 export function createEnhancedLogger(requestId: string) {
   return {
     info: (message: string, meta?: LogMetadata) => {
-      console.log(JSON.stringify({
-        level: 'info',
-        timestamp: new Date().toISOString(),
-        requestId,
-        message,
-        ...meta
-      }));
+      console.log(
+        JSON.stringify({
+          level: 'info',
+          timestamp: new Date().toISOString(),
+          requestId,
+          message,
+          ...meta,
+        })
+      );
     },
-    
+
     error: (message: string, error?: Error, meta?: LogMetadata) => {
-      console.error(JSON.stringify({
-        level: 'error',
-        timestamp: new Date().toISOString(),
-        requestId,
-        message,
-        error: error?.message,
-        stack: error?.stack,
-        ...meta
-      }));
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          timestamp: new Date().toISOString(),
+          requestId,
+          message,
+          error: error?.message,
+          stack: error?.stack,
+          ...meta,
+        })
+      );
     },
 
     // Performance timing with high-resolution timestamps
@@ -182,17 +195,19 @@ export function createEnhancedLogger(requestId: string) {
       return {
         end: () => {
           const duration = performance.now() - start;
-          console.log(JSON.stringify({
-            level: 'perf',
-            timestamp: new Date().toISOString(),
-            requestId,
-            label,
-            duration: `${duration.toFixed(2)}ms`
-          }));
+          console.log(
+            JSON.stringify({
+              level: 'perf',
+              timestamp: new Date().toISOString(),
+              requestId,
+              label,
+              duration: `${duration.toFixed(2)}ms`,
+            })
+          );
           return duration;
-        }
+        },
       };
-    }
+    },
   };
 }
 
@@ -201,17 +216,17 @@ export function createEnhancedLogger(requestId: string) {
  * Ensures calculations are deterministic and accurate
  */
 export async function validateCalculationIntegrity(
-  input: CalculationData, 
-  output: CalculationData, 
+  input: CalculationData,
+  output: CalculationData,
   calculationType: string
 ): Promise<{ isValid: boolean; hash: string; timestamp: string }> {
   const inputHash = await hashFinancialData(JSON.stringify(input));
   const outputHash = await hashFinancialData(JSON.stringify(output));
   const combinedHash = await hashFinancialData(`${inputHash}-${outputHash}-${calculationType}`);
-  
+
   return {
     isValid: true, // Additional validation logic can be added here
     hash: combinedHash,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }

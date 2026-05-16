@@ -51,7 +51,11 @@ describe('OpenAPI contract validation', () => {
 
   it('/health response matches schema', async () => {
     const { env, ctx } = makeTestEnv();
-    const res = await api.fetch(new Request('https://example.com/health', { method: 'GET' }), env, ctx);
+    const res = await api.fetch(
+      new Request('https://example.com/health', { method: 'GET' }),
+      env,
+      ctx
+    );
     expect(res.status).toBe(200);
     const payload = await res.json();
     const { ok, errors } = validateResponse(doc, '/health', 'get', '200', payload);
@@ -61,7 +65,11 @@ describe('OpenAPI contract validation', () => {
 
   it('/version response matches schema', async () => {
     const { env, ctx } = makeTestEnv({ commitSha: 'abc123' });
-    const res = await api.fetch(new Request('https://example.com/version', { method: 'GET' }), env, ctx);
+    const res = await api.fetch(
+      new Request('https://example.com/version', { method: 'GET' }),
+      env,
+      ctx
+    );
     expect(res.status).toBe(200);
     const payload = await res.json();
     const { ok, errors } = validateResponse(doc, '/version', 'get', '200', payload);
@@ -79,7 +87,13 @@ describe('OpenAPI contract validation', () => {
     const res = await api.fetch(req, env, ctx);
     expect(res.status).toBe(200);
     const payload = await res.json();
-    const { ok, errors } = validateResponse(doc, '/v1/api/analysis/amortization', 'post', '200', payload);
+    const { ok, errors } = validateResponse(
+      doc,
+      '/v1/api/analysis/amortization',
+      'post',
+      '200',
+      payload
+    );
     expect(errors).toBeNull();
     expect(ok).toBe(true);
   });

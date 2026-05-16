@@ -357,4 +357,3 @@ describe('CreditScoreImpactAnalyzer', () => {
     });
   });
 });
-

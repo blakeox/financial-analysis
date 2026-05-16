@@ -48,9 +48,7 @@ export class RiskAdjustedReturnsCalculator {
     const sharpeRatio =
       annualizedVolatility > 0 ? annualizedExcessReturn / annualizedVolatility : null;
     const sortinoRatio =
-      annualizedDownsideDeviation > 0
-        ? annualizedExcessReturn / annualizedDownsideDeviation
-        : null;
+      annualizedDownsideDeviation > 0 ? annualizedExcessReturn / annualizedDownsideDeviation : null;
 
     return {
       averageReturn,

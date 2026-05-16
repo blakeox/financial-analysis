@@ -47,7 +47,7 @@ function checkForgivenessEligibility(
 ): ForgivenessEligibility {
   const isFederal = loanType.startsWith('federal');
   const normalizedYearsEmployed = Math.max(0, yearsEmployed);
-  
+
   // PSLF (Public Service Loan Forgiveness)
   const pslf = {
     eligible: isFederal && employment === 'public',
@@ -62,7 +62,7 @@ function checkForgivenessEligibility(
         ? 'All PSLF service years completed'
         : `${Math.max(0, 10 - normalizedYearsEmployed)} years remaining`,
   };
-  
+
   // IDR Forgiveness (Income-Driven Repayment)
   const idrForgiveness = {
     eligible: isFederal,
@@ -77,7 +77,7 @@ function checkForgivenessEligibility(
         ? 'Eligible for review now'
         : `${Math.max(0, 25 - normalizedYearsEmployed)} years remaining`,
   };
-  
+
   // Teacher Loan Forgiveness
   const teacherLoan = {
     eligible: isFederal && isTeacher,
@@ -92,12 +92,12 @@ function checkForgivenessEligibility(
         ? 'All five years satisfied'
         : `${Math.max(0, 5 - normalizedYearsEmployed)} years remaining`,
   };
-  
+
   // Estimate savings
   const pslfSavings = pslf.eligible ? balance * 0.5 : 0; // Avg 50% forgiven
   const idrSavings = idrForgiveness.eligible ? balance * 0.3 : 0; // Avg 30% forgiven after 20-25 years
   const teacherSavings = teacherLoan.eligible ? Math.min(17500, balance) : 0;
-  
+
   return {
     pslf,
     idrForgiveness,
@@ -127,31 +127,36 @@ function compareRefinance(
   creditScore: number = 700
 ): RefinanceComparison {
   const isFederal = loanType.startsWith('federal');
-  
+
   // Estimate refinance rate based on credit score
   let refinanceRate = currentRate;
-  if (creditScore >= 780) refinanceRate = Math.max(0.03, currentRate - 0.03); // 3% reduction
-  else if (creditScore >= 720) refinanceRate = Math.max(0.035, currentRate - 0.02); // 2% reduction
-  else if (creditScore >= 680) refinanceRate = Math.max(0.04, currentRate - 0.01); // 1% reduction
+  if (creditScore >= 780)
+    refinanceRate = Math.max(0.03, currentRate - 0.03); // 3% reduction
+  else if (creditScore >= 720)
+    refinanceRate = Math.max(0.035, currentRate - 0.02); // 2% reduction
+  else if (creditScore >= 680)
+    refinanceRate = Math.max(0.04, currentRate - 0.01); // 1% reduction
   else refinanceRate = currentRate; // No benefit
-  
+
   const months = 120; // 10-year term
-  
+
   // Current loan calculations
   const currentMonthlyRate = currentRate / 12;
-  const currentPayment = (balance * (currentMonthlyRate * Math.pow(1 + currentMonthlyRate, months))) /
+  const currentPayment =
+    (balance * (currentMonthlyRate * Math.pow(1 + currentMonthlyRate, months))) /
     (Math.pow(1 + currentMonthlyRate, months) - 1);
   const currentTotalCost = currentPayment * months;
-  
+
   // Refinanced loan calculations
   const refinanceMonthlyRate = refinanceRate / 12;
-  const refinancePayment = (balance * (refinanceMonthlyRate * Math.pow(1 + refinanceMonthlyRate, months))) /
+  const refinancePayment =
+    (balance * (refinanceMonthlyRate * Math.pow(1 + refinanceMonthlyRate, months))) /
     (Math.pow(1 + refinanceMonthlyRate, months) - 1);
   const refinanceTotalCost = refinancePayment * months;
-  
+
   const savings = currentTotalCost - refinanceTotalCost;
   const costDifference = currentPayment - refinancePayment;
-  
+
   // Warnings for federal loans
   const warnings: string[] = [];
   if (isFederal) {
@@ -159,18 +164,22 @@ function compareRefinance(
     warnings.push('⚠️ No longer eligible for forgiveness programs (PSLF, IDR)');
     warnings.push('⚠️ Loss of income-driven repayment options');
   }
-  
+
   let recommendation = '';
   if (savings > 5000 && !isFederal) {
-    recommendation = 'Refinancing recommended: Significant savings with no federal benefits to lose';
+    recommendation =
+      'Refinancing recommended: Significant savings with no federal benefits to lose';
   } else if (savings > 5000 && isFederal) {
-    recommendation = 'Consider carefully: Savings are significant but you will lose federal protections';
+    recommendation =
+      'Consider carefully: Savings are significant but you will lose federal protections';
   } else if (savings > 0 && savings < 5000) {
-    recommendation = 'Marginal benefit: Savings are modest. Weigh against refinancing costs and federal benefits';
+    recommendation =
+      'Marginal benefit: Savings are modest. Weigh against refinancing costs and federal benefits';
   } else {
-    recommendation = 'Not recommended: Insufficient savings or your credit score may not qualify for better rates';
+    recommendation =
+      'Not recommended: Insufficient savings or your credit score may not qualify for better rates';
   }
-  
+
   return {
     current: {
       rate: currentRate * 100,
@@ -270,10 +279,7 @@ const calculateMinimumPayment = (
 
 // Modern student loan calculator - streamlined for single loan analysis
 
-export const displayResults = (
-  result: StudentLoanResult,
-  insights?: ExtendedInsights
-): void => {
+export const displayResults = (result: StudentLoanResult, insights?: ExtendedInsights): void => {
   // Use the generic results structure from IndividualCalculatorPage.astro
   const resultsContainer = document.getElementById('results-container');
   const summaryCards = document.getElementById('summary-cards');
@@ -613,11 +619,12 @@ export const handleSubmit = async (form: HTMLFormElement, refs?: ScreenRefs): Pr
     );
   } catch (error) {
     console.error('Student loan calculation error:', error);
-    
+
     // Show error in UI
     if (refs?.error && refs?.errorMessage) {
       refs.error.classList.remove('hidden');
-      refs.errorMessage.textContent = error instanceof Error ? error.message : 'An unexpected error occurred';
+      refs.errorMessage.textContent =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
     } else {
       // Fallback to alert if refs not provided (backward compatibility)
       if (typeof alert !== 'undefined') {

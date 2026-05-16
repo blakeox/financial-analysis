@@ -43,7 +43,9 @@ class AccountsReceivableAgingCalculator {
           creditLimit: parseFloat((formData.get('creditLimit') as string) || '0'),
         },
         historicalData: {
-          averageCollectionPeriod: parseFloat((formData.get('averageCollectionPeriod') as string) || '0'),
+          averageCollectionPeriod: parseFloat(
+            (formData.get('averageCollectionPeriod') as string) || '0'
+          ),
           badDebtPercentage: parseFloat((formData.get('badDebtPercentage') as string) || '0.02'),
           annualSales: parseFloat((formData.get('annualSales') as string) || '0'),
           annualCreditSales: parseFloat((formData.get('annualCreditSales') as string) || '0'),
@@ -52,8 +54,10 @@ class AccountsReceivableAgingCalculator {
           includeDSO: formData.get('includeDSO') !== 'false',
           includeAgingAnalysis: formData.get('includeAgingAnalysis') !== 'false',
           includeBadDebtForecast: formData.get('includeBadDebtForecast') !== 'false',
-          includeCollectionRecommendations: formData.get('includeCollectionRecommendations') !== 'false',
-          includeCreditPolicyOptimization: formData.get('includeCreditPolicyOptimization') !== 'false',
+          includeCollectionRecommendations:
+            formData.get('includeCollectionRecommendations') !== 'false',
+          includeCreditPolicyOptimization:
+            formData.get('includeCreditPolicyOptimization') !== 'false',
         },
       };
 
@@ -72,7 +76,9 @@ class AccountsReceivableAgingCalculator {
       this.displayResults(result);
     } catch (error) {
       console.error('Accounts Receivable Aging error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to analyze accounts receivable aging');
+      showError(
+        error instanceof Error ? error.message : 'Failed to analyze accounts receivable aging'
+      );
     } finally {
       hideLoading();
     }

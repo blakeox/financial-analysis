@@ -254,7 +254,9 @@ const buildClientComprehensiveAnalysis = (
     schedule.length || clampNumber(input.termMonths) || clampNumber(result.schedule.length);
   const years = termMonths / 12;
   const annualRate = clampNumber(input.annualRate);
-  const totalPMI = safeRound(sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.pmi ?? 0)));
+  const totalPMI = safeRound(
+    sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.pmi ?? 0))
+  );
   const totalExtraPayments = safeRound(
     sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.extraPayment ?? 0))
   );
@@ -602,8 +604,7 @@ export const renderChart = (
 ): void => {
   if (!target) return;
   if (!Array.isArray(schedule) || schedule.length === 0) {
-    target.innerHTML =
-      '<p class="fa-script-copy-subtle">No chart data available.</p>';
+    target.innerHTML = '<p class="fa-script-copy-subtle">No chart data available.</p>';
     return;
   }
 

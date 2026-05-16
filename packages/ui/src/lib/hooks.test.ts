@@ -15,7 +15,7 @@ describe('hooks', () => {
   describe('useHydrated', () => {
     it('returns true after hydration', async () => {
       const { result } = renderHook(() => useHydrated());
-      
+
       // In test environment, effect runs and sets hydrated to true
       await waitFor(() => {
         expect(result.current).toBe(true);
@@ -24,11 +24,11 @@ describe('hooks', () => {
 
     it('remains true after initial hydration', async () => {
       const { result } = renderHook(() => useHydrated());
-      
+
       await waitFor(() => {
         expect(result.current).toBe(true);
       });
-      
+
       // Should stay true
       expect(result.current).toBe(true);
     });
@@ -81,9 +81,7 @@ describe('hooks', () => {
     });
 
     it('handles network errors', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('Network error')
-      );
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
 
       const { result } = renderHook(() => useApiData('/api/test'));
 
@@ -98,7 +96,7 @@ describe('hooks', () => {
     it('can manually refresh data', async () => {
       const mockData1 = { value: 1 };
       const mockData2 = { value: 2 };
-      
+
       (global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: true,
@@ -131,9 +129,7 @@ describe('hooks', () => {
         json: async () => mockData,
       });
 
-      const { result } = renderHook(() =>
-        useApiData('/api/test', { enabled: false })
-      );
+      const { result } = renderHook(() => useApiData('/api/test', { enabled: false }));
 
       // Should not fetch when disabled
       expect(result.current.loading).toBe(true);
@@ -163,7 +159,7 @@ describe('hooks', () => {
 
       // Wait to ensure no state updates after unmount
       await new Promise((resolve) => setTimeout(resolve, 150));
-      
+
       // If we get here without errors, cleanup worked
       expect(true).toBe(true);
     });
@@ -198,7 +194,10 @@ describe('hooks', () => {
     let originalWindowLocalStorageDescriptor: PropertyDescriptor | undefined;
 
     beforeEach(() => {
-      originalWindowLocalStorageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
+      originalWindowLocalStorageDescriptor = Object.getOwnPropertyDescriptor(
+        window,
+        'localStorage'
+      );
 
       const storage = createInMemoryStorage();
       vi.stubGlobal('localStorage', storage);
@@ -253,9 +252,7 @@ describe('hooks', () => {
     });
 
     it('returns initial value when key does not exist', () => {
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 'default-value')
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 'default-value'));
 
       expect(result.current[0]).toBe('default-value');
     });
@@ -263,17 +260,13 @@ describe('hooks', () => {
     it('returns stored value when key exists', () => {
       localStorage.setItem('test-key', JSON.stringify('stored-value'));
 
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 'default-value')
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 'default-value'));
 
       expect(result.current[0]).toBe('stored-value');
     });
 
     it('updates localStorage when value changes', () => {
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 'initial')
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 'initial'));
 
       act(() => {
         result.current[1]('updated');
@@ -284,9 +277,7 @@ describe('hooks', () => {
     });
 
     it('supports function updater', () => {
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 10)
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 10));
 
       act(() => {
         result.current[1]((prev) => prev + 5);
@@ -299,9 +290,7 @@ describe('hooks', () => {
     it('removes value from localStorage', () => {
       localStorage.setItem('test-key', JSON.stringify('stored'));
 
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 'default')
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 'default'));
 
       act(() => {
         result.current[2](); // removeValue
@@ -314,9 +303,7 @@ describe('hooks', () => {
     it('handles complex objects', () => {
       const complexObject = { id: 1, nested: { value: 'test' } };
 
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', complexObject)
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', complexObject));
 
       act(() => {
         result.current[1]({ id: 2, nested: { value: 'updated' } });
@@ -330,9 +317,7 @@ describe('hooks', () => {
 
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const { result } = renderHook(() =>
-        useLocalStorage('test-key', 'fallback')
-      );
+      const { result } = renderHook(() => useLocalStorage('test-key', 'fallback'));
 
       expect(result.current[0]).toBe('fallback');
       expect(consoleWarnSpy).toHaveBeenCalled();
@@ -374,10 +359,9 @@ describe('hooks', () => {
 
     it('updates when enabled state changes', () => {
       const callback = vi.fn();
-      const { rerender } = renderHook(
-        ({ enabled }) => useEscapeKey(callback, enabled),
-        { initialProps: { enabled: false } }
-      );
+      const { rerender } = renderHook(({ enabled }) => useEscapeKey(callback, enabled), {
+        initialProps: { enabled: false },
+      });
 
       // Disabled - should not call
       const event1 = new KeyboardEvent('keydown', { key: 'Escape' });
@@ -412,10 +396,9 @@ describe('hooks', () => {
     });
 
     it('scrolls element to bottom when dependencies change', async () => {
-      const { result, rerender } = renderHook(
-        ({ deps }) => useAutoScroll(deps),
-        { initialProps: { deps: [1] } }
-      );
+      const { result, rerender } = renderHook(({ deps }) => useAutoScroll(deps), {
+        initialProps: { deps: [1] },
+      });
 
       // Mock element with scroll properties
       const mockElement = {
@@ -433,10 +416,9 @@ describe('hooks', () => {
     });
 
     it('does nothing when ref is not attached', () => {
-      const { rerender } = renderHook(
-        ({ deps }) => useAutoScroll(deps),
-        { initialProps: { deps: [1] } }
-      );
+      const { rerender } = renderHook(({ deps }) => useAutoScroll(deps), {
+        initialProps: { deps: [1] },
+      });
 
       // Change dependencies with no element attached
       rerender({ deps: [2] });
@@ -446,10 +428,9 @@ describe('hooks', () => {
     });
 
     it('updates scroll on multiple dependency changes', async () => {
-      const { result, rerender } = renderHook(
-        ({ deps }) => useAutoScroll(deps),
-        { initialProps: { deps: [1] } }
-      );
+      const { result, rerender } = renderHook(({ deps }) => useAutoScroll(deps), {
+        initialProps: { deps: [1] },
+      });
 
       const mockElement = {
         scrollTop: 0,
@@ -486,10 +467,9 @@ describe('hooks', () => {
     });
 
     it('debounces value updates', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => useDebounce(value, 500),
-        { initialProps: { value: 'initial' } }
-      );
+      const { result, rerender } = renderHook(({ value }) => useDebounce(value, 500), {
+        initialProps: { value: 'initial' },
+      });
 
       expect(result.current).toBe('initial');
 
@@ -506,10 +486,9 @@ describe('hooks', () => {
     });
 
     it('cancels previous timeout on rapid updates', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => useDebounce(value, 500),
-        { initialProps: { value: 'initial' } }
-      );
+      const { result, rerender } = renderHook(({ value }) => useDebounce(value, 500), {
+        initialProps: { value: 'initial' },
+      });
 
       rerender({ value: 'update1' });
       act(() => {
@@ -532,10 +511,9 @@ describe('hooks', () => {
     });
 
     it('handles different delay values', () => {
-      const { result, rerender } = renderHook(
-        ({ value, delay }) => useDebounce(value, delay),
-        { initialProps: { value: 'initial', delay: 300 } }
-      );
+      const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+        initialProps: { value: 'initial', delay: 300 },
+      });
 
       rerender({ value: 'updated', delay: 300 });
 
@@ -550,10 +528,9 @@ describe('hooks', () => {
       const obj1 = { id: 1, name: 'Test' };
       const obj2 = { id: 2, name: 'Updated' };
 
-      const { result, rerender } = renderHook(
-        ({ value }) => useDebounce(value, 500),
-        { initialProps: { value: obj1 } }
-      );
+      const { result, rerender } = renderHook(({ value }) => useDebounce(value, 500), {
+        initialProps: { value: obj1 },
+      });
 
       expect(result.current).toEqual(obj1);
 
@@ -574,10 +551,9 @@ describe('hooks', () => {
     });
 
     it('returns previous value after update', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => usePrevious(value),
-        { initialProps: { value: 'initial' } }
-      );
+      const { result, rerender } = renderHook(({ value }) => usePrevious(value), {
+        initialProps: { value: 'initial' },
+      });
 
       expect(result.current).toBeUndefined();
 
@@ -586,10 +562,9 @@ describe('hooks', () => {
     });
 
     it('tracks value changes over multiple renders', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => usePrevious(value),
-        { initialProps: { value: 1 } }
-      );
+      const { result, rerender } = renderHook(({ value }) => usePrevious(value), {
+        initialProps: { value: 1 },
+      });
 
       expect(result.current).toBeUndefined();
 
@@ -607,10 +582,9 @@ describe('hooks', () => {
       const obj1 = { id: 1 };
       const obj2 = { id: 2 };
 
-      const { result, rerender } = renderHook(
-        ({ value }) => usePrevious(value),
-        { initialProps: { value: obj1 } }
-      );
+      const { result, rerender } = renderHook(({ value }) => usePrevious(value), {
+        initialProps: { value: obj1 },
+      });
 
       rerender({ value: obj2 });
       expect(result.current).toBe(obj1);
@@ -690,9 +664,7 @@ describe('hooks', () => {
 
       // First execution fails
       await act(async () => {
-        await result.current.execute(() =>
-          Promise.reject(new Error('First error'))
-        );
+        await result.current.execute(() => Promise.reject(new Error('First error')));
       });
 
       expect(result.current.error).toBe('First error');

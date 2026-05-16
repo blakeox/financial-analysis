@@ -46,11 +46,7 @@ export class IntelligentCache {
   /**
    * Set cached value with intent indexing
    */
-  async set(
-    key: string,
-    value: unknown,
-    ttl: number = 3600
-  ): Promise<void> {
+  async set(key: string, value: unknown, ttl: number = 3600): Promise<void> {
     const hashed = this.hash(key);
     const intent = await this.extractIntent(key);
     const timestamp = Date.now();
@@ -79,7 +75,7 @@ export class IntelligentCache {
   // private async findSemanticMatch(key: string): Promise<string | null> {
   //   const intent = await this.extractIntent(key);
   //   const list = await this.kv.list({ prefix: `cache:semantic:${intent}:` });
-  //   
+  //
   //   if (list.keys.length > 0) {
   //     const mostRecent = list.keys.sort((a, b) => {
   //       const aTime = a.metadata?.timestamp || 0;
@@ -88,7 +84,7 @@ export class IntelligentCache {
   //     })[0];
   //     return await this.kv.get(mostRecent.name);
   //   }
-  //   
+  //
   //   return null;
   // }
 
@@ -110,13 +106,15 @@ export class IntelligentCache {
     if (content.includes('home') || content.includes('house')) return 'home_buying';
     if (content.includes('tax')) return 'tax_optimization';
     if (content.includes('insurance')) return 'insurance_needs';
-    if (content.includes('portfolio') || content.includes('investment')) return 'investment_portfolio';
+    if (content.includes('portfolio') || content.includes('investment'))
+      return 'investment_portfolio';
     if (content.includes('financial journey')) return 'financial_journey';
     if (content.includes('ebitda')) return 'ebitda_forecasting';
     if (content.includes('bond')) return 'bond_pricing';
     if (content.includes('option')) return 'options_pricing';
     if (content.includes('cash flow')) return 'cash_flow';
-    if (content.includes('m&a') || content.includes('merger') || content.includes('acquisition')) return 'ma_analysis';
+    if (content.includes('m&a') || content.includes('merger') || content.includes('acquisition'))
+      return 'ma_analysis';
     if (content.includes('dcf') || content.includes('discounted cash flow')) return 'dcf_valuation';
     if (content.includes('comparable') || content.includes('cca')) return 'cca_valuation';
     if (content.includes('auto') || content.includes('car')) return 'auto_loan';
@@ -154,7 +152,7 @@ export class IntelligentCache {
   }> {
     const exact = await this.kv.list({ prefix: 'cache:exact:' });
     // const semantic = await this.kv.list({ prefix: 'cache:semantic:' });
-    
+
     const byIntent: Record<string, number> = {};
     // Semantic matching disabled for now
     // for (const key of semantic.keys) {
@@ -171,4 +169,3 @@ export class IntelligentCache {
     };
   }
 }
-

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { FuturesPricingAnalyzer, ForwardPricingAnalyzer, FuturesContractInputSchema, ForwardContractInputSchema } from '../futures';
+import {
+  FuturesPricingAnalyzer,
+  ForwardPricingAnalyzer,
+  FuturesContractInputSchema,
+  ForwardContractInputSchema,
+} from '../futures';
 
 describe('FuturesPricingAnalyzer', () => {
   describe('input validation', () => {
@@ -236,7 +241,7 @@ describe('FuturesPricingAnalyzer', () => {
 
       expect(result.insights).toBeInstanceOf(Array);
       expect(result.insights.length).toBeGreaterThan(0);
-      expect(result.insights.some(insight => insight.includes('Dividend'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('Dividend'))).toBe(true);
     });
 
     it('should generate insights for commodity futures', () => {
@@ -254,8 +259,8 @@ describe('FuturesPricingAnalyzer', () => {
       const result = FuturesPricingAnalyzer.analyze(input);
 
       expect(result.insights).toBeInstanceOf(Array);
-      expect(result.insights.some(insight => insight.includes('Storage'))).toBe(true);
-      expect(result.insights.some(insight => insight.includes('Convenience'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('Storage'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('Convenience'))).toBe(true);
     });
   });
 });
@@ -293,7 +298,7 @@ describe('ForwardPricingAnalyzer', () => {
       expect(result).toHaveProperty('marketPrice');
       expect(result).toHaveProperty('recommendation');
       expect(result.insights).toBeInstanceOf(Array);
-      expect(result.insights.some(insight => insight.includes('counterparty risk'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('counterparty risk'))).toBe(true);
     });
 
     it('should handle currency forwards', () => {

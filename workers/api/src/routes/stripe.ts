@@ -25,7 +25,7 @@ stripeRouter.post('/webhook', async (request: Request, env: Env) => {
 /**
  * POST /v1/stripe/create-checkout
  * Create a Stripe Checkout session for subscribing to a tier
- * 
+ *
  * Body: {
  *   tier: "pro" | "enterprise",
  *   customerId: "cus_123",
@@ -34,7 +34,7 @@ stripeRouter.post('/webhook', async (request: Request, env: Env) => {
  */
 stripeRouter.post('/create-checkout', async (request: Request, env: Env) => {
   try {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       tier: ApiTier;
       customerId: string;
       customerEmail: string;
@@ -89,14 +89,14 @@ stripeRouter.post('/create-checkout', async (request: Request, env: Env) => {
 /**
  * POST /v1/stripe/create-portal
  * Create a Stripe Customer Portal session for managing subscriptions
- * 
+ *
  * Body: {
  *   customerId: "cus_123"
  * }
  */
 stripeRouter.post('/create-portal', async (request: Request, env: Env) => {
   try {
-    const body = await request.json() as { customerId: string };
+    const body = (await request.json()) as { customerId: string };
     const { customerId } = body;
 
     if (!customerId) {
@@ -147,8 +147,8 @@ stripeRouter.post('/create-portal', async (request: Request, env: Env) => {
  */
 stripeRouter.get('/pricing', async () => {
   const pricing = Object.values(STRIPE_PRODUCTS)
-    .filter(p => p.tier !== 'test') // Don't expose test tier publicly
-    .map(p => ({
+    .filter((p) => p.tier !== 'test') // Don't expose test tier publicly
+    .map((p) => ({
       tier: p.tier,
       name: p.name,
       monthlyPrice: p.monthlyPrice,

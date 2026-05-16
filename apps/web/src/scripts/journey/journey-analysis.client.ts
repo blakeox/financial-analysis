@@ -72,7 +72,8 @@ class JourneyAnalysisManager {
 
     const completedSteps = this.analysisData.completedSteps.length;
     const totalSteps = Object.keys(this.analysisData.journeyData).length;
-    const completionPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+    const completionPercentage =
+      totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
     summaryContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

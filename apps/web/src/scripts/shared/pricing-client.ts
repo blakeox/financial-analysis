@@ -34,9 +34,12 @@ const renderPricingCards = (pricing: PricingTier[]) => {
       const price = monthlyPrice / 100;
       const monthlyQuota = Number.isFinite(tier.monthlyQuota) ? tier.monthlyQuota : 0;
       const rateLimitPerSec = Number.isFinite(tier.rateLimitPerSec) ? tier.rateLimitPerSec : 0;
-      const overagePerRequest = Number.isFinite(tier.overagePerRequest) ? tier.overagePerRequest : 0;
+      const overagePerRequest = Number.isFinite(tier.overagePerRequest)
+        ? tier.overagePerRequest
+        : 0;
       const isPopular = safeTier === 'pro';
-      const supportLevel = safeTier === 'free' ? 'Community' : safeTier === 'pro' ? 'Email' : 'Priority';
+      const supportLevel =
+        safeTier === 'free' ? 'Community' : safeTier === 'pro' ? 'Email' : 'Priority';
 
       const badge = isPopular
         ? '<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"><span class="fa-chip fa-chip-accent">Most Popular</span></div>'
@@ -52,9 +55,10 @@ const renderPricingCards = (pricing: PricingTier[]) => {
         .filter(Boolean)
         .join(' ');
 
-      const overageMarkup = overagePerRequest > 0
-        ? `<p class="mt-4 text-center text-sm text-slate-500">Overage: $${overagePerRequest}/request</p>`
-        : '';
+      const overageMarkup =
+        overagePerRequest > 0
+          ? `<p class="mt-4 text-center text-sm text-slate-500">Overage: $${overagePerRequest}/request</p>`
+          : '';
 
       return `
         <div class="fa-card relative h-full ${isPopular ? 'ring-2 ring-violet-500 -translate-y-1' : ''}">
@@ -90,9 +94,11 @@ const renderPricingCards = (pricing: PricingTier[]) => {
                 </svg>
                 <span class="text-slate-700">${supportLevel} support</span>
               </li>
-              ${safeTier === 'enterprise'
-                ? '<li class="flex items-start"><svg class="mr-3 h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-slate-700">99.9% SLA</span></li>'
-                : ''}
+              ${
+                safeTier === 'enterprise'
+                  ? '<li class="flex items-start"><svg class="mr-3 h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-slate-700">99.9% SLA</span></li>'
+                  : ''
+              }
             </ul>
             <button onclick="handleSubscribe('${safeTier}')" class="${buttonClasses}" ${disabledAttrs}>
               ${buttonLabel}

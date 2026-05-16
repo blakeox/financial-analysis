@@ -1,6 +1,6 @@
 /**
  * Comprehensive Analysis System for Calculator Pages
- * 
+ *
  * This module handles the dynamic population and display of comprehensive
  * analysis data for calculator results, including tabs, insights, recommendations,
  * risk assessments, and optimization opportunities.
@@ -12,7 +12,10 @@ import {
   generateRiskAssessment,
   generateOptimizationOpportunities,
 } from './analysis-content-generators.client';
-import type { AnalysisContentData, AnalysisSummaryData } from './analysis-content-generators.client';
+import type {
+  AnalysisContentData,
+  AnalysisSummaryData,
+} from './analysis-content-generators.client';
 import {
   formatCurrency,
   formatPercent as formatPercentDecimal,
@@ -28,8 +31,8 @@ type AnalysisChatContext = {
 
 type ComprehensiveAnalysisData = AmortizationComprehensiveAnalysis &
   AnalysisContentData & {
-  chatContext?: AnalysisChatContext;
-  rawResult?: unknown;
+    chatContext?: AnalysisChatContext;
+    rawResult?: unknown;
   };
 
 type AnalysisResultEventDetail = {
@@ -222,7 +225,8 @@ export function populateAnalysisData(rawData: ComprehensiveAnalysisData) {
   if (monthlyPaymentEl) monthlyPaymentEl.textContent = formatCurrency(summary.monthlyPayment);
   if (totalInterestEl) totalInterestEl.textContent = formatCurrency(summary.totalInterest);
   if (totalPaymentsEl) totalPaymentsEl.textContent = formatCurrency(summary.totalPayments);
-  if (interestRateEl) interestRateEl.textContent = formatPercentDecimal(summary.annualRate ?? rawData.annualRate);
+  if (interestRateEl)
+    interestRateEl.textContent = formatPercentDecimal(summary.annualRate ?? rawData.annualRate);
   if (loanTermEl) loanTermEl.textContent = formatMonths(summary.termMonths ?? rawData.termMonths);
 
   if (takeawaysWrapper && takeawaysList) {
@@ -370,4 +374,3 @@ declare global {
     amortizationAnalysisData?: AmortizationComprehensiveAnalysis;
   }
 }
-

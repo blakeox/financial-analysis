@@ -60,9 +60,7 @@ export class RevenueRecognitionCalculator {
     };
   }
 
-  private static allocateContractValue(
-    contracts: RevenueRecognitionInput['contracts']
-  ): Array<{
+  private static allocateContractValue(contracts: RevenueRecognitionInput['contracts']): Array<{
     contractId: string;
     totalValue: number;
     obligations: Array<{ obligationId: string; allocatedValue: number; recognitionMethod: string }>;
@@ -74,9 +72,10 @@ export class RevenueRecognitionCalculator {
       );
 
       const obligations = contract.performanceObligations.map((po) => {
-        const allocatedValue = totalStandalonePrice > 0
-          ? (po.standaloneSellingPrice / totalStandalonePrice) * contract.contractValue
-          : contract.contractValue / contract.performanceObligations.length;
+        const allocatedValue =
+          totalStandalonePrice > 0
+            ? (po.standaloneSellingPrice / totalStandalonePrice) * contract.contractValue
+            : contract.contractValue / contract.performanceObligations.length;
 
         return {
           obligationId: po.obligationId,
@@ -94,7 +93,9 @@ export class RevenueRecognitionCalculator {
   }
 
   private static createRevenueSchedule(
-    allocation: Array<{ obligations: Array<{ allocatedValue: number; recognitionMethod: string }> }>,
+    allocation: Array<{
+      obligations: Array<{ allocatedValue: number; recognitionMethod: string }>;
+    }>,
     years: number
   ): {
     schedule: Array<{ year: number; revenue: number; cumulativeRevenue: number }>;
@@ -105,14 +106,17 @@ export class RevenueRecognitionCalculator {
 
     for (let year = 1; year <= years; year++) {
       const yearRevenue = allocation.reduce((sum, contract) => {
-        return sum + contract.obligations.reduce((obSum, ob) => {
-          // Simplified: recognize evenly over time for over-time obligations
-          if (ob.recognitionMethod === 'over-time') {
-            return obSum + (ob.allocatedValue / years);
-          }
-          // Point-in-time: recognize when fulfilled (simplified to year 1)
-          return obSum + (year === 1 ? ob.allocatedValue : 0);
-        }, 0);
+        return (
+          sum +
+          contract.obligations.reduce((obSum, ob) => {
+            // Simplified: recognize evenly over time for over-time obligations
+            if (ob.recognitionMethod === 'over-time') {
+              return obSum + ob.allocatedValue / years;
+            }
+            // Point-in-time: recognize when fulfilled (simplified to year 1)
+            return obSum + (year === 1 ? ob.allocatedValue : 0);
+          }, 0)
+        );
       }, 0);
 
       cumulativeRevenue += yearRevenue;
@@ -137,13 +141,15 @@ export class RevenueRecognitionCalculator {
     byPeriod: Array<{ period: number; deferred: number }>;
   } {
     const totalContractValue = allocation.reduce((sum, c) => sum + c.totalValue, 0);
-    const totalRecognized = schedule?.schedule[schedule.schedule.length - 1]?.cumulativeRevenue || 0;
+    const totalRecognized =
+      schedule?.schedule[schedule.schedule.length - 1]?.cumulativeRevenue || 0;
     const totalDeferred = totalContractValue - totalRecognized;
 
-    const byPeriod = schedule?.schedule.map((entry, index) => ({
-      period: index + 1,
-      deferred: totalContractValue - entry.cumulativeRevenue,
-    })) || [];
+    const byPeriod =
+      schedule?.schedule.map((entry, index) => ({
+        period: index + 1,
+        deferred: totalContractValue - entry.cumulativeRevenue,
+      })) || [];
 
     return {
       totalDeferred: Math.max(0, totalDeferred),
@@ -164,10 +170,11 @@ export class RevenueRecognitionCalculator {
     const totalRecognized = schedule?.schedule.reduce((sum, entry) => sum + entry.revenue, 0) || 0;
     const totalContractAssets = Math.max(0, totalContractValue * 0.3 - totalRecognized); // Assume 30% costs incurred
 
-    const byPeriod = schedule?.schedule.map((entry, index) => ({
-      period: index + 1,
-      assets: Math.max(0, totalContractValue * 0.3 - entry.revenue),
-    })) || [];
+    const byPeriod =
+      schedule?.schedule.map((entry, index) => ({
+        period: index + 1,
+        assets: Math.max(0, totalContractValue * 0.3 - entry.revenue),
+      })) || [];
 
     return {
       totalContractAssets,
@@ -202,7 +209,8 @@ export class RevenueRecognitionCalculator {
       }
     });
 
-    const status = issues.length === 0 ? 'compliant' : issues.length <= 2 ? 'review-needed' : 'non-compliant';
+    const status =
+      issues.length === 0 ? 'compliant' : issues.length <= 2 ? 'review-needed' : 'non-compliant';
 
     return {
       status,
@@ -239,6 +247,3 @@ export class RevenueRecognitionCalculator {
     return recommendations;
   }
 }
-
-
-

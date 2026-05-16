@@ -78,4 +78,3 @@ describe('ESGScoringCalculator', () => {
     expect(result.rating).toBe(rating);
   });
 });
-

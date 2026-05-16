@@ -106,26 +106,26 @@ export interface EnhancedLeaseAnalysisResult {
   termMonths: number;
   startDate: string;
   endDate: string;
-  
+
   // Payment schedule
   schedule: EnhancedLeasePaymentItem[];
-  
+
   // Financial summary
   metrics: FinancialMetrics;
-  
+
   // Escalation analysis
   escalationSummary?: EscalationSummary | undefined;
-  
+
   // Options analysis
   renewalOptions: RenewalAnalysis[];
   purchaseOption?: PurchaseOptionAnalysis | undefined;
-  
+
   // Comparison analysis
   leaseVsBuy?: LeaseVsBuyAnalysis | undefined;
-  
+
   // Risk assessment
   riskAnalysis: RiskAnalysis;
-  
+
   // Additional insights
   insights: {
     effectiveRent: number;
@@ -134,22 +134,24 @@ export interface EnhancedLeaseAnalysisResult {
     flexibilityRating: string;
     recommendations: string[];
   };
-  
+
   // Sensitivity analysis (optional)
-  sensitivity?: {
-    rateIncrease1Percent: {
-      totalCostChange: number;
-      monthlyPaymentChange: number;
-    };
-    termExtension6Months: {
-      totalCostChange: number;
-      monthlyPaymentChange: number;
-    };
-    escalationRateChange: {
-      totalCostChange: number;
-      effectiveRateChange: number;
-    };
-  } | undefined;
+  sensitivity?:
+    | {
+        rateIncrease1Percent: {
+          totalCostChange: number;
+          monthlyPaymentChange: number;
+        };
+        termExtension6Months: {
+          totalCostChange: number;
+          monthlyPaymentChange: number;
+        };
+        escalationRateChange: {
+          totalCostChange: number;
+          effectiveRateChange: number;
+        };
+      }
+    | undefined;
 }
 
 // Export type schema for validation
@@ -158,29 +160,31 @@ export const EnhancedLeaseAnalysisResultSchema = z.object({
   termMonths: z.number(),
   startDate: z.string(),
   endDate: z.string(),
-  schedule: z.array(z.object({
-    month: z.number(),
-    date: z.string(),
-    basePayment: z.number(),
-    escalatedPayment: z.number(),
-    additionalCosts: z.object({
-      camCharges: z.number(),
-      propertyTaxes: z.number(),
-      insurance: z.number(),
-      utilities: z.number(),
-      maintenance: z.number(),
-      managementFee: z.number(),
-      total: z.number(),
-    }),
-    percentageRent: z.number(),
-    totalPayment: z.number(),
-    cumulativePaid: z.number(),
-    effectiveRate: z.number(),
-    presentValue: z.number(),
-    interestComponent: z.number(),
-    principalComponent: z.number(),
-    remainingBalance: z.number(),
-  })),
+  schedule: z.array(
+    z.object({
+      month: z.number(),
+      date: z.string(),
+      basePayment: z.number(),
+      escalatedPayment: z.number(),
+      additionalCosts: z.object({
+        camCharges: z.number(),
+        propertyTaxes: z.number(),
+        insurance: z.number(),
+        utilities: z.number(),
+        maintenance: z.number(),
+        managementFee: z.number(),
+        total: z.number(),
+      }),
+      percentageRent: z.number(),
+      totalPayment: z.number(),
+      cumulativePaid: z.number(),
+      effectiveRate: z.number(),
+      presentValue: z.number(),
+      interestComponent: z.number(),
+      principalComponent: z.number(),
+      remainingBalance: z.number(),
+    })
+  ),
   metrics: z.object({
     totalCost: z.number(),
     presentValue: z.number(),
@@ -193,49 +197,57 @@ export const EnhancedLeaseAnalysisResultSchema = z.object({
     costPerMonth: z.number(),
     costPerYear: z.number(),
   }),
-  escalationSummary: z.object({
-    type: z.string(),
-    totalEscalations: z.number(),
-    averageAnnualIncrease: z.number(),
-    effectiveRate: z.number(),
-    firstEscalationMonth: z.number(),
-    lastEscalationMonth: z.number(),
-  }).optional(),
-  renewalOptions: z.array(z.object({
-    optionNumber: z.number(),
-    termMonths: z.number(),
-    projectedMonthlyPayment: z.number(),
-    totalOptionCost: z.number(),
-    presentValue: z.number(),
-    effectiveRate: z.number(),
-  })),
-  purchaseOption: z.object({
-    available: z.boolean(),
-    purchasePrice: z.number().optional(),
-    residualValue: z.number().optional(),
-    fairMarketValueEstimate: z.number().optional(),
-    breakEvenMonth: z.number().optional(),
-    netPresentValueBenefit: z.number().optional(),
-  }).optional(),
-  leaseVsBuy: z.object({
-    leaseOption: z.object({
-      totalCost: z.number(),
+  escalationSummary: z
+    .object({
+      type: z.string(),
+      totalEscalations: z.number(),
+      averageAnnualIncrease: z.number(),
+      effectiveRate: z.number(),
+      firstEscalationMonth: z.number(),
+      lastEscalationMonth: z.number(),
+    })
+    .optional(),
+  renewalOptions: z.array(
+    z.object({
+      optionNumber: z.number(),
+      termMonths: z.number(),
+      projectedMonthlyPayment: z.number(),
+      totalOptionCost: z.number(),
       presentValue: z.number(),
-      monthlyPayment: z.number(),
-      totalInterest: z.number(),
-    }),
-    buyOption: z.object({
-      purchasePrice: z.number(),
-      loanPayment: z.number(),
-      totalLoanCost: z.number(),
-      presentValue: z.number(),
-      taxBenefits: z.number(),
-      netCost: z.number(),
-    }),
-    recommendation: z.enum(['lease', 'buy']),
-    savingsAmount: z.number(),
-    breakEvenPoint: z.number(),
-  }).optional(),
+      effectiveRate: z.number(),
+    })
+  ),
+  purchaseOption: z
+    .object({
+      available: z.boolean(),
+      purchasePrice: z.number().optional(),
+      residualValue: z.number().optional(),
+      fairMarketValueEstimate: z.number().optional(),
+      breakEvenMonth: z.number().optional(),
+      netPresentValueBenefit: z.number().optional(),
+    })
+    .optional(),
+  leaseVsBuy: z
+    .object({
+      leaseOption: z.object({
+        totalCost: z.number(),
+        presentValue: z.number(),
+        monthlyPayment: z.number(),
+        totalInterest: z.number(),
+      }),
+      buyOption: z.object({
+        purchasePrice: z.number(),
+        loanPayment: z.number(),
+        totalLoanCost: z.number(),
+        presentValue: z.number(),
+        taxBenefits: z.number(),
+        netCost: z.number(),
+      }),
+      recommendation: z.enum(['lease', 'buy']),
+      savingsAmount: z.number(),
+      breakEvenPoint: z.number(),
+    })
+    .optional(),
   riskAnalysis: z.object({
     earlyTerminationCost: z.number(),
     totalCommitment: z.number(),
@@ -250,18 +262,20 @@ export const EnhancedLeaseAnalysisResultSchema = z.object({
     flexibilityRating: z.string(),
     recommendations: z.array(z.string()),
   }),
-  sensitivity: z.object({
-    rateIncrease1Percent: z.object({
-      totalCostChange: z.number(),
-      monthlyPaymentChange: z.number(),
-    }),
-    termExtension6Months: z.object({
-      totalCostChange: z.number(),
-      monthlyPaymentChange: z.number(),
-    }),
-    escalationRateChange: z.object({
-      totalCostChange: z.number(),
-      effectiveRateChange: z.number(),
-    }),
-  }).optional(),
+  sensitivity: z
+    .object({
+      rateIncrease1Percent: z.object({
+        totalCostChange: z.number(),
+        monthlyPaymentChange: z.number(),
+      }),
+      termExtension6Months: z.object({
+        totalCostChange: z.number(),
+        monthlyPaymentChange: z.number(),
+      }),
+      escalationRateChange: z.object({
+        totalCostChange: z.number(),
+        effectiveRateChange: z.number(),
+      }),
+    })
+    .optional(),
 });

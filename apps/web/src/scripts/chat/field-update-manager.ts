@@ -148,7 +148,9 @@ export class FieldUpdateManager {
     });
 
     if (isNumeric) {
-      if (/(amount|payment|principal|down|price|balance|value|revenue|cost|expense)/i.test(fieldId)) {
+      if (
+        /(amount|payment|principal|down|price|balance|value|revenue|cost|expense)/i.test(fieldId)
+      ) {
         return new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
@@ -227,7 +229,9 @@ export class FieldUpdateManager {
     }
 
     if (Array.isArray(value)) {
-      return value.length === 0 ? 'No items' : `${value.length} data point${value.length === 1 ? '' : 's'}`;
+      return value.length === 0
+        ? 'No items'
+        : `${value.length} data point${value.length === 1 ? '' : 's'}`;
     }
 
     if (typeof value === 'object') {

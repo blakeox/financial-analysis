@@ -1,8 +1,8 @@
 import type { Env } from '../types';
-import { 
-  LeaseExtractionRequestSchema, 
-  type LeaseExtractionResponse, 
-  type ExtractedLeaseData
+import {
+  LeaseExtractionRequestSchema,
+  type LeaseExtractionResponse,
+  type ExtractedLeaseData,
 } from '@financial-analysis/analysis';
 import { z } from 'zod';
 
@@ -54,17 +54,17 @@ async function extractTextFromDocument(
   switch (documentType.toLowerCase()) {
     case 'txt':
       return new TextDecoder().decode(documentBuffer);
-    
+
     case 'pdf':
       // For PDF, we'd need a PDF parsing library
       // For now, return a placeholder that indicates PDF processing is needed
       return '[PDF_CONTENT_EXTRACTION_NEEDED]';
-    
+
     case 'docx':
       // For DOCX, we'd need a DOCX parsing library
       // For now, return a placeholder that indicates DOCX processing is needed
       return '[DOCX_CONTENT_EXTRACTION_NEEDED]';
-    
+
     default:
       throw new Error(`Unsupported document type: ${documentType}`);
   }
@@ -94,11 +94,11 @@ export async function extractLeaseDataWithAI(
         specialProvisions: text.slice(1500, 2000),
       },
     };
-    
+
     if (options.preferredLeaseType) {
       fallbackData.leaseType = options.preferredLeaseType;
     }
-    
+
     return fallbackData;
   }
 
@@ -117,8 +117,12 @@ Extract lease data as JSON:`;
     const ai = env.AI as any;
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
       messages: [
-        { role: 'system', content: 'You are a financial analyst AI that extracts lease data and returns only valid JSON.' },
-        { role: 'user', content: prompt }
+        {
+          role: 'system',
+          content:
+            'You are a financial analyst AI that extracts lease data and returns only valid JSON.',
+        },
+        { role: 'user', content: prompt },
       ],
       max_tokens: 2048,
       temperature: 0.1, // Low temperature for consistent extraction
@@ -138,9 +142,12 @@ Extract lease data as JSON:`;
     }
 
     const extractedData = JSON.parse(jsonMatch[0]) as ExtractedLeaseData;
-    
+
     // Apply confidence threshold
-    if (extractedData.confidence?.overall && extractedData.confidence.overall < (options.confidenceThreshold || 0.5)) {
+    if (
+      extractedData.confidence?.overall &&
+      extractedData.confidence.overall < (options.confidenceThreshold || 0.5)
+    ) {
       // Add warning about low confidence
       return {
         ...extractedData,
@@ -184,12 +191,14 @@ export async function extractLeaseFromDocument(
     // Parse and validate request
     const body = await request.json();
     const parseResult = LeaseExtractionRequestSchema.safeParse(body);
-    
+
     if (!parseResult.success) {
       return {
         success: false,
         processingTime: Date.now() - startTime,
-        errors: parseResult.error.issues.map((issue: z.ZodIssue) => `${issue.path.join('.')}: ${issue.message}`),
+        errors: parseResult.error.issues.map(
+          (issue: z.ZodIssue) => `${issue.path.join('.')}: ${issue.message}`
+        ),
       };
     }
 
@@ -206,7 +215,7 @@ export async function extractLeaseFromDocument(
 
     // Fetch document from R2
     let document = await env.DOCUMENTS.get(documentKey);
-    
+
     // If document not found in R2, try to handle the case gracefully
     if (!document) {
       console.warn(`Document not found in R2: ${documentKey}, using sample data for demo`);
@@ -218,13 +227,15 @@ export async function extractLeaseFromDocument(
         aiOptions.preferredLeaseType = extractionOptions.preferredLeaseType;
       }
       const extractedData = await extractLeaseDataWithAI(extractedText, env, aiOptions);
-      
+
       return {
         success: true,
-        extractedData: extractionOptions?.includeRawText ? extractedData : {
-          ...extractedData,
-          extractedSections: undefined,
-        },
+        extractedData: extractionOptions?.includeRawText
+          ? extractedData
+          : {
+              ...extractedData,
+              extractedSections: undefined,
+            },
         processingTime: Date.now() - startTime,
         warnings: warnings.length > 0 ? warnings : undefined,
         suggestions: ['Using sample data - please upload a document for real extraction'],
@@ -233,14 +244,16 @@ export async function extractLeaseFromDocument(
 
     // Get document buffer
     const documentBuffer = await document.arrayBuffer();
-    
+
     // Extract text from document
     let extractedText: string;
     try {
       extractedText = await extractTextFromDocument(documentBuffer, documentType);
-      
+
       if (extractedText.includes('_CONTENT_EXTRACTION_NEEDED]')) {
-        warnings.push(`${documentType.toUpperCase()} parsing not fully implemented - using placeholder`);
+        warnings.push(
+          `${documentType.toUpperCase()} parsing not fully implemented - using placeholder`
+        );
         // For demo purposes, use a sample lease text
         extractedText = generateSampleLeaseText();
       }
@@ -248,7 +261,9 @@ export async function extractLeaseFromDocument(
       return {
         success: false,
         processingTime: Date.now() - startTime,
-        errors: [`Failed to extract text from ${documentType}: ${error instanceof Error ? error.message : String(error)}`],
+        errors: [
+          `Failed to extract text from ${documentType}: ${error instanceof Error ? error.message : String(error)}`,
+        ],
       };
     }
 
@@ -260,7 +275,7 @@ export async function extractLeaseFromDocument(
     if (extractionOptions?.confidenceThreshold) {
       aiOptions.confidenceThreshold = extractionOptions.confidenceThreshold;
     }
-    
+
     const extractedData = await extractLeaseDataWithAI(extractedText, env, aiOptions);
 
     // Generate suggestions based on extracted data
@@ -280,15 +295,16 @@ export async function extractLeaseFromDocument(
 
     return {
       success: true,
-      extractedData: extractionOptions?.includeRawText ? extractedData : {
-        ...extractedData,
-        extractedSections: undefined, // Remove raw text if not requested
-      },
+      extractedData: extractionOptions?.includeRawText
+        ? extractedData
+        : {
+            ...extractedData,
+            extractedSections: undefined, // Remove raw text if not requested
+          },
       processingTime: Date.now() - startTime,
       warnings: warnings.length > 0 ? warnings : undefined,
       suggestions: suggestions.length > 0 ? suggestions : undefined,
     };
-
   } catch (error) {
     return {
       success: false,

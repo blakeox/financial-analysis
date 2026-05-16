@@ -46,7 +46,12 @@ export class AutoLoanAnalysisTool {
             minimum: 0,
             maximum: 0.5,
           },
-          termMonths: { type: 'number', description: 'Loan term in months', minimum: 12, maximum: 84 },
+          termMonths: {
+            type: 'number',
+            description: 'Loan term in months',
+            minimum: 12,
+            maximum: 84,
+          },
           salesTaxRate: {
             type: 'number',
             description: 'Sales tax rate as decimal (e.g., 0.0825 for 8.25%)',
@@ -88,7 +93,11 @@ export class AutoLoanAnalysisTool {
           includeRefinancingAnalysis: { type: 'boolean', default: true },
           includeTCOAnalysis: { type: 'boolean', default: true },
           includePaymentSchedule: { type: 'boolean', default: true },
-          refinancingRates: { type: 'array', items: { type: 'number' }, default: [0.03, 0.04, 0.05, 0.06] },
+          refinancingRates: {
+            type: 'array',
+            items: { type: 'number' },
+            default: [0.03, 0.04, 0.05, 0.06],
+          },
           ownershipYears: { type: 'number', minimum: 1, maximum: 10, default: 5 },
         },
         required: [],

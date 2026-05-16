@@ -22,10 +22,7 @@ export function formatCurrency(value: number): string {
  * @param fallback - Fallback string to return if value is undefined
  * @returns Formatted currency string or fallback
  */
-export function formatCurrencyOptional(
-  value: number | undefined,
-  fallback: string = '-'
-): string {
+export function formatCurrencyOptional(value: number | undefined, fallback: string = '-'): string {
   return value !== undefined ? formatCurrency(value) : fallback;
 }
 
@@ -68,6 +65,20 @@ export function formatNumber(value: number, decimals: number = 0): string {
   }).format(value);
 }
 
+const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Parse YYYY-MM-DD as a local calendar date (avoids UTC midnight timezone shifts). */
+export function parseCalendarDate(date: string | Date): Date {
+  if (date instanceof Date) {
+    return date;
+  }
+  if (ISO_DATE_ONLY.test(date)) {
+    const [yearStr, monthStr, dayStr] = date.split('-');
+    return new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+  }
+  return new Date(date);
+}
+
 /**
  * Format a date as a localized string.
  * @param date - Date string or Date object
@@ -82,8 +93,7 @@ export function formatDate(
     day: 'numeric',
   }
 ): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+  return new Intl.DateTimeFormat('en-US', options).format(parseCalendarDate(date));
 }
 
 /**

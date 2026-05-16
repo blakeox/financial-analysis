@@ -29,18 +29,18 @@ export function calculateDownPaymentPercent(scenario: Scenario): string {
  * Generate a descriptive name for a scenario
  */
 export function generateScenarioName(
-  downPayment: number, 
-  homePrice: number, 
-  rate: number, 
-  extraPayment: number, 
+  downPayment: number,
+  homePrice: number,
+  rate: number,
+  extraPayment: number,
   label: string = ''
 ): string {
   const downPercent = Math.round((downPayment / homePrice) * 100);
   const rateFormatted = rate.toFixed(2);
-  
+
   // Build descriptive name based on characteristics
   let name = label ? `Option ${label}: ` : '';
-  
+
   // Down payment descriptor
   if (downPercent >= 20) {
     name += `${downPercent}% Down`;
@@ -51,7 +51,7 @@ export function generateScenarioName(
   } else {
     name += `${downPercent}% Down (FHA)`;
   }
-  
+
   // Rate descriptor
   if (rate < 5.0) {
     name += ` @ ${rateFormatted}% (Low)`;
@@ -60,14 +60,14 @@ export function generateScenarioName(
   } else {
     name += ` @ ${rateFormatted}% (High)`;
   }
-  
+
   // Extra payment descriptor
   if (extraPayment >= 500) {
     name += ` + $${Math.round(extraPayment / 100) * 100} extra`;
   } else if (extraPayment > 0) {
     name += ` + extra payments`;
   }
-  
+
   return name;
 }
 
@@ -76,7 +76,7 @@ export function generateScenarioName(
  */
 export function findRefinanceSavings(baseScenario: Scenario, refinanceScenario: Scenario): string {
   const savings = baseScenario.totalCost - refinanceScenario.totalCost;
-  
+
   if (savings > 10000) {
     return `could save you significant money`;
   } else if (savings > 0) {
@@ -92,28 +92,28 @@ export function findRefinanceSavings(baseScenario: Scenario, refinanceScenario: 
 export function generateDetailedComparison(scenarioA: Scenario, scenarioB: Scenario): string {
   const monthlyDiff = Math.abs(scenarioA.monthlyPayment - scenarioB.monthlyPayment);
   const interestDiff = Math.abs(scenarioA.totalInterest - scenarioB.totalInterest);
-  
+
   const lowerMonthly = scenarioA.monthlyPayment < scenarioB.monthlyPayment ? scenarioA : scenarioB;
-  
+
   let comparison = '';
-  
+
   // Monthly payment comparison
   if (monthlyDiff > 100) {
     comparison += `<p><strong>${lowerMonthly.name}</strong> has a lower monthly payment, which improves cash flow.</p>`;
   }
-  
+
   // Interest comparison
   if (interestDiff > 5000) {
     const lessInterest = scenarioA.totalInterest < scenarioB.totalInterest ? scenarioA : scenarioB;
     comparison += `<p><strong>${lessInterest.name}</strong> pays significantly less interest over the loan term.</p>`;
   }
-  
+
   // Payoff time
   if (Math.abs(scenarioA.payoffMonths - scenarioB.payoffMonths) > 12) {
     const fasterPayoff = scenarioA.payoffMonths < scenarioB.payoffMonths ? scenarioA : scenarioB;
     comparison += `<p><strong>${fasterPayoff.name}</strong> pays off the mortgage faster.</p>`;
   }
-  
+
   return comparison || '<p>Both scenarios are relatively similar in terms of cost structure.</p>';
 }
 
@@ -123,11 +123,11 @@ export function generateDetailedComparison(scenarioA: Scenario, scenarioB: Scena
 export function generateComparisonInsight(scenarioA: Scenario, scenarioB: Scenario): string {
   const cheaper = scenarioA.totalCost < scenarioB.totalCost ? scenarioA : scenarioB;
   const lowerMonthly = scenarioA.monthlyPayment < scenarioB.monthlyPayment ? scenarioA : scenarioB;
-  
+
   if (cheaper === lowerMonthly) {
     return `${cheaper.name} is the clear winner with both lower monthly payments and lower total cost.`;
   }
-  
+
   return `Consider your priorities: ${lowerMonthly.name} offers better monthly cash flow, while ${cheaper.name} minimizes your total cost over time.`;
 }
 
@@ -135,14 +135,14 @@ export function generateComparisonInsight(scenarioA: Scenario, scenarioB: Scenar
  * Generate financial recommendations based on scenarios
  */
 export function generateRecommendations(
-  baseScenarios: Scenario[], 
-  refinanceScenarios: Scenario[], 
+  baseScenarios: Scenario[],
+  refinanceScenarios: Scenario[],
   bestScenario: Scenario
 ): string {
   const recommendations: string[] = [];
-  
+
   // Check for PMI scenarios
-  const pmiScenarios = baseScenarios.filter(s => s.hasPMI);
+  const pmiScenarios = baseScenarios.filter((s) => s.hasPMI);
   if (pmiScenarios.length > 0) {
     recommendations.push(`
       <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-yellow-500">
@@ -154,17 +154,17 @@ export function generateRecommendations(
       </div>
     `);
   }
-  
+
   // Check for extra payments impact
-  const extraPaymentScenarios = baseScenarios.filter(s => s.extraPayment > 0);
+  const extraPaymentScenarios = baseScenarios.filter((s) => s.extraPayment > 0);
   if (extraPaymentScenarios.length > 0) {
-    const bestExtra = extraPaymentScenarios.reduce((a, b) => 
+    const bestExtra = extraPaymentScenarios.reduce((a, b) =>
       a.payoffMonths < b.payoffMonths ? a : b
     );
     const worstWithoutExtra = baseScenarios
-      .filter(s => s.extraPayment === 0)
-      .reduce((a, b) => a.payoffMonths > b.payoffMonths ? a : b, baseScenarios[0]);
-    
+      .filter((s) => s.extraPayment === 0)
+      .reduce((a, b) => (a.payoffMonths > b.payoffMonths ? a : b), baseScenarios[0]);
+
     if (bestExtra.payoffMonths < worstWithoutExtra.payoffMonths) {
       const monthsSaved = worstWithoutExtra.payoffMonths - bestExtra.payoffMonths;
       recommendations.push(`
@@ -178,16 +178,12 @@ export function generateRecommendations(
       `);
     }
   }
-  
+
   // Refinancing recommendation
   if (refinanceScenarios.length > 0) {
-    const bestRefinance = refinanceScenarios.reduce((a, b) => 
-      a.totalCost < b.totalCost ? a : b
-    );
-    const bestBase = baseScenarios.reduce((a, b) => 
-      a.totalCost < b.totalCost ? a : b
-    );
-    
+    const bestRefinance = refinanceScenarios.reduce((a, b) => (a.totalCost < b.totalCost ? a : b));
+    const bestBase = baseScenarios.reduce((a, b) => (a.totalCost < b.totalCost ? a : b));
+
     if (bestRefinance.totalCost < bestBase.totalCost) {
       recommendations.push(`
         <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-violet-500">
@@ -200,7 +196,7 @@ export function generateRecommendations(
       `);
     }
   }
-  
+
   // Best overall recommendation
   recommendations.push(`
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-emerald-500">
@@ -212,7 +208,7 @@ export function generateRecommendations(
       </p>
     </div>
   `);
-  
+
   return recommendations.join('');
 }
 
