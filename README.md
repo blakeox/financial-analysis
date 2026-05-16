@@ -44,7 +44,7 @@ financial-analysis/
 
 Requirements:
 
-- Node.js 18+
+- Node.js 22+ (see `.nvmrc`)
 - pnpm 8+
 - Cloudflare account (for deployment)
 - Git

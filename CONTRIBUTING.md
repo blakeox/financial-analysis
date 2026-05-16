@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the `financial-analysis` project!
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22+ (see `.nvmrc`)
 - pnpm 8+ (<https://pnpm.io/installation>)
 - Cloudflare account (for Workers deployment)
 - Git

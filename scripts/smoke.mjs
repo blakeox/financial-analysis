@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-env node */
 /* global console */
-// Simple smoke test for local dev servers (Node 18+)
+// Simple smoke test for local dev servers (Node 22+)
 import { performance } from 'node:perf_hooks';
 import { fetch as undiciFetch } from 'undici';
 

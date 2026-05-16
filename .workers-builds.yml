@@ -13,7 +13,7 @@ spec:
     buildCommand: pnpm install --frozen-lockfile && pnpm run build
     outputDirectory: dist
     environment:
-      NODE_VERSION: "20"
+      NODE_VERSION: "22"
       PNPM_VERSION: "10.17.0"
     
   # Build configuration for Web Worker  
@@ -22,7 +22,7 @@ spec:
     buildCommand: pnpm install --frozen-lockfile && cd ../../apps/web && pnpm run build && cd ../../workers/web && pnpm run build
     outputDirectory: dist
     environment:
-      NODE_VERSION: "20"
+      NODE_VERSION: "22"
       PNPM_VERSION: "10.17.0"
       
   # Enhanced build resources (new with GA)
