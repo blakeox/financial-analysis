@@ -46,7 +46,9 @@ export function StackedBarChart({
             borderRadius: '8px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
-          formatter={(value: number) => formatter(value)}
+          formatter={(value) =>
+            typeof value === 'number' ? formatter(value) : String(value ?? '')
+          }
           labelStyle={{ fontWeight: 'bold', marginBottom: '8px' }}
         />
         {showLegend && (
