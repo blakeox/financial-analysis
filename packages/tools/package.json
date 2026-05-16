@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
-    "zod": "^4.2.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.46.4",
