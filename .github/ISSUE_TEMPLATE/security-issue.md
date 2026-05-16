@@ -1,60 +1,44 @@
 ---
-name: 🔒 Security Issue
-description: Report a security vulnerability
-title: '[SECURITY] Brief description of the vulnerability'
-labels: ['security', 'urgent']
-assignees: []
+name: Security issue (use private reporting when possible)
+description: Security-related report — prefer private advisories for vulnerabilities
+title: '[SECURITY] Brief description'
+labels: ['security']
+assignees: ['blakeox']
 ---
 
-## Security Vulnerability Report
+## Before you continue
 
-⚠️ **This is a security issue. Please do not discuss publicly until resolved.**
+For **undisclosed vulnerabilities**, please use
+[GitHub Security Advisories](https://github.com/blakeox/financial-analysis/security/advisories/new)
+instead of a public issue. See [SECURITY.md](../../SECURITY.md).
 
-## Vulnerability Description
+Use this template only for security **improvements**, hardening suggestions, or cases where private reporting is not available.
 
-<!-- Provide a clear description of the security vulnerability -->
+## Summary
 
-## Severity
+<!-- What is the security concern? -->
 
-<!-- How severe is this vulnerability? -->
+## Severity (if applicable)
 
-- [ ] 🔴 Critical - Immediate threat to data/user safety
-- [ ] 🟠 High - Significant security risk
-- [ ] 🟡 Medium - Moderate security concern
-- [ ] 🟢 Low - Minor security improvement needed
+- [ ] Critical
+- [ ] High
+- [ ] Medium
+- [ ] Low
+- [ ] Hardening / defense in depth (no active exploit)
 
-## Affected Components
+## Affected components
 
-<!-- Which parts of the application are affected? -->
+- [ ] Frontend (`apps/web`)
+- [ ] API (`workers/api`)
+- [ ] Analysis engines (`packages/analysis`)
+- [ ] MCP tools (`packages/tools`)
+- [ ] Infrastructure (D1, R2, KV, Workers config)
+- [ ] CI/CD or repository configuration
 
-- [ ] Frontend (Astro/React)
-- [ ] API (Cloudflare Workers)
-- [ ] Analysis Engines
-- [ ] MCP Tools
-- [ ] Database (D1)
-- [ ] Storage (R2)
-- [ ] Authentication/Authorization
+## Details
 
-## Steps to Reproduce
+<!-- Steps to reproduce, impact, or suggested mitigation -->
 
-<!-- How can this vulnerability be exploited? -->
+## Suggested remediation
 
-## Proof of Concept
-
-<!-- If safe to share, provide a proof of concept -->
-
-## Impact
-
-<!-- What could an attacker achieve by exploiting this? -->
-
-## Remediation
-
-<!-- Suggested fix or mitigation steps -->
-
-## Additional Information
-
-<!-- Any other relevant information -->
-
----
-
-**Please report security issues by emailing [security@yourcompany.com] instead of creating public issues when possible.**
+<!-- Optional -->

@@ -79,8 +79,9 @@ assignees: []
 
 ## Security Considerations
 
-<!-- Address any security implications of this change -->
+<!-- Address any security implications of this change. See SECURITY.md for reporting vulnerabilities. -->
 
+- [ ] ✅ No secrets or credentials committed
 - [ ] ✅ No sensitive data exposed
 - [ ] ✅ Input validation implemented
 - [ ] ✅ Rate limiting considered

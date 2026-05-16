@@ -22,8 +22,8 @@ if (!config) {
   throw new Error(`Calculator configuration not found for: ${calculatorId}`);
 }
 
-let backHref = '/models';
-let backLabel = 'Models';
+let backHref: string;
+let backLabel: string;
 
 if (config.category === 'business') {
   backHref = '/models/business';

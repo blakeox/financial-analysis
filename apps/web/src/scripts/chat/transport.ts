@@ -59,7 +59,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
       return (await response.json()) as ChatResponsePayload;
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout - please try again');
+        throw new Error('Request timeout - please try again', { cause: error });
       }
 
       if (attempt < maxAttempts && error instanceof TypeError) {
@@ -166,7 +166,7 @@ export function createChatTransport(config: ChatTransportConfig): ChatTransport 
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout - please try again');
+        throw new Error('Request timeout - please try again', { cause: error });
       }
 
       if (attempt < maxAttempts && error instanceof TypeError) {
