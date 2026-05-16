@@ -10,7 +10,6 @@ const REPO_ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 
 const SKIP_DIRS = new Set([
   '.git',
-  'node_modules',
   'dist',
   'build',
   '.astro',
@@ -24,28 +23,43 @@ const SKIP_DIRS = new Set([
 /** macOS Finder duplicate suffix: "file 2.md", ".nvmrc 2", etc. */
 const FINDER_DUPLICATE = / 2(\.[^./]+)?$/;
 
-function walkFiles(dir, files = []) {
+function walkFinderPaths(dir, paths = [], { skipNodeModules = true } = {}) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (SKIP_DIRS.has(entry.name)) continue;
+    if (skipNodeModules && entry.name === 'node_modules') continue;
+    const fullPath = join(dir, entry.name);
+    if (FINDER_DUPLICATE.test(entry.name)) {
+      paths.push(fullPath);
+    }
+    if (entry.isDirectory() && !entry.isSymbolicLink()) {
+      walkFinderPaths(fullPath, paths, { skipNodeModules });
+    }
+  }
+  return paths;
+}
+
+export function findMacOSFinderDuplicates(rootDir = REPO_ROOT, { skipNodeModules = true } = {}) {
+  return walkFinderPaths(rootDir, [], { skipNodeModules }).map((file) => relative(rootDir, file));
+}
+
+export function findNodeModulesFinderDuplicates(rootDir = REPO_ROOT) {
+  return findMacOSFinderDuplicates(rootDir, { skipNodeModules: false }).filter((path) =>
+    path.split(/[/\\]/).includes('node_modules')
+  );
+}
+
+function walkFiles(dir, files = [], { skipNodeModules = true } = {}) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) continue;
+    if (skipNodeModules && entry.name === 'node_modules') continue;
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      walkFiles(fullPath, files);
+      walkFiles(fullPath, files, { skipNodeModules });
       continue;
     }
     files.push(fullPath);
   }
   return files;
-}
-
-export function findMacOSFinderDuplicates(rootDir = REPO_ROOT) {
-  const hits = [];
-  for (const file of walkFiles(rootDir)) {
-    const name = basename(file);
-    if (FINDER_DUPLICATE.test(name)) {
-      hits.push(relative(rootDir, file));
-    }
-  }
-  return hits;
 }
 
 export function findIdenticalFiles(rootDir, { include = () => true } = {}) {
@@ -80,6 +94,15 @@ function main() {
     for (const path of finderDuplicates) {
       console.error(`  - ${path}`);
     }
+    console.error('\nRun: pnpm run clean:finder-duplicates');
+  }
+
+  const nodeModulesDuplicates = findNodeModulesFinderDuplicates();
+  if (nodeModulesDuplicates.length > 0) {
+    console.warn(
+      `Warning: ${nodeModulesDuplicates.length} macOS Finder duplicate(s) under node_modules/ (not blocking).`
+    );
+    console.warn('Run: pnpm run clean:finder-duplicates -- --node-modules && pnpm install');
   }
 
   const webTestRoot = join(REPO_ROOT, 'apps/web/tests');

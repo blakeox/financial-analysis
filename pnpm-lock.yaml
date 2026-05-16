@@ -91,7 +91,7 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0
       vite:
-        specifier: ^8.0.13
+        specifier: '>=8.0.13'
         version: 8.0.13(@types/node@25.8.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0)
       vitest:
         specifier: 4.1.6
@@ -127,7 +127,7 @@ importers:
         specifier: ^6.0.184
         version: 6.0.184(zod@4.4.3)
       astro:
-        specifier: ^6.3.3
+        specifier: '>=6.1.10'
         version: 6.3.3(@types/node@25.8.0)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0)
       lucide-react:
         specifier: ^1.16.0
@@ -188,7 +188,7 @@ importers:
         specifier: ^20.9.0
         version: 20.9.0
       postcss:
-        specifier: ^8.5.14
+        specifier: '>=8.5.14'
         version: 8.5.14
       prettier:
         specifier: ^3.8.3
@@ -243,7 +243,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.0.13
+        specifier: '>=8.0.13'
         version: 8.0.13(@types/node@25.8.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0)
       vitest:
         specifier: 4.1.6
@@ -380,7 +380,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.0.13
+        specifier: '>=8.0.13'
         version: 8.0.13(@types/node@25.8.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0)
       vitest:
         specifier: 4.1.6
@@ -8034,7 +8034,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.8.0)(@vitest/coverage-v8@4.1.6)(happy-dom@20.9.0)(jsdom@29.1.1)(vite@8.0.13(@types/node@25.8.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0))
+      vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.8.0)(@vitest/coverage-v8@4.1.6)(happy-dom@20.9.0)(jsdom@29.1.1)(vite@8.0.13(@types/node@25.8.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.22.0)(yaml@2.9.0))
 
   '@vitest/expect@4.1.6':
     dependencies:
