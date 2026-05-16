@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoPath, setViewportDesktop, waitForNavReady } from '../_shared/nav';
+import { gotoPath, setViewportDesktop, waitForNavReady } from '../utils/nav';
 
 test.describe('Navbar keyboard navigation', () => {
   test('Keyboard traversal reaches brand, then theme and search', async ({ page }) => {

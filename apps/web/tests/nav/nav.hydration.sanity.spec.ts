@@ -1,6 +1,34 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navbar hydration sanity', () => {
+  test('phases present and nav marks ready', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.locator('#site-nav');
+    await expect(nav).toBeVisible();
+
+    // dataset phases should appear quickly
+    await expect
+      .poll(
+        async () =>
+          await page.evaluate(() => {
+            const el = document.getElementById('site-nav');
+            return !!(el && el.dataset.phaseInitial && el.dataset.phaseRaf);
+          })
+      )
+      .toBe(true);
+
+    // data-ready="1" should be set shortly after load
+    await expect
+      .poll(
+        async () =>
+          await page.evaluate(() => {
+            return document.getElementById('site-nav')?.getAttribute('data-ready');
+          }),
+        { timeout: 2000 }
+      )
+      .toBe('1');
+  });
+
   test('handlers attach: search overlay and mobile toggle', async ({ page }) => {
     await page.goto('/');
 
