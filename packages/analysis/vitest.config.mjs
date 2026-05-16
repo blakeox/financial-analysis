@@ -54,12 +54,8 @@ export default defineConfig({
     // Use threads pool (default) which is more stable than forks
     pool: 'threads',
     setupFiles: ['./src/__tests__/test-setup.ts'],
-    poolOptions: {
-      threads: {
-        singleThread: true,
-        isolate: false,
-      },
-    },
+    maxWorkers: 1,
+    isolate: false,
     slowTestThreshold: 2000,
     testTimeout: 30000,
     hookTimeout: 30000,
