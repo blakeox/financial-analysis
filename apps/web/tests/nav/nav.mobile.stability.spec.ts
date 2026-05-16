@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { gotoPath } from '../utils/nav';
+import { gotoPath } from '../_shared/nav';
 
 test.describe('Navbar mobile menu stability', () => {
   test('open/close does not flash wrong state', async ({ page }) => {
