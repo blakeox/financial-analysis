@@ -152,6 +152,8 @@ financial-analysis/
 
 ## Security & Privacy
 
+Report vulnerabilities privately — see [SECURITY.md](./SECURITY.md). Do not open public issues for undisclosed exploits.
+
 - Only accept .pdf and .docx uploads
 - Store documents in R2 privately with signed URLs
 - Never log raw lease text or user inputs
@@ -162,7 +164,7 @@ financial-analysis/
 
 - Engines: 100% covered with unit tests (edge cases: escalations, free rent overlaps, extra payments)
 - End-to-end happy path tests with Playwright
-- Run tests locally: `npm test`
+- Run tests locally: `pnpm test`
 - GitHub Actions: lint, typecheck, unit tests, preview deploy
 
 ## Pull Request Process
