@@ -26,6 +26,14 @@ Thank you for your interest in contributing to the `financial-analysis` project!
    pnpm install
    ```
 
+   If you see ignored build-script warnings, stale `node_modules`, or macOS Finder duplicates (`package 2`), run a clean reinstall:
+
+   ```bash
+   pnpm run setup:local
+   ```
+
+   That removes all workspace `node_modules`, reinstalls, and installs the Playwright Chromium browser for e2e tests.
+
 3. Set up Cloudflare Workers:
 
    ```bash
