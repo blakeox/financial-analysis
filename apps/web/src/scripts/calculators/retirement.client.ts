@@ -122,7 +122,7 @@ export const describeIncomeReplacement = (result: RetirementResult): string | nu
   }
 
   const parts = [
-    '<p class="text-slate-600 dark:text-slate-400">Projected Annual Retirement Income:</p>',
+    '<p class="fa-help-copy">Projected Annual Retirement Income:</p>',
   ];
 
   if (annualIncome) {

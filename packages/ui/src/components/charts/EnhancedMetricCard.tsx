@@ -1,5 +1,6 @@
 import { Card, CardContent } from '../Card';
 import { TrendIndicator } from './TrendIndicator';
+import { cn, textColors } from '../../lib/classNames';
 
 export interface EnhancedMetricCardProps {
   title: string;
@@ -27,7 +28,7 @@ export function EnhancedMetricCard({
       <CardContent className="p-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-slate-600 dark:text-slate-300">{title}</div>
+            <div className={cn('text-sm font-medium', textColors.secondary)}>{title}</div>
             {icon && <span className="text-xl">{icon}</span>}
           </div>
           <div className={`text-2xl font-bold ${colorClass}`}>
@@ -41,7 +42,7 @@ export function EnhancedMetricCard({
                 invertColors={invertTrendColors}
               />
               {trendLabel && (
-                <span className="text-xs text-slate-500 dark:text-slate-400">{trendLabel}</span>
+                <span className={cn('text-xs', textColors.muted)}>{trendLabel}</span>
               )}
             </div>
           )}

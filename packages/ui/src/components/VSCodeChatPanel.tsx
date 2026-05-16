@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from './Button';
-import { cn, inputClasses, textColors } from '../lib/classNames';
+import { cardVariants, cn, inputClasses, surfaceDividerClasses, textColors } from '../lib/classNames';
 
 // SVG Icons as components to avoid external dependencies
 const XIcon = () => (
@@ -105,11 +105,14 @@ export function VSCodeChatPanel({
   };
 
   const mobileShellClasses =
-    'fixed inset-0 z-50 bg-white/95 dark:bg-slate-950/96 md:hidden';
+    cn(cardVariants.rail, 'fixed inset-0 z-50 rounded-none border-0 p-0 md:hidden');
   const desktopShellClasses =
-    'fixed top-0 right-0 z-40 hidden h-full w-96 border-l border-slate-200/80 bg-white/95 shadow-2xl dark:border-slate-800 dark:bg-slate-950/96 md:block';
-  const headerClasses =
-    'flex items-center justify-between border-b border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/90';
+    cn(cardVariants.rail, 'fixed top-0 right-0 z-40 hidden h-full w-96 rounded-none border-y-0 border-r-0 p-0 shadow-2xl md:block');
+  const headerClasses = cn(
+    cardVariants.subtle,
+    'flex items-center justify-between rounded-none border-x-0 border-t-0 p-4',
+    surfaceDividerClasses
+  );
   const emptyStateClasses = cn('mt-8 text-center', textColors.muted);
 
   if (!isOpen) return null;
@@ -122,7 +125,7 @@ export function VSCodeChatPanel({
         <div className={headerClasses}>
           <div className="flex items-center space-x-2">
             <BotIcon className="w-5 h-5 text-violet-500" />
-            <h2 className="font-semibold text-slate-900 dark:text-white">AI Assistant</h2>
+            <h2 className={cn('font-semibold', textColors.primary)}>AI Assistant</h2>
           </div>
           <Button
             onClick={onToggle}
@@ -158,14 +161,14 @@ export function VSCodeChatPanel({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">
+                    <span className={cn('text-sm font-medium', textColors.primary)}>
                       {message.role === 'user' ? 'You' : 'Assistant'}
                     </span>
                     <span className={cn('text-xs', textColors.muted)}>
                       {formatTime(message.timestamp)}
                     </span>
                   </div>
-                  <div className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+                  <div className={cn('whitespace-pre-wrap text-sm', textColors.secondary)}>
                     {message.content}
                   </div>
                 </div>
@@ -180,7 +183,7 @@ export function VSCodeChatPanel({
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">Assistant</span>
+                  <span className={cn('text-sm font-medium', textColors.primary)}>Assistant</span>
                 </div>
                 <div className="flex space-x-1">
                   <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400"></div>
@@ -194,7 +197,7 @@ export function VSCodeChatPanel({
         </div>
 
         {/* Mobile Input */}
-        <div className="border-t border-slate-200/80 bg-white/95 p-4 dark:border-slate-800 dark:bg-slate-950/96">
+        <div className={cn(cardVariants.subtle, 'rounded-none border-x-0 border-b-0 p-4')}>
           <form onSubmit={handleSubmit} className="flex space-x-2">
             <textarea
               ref={textareaRef}
@@ -225,7 +228,7 @@ export function VSCodeChatPanel({
         <div className={headerClasses}>
           <div className="flex items-center space-x-2">
             <BotIcon className="w-5 h-5 text-violet-500" />
-            <h2 className="font-semibold text-slate-900 dark:text-white">AI Assistant</h2>
+            <h2 className={cn('font-semibold', textColors.primary)}>AI Assistant</h2>
           </div>
           <Button
             onClick={onToggle}
@@ -261,14 +264,14 @@ export function VSCodeChatPanel({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-xs font-medium text-slate-900 dark:text-white">
+                    <span className={cn('text-xs font-medium', textColors.primary)}>
                       {message.role === 'user' ? 'You' : 'Assistant'}
                     </span>
                     <span className={cn('text-xs', textColors.muted)}>
                       {formatTime(message.timestamp)}
                     </span>
                   </div>
-                  <div className="whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300">
+                  <div className={cn('whitespace-pre-wrap text-xs', textColors.secondary)}>
                     {message.content}
                   </div>
                 </div>
@@ -283,7 +286,7 @@ export function VSCodeChatPanel({
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-xs font-medium text-slate-900 dark:text-white">Assistant</span>
+                  <span className={cn('text-xs font-medium', textColors.primary)}>Assistant</span>
                 </div>
                 <div className="flex space-x-1">
                   <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"></div>
@@ -297,7 +300,7 @@ export function VSCodeChatPanel({
         </div>
 
         {/* Desktop Input */}
-        <div className="absolute right-0 bottom-0 left-0 border-t border-slate-200/80 bg-white/95 p-4 dark:border-slate-800 dark:bg-slate-950/96">
+        <div className={cn(cardVariants.subtle, 'absolute right-0 bottom-0 left-0 rounded-none border-x-0 border-b-0 p-4')}>
           <form onSubmit={handleSubmit} className="flex space-x-2">
             <textarea
               ref={textareaRef}

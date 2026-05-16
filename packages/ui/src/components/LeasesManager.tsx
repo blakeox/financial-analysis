@@ -3,7 +3,7 @@ import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { ValidatedInput, ValidatedNumberInput } from './ValidatedField';
 import { formatCurrency } from '../lib/formatters';
-import { badgeVariants, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cardVariants, checkboxClasses, cn, textColors } from '../lib/classNames';
 
 export interface LeaseData {
   id: string;
@@ -114,7 +114,7 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
           {leases.map((lease) => (
             <div
               key={lease.id}
-              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
+              className={cn(cardVariants.subtle, 'p-4 shadow-sm')}
             >
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <ValidatedInput
@@ -150,7 +150,7 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
                       checked={lease.isActive}
                       onChange={(event) => updateLease(lease.id, 'isActive', event.target.checked)}
                       disabled={readonly}
-                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
+                      className={checkboxClasses}
                     />
                     <span
                       className={cn(
@@ -173,8 +173,8 @@ export function LeasesManager({ leases, onChange, readonly = false }: LeasesMana
         </div>
 
         {!readonly && (
-          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
-            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add Lease</h4>
+          <div className={cn(cardVariants.subtle, 'border-2 border-dashed p-5')}>
+            <h4 className={cn('mb-3 font-semibold', textColors.primary)}>Add Lease</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <ValidatedInput
                 label="Name"

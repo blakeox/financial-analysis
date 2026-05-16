@@ -288,14 +288,14 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
     ` : ''}
     
     <!-- 12-Month Cash Flow Table -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6 overflow-x-auto">
+    <div class="fa-card p-6 mb-6 overflow-x-auto">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📅</span> 12-Month Cash Flow Projection
       </h2>
       
       <table class="w-full text-sm">
         <thead>
-          <tr class="border-b-2 border-slate-300 dark:border-slate-700">
+          <tr class="fa-panel-divider">
             <th class="text-left py-2 px-2">Month</th>
             <th class="text-right py-2 px-2">Revenue</th>
             <th class="text-right py-2 px-2">Cash In</th>
@@ -307,17 +307,17 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
         </thead>
         <tbody>
           ${result.projections.map(p => `
-            <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700">
+            <tr class="fa-panel-divider-soft hover:bg-slate-50 dark:hover:bg-slate-700">
               <td class="py-2 px-2 font-medium">${p.monthName}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.revenue)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.revenue)}</td>
               <td class="text-right py-2 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(p.cashCollected)}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.expenses)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.expenses)}</td>
               <td class="text-right py-2 px-2 text-rose-600 dark:text-rose-400">${formatCurrency(p.cashPaid)}</td>
               <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.netCashFlow)}</td>
               <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.endingCash)}</td>
             </tr>
           `).join('')}
-          <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold">
+          <tr class="fa-panel-divider-top font-bold">
             <td class="py-3 px-2">TOTAL</td>
             <td class="text-right py-3 px-2">${formatCurrency(result.summary.totalRevenue)}</td>
             <td class="text-right py-3 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(result.summary.totalCashCollected)}</td>
@@ -331,37 +331,37 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
     </div>
     
     <!-- Key Metrics -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Key Cash Flow Metrics
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-3">
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Days Sales Outstanding (DSO)</span>
             <span class="font-semibold">${input.averageCollectionDays} days</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Days Payable Outstanding (DPO)</span>
             <span class="font-semibold">${input.averagePaymentDays} days</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Working Capital Needs</span>
             <span class="font-semibold">${formatCurrency(result.summary.workingCapitalNeeds)}</span>
           </div>
         </div>
         
         <div class="space-y-3">
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Average Burn Rate</span>
             <span class="font-semibold ${result.summary.averageBurnRate > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.summary.averageBurnRate > 0 ? formatCurrency(result.summary.averageBurnRate) : 'Profitable'}</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Cash Runway</span>
             <span class="font-semibold ${result.summary.cashRunway < 6 && result.summary.cashRunway !== Infinity ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.summary.cashRunway === Infinity ? 'Infinite' : result.summary.cashRunway.toFixed(1) + ' months'}</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Net Cash Flow (12 mo)</span>
             <span class="font-bold ${result.summary.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(result.summary.netCashFlow)}</span>
           </div>
@@ -377,13 +377,13 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
       
       <div class="space-y-3">
         ${result.recommendations.map(rec => `
-          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
+          <div class="fa-subcard p-3 fa-script-copy-strong">
             ${rec}
           </div>
         `).join('')}
         
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 mt-4">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Best Practices</h4>
+        <div class="fa-subcard mt-4">
+          <h4 class="fa-list-copy-strong mb-2">Cash Flow Best Practices</h4>
           <ul class="space-y-2 fa-script-copy-strong">
             <li>• Invoice immediately (don't wait to bill)</li>
             <li>• Offer discounts for early payment (2% net 10)</li>

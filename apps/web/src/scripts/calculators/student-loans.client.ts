@@ -309,44 +309,44 @@ export const displayResults = (
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Repayment Summary</h3>
+    <div class="fa-card p-6 mb-8">
+      <h3 class="fa-panel-title text-xl mb-6">Repayment Summary</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
           <div>
             <span class="fa-script-label font-medium">Total Amount Paid</span>
             <p class="fa-script-copy-subtle">Principal + Interest</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.summary.totalAmountPaid)}</span>
+            <span class="fa-list-copy-strong">${formatCurrency(result.summary.totalAmountPaid)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
           <div>
             <span class="fa-script-label font-medium">Interest Rate</span>
             <p class="fa-script-copy-subtle">Annual percentage rate</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-slate-900 dark:text-white">${weightedAverageRate}</span>
+            <span class="fa-list-copy-strong">${weightedAverageRate}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
           <div>
             <span class="fa-script-label font-medium">Payoff Time</span>
             <p class="fa-script-copy-subtle">Total months to pay off</p>
           </div>
           <div class="text-right">
-            <span class="font-semibold text-slate-900 dark:text-white">${result.summary.totalMonthsToPayoff} months (${(result.summary.totalMonthsToPayoff / 12).toFixed(1)} years)</span>
+            <span class="fa-list-copy-strong">${result.summary.totalMonthsToPayoff} months (${(result.summary.totalMonthsToPayoff / 12).toFixed(1)} years)</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Loan Details</h3>
+    <div class="fa-card p-6 mb-8">
+      <h3 class="fa-panel-title text-xl mb-6">Loan Details</h3>
       
       <div class="space-y-3">
         ${
@@ -356,7 +356,7 @@ export const displayResults = (
                 .sort((a: LoanSummary, b: LoanSummary) => a.monthsToPayoff - b.monthsToPayoff)
                 .map(
                   (loan: LoanSummary, index: number) => `
-                <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
                   <span class="fa-script-title-sm">${index + 1}. ${loan.name}</span>
                   <span class="fa-script-copy-muted">${loan.monthsToPayoff} months</span>
                 </div>
@@ -368,8 +368,8 @@ export const displayResults = (
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
+    <div class="fa-card p-6">
+      <h3 class="fa-panel-title text-xl mb-6">Recommendations</h3>
       
       <div class="space-y-4">
         <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
@@ -391,8 +391,8 @@ export const displayResults = (
     ${
       forgiveness
         ? `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mt-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Forgiveness Programs</h3>
+    <div class="fa-card p-6 mt-8">
+      <h3 class="fa-panel-title text-xl mb-4">Forgiveness Programs</h3>
       <div class="grid gap-4 sm:grid-cols-3">
         ${FORGIVENESS_PROGRAM_KEYS.map((key) => {
           const program = forgiveness[key];
@@ -401,7 +401,7 @@ export const displayResults = (
           return `
         <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-semibold text-slate-900 dark:text-white">${label}</h4>
+            <h4 class="fa-list-copy-strong">${label}</h4>
             <span class="text-sm ${program.eligible ? 'text-emerald-600' : 'text-slate-500'}">
               ${program.eligible ? 'Eligible' : 'Not Eligible'}
             </span>
@@ -417,24 +417,24 @@ export const displayResults = (
     ${
       refinance
         ? `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mt-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Refinance Analysis</h3>
+    <div class="fa-card p-6 mt-8">
+      <h3 class="fa-panel-title text-xl mb-4">Refinance Analysis</h3>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Current Loan</h4>
+          <h4 class="fa-list-copy-strong mb-2">Current Loan</h4>
           <p class="fa-script-copy-strong">Rate: ${refinance.current.rate.toFixed(2)}%</p>
           <p class="fa-script-copy-strong">Payment: ${formatCurrency(refinance.current.payment)}</p>
           <p class="fa-script-copy-strong">Total Cost: ${formatCurrency(refinance.current.totalCost)}</p>
         </div>
         <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-          <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Refinanced Loan</h4>
+          <h4 class="fa-list-copy-strong mb-2">Refinanced Loan</h4>
           <p class="fa-script-copy-strong">Rate: ${refinance.refinanced.rate.toFixed(2)}%</p>
           <p class="fa-script-copy-strong">Payment: ${formatCurrency(refinance.refinanced.payment)}</p>
           <p class="fa-script-copy-strong">Total Cost: ${formatCurrency(refinance.refinanced.totalCost)}</p>
         </div>
       </div>
       <div class="mt-4">
-        <p class="text-base font-semibold text-slate-900 dark:text-white">${refinance.recommendation}</p>
+        <p class="text-base fa-list-copy-strong">${refinance.recommendation}</p>
         <p class="fa-script-copy-strong mt-1">Monthly Savings: ${formatCurrency(refinance.costDifference)}</p>
         <p class="fa-script-copy-strong">Total Savings: ${formatCurrency(refinance.savings)}</p>
         ${

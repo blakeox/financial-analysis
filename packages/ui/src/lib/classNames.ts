@@ -72,6 +72,12 @@ export const buttonVariants = {
 export const inputClasses =
   'flex h-11 w-full rounded-2xl border border-slate-200 bg-white/95 px-4 text-sm text-slate-900 shadow-[0_1px_2px_rgba(9,14,36,0.03)] transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-violet-400';
 
+export const fieldLabelClasses = 'block text-sm font-semibold text-slate-700 dark:text-slate-200';
+export const helperTextClasses = 'text-sm text-slate-500 dark:text-slate-400';
+
+export const checkboxClasses =
+  'h-4 w-4 rounded border border-slate-300 bg-white text-violet-600 shadow-[0_1px_2px_rgba(9,14,36,0.03)] transition-[border-color,box-shadow,background-color] focus:outline-none focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-violet-300';
+
 export const inputStateClasses = {
   default: '',
   error:
@@ -96,6 +102,20 @@ export const cardVariants = {
   subtle:
     'rounded-[1.35rem] border border-slate-200/70 bg-slate-50/85 p-5 text-slate-900 shadow-[0_8px_24px_rgba(9,14,36,0.04)] dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-100',
 } as const;
+
+export const actionTileClasses =
+  'flex flex-col items-center gap-2 rounded-2xl border border-slate-200/80 bg-white/95 p-4 text-slate-900 shadow-[0_8px_24px_rgba(9,14,36,0.04)] transition-colors hover:border-violet-200 hover:bg-violet-50/70 dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100 dark:hover:border-violet-800 dark:hover:bg-violet-950/40';
+
+export const tableHeadClasses =
+  'border-b border-slate-200/80 bg-slate-50/85 text-slate-500 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300';
+
+export const tableRowClasses =
+  'border-b border-slate-100 transition-colors hover:bg-violet-50/40 dark:border-slate-800 dark:hover:bg-violet-950/20';
+
+export const surfaceDividerClasses = 'border-slate-200/80 dark:border-slate-800';
+
+export const segmentedActiveClasses =
+  'bg-white/95 text-violet-700 shadow-sm dark:bg-slate-950 dark:text-violet-200';
 
 /**
  * Common badge/tag classes by variant.

@@ -74,7 +74,7 @@ const initGoalPlanningCalculator = () => {
               goal => `
                 <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
                   <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold text-slate-900 dark:text-white">${goal.name}</h4>
+                    <h4 class="fa-list-copy-strong">${goal.name}</h4>
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${
                       goal.type === 'Short-term'
                         ? 'bg-violet-100 text-violet-800'
@@ -85,19 +85,19 @@ const initGoalPlanningCalculator = () => {
                   </div>
                   <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Goal Amount:</span>
-                      <span class="font-semibold text-slate-900 dark:text-white">$${goal.cost.toLocaleString()}</span>
+                      <span class="fa-help-copy">Goal Amount:</span>
+                      <span class="fa-list-copy-strong">$${goal.cost.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Monthly Needed:</span>
-                      <span class="font-semibold text-slate-900 dark:text-white">$${goal.monthlyNeeded.toLocaleString()}</span>
+                      <span class="fa-help-copy">Monthly Needed:</span>
+                      <span class="fa-list-copy-strong">$${goal.monthlyNeeded.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Timeline:</span>
-                      <span class="font-semibold text-slate-900 dark:text-white">${Math.round(goal.timeline)} months</span>
+                      <span class="fa-help-copy">Timeline:</span>
+                      <span class="fa-list-copy-strong">${Math.round(goal.timeline)} months</span>
                     </div>
                     <div>
-                      <span class="text-slate-600 dark:text-slate-400">Status:</span>
+                      <span class="fa-help-copy">Status:</span>
                       <span class="font-semibold ${goal.achievable ? 'text-emerald-600' : 'text-rose-600'}">
                         ${goal.achievable ? '✅ Achievable' : '⚠️ Needs adjustment'}
                       </span>
@@ -119,7 +119,7 @@ const initGoalPlanningCalculator = () => {
             .join('')}
 
           <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
-            <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Total Monthly Budget</h4>
+            <h4 class="fa-list-copy-strong mb-2">Total Monthly Budget</h4>
             <p class="text-lg">
               You're allocating <strong>$${monthlyBudget.toLocaleString()}</strong> per month to goals.
               ${

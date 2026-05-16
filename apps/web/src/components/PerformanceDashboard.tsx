@@ -289,7 +289,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
               <div className="fa-card p-0 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-50 dark:bg-slate-900/80">
+                    <thead className="fa-table-head">
                       <tr>
                         <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Operation</th>
                         <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>
@@ -318,7 +318,7 @@ export const PerformanceDashboardComponent: React.FC<PerformanceDashboardProps> 
               <div className="fa-card p-0 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-50 dark:bg-slate-900/80">
+                    <thead className="fa-table-head">
                       <tr>
                         <th className="px-4 py-2 text-left fa-help-copy uppercase tracking-wider">Error Code</th>
                         <th className="px-4 py-2 text-right fa-help-copy uppercase tracking-wider">Count</th>

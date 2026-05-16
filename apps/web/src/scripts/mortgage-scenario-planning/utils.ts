@@ -145,7 +145,7 @@ export function generateRecommendations(
   const pmiScenarios = baseScenarios.filter(s => s.hasPMI);
   if (pmiScenarios.length > 0) {
     recommendations.push(`
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-yellow-500">
+      <div class="fa-subcard border-l-4 border-yellow-500">
         <h4 class="font-semibold text-yellow-600 dark:text-yellow-400 mb-2">💰 PMI Consideration</h4>
         <p class="fa-script-copy-strong">
           ${pmiScenarios.length} scenario(s) require PMI due to less than 20% down payment. 
@@ -168,7 +168,7 @@ export function generateRecommendations(
     if (bestExtra.payoffMonths < worstWithoutExtra.payoffMonths) {
       const monthsSaved = worstWithoutExtra.payoffMonths - bestExtra.payoffMonths;
       recommendations.push(`
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-violet-500">
+        <div class="fa-subcard border-l-4 border-violet-500">
           <h4 class="font-semibold text-violet-600 dark:text-violet-400 mb-2">⏱️ Time Savings</h4>
           <p class="fa-script-copy-strong">
             Extra monthly payments in ${bestExtra.name} could help you pay off your mortgage 
@@ -190,7 +190,7 @@ export function generateRecommendations(
     
     if (bestRefinance.totalCost < bestBase.totalCost) {
       recommendations.push(`
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-violet-500">
+        <div class="fa-subcard border-l-4 border-violet-500">
           <h4 class="font-semibold text-violet-600 dark:text-violet-400 mb-2">🔄 Refinancing Opportunity</h4>
           <p class="fa-script-copy-strong">
             If rates drop, refinancing could be beneficial. Monitor market conditions 
@@ -203,7 +203,7 @@ export function generateRecommendations(
   
   // Best overall recommendation
   recommendations.push(`
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-emerald-500">
+    <div class="fa-subcard border-l-4 border-emerald-500">
       <h4 class="font-semibold text-emerald-600 dark:text-emerald-400 mb-2">✅ Overall Recommendation</h4>
       <p class="fa-script-copy-strong">
         Based on total cost analysis, <strong>${bestScenario.name}</strong> appears to be the most 

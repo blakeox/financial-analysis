@@ -114,7 +114,7 @@ async function handleCalculate(
         <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto mb-4"></div>
         <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mx-auto"></div>
       </div>
-      <p class="mt-4 text-slate-500 dark:text-slate-400">Running CFP-level analysis...</p>
+      <p class="fa-meta-copy mt-4">Running CFP-level analysis...</p>
     </div>
   `;
 

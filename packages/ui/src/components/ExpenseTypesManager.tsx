@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Select } from './Select';
 import { parsers } from '../lib/formUtils';
-import { badgeVariants, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cardVariants, checkboxClasses, cn, textColors } from '../lib/classNames';
 
 export interface ExpenseTypeData {
   id: string;
@@ -113,7 +113,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
           {expenseTypes.map((expense) => (
             <div
               key={expense.id}
-              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
+              className={cn(cardVariants.subtle, 'p-4 shadow-sm')}
             >
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <Input
@@ -161,7 +161,7 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
                       checked={expense.isActive}
                       onChange={(e) => updateExpenseType(expense.id, 'isActive', e.target.checked)}
                       disabled={readonly}
-                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
+                      className={checkboxClasses}
                     />
                     <span
                       className={cn(
@@ -189,8 +189,8 @@ export function ExpenseTypesManager({ expenseTypes, onChange, readonly = false }
 
         {/* Add New Expense Type */}
         {!readonly && (
-          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
-            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add New Expense Type</h4>
+          <div className={cn(cardVariants.subtle, 'border-2 border-dashed p-5')}>
+            <h4 className={cn('mb-3 font-semibold', textColors.primary)}>Add New Expense Type</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <Input
                 label="Expense Name"

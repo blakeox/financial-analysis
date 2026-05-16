@@ -195,39 +195,36 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
           <div class="fa-card p-5">
             <h2 class="fa-panel-title text-lg mb-4">Amortization Schedule</h2>
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                <thead class="bg-slate-50 dark:bg-slate-900/60">
+              <table class="min-w-full">
+                <thead class="fa-table-head">
                   <tr>
                     <th
-                      class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-left uppercase tracking-wider"
                       >Month</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider"
                       >Payment</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider"
                       >Principal</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider"
                       >Interest</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider"
                       >Balance</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider"
                       >Cumulative Interest</th
                     >
                   </tr>
                 </thead>
-                <tbody
-                  id="table-body"
-                  class="divide-y divide-slate-200 bg-white/90 dark:divide-slate-800 dark:bg-slate-950/40"
-                >
+                <tbody id="table-body" class="fa-table-body">
                 </tbody>
               </table>
             </div>
@@ -334,6 +331,10 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       animation: aiBadgePulse 1.5s ease-in-out;
       z-index: 20;
+    }
+
+    .ai-indicator-warning {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
     }
 
     @keyframes aiBadgePulse {

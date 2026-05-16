@@ -163,7 +163,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     <!-- Key Metrics -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- LTV Details -->
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+      <div class="fa-card p-6">
         <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Lifetime Value (LTV)</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
@@ -186,7 +186,7 @@ export const displayResults = (result: UnitEconomicsResult): void => {
       </div>
       
       <!-- CAC & Efficiency -->
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+      <div class="fa-card p-6">
         <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Acquisition Efficiency</h4>
         <div class="space-y-3">
           <div class="flex justify-between">
@@ -210,30 +210,30 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     </div>
     
     <!-- Retention Metrics -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Retention & Revenue</h4>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
           <p class="fa-script-copy-muted">Retention Rate</p>
-          <p class="text-xl font-bold text-slate-900 dark:text-white">${result.retentionRate.toFixed(1)}%</p>
+          <p class="fa-panel-title text-xl">${result.retentionRate.toFixed(1)}%</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">Monthly Churn</p>
-          <p class="text-xl font-bold text-slate-900 dark:text-white">${result.churnRate.toFixed(1)}%</p>
+          <p class="fa-panel-title text-xl">${result.churnRate.toFixed(1)}%</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">MRR</p>
-          <p class="text-xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.monthlyRecurringRevenue)}</p>
+          <p class="fa-panel-title text-xl">${formatCurrency(result.monthlyRecurringRevenue)}</p>
         </div>
         <div>
           <p class="fa-script-copy-muted">ARR</p>
-          <p class="text-xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.annualRecurringRevenue)}</p>
+          <p class="fa-panel-title text-xl">${formatCurrency(result.annualRecurringRevenue)}</p>
         </div>
       </div>
     </div>
     
     <!-- Benchmarks -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Benchmark Comparison</h4>
       <div class="space-y-4">
         ${renderBenchmark('LTV:CAC Ratio', result.benchmarks.ltvCacRatio)}
@@ -244,12 +244,12 @@ export const displayResults = (result: UnitEconomicsResult): void => {
     </div>
     
     <!-- Cohort Analysis -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Cohort Analysis (24 Months)</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-slate-200 dark:border-slate-800">
+            <tr class="fa-panel-divider-soft">
               <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
               <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>
               <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Cum. Revenue</th>
@@ -338,7 +338,7 @@ function renderBenchmark(
   };
   
   return `
-    <div class="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-800 last:border-0">
+    <div class="flex items-center justify-between py-3 fa-panel-divider-soft last:border-0">
       <span class="text-slate-700 dark:text-slate-300">${label}</span>
       <div class="flex items-center gap-4">
         <div class="text-right">

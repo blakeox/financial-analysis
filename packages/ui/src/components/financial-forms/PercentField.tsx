@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { inputClasses } from '../../lib/classNames';
+import { fieldLabelClasses, helperTextClasses, inputClasses, textColors } from '../../lib/classNames';
 
 export type PercentFieldProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -27,7 +27,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
         {label && (
           <label
             htmlFor={fieldId}
-            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
+            className={fieldLabelClasses}
           >
             {label}
           </label>
@@ -49,7 +49,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
             )}
             {...props}
           />
-          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-slate-500 dark:text-slate-400">
+          <span className={cn('pointer-events-none absolute top-1/2 right-4 -translate-y-1/2', textColors.muted)}>
             {suffix}
           </span>
         </div>
@@ -59,7 +59,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
           </p>
         )}
         {helperText && !error && (
-          <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
+          <p id={helperId} className={helperTextClasses}>
             {helperText}
           </p>
         )}

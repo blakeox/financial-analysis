@@ -447,19 +447,19 @@ function displayResults(result: unknown): void {
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
               <div class="fa-script-copy-muted font-medium">Year 1</div>
-              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
+              <div class="fa-panel-title text-xl">${formatPercentDecimal(
                 accretionSummary.year1Accretion
               )}</div>
             </div>
             <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
               <div class="fa-script-copy-muted font-medium">Year 3</div>
-              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
+              <div class="fa-panel-title text-xl">${formatPercentDecimal(
                 accretionSummary.year3Accretion
               )}</div>
             </div>
             <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
               <div class="fa-script-copy-muted font-medium">Average</div>
-              <div class="text-xl font-bold text-slate-900 dark:text-white">${formatPercentDecimal(
+              <div class="fa-panel-title text-xl">${formatPercentDecimal(
                 accretionSummary.averageAccretion
               )}</div>
             </div>
@@ -479,15 +479,15 @@ function displayResults(result: unknown): void {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
             <div class="fa-script-copy-muted font-medium">Deal Size</div>
-            <div class="text-xl font-bold text-slate-900 dark:text-white">${(r?.transactionSummary?.dealSize || 'N/A').toString()}</div>
+            <div class="fa-panel-title text-xl">${(r?.transactionSummary?.dealSize || 'N/A').toString()}</div>
           </div>
           <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
             <div class="fa-script-copy-muted font-medium">Premium</div>
-            <div class="text-xl font-bold text-slate-900 dark:text-white">${premiumText}</div>
+            <div class="fa-panel-title text-xl">${premiumText}</div>
           </div>
           <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
             <div class="fa-script-copy-muted font-medium">Enterprise Value</div>
-            <div class="text-xl font-bold text-slate-900 dark:text-white">${evText}</div>
+            <div class="fa-panel-title text-xl">${evText}</div>
           </div>
         </div>
       </div>

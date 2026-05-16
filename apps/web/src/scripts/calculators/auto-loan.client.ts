@@ -244,91 +244,91 @@ export const renderAutoLoanResults = (
     Number.parseFloat(costBreakdown.extendedWarranty);
 
   resultsContainer.innerHTML = `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Cost Breakdown</h3>
+    <div class="fa-card p-6 mb-8">
+      <h3 class="fa-panel-title text-xl mb-6">Cost Breakdown</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Vehicle Price</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.vehiclePrice)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.vehiclePrice)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Down Payment</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.downPayment)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.downPayment)}</span>
         </div>
         
         ${
           Number.isFinite(netTradeIn) && netTradeIn !== 0
             ? `
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Trade-in Value</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
         </div>
         `
             : ''
         }
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Sales Tax</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.salesTax)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.salesTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Fees</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
           <span class="text-slate-700 dark:text-slate-300">Amount Financed</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.amountFinanced)}</span>
+          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.amountFinanced)}</span>
         </div>
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Loan Summary</h3>
+    <div class="fa-card p-6 mb-8">
+      <h3 class="fa-panel-title text-xl mb-6">Loan Summary</h3>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Total Payments</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.totalPayments)}</span>
+            <span class="fa-list-copy-strong">${formatCurrency(summary.totalPayments)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Effective APR</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
+            <span class="fa-list-copy-strong">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
           </div>
         </div>
         
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Loan-to-Value</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
+            <span class="fa-list-copy-strong">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
             <span class="text-slate-700 dark:text-slate-300">Cost per Mile</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
+            <span class="fa-list-copy-strong">${formatCurrency(summary.costPerMile)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Early Payoff Scenarios</h3>
+    <div class="fa-card p-6">
+      <h3 class="fa-panel-title text-xl mb-6">Early Payoff Scenarios</h3>
       
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-          <thead class="bg-slate-50 dark:bg-slate-900/60">
+          <thead class="fa-table-head">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
+              <th class="fa-help-copy px-4 py-3 text-left uppercase tracking-wider">Payoff Time</th>
+              <th class="fa-help-copy px-4 py-3 text-right uppercase tracking-wider">Remaining Balance</th>
+              <th class="fa-help-copy px-4 py-3 text-right uppercase tracking-wider">Interest Saved</th>
             </tr>
           </thead>
-          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody class="fa-table-body">
             ${earlyPayoffScenarios
               .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;

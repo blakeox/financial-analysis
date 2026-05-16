@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { cn } from '../lib/utils';
+import { cardVariants, segmentedActiveClasses, textColors } from '../lib/classNames';
 
 interface TabsContextValue {
   activeTab: string;
@@ -42,7 +43,7 @@ export function TabsList({ className = '', children }: TabsListProps) {
     <div
       role="tablist"
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1 text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-400',
+        cn(cardVariants.subtle, 'inline-flex h-11 items-center justify-center p-1 shadow-sm', textColors.muted),
         className
       )}
     >
@@ -73,8 +74,8 @@ export function TabsTrigger({ value, className = '', children }: TabsTriggerProp
       className={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
         isActive
-          ? 'bg-white text-slate-950 shadow-sm dark:bg-slate-950 dark:text-slate-50'
-          : 'text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100',
+          ? cn(segmentedActiveClasses, textColors.primary)
+          : cn(textColors.secondary, 'hover:bg-violet-50/70 hover:text-violet-700 dark:hover:bg-violet-950/40 dark:hover:text-violet-200'),
         className
       )}
       onClick={handleSelect}
@@ -102,12 +103,12 @@ export function TabsContent({ value, className = '', children }: TabsContentProp
 
   return (
     <div
-      role="tabpanel"
-      className={cn(
-        'mt-3 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 focus-visible:ring-offset-2',
-        className
-      )}
-    >
+        role="tabpanel"
+        className={cn(
+          cn('mt-3 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 focus-visible:ring-offset-2', textColors.primary),
+          className
+        )}
+      >
       {children}
     </div>
   );

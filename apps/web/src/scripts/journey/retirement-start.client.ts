@@ -54,26 +54,26 @@ const renderResults = (
   container.innerHTML = `
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Years to Retirement</h4>
+        <h4 class="fa-list-copy-strong mb-2">Years to Retirement</h4>
         <p class="text-2xl font-bold text-violet-600">${yearsToRetirement} years</p>
       </div>
       <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Target Monthly Income</h4>
+        <h4 class="fa-list-copy-strong mb-2">Target Monthly Income</h4>
         <p class="text-2xl font-bold text-emerald-600">${formatCurrency(targetMonthlyIncome)}</p>
       </div>
       <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Projected Savings</h4>
+        <h4 class="fa-list-copy-strong mb-2">Projected Savings</h4>
         <p class="text-2xl font-bold text-violet-600">${formatCurrency(futureValue)}</p>
       </div>
       <div class="bg-white dark:bg-slate-700 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Monthly Withdrawal</h4>
+        <h4 class="fa-list-copy-strong mb-2">Monthly Withdrawal</h4>
         <p class="text-2xl font-bold ${meetsGoal ? 'text-emerald-600' : 'text-rose-600'}">${formatCurrency(
           monthlyWithdrawal
         )}</p>
       </div>
     </div>
     <div class="mt-4 bg-white dark:bg-slate-700 rounded-lg p-4">
-      <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Goal Status</h4>
+      <h4 class="fa-list-copy-strong mb-2">Goal Status</h4>
       <p class="text-lg">
         ${
           meetsGoal
@@ -90,7 +90,7 @@ const renderResults = (
       </p>
     </div>
     <div class="mt-4 bg-white dark:bg-slate-700 rounded-lg p-4">
-      <h4 class="font-semibold text-slate-900 dark:text-white mb-2">Employer Match Benefit</h4>
+      <h4 class="fa-list-copy-strong mb-2">Employer Match Benefit</h4>
       <p class="text-lg">
         Your employer match adds <strong>${formatCurrency(monthlyMatch)}</strong> per month 
         (${formatCurrency(annualMatch)}) - that's free money!

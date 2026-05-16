@@ -93,7 +93,7 @@ class EmployeeStockOptionsCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Employee Stock Options Analysis</h3>
+          <h3 class="fa-panel-title text-lg mb-2">Employee Stock Options Analysis</h3>
           <p class="text-slate-700 dark:text-slate-300">
             Your employee stock options analysis is complete. Use the AI assistant to get detailed recommendations.
           </p>

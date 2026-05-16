@@ -327,7 +327,7 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommendation
       </h2>
-      <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
+      <p class="fa-panel-title text-lg mb-2">${result.recommendation.bestStrategy}</p>
       <p class="text-slate-700 dark:text-slate-300">${result.recommendation.reasoning}</p>
     </div>
     
@@ -341,9 +341,9 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
         ${[result.payOffDebt, result.invest, result.hybrid].map(strategy => {
           const isBest = strategy.endingWealth === bestWealth;
           return `
-            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
+            <div class="border-2 ${isBest ? 'border-emerald-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST MATH</div>' : ''}
-              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">${strategy.name}</h3>
+              <h3 class="text-lg fa-list-copy-strong mb-4">${strategy.name}</h3>
               <div class="space-y-2">
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Ending Wealth</span>
@@ -365,7 +365,7 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
                   <span class="fa-script-copy-muted">Debt-Free</span>
                   <span class="font-semibold">${strategy.timeToDebtFree === Infinity ? 'No' : `${Math.round(strategy.timeToDebtFree / 12)}y`}</span>
                 </div>
-                <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                <div class="pt-2 fa-panel-divider-top">
                   <span class="fa-script-note">Risk: ${strategy.riskLevel.toUpperCase()}</span>
                 </div>
               </div>

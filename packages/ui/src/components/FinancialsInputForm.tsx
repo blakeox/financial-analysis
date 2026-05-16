@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { ValidatedNumberInput } from './ValidatedField';
-import { cn, textColors } from '../lib/classNames';
+import { cardVariants, cn, textColors } from '../lib/classNames';
 
 export interface MonthlyFinancialsData {
   january?: number;
@@ -97,7 +97,7 @@ export function FinancialsInputForm({
             />
           ))}
         </div>
-        <div className="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/80">
+        <div className={cn(cardVariants.subtle, 'mt-5 p-4')}>
           <div className={cn('text-sm', textColors.secondary)}>
             <strong>Total Revenue:</strong>{' '}
             ${totalRevenue.toLocaleString()}

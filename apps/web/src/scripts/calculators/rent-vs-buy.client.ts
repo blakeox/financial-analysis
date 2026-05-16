@@ -486,7 +486,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Side-by-Side Comparison -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> ${input.yearsToAnalyze}-Year Comparison
       </h2>
@@ -530,8 +530,8 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               <span class="font-semibold text-rose-600 dark:text-rose-400">-${formatCurrency(result.buy.breakdown.capitalGainsTax)}</span>
             </div>
             ` : ''}
-            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
-              <span class="text-sm font-semibold text-slate-900 dark:text-white">Net Position</span>
+            <div class="flex justify-between fa-panel-divider-top pt-2">
+              <span class="fa-list-copy-strong">Net Position</span>
               <span class="font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.buy.netPosition)}</span>
             </div>
           </div>
@@ -565,8 +565,8 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               <span class="fa-script-copy-muted">Tax Benefits</span>
               <span class="font-semibold">$0</span>
             </div>
-            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
-              <span class="text-sm font-semibold text-slate-900 dark:text-white">Net Position</span>
+            <div class="flex justify-between fa-panel-divider-top pt-2">
+              <span class="fa-list-copy-strong">Net Position</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rent.netPosition)}</span>
             </div>
           </div>
@@ -575,7 +575,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Key Factors -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💡</span> Key Considerations
       </h2>
@@ -632,7 +632,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Inflation-Adjusted Values -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mt-6">
+    <div class="fa-card p-6 mt-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📉</span> Inflation-Adjusted Values (${input.inflationRate}% annual)
       </h2>
@@ -658,15 +658,15 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
     </div>
     
     <!-- Year-by-Year Comparison Table -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mt-6">
+    <div class="fa-card p-6 mt-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📅</span> Year-by-Year Comparison
       </h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-slate-200 dark:border-slate-800">
-              <th class="text-left py-3 px-2 font-semibold text-slate-900 dark:text-white">Year</th>
+            <tr class="fa-panel-divider-soft">
+              <th class="text-left py-3 px-2 fa-list-copy-strong">Year</th>
               <th class="text-right py-3 px-2 font-semibold text-violet-600 dark:text-violet-400">Buy Cost</th>
               <th class="text-right py-3 px-2 font-semibold text-violet-600 dark:text-violet-400">Buy Equity</th>
               <th class="text-right py-3 px-2 font-semibold text-emerald-600 dark:text-emerald-400">Rent Cost</th>
@@ -682,7 +682,7 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
               const advantage = buyNetAtYear - rentNetAtYear;
               return `
                 <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20">
-                  <td class="py-2 px-2 text-slate-900 dark:text-white font-medium">${buyYear.year}</td>
+                  <td class="py-2 px-2 fa-list-copy-strong">${buyYear.year}</td>
                   <td class="py-2 px-2 text-right text-violet-600 dark:text-violet-400">${formatCurrency(buyYear.cumulativeCost)}</td>
                   <td class="py-2 px-2 text-right text-violet-600 dark:text-violet-400">${formatCurrency(buyYear.equity)}</td>
                   <td class="py-2 px-2 text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(rentYear?.cumulativeCost || 0)}</td>

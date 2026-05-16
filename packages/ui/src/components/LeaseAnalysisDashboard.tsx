@@ -17,7 +17,7 @@ import { formatCurrency, formatPercentage } from '../lib/formatters';
 import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
 import { parsers } from '../lib/formUtils';
-import { cn, textColors } from '../lib/classNames';
+import { actionTileClasses, cardVariants, checkboxClasses, cn, surfaceDividerClasses, tableHeadClasses, tableRowClasses, textColors } from '../lib/classNames';
 
 // Extend Window interface for analysis results storage
 declare global {
@@ -171,7 +171,9 @@ function LeaseDocumentUpload({
         )}
 
         <div
-          className={`relative rounded-[1.5rem] border-2 border-dashed p-4 text-center transition-all duration-200 touch-manipulation sm:p-6 lg:p-8 ${
+          className={cn(
+            'relative rounded-[1.5rem] border-2 border-dashed p-4 text-center transition-all duration-200 touch-manipulation sm:p-6 lg:p-8',
+            surfaceDividerClasses,
             error
               ? 'border-rose-400 bg-rose-50/90 dark:bg-rose-950/20'
               : dragActive
@@ -180,8 +182,8 @@ function LeaseDocumentUpload({
                   ? 'border-amber-400 bg-amber-50/90 dark:bg-amber-950/20'
                   : uploadProgress === 100
                     ? 'border-emerald-500 bg-emerald-50/90 dark:bg-emerald-950/20'
-                    : 'border-slate-300 dark:border-slate-700 hover:border-violet-400 hover:bg-violet-50/70 dark:hover:bg-violet-950/10'
-          }`}
+                    : 'hover:border-violet-400 hover:bg-violet-50/70 dark:hover:bg-violet-950/10'
+          )}
           onDragEnter={onDragEnter}
           onDragLeave={onDragLeave}
           onDragOver={onDragOver}
@@ -273,7 +275,7 @@ function LeaseDocumentUpload({
             ) : uploadedFile ? (
               <div className="text-slate-700 dark:text-slate-300">
                 <svg
-                  className="mx-auto mb-2 h-12 w-12 text-slate-500 dark:text-slate-400"
+                  className={cn('mx-auto mb-2 h-12 w-12', textColors.muted)}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -403,9 +405,9 @@ function LeaseExtractionPreview({
       </CardHeader>
       <CardContent className="space-y-4">
         {extractedData.confidence && (
-          <div className="grid grid-cols-1 gap-3 rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <div className={cn(cardVariants.subtle, 'grid grid-cols-1 gap-3 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4')}>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.overall || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Overall</div>
@@ -420,7 +422,7 @@ function LeaseExtractionPreview({
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.financial || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Financial</div>
@@ -435,7 +437,7 @@ function LeaseExtractionPreview({
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className={cn('text-2xl font-bold', textColors.primary)}>
                 {Math.round((extractedData.confidence.property || 0) * 100)}%
               </div>
               <div className={cn('text-sm', textColors.secondary)}>Property</div>
@@ -454,7 +456,7 @@ function LeaseExtractionPreview({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Basic Terms</h4>
+            <h4 className={cn('font-semibold', textColors.primary)}>Basic Terms</h4>
             <div className="space-y-2 text-sm">
               {extractedData.leaseType && (
                 <div className="flex justify-between">
@@ -488,7 +490,7 @@ function LeaseExtractionPreview({
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Additional Costs</h4>
+            <h4 className={cn('font-semibold', textColors.primary)}>Additional Costs</h4>
             <div className="space-y-2 text-sm">
               {extractedData.cam && (
                 <div className="flex justify-between">
@@ -533,26 +535,26 @@ function LeaseExtractionPreview({
         {extractedData.extractedSections &&
           Object.values(extractedData.extractedSections).some((section) => section) && (
             <div className="space-y-3">
-              <h4 className="font-semibold text-slate-900 dark:text-white">
+              <h4 className={cn('font-semibold', textColors.primary)}>
                 Key Document Sections
               </h4>
               <div className="space-y-3">
                 {extractedData.extractedSections.financialTerms && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                <div className={cn(cardVariants.subtle, 'p-3 text-sm')}>
+                  <div className={cn('mb-1 font-medium', textColors.primary)}>
                       Financial Terms:
                     </div>
-                  <div className="text-slate-700 dark:text-slate-300">
+                  <div className={textColors.secondary}>
                       {extractedData.extractedSections.financialTerms}
                     </div>
                   </div>
                 )}
                 {extractedData.extractedSections.propertyDescription && (
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
-                  <div className="mb-1 font-medium text-slate-900 dark:text-white">
+                <div className={cn(cardVariants.subtle, 'p-3 text-sm')}>
+                  <div className={cn('mb-1 font-medium', textColors.primary)}>
                       Property Description:
                     </div>
-                  <div className="text-slate-700 dark:text-slate-300">
+                  <div className={textColors.secondary}>
                       {extractedData.extractedSections.propertyDescription}
                     </div>
                   </div>
@@ -561,7 +563,7 @@ function LeaseExtractionPreview({
             </div>
           )}
 
-        <div className="flex flex-col gap-2 border-t border-slate-200/80 pt-4 sm:flex-row sm:gap-3 dark:border-slate-800">
+        <div className={cn('flex flex-col gap-2 border-t pt-4 sm:flex-row sm:gap-3', surfaceDividerClasses)}>
           <Button
             onClick={() => onApply(extractedData)}
             className="flex-1 px-4 py-3 sm:py-2"
@@ -1993,13 +1995,13 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       />
 
       {/* AI Extraction Preview - Hidden since we auto-apply */}
-      {false && showExtractedPreview && extractedData && (
+      {showExtractedPreview && extractedData ? (
         <LeaseExtractionPreview
           extractedData={extractedData as ExtractedLeaseData}
           onApply={applyExtractedData}
           onDismiss={dismissExtractedData}
         />
-      )}
+      ) : null}
 
       {/* Scenario Analysis */}
       {result && !hideScenarioCard && (
@@ -2032,7 +2034,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <p className={cn('mb-4 text-xs sm:text-sm', textColors.secondary)}>
               Compare optimistic, conservative, and pessimistic scenarios based on your current
               lease terms.
             </p>
@@ -2059,30 +2061,30 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
             </div>
 
             {/* Key Insights */}
-            <div className="bg-slate-50 dark:bg-slate-900/60 rounded-lg p-4">
-              <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Key Insights</h5>
+            <div className={cn(cardVariants.subtle, 'p-4')}>
+              <h5 className={cn('mb-2 font-semibold', textColors.primary)}>Key Insights</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Risk Range:</span>
-                  <span className="ml-2 font-medium text-slate-900 dark:text-white">
+                  <span className={textColors.secondary}>Risk Range:</span>
+                  <span className={cn('ml-2 font-medium', textColors.primary)}>
                     {scenarioSummary.riskRangeText}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Best Case Savings:</span>
+                  <span className={textColors.secondary}>Best Case Savings:</span>
                   <span className="ml-2 font-medium text-emerald-600 dark:text-emerald-300">
                     {scenarioSummary.bestCaseSavings}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Worst Case Impact:</span>
+                  <span className={textColors.secondary}>Worst Case Impact:</span>
                   <span className="ml-2 font-medium text-rose-600 dark:text-rose-300">
                     {scenarioSummary.worstCaseImpact}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Confidence Level:</span>
-                  <span className="ml-2 font-medium text-slate-900 dark:text-white">
+                  <span className={textColors.secondary}>Confidence Level:</span>
+                  <span className={cn('ml-2 font-medium', textColors.primary)}>
                     Medium-High
                   </span>
                 </div>
@@ -2129,22 +2131,25 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
               {leaseTemplates.slice(0, 3).map((template) => (
                 <div
                   key={template.id}
-                  className="p-4 sm:p-3 border border-slate-200 dark:border-slate-800 rounded-lg hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:active:bg-violet-900/20 cursor-pointer transition-colors touch-manipulation"
-                  onClick={() => loadTemplate(template)}
-                >
+                    className={cn(
+                      cardVariants.subtle,
+                      'cursor-pointer p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:active:bg-violet-900/20 sm:p-3'
+                    )}
+                    onClick={() => loadTemplate(template)}
+                  >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white">
+                      <h4 className={cn('font-medium', textColors.primary)}>
                         {template.name}
                       </h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      <p className={cn('mt-1 text-sm', textColors.secondary)}>
                         {template.description}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">
                           {template.category}
                         </span>
-                        <span className="text-xs text-slate-500">
+                        <span className={cn('text-xs', textColors.muted)}>
                           {template.formData.baseRent
                             ? `$${template.formData.baseRent.toLocaleString()}/mo`
                             : ''}
@@ -2198,7 +2203,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
           <CardContent>
             <div className="space-y-3">
               {savedAnalyses.length === 0 ? (
-                <div className="text-center py-6 text-slate-500 dark:text-slate-400">
+                <div className={cn('py-6 text-center', textColors.muted)}>
                   <svg
                     className="w-12 h-12 mx-auto mb-2 opacity-50"
                     fill="none"
@@ -2220,21 +2225,24 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                   {savedAnalyses.slice(0, 3).map((analysis) => (
                     <div
                       key={analysis.id}
-                      className="cursor-pointer rounded-lg border border-slate-200 p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:border-slate-800 dark:active:bg-violet-900/20 sm:p-3"
+                      className={cn(
+                        cardVariants.subtle,
+                        'cursor-pointer p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:active:bg-violet-900/20 sm:p-3'
+                      )}
                       onClick={() => loadAnalysis(analysis)}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 dark:text-white">
+                          <h4 className={cn('font-medium', textColors.primary)}>
                             {analysis.name}
                           </h4>
                           {analysis.description && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                            <p className={cn('mt-1 text-sm', textColors.secondary)}>
                               {analysis.description}
                             </p>
                           )}
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-slate-500">
+                            <span className={cn('text-xs', textColors.muted)}>
                               {new Date(analysis.savedAt).toLocaleDateString()}
                             </span>
                             {analysis.result && (
@@ -2251,7 +2259,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                             e.stopPropagation();
                             deleteAnalysis(analysis.id);
                           }}
-                          className="text-slate-400 hover:text-rose-600 p-1"
+                          className={cn('p-1 transition-colors', textColors.muted, 'hover:text-rose-600 dark:hover:text-rose-300')}
                           title="Delete analysis"
                         >
                           <svg
@@ -2417,7 +2425,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                     max="360"
                   />
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Advanced options</span>
+                    <span className={cn('text-sm', textColors.secondary)}>Advanced options</span>
                     <Button type="button" onClick={() => setShowAdvanced((v) => !v)} size="sm">
                       {showAdvanced ? 'Hide' : 'Show'} Advanced
                     </Button>
@@ -2431,19 +2439,19 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                   <CardContent className="py-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Total Cost</span>
+                        <span className={cn('text-sm', textColors.secondary)}>Total Cost</span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.totalCost)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Present Value</span>
+                        <span className={cn('text-sm', textColors.secondary)}>Present Value</span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.presentValue)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">Effective Annual Rate</span>
+                        <span className={cn('text-sm', textColors.secondary)}>Effective Annual Rate</span>
                         <span className="font-medium">
                           {formatPercentage(result.metrics.effectiveAnnualRate)}
                         </span>
@@ -2777,7 +2785,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         onChange={(e) =>
                           handleNestedInputChange('purchaseOption', 'enabled', e.target.checked)
                         }
-                        className="rounded border-slate-300"
+                        className={checkboxClasses}
                       />
                       <label htmlFor="purchase-option-enabled">Enable purchase option</label>
                     </div>
@@ -2810,7 +2818,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                                 e.target.checked
                               )
                             }
-                            className="rounded border-slate-300"
+                            className={checkboxClasses}
                           />
                           <label htmlFor="fair-market-value">Use fair market value option</label>
                         </div>
@@ -2833,7 +2841,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                         onChange={(e) =>
                           handleNestedInputChange('earlyTermination', 'allowed', e.target.checked)
                         }
-                        className="rounded border-slate-300"
+                        className={checkboxClasses}
                       />
                       <label htmlFor="early-termination-allowed">Allow early termination</label>
                     </div>
@@ -2937,7 +2945,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                           handleInputChange('compareAlternatives', undefined);
                         }
                       }}
-                      className="rounded border-slate-300"
+                      className={checkboxClasses}
                     />
                     <label htmlFor="lease-vs-buy-compare">Compare with purchase option</label>
                   </div>
@@ -3098,7 +3106,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-slate-800">
+                      <tr className={tableHeadClasses}>
                         <th className="text-left py-2 px-3">Month</th>
                         <th className="text-right py-2 px-3">Payment</th>
                         <th className="text-right py-2 px-3">Interest</th>
@@ -3108,7 +3116,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                     </thead>
                     <tbody>
                       {result.schedule.slice(0, 12).map((payment, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 dark:border-slate-800">
+                        <tr key={idx} className={tableRowClasses}>
                           <td className="py-2 px-3">Month {payment.month}</td>
                           <td className="text-right py-2 px-3">
                             {formatCurrency(payment.totalPayment)}
@@ -3127,7 +3135,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                     </tbody>
                   </table>
                   {result.schedule.length > 12 && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 text-center">
+                    <p className={cn('mt-3 text-center text-sm', textColors.secondary)}>
                       Showing first 12 months of {result.schedule.length} month schedule
                     </p>
                   )}
@@ -3275,25 +3283,25 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   {/* Key Financial Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <div className={cn(cardVariants.subtle, 'p-3 text-center')}>
+                      <div className={cn('text-2xl font-bold', textColors.primary)}>
                         {formatPercentage(result.riskAnalysis.flexibilityScore / 100)}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
+                      <div className={cn('text-sm', textColors.secondary)}>
                         Flexibility Score
                       </div>
                     </div>
-                    <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <div className={cn(cardVariants.subtle, 'p-3 text-center')}>
+                      <div className={cn('text-2xl font-bold', textColors.primary)}>
                         {Math.round(formData.termMonths / 12)} yr
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Lease Term</div>
+                      <div className={cn('text-sm', textColors.secondary)}>Lease Term</div>
                     </div>
-                    <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <div className={cn(cardVariants.subtle, 'p-3 text-center')}>
+                      <div className={cn('text-2xl font-bold', textColors.primary)}>
                         {formatCurrency(result.metrics.costPerYear)}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Annual Cost</div>
+                      <div className={cn('text-sm', textColors.secondary)}>Annual Cost</div>
                     </div>
                   </div>
 
@@ -3412,7 +3420,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
                     onClick={exportToPDF}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-rose-600"
@@ -3432,7 +3440,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={exportToCSV}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-emerald-600"
@@ -3452,7 +3460,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={exportToJSON}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-violet-600"
@@ -3472,7 +3480,7 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
 
                   <button
                     onClick={generateShareableLink}
-                    className="flex flex-col items-center gap-2 p-4 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className={actionTileClasses}
                   >
                     <svg
                       className="w-6 h-6 text-violet-600"
@@ -3591,8 +3599,8 @@ export function LeaseAnalysisDashboard({ onAnalyze, hideAnalyzeButton, hideScena
       {/* Save Analysis Modal */}
       {showSaveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">
+          <div className={cn(cardVariants.rail, 'max-w-md w-full p-6 shadow-xl')}>
+            <h3 className={cn('mb-4 text-lg font-semibold', textColors.primary)}>
               Save Analysis
             </h3>
             <div className="space-y-4">

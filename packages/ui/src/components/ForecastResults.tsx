@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
-import { Button } from './Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
 import {
   DualAxisChart,
@@ -8,7 +7,7 @@ import {
   EnhancedMetricCard,
   type WaterfallDataPoint,
 } from './charts';
-import { cn, textColors } from '../lib/classNames';
+import { actionTileClasses, cn, tableHeadClasses, tableRowClasses, textColors } from '../lib/classNames';
 
 export interface MonthlyForecast {
   month: number;
@@ -374,7 +373,7 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                  <tr className={tableHeadClasses}>
                     <th className="text-left p-2">Month</th>
                     <th className="text-right p-2">Revenue</th>
                     <th className="text-right p-2">EBITDA</th>
@@ -387,7 +386,7 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                   {forecast.map((month, index) => (
                     <tr
                       key={index}
-                        className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900/50"
+                        className={tableRowClasses}
                     >
                       <td className="p-2">
                         {getMonthName(month.month)} {month.year}
@@ -429,29 +428,36 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                 Export your forecast data and charts in various formats:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
+                <button
+                  type="button"
                   onClick={() => exportToCSV(forecast)}
-                  className="justify-center gap-2 px-4 py-3"
+                  className={cn(actionTileClasses, 'justify-center text-center')}
                 >
                   <span>📄</span>
                   <span>Export to CSV</span>
-                </Button>
-                <Button
+                </button>
+                <button
+                  type="button"
                   onClick={() => copyToClipboard(forecast)}
-                  variant="success"
-                  className="justify-center gap-2 px-4 py-3"
+                  className={cn(
+                    actionTileClasses,
+                    'justify-center border-emerald-200 bg-emerald-50/90 text-center hover:border-emerald-300 hover:bg-emerald-100/90 dark:border-emerald-900/70 dark:bg-emerald-950/25'
+                  )}
                 >
                   <span>📋</span>
                   <span>Copy to Clipboard</span>
-                </Button>
-                <Button
+                </button>
+                <button
+                  type="button"
                   onClick={() => alert('Chart export feature coming soon!')}
-                  variant="secondary"
-                  className="justify-center gap-2 px-4 py-3"
+                  className={cn(
+                    actionTileClasses,
+                    'justify-center border-violet-200 bg-violet-50/90 text-center hover:border-violet-300 hover:bg-violet-100/90 dark:border-violet-900/70 dark:bg-violet-950/25'
+                  )}
                 >
                   <span>📊</span>
                   <span>Export Charts</span>
-                </Button>
+                </button>
               </div>
             </div>
           </CardContent>

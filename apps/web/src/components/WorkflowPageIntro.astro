@@ -23,7 +23,7 @@ const badgeClasses = badgeTone === 'slate' ? 'fa-chip fa-chip-muted' : 'fa-chip 
 ---
 
 <section class="fa-card p-6">
-  <div class="mb-4 flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+  <div class="fa-card-copy fa-card-copy-sm !mt-0 mb-4 flex items-center gap-3">
     <a href={backHref} class="fa-shell-link-accent inline-flex items-center gap-2">
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -39,8 +39,8 @@ const badgeClasses = badgeTone === 'slate' ? 'fa-chip fa-chip-muted' : 'fa-chip 
   <div class="flex items-start gap-4">
     {icon && <span class="mt-0.5 text-3xl">{icon}</span>}
     <div class="min-w-0 flex-1">
-      <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{title}</h1>
-      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
+      <h1 class="fa-panel-title text-2xl">{title}</h1>
+      <p class="fa-card-copy fa-card-copy-sm !mt-2">{description}</p>
       {
         badgeText && (
           <div class="mt-3">

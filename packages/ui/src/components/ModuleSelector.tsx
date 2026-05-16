@@ -1,5 +1,5 @@
 import React from 'react';
-import { badgeVariants, cn, textColors } from '../lib/classNames';
+import { actionTileClasses, badgeVariants, cn, textColors } from '../lib/classNames';
 
 export type ModuleType = 'financials' | 'employees' | 'expenses' | 'scenario' | 'fixed-assets' | 'leases';
 
@@ -77,7 +77,7 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h3 className={cn('text-lg font-semibold', textColors.primary)}>
             Add Input Sections
           </h3>
           <p className={cn('mt-1 text-sm', textColors.secondary)}>
@@ -89,17 +89,18 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {availableToAdd.map((module) => (
           <button
-            key={module.id}
-            onClick={() => onAddModule(module.id)}
-            className={cn(
-              module.cardClass,
-              'rounded-[1.35rem] border-2 p-4 text-left shadow-[0_10px_24px_rgba(9,14,36,0.04)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(9,14,36,0.08)] active:translate-y-0'
-            )}
-          >
+              key={module.id}
+              onClick={() => onAddModule(module.id)}
+              className={cn(
+                actionTileClasses,
+                module.cardClass,
+                'border-2 text-left transition-all hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(9,14,36,0.08)] active:translate-y-0'
+              )}
+            >
             <div className="flex items-start gap-3">
               <div className="text-3xl flex-shrink-0">{module.icon}</div>
               <div className="flex-1 min-w-0">
-                <div className="mb-1 font-semibold text-slate-900 dark:text-white">
+                <div className={cn('mb-1 font-semibold', textColors.primary)}>
                   {module.label}
                 </div>
                 <div className={cn('text-sm', textColors.secondary)}>

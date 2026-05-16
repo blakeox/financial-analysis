@@ -105,17 +105,17 @@ export const displayResults = (result: RevenueForecastResult): void => {
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Monthly Forecast Table -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Monthly Revenue Forecast</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
+            <tr class="fa-panel-divider">
               <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
               ${Object.keys(result.monthlyForecasts[0].revenueByStream).map(stream => `
                 <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${stream}</th>
               `).join('')}
-              <th class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">Total</th>
+              <th class="text-right py-2 px-3 fa-list-copy-strong">Total</th>
               ${result.customerMetrics ? '<th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>' : ''}
               <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Growth</th>
             </tr>
@@ -123,18 +123,18 @@ export const displayResults = (result: RevenueForecastResult): void => {
           <tbody>
             ${result.monthlyForecasts.map((month: RevenueForecastMonth) => `
               <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                <td class="py-2 px-3 text-slate-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
+                <td class="py-2 px-3 fa-list-copy-strong">${month.month}. ${month.monthName}</td>
                 ${Object.values(month.revenueByStream).map((rev) => `
                   <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
                 `).join('')}
-                <td class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
+                <td class="text-right py-2 px-3 fa-list-copy-strong">${formatCurrency(month.totalRevenue)}</td>
                 ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${month.customers.toFixed(0)}</td>` : ''}
                 <td class="text-right py-2 px-3 ${month.growthVsPreviousMonth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                   ${month.growthVsPreviousMonth >= 0 ? '+' : ''}${month.growthVsPreviousMonth.toFixed(1)}%
                 </td>
               </tr>
             `).join('')}
-            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-semibold">
+            <tr class="fa-panel-divider-top font-semibold">
               <td class="py-3 px-3 text-slate-900 dark:text-white">TOTAL</td>
               ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => `
                 <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
@@ -153,7 +153,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
     </div>
     
     <!-- Stream Breakdown -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Revenue Stream Breakdown</h4>
       <div class="space-y-4">
         ${result.streamBreakdown.map((stream: RevenueForecastStreamSummary) => {
@@ -181,12 +181,12 @@ export const displayResults = (result: RevenueForecastResult): void => {
     
     <!-- Customer Metrics -->
     ${result.customerMetrics ? `
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+      <div class="fa-card p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Customer Growth Analysis</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <p class="fa-script-copy-muted">Ending Customers</p>
-            <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
+            <p class="fa-panel-title text-2xl">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
           </div>
           <div>
             <p class="fa-script-copy-muted">Net Growth</p>
@@ -321,7 +321,7 @@ function setupDynamicStreams(): void {
     }
     
     const streamDiv = document.createElement('div');
-    streamDiv.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
+    streamDiv.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 fa-surface-muted rounded-lg';
     streamDiv.id = `stream-${streamCount}`;
     
     streamDiv.innerHTML = `

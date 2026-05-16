@@ -113,7 +113,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Valuation Methods -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Valuation Methods Used</h4>
       <p class="fa-script-copy-muted mb-4">
         Primary method: <strong>${result.summary.mostRelevantMethod}</strong>
@@ -122,7 +122,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
         ${result.methods.map((method: BusinessValuationMethod) => `
           <div class="border-l-4 ${method.confidence === 'high' ? 'border-emerald-500' : method.confidence === 'medium' ? 'border-yellow-500' : 'border-slate-400'} pl-4">
             <div class="flex justify-between items-start mb-1">
-              <h5 class="font-semibold text-slate-900 dark:text-white">${method.name}</h5>
+              <h5 class="fa-list-copy-strong">${method.name}</h5>
               <span class="text-lg font-bold text-slate-900 dark:text-white">${formatCurrency(method.value)}</span>
             </div>
             <p class="fa-script-copy-muted">${method.explanation}</p>
@@ -131,7 +131,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
               <span class="text-xs px-2 py-0.5 rounded ${
                 method.confidence === 'high' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
                 method.confidence === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                'fa-chip fa-chip-muted'
               }">
                 ${method.confidence.toUpperCase()} confidence
               </span>
@@ -144,29 +144,29 @@ export const displayResults = (result: BusinessValuationResult): void => {
     <!-- Multiples Applied -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       ${result.ebitdaMultiple > 0 ? `
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
-          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">EBITDA Multiple</h5>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.ebitdaMultiple.toFixed(2)}x</p>
+        <div class="fa-subcard">
+          <h5 class="fa-field-label mb-2">EBITDA Multiple</h5>
+          <p class="fa-panel-title text-2xl">${result.ebitdaMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
       ${result.revenueMultiple > 0 ? `
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
-          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Revenue Multiple</h5>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.revenueMultiple.toFixed(2)}x</p>
+        <div class="fa-subcard">
+          <h5 class="fa-field-label mb-2">Revenue Multiple</h5>
+          <p class="fa-panel-title text-2xl">${result.revenueMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
       ${result.sdeMultiple > 0 ? `
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
-          <h5 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">SDE Multiple</h5>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.sdeMultiple.toFixed(2)}x</p>
+        <div class="fa-subcard">
+          <h5 class="fa-field-label mb-2">SDE Multiple</h5>
+          <p class="fa-panel-title text-2xl">${result.sdeMultiple.toFixed(2)}x</p>
         </div>
       ` : ''}
     </div>
     
     <!-- Adjustment Factors -->
     ${result.adjustments.length > 0 ? `
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Valuation Adjustments</h4>
+      <div class="fa-card p-6 mb-6">
+        <h4 class="text-lg fa-list-copy-strong mb-4">Valuation Adjustments</h4>
         <div class="space-y-3">
           ${result.adjustments.map((adj: BusinessValuationAdjustment) => `
             <div class="flex items-start justify-between py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
@@ -183,7 +183,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
               <span class="ml-4 px-3 py-1 rounded-full text-sm font-semibold ${
                 adj.impact === 'positive' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
                 adj.impact === 'negative' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
-                'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                 'fa-chip fa-chip-muted'
               }">
                 ${adj.adjustmentPercent > 0 ? '+' : ''}${adj.adjustmentPercent.toFixed(0)}%
               </span>
