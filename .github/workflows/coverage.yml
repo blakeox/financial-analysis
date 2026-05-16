@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10.17.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: pnpm
@@ -33,7 +33,7 @@ jobs:
         run: pnpm --filter @financial-analysis/analysis run test:coverage
 
       - name: Upload coverage (Codecov)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: packages/analysis/coverage/coverage-final.json
           fail_ci_if_error: false
@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload analysis coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: analysis-coverage
           path: packages/analysis/coverage
@@ -52,15 +52,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10.17.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: pnpm
@@ -73,7 +73,7 @@ jobs:
         run: pnpm --filter @financial-analysis/web run test:coverage
 
       - name: Upload web coverage (Codecov)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: apps/web/coverage/vitest/lcov.info
           fail_ci_if_error: false
@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload web coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: apps/web/coverage/vitest

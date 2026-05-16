@@ -19,15 +19,15 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260422.1",
+    "@cloudflare/workers-types": "^4.20260516.1",
     "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.46.4",
-    "@typescript-eslint/parser": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
-    "vitest": "4.0.9",
+    "vitest": "4.1.6",
     "wrangler": "^4.84.1"
   }
 }
