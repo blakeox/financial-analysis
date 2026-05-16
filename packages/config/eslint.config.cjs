@@ -29,6 +29,7 @@ module.exports = [
       ...(tsPlugin.configs.recommendedTypeChecked?.rules || {}),
       'no-undef': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-useless-assignment': 'off',
     },
   },
   {
@@ -38,7 +39,10 @@ module.exports = [
       parserOptions: { parser: tsParser, projectService: false, extraFileExtensions: ['.astro'] },
     },
     plugins: { astro: astroPlugin },
-    rules: { ...(astroPlugin.configs.recommended?.rules || {}) },
+    rules: {
+      ...(astroPlugin.configs.recommended?.rules || {}),
+      'no-useless-assignment': 'off',
+    },
   },
   {
     files: [

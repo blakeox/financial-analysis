@@ -287,7 +287,11 @@ export async function handleMCPToolsList(
       },
     });
   } catch (error) {
-    logError(requestContext, new Error(error instanceof Error ? error.message : String(error)));
+    const logErr =
+      error instanceof Error
+        ? error
+        : new Error(String(error), { cause: error });
+    logError(requestContext, logErr);
 
     return new Response(
       JSON.stringify({

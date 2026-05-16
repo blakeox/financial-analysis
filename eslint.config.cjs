@@ -37,6 +37,9 @@ module.exports = [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'warn',
+      // ESLint 10: engines often use placeholder init before branch-only reassignment
+      'no-useless-assignment': 'off',
+      'preserve-caught-error': 'error',
     },
   },
 
@@ -56,6 +59,7 @@ module.exports = [
     },
     rules: {
       ...(astroPlugin.configs.recommended?.rules || {}),
+      'no-useless-assignment': 'off',
     },
   },
 
