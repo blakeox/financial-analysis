@@ -19,18 +19,10 @@ export const FormActions: React.FC<FormActionsProps> = ({
 }) => {
   return (
     <div className={cn('flex gap-4', className)}>
-      <Button
-        type="submit"
-        className="flex-1"
-        disabled={isSubmitting}
-      >
+      <Button type="submit" className="flex-1" disabled={isSubmitting}>
         {submitLabel}
       </Button>
-      <Button
-        type="button"
-        onClick={onReset}
-        variant="secondary"
-      >
+      <Button type="button" onClick={onReset} variant="secondary">
         {resetLabel}
       </Button>
     </div>

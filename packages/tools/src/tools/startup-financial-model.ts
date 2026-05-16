@@ -2,7 +2,10 @@
  * Startup Financial Model MCP Tool
  */
 
-import { StartupFinancialModelInputSchema, StartupFinancialModel } from '@financial-analysis/analysis';
+import {
+  StartupFinancialModelInputSchema,
+  StartupFinancialModel,
+} from '@financial-analysis/analysis';
 
 export class StartupFinancialModelTool {
   static readonly toolName = 'analyze_startup_financial_model';
@@ -37,7 +40,12 @@ export class StartupFinancialModelTool {
         properties: {
           currentCash: { type: 'number', minimum: 0, description: 'Current cash' },
           monthlyBurnRate: { type: 'number', minimum: 0, description: 'Monthly burn rate' },
-          monthlyRevenue: { type: 'number', minimum: 0, default: 0, description: 'Monthly revenue' },
+          monthlyRevenue: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Monthly revenue',
+          },
           annualRecurringRevenue: { type: 'number', minimum: 0, default: 0, description: 'ARR' },
         },
         required: ['currentCash', 'monthlyBurnRate'],
@@ -45,8 +53,20 @@ export class StartupFinancialModelTool {
       revenueProjections: {
         type: 'object',
         properties: {
-          monthlyGrowthRate: { type: 'number', minimum: 0, maximum: 1, default: 0.1, description: 'Monthly growth rate' },
-          churnRate: { type: 'number', minimum: 0, maximum: 1, default: 0.05, description: 'Monthly churn rate' },
+          monthlyGrowthRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.1,
+            description: 'Monthly growth rate',
+          },
+          churnRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.05,
+            description: 'Monthly churn rate',
+          },
           averageRevenuePerUser: { type: 'number', minimum: 0, default: 0, description: 'ARPU' },
         },
       },
@@ -55,7 +75,13 @@ export class StartupFinancialModelTool {
         properties: {
           customerAcquisitionCost: { type: 'number', minimum: 0, default: 0, description: 'CAC' },
           lifetimeValue: { type: 'number', minimum: 0, default: 0, description: 'LTV' },
-          grossMargin: { type: 'number', minimum: 0, maximum: 1, default: 0.7, description: 'Gross margin' },
+          grossMargin: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.7,
+            description: 'Gross margin',
+          },
         },
       },
       analysis: {
@@ -63,9 +89,23 @@ export class StartupFinancialModelTool {
         properties: {
           includeRunway: { type: 'boolean', default: true, description: 'Include runway' },
           includeBurnRate: { type: 'boolean', default: true, description: 'Include burn rate' },
-          includeUnitEconomics: { type: 'boolean', default: true, description: 'Include unit economics' },
-          includeFundingScenarios: { type: 'boolean', default: true, description: 'Include funding scenarios' },
-          projectionMonths: { type: 'number', minimum: 6, maximum: 60, default: 24, description: 'Projection months' },
+          includeUnitEconomics: {
+            type: 'boolean',
+            default: true,
+            description: 'Include unit economics',
+          },
+          includeFundingScenarios: {
+            type: 'boolean',
+            default: true,
+            description: 'Include funding scenarios',
+          },
+          projectionMonths: {
+            type: 'number',
+            minimum: 6,
+            maximum: 60,
+            default: 24,
+            description: 'Projection months',
+          },
         },
         required: ['projectionMonths'],
       },
@@ -78,5 +118,3 @@ export class StartupFinancialModelTool {
     return StartupFinancialModel.analyze(validated);
   }
 }
-
-

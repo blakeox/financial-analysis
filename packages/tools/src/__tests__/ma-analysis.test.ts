@@ -267,9 +267,11 @@ describe('MAAnalysisTool', () => {
     });
 
     it('returns error for invalid input', async () => {
-      await expect(MAAnalysisTool.execute({
-        // Missing required fields
-      })).rejects.toThrow();
+      await expect(
+        MAAnalysisTool.execute({
+          // Missing required fields
+        })
+      ).rejects.toThrow();
     });
   });
 });

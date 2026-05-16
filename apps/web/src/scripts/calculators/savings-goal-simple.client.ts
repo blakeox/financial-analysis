@@ -56,45 +56,45 @@ function calculateInflationImpact(
 } {
   // Inflation-adjusted goal (what you need in future dollars)
   const inflationAdjustedGoal = goalAmount * Math.pow(1 + inflationRate, targetYears);
-  
+
   // Calculate progress milestones (25%, 50%, 75%, 100%)
   const milestones: Array<{ percent: number; amount: number; months: number; date: string }> = [];
   const monthlyRate = annualReturnRate / 12;
   const totalMonths = targetYears * 12;
-  
+
   let balance = currentSavings;
-  const checkpoints = [0.25, 0.50, 0.75, 1.0];
+  const checkpoints = [0.25, 0.5, 0.75, 1.0];
   let checkpointIndex = 0;
-  
+
   for (let month = 0; month <= totalMonths && checkpointIndex < checkpoints.length; month++) {
     if (month > 0) {
       balance = balance * (1 + monthlyRate) + monthlyContribution;
     }
-    
+
     const progress = balance / goalAmount;
-    
+
     if (progress >= checkpoints[checkpointIndex]) {
       const targetDate = new Date();
       targetDate.setMonth(targetDate.getMonth() + month);
-      
+
       milestones.push({
         percent: checkpoints[checkpointIndex] * 100,
         amount: balance,
         months: month,
         date: targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
       });
-      
+
       checkpointIndex++;
     }
   }
-  
+
   // If we didn't hit all milestones, project them
   while (milestones.length < 4) {
     const percent = checkpoints[milestones.length];
     const targetAmount = goalAmount * percent;
     const targetDate = new Date();
     targetDate.setMonth(targetDate.getMonth() + totalMonths);
-    
+
     milestones.push({
       percent: percent * 100,
       amount: targetAmount,
@@ -102,15 +102,16 @@ function calculateInflationImpact(
       date: targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
     });
   }
-  
+
   // Real value (purchasing power in today's dollars)
-  const finalBalance = currentSavings * Math.pow(1 + annualReturnRate, targetYears) +
+  const finalBalance =
+    currentSavings * Math.pow(1 + annualReturnRate, targetYears) +
     monthlyContribution * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate);
   const realValue = finalBalance / Math.pow(1 + inflationRate, targetYears);
-  
+
   // Current progress percentage
   const progressPercent = Math.min(100, (currentSavings / goalAmount) * 100);
-  
+
   return {
     inflationAdjustedGoal,
     realValue,
@@ -162,29 +163,35 @@ class SimpleSavingsGoalCalculator {
     const goalProfiles: Record<string, { label: string; strategy: string }> = {
       emergency: {
         label: 'Emergency Fund',
-        strategy: 'Favor liquidity and low-risk accounts—automate transfers after paydays until you reach 3-6 months of expenses.',
+        strategy:
+          'Favor liquidity and low-risk accounts—automate transfers after paydays until you reach 3-6 months of expenses.',
       },
       education: {
         label: 'Education Savings',
-        strategy: 'Use tax-advantaged accounts (529, ESA) and escalate contributions each semester to stay ahead of tuition needs.',
+        strategy:
+          'Use tax-advantaged accounts (529, ESA) and escalate contributions each semester to stay ahead of tuition needs.',
       },
       home: {
         label: 'Home Purchase',
-        strategy: 'Pair disciplined contributions with debt payoff and keep savings in safe accounts until you are within 12 months of closing.',
+        strategy:
+          'Pair disciplined contributions with debt payoff and keep savings in safe accounts until you are within 12 months of closing.',
       },
       retirement: {
         label: 'Retirement Bridge Goal',
-        strategy: 'Maximize employer matches, automate annual contribution increases, and stay diversified to protect long-term purchasing power.',
+        strategy:
+          'Maximize employer matches, automate annual contribution increases, and stay diversified to protect long-term purchasing power.',
       },
       general: {
         label: 'General Savings',
-        strategy: 'Maintain steady monthly contributions and revisit the goal quarterly to align with lifestyle changes.',
+        strategy:
+          'Maintain steady monthly contributions and revisit the goal quarterly to align with lifestyle changes.',
       },
     };
 
     const goalProfile = goalProfiles[goalType] ?? {
       label: 'Custom Goal',
-      strategy: 'Set automated transfers, keep a short-term buffer, and adjust contributions when income rises.',
+      strategy:
+        'Set automated transfers, keep a short-term buffer, and adjust contributions when income rises.',
     };
 
     // Calculate effective annual return (nominal - inflation)
@@ -273,7 +280,9 @@ const displayResults = (result: SavingsGoalResults): void => {
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    ${result.milestones && result.milestones.length > 0 ? `
+    ${
+      result.milestones && result.milestones.length > 0
+        ? `
     <!-- Progress Bar and Milestones -->
     <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -284,8 +293,8 @@ const displayResults = (result: SavingsGoalResults): void => {
       <!-- Visual Progress Bar -->
       <div class="mb-6">
         <div class="flex justify-between text-sm mb-2">
-          <span class="fa-help-copy">Current Progress</span>
-          <span class="fa-list-copy-strong">${result.progressPercent?.toFixed(1) || 0}%</span>
+          <span class="text-slate-600 dark:text-slate-400">Current Progress</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${result.progressPercent?.toFixed(1) || 0}%</span>
         </div>
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-6 relative">
           <div class="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-emerald-500 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2" style="width: ${result.progressPercent || 0}%">
@@ -300,74 +309,82 @@ const displayResults = (result: SavingsGoalResults): void => {
       
       <!-- Milestone Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        ${result.milestones.map((milestone, idx) => {
-          const achieved = (result.progressPercent || 0) >= milestone.percent;
-          const colors = ['violet', 'fuchsia', 'amber', 'emerald'];
-          const color = colors[idx];
-          return `
-            <div class="fa-subcard p-3 border-2 ${achieved ? `border-${color}-500` : 'border-slate-200 dark:border-slate-800'}">
+        ${result.milestones
+          .map((milestone, idx) => {
+            const achieved = (result.progressPercent || 0) >= milestone.percent;
+            const colors = ['violet', 'fuchsia', 'amber', 'emerald'];
+            const color = colors[idx];
+            return `
+            <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 border-2 ${achieved ? `border-${color}-500` : 'border-slate-200 dark:border-slate-800'}">
               <div class="flex items-center gap-2 mb-2">
                 <span class="text-xl">${achieved ? '✅' : '⏳'}</span>
-                <span class="fa-list-copy-strong">${milestone.percent}%</span>
+                <span class="font-semibold text-slate-900 dark:text-white">${milestone.percent}%</span>
               </div>
               <p class="fa-script-note mb-1">${formatCurrency(milestone.amount)}</p>
               <p class="fa-script-note">${milestone.date}</p>
               <p class="fa-script-note">${milestone.months} months</p>
             </div>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
 
-      ${result.goalStrategy ? `
+      ${
+        result.goalStrategy
+          ? `
       <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 mb-6">
         <div class="flex items-center gap-3 mb-3">
           <span class="text-2xl">🧠</span>
           <div>
-            <h3 class="text-lg fa-list-copy-strong">Strategy Guidance</h3>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Strategy Guidance</h3>
             ${result.goalTypeLabel ? `<p class="fa-script-copy-subtle">Optimized for ${result.goalTypeLabel}</p>` : ''}
           </div>
         </div>
         <p class="fa-script-copy-strong leading-relaxed">${result.goalStrategy}</p>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
     
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Savings Goal Timeline</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Savings Goal Timeline</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Target Date</span>
             <p class="fa-script-copy-subtle">When you'll reach your goal</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${result.targetDate}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.targetDate}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Months to Goal</span>
             <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${result.monthsToGoal} months</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.monthsToGoal} months</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Years to Goal</span>
             <p class="fa-script-copy-subtle">Time remaining</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${result.yearsToGoal.toFixed(1)} years</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.yearsToGoal.toFixed(1)} years</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Effective Annual Return</span>
             <p class="fa-script-copy-subtle">After inflation</p>
@@ -379,11 +396,11 @@ const displayResults = (result: SavingsGoalResults): void => {
       </div>
     </div>
 
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Financial Breakdown</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Financial Breakdown</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Final Balance</span>
             <p class="fa-script-copy-subtle">Total amount saved</p>
@@ -393,7 +410,7 @@ const displayResults = (result: SavingsGoalResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Total Contributions</span>
             <p class="fa-script-copy-subtle">Amount you'll contribute</p>
@@ -403,7 +420,7 @@ const displayResults = (result: SavingsGoalResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Interest Earned</span>
             <p class="fa-script-copy-subtle">Growth from investments</p>
@@ -413,7 +430,7 @@ const displayResults = (result: SavingsGoalResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Goal Achievement</span>
             <p class="fa-script-copy-subtle">Status</p>
@@ -425,8 +442,8 @@ const displayResults = (result: SavingsGoalResults): void => {
       </div>
     </div>
 
-    <div class="fa-card p-6">
-      <h3 class="fa-panel-title text-xl mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
         <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">

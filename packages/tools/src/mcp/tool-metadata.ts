@@ -41,7 +41,16 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     promptHint: 'Basic commercial/residential lease analysis',
   },
   analyze_enhanced_lease: {
-    keywords: ['lease', 'rent', 'tenant', 'landlord', 'commercial', 'enhanced', 'cam', 'escalation'],
+    keywords: [
+      'lease',
+      'rent',
+      'tenant',
+      'landlord',
+      'commercial',
+      'enhanced',
+      'cam',
+      'escalation',
+    ],
     category: 'lease',
     outputFields: ['monthlyRent', 'totalRent', 'effectiveRate', 'camCharges', 'escalations'],
     promptHint: 'Comprehensive lease analysis with CAM, escalations, and TI',
@@ -55,7 +64,14 @@ export const toolMetadata: Record<string, ToolMetadata> = {
 
   // Loan & Amortization Tools
   analyze_amortization: {
-    keywords: ['amortization', 'mortgage', 'loan payment', 'principal', 'schedule', 'payment breakdown'],
+    keywords: [
+      'amortization',
+      'mortgage',
+      'loan payment',
+      'principal',
+      'schedule',
+      'payment breakdown',
+    ],
     category: 'loan',
     outputFields: ['principal', 'annualRate', 'termMonths', 'monthlyPayment', 'totalInterest'],
     promptHint: 'Loan amortization schedules and payment breakdowns',
@@ -93,25 +109,54 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     promptHint: 'Options pricing using Black-Scholes and Greeks',
   },
   analyze_investment_portfolio: {
-    keywords: ['portfolio', 'investment', 'diversif', 'asset allocation', 'rebalance', 'stocks', 'etf'],
+    keywords: [
+      'portfolio',
+      'investment',
+      'diversif',
+      'asset allocation',
+      'rebalance',
+      'stocks',
+      'etf',
+    ],
     category: 'investment',
     outputFields: ['allocation', 'expectedReturn', 'risk', 'sharpeRatio'],
     promptHint: 'Portfolio optimization and asset allocation',
   },
   calculate_capm: {
-    keywords: ['capm', 'expected return', 'beta', 'risk free', 'market risk premium', 'equity cost'],
+    keywords: [
+      'capm',
+      'expected return',
+      'beta',
+      'risk free',
+      'market risk premium',
+      'equity cost',
+    ],
     category: 'investment',
     outputFields: ['expectedReturn'],
     promptHint: 'CAPM expected return / cost of equity calculation',
   },
   analyze_risk_adjusted_returns: {
-    keywords: ['sharpe', 'sortino', 'risk adjusted', 'risk-adjusted', 'volatility', 'downside deviation'],
+    keywords: [
+      'sharpe',
+      'sortino',
+      'risk adjusted',
+      'risk-adjusted',
+      'volatility',
+      'downside deviation',
+    ],
     category: 'investment',
     outputFields: ['sharpeRatio', 'sortinoRatio'],
     promptHint: 'Sharpe and Sortino ratios from historical returns',
   },
   simulate_investment_monte_carlo: {
-    keywords: ['monte carlo', 'simulation', 'probabilistic', 'distribution', 'percentile', 'scenarios'],
+    keywords: [
+      'monte carlo',
+      'simulation',
+      'probabilistic',
+      'distribution',
+      'percentile',
+      'scenarios',
+    ],
     category: 'investment',
     outputFields: ['endingValue'],
     promptHint: 'Deterministic Monte Carlo simulation for investment outcomes',
@@ -167,7 +212,14 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     promptHint: 'Compare multiple EBITDA scenarios',
   },
   calculate_npv_irr: {
-    keywords: ['npv', 'irr', 'net present value', 'internal rate of return', 'payback', 'sensitivity'],
+    keywords: [
+      'npv',
+      'irr',
+      'net present value',
+      'internal rate of return',
+      'payback',
+      'sensitivity',
+    ],
     category: 'valuation',
     outputFields: ['npv', 'irr', 'paybackPeriod'],
     promptHint: 'Dedicated NPV/IRR calculator with optional sensitivity analysis',
@@ -227,7 +279,16 @@ export const toolMetadata: Record<string, ToolMetadata> = {
     promptHint: 'Home buying affordability and mortgage options',
   },
   analyze_rent_vs_buy: {
-    keywords: ['rent', 'buy', 'renting', 'buying', 'home purchase', 'housing decision', 'apartment', 'homeowner'],
+    keywords: [
+      'rent',
+      'buy',
+      'renting',
+      'buying',
+      'home purchase',
+      'housing decision',
+      'apartment',
+      'homeowner',
+    ],
     category: 'loan',
     outputFields: ['rentCost', 'buyCost', 'breakEvenYears', 'recommendation'],
     promptHint: 'Compare renting vs buying a home',
@@ -373,7 +434,8 @@ export const toolMetadata: Record<string, ToolMetadata> = {
   analyze_estate_planning: {
     keywords: ['estate', 'planning'],
     category: 'tax',
-    promptHint: 'Estate tax planning, inheritance projections, trust analysis, and gift tax optimization',
+    promptHint:
+      'Estate tax planning, inheritance projections, trust analysis, and gift tax optimization',
   },
   analyze_financial_ratios: {
     keywords: ['financial', 'ratios'],
@@ -527,7 +589,15 @@ export const toolMetadata: Record<string, ToolMetadata> = {
 
   // Journey & Scenario Tools
   analyze_financial_journey: {
-    keywords: ['financial journey', 'milestones', 'life events', 'seed round', 'series a', 'funding', 'startup'],
+    keywords: [
+      'financial journey',
+      'milestones',
+      'life events',
+      'seed round',
+      'series a',
+      'funding',
+      'startup',
+    ],
     category: 'scenario',
     outputFields: ['milestones', 'projections', 'recommendations'],
     promptHint: 'Multi-stage financial journey and life event planning',
@@ -576,12 +646,14 @@ export const toolMetadata: Record<string, ToolMetadata> = {
  * Get tool metadata by name, with safe fallback
  */
 export function getToolMetadata(toolName: string): ToolMetadata {
-  return toolMetadata[toolName] || {
-    keywords: [],
-    category: 'business' as ToolCategory,
-    outputFields: [],
-    promptHint: 'Financial analysis tool',
-  };
+  return (
+    toolMetadata[toolName] || {
+      keywords: [],
+      category: 'business' as ToolCategory,
+      outputFields: [],
+      promptHint: 'Financial analysis tool',
+    }
+  );
 }
 
 /**
@@ -626,13 +698,15 @@ export const categoryDescriptions: Record<ToolCategory, string> = {
  */
 export function buildToolCategoryPrompt(): string {
   const lines: string[] = ['Available tool categories:'];
-  
+
   for (const category of getAllCategories()) {
     const tools = getToolsByCategory(category);
     if (tools.length > 0) {
-      lines.push(`- ${categoryDescriptions[category]}: use ${tools.slice(0, 3).join(', ')}${tools.length > 3 ? ', ...' : ''}`);
+      lines.push(
+        `- ${categoryDescriptions[category]}: use ${tools.slice(0, 3).join(', ')}${tools.length > 3 ? ', ...' : ''}`
+      );
     }
   }
-  
+
   return lines.join('\n');
 }

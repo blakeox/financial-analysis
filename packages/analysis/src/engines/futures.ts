@@ -70,7 +70,8 @@ export class FuturesPricingAnalyzer {
 
     // Analysis
     const priceDifference = validated.futuresPrice - theoreticalPrice;
-    const percentageDifference = theoreticalPrice !== 0 ? (priceDifference / theoreticalPrice) * 100 : 0;
+    const percentageDifference =
+      theoreticalPrice !== 0 ? (priceDifference / theoreticalPrice) * 100 : 0;
 
     // Treat small differences as "fairly valued" (threshold = 1%)
     const isOvervalued = percentageDifference > 1;
@@ -144,10 +145,16 @@ export class FuturesPricingAnalyzer {
     const gamma = 0;
 
     // Theta: approximate time decay
-    const theta = -input.currentPrice * input.riskFreeRate * Math.exp(input.riskFreeRate * input.timeToExpiration);
+    const theta =
+      -input.currentPrice *
+      input.riskFreeRate *
+      Math.exp(input.riskFreeRate * input.timeToExpiration);
 
     // Rho: sensitivity to risk-free rate
-    const rho = input.currentPrice * input.timeToExpiration * Math.exp(input.riskFreeRate * input.timeToExpiration);
+    const rho =
+      input.currentPrice *
+      input.timeToExpiration *
+      Math.exp(input.riskFreeRate * input.timeToExpiration);
 
     return { delta, gamma, theta, rho };
   }
@@ -173,7 +180,10 @@ export class FuturesPricingAnalyzer {
   /**
    * Generate trading recommendation
    */
-  private static generateRecommendation(input: FuturesContractInputValidated, theoreticalPrice: number): string {
+  private static generateRecommendation(
+    input: FuturesContractInputValidated,
+    theoreticalPrice: number
+  ): string {
     const priceDiff = input.futuresPrice - theoreticalPrice;
     const percentDiff = Math.abs(priceDiff / theoreticalPrice) * 100;
 
@@ -197,26 +207,38 @@ export class FuturesPricingAnalyzer {
     const insights = [];
 
     if (input.dividendYield && input.dividendYield > 0) {
-      insights.push(`Dividend yield of ${(input.dividendYield * 100).toFixed(2)}% reduces futures price relative to spot.`);
+      insights.push(
+        `Dividend yield of ${(input.dividendYield * 100).toFixed(2)}% reduces futures price relative to spot.`
+      );
     }
 
     if (input.storageCost && input.storageCost > 0) {
-      insights.push(`Storage costs of ${(input.storageCost * 100).toFixed(2)}% increase futures price relative to spot.`);
+      insights.push(
+        `Storage costs of ${(input.storageCost * 100).toFixed(2)}% increase futures price relative to spot.`
+      );
     }
 
     if (input.convenienceYield && input.convenienceYield > 0) {
-      insights.push(`Convenience yield of ${(input.convenienceYield * 100).toFixed(2)}% reduces futures price due to non-financial benefits.`);
+      insights.push(
+        `Convenience yield of ${(input.convenienceYield * 100).toFixed(2)}% reduces futures price due to non-financial benefits.`
+      );
     }
 
     if (Math.abs(basis) > input.currentPrice * 0.05) {
-      insights.push(`Large basis (${(basis / input.currentPrice * 100).toFixed(2)}% of spot price) indicates potential arbitrage opportunity.`);
+      insights.push(
+        `Large basis (${((basis / input.currentPrice) * 100).toFixed(2)}% of spot price) indicates potential arbitrage opportunity.`
+      );
     }
 
     if (input.timeToExpiration > 1) {
-      insights.push(`Long-dated contract (${input.timeToExpiration.toFixed(1)} years) increases sensitivity to interest rate changes.`);
+      insights.push(
+        `Long-dated contract (${input.timeToExpiration.toFixed(1)} years) increases sensitivity to interest rate changes.`
+      );
     }
 
-    insights.push(`Theoretical price: $${theoreticalPrice.toFixed(2)}, Market price: $${input.futuresPrice.toFixed(2)}`);
+    insights.push(
+      `Theoretical price: $${theoreticalPrice.toFixed(2)}, Market price: $${input.futuresPrice.toFixed(2)}`
+    );
 
     return insights;
   }
@@ -237,7 +259,9 @@ export interface ForwardContractInput {
 
 export type ForwardPricingResult = FuturesPricingResult;
 
-export const ForwardContractInputSchema = FuturesContractInputSchema.omit({ futuresPrice: true }).extend({
+export const ForwardContractInputSchema = FuturesContractInputSchema.omit({
+  futuresPrice: true,
+}).extend({
   forwardPrice: z.number().positive('Forward price must be positive'),
 });
 
@@ -258,7 +282,7 @@ export class ForwardPricingAnalyzer {
     const result = FuturesPricingAnalyzer.analyze(futuresInput);
 
     // Adjust insights for forward contract context
-    const forwardInsights = result.insights.map(insight =>
+    const forwardInsights = result.insights.map((insight) =>
       insight.replace('Futures', 'Forward').replace('futures', 'forward')
     );
 

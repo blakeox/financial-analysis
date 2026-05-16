@@ -218,12 +218,7 @@ describe('test runner Playwright target detection', () => {
   });
 
   it('exposes the supported Playwright matrix projects', () => {
-    expect(PLAYWRIGHT_MATRIX_PROJECTS).toEqual([
-      'chromium',
-      'firefox',
-      'webkit',
-      'mobile-safari',
-    ]);
+    expect(PLAYWRIGHT_MATRIX_PROJECTS).toEqual(['chromium', 'firefox', 'webkit', 'mobile-safari']);
   });
 
   it('returns a readable failure excerpt from the tail of output', () => {

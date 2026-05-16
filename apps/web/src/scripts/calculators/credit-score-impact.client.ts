@@ -39,7 +39,9 @@ class CreditScoreImpactCalculator {
         creditUtilization: {
           totalCreditLimit: parseFloat((formData.get('totalCreditLimit') as string) || '0'),
           totalCreditUsed: parseFloat((formData.get('totalCreditUsed') as string) || '0'),
-          utilizationPercentage: parseFloat((formData.get('utilizationPercentage') as string) || '0'),
+          utilizationPercentage: parseFloat(
+            (formData.get('utilizationPercentage') as string) || '0'
+          ),
         },
         paymentHistory: {
           onTimePayments: parseFloat((formData.get('onTimePayments') as string) || '100'),
@@ -93,7 +95,7 @@ class CreditScoreImpactCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="fa-panel-title text-lg mb-2">Credit Score Impact Analysis</h3>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Credit Score Impact Analysis</h3>
           <p class="text-slate-700 dark:text-slate-300">
             Your credit score impact analysis is complete. Use the AI assistant to get detailed recommendations.
           </p>

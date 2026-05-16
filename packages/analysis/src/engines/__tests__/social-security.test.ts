@@ -85,9 +85,13 @@ describe('SocialSecurityOptimizer', () => {
       },
     });
 
-    const early = result.benefitScenarios.find((s: { claimingAge: number }) => s.claimingAge === 62);
+    const early = result.benefitScenarios.find(
+      (s: { claimingAge: number }) => s.claimingAge === 62
+    );
     const fra = result.benefitScenarios.find((s: { claimingAge: number }) => s.claimingAge === 67);
-    const delayed = result.benefitScenarios.find((s: { claimingAge: number }) => s.claimingAge === 70);
+    const delayed = result.benefitScenarios.find(
+      (s: { claimingAge: number }) => s.claimingAge === 70
+    );
 
     expect(early.monthlyBenefit).toBeLessThan(fra.monthlyBenefit);
     expect(delayed.monthlyBenefit).toBeGreaterThan(fra.monthlyBenefit);
@@ -123,7 +127,9 @@ describe('SocialSecurityOptimizer', () => {
     });
 
     expect(result.optimalStrategy.optimalAge).toBe(70);
-    expect(result.recommendations.some((rec: string) => rec.includes('Survivor benefits'))).toBe(true);
+    expect(result.recommendations.some((rec: string) => rec.includes('Survivor benefits'))).toBe(
+      true
+    );
   });
 
   it('adds spousal benefit recommendation when available', () => {
@@ -139,7 +145,9 @@ describe('SocialSecurityOptimizer', () => {
       },
     });
 
-    expect(result.recommendations.some((rec: string) => rec.includes('Spousal benefits available'))).toBe(true);
+    expect(
+      result.recommendations.some((rec: string) => rec.includes('Spousal benefits available'))
+    ).toBe(true);
   });
 
   it('defaults break-even age when benefits are zero', () => {
@@ -208,6 +216,8 @@ describe('SocialSecurityOptimizer', () => {
     });
 
     expect(result.optimalStrategy.optimalAge).toBe(70);
-    expect(result.optimalStrategy.strategy).toContain('Delayed claiming maximizes lifetime benefits');
+    expect(result.optimalStrategy.strategy).toContain(
+      'Delayed claiming maximizes lifetime benefits'
+    );
   });
 });

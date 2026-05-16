@@ -1,294 +1,337 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Comprehensive Analysis Test</title>
-        <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
-        .test-button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
-        .test-button:hover { background: #0056b3; }
-        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; }
-        .error { border-left-color: #dc3545; background: #f8d7da; }
-        .success { border-left-color: #28a745; background: #d4edda; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprehensive Analysis Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+      }
+      .test-button {
+        padding: 10px 20px;
+        margin: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .test-button:hover {
+        background: #0056b3;
+      }
+      .log {
+        background: #f8f9fa;
+        padding: 10px;
+        margin: 10px 0;
+        border-left: 4px solid #007bff;
+      }
+      .error {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+      .success {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
     </style>
-    </head>
-    <body>
-        <h1>Comprehensive Analysis Test</h1>
+  </head>
+  <body>
+    <h1>Comprehensive Analysis Test</h1>
 
-        <div class="test-section">
-            <h2>Test 1: Event Dispatching</h2>
-            <button class="test-button" onclick="testEventDispatching()">Test
-                Event Dispatching</button>
-            <div id="event-log" class="log"></div>
-        </div>
+    <div class="test-section">
+      <h2>Test 1: Event Dispatching</h2>
+      <button class="test-button" onclick="testEventDispatching()">Test Event Dispatching</button>
+      <div id="event-log" class="log"></div>
+    </div>
 
-        <div class="test-section">
-            <h2>Test 2: Component Detection</h2>
-            <button class="test-button" onclick="testComponentDetection()">Test
-                Component Detection</button>
-            <div id="component-log" class="log"></div>
-        </div>
+    <div class="test-section">
+      <h2>Test 2: Component Detection</h2>
+      <button class="test-button" onclick="testComponentDetection()">
+        Test Component Detection
+      </button>
+      <div id="component-log" class="log"></div>
+    </div>
 
-        <div class="test-section">
-            <h2>Test 3: Mock Analysis Data</h2>
-            <button class="test-button" onclick="testMockAnalysisData()">Test
-                Mock Analysis Data</button>
-            <div id="mock-log" class="log"></div>
-        </div>
+    <div class="test-section">
+      <h2>Test 3: Mock Analysis Data</h2>
+      <button class="test-button" onclick="testMockAnalysisData()">Test Mock Analysis Data</button>
+      <div id="mock-log" class="log"></div>
+    </div>
 
-        <div class="test-section">
-            <h2>Test 4: Financial Analysis Engine</h2>
-            <button class="test-button"
-                onclick="testFinancialAnalysisEngine()">Test Financial Analysis
-                Engine</button>
-            <div id="engine-log" class="log"></div>
-        </div>
+    <div class="test-section">
+      <h2>Test 4: Financial Analysis Engine</h2>
+      <button class="test-button" onclick="testFinancialAnalysisEngine()">
+        Test Financial Analysis Engine
+      </button>
+      <div id="engine-log" class="log"></div>
+    </div>
 
-        <script>
-        function log(elementId, message, type = 'info') {
-            const logElement = document.getElementById(elementId);
-            const timestamp = new Date().toLocaleTimeString();
-            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
-            logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+    <script>
+      function log(elementId, message, type = 'info') {
+        const logElement = document.getElementById(elementId);
+        const timestamp = new Date().toLocaleTimeString();
+        const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+        logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+      }
+
+      function testEventDispatching() {
+        const logId = 'event-log';
+        log(logId, 'Starting event dispatching test...');
+
+        try {
+          // Test document event
+          const documentEvent = new CustomEvent('analysis-result-updated', {
+            detail: {
+              modelType: 'amortization',
+              result: {
+                principal: 300000,
+                annualRate: 0.045,
+                termMonths: 360,
+                monthlyPayment: 1520.06,
+                totalInterest: 247221.6,
+                totalPayments: 547221.6,
+              },
+            },
+          });
+
+          document.dispatchEvent(documentEvent);
+          log(logId, 'Document event dispatched successfully', 'success');
+
+          // Test window event
+          const windowEvent = new CustomEvent('amortization-analysis-ready', {
+            detail: {
+              principal: 300000,
+              annualRate: 0.045,
+              termMonths: 360,
+              monthlyPayment: 1520.06,
+              totalInterest: 247221.6,
+              totalPayments: 547221.6,
+            },
+          });
+
+          window.dispatchEvent(windowEvent);
+          log(logId, 'Window event dispatched successfully', 'success');
+        } catch (error) {
+          log(logId, `Error dispatching events: ${error.message}`, 'error');
         }
+      }
 
-        function testEventDispatching() {
-            const logId = 'event-log';
-            log(logId, 'Starting event dispatching test...');
-            
-            try {
-                // Test document event
-                const documentEvent = new CustomEvent('analysis-result-updated', {
-                    detail: {
-                        modelType: 'amortization',
-                        result: {
-                            principal: 300000,
-                            annualRate: 0.045,
-                            termMonths: 360,
-                            monthlyPayment: 1520.06,
-                            totalInterest: 247221.6,
-                            totalPayments: 547221.6
-                        }
-                    }
-                });
-                
-                document.dispatchEvent(documentEvent);
-                log(logId, 'Document event dispatched successfully', 'success');
-                
-                // Test window event
-                const windowEvent = new CustomEvent('amortization-analysis-ready', {
-                    detail: {
-                        principal: 300000,
-                        annualRate: 0.045,
-                        termMonths: 360,
-                        monthlyPayment: 1520.06,
-                        totalInterest: 247221.6,
-                        totalPayments: 547221.6
-                    }
-                });
-                
-                window.dispatchEvent(windowEvent);
-                log(logId, 'Window event dispatched successfully', 'success');
-                
-            } catch (error) {
-                log(logId, `Error dispatching events: ${error.message}`, 'error');
-            }
+      function testComponentDetection() {
+        const logId = 'component-log';
+        log(logId, 'Starting component detection test...');
+
+        try {
+          // Look for enhanced analysis component
+          const enhancedAnalysisComponent = document.querySelector('[data-enhanced-analysis]');
+          log(
+            logId,
+            `Enhanced analysis component found: ${enhancedAnalysisComponent ? 'YES' : 'NO'}`
+          );
+
+          if (enhancedAnalysisComponent) {
+            log(logId, `Component tag name: ${enhancedAnalysisComponent.tagName}`, 'success');
+            log(logId, `Component classes: ${enhancedAnalysisComponent.className}`, 'success');
+          }
+
+          // Look for React components
+          const reactComponents = document.querySelectorAll(
+            '[data-reactroot], [data-react-helmet]'
+          );
+          log(logId, `React components found: ${reactComponents.length}`);
+
+          // Look for any elements with 'analysis' in class name
+          const analysisElements = document.querySelectorAll(
+            '[class*="analysis"], [id*="analysis"]'
+          );
+          log(logId, `Elements with 'analysis' in class/id: ${analysisElements.length}`);
+
+          // List all elements with data attributes
+          const dataElements = document.querySelectorAll(
+            '[data-enhanced-analysis], [data-analysis], [data-react]'
+          );
+          log(logId, `Elements with data attributes: ${dataElements.length}`);
+        } catch (error) {
+          log(logId, `Error in component detection: ${error.message}`, 'error');
         }
+      }
 
-        function testComponentDetection() {
-            const logId = 'component-log';
-            log(logId, 'Starting component detection test...');
-            
-            try {
-                // Look for enhanced analysis component
-                const enhancedAnalysisComponent = document.querySelector('[data-enhanced-analysis]');
-                log(logId, `Enhanced analysis component found: ${enhancedAnalysisComponent ? 'YES' : 'NO'}`);
-                
-                if (enhancedAnalysisComponent) {
-                    log(logId, `Component tag name: ${enhancedAnalysisComponent.tagName}`, 'success');
-                    log(logId, `Component classes: ${enhancedAnalysisComponent.className}`, 'success');
-                }
-                
-                // Look for React components
-                const reactComponents = document.querySelectorAll('[data-reactroot], [data-react-helmet]');
-                log(logId, `React components found: ${reactComponents.length}`);
-                
-                // Look for any elements with 'analysis' in class name
-                const analysisElements = document.querySelectorAll('[class*="analysis"], [id*="analysis"]');
-                log(logId, `Elements with 'analysis' in class/id: ${analysisElements.length}`);
-                
-                // List all elements with data attributes
-                const dataElements = document.querySelectorAll('[data-enhanced-analysis], [data-analysis], [data-react]');
-                log(logId, `Elements with data attributes: ${dataElements.length}`);
-                
-            } catch (error) {
-                log(logId, `Error in component detection: ${error.message}`, 'error');
-            }
+      function testMockAnalysisData() {
+        const logId = 'mock-log';
+        log(logId, 'Starting mock analysis data test...');
+
+        try {
+          const mockData = {
+            principal: 300000,
+            annualRate: 0.045,
+            termMonths: 360,
+            extraPayment: 0,
+            monthlyPayment: 1520.06,
+            totalInterest: 247221.6,
+            totalPayments: 547221.6,
+          };
+
+          log(logId, `Mock data created: ${JSON.stringify(mockData, null, 2)}`, 'success');
+
+          // Test if we can create analysis from this data
+          const analysisData = {
+            principal: mockData.principal,
+            annualRate: mockData.annualRate,
+            termMonths: mockData.termMonths,
+            extraPayment: mockData.extraPayment,
+            monthlyPayment: mockData.monthlyPayment,
+            totalInterest: mockData.totalInterest,
+            totalPayments: mockData.totalPayments,
+          };
+
+          log(logId, `Analysis data prepared: ${JSON.stringify(analysisData, null, 2)}`, 'success');
+
+          // Try to dispatch with this data
+          const event = new CustomEvent('analysis-result-updated', {
+            detail: {
+              modelType: 'amortization',
+              result: analysisData,
+            },
+          });
+
+          document.dispatchEvent(event);
+          log(logId, 'Mock data event dispatched', 'success');
+        } catch (error) {
+          log(logId, `Error with mock data: ${error.message}`, 'error');
         }
+      }
 
-        function testMockAnalysisData() {
-            const logId = 'mock-log';
-            log(logId, 'Starting mock analysis data test...');
-            
-            try {
-                const mockData = {
-                    principal: 300000,
-                    annualRate: 0.045,
-                    termMonths: 360,
-                    extraPayment: 0,
-                    monthlyPayment: 1520.06,
-                    totalInterest: 247221.6,
-                    totalPayments: 547221.6
-                };
-                
-                log(logId, `Mock data created: ${JSON.stringify(mockData, null, 2)}`, 'success');
-                
-                // Test if we can create analysis from this data
-                const analysisData = {
-                    principal: mockData.principal,
-                    annualRate: mockData.annualRate,
-                    termMonths: mockData.termMonths,
-                    extraPayment: mockData.extraPayment,
-                    monthlyPayment: mockData.monthlyPayment,
-                    totalInterest: mockData.totalInterest,
-                    totalPayments: mockData.totalPayments
-                };
-                
-                log(logId, `Analysis data prepared: ${JSON.stringify(analysisData, null, 2)}`, 'success');
-                
-                // Try to dispatch with this data
-                const event = new CustomEvent('analysis-result-updated', {
-                    detail: {
-                        modelType: 'amortization',
-                        result: analysisData
-                    }
-                });
-                
-                document.dispatchEvent(event);
-                log(logId, 'Mock data event dispatched', 'success');
-                
-            } catch (error) {
-                log(logId, `Error with mock data: ${error.message}`, 'error');
-            }
+      function testFinancialAnalysisEngine() {
+        const logId = 'engine-log';
+        log(logId, 'Starting Financial Analysis Engine test...');
+
+        try {
+          // Check if FinancialAnalysisEngine is available
+          if (typeof window.FinancialAnalysisEngine !== 'undefined') {
+            log(logId, 'FinancialAnalysisEngine found on window', 'success');
+          } else {
+            log(logId, 'FinancialAnalysisEngine not found on window', 'error');
+          }
+
+          // Try to create a mock analysis
+          const mockAnalysisData = {
+            principal: 300000,
+            annualRate: 0.045,
+            termMonths: 360,
+            extraPayment: 0,
+            monthlyPayment: 1520.06,
+            totalInterest: 247221.6,
+            totalPayments: 547221.6,
+          };
+
+          log(logId, `Testing with data: ${JSON.stringify(mockAnalysisData)}`);
+
+          // Simulate what the analysis engine should do
+          const monthlyRate = mockAnalysisData.annualRate / 12;
+          const interestToPrincipalRatio =
+            mockAnalysisData.totalInterest / mockAnalysisData.principal;
+          const monthlyPaymentToIncomeRatio = mockAnalysisData.monthlyPayment / 5000; // Assuming $5k monthly income
+
+          const mockAnalysis = {
+            summary: {
+              monthlyPayment: mockAnalysisData.monthlyPayment,
+              totalInterest: mockAnalysisData.totalInterest,
+              totalPayments: mockAnalysisData.totalPayments,
+              interestToPrincipalRatio: interestToPrincipalRatio,
+              paymentToIncomeRatio: monthlyPaymentToIncomeRatio,
+              principal: mockAnalysisData.principal,
+              annualRate: mockAnalysisData.annualRate,
+              termMonths: mockAnalysisData.termMonths,
+            },
+            insights: [
+              {
+                category: 'financial',
+                title: 'Interest Impact',
+                description: `Total interest of $${mockAnalysisData.totalInterest.toLocaleString()} represents ${(interestToPrincipalRatio * 100).toFixed(1)}% of the loan amount.`,
+                impact: 'high',
+                actionable: true,
+              },
+            ],
+            recommendations: [
+              {
+                priority: 'high',
+                category: 'immediate',
+                title: 'Verify Affordability',
+                description: `Monthly payment of $${mockAnalysisData.monthlyPayment.toLocaleString()} should not exceed 28% of gross monthly income.`,
+                effort: 'low',
+              },
+            ],
+            riskAssessment: {
+              overallRisk:
+                monthlyPaymentToIncomeRatio > 0.3
+                  ? 'high'
+                  : monthlyPaymentToIncomeRatio > 0.2
+                    ? 'medium'
+                    : 'low',
+              factors: [
+                {
+                  factor: 'Payment Burden',
+                  risk:
+                    monthlyPaymentToIncomeRatio > 0.3
+                      ? 'high'
+                      : monthlyPaymentToIncomeRatio > 0.2
+                        ? 'medium'
+                        : 'low',
+                  description: 'Monthly payment relative to income',
+                },
+              ],
+            },
+            optimizationOpportunities: [
+              {
+                area: 'Extra Payments',
+                currentValue: 0,
+                optimizedValue: 100,
+                potentialImprovement: 15000, // Mock value
+                description: 'Adding $100 monthly extra payment',
+              },
+            ],
+          };
+
+          log(logId, `Mock analysis created successfully`, 'success');
+          log(logId, `Summary: ${JSON.stringify(mockAnalysis.summary, null, 2)}`);
+          log(logId, `Insights: ${mockAnalysis.insights.length} items`);
+          log(logId, `Recommendations: ${mockAnalysis.recommendations.length} items`);
+          log(logId, `Risk Assessment: ${mockAnalysis.riskAssessment.overallRisk} risk`);
+          log(
+            logId,
+            `Optimization Opportunities: ${mockAnalysis.optimizationOpportunities.length} items`
+          );
+        } catch (error) {
+          log(logId, `Error testing Financial Analysis Engine: ${error.message}`, 'error');
         }
+      }
 
-        function testFinancialAnalysisEngine() {
-            const logId = 'engine-log';
-            log(logId, 'Starting Financial Analysis Engine test...');
-            
-            try {
-                // Check if FinancialAnalysisEngine is available
-                if (typeof window.FinancialAnalysisEngine !== 'undefined') {
-                    log(logId, 'FinancialAnalysisEngine found on window', 'success');
-                } else {
-                    log(logId, 'FinancialAnalysisEngine not found on window', 'error');
-                }
-                
-                // Try to create a mock analysis
-                const mockAnalysisData = {
-                    principal: 300000,
-                    annualRate: 0.045,
-                    termMonths: 360,
-                    extraPayment: 0,
-                    monthlyPayment: 1520.06,
-                    totalInterest: 247221.6,
-                    totalPayments: 547221.6
-                };
-                
-                log(logId, `Testing with data: ${JSON.stringify(mockAnalysisData)}`);
-                
-                // Simulate what the analysis engine should do
-                const monthlyRate = mockAnalysisData.annualRate / 12;
-                const interestToPrincipalRatio = mockAnalysisData.totalInterest / mockAnalysisData.principal;
-                const monthlyPaymentToIncomeRatio = mockAnalysisData.monthlyPayment / 5000; // Assuming $5k monthly income
-                
-                const mockAnalysis = {
-                    summary: {
-                        monthlyPayment: mockAnalysisData.monthlyPayment,
-                        totalInterest: mockAnalysisData.totalInterest,
-                        totalPayments: mockAnalysisData.totalPayments,
-                        interestToPrincipalRatio: interestToPrincipalRatio,
-                        paymentToIncomeRatio: monthlyPaymentToIncomeRatio,
-                        principal: mockAnalysisData.principal,
-                        annualRate: mockAnalysisData.annualRate,
-                        termMonths: mockAnalysisData.termMonths
-                    },
-                    insights: [
-                        {
-                            category: 'financial',
-                            title: 'Interest Impact',
-                            description: `Total interest of $${mockAnalysisData.totalInterest.toLocaleString()} represents ${(interestToPrincipalRatio * 100).toFixed(1)}% of the loan amount.`,
-                            impact: 'high',
-                            actionable: true
-                        }
-                    ],
-                    recommendations: [
-                        {
-                            priority: 'high',
-                            category: 'immediate',
-                            title: 'Verify Affordability',
-                            description: `Monthly payment of $${mockAnalysisData.monthlyPayment.toLocaleString()} should not exceed 28% of gross monthly income.`,
-                            effort: 'low'
-                        }
-                    ],
-                    riskAssessment: {
-                        overallRisk: monthlyPaymentToIncomeRatio > 0.3 ? 'high' : monthlyPaymentToIncomeRatio > 0.2 ? 'medium' : 'low',
-                        factors: [
-                            {
-                                factor: 'Payment Burden',
-                                risk: monthlyPaymentToIncomeRatio > 0.3 ? 'high' : monthlyPaymentToIncomeRatio > 0.2 ? 'medium' : 'low',
-                                description: 'Monthly payment relative to income'
-                            }
-                        ]
-                    },
-                    optimizationOpportunities: [
-                        {
-                            area: 'Extra Payments',
-                            currentValue: 0,
-                            optimizedValue: 100,
-                            potentialImprovement: 15000, // Mock value
-                            description: 'Adding $100 monthly extra payment'
-                        }
-                    ]
-                };
-                
-                log(logId, `Mock analysis created successfully`, 'success');
-                log(logId, `Summary: ${JSON.stringify(mockAnalysis.summary, null, 2)}`);
-                log(logId, `Insights: ${mockAnalysis.insights.length} items`);
-                log(logId, `Recommendations: ${mockAnalysis.recommendations.length} items`);
-                log(logId, `Risk Assessment: ${mockAnalysis.riskAssessment.overallRisk} risk`);
-                log(logId, `Optimization Opportunities: ${mockAnalysis.optimizationOpportunities.length} items`);
-                
-            } catch (error) {
-                log(logId, `Error testing Financial Analysis Engine: ${error.message}`, 'error');
-            }
-        }
+      // Set up event listeners to see if events are being received
+      document.addEventListener('analysis-result-updated', (event) => {
+        log(
+          'event-log',
+          `Received analysis-result-updated event: ${JSON.stringify(event.detail)}`,
+          'success'
+        );
+      });
 
-        // Set up event listeners to see if events are being received
-        document.addEventListener('analysis-result-updated', (event) => {
-            log('event-log', `Received analysis-result-updated event: ${JSON.stringify(event.detail)}`, 'success');
-        });
+      window.addEventListener('amortization-analysis-ready', (event) => {
+        log(
+          'event-log',
+          `Received amortization-analysis-ready event: ${JSON.stringify(event.detail)}`,
+          'success'
+        );
+      });
 
-        window.addEventListener('amortization-analysis-ready', (event) => {
-            log('event-log', `Received amortization-analysis-ready event: ${JSON.stringify(event.detail)}`, 'success');
-        });
-
-        // Log when page loads
-        window.addEventListener('load', () => {
-            log('event-log', 'Test page loaded and ready', 'success');
-        });
+      // Log when page loads
+      window.addEventListener('load', () => {
+        log('event-log', 'Test page loaded and ready', 'success');
+      });
     </script>
-    </body>
+  </body>
 </html>
-
-
-
-
-
-
-
-
-
-

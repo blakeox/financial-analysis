@@ -84,61 +84,65 @@ export default function AnalysisClient() {
         principal: getNumber('principal', NaN),
         annualRate: getNumber('annualRate', NaN), // percent e.g., 5 for 5%
         termMonths: Math.trunc(getNumber('termMonths', NaN)),
-        
+
         // Advanced fields
         startDate: p.get('startDate') || '',
         paymentFrequency: p.get('paymentFrequency') || 'monthly',
         extraMonthlyPayment: getNumber('extraMonthlyPayment', 0),
         oneTimePayments: p.get('oneTimePayments') || '',
-        
+
         // PMI fields
         pmiRate: getNumber('pmiRate', 0),
         pmiRemovalLTV: getNumber('pmiRemovalLTV', 80),
         homeValue: getNumber('homeValue', NaN),
-        
+
         // Special features
         interestOnlyMonths: Math.trunc(getNumber('interestOnlyMonths', 0)),
         balloonPayment: getNumber('balloonPayment', 0),
-        
+
         // Fees
         originationFee: getNumber('originationFee', 0),
         points: getNumber('points', 0),
-        
+
         auto: p.get('auto') === '1' || p.get('run') === '1',
       } as const;
     };
 
     const prefillFormFromParams = () => {
       const params = parseParams();
-      
+
       // Helper function to set form values safely
       const setFormValue = (id: string, value: string | number) => {
-        const element = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+        const element = document.getElementById(id) as
+          | HTMLInputElement
+          | HTMLSelectElement
+          | HTMLTextAreaElement
+          | null;
         if (element && value !== '' && !Number.isNaN(value)) {
           element.value = String(value);
         }
       };
-      
+
       // Basic fields
       setFormValue('principal', params.principal);
       setFormValue('annualRate', params.annualRate);
       setFormValue('termMonths', params.termMonths);
-      
+
       // Advanced fields
       setFormValue('startDate', params.startDate);
       setFormValue('paymentFrequency', params.paymentFrequency);
       setFormValue('extraMonthlyPayment', params.extraMonthlyPayment || '');
       setFormValue('oneTimePayments', params.oneTimePayments);
-      
+
       // PMI fields
       setFormValue('pmiRate', params.pmiRate || '');
       setFormValue('pmiRemovalLTV', params.pmiRemovalLTV || '');
       setFormValue('homeValue', params.homeValue);
-      
+
       // Special features
       setFormValue('interestOnlyMonths', params.interestOnlyMonths || '');
       setFormValue('balloonPayment', params.balloonPayment || '');
-      
+
       // Fees
       setFormValue('originationFee', params.originationFee || '');
       setFormValue('points', params.points || '');
@@ -186,26 +190,26 @@ export default function AnalysisClient() {
 
       try {
         const formData = new FormData(form);
-        
+
         // Basic fields
         const principal = Number.parseFloat(String(formData.get('principal') ?? '0'));
         const annualRatePercent = Number.parseFloat(String(formData.get('annualRate') ?? '0'));
         const termMonths = Number.parseInt(String(formData.get('termMonths') ?? '0'), 10);
-        
+
         // Helper function to get optional numeric values
         const getOptionalNumber = (key: string) => {
           const value = String(formData.get(key) ?? '0');
           const num = Number.parseFloat(value);
           return Number.isFinite(num) && num > 0 ? num : undefined;
         };
-        
+
         // Helper function to parse one-time payments string
         const parseOneTimePayments = (input: string): Array<{ month: number; amount: number }> => {
           if (!input.trim()) return [];
-          
+
           const payments: Array<{ month: number; amount: number }> = [];
           const matches = input.matchAll(/(\d+(?:\.\d+)?)\s*\(\s*month\s+(\d+)\s*\)/gi);
-          
+
           for (const match of matches) {
             const amount = Number.parseFloat(match[1]);
             const month = Number.parseInt(match[2], 10);
@@ -213,30 +217,33 @@ export default function AnalysisClient() {
               payments.push({ month, amount });
             }
           }
-          
+
           return payments;
         };
-        
+
         // Build the request payload with all advanced options
         const payload: AmortizationRequestPayload = {
           principal,
           annualRate: annualRatePercent / 100,
           termMonths,
         };
-        
+
         // Advanced options (only include if specified)
         const startDate = String(formData.get('startDate') ?? '').trim();
         if (startDate) payload.startDate = startDate;
-        
-        const paymentFrequency = String(formData.get('paymentFrequency') ?? 'monthly') as 'monthly' | 'biweekly' | 'weekly';
+
+        const paymentFrequency = String(formData.get('paymentFrequency') ?? 'monthly') as
+          | 'monthly'
+          | 'biweekly'
+          | 'weekly';
         if (paymentFrequency !== 'monthly') payload.paymentFrequency = paymentFrequency;
-        
+
         const extraMonthlyPayment = getOptionalNumber('extraMonthlyPayment');
         if (extraMonthlyPayment) payload.extraMonthlyPayment = extraMonthlyPayment;
-        
+
         const oneTimePayments = parseOneTimePayments(String(formData.get('oneTimePayments') ?? ''));
         if (oneTimePayments.length > 0) payload.oneTimePayments = oneTimePayments;
-        
+
         // PMI options
         const pmiRate = getOptionalNumber('pmiRate');
         const homeValue = getOptionalNumber('homeValue');
@@ -247,20 +254,23 @@ export default function AnalysisClient() {
             homeValue,
           };
         }
-        
+
         // Special features
-        const interestOnlyMonths = Number.parseInt(String(formData.get('interestOnlyMonths') ?? '0'), 10);
+        const interestOnlyMonths = Number.parseInt(
+          String(formData.get('interestOnlyMonths') ?? '0'),
+          10
+        );
         if (Number.isInteger(interestOnlyMonths) && interestOnlyMonths > 0) {
           payload.interestOnlyMonths = interestOnlyMonths;
         }
-        
+
         const balloonPayment = getOptionalNumber('balloonPayment');
         if (balloonPayment) payload.balloonPayment = balloonPayment;
-        
+
         // Fees
         const originationFee = getOptionalNumber('originationFee');
         if (originationFee) payload.origination_fee = originationFee;
-        
+
         const points = getOptionalNumber('points');
         if (points) payload.points = points;
 

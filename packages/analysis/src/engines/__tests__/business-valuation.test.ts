@@ -41,7 +41,7 @@ describe('BusinessValuationEngine', () => {
     it('includes EBITDA multiple method', () => {
       const result = BusinessValuationEngine.analyze(basicInput);
 
-      const ebitdaMethod = result.methods.find(m => m.name === 'EBITDA Multiple');
+      const ebitdaMethod = result.methods.find((m) => m.name === 'EBITDA Multiple');
       expect(ebitdaMethod).toBeDefined();
       expect(ebitdaMethod!.value).toBeGreaterThan(0);
     });
@@ -49,7 +49,7 @@ describe('BusinessValuationEngine', () => {
     it('includes revenue multiple method', () => {
       const result = BusinessValuationEngine.analyze(basicInput);
 
-      const revenueMethod = result.methods.find(m => m.name === 'Revenue Multiple');
+      const revenueMethod = result.methods.find((m) => m.name === 'Revenue Multiple');
       expect(revenueMethod).toBeDefined();
       expect(revenueMethod!.value).toBeGreaterThan(0);
     });
@@ -63,21 +63,21 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(smallBusiness);
 
-      const sdeMethod = result.methods.find(m => m.name === 'SDE Multiple');
+      const sdeMethod = result.methods.find((m) => m.name === 'SDE Multiple');
       expect(sdeMethod).toBeDefined();
     });
 
     it('includes asset-based method when book value is positive', () => {
       const result = BusinessValuationEngine.analyze(basicInput);
 
-      const assetMethod = result.methods.find(m => m.name === 'Asset-Based');
+      const assetMethod = result.methods.find((m) => m.name === 'Asset-Based');
       expect(assetMethod).toBeDefined();
     });
 
     it('methods have weights', () => {
       const result = BusinessValuationEngine.analyze(basicInput);
 
-      result.methods.forEach(method => {
+      result.methods.forEach((method) => {
         expect(method.weight).toBeGreaterThan(0);
         expect(method.weight).toBeLessThanOrEqual(1);
       });
@@ -86,7 +86,7 @@ describe('BusinessValuationEngine', () => {
     it('methods have confidence levels', () => {
       const result = BusinessValuationEngine.analyze(basicInput);
 
-      result.methods.forEach(method => {
+      result.methods.forEach((method) => {
         expect(['high', 'medium', 'low']).toContain(method.confidence);
       });
     });
@@ -132,7 +132,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(highGrowthInput);
 
-      const growthAdj = result.adjustments.find(a => a.name.includes('Growth'));
+      const growthAdj = result.adjustments.find((a) => a.name.includes('Growth'));
       expect(growthAdj).toBeDefined();
       expect(growthAdj!.impact).toBe('positive');
     });
@@ -145,7 +145,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(decliningInput);
 
-      const declineAdj = result.adjustments.find(a => a.name.includes('Decline'));
+      const declineAdj = result.adjustments.find((a) => a.name.includes('Decline'));
       expect(declineAdj).toBeDefined();
       expect(declineAdj!.impact).toBe('negative');
     });
@@ -158,7 +158,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(concentratedInput);
 
-      const concAdj = result.adjustments.find(a => a.name.includes('Concentration'));
+      const concAdj = result.adjustments.find((a) => a.name.includes('Concentration'));
       expect(concAdj).toBeDefined();
       expect(concAdj!.impact).toBe('negative');
     });
@@ -171,7 +171,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(dependentInput);
 
-      const ownerAdj = result.adjustments.find(a => a.name.includes('Owner Dependency'));
+      const ownerAdj = result.adjustments.find((a) => a.name.includes('Owner Dependency'));
       expect(ownerAdj).toBeDefined();
       expect(ownerAdj!.impact).toBe('negative');
     });
@@ -184,7 +184,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(recurringInput);
 
-      const recurringAdj = result.adjustments.find(a => a.name.includes('Recurring'));
+      const recurringAdj = result.adjustments.find((a) => a.name.includes('Recurring'));
       expect(recurringAdj).toBeDefined();
       expect(recurringAdj!.impact).toBe('positive');
     });
@@ -197,7 +197,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(documentedInput);
 
-      const docAdj = result.adjustments.find(a => a.name.includes('Documented'));
+      const docAdj = result.adjustments.find((a) => a.name.includes('Documented'));
       expect(docAdj).toBeDefined();
       expect(docAdj!.impact).toBe('positive');
     });
@@ -210,7 +210,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(establishedInput);
 
-      const ageAdj = result.adjustments.find(a => a.name.includes('Established'));
+      const ageAdj = result.adjustments.find((a) => a.name.includes('Established'));
       expect(ageAdj).toBeDefined();
       expect(ageAdj!.impact).toBe('positive');
     });
@@ -223,7 +223,7 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(earlyInput);
 
-      const earlyAdj = result.adjustments.find(a => a.name.includes('Early'));
+      const earlyAdj = result.adjustments.find((a) => a.name.includes('Early'));
       expect(earlyAdj).toBeDefined();
       expect(earlyAdj!.impact).toBe('negative');
     });
@@ -269,10 +269,7 @@ describe('BusinessValuationEngine', () => {
       const result = BusinessValuationEngine.analyze(inputWithCustomers);
 
       expect(result.valuePerCustomer).toBeDefined();
-      expect(result.valuePerCustomer).toBeCloseTo(
-        result.valuationMid / 500,
-        0
-      );
+      expect(result.valuePerCustomer).toBeCloseTo(result.valuationMid / 500, 0);
     });
   });
 
@@ -329,7 +326,9 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(lowMarginInput);
 
-      const marginRec = result.recommendations.find(r => r.includes('margin') || r.includes('Margin'));
+      const marginRec = result.recommendations.find(
+        (r) => r.includes('margin') || r.includes('Margin')
+      );
       expect(marginRec).toBeDefined();
     });
   });
@@ -384,7 +383,9 @@ describe('BusinessValuationEngine', () => {
 
       const result = BusinessValuationEngine.analyze(extremeConcentration);
 
-      const criticalWarning = result.warnings.find(w => w.includes('CRITICAL') || w.includes('60'));
+      const criticalWarning = result.warnings.find(
+        (w) => w.includes('CRITICAL') || w.includes('60')
+      );
       expect(criticalWarning).toBeDefined();
     });
   });

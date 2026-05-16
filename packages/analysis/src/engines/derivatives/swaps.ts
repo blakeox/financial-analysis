@@ -51,9 +51,11 @@ export const InterestRateSwapInputSchema = z.object({
   floatingRateBenchmark: z.string().min(1, 'Benchmark is required'),
   currentFloatingRate: z.number().min(0).max(1, 'Floating rate must be between 0 and 1'),
   timeToMaturity: z.number().positive('Time to maturity must be positive'),
-  paymentFrequency: z.union([z.literal(1), z.literal(2), z.literal(4), z.literal(12)]).refine((val) => [1, 2, 4, 12].includes(val), {
-    message: 'Payment frequency must be 1, 2, 4, or 12'
-  }),
+  paymentFrequency: z
+    .union([z.literal(1), z.literal(2), z.literal(4), z.literal(12)])
+    .refine((val) => [1, 2, 4, 12].includes(val), {
+      message: 'Payment frequency must be 1, 2, 4, or 12',
+    }),
   spotRates: z.array(z.number().min(0).max(1)).min(1, 'At least one spot rate required'),
   discountFactors: z.array(z.number().min(0).max(1)).optional(),
   payFixed: z.boolean(),
@@ -69,7 +71,8 @@ export class InterestRateSwapAnalyzer {
     const validated = InterestRateSwapInputSchema.parse(input);
 
     // Calculate discount factors if not provided
-    const discountFactors = validated.discountFactors ||
+    const discountFactors =
+      validated.discountFactors ||
       this.calculateDiscountFactors(validated.spotRates, validated.paymentFrequency);
 
     // Generate cash flows
@@ -140,10 +143,17 @@ export class InterestRateSwapAnalyzer {
     fixedLegValue: number;
     floatingLegValue: number;
   } {
-    const { notionalPrincipal, swapRate, currentFloatingRate, timeToMaturity, paymentFrequency, payFixed } = input;
+    const {
+      notionalPrincipal,
+      swapRate,
+      currentFloatingRate,
+      timeToMaturity,
+      paymentFrequency,
+      payFixed,
+    } = input;
 
     const numPayments = Math.floor(timeToMaturity * paymentFrequency);
-    const fixedPayment = notionalPrincipal * swapRate / paymentFrequency;
+    const fixedPayment = (notionalPrincipal * swapRate) / paymentFrequency;
 
     const fixedCashFlows: number[] = [];
     const floatingCashFlows: number[] = [];
@@ -155,7 +165,7 @@ export class InterestRateSwapAnalyzer {
       fixedCashFlows.push(fixedPayment);
 
       // Floating leg: based on current floating rate (simplified - in practice uses forward rates)
-      const floatingPayment = notionalPrincipal * currentFloatingRate / paymentFrequency;
+      const floatingPayment = (notionalPrincipal * currentFloatingRate) / paymentFrequency;
       floatingCashFlows.push(floatingPayment);
 
       // Net cash flow (from perspective of fixed payer)
@@ -201,13 +211,19 @@ export class InterestRateSwapAnalyzer {
   /**
    * Calculate DV01 (Dollar Value of 1 basis point)
    */
-  private static calculateDV01(input: InterestRateSwapInputValidated, discountFactors: number[]): number {
+  private static calculateDV01(
+    input: InterestRateSwapInputValidated,
+    discountFactors: number[]
+  ): number {
     // DV01 approximates the change in value for 1bp (0.01%) rate change
     // Simplified calculation - in practice uses duration-based approximation
 
     const rateShift = 0.0001; // 1 basis point
-    const shiftedSpotRates = input.spotRates.map(rate => rate + rateShift);
-    const shiftedDiscountFactors = this.calculateDiscountFactors(shiftedSpotRates, input.paymentFrequency);
+    const shiftedSpotRates = input.spotRates.map((rate) => rate + rateShift);
+    const shiftedDiscountFactors = this.calculateDiscountFactors(
+      shiftedSpotRates,
+      input.paymentFrequency
+    );
 
     const originalValue = this.calculateNPV(
       this.generateCashFlows(input).netCashFlows,
@@ -222,7 +238,10 @@ export class InterestRateSwapAnalyzer {
     return shiftedValue - originalValue;
   }
 
-  private static calculateDuration(input: InterestRateSwapInputValidated, discountFactors: number[]): number {
+  private static calculateDuration(
+    input: InterestRateSwapInputValidated,
+    discountFactors: number[]
+  ): number {
     const cashFlows = this.generateCashFlows(input);
     let weightedSum = 0;
     let totalPV = 0;
@@ -243,7 +262,10 @@ export class InterestRateSwapAnalyzer {
   /**
    * Calculate convexity
    */
-  private static calculateConvexity(input: InterestRateSwapInputValidated, discountFactors: number[]): number {
+  private static calculateConvexity(
+    input: InterestRateSwapInputValidated,
+    discountFactors: number[]
+  ): number {
     const cashFlows = this.generateCashFlows(input);
     let convexitySum = 0;
     let totalPV = 0;
@@ -267,7 +289,10 @@ export class InterestRateSwapAnalyzer {
   private static calculateDelta(input: InterestRateSwapInputValidated): number {
     // Delta approximates sensitivity to parallel rate shift
     // Simplified: use DV01 scaled by notional
-    const dv01 = this.calculateDV01(input, this.calculateDiscountFactors(input.spotRates, input.paymentFrequency));
+    const dv01 = this.calculateDV01(
+      input,
+      this.calculateDiscountFactors(input.spotRates, input.paymentFrequency)
+    );
     return dv01 / (input.notionalPrincipal * 0.0001); // Normalize
   }
 
@@ -277,7 +302,9 @@ export class InterestRateSwapAnalyzer {
   private static calculateGamma(input: InterestRateSwapInputValidated): number {
     // Gamma measures curvature of delta
     // Simplified approximation
-    return -input.timeToMaturity * input.notionalPrincipal * Math.pow(input.spotRates[0] || 0.05, 2);
+    return (
+      -input.timeToMaturity * input.notionalPrincipal * Math.pow(input.spotRates[0] || 0.05, 2)
+    );
   }
 
   /**
@@ -292,7 +319,10 @@ export class InterestRateSwapAnalyzer {
   /**
    * Generate recommendation
    */
-  private static generateRecommendation(npv: number, input: InterestRateSwapInputValidated): string {
+  private static generateRecommendation(
+    npv: number,
+    input: InterestRateSwapInputValidated
+  ): string {
     const absNpv = Math.abs(npv);
     const threshold = input.notionalPrincipal * 0.001; // 0.1% of notional
 
@@ -311,7 +341,10 @@ export class InterestRateSwapAnalyzer {
   private static generateInsights(input: InterestRateSwapInputValidated, npv: number): string[] {
     const insights = [];
 
-    const duration = this.calculateDuration(input, this.calculateDiscountFactors(input.spotRates, input.paymentFrequency));
+    const duration = this.calculateDuration(
+      input,
+      this.calculateDiscountFactors(input.spotRates, input.paymentFrequency)
+    );
 
     insights.push(`Swap duration: ${duration.toFixed(2)} years`);
     insights.push(`Payment frequency: ${input.paymentFrequency} times per year`);
@@ -327,7 +360,10 @@ export class InterestRateSwapAnalyzer {
       insights.push('Significant mispricing detected - potential arbitrage opportunity');
     }
 
-    const dv01 = this.calculateDV01(input, this.calculateDiscountFactors(input.spotRates, input.paymentFrequency));
+    const dv01 = this.calculateDV01(
+      input,
+      this.calculateDiscountFactors(input.spotRates, input.paymentFrequency)
+    );
     insights.push(`DV01: ${dv01.toFixed(2)} ($${Math.abs(dv01).toFixed(0)} per basis point)`);
 
     return insights;

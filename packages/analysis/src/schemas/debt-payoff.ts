@@ -19,7 +19,7 @@ export const DebtPayoffInputSchema = z.object({
   debts: z.array(DebtItemSchema).min(1).max(20),
   extraMonthlyPayment: z.number().min(0).default(0),
   strategy: z.enum(['avalanche', 'snowball']).default('avalanche'),
-  
+
   // Optional balance transfer scenario
   balanceTransferOffer: z
     .object({

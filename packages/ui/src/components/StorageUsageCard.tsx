@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { useHydrated, useApiData } from '../lib/hooks';
 import { formatFileSize } from '../lib/formatters';
-import { badgeVariants, cardVariants, cn, surfaceDividerClasses, textColors } from '../lib/classNames';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 type Usage = {
   usedBytes: number;
@@ -15,10 +15,9 @@ type Usage = {
 
 export function StorageUsageCard({ apiBase }: { apiBase: string }) {
   const hydrated = useHydrated();
-  const { data, loading, error } = useApiData<Usage>(
-    `${apiBase}/v1/storage/usage`,
-    { refreshInterval: 30000 }
-  );
+  const { data, loading, error } = useApiData<Usage>(`${apiBase}/v1/storage/usage`, {
+    refreshInterval: 30000,
+  });
   const [testData, setTestData] = React.useState<Usage | null>(null);
 
   // Don't render until hydrated to prevent SSR/client mismatch
@@ -29,9 +28,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
           <CardTitle>Storage Usage</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className={cn('py-8 text-center text-sm', textColors.muted)}>
-            Loading...
-          </div>
+          <div className={cn('py-8 text-center text-sm', textColors.muted)}>Loading...</div>
         </CardContent>
       </Card>
     );
@@ -87,29 +84,29 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Used</span>
-              <span className={cn('text-sm font-semibold', textColors.primary)}>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
                 {formatFileSize(displayData.usedBytes)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Soft limit</span>
-              <span className={cn('text-sm font-semibold', textColors.primary)}>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
                 {formatFileSize(displayData.softLimit)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Hard limit</span>
-              <span className={cn('text-sm font-semibold', textColors.primary)}>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
                 {formatFileSize(displayData.hardLimit)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className={cn('text-sm', textColors.secondary)}>Max object</span>
-              <span className={cn('text-sm font-semibold', textColors.primary)}>
+              <span className="text-sm font-semibold text-slate-950 dark:text-white">
                 {formatFileSize(displayData.maxObjectSize)}
               </span>
             </div>
-            <div className={cn('flex items-center justify-between gap-4 border-t pt-3', surfaceDividerClasses)}>
+            <div className="flex items-center justify-between gap-4 border-t border-slate-200/70 pt-3 dark:border-slate-800">
               <span className={cn('text-sm', textColors.secondary)}>Status</span>
               <span
                 data-testid="storage-status-value"
@@ -122,7 +119,7 @@ export function StorageUsageCard({ apiBase }: { apiBase: string }) {
               </span>
             </div>
             {displayData.locked && (
-              <div className={cn(cardVariants.subtle, 'border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200')}>
+              <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200">
                 Uploads are temporarily disabled due to storage limits. Try again later or remove
                 unused files.
               </div>

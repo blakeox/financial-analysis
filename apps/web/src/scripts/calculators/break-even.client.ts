@@ -1,6 +1,6 @@
 /**
  * Break-Even Analysis Calculator
- * 
+ *
  * Calculates break-even point in units and revenue, contribution margin,
  * margin of safety, and target profit scenarios.
  */
@@ -57,47 +57,54 @@ export interface BreakEvenResult {
 // ============================================================================
 
 function calculateBreakEven(input: BreakEvenInput): BreakEvenResult {
-  const { fixedCosts, variableCostPerUnit, sellingPricePerUnit, currentSalesUnits, targetProfit, expectedGrowthRate } = input;
-  
+  const {
+    fixedCosts,
+    variableCostPerUnit,
+    sellingPricePerUnit,
+    currentSalesUnits,
+    targetProfit,
+    expectedGrowthRate,
+  } = input;
+
   // Contribution margin per unit
   const contributionMargin = sellingPricePerUnit - variableCostPerUnit;
-  
+
   // Contribution margin ratio
   const contributionMarginRatio = (contributionMargin / sellingPricePerUnit) * 100;
-  
+
   // Break-even point in units
   const breakEvenUnits = Math.ceil(fixedCosts / contributionMargin);
-  
+
   // Break-even revenue
   const breakEvenRevenue = breakEvenUnits * sellingPricePerUnit;
-  
+
   // Margin of safety (if current sales provided)
   let marginOfSafety = {
     units: 0,
     percentage: 0,
     revenue: 0,
   };
-  
+
   if (currentSalesUnits && currentSalesUnits > 0) {
     marginOfSafety.units = currentSalesUnits - breakEvenUnits;
     marginOfSafety.percentage = ((currentSalesUnits - breakEvenUnits) / currentSalesUnits) * 100;
     marginOfSafety.revenue = marginOfSafety.units * sellingPricePerUnit;
   }
-  
+
   // Target profit analysis
   let targetProfitAnalysis;
   if (targetProfit && targetProfit > 0) {
     const unitsNeeded = Math.ceil((fixedCosts + targetProfit) / contributionMargin);
     const revenueNeeded = unitsNeeded * sellingPricePerUnit;
     const additionalUnits = unitsNeeded - breakEvenUnits;
-    
+
     targetProfitAnalysis = {
       unitsNeeded,
       revenueNeeded,
       additionalUnits,
     };
   }
-  
+
   // Sensitivity analysis
   const sensitivity = {
     price10PercentIncrease: {
@@ -116,45 +123,62 @@ function calculateBreakEven(input: BreakEvenInput): BreakEvenResult {
       impact: '',
     },
   };
-  
+
   // Calculate revenues
-  sensitivity.price10PercentIncrease.revenue = sensitivity.price10PercentIncrease.units * (sellingPricePerUnit * 1.1);
-  sensitivity.price10PercentDecrease.revenue = sensitivity.price10PercentDecrease.units * (sellingPricePerUnit * 0.9);
-  sensitivity.costs10PercentIncrease.revenue = sensitivity.costs10PercentIncrease.units * sellingPricePerUnit;
-  
+  sensitivity.price10PercentIncrease.revenue =
+    sensitivity.price10PercentIncrease.units * (sellingPricePerUnit * 1.1);
+  sensitivity.price10PercentDecrease.revenue =
+    sensitivity.price10PercentDecrease.units * (sellingPricePerUnit * 0.9);
+  sensitivity.costs10PercentIncrease.revenue =
+    sensitivity.costs10PercentIncrease.units * sellingPricePerUnit;
+
   const unitsReduction = breakEvenUnits - sensitivity.price10PercentIncrease.units;
   sensitivity.price10PercentIncrease.improvement = `${unitsReduction} fewer units needed (${((unitsReduction / breakEvenUnits) * 100).toFixed(1)}% reduction)`;
-  
+
   const unitsIncrease = sensitivity.price10PercentDecrease.units - breakEvenUnits;
   sensitivity.price10PercentDecrease.impact = `${unitsIncrease} more units needed (${((unitsIncrease / breakEvenUnits) * 100).toFixed(1)}% increase)`;
-  
+
   const costsUnitsIncrease = sensitivity.costs10PercentIncrease.units - breakEvenUnits;
   sensitivity.costs10PercentIncrease.impact = `${costsUnitsIncrease} more units needed`;
-  
+
   // Generate recommendations
   const recommendations: string[] = [];
-  
+
   if (contributionMarginRatio < 30) {
-    recommendations.push('⚠️ Low contribution margin (<30%). Consider raising prices or reducing variable costs.');
+    recommendations.push(
+      '⚠️ Low contribution margin (<30%). Consider raising prices or reducing variable costs.'
+    );
   } else if (contributionMarginRatio > 60) {
     recommendations.push('✓ Excellent contribution margin (>60%). You have strong pricing power.');
   }
-  
+
   if (currentSalesUnits && marginOfSafety.percentage < 20) {
-    recommendations.push('⚠️ Low margin of safety (<20%). You\'re operating close to break-even - risky!');
+    recommendations.push(
+      "⚠️ Low margin of safety (<20%). You're operating close to break-even - risky!"
+    );
   } else if (currentSalesUnits && marginOfSafety.percentage > 40) {
-    recommendations.push('✓ Healthy margin of safety (>40%). You can withstand sales fluctuations.');
+    recommendations.push(
+      '✓ Healthy margin of safety (>40%). You can withstand sales fluctuations.'
+    );
   }
-  
+
   if (variableCostPerUnit / sellingPricePerUnit > 0.7) {
-    recommendations.push('⚠️ Variable costs are 70%+ of price. Look for ways to reduce COGS or increase prices.');
+    recommendations.push(
+      '⚠️ Variable costs are 70%+ of price. Look for ways to reduce COGS or increase prices.'
+    );
   }
-  
-  recommendations.push('💡 A 10% price increase reduces break-even by ' + ((unitsReduction / breakEvenUnits) * 100).toFixed(0) + '% - often easier than cutting costs.');
-  
+
+  recommendations.push(
+    '💡 A 10% price increase reduces break-even by ' +
+      ((unitsReduction / breakEvenUnits) * 100).toFixed(0) +
+      '% - often easier than cutting costs.'
+  );
+
   if (targetProfit && targetProfitAnalysis) {
     const profitPerUnit = contributionMargin;
-    recommendations.push(`💰 Each unit sold above break-even adds $${profitPerUnit.toFixed(2)} in profit.`);
+    recommendations.push(
+      `💰 Each unit sold above break-even adds $${profitPerUnit.toFixed(2)} in profit.`
+    );
   }
 
   if (
@@ -166,12 +190,13 @@ function calculateBreakEven(input: BreakEvenInput): BreakEvenResult {
     const growthMultiplier = 1 + expectedGrowthRate / 100;
     const projectedUnits = Math.round(currentSalesUnits * growthMultiplier);
     const projectedMarginPercent = ((projectedUnits - breakEvenUnits) / projectedUnits) * 100;
-    const direction = projectedMarginPercent >= marginOfSafety.percentage ? 'improves to' : 'slips to';
+    const direction =
+      projectedMarginPercent >= marginOfSafety.percentage ? 'improves to' : 'slips to';
     recommendations.push(
       `📈 With ${expectedGrowthRate.toFixed(1)}% growth you would sell ~${projectedUnits.toLocaleString()} units and margin of safety ${direction} ${projectedMarginPercent.toFixed(1)}%.`
     );
   }
-  
+
   return {
     breakEven: {
       units: breakEvenUnits,
@@ -228,46 +253,46 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     ${renderBreakEvenChart(result, input)}
     
     <!-- Core Metrics -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Break-Even Analysis
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <h3 class="fa-list-copy-strong">Cost Structure</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Cost Structure</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Fixed Costs (monthly)</span>
               <span class="font-semibold">${formatCurrency(input.fixedCosts)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Variable Cost per Unit</span>
               <span class="font-semibold">${formatCurrency(input.variableCostPerUnit)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Selling Price per Unit</span>
               <span class="font-semibold">${formatCurrency(input.sellingPricePerUnit)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-top pt-2">
-              <span class="fa-list-copy-strong">Contribution Margin</span>
+            <div class="flex justify-between py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-2">
+              <span class="text-slate-900 dark:text-white font-semibold">Contribution Margin</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.contributionMargin)}</span>
             </div>
           </div>
         </div>
         
         <div class="space-y-4">
-          <h3 class="fa-list-copy-strong">Break-Even Point</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Break-Even Point</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Units to Break Even</span>
               <span class="font-bold text-violet-600 dark:text-violet-400">${result.breakEven.units.toLocaleString()}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Revenue to Break Even</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.revenue)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Contribution Margin %</span>
               <span class="font-semibold">${result.breakEven.contributionMarginRatio.toFixed(1)}%</span>
             </div>
@@ -282,7 +307,9 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
       </div>
     </div>
     
-    ${input.currentSalesUnits && input.currentSalesUnits > 0 ? `
+    ${
+      input.currentSalesUnits && input.currentSalesUnits > 0
+        ? `
     <!-- Margin of Safety -->
     <div class="bg-linear-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 mb-6 border border-emerald-200 dark:border-emerald-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -291,38 +318,46 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
       <p class="fa-script-copy-muted mb-4">How much cushion you have above break-even</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Current Sales</p>
-          <p class="fa-panel-title text-2xl">${input.currentSalesUnits.toLocaleString()}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${input.currentSalesUnits.toLocaleString()}</p>
           <p class="fa-script-note mt-1">units/month</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Safety Buffer</p>
           <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-emerald-600 dark:text-emerald-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.marginOfSafety.units.toLocaleString()}</p>
           <p class="fa-script-note mt-1">units above break-even</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Safety Percentage</p>
           <p class="text-2xl font-bold ${result.marginOfSafety.percentage > 30 ? 'text-emerald-600 dark:text-emerald-400' : result.marginOfSafety.percentage > 15 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.marginOfSafety.percentage.toFixed(1)}%</p>
           <p class="fa-script-note mt-1">${result.marginOfSafety.percentage > 30 ? 'Healthy' : result.marginOfSafety.percentage > 15 ? 'Moderate' : 'Risky'}</p>
         </div>
       </div>
       
-      <div class="mt-4 fa-subcard">
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <p class="fa-script-copy-strong">
-          ${result.marginOfSafety.percentage > 30 
-            ? '✓ Strong position: Sales could drop ' + result.marginOfSafety.percentage.toFixed(0) + '% before losing money.' 
-            : result.marginOfSafety.percentage > 15
-            ? '⚠️ Moderate risk: Limited cushion for sales fluctuations. Consider ways to increase sales or reduce costs.'
-            : '🚨 High risk: Very close to break-even. Any sales decline results in losses. Immediate action needed.'}
+          ${
+            result.marginOfSafety.percentage > 30
+              ? '✓ Strong position: Sales could drop ' +
+                result.marginOfSafety.percentage.toFixed(0) +
+                '% before losing money.'
+              : result.marginOfSafety.percentage > 15
+                ? '⚠️ Moderate risk: Limited cushion for sales fluctuations. Consider ways to increase sales or reduce costs.'
+                : '🚨 High risk: Very close to break-even. Any sales decline results in losses. Immediate action needed.'
+          }
         </p>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
-    ${result.targetProfit ? `
+    ${
+      result.targetProfit
+        ? `
     <!-- Target Profit Analysis -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -331,29 +366,31 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
       <p class="fa-script-copy-muted mb-4">Units and revenue needed to achieve your profit goal</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Units Needed</p>
           <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.targetProfit.unitsNeeded.toLocaleString()}</p>
           <p class="fa-script-note mt-1">to reach profit goal</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Revenue Needed</p>
           <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.targetProfit.revenueNeeded)}</p>
           <p class="fa-script-note mt-1">total sales required</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Beyond Break-Even</p>
           <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.targetProfit.additionalUnits.toLocaleString()}</p>
           <p class="fa-script-note mt-1">extra units for profit</p>
         </div>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Sensitivity Analysis -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>🔬</span> Sensitivity Analysis
       </h2>
@@ -420,60 +457,67 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
       </h2>
       
       <div class="space-y-3">
-        ${result.recommendations.map(rec => `
-          <div class="fa-subcard p-3 fa-script-copy-strong">
+        ${result.recommendations
+          .map(
+            (rec) => `
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 fa-script-copy-strong">
             ${rec}
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
 function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): string {
   const canvasId = `break-even-chart-${Date.now()}`;
-  
+
   setTimeout(() => {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     const width = canvas.offsetWidth;
     const height = 400;
     canvas.width = width;
     canvas.height = height;
-    
+
     const padding = { top: 40, right: 40, bottom: 60, left: 80 };
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
-    
+
     // Calculate chart data
     const maxUnits = Math.max(result.breakEven.units * 2, input.currentSalesUnits || 0, 100);
     const unitsRange = Array.from({ length: 50 }, (_, i) => Math.floor((maxUnits / 50) * i));
-    
-    const totalCostLine = unitsRange.map(units => ({
+
+    const totalCostLine = unitsRange.map((units) => ({
       units,
-      cost: input.fixedCosts + (units * input.variableCostPerUnit),
+      cost: input.fixedCosts + units * input.variableCostPerUnit,
     }));
-    
-    const totalRevenueLine = unitsRange.map(units => ({
+
+    const totalRevenueLine = unitsRange.map((units) => ({
       units,
       revenue: units * input.sellingPricePerUnit,
     }));
-    
+
     const maxValue = Math.max(
-      ...totalCostLine.map(d => d.cost),
-      ...totalRevenueLine.map(d => d.revenue)
+      ...totalCostLine.map((d) => d.cost),
+      ...totalRevenueLine.map((d) => d.revenue)
     );
-    
+
     // Clear and draw background
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark' ? '#1f2937' : '#ffffff';
+    ctx.fillStyle =
+      getComputedStyle(document.body).getPropertyValue('color-scheme') === 'dark'
+        ? '#1f2937'
+        : '#ffffff';
     ctx.fillRect(0, 0, width, height);
-    
+
     // Draw grid
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 1;
@@ -483,7 +527,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
-      
+
       // Y-axis labels
       const value = maxValue * (1 - i / 5);
       ctx.fillStyle = '#6b7280';
@@ -491,7 +535,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
       ctx.textAlign = 'right';
       ctx.fillText(`$${(value / 1000).toFixed(0)}k`, padding.left - 10, y + 4);
     }
-    
+
     // X-axis labels
     ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
@@ -499,19 +543,19 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
       const x = padding.left + (chartWidth * i) / 5;
       ctx.fillText(Math.round(units).toString(), x, height - padding.bottom + 25);
     }
-    
+
     // Axis titles
     ctx.fillStyle = '#111827';
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Units Sold', width / 2, height - 10);
-    
+
     ctx.save();
     ctx.translate(15, height / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillText('Revenue / Costs ($)', 0, 0);
     ctx.restore();
-    
+
     // Draw total cost line (red)
     ctx.strokeStyle = '#ef4444';
     ctx.lineWidth = 3;
@@ -519,7 +563,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
     totalCostLine.forEach((point, i) => {
       const x = padding.left + (chartWidth * point.units) / maxUnits;
       const y = padding.top + chartHeight - (chartHeight * point.cost) / maxValue;
-      
+
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -527,7 +571,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
       }
     });
     ctx.stroke();
-    
+
     // Draw total revenue line (green)
     ctx.strokeStyle = '#10b981';
     ctx.lineWidth = 3;
@@ -535,7 +579,7 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
     totalRevenueLine.forEach((point, i) => {
       const x = padding.left + (chartWidth * point.units) / maxUnits;
       const y = padding.top + chartHeight - (chartHeight * point.revenue) / maxValue;
-      
+
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -543,22 +587,23 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
       }
     });
     ctx.stroke();
-    
+
     // Mark break-even point
     const breakEvenX = padding.left + (chartWidth * result.breakEven.units) / maxUnits;
-    const breakEvenY = padding.top + chartHeight - (chartHeight * result.breakEven.revenue) / maxValue;
-    
+    const breakEvenY =
+      padding.top + chartHeight - (chartHeight * result.breakEven.revenue) / maxValue;
+
     ctx.fillStyle = '#3b82f6';
     ctx.beginPath();
     ctx.arc(breakEvenX, breakEvenY, 6, 0, Math.PI * 2);
     ctx.fill();
-    
+
     // Break-even label
     ctx.fillStyle = '#1f2937';
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`Break-Even: ${result.breakEven.units} units`, breakEvenX + 10, breakEvenY - 10);
-    
+
     // Legend
     const legendY = 20;
     ctx.fillStyle = '#ef4444';
@@ -567,12 +612,12 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Total Costs', padding.left + 25, legendY + 3);
-    
+
     ctx.fillStyle = '#10b981';
     ctx.fillRect(padding.left + 120, legendY, 20, 3);
     ctx.fillStyle = '#1f2937';
     ctx.fillText('Total Revenue', padding.left + 145, legendY + 3);
-    
+
     // Profit/Loss zones
     ctx.fillStyle = '#10b98120';
     ctx.fillRect(breakEvenX, padding.top, width - padding.right - breakEvenX, chartHeight);
@@ -580,15 +625,15 @@ function renderBreakEvenChart(result: BreakEvenResult, input: BreakEvenInput): s
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('PROFIT ZONE', (breakEvenX + width - padding.right) / 2, padding.top + 20);
-    
+
     ctx.fillStyle = '#ef444420';
     ctx.fillRect(padding.left, padding.top, breakEvenX - padding.left, chartHeight);
     ctx.fillStyle = '#1f2937';
     ctx.fillText('LOSS ZONE', (padding.left + breakEvenX) / 2, padding.top + 20);
   }, 100);
-  
+
   return `
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📈</span> Break-Even Chart
       </h2>
@@ -626,7 +671,9 @@ function validateInput(input: BreakEvenInput): void {
   if (input.variableCostPerUnit < 0) throw new Error('Variable cost per unit cannot be negative');
   if (input.sellingPricePerUnit <= 0) throw new Error('Selling price must be positive');
   if (input.variableCostPerUnit >= input.sellingPricePerUnit) {
-    throw new Error('Selling price must be greater than variable cost (otherwise you lose money on every unit!)');
+    throw new Error(
+      'Selling price must be greater than variable cost (otherwise you lose money on every unit!)'
+    );
   }
 }
 
@@ -646,21 +693,23 @@ function initializeBreakEven(): void {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     hideError();
     showLoading(calculateBtn);
 
     try {
       const input = parseFormInput(form);
       validateInput(input);
-      
+
       const result = calculateBreakEven(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'break-even', result, formData: input },
-      }));
-      
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'break-even', result, formData: input },
+        })
+      );
+
       if (typeof gtag !== 'undefined') {
         gtag('event', 'break_even_calculated', {
           break_even_units: result.breakEven.units,

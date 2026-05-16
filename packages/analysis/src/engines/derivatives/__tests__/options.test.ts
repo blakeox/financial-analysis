@@ -48,7 +48,10 @@ function createBasicPutOption(overrides: Partial<Option> = {}): Option {
   };
 }
 
-function createBasicInput(optionOverrides: Partial<Option> = {}, analysisOverrides: Partial<OptionAnalysisInput['analysis']> = {}): OptionAnalysisInput {
+function createBasicInput(
+  optionOverrides: Partial<Option> = {},
+  analysisOverrides: Partial<OptionAnalysisInput['analysis']> = {}
+): OptionAnalysisInput {
   return {
     option: createBasicCallOption(optionOverrides),
     analysis: {
@@ -173,7 +176,10 @@ describe('Black-Scholes-Merton Pricing', () => {
       createBasicInput({ type: 'put' }, { pricingModel: 'black-scholes-merton' })
     );
     const withDividend = OptionsPricingAnalyzer.analyze(
-      createBasicInput({ type: 'put', dividendYield: 0.03 }, { pricingModel: 'black-scholes-merton' })
+      createBasicInput(
+        { type: 'put', dividendYield: 0.03 },
+        { pricingModel: 'black-scholes-merton' }
+      )
     );
 
     expect(withDividend.theoreticalPrice).toBeGreaterThan(noDividend.theoreticalPrice);
@@ -189,7 +195,7 @@ describe('Binomial Tree Pricing', () => {
     const bsPrice = OptionsPricingAnalyzer.analyze(
       createBasicInput({}, { pricingModel: 'black-scholes' })
     ).theoreticalPrice;
-    
+
     const binomialPrice = OptionsPricingAnalyzer.analyze(
       createBasicInput({}, { pricingModel: 'binomial' })
     ).theoreticalPrice;
@@ -242,7 +248,7 @@ describe('Monte Carlo Pricing', () => {
     const bsPrice = OptionsPricingAnalyzer.analyze(
       createBasicInput({}, { pricingModel: 'black-scholes' })
     ).theoreticalPrice;
-    
+
     const mcPrice = OptionsPricingAnalyzer.analyze(
       createBasicInput({}, { pricingModel: 'monte-carlo', monteCarloSimulations: 50000 })
     ).theoreticalPrice;
@@ -256,13 +262,16 @@ describe('Monte Carlo Pricing', () => {
     const bsPrice = OptionsPricingAnalyzer.analyze(
       createBasicInput({ type: 'put' }, { pricingModel: 'black-scholes' })
     ).theoreticalPrice;
-    
+
     const mcPrice = OptionsPricingAnalyzer.analyze(
-      createBasicInput({ type: 'put' }, { pricingModel: 'monte-carlo', monteCarloSimulations: 50000 })
+      createBasicInput(
+        { type: 'put' },
+        { pricingModel: 'monte-carlo', monteCarloSimulations: 50000 }
+      )
     ).theoreticalPrice;
 
     // Monte Carlo has variance due to random sampling
-    expect(Math.abs(mcPrice - bsPrice) / bsPrice).toBeLessThan(0.40);
+    expect(Math.abs(mcPrice - bsPrice) / bsPrice).toBeLessThan(0.4);
   });
 
   it('should converge with more simulations', () => {
@@ -276,7 +285,7 @@ describe('Monte Carlo Pricing', () => {
     ).theoreticalPrice;
 
     // Should be within 30% of BS price due to Monte Carlo variance
-    expect(Math.abs(mcPrice - bsPrice) / bsPrice).toBeLessThan(0.30);
+    expect(Math.abs(mcPrice - bsPrice) / bsPrice).toBeLessThan(0.3);
   });
 });
 
@@ -325,8 +334,12 @@ describe('Greeks Calculation', () => {
       // Gamma is highest for ATM options, especially close to expiry
       // With 1 year expiry, the difference is less pronounced
       const atm = OptionsPricingAnalyzer.analyze(createBasicInput({ timeToExpiry: 0.1 }));
-      const itm = OptionsPricingAnalyzer.analyze(createBasicInput({ underlyingPrice: 120, timeToExpiry: 0.1 }));
-      const otm = OptionsPricingAnalyzer.analyze(createBasicInput({ underlyingPrice: 80, timeToExpiry: 0.1 }));
+      const itm = OptionsPricingAnalyzer.analyze(
+        createBasicInput({ underlyingPrice: 120, timeToExpiry: 0.1 })
+      );
+      const otm = OptionsPricingAnalyzer.analyze(
+        createBasicInput({ underlyingPrice: 80, timeToExpiry: 0.1 })
+      );
 
       // Gamma should be highest for ATM with short expiry
       expect(atm.greeks.gamma).toBeGreaterThan(itm.greeks.gamma);
@@ -411,7 +424,7 @@ describe('Greeks Calculation', () => {
 
     it('should calculate speed, color, zomma, and ultima', () => {
       const result = OptionsPricingAnalyzer.analyze(createBasicInput());
-      
+
       expect(typeof result.greeks.speed).toBe('number');
       expect(typeof result.greeks.color).toBe('number');
       expect(typeof result.greeks.zomma).toBe('number');
@@ -455,7 +468,7 @@ describe('Intrinsic and Time Value', () => {
     const result = OptionsPricingAnalyzer.analyze(
       createBasicInput({ underlyingPrice: 110, strikePrice: 100 })
     );
-    
+
     expect(result.timeValue).toBeCloseTo(result.theoreticalPrice - result.intrinsicValue, 4);
   });
 
@@ -563,7 +576,7 @@ describe('Time Decay Analysis', () => {
     for (let i = 1; i < result.thetaDecay.length; i++) {
       const current = result.thetaDecay[i];
       const previous = result.thetaDecay[i - 1];
-      
+
       // More days to expiry should have higher (or equal) price
       if (current && previous && current.daysToExpiry > previous.daysToExpiry) {
         expect(current.theoreticalPrice).toBeGreaterThanOrEqual(previous.theoreticalPrice - 0.01);
@@ -585,7 +598,7 @@ describe('Time Decay Analysis', () => {
     if (result.thetaDecay.length >= 2) {
       const first = result.thetaDecay[0]!;
       const last = result.thetaDecay[result.thetaDecay.length - 1]!;
-      
+
       // First entry should have more time value than last
       expect(first.timeValue).toBeGreaterThanOrEqual(last.timeValue);
     }
@@ -642,7 +655,7 @@ describe('Implied Volatility Calculation', () => {
   it('should calculate implied volatility from market price', () => {
     // First get a theoretical price
     const theoretical = OptionsPricingAnalyzer.analyze(createBasicInput());
-    
+
     // Then use that as market price to recover IV
     const input = createBasicInput({ premium: theoretical.theoreticalPrice });
     const result = OptionsPricingAnalyzer.analyze(input);
@@ -769,14 +782,13 @@ describe('Strategy Analysis', () => {
 
   describe('Single Position Strategy', () => {
     it('should analyze a long call position', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 20 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 20,
+      });
 
       expect(result.name).toBe('Custom Strategy');
       expect(result.positions.length).toBe(1);
@@ -793,10 +805,11 @@ describe('Strategy Analysis', () => {
         },
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 20 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 20,
+      });
 
       expect(result.netCost).toBe(8);
       expect(result.payoffDiagram.length).toBe(21);
@@ -806,14 +819,15 @@ describe('Strategy Analysis', () => {
   describe('Multi-Leg Strategies', () => {
     it('should analyze a bull call spread', () => {
       const positions: StrategyPosition[] = [
-        createStrategyPosition({ strikePrice: 95 }, 1, 8),  // Long call at 95
+        createStrategyPosition({ strikePrice: 95 }, 1, 8), // Long call at 95
         createStrategyPosition({ strikePrice: 105 }, -1, 4), // Short call at 105
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(result.netCost).toBe(4); // 8 - 4
       expect(result.positions.length).toBe(2);
@@ -829,10 +843,11 @@ describe('Strategy Analysis', () => {
         },
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 70, max: 130, steps: 30 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 70,
+        max: 130,
+        steps: 30,
+      });
 
       expect(result.netCost).toBe(18); // 10 + 8
       expect(result.breakevenPoints.length).toBeGreaterThanOrEqual(0);
@@ -856,10 +871,11 @@ describe('Strategy Analysis', () => {
         createStrategyPosition({ strikePrice: 115 }, 1, 2),
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 70, max: 130, steps: 60 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 70,
+        max: 130,
+        steps: 60,
+      });
 
       expect(result.positions.length).toBe(4);
       expect(Number.isFinite(result.netCost)).toBe(true);
@@ -873,10 +889,11 @@ describe('Strategy Analysis', () => {
         createStrategyPosition({ strikePrice: 110 }, -1, 5),
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 20 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 20,
+      });
 
       // Combined delta should be less than single long call
       expect(result.strategyGreeks.delta).toBeLessThan(1);
@@ -894,10 +911,11 @@ describe('Strategy Analysis', () => {
         },
       ];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 20 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 20,
+      });
 
       // ATM straddle should have delta close to zero
       expect(Math.abs(result.strategyGreeks.delta)).toBeLessThan(0.2);
@@ -906,27 +924,25 @@ describe('Strategy Analysis', () => {
 
   describe('Payoff Diagram', () => {
     it('should generate correct number of points', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(result.payoffDiagram.length).toBe(41); // steps + 1
     });
 
     it('should have correct price range in diagram', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(result.payoffDiagram[0]?.underlyingPrice).toBe(80);
       expect(result.payoffDiagram[result.payoffDiagram.length - 1]?.underlyingPrice).toBe(120);
@@ -935,54 +951,50 @@ describe('Strategy Analysis', () => {
 
   describe('Risk Metrics', () => {
     it('should calculate probability of profit', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 50, max: 150, steps: 100 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 50,
+        max: 150,
+        steps: 100,
+      });
 
       expect(result.probabilityOfProfit).toBeGreaterThanOrEqual(0);
       expect(result.probabilityOfProfit).toBeLessThanOrEqual(1);
     });
 
     it('should calculate expected value', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(Number.isFinite(result.expectedValue)).toBe(true);
     });
 
     it('should calculate Sharpe ratio', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(Number.isFinite(result.sharpeRatio)).toBe(true);
     });
 
     it('should calculate maximum drawdown', () => {
-      const positions: StrategyPosition[] = [
-        createStrategyPosition({}, 1, 10),
-      ];
+      const positions: StrategyPosition[] = [createStrategyPosition({}, 1, 10)];
 
-      const result = OptionsPricingAnalyzer.analyzeStrategy(
-        positions,
-        { min: 80, max: 120, steps: 40 }
-      );
+      const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+        min: 80,
+        max: 120,
+        steps: 40,
+      });
 
       expect(result.maximumDrawdown).toBeGreaterThanOrEqual(0);
     });
@@ -1165,7 +1177,13 @@ describe('Put-Call Parity', () => {
       createBasicInput({ underlyingPrice: S, strikePrice: K, riskFreeRate: r, timeToExpiry: T })
     );
     const put = OptionsPricingAnalyzer.analyze(
-      createBasicInput({ type: 'put', underlyingPrice: S, strikePrice: K, riskFreeRate: r, timeToExpiry: T })
+      createBasicInput({
+        type: 'put',
+        underlyingPrice: S,
+        strikePrice: K,
+        riskFreeRate: r,
+        timeToExpiry: T,
+      })
     );
 
     // Put-Call Parity: C - P = S - K*e^(-rT)
@@ -1190,7 +1208,14 @@ describe('Put-Call Parity', () => {
     );
     const put = OptionsPricingAnalyzer.analyze(
       createBasicInput(
-        { type: 'put', underlyingPrice: S, strikePrice: K, riskFreeRate: r, timeToExpiry: T, dividendYield: q },
+        {
+          type: 'put',
+          underlyingPrice: S,
+          strikePrice: K,
+          riskFreeRate: r,
+          timeToExpiry: T,
+          dividendYield: q,
+        },
         { pricingModel: 'black-scholes-merton' }
       )
     );
@@ -1210,21 +1235,21 @@ describe('Put-Call Parity', () => {
 describe('Performance', () => {
   it('should handle rapid sequential calculations', () => {
     const startTime = Date.now();
-    
+
     for (let i = 0; i < 100; i++) {
       OptionsPricingAnalyzer.analyze(createBasicInput({ underlyingPrice: 90 + i * 0.2 }));
     }
-    
+
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     // Should complete 100 calculations in under 5 seconds
     expect(duration).toBeLessThan(5000);
   });
 
   it('should handle strategy with many positions', () => {
     const positions: StrategyPosition[] = [];
-    
+
     for (let i = 0; i < 10; i++) {
       positions.push({
         option: createBasicCallOption({ strikePrice: 90 + i * 2 }),
@@ -1233,10 +1258,11 @@ describe('Performance', () => {
       });
     }
 
-    const result = OptionsPricingAnalyzer.analyzeStrategy(
-      positions,
-      { min: 70, max: 130, steps: 60 }
-    );
+    const result = OptionsPricingAnalyzer.analyzeStrategy(positions, {
+      min: 70,
+      max: 130,
+      steps: 60,
+    });
 
     expect(result.positions.length).toBe(10);
     expect(Number.isFinite(result.netCost)).toBe(true);

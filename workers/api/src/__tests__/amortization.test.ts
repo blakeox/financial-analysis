@@ -20,7 +20,7 @@ describe('POST /v1/api/analysis/amortization', () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as unknown as {
       monthlyPayment: number;
-      totalAmount: number;  // API transforms totalPayments to totalAmount
+      totalAmount: number; // API transforms totalPayments to totalAmount
       totalInterest: number;
       schedule: Array<{
         month: number;
@@ -30,9 +30,9 @@ describe('POST /v1/api/analysis/amortization', () => {
         balance: number;
       }>;
     };
-    
+
     expect(json).toHaveProperty('monthlyPayment');
-    expect(json).toHaveProperty('totalPayments');  // API uses totalPayments
+    expect(json).toHaveProperty('totalPayments'); // API uses totalPayments
     expect(json).toHaveProperty('totalInterest');
     expect(Array.isArray(json.schedule)).toBe(true);
     expect(json.schedule.length).toBe(12);

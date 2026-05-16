@@ -20,9 +20,9 @@ describe('DebtPayoffEngine', () => {
     expect(parseFloat(result.input.totalDebtBalance)).toBe(16000);
     expect(parseFloat(result.input.totalMinimumPayment)).toBe(440);
     expect(result.summary.strategy).toBe('avalanche');
-    
+
     // Avalanche should pay off highest rate debt (Credit Card B at 24%) fastest
-    const creditCardB = result.summary.debtSummaries.find(d => d.name === 'Credit Card B');
+    const creditCardB = result.summary.debtSummaries.find((d) => d.name === 'Credit Card B');
     expect(creditCardB).toBeDefined();
     expect(result.summary.totalMonthsToPayoff).toBeGreaterThan(0);
     expect(parseFloat(result.summary.totalInterestPaid)).toBeGreaterThan(0);
@@ -42,9 +42,12 @@ describe('DebtPayoffEngine', () => {
     const result = DebtPayoffEngine.analyze(input);
 
     expect(result.summary.strategy).toBe('snowball');
-    
+
     // Snowball should target lowest balance (Credit Card B at $3000) first
-    const firstDebtPaidOff = result.summary.debtSummaries.find(d => d.monthsToPayoff === Math.min(...result.summary.debtSummaries.map(s => s.monthsToPayoff)));
+    const firstDebtPaidOff = result.summary.debtSummaries.find(
+      (d) =>
+        d.monthsToPayoff === Math.min(...result.summary.debtSummaries.map((s) => s.monthsToPayoff))
+    );
     expect(firstDebtPaidOff?.name).toBe('Credit Card B');
   });
 
@@ -72,9 +75,7 @@ describe('DebtPayoffEngine', () => {
 
   it('should generate month-by-month payment schedule', () => {
     const input: DebtPayoffInput = {
-      debts: [
-        { name: 'Debt 1', balance: 1000, interestRate: 0.15, minimumPayment: 50 },
-      ],
+      debts: [{ name: 'Debt 1', balance: 1000, interestRate: 0.15, minimumPayment: 50 }],
       extraMonthlyPayment: 100,
       strategy: 'avalanche',
     };
@@ -82,7 +83,7 @@ describe('DebtPayoffEngine', () => {
     const result = DebtPayoffEngine.analyze(input);
 
     expect(result.payoffSchedule.length).toBeGreaterThan(0);
-    
+
     const firstMonth = result.payoffSchedule[0];
     expect(firstMonth?.month).toBe(1);
     expect(firstMonth?.payments.length).toBe(1);
@@ -97,9 +98,7 @@ describe('DebtPayoffEngine', () => {
 
   it('should calculate balance transfer benefits correctly', () => {
     const input: DebtPayoffInput = {
-      debts: [
-        { name: 'High Rate Card', balance: 5000, interestRate: 0.22, minimumPayment: 150 },
-      ],
+      debts: [{ name: 'High Rate Card', balance: 5000, interestRate: 0.22, minimumPayment: 150 }],
       extraMonthlyPayment: 200,
       strategy: 'avalanche',
       balanceTransferOffer: {
@@ -122,9 +121,7 @@ describe('DebtPayoffEngine', () => {
 
   it('should not recommend balance transfer if fees exceed savings', () => {
     const input: DebtPayoffInput = {
-      debts: [
-        { name: 'Low Rate Debt', balance: 1000, interestRate: 0.05, minimumPayment: 50 },
-      ],
+      debts: [{ name: 'Low Rate Debt', balance: 1000, interestRate: 0.05, minimumPayment: 50 }],
       extraMonthlyPayment: 500, // Paying off quickly anyway
       strategy: 'avalanche',
       balanceTransferOffer: {
@@ -158,7 +155,7 @@ describe('DebtPayoffEngine', () => {
     const result = DebtPayoffEngine.analyze(input);
 
     expect(result.summary.debtSummaries.length).toBe(3);
-    
+
     // All debts should be paid off
     for (const summary of result.summary.debtSummaries) {
       expect(summary.monthsToPayoff).toBeGreaterThan(0);

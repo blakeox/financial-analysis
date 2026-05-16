@@ -1,11 +1,8 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { fieldLabelClasses, helperTextClasses, inputClasses, textColors } from '../../lib/classNames';
+import { inputClasses } from '../../lib/classNames';
 
-export type CurrencyFieldProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'type'
-> & {
+export type CurrencyFieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   label?: string;
   error?: string;
   helperText?: string;
@@ -13,18 +10,7 @@ export type CurrencyFieldProps = Omit<
 };
 
 export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      currencySymbol = '$',
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
+  ({ label, error, helperText, currencySymbol = '$', className, id, ...props }, ref) => {
     const fieldId = id ?? React.useId();
     const errorId = error ? `${fieldId}-error` : undefined;
     const helperId = helperText && !error ? `${fieldId}-helper` : undefined;
@@ -35,13 +21,13 @@ export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldPro
         {label && (
           <label
             htmlFor={fieldId}
-            className={fieldLabelClasses}
+            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
           >
             {label}
           </label>
         )}
         <div className="relative">
-          <span className={cn('pointer-events-none absolute top-1/2 left-4 -translate-y-1/2', textColors.muted)}>
+          <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 dark:text-slate-400">
             {currencySymbol}
           </span>
           <input
@@ -67,7 +53,7 @@ export const CurrencyField = React.forwardRef<HTMLInputElement, CurrencyFieldPro
           </p>
         )}
         {helperText && !error && (
-          <p id={helperId} className={helperTextClasses}>
+          <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
             {helperText}
           </p>
         )}

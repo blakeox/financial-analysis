@@ -129,4 +129,3 @@ describe('InternationalTaxPlanningOptimizer', () => {
     expect(result.taxLiability.usFederalTax).toBeGreaterThan(0);
   });
 });
-

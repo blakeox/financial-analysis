@@ -196,7 +196,9 @@ export class BusinessSuccessionPlanningCalculator {
     optimalTransferAge: number;
     recommendation: string;
   } {
-    const averageAge = ownership.currentOwners.reduce((sum, owner) => sum + owner.age, 0) / ownership.currentOwners.length;
+    const averageAge =
+      ownership.currentOwners.reduce((sum, owner) => sum + owner.age, 0) /
+      ownership.currentOwners.length;
     const averageExitAge = ownership.currentOwners[0]?.expectedExitAge || 65;
     const yearsUntilOptimalTransfer = Math.max(0, averageExitAge - averageAge);
 
@@ -255,7 +257,9 @@ export class BusinessSuccessionPlanningCalculator {
     }
 
     if (estate && estate.estateTax > 0) {
-      recommendations.push(`Estate tax: $${estate.estateTax.toFixed(0)} - consider gifting strategies`);
+      recommendations.push(
+        `Estate tax: $${estate.estateTax.toFixed(0)} - consider gifting strategies`
+      );
     }
 
     if (strategies) {
@@ -269,6 +273,3 @@ export class BusinessSuccessionPlanningCalculator {
     return recommendations;
   }
 }
-
-
-

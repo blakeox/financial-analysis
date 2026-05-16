@@ -13,7 +13,7 @@ export interface ValidationResult {
 export class ResponseValidator {
   private static readonly MAX_RESPONSE_LENGTH = 12000;
   private static readonly MIN_RESPONSE_LENGTH = 50;
-  
+
   private static readonly ERROR_PATTERNS = [
     /i cannot/i,
     /i don't understand/i,
@@ -35,13 +35,16 @@ export class ResponseValidator {
   /**
    * Validate LLM response
    */
-  static validateLLMResponse(response: unknown, expectedFormat?: 'json' | 'text'): ValidationResult {
+  static validateLLMResponse(
+    response: unknown,
+    expectedFormat?: 'json' | 'text'
+  ): ValidationResult {
     const issues: string[] = [];
 
     // Check for null/undefined
     if (!response || !response) {
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         issues: ['Empty or null response'],
         canRetry: true,
       };
@@ -114,8 +117,8 @@ export class ResponseValidator {
       return { valid: true, issues: [], canRetry: false };
     } catch (error) {
       console.warn('ResponseValidator JSON parse failed:', error);
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         issues: ['Invalid JSON format'],
         canRetry: true,
       };
@@ -203,4 +206,3 @@ export class ResponseValidator {
     }
   }
 }
-

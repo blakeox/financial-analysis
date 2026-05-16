@@ -34,7 +34,7 @@ class CashFlowAnalysisCalculator {
 
     const newItem = document.createElement('div');
     newItem.className =
-      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 fa-surface-muted rounded-lg';
+      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     newItem.innerHTML = `
       <div>
         <label class="fa-field-label mb-2">Description</label>
@@ -177,7 +177,7 @@ class CashFlowAnalysisCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="fa-panel-title text-lg mb-2">Cash Flow Analysis</h3>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Analysis</h3>
           <p class="text-slate-700 dark:text-slate-300">
             Your cash flow analysis is complete. Use the AI assistant to get detailed recommendations and insights.
           </p>

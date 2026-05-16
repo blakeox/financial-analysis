@@ -31,7 +31,8 @@ export async function verifyTurnstileToken(
 ): Promise<TurnstileVerificationOutcome> {
   const secret = env.TURNSTILE_SECRET;
   if (!secret) return { status: 'SKIP' };
-  if (!token) return { status: 'FAIL', raw: { success: false, 'error-codes': ['missing-input-response'] } };
+  if (!token)
+    return { status: 'FAIL', raw: { success: false, 'error-codes': ['missing-input-response'] } };
 
   const form = new URLSearchParams();
   form.set('secret', secret);

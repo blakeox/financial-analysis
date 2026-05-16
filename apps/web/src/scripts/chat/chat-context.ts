@@ -81,7 +81,9 @@ export function installChatContextBridge(): void {
 
   const bridge = (label: string | null, data: unknown) => {
     const serialized =
-      data && typeof data === 'object' ? (data as SerializedContext) : (data as SerializedContext | null);
+      data && typeof data === 'object'
+        ? (data as SerializedContext)
+        : (data as SerializedContext | null);
     publishChatContext(null, label, serialized, 'legacy');
   };
 

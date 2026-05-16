@@ -14,16 +14,22 @@ export const AmortizationInputSchema = z.object({
   annualRate: z.number().min(0).max(1),
   termMonths: z.number().positive().int(),
   extraMonthlyPayment: z.number().min(0).default(0),
-  oneTimePayments: z.array(z.object({
-    month: z.number().positive().int(),
-    amount: z.number().positive(),
-    applyToPrincipal: z.boolean().default(true),
-  })).default([]),
-  pmi: z.object({
-    enabled: z.boolean().default(false),
-    rate: z.number().min(0).default(0),
-    dropOffLTV: z.number().min(0).max(1).default(0.8),
-  }).default({ enabled: false, rate: 0, dropOffLTV: 0.8 }),
+  oneTimePayments: z
+    .array(
+      z.object({
+        month: z.number().positive().int(),
+        amount: z.number().positive(),
+        applyToPrincipal: z.boolean().default(true),
+      })
+    )
+    .default([]),
+  pmi: z
+    .object({
+      enabled: z.boolean().default(false),
+      rate: z.number().min(0).default(0),
+      dropOffLTV: z.number().min(0).max(1).default(0.8),
+    })
+    .default({ enabled: false, rate: 0, dropOffLTV: 0.8 }),
   points: z.number().min(0).default(0),
 });
 

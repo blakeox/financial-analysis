@@ -34,7 +34,7 @@ describe('CashFlowAnalysisTool', () => {
     openingCashBalance: 100000,
     minimumCashBalance: 25000,
     method: 'direct' as const,
-    discountRate: 0.10,
+    discountRate: 0.1,
   };
 
   describe('metadata', () => {

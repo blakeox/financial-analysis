@@ -154,4 +154,3 @@ describe('BusinessSuccessionPlanningCalculator', () => {
     expect(result.fundingAnalysis).toBeUndefined();
   });
 });
-

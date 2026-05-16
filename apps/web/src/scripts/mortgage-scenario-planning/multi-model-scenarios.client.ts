@@ -219,7 +219,8 @@ export class MultiModelScenarioManager {
           {
             id: 'lease-vs-buyout',
             name: 'Buyout Math & Equity Check',
-            description: 'Compare finishing the lease vs buying out now or later with taxes and fees',
+            description:
+              'Compare finishing the lease vs buying out now or later with taxes and fees',
             url: '/journey/auto-lease-decision/step/lease-vs-buyout',
             order: 2,
             required: true,
@@ -227,7 +228,8 @@ export class MultiModelScenarioManager {
           {
             id: 'replacement-options',
             name: 'New Lease vs Finance vs Cash',
-            description: 'Enter new lease terms, financed new car terms, and cash purchase (mark cash not an option if short)',
+            description:
+              'Enter new lease terms, financed new car terms, and cash purchase (mark cash not an option if short)',
             url: '/journey/auto-lease-decision/step/replacement-options',
             order: 3,
             required: true,
@@ -749,11 +751,11 @@ export class MultiModelScenarioManager {
         const isCompleted = this.completedModels.has(model.id);
         const statusClass = isCompleted
           ? 'text-emerald-600 dark:text-emerald-400'
-          : 'fa-help-copy';
+          : 'text-slate-600 dark:text-slate-400';
         const statusIcon = isCompleted ? '✓' : '○';
 
         return `
-        <div class="flex items-center justify-between p-3 fa-table-head rounded-lg mb-2">
+        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg mb-2">
           <div class="flex items-center">
             <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
             <div>
@@ -774,7 +776,7 @@ export class MultiModelScenarioManager {
 
     return `
       <div class="mb-4">
-        <h4 class="text-lg fa-list-copy-strong mb-3">Models in this Scenario</h4>
+        <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Models in this Scenario</h4>
         <div class="space-y-2">
           ${modelsHTML}
         </div>

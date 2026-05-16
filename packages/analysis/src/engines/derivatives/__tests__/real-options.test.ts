@@ -51,7 +51,7 @@ describe('RealOptionsAnalyzer', () => {
       const discountRate = 0.1;
 
       const npv = RealOptionsAnalyzer['calculateNPV'](initialInvestment, cashFlows, discountRate);
-      expect(npv).toBeCloseTo(300000/1.1 + 400000/1.21 + 500000/1.331 - 1000000, 0.01);
+      expect(npv).toBeCloseTo(300000 / 1.1 + 400000 / 1.21 + 500000 / 1.331 - 1000000, 0.01);
     });
 
     it('should handle zero discount rate', () => {
@@ -100,8 +100,8 @@ describe('RealOptionsAnalyzer', () => {
   describe('Black-Scholes calculations', () => {
     it('should calculate call option value', () => {
       const S = 100; // Stock price
-      const K = 95;  // Strike price
-      const T = 1;   // Time to maturity
+      const K = 95; // Strike price
+      const T = 1; // Time to maturity
       const r = 0.05; // Risk-free rate
       const sigma = 0.2; // Volatility
 
@@ -111,9 +111,9 @@ describe('RealOptionsAnalyzer', () => {
     });
 
     it('should calculate put option value', () => {
-      const S = 90;  // Stock price
-      const K = 95;  // Strike price
-      const T = 1;   // Time to maturity
+      const S = 90; // Stock price
+      const K = 95; // Strike price
+      const T = 1; // Time to maturity
       const r = 0.05; // Risk-free rate
       const sigma = 0.2; // Volatility
 
@@ -364,7 +364,9 @@ describe('RealOptionsAnalyzer', () => {
       };
 
       const risks = RealOptionsAnalyzer['generateRisks'](input as any);
-      expect(risks).toContain('Low volatility reduces the value of managerial flexibility options.');
+      expect(risks).toContain(
+        'Low volatility reduces the value of managerial flexibility options.'
+      );
       expect(risks).toContain('Short time horizon limits the strategic value of real options.');
     });
   });

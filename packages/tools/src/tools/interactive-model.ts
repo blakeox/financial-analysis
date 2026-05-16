@@ -43,34 +43,35 @@ export interface ModelModificationResult {
 
 export class InteractiveModelTool {
   static readonly toolName = 'interactive_financial_model';
-  static readonly description = 'Interactively modify and analyze financial models with AI thinking process';
+  static readonly description =
+    'Interactively modify and analyze financial models with AI thinking process';
 
   static readonly inputSchema = {
     type: 'object' as const,
     properties: {
-      action: { 
-        type: 'string', 
+      action: {
+        type: 'string',
         enum: ['modify_lease', 'modify_amortization', 'modify_ebitda', 'compare_scenarios'],
-        description: 'Action to perform on the financial model' 
+        description: 'Action to perform on the financial model',
       },
-      modelType: { 
-        type: 'string', 
+      modelType: {
+        type: 'string',
         enum: ['lease', 'amortization', 'ebitda'],
-        description: 'Type of financial model to work with' 
+        description: 'Type of financial model to work with',
       },
-      parameters: { 
-        type: 'object', 
-        description: 'Base parameters for the financial model' 
+      parameters: {
+        type: 'object',
+        description: 'Base parameters for the financial model',
       },
-      modifications: { 
-        type: 'object', 
+      modifications: {
+        type: 'object',
         description: 'Modifications to apply to the base parameters',
-        default: {} 
+        default: {},
       },
-      thinking: { 
-        type: 'boolean', 
+      thinking: {
+        type: 'boolean',
         description: 'Whether to include AI thinking process',
-        default: true 
+        default: true,
       },
     },
     required: ['action', 'modelType', 'parameters'],
@@ -88,13 +89,13 @@ export class InteractiveModelTool {
         step: 1,
         thought: `Starting ${validated.action} on ${validated.modelType} model`,
         action: 'Initializing financial analysis',
-        parameters: validated.parameters
+        parameters: validated.parameters,
       });
     }
 
     try {
       const hasModifications = Boolean(
-        validated.modifications && Object.keys(validated.modifications).length > 0,
+        validated.modifications && Object.keys(validated.modifications).length > 0
       );
 
       let originalResult: ModelResult | null = null;
@@ -105,7 +106,7 @@ export class InteractiveModelTool {
         thinkingSteps.push({
           step: 2,
           thought: 'Calculating baseline financial model with provided parameters',
-          action: `Executing ${validated.modelType} analysis`
+          action: `Executing ${validated.modelType} analysis`,
         });
       }
 
@@ -113,12 +114,12 @@ export class InteractiveModelTool {
         const leaseParameters = validated.parameters as LeaseParameters;
         const leaseResult = LeaseAnalyzer.analyze(leaseParameters);
         originalResult = leaseResult;
-        
+
         if (validated.thinking) {
           thinkingSteps.push({
             step: 3,
             thought: `Baseline lease analysis complete. Monthly payment: $${leaseResult.monthlyPayment.toLocaleString()}`,
-            action: 'Analyzing lease structure'
+            action: 'Analyzing lease structure',
           });
         }
 
@@ -156,24 +157,23 @@ export class InteractiveModelTool {
 
           if (savingsMonthly !== 0) {
             insights.push(
-              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`,
+              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`
             );
             insights.push(
-              `Total cost difference: ${savingsTotal > 0 ? '-' : '+'}$${Math.abs(savingsTotal).toLocaleString()}`,
+              `Total cost difference: ${savingsTotal > 0 ? '-' : '+'}$${Math.abs(savingsTotal).toLocaleString()}`
             );
           }
         }
-
       } else if (validated.modelType === 'amortization') {
         const amortizationParameters = validated.parameters as AmortizationParameters;
         const amortizationResult = AmortizationAnalyzer.analyze(amortizationParameters);
         originalResult = amortizationResult;
-        
+
         if (validated.thinking) {
           thinkingSteps.push({
             step: 3,
             thought: `Baseline amortization complete. Monthly payment: $${amortizationResult.monthlyPayment.toLocaleString()}`,
-            action: 'Analyzing loan structure'
+            action: 'Analyzing loan structure',
           });
         }
 
@@ -186,10 +186,14 @@ export class InteractiveModelTool {
         // Provide recommendations
         const interestRatio = amortizationResult.totalInterest / amortizationParameters.principal;
         if (interestRatio > 0.5) {
-          recommendations.push('High interest-to-principal ratio - consider shorter term or lower rate');
+          recommendations.push(
+            'High interest-to-principal ratio - consider shorter term or lower rate'
+          );
         }
         if (amortizationResult.monthlyPayment > amortizationParameters.principal * 0.01) {
-          recommendations.push('Monthly payment is high relative to principal - consider extending term');
+          recommendations.push(
+            'Monthly payment is high relative to principal - consider extending term'
+          );
         }
 
         if (hasModifications) {
@@ -206,8 +210,9 @@ export class InteractiveModelTool {
             ...amortizationParameters,
             ...validated.modifications,
           } as AmortizationParameters;
-          const modifiedAmortizationResult =
-            AmortizationAnalyzer.analyze(modifiedAmortizationParams);
+          const modifiedAmortizationResult = AmortizationAnalyzer.analyze(
+            modifiedAmortizationParams
+          );
           modifiedResult = modifiedAmortizationResult;
 
           const savingsMonthly =
@@ -217,36 +222,39 @@ export class InteractiveModelTool {
 
           if (savingsMonthly !== 0) {
             insights.push(
-              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`,
+              `Monthly payment difference: ${savingsMonthly > 0 ? '-' : '+'}$${Math.abs(savingsMonthly).toLocaleString()}`
             );
             insights.push(
-              `Interest savings: ${savingsInterest > 0 ? '-' : '+'}$${Math.abs(savingsInterest).toLocaleString()}`,
+              `Interest savings: ${savingsInterest > 0 ? '-' : '+'}$${Math.abs(savingsInterest).toLocaleString()}`
             );
           }
         }
-
       } else if (validated.modelType === 'ebitda') {
         const ebitdaParameters = validated.parameters as EbitdaParameters;
         const ebitdaResult = EbitdaForecaster.forecast(ebitdaParameters);
         originalResult = ebitdaResult;
-        
+
         if (validated.thinking) {
           const avgEbitda = ebitdaResult.summary.totalEbitda / ebitdaResult.forecast.length;
           thinkingSteps.push({
             step: 3,
             thought: `Baseline EBITDA forecast complete. Average monthly EBITDA: $${avgEbitda.toLocaleString()}`,
-            action: 'Analyzing business performance'
+            action: 'Analyzing business performance',
           });
         }
 
         const avgEbitda = ebitdaResult.summary.totalEbitda / ebitdaResult.forecast.length;
         insights.push(`Total EBITDA: $${ebitdaResult.summary.totalEbitda.toLocaleString()}`);
         insights.push(`Average monthly EBITDA: $${avgEbitda.toLocaleString()}`);
-        insights.push(`Revenue growth: ${((ebitdaResult.summary.revenueGrowth || 0) * 100).toFixed(1)}%`);
+        insights.push(
+          `Revenue growth: ${((ebitdaResult.summary.revenueGrowth || 0) * 100).toFixed(1)}%`
+        );
 
         // Provide recommendations
         if (avgEbitda < 0) {
-          recommendations.push('Negative EBITDA indicates need for cost reduction or revenue increase');
+          recommendations.push(
+            'Negative EBITDA indicates need for cost reduction or revenue increase'
+          );
         }
         if (ebitdaResult.summary.revenueGrowth && ebitdaResult.summary.revenueGrowth > 0.1) {
           recommendations.push('Strong revenue growth trajectory - consider scaling operations');
@@ -275,10 +283,10 @@ export class InteractiveModelTool {
 
           if (ebitdaDiff !== 0) {
             insights.push(
-              `EBITDA difference: ${ebitdaDiff > 0 ? '+' : ''}$${ebitdaDiff.toLocaleString()}`,
+              `EBITDA difference: ${ebitdaDiff > 0 ? '+' : ''}$${ebitdaDiff.toLocaleString()}`
             );
             insights.push(
-              `Average monthly difference: ${avgDiff > 0 ? '+' : ''}$${avgDiff.toLocaleString()}`,
+              `Average monthly difference: ${avgDiff > 0 ? '+' : ''}$${avgDiff.toLocaleString()}`
             );
           }
         }
@@ -301,13 +309,12 @@ export class InteractiveModelTool {
         ...(originalResult ? { original_result: originalResult } : {}),
         ...(modifiedResult ? { modified_result: modifiedResult } : {}),
       };
-
     } catch (error) {
       if (validated.thinking) {
         thinkingSteps.push({
           step: thinkingSteps.length + 1,
           thought: `Error occurred during analysis: ${error}`,
-          action: 'Handling error gracefully'
+          action: 'Handling error gracefully',
         });
       }
 
@@ -316,7 +323,7 @@ export class InteractiveModelTool {
         model_type: validated.modelType,
         thinking_steps: thinkingSteps,
         insights: [`Error: ${error}`],
-        recommendations: ['Please check input parameters and try again']
+        recommendations: ['Please check input parameters and try again'],
       };
     }
   }

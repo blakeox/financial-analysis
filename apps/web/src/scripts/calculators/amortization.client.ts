@@ -254,7 +254,9 @@ const buildClientComprehensiveAnalysis = (
     schedule.length || clampNumber(input.termMonths) || clampNumber(result.schedule.length);
   const years = termMonths / 12;
   const annualRate = clampNumber(input.annualRate);
-  const totalPMI = safeRound(sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.pmi ?? 0)));
+  const totalPMI = safeRound(
+    sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.pmi ?? 0))
+  );
   const totalExtraPayments = safeRound(
     sumBy(schedule, (item: AmortizationResultItem) => clampNumber(item.extraPayment ?? 0))
   );
@@ -583,12 +585,12 @@ export const renderSummaryCards = (
       <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly Payment</p>
       <p class="text-3xl font-bold">${toCurrency(monthlyPayment)}</p>
     </div>
-    <div class="fa-card p-6 shadow">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
       <p class="fa-script-copy-subtle mb-2">Total Interest</p>
       <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${toCurrency(totalInterest)}</p>
       <p class="fa-script-note mt-1">${interestShare}% of total payments</p>
     </div>
-    <div class="fa-card p-6 shadow">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
       <p class="fa-script-copy-subtle mb-2">Total Paid</p>
       <p class="text-2xl font-semibold text-violet-600 dark:text-violet-400">${toCurrency(totalPayments)}</p>
       <p class="fa-script-note mt-1">Over ${termMonths} months</p>
@@ -602,8 +604,7 @@ export const renderChart = (
 ): void => {
   if (!target) return;
   if (!Array.isArray(schedule) || schedule.length === 0) {
-    target.innerHTML =
-      '<p class="fa-script-copy-subtle">No chart data available.</p>';
+    target.innerHTML = '<p class="fa-script-copy-subtle">No chart data available.</p>';
     return;
   }
 
@@ -753,14 +754,14 @@ export const renderChart = (
   target.innerHTML = `
     <div class="space-y-5">
       <!-- Enhanced Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 fa-panel-divider-soft">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h3 class="fa-panel-title text-xl mb-1">Amortization Schedule Visualization</h3>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
           <p class="fa-script-copy-muted">Track payment breakdown and remaining balance over time</p>
         </div>
         
         <!-- Enhanced Legend -->
-        <div class="flex flex-wrap items-center gap-5 text-sm fa-surface-muted px-4 py-3 rounded-lg">
+        <div class="flex flex-wrap items-center gap-5 text-sm bg-slate-50 dark:bg-slate-900/60/50 px-4 py-3 rounded-lg">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.principal}"></div>
             <span class="font-semibold text-slate-700 dark:text-slate-300">Principal</span>
@@ -777,7 +778,7 @@ export const renderChart = (
       </div>
       
       <!-- Enhanced Chart Container -->
-      <div class="fa-card fa-surface-muted p-6 shadow-2xl overflow-x-auto">
+      <div class="bg-linear-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-x-auto">
         <div class="min-w-full">
           <svg width="${chartWidth}" height="${chartHeight}" viewBox="0 0 ${chartWidth} ${chartHeight}" class="w-full h-auto" style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));">
             <!-- Subtle background gradient -->
@@ -866,7 +867,7 @@ export const renderSchedule = (
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${interest}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">${balance}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-right text-sm fa-help-copy">${cumulativeInterest}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-600 dark:text-slate-400">${cumulativeInterest}</td>
         </tr>
       `;
     })

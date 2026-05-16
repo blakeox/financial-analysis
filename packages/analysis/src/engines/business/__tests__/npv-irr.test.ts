@@ -52,4 +52,3 @@ describe('NPVIRRCalculator', () => {
     expect(result.irr).toBeNull();
   });
 });
-

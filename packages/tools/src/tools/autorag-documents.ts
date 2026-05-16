@@ -5,7 +5,8 @@
 
 export const CacheDocumentTool = {
   toolName: 'cache_document',
-  description: 'Cache a website or document URL for future retrieval. Content is stored for 7 days with automatic freshness checking.',
+  description:
+    'Cache a website or document URL for future retrieval. Content is stored for 7 days with automatic freshness checking.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -25,7 +26,10 @@ export const CacheDocumentTool = {
     required: ['url'],
   },
 
-  async execute(input: { url: string; metadata?: { title?: string; description?: string } }): Promise<{
+  async execute(input: {
+    url: string;
+    metadata?: { title?: string; description?: string };
+  }): Promise<{
     success: boolean;
     url: string;
     fetchedAt: number;
@@ -38,7 +42,7 @@ export const CacheDocumentTool = {
       success: true,
       url: input.url,
       fetchedAt: Date.now(),
-      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000),
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
       message: `Document cached successfully. Will remain fresh for 7 days.`,
     };
   },
@@ -46,7 +50,8 @@ export const CacheDocumentTool = {
 
 export const SearchDocumentsTool = {
   toolName: 'search_documents',
-  description: 'Search cached documents using semantic similarity. Returns relevant content based on the query.',
+  description:
+    'Search cached documents using semantic similarity. Returns relevant content based on the query.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -84,7 +89,8 @@ export const SearchDocumentsTool = {
 
 export const GetDocumentTool = {
   toolName: 'get_document',
-  description: 'Get a specific cached document by URL. Returns cached content if fresh (< 7 days), otherwise fetches live.',
+  description:
+    'Get a specific cached document by URL. Returns cached content if fresh (< 7 days), otherwise fetches live.',
   inputSchema: {
     type: 'object',
     properties: {

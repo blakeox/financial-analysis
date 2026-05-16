@@ -120,7 +120,6 @@ class ChatAnalyticsCollector {
   }
 
   public trackMessageReceived(response: string, toolUsed?: string, fromCache?: boolean): void {
-
     if (toolUsed) {
       this.toolUsage[toolUsed] = (this.toolUsage[toolUsed] || 0) + 1;
     }

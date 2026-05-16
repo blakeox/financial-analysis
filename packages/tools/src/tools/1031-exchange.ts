@@ -2,7 +2,10 @@
  * 1031 Exchange MCP Tool
  */
 
-import { OneZeroThreeOneExchangeInputSchema, OneZeroThreeOneExchangeAnalyzer } from '@financial-analysis/analysis';
+import {
+  OneZeroThreeOneExchangeInputSchema,
+  OneZeroThreeOneExchangeAnalyzer,
+} from '@financial-analysis/analysis';
 
 export class OneZeroThreeOneExchangeTool {
   static readonly toolName = 'analyze_1031_exchange';
@@ -24,8 +27,18 @@ export class OneZeroThreeOneExchangeTool {
           purchasePrice: { type: 'number', minimum: 0, description: 'Purchase price' },
           adjustedBasis: { type: 'number', minimum: 0, description: 'Adjusted basis' },
           salePrice: { type: 'number', minimum: 0, description: 'Sale price' },
-          accumulatedDepreciation: { type: 'number', minimum: 0, default: 0, description: 'Accumulated depreciation' },
-          sellingExpenses: { type: 'number', minimum: 0, default: 0, description: 'Selling expenses' },
+          accumulatedDepreciation: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Accumulated depreciation',
+          },
+          sellingExpenses: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Selling expenses',
+          },
         },
         required: ['purchasePrice', 'adjustedBasis', 'salePrice'],
       },
@@ -46,9 +59,16 @@ export class OneZeroThreeOneExchangeTool {
             default: 'delayed',
             description: 'Exchange type',
           },
-          identificationDeadline: { type: 'string', description: 'Identification deadline (ISO format)' },
+          identificationDeadline: {
+            type: 'string',
+            description: 'Identification deadline (ISO format)',
+          },
           closingDeadline: { type: 'string', description: 'Closing deadline (ISO format)' },
-          qualifiedIntermediary: { type: 'boolean', default: true, description: 'Using qualified intermediary' },
+          qualifiedIntermediary: {
+            type: 'boolean',
+            default: true,
+            description: 'Using qualified intermediary',
+          },
         },
       },
       taxInfo: {
@@ -57,23 +77,61 @@ export class OneZeroThreeOneExchangeTool {
           federalTaxRate: {
             type: 'object',
             properties: {
-              ordinary: { type: 'number', minimum: 0, maximum: 0.5, default: 0.37, description: 'Ordinary income rate' },
-              capitalGains: { type: 'number', minimum: 0, maximum: 0.3, default: 0.2, description: 'Capital gains rate' },
+              ordinary: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.5,
+                default: 0.37,
+                description: 'Ordinary income rate',
+              },
+              capitalGains: {
+                type: 'number',
+                minimum: 0,
+                maximum: 0.3,
+                default: 0.2,
+                description: 'Capital gains rate',
+              },
             },
             required: ['ordinary', 'capitalGains'],
           },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
-          includeDepreciationRecapture: { type: 'boolean', default: true, description: 'Include depreciation recapture' },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
+          includeDepreciationRecapture: {
+            type: 'boolean',
+            default: true,
+            description: 'Include depreciation recapture',
+          },
         },
         required: ['federalTaxRate'],
       },
       analysis: {
         type: 'object',
         properties: {
-          includeTaxDeferral: { type: 'boolean', default: true, description: 'Include tax deferral' },
-          includeBootAnalysis: { type: 'boolean', default: true, description: 'Include boot analysis' },
-          includeComplianceCheck: { type: 'boolean', default: true, description: 'Include compliance check' },
-          includeReplacementAnalysis: { type: 'boolean', default: true, description: 'Include replacement analysis' },
+          includeTaxDeferral: {
+            type: 'boolean',
+            default: true,
+            description: 'Include tax deferral',
+          },
+          includeBootAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include boot analysis',
+          },
+          includeComplianceCheck: {
+            type: 'boolean',
+            default: true,
+            description: 'Include compliance check',
+          },
+          includeReplacementAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include replacement analysis',
+          },
         },
       },
     },
@@ -85,5 +143,3 @@ export class OneZeroThreeOneExchangeTool {
     return OneZeroThreeOneExchangeAnalyzer.analyze(validated);
   }
 }
-
-

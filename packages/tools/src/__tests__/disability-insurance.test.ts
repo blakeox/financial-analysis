@@ -45,10 +45,7 @@ describe('DisabilityInsuranceTool', () => {
 
   it('exposes the expected metadata', () => {
     expect(DisabilityInsuranceTool.toolName).toBe('analyze_disability_insurance');
-    expect(DisabilityInsuranceTool.inputSchema.required).toEqual([
-      'personalInfo',
-      'needsAnalysis',
-    ]);
+    expect(DisabilityInsuranceTool.inputSchema.required).toEqual(['personalInfo', 'needsAnalysis']);
   });
 
   it('calculates recommended coverage and premium', async () => {

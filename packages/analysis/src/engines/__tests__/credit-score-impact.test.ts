@@ -173,9 +173,7 @@ describe('CreditScoreImpactAnalyzer', () => {
 
     expect(result.scoreProjection).toBeUndefined();
     expect(result.actionRecommendations).toBeUndefined();
-    expect(result.recommendations).toEqual(
-      expect.arrayContaining(['Current credit health: good'])
-    );
+    expect(result.recommendations).toEqual(expect.arrayContaining(['Current credit health: good']));
   });
 
   it('should include paydown debt recommendation when specified', () => {
@@ -283,4 +281,3 @@ describe('CreditScoreImpactAnalyzer', () => {
     );
   });
 });
-

@@ -8,4 +8,3 @@ export const RiskAdjustedReturnsInputSchema = z.object({
 });
 
 export type RiskAdjustedReturnsInput = z.infer<typeof RiskAdjustedReturnsInputSchema>;
-

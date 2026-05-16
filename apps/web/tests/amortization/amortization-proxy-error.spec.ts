@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Amortization (dev proxy error)', () => {
   test('invalid input shows error without successful results', async ({ page }) => {
     await page.goto('/analysis');
-    
+
     // Wait for form to be ready
     await expect(page.locator('#analysis-form')).toBeVisible();
 
@@ -19,7 +19,7 @@ test.describe('Amortization (dev proxy error)', () => {
     await page.fill('#termMonths', '360');
 
     await page.click('#analyze-btn');
-    
+
     // Wait for some response
     await page.waitForTimeout(2000);
 

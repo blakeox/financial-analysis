@@ -231,7 +231,7 @@ class DCFCalculator {
 
     resultsSection.innerHTML = `
       <div class="fa-card">
-        <h2 class="fa-panel-title text-2xl mb-6">DCF Valuation Results</h2>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">DCF Valuation Results</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div class="fa-metric-card fa-metric-card-info">
@@ -276,10 +276,10 @@ class DCFCalculator {
 
     const sensitivityHTML = `
       <div class="mt-8">
-        <h3 class="fa-panel-title text-xl mb-4">Sensitivity Analysis</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Sensitivity Analysis</h3>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="fa-subcard">
-            <h4 class="fa-list-copy-strong mb-3">Revenue Growth Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Revenue Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.revenueGrowth
                 .map(
@@ -295,7 +295,7 @@ class DCFCalculator {
           </div>
           
           <div class="fa-subcard">
-            <h4 class="fa-list-copy-strong mb-3">Discount Rate Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Discount Rate Impact</h4>
             <div class="space-y-2">
               ${sensitivity.discountRate
                 .map(
@@ -311,7 +311,7 @@ class DCFCalculator {
           </div>
           
           <div class="fa-subcard">
-            <h4 class="fa-list-copy-strong mb-3">Terminal Growth Impact</h4>
+            <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Terminal Growth Impact</h4>
             <div class="space-y-2">
               ${sensitivity.terminalGrowth
                 .map(
@@ -345,10 +345,10 @@ class DCFCalculator {
 
     const projectionsHTML = `
       <div class="mt-8">
-        <h3 class="fa-panel-title text-xl mb-4">Cash Flow Projections</h3>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Cash Flow Projections</h3>
         <div class="overflow-x-auto">
-          <table class="min-w-full fa-table-body rounded-lg">
-            <thead class="fa-table-head">
+          <table class="min-w-full bg-white/90 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-lg">
+            <thead class="bg-slate-50 dark:bg-slate-900/60">
               <tr>
                 <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Year</th>
                 <th class="px-4 py-2 text-left text-sm font-medium text-slate-900 dark:text-white">Revenue</th>
@@ -362,7 +362,7 @@ class DCFCalculator {
               ${projections
                 .map(
                   (proj) => `
-                <tr class="fa-panel-divider-top">
+                <tr class="border-t border-slate-200 dark:border-slate-800">
                   <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${proj.year}</td>
                   <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.revenue)}</td>
                   <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${formatter.format(proj.ebitda)}</td>

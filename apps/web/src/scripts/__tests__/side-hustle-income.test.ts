@@ -36,10 +36,10 @@ describe('Side Hustle Income Calculator', () => {
       const annualRevenue = 60000;
       const annualExpenses = 6000;
       const netIncome = annualRevenue - annualExpenses;
-      
+
       const seTaxBase = netIncome * 0.9235;
       const seTax = seTaxBase * 0.153;
-      
+
       expect(seTaxBase).toBeCloseTo(49869, 0);
       expect(seTax).toBeCloseTo(7630, 0);
     });
@@ -47,7 +47,7 @@ describe('Side Hustle Income Calculator', () => {
     it('should allow deduction of half of SE tax', () => {
       const seTax = 7630;
       const deductible = seTax / 2;
-      
+
       expect(deductible).toBeCloseTo(3815, 0);
     });
 
@@ -55,7 +55,7 @@ describe('Side Hustle Income Calculator', () => {
       const netProfit = 54000;
       const seTaxBase = netProfit * 0.9235;
       const seTax = seTaxBase * 0.153;
-      
+
       expect(seTax).toBeGreaterThan(0);
       expect(seTax).toBeCloseTo(7630, 0);
     });
@@ -64,8 +64,8 @@ describe('Side Hustle Income Calculator', () => {
   describe('QBI Deduction', () => {
     it('should calculate 20% QBI deduction when eligible', () => {
       const qualifiedBusinessIncome = 50000;
-      const qbiDeduction = qualifiedBusinessIncome * 0.20;
-      
+      const qbiDeduction = qualifiedBusinessIncome * 0.2;
+
       expect(qbiDeduction).toBe(10000);
     });
 
@@ -73,7 +73,7 @@ describe('Side Hustle Income Calculator', () => {
       const netIncome = 50000;
       const qbiDeduction = 10000;
       const taxableIncome = netIncome - qbiDeduction;
-      
+
       expect(taxableIncome).toBe(40000);
     });
   });
@@ -83,7 +83,7 @@ describe('Side Hustle Income Calculator', () => {
       const annualRevenue = 60000;
       const annualHours = 20 * 52; // 20 hours/week * 52 weeks
       const hourlyRate = annualRevenue / annualHours;
-      
+
       expect(hourlyRate).toBeCloseTo(57.69, 2);
     });
 
@@ -93,7 +93,7 @@ describe('Side Hustle Income Calculator', () => {
       const netIncome = annualRevenue - annualExpenses;
       const annualHours = 1040;
       const netHourlyRate = netIncome / annualHours;
-      
+
       expect(netHourlyRate).toBeCloseTo(51.92, 2);
     });
 
@@ -105,8 +105,8 @@ describe('Side Hustle Income Calculator', () => {
       const afterTaxIncome = netIncome - totalTaxes;
       const annualHours = 1040;
       const trueHourlyRate = afterTaxIncome / annualHours;
-      
-      expect(trueHourlyRate).toBeCloseTo(37.50, 2);
+
+      expect(trueHourlyRate).toBeCloseTo(37.5, 2);
       expect(trueHourlyRate).toBeLessThan(netIncome / annualHours);
     });
   });
@@ -115,7 +115,7 @@ describe('Side Hustle Income Calculator', () => {
     it('should divide annual tax by 4 for quarterly payments', () => {
       const annualTax = 12000;
       const quarterlyTax = annualTax / 4;
-      
+
       expect(quarterlyTax).toBe(3000);
     });
 
@@ -124,7 +124,7 @@ describe('Side Hustle Income Calculator', () => {
       const federalTax = 5000;
       const stateTax = 2700;
       const totalTax = seTax + federalTax + stateTax;
-      
+
       expect(totalTax).toBe(15330);
     });
   });
@@ -133,20 +133,20 @@ describe('Side Hustle Income Calculator', () => {
     it('should apply progressive tax brackets for single filers', () => {
       // 2024 brackets (simplified)
       const taxableIncome = 50000;
-      
-      const firstBracket = Math.min(taxableIncome, 11000) * 0.10;
+
+      const firstBracket = Math.min(taxableIncome, 11000) * 0.1;
       const secondBracket = Math.min(Math.max(taxableIncome - 11000, 0), 33725) * 0.12;
       const remainingIncome = Math.max(taxableIncome - 11000 - 33725, 0);
       const thirdBracket = remainingIncome * 0.22;
       const expectedTax = firstBracket + secondBracket + thirdBracket;
-      expect(expectedTax).toBeCloseTo(6307.50, 0);
+      expect(expectedTax).toBeCloseTo(6307.5, 0);
     });
 
     it('should apply different brackets for married filing jointly', () => {
       // Married brackets are roughly 2x single brackets
       const taxableIncome = 100000;
-      
-      const firstBracket = Math.min(taxableIncome, 22000) * 0.10;
+
+      const firstBracket = Math.min(taxableIncome, 22000) * 0.1;
       const secondBracket = Math.min(Math.max(taxableIncome - 22000, 0), 67050) * 0.12;
       const remainingIncome = Math.max(taxableIncome - 22000 - 67050, 0);
       const thirdBracket = remainingIncome * 0.22;
@@ -161,9 +161,9 @@ describe('Side Hustle Income Calculator', () => {
       // W-2 employee pays ~7.65% FICA (employer pays other half)
       // Plus federal and state income tax
       // W-2 equivalent should be higher than freelance revenue
-      
+
       const w2Equivalent = afterTaxIncome / (1 - 0.25); // Assuming ~25% total tax for W-2
-      
+
       expect(w2Equivalent).toBeGreaterThan(afterTaxIncome);
       expect(w2Equivalent).toBeCloseTo(52000, -2);
     });
@@ -171,7 +171,7 @@ describe('Side Hustle Income Calculator', () => {
     it('should estimate benefits value at 20-30% of salary', () => {
       const w2Salary = 60000;
       const benefitsValue = w2Salary * 0.25;
-      
+
       expect(benefitsValue).toBe(15000);
     });
   });
@@ -179,7 +179,7 @@ describe('Side Hustle Income Calculator', () => {
   describe('Edge Cases', () => {
     it('should handle very high income (QBI phase-out)', () => {
       const highIncome = { ...defaultInput, monthlyRevenue: 30000 }; // $360k/year
-      
+
       // QBI deduction phases out above certain thresholds
       expect(highIncome.monthlyRevenue * 12).toBeGreaterThan(182100); // 2024 phase-out start
     });
@@ -187,14 +187,17 @@ describe('Side Hustle Income Calculator', () => {
     it('should handle zero business expenses', () => {
       const noExpenses = { ...defaultInput, businessExpenses: 0 };
       const netIncome = noExpenses.monthlyRevenue * 12;
-      
+
       expect(netIncome).toBe(60000);
     });
 
     it('should handle multiple income sources', () => {
       const multipleIncome = { ...defaultInput, otherIncome: 50000 };
-      const totalIncome = (multipleIncome.monthlyRevenue * 12 - multipleIncome.businessExpenses * 12) + multipleIncome.otherIncome;
-      
+      const totalIncome =
+        multipleIncome.monthlyRevenue * 12 -
+        multipleIncome.businessExpenses * 12 +
+        multipleIncome.otherIncome;
+
       expect(totalIncome).toBe(104000);
     });
 
@@ -202,7 +205,7 @@ describe('Side Hustle Income Calculator', () => {
       const noStateTax = { ...defaultInput, stateTaxRate: 0 };
       const netIncome = noStateTax.monthlyRevenue * 12 - noStateTax.businessExpenses * 12;
       const stateTax = netIncome * (noStateTax.stateTaxRate / 100);
-      
+
       expect(netIncome).toBeGreaterThan(0);
       expect(stateTax).toBe(0);
     });
@@ -210,7 +213,7 @@ describe('Side Hustle Income Calculator', () => {
     it('should handle part-time freelance (few hours)', () => {
       const partTime = { ...defaultInput, hoursPerWeek: 5 };
       const annualHours = partTime.hoursPerWeek * 52;
-      
+
       expect(annualHours).toBe(260);
     });
   });
@@ -219,12 +222,12 @@ describe('Side Hustle Income Calculator', () => {
     it('should show value of tracking expenses (deductions)', () => {
       const withExpenses = 6000;
       const withoutExpenses = 0;
-      
+
       const netWith = 60000 - withExpenses;
       const netWithout = 60000 - withoutExpenses;
-      
-      const seTaxSavings = (withExpenses * 0.9235 * 0.153);
-      
+
+      const seTaxSavings = withExpenses * 0.9235 * 0.153;
+
       expect(seTaxSavings).toBeGreaterThan(0);
       expect(netWith).toBeLessThan(netWithout);
       // But after-tax income is better with expense tracking due to deductions
@@ -234,7 +237,7 @@ describe('Side Hustle Income Calculator', () => {
       const grossRevenue = 60000;
       const afterTaxIncome = 39000;
       const takeHomePercent = (afterTaxIncome / grossRevenue) * 100;
-      
+
       expect(takeHomePercent).toBeCloseTo(65, 0);
     });
   });
@@ -256,4 +259,3 @@ function validateInput(input: SideHustleInput): void {
   if (input.monthlyRevenue <= 0) throw new Error('Please enter monthly revenue');
   if (input.hoursPerWeek <= 0) throw new Error('Please enter hours per week');
 }
-

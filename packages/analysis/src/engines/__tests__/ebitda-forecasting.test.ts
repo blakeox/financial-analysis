@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { EbitdaForecaster } from '../ebitda-forecasting';
-import type { ScenarioInput, MonthlyFinancials, Employee, EbitdaForecastResult } from '../ebitda-forecasting';
+import type {
+  ScenarioInput,
+  MonthlyFinancials,
+  Employee,
+  EbitdaForecastResult,
+} from '../ebitda-forecasting';
 
 describe('EbitdaForecaster', () => {
   const baseFinancials: MonthlyFinancials = {
@@ -90,7 +95,7 @@ describe('EbitdaForecaster', () => {
       // First and last months should be very similar
       const firstRevenue = result.forecast[0]!.revenue;
       const lastRevenue = result.forecast[11]!.revenue;
-      
+
       // Allow for seasonality and other factors
       expect(Math.abs(lastRevenue - firstRevenue) / firstRevenue).toBeLessThan(0.15);
     });
@@ -108,10 +113,10 @@ describe('EbitdaForecaster', () => {
       const result = EbitdaForecaster.forecast(seasonalInput);
 
       // Revenue should vary by month
-      const revenues = result.forecast.map(f => f.revenue);
+      const revenues = result.forecast.map((f) => f.revenue);
       const minRevenue = Math.min(...revenues);
       const maxRevenue = Math.max(...revenues);
-      
+
       expect(maxRevenue).toBeGreaterThan(minRevenue);
     });
 
@@ -158,7 +163,7 @@ describe('EbitdaForecaster', () => {
     it('applies inflation to costs', () => {
       const highInflationInput: ScenarioInput = {
         ...basicInput,
-        inflationRate: 0.10, // 10%
+        inflationRate: 0.1, // 10%
       };
 
       const result = EbitdaForecaster.forecast(highInflationInput);
@@ -230,10 +235,7 @@ describe('EbitdaForecaster', () => {
 
       const month = result.forecast[0]!;
       // EBIT = EBITDA - Depreciation - Amortization
-      expect(month.ebit).toBeCloseTo(
-        month.ebitda - month.depreciation - month.amortization,
-        2
-      );
+      expect(month.ebit).toBeCloseTo(month.ebitda - month.depreciation - month.amortization, 2);
     });
 
     it('calculates net income', () => {
@@ -248,10 +250,7 @@ describe('EbitdaForecaster', () => {
       const result = EbitdaForecaster.forecast(basicInput);
 
       const month = result.forecast[0]!;
-      expect(month.ebitdaMargin).toBeCloseTo(
-        (month.ebitda / month.revenue) * 100,
-        2
-      );
+      expect(month.ebitdaMargin).toBeCloseTo((month.ebitda / month.revenue) * 100, 2);
     });
   });
 

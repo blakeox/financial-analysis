@@ -23,24 +23,39 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
   const journeyData: Record<string, JourneyScenario> = getJourneyData();
 
   // Map calculators to journeys based on their purpose
-  const mappings: Record<string, Array<{
-    journeyId: string;
-    relevance: 'high' | 'medium';
-    why: string;
-  }>> = {
+  const mappings: Record<
+    string,
+    Array<{
+      journeyId: string;
+      relevance: 'high' | 'medium';
+      why: string;
+    }>
+  > = {
     // Personal Finance Calculators
-    'amortization': [
+    amortization: [
       { journeyId: 'home-buying', relevance: 'high', why: 'Part of the home buying process' },
     ],
     'mortgage-scenario-planning': [
-      { journeyId: 'home-buying', relevance: 'high', why: 'Compare mortgage options and payoff strategies' },
+      {
+        journeyId: 'home-buying',
+        relevance: 'high',
+        why: 'Compare mortgage options and payoff strategies',
+      },
     ],
     'auto-loan': [
-      { journeyId: 'young-professional', relevance: 'medium', why: 'Vehicle financing considerations' },
+      {
+        journeyId: 'young-professional',
+        relevance: 'medium',
+        why: 'Vehicle financing considerations',
+      },
       { journeyId: 'family-planning', relevance: 'medium', why: 'Family vehicle planning' },
     ],
-    'budget': [
-      { journeyId: 'young-professional', relevance: 'high', why: 'Foundational financial planning' },
+    budget: [
+      {
+        journeyId: 'young-professional',
+        relevance: 'high',
+        why: 'Foundational financial planning',
+      },
       { journeyId: 'family-planning', relevance: 'high', why: 'Essential for family budgeting' },
     ],
     'debt-payoff': [
@@ -48,10 +63,18 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
       { journeyId: 'home-buying', relevance: 'high', why: 'Optimize debt before home purchase' },
     ],
     'student-loans': [
-      { journeyId: 'young-professional', relevance: 'high', why: 'Essential for young professionals' },
+      {
+        journeyId: 'young-professional',
+        relevance: 'high',
+        why: 'Essential for young professionals',
+      },
     ],
-    'retirement': [
-      { journeyId: 'young-professional', relevance: 'high', why: 'Start retirement planning early' },
+    retirement: [
+      {
+        journeyId: 'young-professional',
+        relevance: 'high',
+        why: 'Start retirement planning early',
+      },
       { journeyId: 'family-planning', relevance: 'high', why: 'Plan for family retirement' },
     ],
     'savings-goal': [
@@ -60,7 +83,7 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
       { journeyId: 'home-buying', relevance: 'high', why: 'Save for down payment' },
     ],
     'college-savings': [
-      { journeyId: 'family-planning', relevance: 'high', why: 'Plan for children\'s education' },
+      { journeyId: 'family-planning', relevance: 'high', why: "Plan for children's education" },
     ],
     'tax-optimization': [
       { journeyId: 'young-professional', relevance: 'medium', why: 'Maximize tax efficiency' },
@@ -72,7 +95,11 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
     ],
     'investment-portfolio': [
       { journeyId: 'young-professional', relevance: 'medium', why: 'Build investment strategy' },
-      { journeyId: 'investment-analysis-journey', relevance: 'high', why: 'Portfolio optimization' },
+      {
+        journeyId: 'investment-analysis-journey',
+        relevance: 'high',
+        why: 'Portfolio optimization',
+      },
     ],
     'home-buying-affordability': [
       { journeyId: 'home-buying', relevance: 'high', why: 'Core home buying analysis' },
@@ -86,34 +113,54 @@ export function getJourneySuggestions(calculatorId: string): CalculatorJourneySu
     'ma-analysis': [
       { journeyId: 'ma-analysis-journey', relevance: 'high', why: 'Complete M&A deal analysis' },
     ],
-    'ebitda': [
-      { journeyId: 'startup-planning', relevance: 'high', why: 'Financial projections for funding' },
-      { journeyId: 'ma-analysis-journey', relevance: 'medium', why: 'Financial analysis for deals' },
+    ebitda: [
+      {
+        journeyId: 'startup-planning',
+        relevance: 'high',
+        why: 'Financial projections for funding',
+      },
+      {
+        journeyId: 'ma-analysis-journey',
+        relevance: 'medium',
+        why: 'Financial analysis for deals',
+      },
     ],
     'cash-flow': [
       { journeyId: 'startup-planning', relevance: 'high', why: 'Critical for runway planning' },
     ],
     'unit-economics': [
-      { journeyId: 'startup-planning', relevance: 'high', why: 'Essential for validating business model' },
+      {
+        journeyId: 'startup-planning',
+        relevance: 'high',
+        why: 'Essential for validating business model',
+      },
     ],
     'business-valuation': [
       { journeyId: 'startup-planning', relevance: 'medium', why: 'Track business value over time' },
       { journeyId: 'ma-analysis-journey', relevance: 'high', why: 'Initial valuation estimates' },
     ],
     'revenue-forecast': [
-      { journeyId: 'startup-planning', relevance: 'high', why: 'Project future revenue for planning' },
+      {
+        journeyId: 'startup-planning',
+        relevance: 'high',
+        why: 'Project future revenue for planning',
+      },
     ],
-    
+
     // Additional business calculators
     'risk-management': [
-      { journeyId: 'investment-analysis-journey', relevance: 'high', why: 'Portfolio risk assessment' },
+      {
+        journeyId: 'investment-analysis-journey',
+        relevance: 'high',
+        why: 'Portfolio risk assessment',
+      },
     ],
-    
+
     // Financial-snapshot is used in journeys, not mapped
   };
 
   const calculatorMappings = mappings[calculatorId];
-  
+
   if (!calculatorMappings) {
     return suggestions;
   }
@@ -146,7 +193,7 @@ export function getJourneySuggestionsFormatted(calculatorId: string): Array<{
   description: string;
 }> {
   const suggestions = getJourneySuggestions(calculatorId);
-  return suggestions.map(s => ({
+  return suggestions.map((s) => ({
     text: s.journeyName,
     href: `/journey/${s.journeyId}`,
     icon: s.journeyIcon,
@@ -157,14 +204,15 @@ export function getJourneySuggestionsFormatted(calculatorId: string): Array<{
 /**
  * Get the primary journey suggestion (highest relevance)
  */
-export function getPrimaryJourneySuggestion(calculatorId: string): CalculatorJourneySuggestion | null {
+export function getPrimaryJourneySuggestion(
+  calculatorId: string
+): CalculatorJourneySuggestion | null {
   const suggestions = getJourneySuggestions(calculatorId);
-  const highRelevance = suggestions.filter(s => s.relevance === 'high');
-  
+  const highRelevance = suggestions.filter((s) => s.relevance === 'high');
+
   if (highRelevance.length > 0) {
     return highRelevance[0];
   }
-  
+
   return suggestions.length > 0 ? suggestions[0] : null;
 }
-

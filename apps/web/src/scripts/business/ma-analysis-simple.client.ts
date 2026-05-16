@@ -131,41 +131,41 @@ const displayResults = (result: MAResults): void => {
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Transaction Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Transaction Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Transaction Value</span>
             <p class="fa-script-copy-subtle">Total consideration paid</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.transactionValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.transactionValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Enterprise Value</span>
             <p class="fa-script-copy-subtle">Total business value</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.enterpriseValue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.enterpriseValue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Premium Paid</span>
             <p class="fa-script-copy-subtle">Above current market price</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatPercent(result.premiumPercentage)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(result.premiumPercentage)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">EPS Impact</span>
             <p class="fa-script-copy-subtle">Earnings per share change</p>
@@ -177,54 +177,54 @@ const displayResults = (result: MAResults): void => {
       </div>
     </div>
 
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Synergy Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Synergy Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Total Synergies</span>
             <p class="fa-script-copy-subtle">Revenue + Cost synergies</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.totalSynergies)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.totalSynergies)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Combined Revenue</span>
             <p class="fa-script-copy-subtle">Post-merger revenue</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.combinedRevenue)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.combinedRevenue)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Combined EBITDA</span>
             <p class="fa-script-copy-subtle">Post-merger EBITDA</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.combinedEBITDA)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.combinedEBITDA)}</span>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Leverage Ratio</span>
             <p class="fa-script-copy-subtle">Debt to EBITDA ratio</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${result.leverageRatio.toFixed(1)}x</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${result.leverageRatio.toFixed(1)}x</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fa-card p-6">
-      <h3 class="fa-panel-title text-xl mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
         <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">

@@ -80,7 +80,8 @@ export class AccountsPayableOptimizer {
       const standardPaymentDays = 30; // Assume Net 30
       const daysSaved = standardPaymentDays - earlyPaymentDays;
       const effectiveRate = (discount.discountPercentage / (daysSaved / 365)) * 100;
-      const annualSavings = discountAmount - (discount.annualInvoiceVolume * cashFlow.costOfCapital * (daysSaved / 365));
+      const annualSavings =
+        discountAmount - discount.annualInvoiceVolume * cashFlow.costOfCapital * (daysSaved / 365);
 
       let recommendation = 'Take discount if cash available';
       if (effectiveRate > cashFlow.costOfCapital * 100) {
@@ -133,16 +134,27 @@ export class AccountsPayableOptimizer {
   private static createPaymentSchedule(
     payables: AccountsPayableOptimizationInput['payables'],
     terms: AccountsPayableOptimizationInput['paymentTerms'],
-    discounts: { discounts: Array<{ vendor: string | undefined; recommendation: string }> } | undefined
+    discounts:
+      | { discounts: Array<{ vendor: string | undefined; recommendation: string }> }
+      | undefined
   ): {
-    schedule: Array<{ invoiceNumber: string; dueDate: string; paymentDate: string; amount: number; discountTaken: boolean }>;
+    schedule: Array<{
+      invoiceNumber: string;
+      dueDate: string;
+      paymentDate: string;
+      amount: number;
+      discountTaken: boolean;
+    }>;
     averagePaymentDays: number;
   } {
     const schedule = payables.invoices.map((invoice) => {
       const discount = discounts?.discounts.find((d) => d.vendor === invoice.vendorName);
       const takeDiscount = discount && discount.recommendation.includes('recommended');
       const paymentDate = takeDiscount
-        ? new Date(new Date(invoice.invoiceDate).getTime() + (terms.earlyPaymentDiscounts[0]?.discountDays || 10) * 24 * 60 * 60 * 1000)
+        ? new Date(
+            new Date(invoice.invoiceDate).getTime() +
+              (terms.earlyPaymentDiscounts[0]?.discountDays || 10) * 24 * 60 * 60 * 1000
+          )
         : new Date(invoice.dueDate);
 
       return {
@@ -186,7 +198,10 @@ export class AccountsPayableOptimizer {
       .filter((inv) => !vendors.criticalVendors.includes(inv.vendorName || ''))
       .map((inv) => ({
         vendor: inv.vendorName || 'Unknown',
-        recommendedAction: strategy.optimizeFor === 'max-discounts' ? 'Take early payment discount' : 'Pay according to terms',
+        recommendedAction:
+          strategy.optimizeFor === 'max-discounts'
+            ? 'Take early payment discount'
+            : 'Pay according to terms',
       }));
 
     return {
@@ -227,6 +242,3 @@ export class AccountsPayableOptimizer {
     return recommendations;
   }
 }
-
-
-

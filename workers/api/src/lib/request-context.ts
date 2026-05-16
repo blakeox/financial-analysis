@@ -1,6 +1,6 @@
 /**
  * Request Context Tracking
- * 
+ *
  * Enhanced request ID tracking and correlation across the API.
  * Provides utilities for generating, validating, and propagating request IDs.
  */
@@ -30,8 +30,7 @@ export function generateRequestId(): string {
  * Validate request ID format (UUID v4)
  */
 export function isValidRequestId(requestId: string): boolean {
-  const uuidV4Regex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidV4Regex.test(requestId);
 }
 
@@ -65,14 +64,11 @@ export function getParentRequestId(request: Request): string | undefined {
 /**
  * Build complete request context from Request object
  */
-export function buildRequestContext(
-  request: Request,
-  environment: string
-): RequestContext {
+export function buildRequestContext(request: Request, environment: string): RequestContext {
   const url = new URL(request.url);
   const parentRequestId = getParentRequestId(request);
   const correlationId = getCorrelationId(request);
-  
+
   const context: RequestContext = {
     requestId: getOrCreateRequestId(request),
     timestamp: new Date().toISOString(),
@@ -82,14 +78,14 @@ export function buildRequestContext(
     clientIP: request.headers.get('CF-Connecting-IP') || 'unknown',
     environment,
   };
-  
+
   if (parentRequestId) {
     context.parentRequestId = parentRequestId;
   }
   if (correlationId) {
     context.correlationId = correlationId;
   }
-  
+
   return context;
 }
 

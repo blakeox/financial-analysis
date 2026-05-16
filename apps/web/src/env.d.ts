@@ -17,7 +17,11 @@ declare global {
   interface WindowEventMap {
     'ai-field-update': CustomEvent<import('./utils/aiFieldHighlighter').FieldUpdateEvent>;
     'ai-bulk-field-update': CustomEvent<import('./utils/aiFieldHighlighter').FieldUpdateEvent[]>;
-    'calculator-completed': CustomEvent<{ calculatorId: string; result: unknown; formData?: unknown }>;
+    'calculator-completed': CustomEvent<{
+      calculatorId: string;
+      result: unknown;
+      formData?: unknown;
+    }>;
     'journey-context-loaded': CustomEvent<unknown>;
     'model-completed': CustomEvent<unknown>;
   }

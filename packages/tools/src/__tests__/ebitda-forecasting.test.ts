@@ -23,7 +23,7 @@ describe('EBITDA Forecasting MCP Tools', () => {
       };
 
       const result = await EbitdaForecastingTool.execute(input);
-      
+
       expect(result).toHaveProperty('forecast');
       expect(result).toHaveProperty('summary');
       expect(result).toHaveProperty('scenario');
@@ -63,7 +63,7 @@ describe('EBITDA Forecasting MCP Tools', () => {
       };
 
       const result = await EbitdaForecastingTool.execute(input);
-      
+
       expect(result).toHaveProperty('forecast');
       expect(result.forecast.length).toBe(3);
       expect(result.summary.totalRevenue).toBeGreaterThan(0);
@@ -76,7 +76,9 @@ describe('EBITDA Forecasting MCP Tools', () => {
       expect(EbitdaScenarioComparisonTool.description).toContain('Compare multiple EBITDA');
       expect(EbitdaScenarioComparisonTool.inputSchema).toHaveProperty('type', 'object');
       expect(EbitdaScenarioComparisonTool.inputSchema.properties).toHaveProperty('baseScenario');
-      expect(EbitdaScenarioComparisonTool.inputSchema.properties).toHaveProperty('alternativeScenarios');
+      expect(EbitdaScenarioComparisonTool.inputSchema.properties).toHaveProperty(
+        'alternativeScenarios'
+      );
     });
 
     it('should compare scenarios', async () => {
@@ -97,7 +99,7 @@ describe('EBITDA Forecasting MCP Tools', () => {
           {
             name: 'High Growth',
             ...baseScenario,
-            revenueGrowthRate: 0.10,
+            revenueGrowthRate: 0.1,
           },
           {
             name: 'Conservative',
@@ -108,7 +110,7 @@ describe('EBITDA Forecasting MCP Tools', () => {
       };
 
       const result = await EbitdaScenarioComparisonTool.execute(input);
-      
+
       expect(result).toHaveProperty('comparison');
       expect(result).toHaveProperty('bestScenario');
       expect(result).toHaveProperty('insights');

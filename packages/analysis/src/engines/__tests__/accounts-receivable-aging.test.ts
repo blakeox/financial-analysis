@@ -281,4 +281,3 @@ describe('AccountsReceivableAgingAnalyzer', () => {
     expect(result.byBucket[0].estimatedBadDebt).toBe(250);
   });
 });
-

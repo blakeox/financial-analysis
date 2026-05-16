@@ -83,7 +83,7 @@ export class DocumentCache {
   async get(url: string): Promise<FetchResult> {
     // Try cache first
     const cached = await this.getFromCache(url);
-    
+
     if (cached && this.isFresh(cached)) {
       return {
         content: cached.content,
@@ -96,9 +96,9 @@ export class DocumentCache {
 
     // Fallback to live fetch
     const liveContent = await this.fetchLive(url);
-    
+
     // Store in cache for next time (async, don't wait)
-    this.store(url, liveContent).catch(err => {
+    this.store(url, liveContent).catch((err) => {
       console.warn('Failed to cache document:', err);
     });
 
@@ -191,7 +191,7 @@ export class DocumentCache {
     try {
       // Generate embedding for query
       const embedding = await this.generateEmbedding(query);
-      
+
       // Search vectorize
       const results = await this.vectorize.query(embedding, {
         topK: limit,
@@ -277,7 +277,7 @@ export class DocumentCache {
       }
 
       const contentType = response.headers.get('content-type') || '';
-      
+
       // Only support text-based content
       if (!contentType.includes('text/') && !contentType.includes('application/json')) {
         throw new Error(`Unsupported content type: ${contentType}`);
@@ -288,7 +288,7 @@ export class DocumentCache {
       console.error('Live fetch failed:', error);
       throw new Error(
         `Failed to fetch ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        { cause: error },
+        { cause: error }
       );
     }
   }
@@ -344,7 +344,7 @@ export class DocumentCache {
     try {
       // Generate embedding for document content
       const embedding = await this.generateEmbedding(doc.content);
-      
+
       // Create vector record
       const vectorId = await this.hashContent(doc.url);
       const metadata: Record<string, string | number | boolean> = {
@@ -432,7 +432,10 @@ export class DocumentCache {
           return instance;
         } catch (lookupError) {
           if (!sourceDomain) {
-            console.warn('AI Search instance is unavailable and no source domain is configured.', lookupError);
+            console.warn(
+              'AI Search instance is unavailable and no source domain is configured.',
+              lookupError
+            );
             return null;
           }
 
@@ -500,14 +503,14 @@ export class DocumentCache {
   private async generateEmbedding(text: string): Promise<number[]> {
     // Truncate to reasonable length for embedding
     const truncated = text.slice(0, 8000);
-    
+
     if (this.ai) {
       try {
         // Use bge-small-en-v1.5 for 384 dimensions to match existing index/stub
-        const response = await this.ai.run('@cf/baai/bge-small-en-v1.5', {
-          text: [truncated]
-        }) as { data: number[][] };
-        
+        const response = (await this.ai.run('@cf/baai/bge-small-en-v1.5', {
+          text: [truncated],
+        })) as { data: number[][] };
+
         if (response.data && response.data[0]) {
           return response.data[0];
         }
@@ -516,7 +519,7 @@ export class DocumentCache {
         // Fallback to hash-based embedding below
       }
     }
-    
+
     // Fallback: return a simple hash-based vector (not semantic)
     const hash = await this.hashContent(truncated);
     const vector = new Array(384).fill(0);
@@ -534,7 +537,7 @@ export class DocumentCache {
     const data = encoder.encode(content);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -559,7 +562,7 @@ export class DocumentCache {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString(36);
@@ -573,7 +576,7 @@ export class DocumentCache {
 
     if (this.r2) {
       const list = await this.r2.list({ prefix: 'autorag/documents/' });
-      
+
       for (const obj of list.objects) {
         const expiresAt = obj.customMetadata?.expiresAt;
         if (expiresAt && Number(expiresAt) < Date.now()) {

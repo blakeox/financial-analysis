@@ -446,8 +446,7 @@ export class DCFValuationEngine {
     if (historicalFinancials.revenue.length === 0) {
       throw new Error('At least one historical revenue data point is required for projections');
     }
-    const latestRevenue =
-      historicalFinancials.revenue[historicalFinancials.revenue.length - 1]!;
+    const latestRevenue = historicalFinancials.revenue[historicalFinancials.revenue.length - 1]!;
 
     for (let year = 1; year <= forecastAssumptions.forecastPeriod; year++) {
       const yearNumber = currentYear + year;
@@ -488,8 +487,7 @@ export class DCFValuationEngine {
         forecastAssumptions.workingCapitalAsPercentOfRevenue[
           `year${year}` as keyof typeof forecastAssumptions.workingCapitalAsPercentOfRevenue
         ];
-      const previousRevenue =
-        year === 1 ? latestRevenue.amount : projections[year - 2]!.revenue;
+      const previousRevenue = year === 1 ? latestRevenue.amount : projections[year - 2]!.revenue;
       const workingCapitalChange = revenue * wcPercent - previousRevenue * wcPercent;
 
       // Free Cash Flow
@@ -587,8 +585,7 @@ export class DCFValuationEngine {
       const firstRevenue = revenueHistory[0]!.amount;
       const lastRevenue = revenueHistory[revenueHistory.length - 1]!.amount;
       if (firstRevenue > 0) {
-        revenueCAGR =
-          Math.pow(lastRevenue / firstRevenue, 1 / (revenueHistory.length - 1)) - 1;
+        revenueCAGR = Math.pow(lastRevenue / firstRevenue, 1 / (revenueHistory.length - 1)) - 1;
       }
     }
 
@@ -599,8 +596,7 @@ export class DCFValuationEngine {
       const firstEBITDA = ebitdaHistory[0]!.amount;
       const lastEBITDA = ebitdaHistory[ebitdaHistory.length - 1]!.amount;
       if (firstEBITDA !== 0) {
-        ebitdaCAGR =
-          Math.pow(lastEBITDA / firstEBITDA, 1 / (ebitdaHistory.length - 1)) - 1;
+        ebitdaCAGR = Math.pow(lastEBITDA / firstEBITDA, 1 / (ebitdaHistory.length - 1)) - 1;
       }
     }
 

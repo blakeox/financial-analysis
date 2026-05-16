@@ -68,8 +68,9 @@ test.describe('Navbar dev HMR stability', () => {
       const after = await sample(
         async () => {
           return page.evaluate(() => ({
-            display: getComputedStyle(document.querySelector('#site-nav .desktop-nav') as HTMLElement)
-              .display,
+            display: getComputedStyle(
+              document.querySelector('#site-nav .desktop-nav') as HTMLElement
+            ).display,
             visibility: getComputedStyle(document.querySelector('#site-nav') as HTMLElement)
               .visibility,
           }));

@@ -9,4 +9,3 @@ export const CarbonCreditValuationInputSchema = z.object({
 });
 
 export type CarbonCreditValuationInput = z.infer<typeof CarbonCreditValuationInputSchema>;
-

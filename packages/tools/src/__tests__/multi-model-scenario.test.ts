@@ -43,10 +43,10 @@ describe('MultiModelScenarioTool', () => {
   describe('execute', () => {
     describe('overview analysis', () => {
       it('generates overview for young professional scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'young-professional',
           analysisType: 'overview',
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.scenario).toBeDefined();
@@ -54,7 +54,7 @@ describe('MultiModelScenarioTool', () => {
       });
 
       it('generates overview with user profile', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'young-professional',
           analysisType: 'overview',
           userProfile: {
@@ -64,14 +64,14 @@ describe('MultiModelScenarioTool', () => {
             dependents: 0,
             riskTolerance: 'moderate',
           },
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.scenario).toBeDefined();
       });
 
       it('generates overview with progress tracking', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'young-professional',
           analysisType: 'overview',
           currentProgress: {
@@ -79,7 +79,7 @@ describe('MultiModelScenarioTool', () => {
             currentModel: 'retirement-planning',
             overallProgress: 50,
           },
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
       });
@@ -87,10 +87,10 @@ describe('MultiModelScenarioTool', () => {
 
     describe('next-steps analysis', () => {
       it('generates next steps for family planning scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'family-planning',
           analysisType: 'next-steps',
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.analysis).toBeDefined();
@@ -99,7 +99,7 @@ describe('MultiModelScenarioTool', () => {
       });
 
       it('generates next steps with partial progress', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'family-planning',
           analysisType: 'next-steps',
           currentProgress: {
@@ -107,7 +107,7 @@ describe('MultiModelScenarioTool', () => {
             currentModel: 'college-savings',
             overallProgress: 25,
           },
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
       });
@@ -115,10 +115,10 @@ describe('MultiModelScenarioTool', () => {
 
     describe('optimization analysis', () => {
       it('generates optimization for home-buying scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'home-buying',
           analysisType: 'optimization',
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.analysis).toBeDefined();
@@ -127,7 +127,7 @@ describe('MultiModelScenarioTool', () => {
       });
 
       it('generates optimization with user profile', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'home-buying',
           analysisType: 'optimization',
           userProfile: {
@@ -137,7 +137,7 @@ describe('MultiModelScenarioTool', () => {
             dependents: 1,
             riskTolerance: 'conservative',
           },
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
       });
@@ -145,10 +145,10 @@ describe('MultiModelScenarioTool', () => {
 
     describe('comparison analysis', () => {
       it('generates comparison for debt-elimination scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'debt-elimination',
           analysisType: 'comparison',
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.analysis).toBeDefined();
@@ -159,10 +159,10 @@ describe('MultiModelScenarioTool', () => {
 
     describe('risk-assessment analysis', () => {
       it('generates risk assessment for investment-portfolio scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'investment-portfolio',
           analysisType: 'risk-assessment',
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
         expect(result.analysis).toBeDefined();
@@ -171,7 +171,7 @@ describe('MultiModelScenarioTool', () => {
       });
 
       it('generates risk assessment for pre-retirement scenario', async () => {
-        const result = await MultiModelScenarioTool.execute({
+        const result = (await MultiModelScenarioTool.execute({
           scenarioId: 'pre-retirement',
           analysisType: 'risk-assessment',
           userProfile: {
@@ -179,7 +179,7 @@ describe('MultiModelScenarioTool', () => {
             income: 150000,
             riskTolerance: 'conservative',
           },
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
 
         expect(result).toBeDefined();
       });
@@ -197,10 +197,10 @@ describe('MultiModelScenarioTool', () => {
 
       scenarios.forEach((scenarioId) => {
         it(`handles ${scenarioId} scenario overview`, async () => {
-          const result = await MultiModelScenarioTool.execute({
+          const result = (await MultiModelScenarioTool.execute({
             scenarioId,
             analysisType: 'overview',
-          }) as Record<string, unknown>;
+          })) as Record<string, unknown>;
 
           expect(result).toBeDefined();
           expect(result.scenario).toBeDefined();

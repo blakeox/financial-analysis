@@ -8,6 +8,3 @@
  */
 
 export { DepreciationCalculator } from './business/depreciation.js';
-
-
-

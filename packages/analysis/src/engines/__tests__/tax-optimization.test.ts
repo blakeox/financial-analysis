@@ -144,7 +144,8 @@ describe('TaxOptimizationPlanner', () => {
       },
       deductionsCredits: {
         standardDeduction:
-          overrides.deductionsCredits?.standardDeduction ?? base.deductionsCredits.standardDeduction,
+          overrides.deductionsCredits?.standardDeduction ??
+          base.deductionsCredits.standardDeduction,
         itemizedDeductions: {
           ...base.deductionsCredits.itemizedDeductions,
           ...(overrides.deductionsCredits?.itemizedDeductions || {}),
@@ -263,7 +264,9 @@ describe('TaxOptimizationPlanner', () => {
       const result = TaxOptimizationPlanner.analyze(input);
 
       expect(result.rothTraditionalAnalysis.currentYearAnalysis).toBeDefined();
-      expect(result.rothTraditionalAnalysis.currentYearAnalysis.traditional401kBenefit).toBeDefined();
+      expect(
+        result.rothTraditionalAnalysis.currentYearAnalysis.traditional401kBenefit
+      ).toBeDefined();
       expect(result.rothTraditionalAnalysis.currentYearAnalysis.roth401kBenefit).toBeDefined();
     });
 
@@ -271,7 +274,9 @@ describe('TaxOptimizationPlanner', () => {
       const input = createBasicInput();
       const result = TaxOptimizationPlanner.analyze(input);
 
-      expect(result.rothTraditionalAnalysis.currentYearAnalysis.recommendedContribution).toBeDefined();
+      expect(
+        result.rothTraditionalAnalysis.currentYearAnalysis.recommendedContribution
+      ).toBeDefined();
       expect(['traditional', 'roth', 'split']).toContain(
         result.rothTraditionalAnalysis.currentYearAnalysis.recommendedContribution
       );
@@ -301,7 +306,9 @@ describe('TaxOptimizationPlanner', () => {
       const result = TaxOptimizationPlanner.analyze(input);
 
       expect(result.rothTraditionalAnalysis.rothConversionAnalysis).toBeDefined();
-      expect(result.rothTraditionalAnalysis.rothConversionAnalysis.recommendedConversionAmount).toBeDefined();
+      expect(
+        result.rothTraditionalAnalysis.rothConversionAnalysis.recommendedConversionAmount
+      ).toBeDefined();
       expect(result.rothTraditionalAnalysis.rothConversionAnalysis.taxCost).toBeDefined();
       expect(result.rothTraditionalAnalysis.rothConversionAnalysis.longTermBenefit).toBeDefined();
     });
@@ -523,8 +530,8 @@ describe('TaxOptimizationPlanner', () => {
       });
       const result = TaxOptimizationPlanner.analyze(input);
 
-      const highIncomeRisk = result.riskAssessment.riskFactors.find(
-        (rf) => rf.factor.toLowerCase().includes('income')
+      const highIncomeRisk = result.riskAssessment.riskFactors.find((rf) =>
+        rf.factor.toLowerCase().includes('income')
       );
       expect(highIncomeRisk).toBeDefined();
     });
@@ -773,9 +780,7 @@ describe('TaxOptimizationPlanner', () => {
       });
       const result = TaxOptimizationPlanner.analyze(input);
 
-      const rothRec = result.recommendations.find(
-        (r) => r.toLowerCase().includes('roth')
-      );
+      const rothRec = result.recommendations.find((r) => r.toLowerCase().includes('roth'));
       expect(rothRec).toBeDefined();
     });
   });
@@ -821,8 +826,12 @@ describe('TaxOptimizationPlanner', () => {
       const result = TaxOptimizationPlanner.analyze(input);
       const riskFactors = result.riskAssessment.riskFactors;
 
-      expect(riskFactors.some((rf) => rf.factor.includes('Complex Investment Portfolio'))).toBe(true);
-      expect(riskFactors.some((rf) => rf.factor.includes('High Charitable Contributions'))).toBe(true);
+      expect(riskFactors.some((rf) => rf.factor.includes('Complex Investment Portfolio'))).toBe(
+        true
+      );
+      expect(riskFactors.some((rf) => rf.factor.includes('High Charitable Contributions'))).toBe(
+        true
+      );
     });
 
     it('treats short-term gains and large long-term gains with appropriate timing', () => {
@@ -906,7 +915,9 @@ describe('TaxOptimizationPlanner', () => {
       });
 
       const result = TaxOptimizationPlanner.analyze(input);
-      expect(result.rothTraditionalAnalysis.currentYearAnalysis.recommendedContribution).toBe('split');
+      expect(result.rothTraditionalAnalysis.currentYearAnalysis.recommendedContribution).toBe(
+        'split'
+      );
     });
   });
 
@@ -917,14 +928,21 @@ describe('TaxOptimizationPlanner', () => {
         currentTaxSituation: TaxOptimizationInput['currentTaxSituation']
       ) => 'immediate' | 'defer' | 'offset';
     } & {
-      generateEstimatedTaxRecommendations: (projectedTax: number, safeHarborAmount: number) => string[];
+      generateEstimatedTaxRecommendations: (
+        projectedTax: number,
+        safeHarborAmount: number
+      ) => string[];
       getCurrentTaxBracket: (taxableIncome: number, filingStatus: string) => string;
       calculateProjectedTax: (income: number, filingStatus: string) => number;
       calculateAuditRisk: (
         input: TaxOptimizationInput,
         riskFactors: TaxOptimizationResult['riskAssessment']['riskFactors']
       ) => 'low' | 'medium' | 'high';
-      getContributionReasoning: (currentTaxRate: number, retirementTaxRate: number, age: number) => string;
+      getContributionReasoning: (
+        currentTaxRate: number,
+        retirementTaxRate: number,
+        age: number
+      ) => string;
       generateInsights: (
         input: TaxOptimizationInput,
         taxSummary: TaxOptimizationResult['taxSummary'],
@@ -1098,8 +1116,12 @@ describe('TaxOptimizationPlanner', () => {
         complianceRecommendations: [],
       });
 
-      expect(recommendations.some((msg) => msg.includes('Implement Tax-Loss Harvesting'))).toBe(true);
-      expect(recommendations.some((msg) => msg.includes('professional tax planning services'))).toBe(true);
+      expect(recommendations.some((msg) => msg.includes('Implement Tax-Loss Harvesting'))).toBe(
+        true
+      );
+      expect(
+        recommendations.some((msg) => msg.includes('professional tax planning services'))
+      ).toBe(true);
     });
   });
 });

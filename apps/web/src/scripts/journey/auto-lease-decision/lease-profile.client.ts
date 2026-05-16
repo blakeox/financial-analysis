@@ -38,9 +38,9 @@ const hydrateForm = () => {
   if (!profile) return;
 
   Object.entries(profile).forEach(([key, value]) => {
-    const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-      `[name="${key}"]`
-    );
+    const input = document.querySelector<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >(`[name="${key}"]`);
     if (input) {
       input.value = value;
     }
@@ -53,7 +53,10 @@ const hydrateForm = () => {
 const persistProfile = (form: HTMLFormElement, options?: { showStatus?: boolean }) => {
   const formData = new FormData(form);
   const profile: PersistedSection = Object.fromEntries(
-    Array.from(formData.entries()).map(([key, value]) => [key, typeof value === 'string' ? value : value.name])
+    Array.from(formData.entries()).map(([key, value]) => [
+      key,
+      typeof value === 'string' ? value : value.name,
+    ])
   );
 
   const journeyState = readJourneyState();

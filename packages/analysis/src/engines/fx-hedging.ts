@@ -16,7 +16,10 @@ export class FXHedgingAnalyzer {
   static analyze(input: FXHedgingInput): FXHedgingResult {
     const domesticFactor = new Decimal(1).plus(input.domesticRate).pow(input.tenorYears);
     const foreignFactor = new Decimal(1).plus(input.foreignRate).pow(input.tenorYears);
-    const forwardRate = new Decimal(input.spotRate).times(domesticFactor).div(foreignFactor).toNumber();
+    const forwardRate = new Decimal(input.spotRate)
+      .times(domesticFactor)
+      .div(foreignFactor)
+      .toNumber();
     const hedgePoints = new Decimal(forwardRate).minus(input.spotRate).toNumber();
     const impliedCarry = new Decimal(forwardRate).div(input.spotRate).minus(1).toNumber();
 
@@ -47,4 +50,3 @@ export class FXHedgingAnalyzer {
     return base;
   }
 }
-

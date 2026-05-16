@@ -1,11 +1,8 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { fieldLabelClasses, helperTextClasses, inputClasses, textColors } from '../../lib/classNames';
+import { inputClasses } from '../../lib/classNames';
 
-export type PercentFieldProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'type'
-> & {
+export type PercentFieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   label?: string;
   error?: string;
   helperText?: string;
@@ -13,10 +10,7 @@ export type PercentFieldProps = Omit<
 };
 
 export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps>(
-  (
-    { label, error, helperText, suffix = '%', className, id, ...props },
-    ref
-  ) => {
+  ({ label, error, helperText, suffix = '%', className, id, ...props }, ref) => {
     const fieldId = id ?? React.useId();
     const errorId = error ? `${fieldId}-error` : undefined;
     const helperId = helperText && !error ? `${fieldId}-helper` : undefined;
@@ -27,7 +21,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
         {label && (
           <label
             htmlFor={fieldId}
-            className={fieldLabelClasses}
+            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
           >
             {label}
           </label>
@@ -49,7 +43,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
             )}
             {...props}
           />
-          <span className={cn('pointer-events-none absolute top-1/2 right-4 -translate-y-1/2', textColors.muted)}>
+          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-slate-500 dark:text-slate-400">
             {suffix}
           </span>
         </div>
@@ -59,7 +53,7 @@ export const PercentField = React.forwardRef<HTMLInputElement, PercentFieldProps
           </p>
         )}
         {helperText && !error && (
-          <p id={helperId} className={helperTextClasses}>
+          <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
             {helperText}
           </p>
         )}

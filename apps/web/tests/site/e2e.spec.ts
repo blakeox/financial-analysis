@@ -12,7 +12,7 @@ test('navigation links work', async ({ page }) => {
   await page.goto('/');
   const header = page.locator('#site-nav');
   await expect(header).toBeVisible();
-  
+
   // Click Models link - try different selectors
   let modelsLink = header.locator('a').filter({ hasText: 'Models' }).first();
   await expect(modelsLink).toBeVisible({ timeout: 10000 });
@@ -25,9 +25,12 @@ test('navigation links work', async ({ page }) => {
   await expect(header).toBeVisible();
 
   // Click Analysis link - find any link with analysis/lease text
-  const analysisLink = page.locator('a').filter({ hasText: /Analysis|Lease/i }).first();
+  const analysisLink = page
+    .locator('a')
+    .filter({ hasText: /Analysis|Lease/i })
+    .first();
   const linkCount = await analysisLink.count();
-  
+
   if (linkCount > 0) {
     await expect(analysisLink).toBeVisible();
     await analysisLink.click({ timeout: 10000 });
@@ -35,7 +38,7 @@ test('navigation links work', async ({ page }) => {
       // If navigation didn't happen, try direct navigation
       return page.goto('/lease-analysis');
     });
-  await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('main')).toBeVisible();
   } else {
     // If no link found, just verify home page
     await expect(page).toHaveURL('/');

@@ -2,7 +2,7 @@ import { storeAnalysisResult } from '../scripts/analysis/analysis-results';
 
 /**
  * Shared Calculator Utilities
- * 
+ *
  * Common utilities for all calculator client scripts to reduce duplication
  * and ensure consistency across the application.
  */
@@ -212,7 +212,7 @@ export const DOM_IDS = {
   FORM: 'calculator-form',
   CALCULATE_BUTTON: 'calculate-btn',
   RESET_BUTTON: 'reset-btn',
-  
+
   // Results elements
   RESULTS_SECTION: 'results-section',
   RESULTS_CONTAINER: 'results-container',
@@ -229,7 +229,7 @@ export function showResults(): void {
   const resultsSection = document.getElementById(DOM_IDS.RESULTS_SECTION);
   const resultsContainer = document.getElementById(DOM_IDS.RESULTS_CONTAINER);
   const summaryCards = document.getElementById(DOM_IDS.SUMMARY_CARDS);
-  
+
   resultsSection?.classList.remove('hidden');
   resultsContainer?.classList.remove('hidden');
   summaryCards?.classList.remove('hidden');
@@ -242,7 +242,7 @@ export function hideResults(): void {
   const resultsSection = document.getElementById(DOM_IDS.RESULTS_SECTION);
   const resultsContainer = document.getElementById(DOM_IDS.RESULTS_CONTAINER);
   const summaryCards = document.getElementById(DOM_IDS.SUMMARY_CARDS);
-  
+
   resultsSection?.classList.add('hidden');
   resultsContainer?.classList.add('hidden');
   summaryCards?.classList.add('hidden');
@@ -254,7 +254,7 @@ export function hideResults(): void {
 export function showError(message: string): void {
   const errorState = document.getElementById(DOM_IDS.ERROR_STATE);
   const errorMessage = document.getElementById(DOM_IDS.ERROR_MESSAGE);
-  
+
   errorState?.classList.remove('hidden');
   if (errorMessage) {
     errorMessage.textContent = message;
@@ -272,10 +272,7 @@ export function hideError(): void {
 /**
  * Set loading state for button
  */
-export function setLoadingState(
-  button: HTMLButtonElement | null,
-  isLoading: boolean
-): void {
+export function setLoadingState(button: HTMLButtonElement | null, isLoading: boolean): void {
   if (!button) return;
   button.disabled = isLoading;
   button.textContent = isLoading ? 'Calculating...' : 'Calculate';
@@ -335,10 +332,10 @@ export function handleCalculatorResult<ResultType = unknown, FormDataType = unkn
   payload: CalculatorResultPayload<ResultType, FormDataType>
 ): void {
   const { calculatorId, result, formData } = payload;
-  
+
   // Store result for chatbot integration
   storeAnalysisResult(`analyze_${calculatorId}`, result);
-  
+
   // Dispatch calculator completion event for journey integration
   window.dispatchEvent(
     new CustomEvent('calculator-completed', {
@@ -381,12 +378,7 @@ export function setupResetButton(form: HTMLFormElement): void {
 /**
  * Validate a number is within a range
  */
-export function validateRange(
-  value: number,
-  min: number,
-  max: number,
-  fieldName: string
-): void {
+export function validateRange(value: number, min: number, max: number, fieldName: string): void {
   if (value < min || value > max) {
     throw new Error(`${fieldName} must be between ${min} and ${max}`);
   }
@@ -416,4 +408,3 @@ export function validateNonNegative(value: number, fieldName: string): void {
 export function validatePercentage(value: number, fieldName: string): void {
   validateRange(value, 0, 100, fieldName);
 }
-

@@ -27,10 +27,7 @@ const successResponse = {
   },
 };
 
-async function mockLeaseAnalysis(
-  page: Page,
-  handler?: (route: Route) => Promise<void>
-) {
+async function mockLeaseAnalysis(page: Page, handler?: (route: Route) => Promise<void>) {
   await page.route('**/v1/api/analysis/enhanced-lease', async (route) => {
     if (handler) {
       await handler(route);

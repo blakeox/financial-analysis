@@ -18,7 +18,12 @@ export * from './chatbot';
 import type { Scenario, MortgageScenarioPlanningInput } from './types';
 import { MIN_SCENARIOS } from './constants';
 import { calculateScenario, calculateRefinanceScenario } from './calculations';
-import { parseFormInput, validateInput, injectDynamicScenarioUI, setupFormEventListeners } from './form-handling';
+import {
+  parseFormInput,
+  validateInput,
+  injectDynamicScenarioUI,
+  setupFormEventListeners,
+} from './form-handling';
 import { loadCachedResults, cacheResults, storeRecentCalculation } from './cache';
 import { displayResults } from './display';
 import { setupChatbotContext, updateChatbotWithResults } from './chatbot';
@@ -32,28 +37,33 @@ declare global {
 /**
  * Dispatch event when calculation is complete (for journey and analytics)
  */
-function dispatchCalculatorCompletedEvent(scenarios: Scenario[], formData: MortgageScenarioPlanningInput): void {
+function dispatchCalculatorCompletedEvent(
+  scenarios: Scenario[],
+  formData: MortgageScenarioPlanningInput
+): void {
   // Find best scenario (lowest total cost)
-  const bestScenario = scenarios.reduce((best, current) => 
+  const bestScenario = scenarios.reduce((best, current) =>
     current.totalCost < best.totalCost ? current : best
   );
 
   // Dispatch for journey tracking
-  window.dispatchEvent(new CustomEvent('calculator-completed', {
-    detail: {
-      calculatorType: 'mortgage-scenario-planning',
-      result: {
-        bestScenario: bestScenario.name,
-        monthlyPayment: bestScenario.monthlyPayment,
-        totalCost: bestScenario.totalCost,
-        totalInterest: bestScenario.totalInterest,
-        payoffMonths: bestScenario.payoffMonths,
-        homePrice: formData.homePrice,
-        loanTerm: formData.loanTermYears,
-        scenarioCount: scenarios.length,
+  window.dispatchEvent(
+    new CustomEvent('calculator-completed', {
+      detail: {
+        calculatorType: 'mortgage-scenario-planning',
+        result: {
+          bestScenario: bestScenario.name,
+          monthlyPayment: bestScenario.monthlyPayment,
+          totalCost: bestScenario.totalCost,
+          totalInterest: bestScenario.totalInterest,
+          payoffMonths: bestScenario.payoffMonths,
+          homePrice: formData.homePrice,
+          loanTerm: formData.loanTermYears,
+          scenarioCount: scenarios.length,
+        },
       },
-    },
-  }));
+    })
+  );
 
   // Google Analytics event
   if (typeof window.gtag === 'function') {
@@ -114,7 +124,7 @@ async function handleCalculate(
         <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto mb-4"></div>
         <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mx-auto"></div>
       </div>
-      <p class="fa-meta-copy mt-4">Running CFP-level analysis...</p>
+      <p class="mt-4 text-slate-500 dark:text-slate-400">Running CFP-level analysis...</p>
     </div>
   `;
 
@@ -122,18 +132,18 @@ async function handleCalculate(
     // Collect all scenario inputs
     const scenarioInputs = formData.scenarios;
     const termMonths = formData.loanTermYears * 12;
-    
+
     // Calculate all base scenarios in parallel
     const baseScenarioPromises = scenarioInputs.map((scenarioInput, index) => {
       const principal = formData.homePrice - scenarioInput.downPayment;
-      const scenarioName = scenarioInput.label 
-        ? `Scenario ${scenarioInput.label}` 
+      const scenarioName = scenarioInput.label
+        ? `Scenario ${scenarioInput.label}`
         : `Scenario ${String.fromCharCode(65 + index)}`;
-      
+
       return calculateScenario(
         scenarioName,
         principal,
-        scenarioInput.rate / 100,  // Convert to decimal
+        scenarioInput.rate / 100, // Convert to decimal
         termMonths,
         scenarioInput.extraPayment,
         scenarioInput.downPayment,
@@ -148,10 +158,10 @@ async function handleCalculate(
 
     // Calculate refinance scenarios if a rate is provided
     const scenarios: Scenario[] = [...baseScenarios];
-    
+
     if (formData.refinanceRate && formData.refinanceRate > 0) {
-      const refiRate = formData.refinanceRate / 100;  // Convert to decimal (safe after truthiness check)
-      const refinancePromises = baseScenarios.map(scenario =>
+      const refiRate = formData.refinanceRate / 100; // Convert to decimal (safe after truthiness check)
+      const refinancePromises = baseScenarios.map((scenario) =>
         calculateRefinanceScenario(
           `${scenario.name} (Refinanced)`,
           scenario,
@@ -166,31 +176,30 @@ async function handleCalculate(
 
     // Display results
     displayResults(scenarios, resultsDiv, chartContainer, formData);
-    
+
     // Show the results section
     resultsSection.classList.remove('hidden');
-    
+
     // Also show the results indicator (success banner)
     const resultsIndicator = document.getElementById('results');
     if (resultsIndicator) {
       resultsIndicator.classList.remove('hidden');
     }
-    
+
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     // Cache results
     cacheResults(formData, scenarios);
-    
+
     // Store in recent calculations
     storeRecentCalculation(formData, scenarios);
-    
+
     // Update chatbot context with results
     updateChatbotWithResults(scenarios, formData);
-    
+
     // Dispatch completion event for journey tracking
     dispatchCalculatorCompletedEvent(scenarios, formData);
-
   } catch (error) {
     console.error('Calculation error:', error);
     resultsDiv.innerHTML = `
@@ -223,11 +232,11 @@ export function initializeMortgageScenarioPlanning(): void {
       form: !!form,
       resultsDiv: !!resultsDiv,
       resultsSection: !!resultsSection,
-      calculateButton: !!calculateButton
+      calculateButton: !!calculateButton,
     });
     return;
   }
-  
+
   // Create a chart container dynamically if needed
   let chartContainer = document.getElementById('chart-container') as HTMLElement | null;
   if (!chartContainer) {
@@ -260,7 +269,7 @@ export function initializeMortgageScenarioPlanning(): void {
     if (scenarioCount !== MIN_SCENARIOS) {
       injectDynamicScenarioUI(form, scenarioCount);
     }
-    
+
     // Populate form with cached data
     const homePriceInput = form.querySelector<HTMLInputElement>('[name="homePrice"]');
     const loanTermInput = form.querySelector<HTMLInputElement>('[name="loanTermYears"]');
@@ -282,19 +291,20 @@ export function initializeMortgageScenarioPlanning(): void {
       if (downInput) downInput.value = scenario.downPayment.toString();
       if (rateInput) rateInput.value = scenario.rate.toString();
       if (extraInput && scenario.extraPayment) extraInput.value = scenario.extraPayment.toString();
-      if (closingInput && scenario.closingCosts) closingInput.value = scenario.closingCosts.toString();
+      if (closingInput && scenario.closingCosts)
+        closingInput.value = scenario.closingCosts.toString();
     });
 
     // Display cached results
     displayResults(cachedData.scenarios, resultsDiv, chartContainer, cachedData.formData);
-    
+
     // Show the results section for cached results
     resultsSection.classList.remove('hidden');
     const resultsIndicator = document.getElementById('results');
     if (resultsIndicator) {
       resultsIndicator.classList.remove('hidden');
     }
-    
+
     // Update chatbot with cached results
     updateChatbotWithResults(cachedData.scenarios, cachedData.formData);
   }

@@ -58,7 +58,9 @@ export class CreditScoreImpactAnalyzer {
       summary: {
         currentScore: currentCredit.currentScore,
         projectedScore: scoreProjection?.projectedScore || currentCredit.currentScore,
-        scoreChange: (scoreProjection?.projectedScore || currentCredit.currentScore) - currentCredit.currentScore,
+        scoreChange:
+          (scoreProjection?.projectedScore || currentCredit.currentScore) -
+          currentCredit.currentScore,
         creditHealth: this.assessCreditHealth(currentCredit.currentScore),
       },
       scoreFactors,
@@ -128,23 +130,39 @@ export class CreditScoreImpactAnalyzer {
     const paymentHistoryScore = paymentScore * 0.35;
 
     // Utilization (30%)
-    const utilizationScore = utilization.utilizationPercentage <= 0.3 ? 100 : Math.max(0, 100 - (utilization.utilizationPercentage - 0.3) * 200);
+    const utilizationScore =
+      utilization.utilizationPercentage <= 0.3
+        ? 100
+        : Math.max(0, 100 - (utilization.utilizationPercentage - 0.3) * 200);
     const utilizationWeighted = utilizationScore * 0.3;
 
     // Credit history (15%)
-    const historyScore = history.averageAgeOfAccounts > 84 ? 100 : (history.averageAgeOfAccounts / 84) * 100;
+    const historyScore =
+      history.averageAgeOfAccounts > 84 ? 100 : (history.averageAgeOfAccounts / 84) * 100;
     const historyWeighted = historyScore * 0.15;
 
     // Credit mix (10%)
-    const mixScore = (mix.creditCards > 0 ? 30 : 0) + (mix.installmentLoans > 0 ? 30 : 0) + (mix.mortgages > 0 ? 40 : 0);
+    const mixScore =
+      (mix.creditCards > 0 ? 30 : 0) +
+      (mix.installmentLoans > 0 ? 30 : 0) +
+      (mix.mortgages > 0 ? 40 : 0);
     const mixWeighted = mixScore * 0.1;
 
     // New credit (10%)
-    const newCreditScore = activity.hardInquiries === 0 ? 100 : Math.max(0, 100 - activity.hardInquiries * 10);
+    const newCreditScore =
+      activity.hardInquiries === 0 ? 100 : Math.max(0, 100 - activity.hardInquiries * 10);
     const newCreditWeighted = newCreditScore * 0.1;
 
-    const overallScore = paymentHistoryScore + utilizationWeighted + historyWeighted + mixWeighted + newCreditWeighted;
-    const overallHealth = overallScore >= 80 ? 'excellent' : overallScore >= 60 ? 'good' : overallScore >= 40 ? 'fair' : 'poor';
+    const overallScore =
+      paymentHistoryScore + utilizationWeighted + historyWeighted + mixWeighted + newCreditWeighted;
+    const overallHealth =
+      overallScore >= 80
+        ? 'excellent'
+        : overallScore >= 60
+          ? 'good'
+          : overallScore >= 40
+            ? 'fair'
+            : 'poor';
 
     return {
       paymentHistoryScore: paymentHistoryScore * 100,
@@ -272,12 +290,11 @@ export class CreditScoreImpactAnalyzer {
     }
 
     if (planned.payDownDebt) {
-      recommendations.push(`Pay down debt to reduce utilization to ${(planned.payDownDebt.targetUtilization * 100).toFixed(0)}%`);
+      recommendations.push(
+        `Pay down debt to reduce utilization to ${(planned.payDownDebt.targetUtilization * 100).toFixed(0)}%`
+      );
     }
 
     return recommendations;
   }
 }
-
-
-

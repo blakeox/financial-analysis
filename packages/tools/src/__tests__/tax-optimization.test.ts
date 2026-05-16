@@ -32,7 +32,7 @@ describe('TaxOptimizationTool', () => {
         accountType: 'taxable' as const,
         holdingPeriod: 'long-term' as const,
         unrealizedGainLoss: 5000,
-      }
+      },
     ],
     retirementAccounts: {
       traditional401k: { balance: 100000, annualContribution: 19500, employerMatch: 5000 },

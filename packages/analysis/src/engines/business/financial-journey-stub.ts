@@ -6,10 +6,10 @@ export class FinancialJourneyAnalyzer {
         currentStage: 'getting-started',
         overallFinancialHealth: 75,
         nextMilestone: 'Build emergency fund',
-        estimatedTimeToNext: '6 months'
+        estimatedTimeToNext: '6 months',
       },
       recommendations: ['Start building emergency fund', 'Create budget'],
-      insights: ['Good starting point', 'Focus on basics first']
+      insights: ['Good starting point', 'Focus on basics first'],
     };
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Comprehensive Edge Case Tests for All Calculators
- * 
+ *
  * Tests unusual, extreme, and boundary conditions that could break calculators
  */
 
@@ -12,7 +12,7 @@ describe('Extreme Value Edge Cases', () => {
       const homePrice = 5000000; // $5M mansion
       const downPayment = 1000000; // $1M down (20%)
       const principal = homePrice - downPayment;
-      
+
       expect(principal).toBe(4000000);
       expect(Number.isSafeInteger(principal)).toBe(true);
     });
@@ -25,7 +25,7 @@ describe('Extreme Value Edge Cases', () => {
     it('should handle high-income earners', () => {
       const annualIncome = 1000000; // $1M/year
       const monthlyIncome = annualIncome / 12;
-      
+
       expect(monthlyIncome).toBeCloseTo(83333, 0);
     });
 
@@ -34,7 +34,7 @@ describe('Extreme Value Edge Cases', () => {
       const months = years * 12;
       const monthlyPayment = 2500;
       const totalPaid = monthlyPayment * months;
-      
+
       expect(totalPaid).toBe(900000);
       expect(Number.isSafeInteger(totalPaid)).toBe(true);
     });
@@ -45,7 +45,7 @@ describe('Extreme Value Edge Cases', () => {
       const payment = 0.01; // 1 cent
       const months = 1000;
       const total = payment * months;
-      
+
       expect(total).toBe(10);
     });
 
@@ -53,7 +53,7 @@ describe('Extreme Value Edge Cases', () => {
       const rate = 0.001; // 0.1% APR
       const balance = 10000;
       const monthlyInterest = balance * (rate / 12);
-      
+
       expect(monthlyInterest).toBeCloseTo(0.83, 2);
     });
 
@@ -70,7 +70,7 @@ describe('Extreme Value Edge Cases', () => {
       const rate = 0;
       const months = 60;
       const monthlyPayment = principal / months;
-      
+
       const expectedMonthlyPayment = (principal * (1 + rate)) / months;
       expect(monthlyPayment).toBe(expectedMonthlyPayment);
       expect(isNaN(monthlyPayment)).toBe(false);
@@ -80,7 +80,7 @@ describe('Extreme Value Edge Cases', () => {
       const homePrice = 500000;
       const downPayment = 0;
       const principal = homePrice - downPayment;
-      
+
       expect(principal).toBe(homePrice);
     });
 
@@ -89,7 +89,7 @@ describe('Extreme Value Edge Cases', () => {
       const years = 5;
       const rate = 0;
       const futureValue = homePrice * Math.pow(1 + rate, years);
-      
+
       const percentChange = (futureValue - homePrice) / homePrice;
       expect(futureValue).toBe(homePrice);
       expect(percentChange).toBe(rate);
@@ -99,7 +99,7 @@ describe('Extreme Value Edge Cases', () => {
       const revenue = 60000;
       const expenses = 0;
       const netIncome = revenue - expenses;
-      
+
       expect(netIncome).toBe(revenue);
     });
 
@@ -107,7 +107,7 @@ describe('Extreme Value Edge Cases', () => {
       const contribution = 500;
       const match = 0;
       const total = contribution * (1 + match);
-      
+
       expect(total).toBe(contribution);
     });
   });
@@ -115,10 +115,10 @@ describe('Extreme Value Edge Cases', () => {
   describe('Negative Values', () => {
     it('should handle market crash scenarios (negative appreciation)', () => {
       const homePrice = 500000;
-      const depreciationRate = -0.10; // -10% crash
+      const depreciationRate = -0.1; // -10% crash
       const years = 1;
       const futureValue = homePrice * Math.pow(1 + depreciationRate, years);
-      
+
       expect(futureValue).toBe(450000);
       expect(futureValue).toBeLessThan(homePrice);
     });
@@ -127,7 +127,7 @@ describe('Extreme Value Edge Cases', () => {
       const homeValue = 400000;
       const loanBalance = 450000; // Owe more than home is worth
       const equity = homeValue - loanBalance;
-      
+
       expect(equity).toBe(-50000);
       expect(equity).toBeLessThan(0);
     });
@@ -136,7 +136,7 @@ describe('Extreme Value Edge Cases', () => {
       const income = 5000;
       const expenses = 6000;
       const netIncome = income - expenses;
-      
+
       expect(netIncome).toBe(-1000);
       expect(netIncome).toBeLessThan(0);
     });
@@ -145,7 +145,7 @@ describe('Extreme Value Edge Cases', () => {
       const investmentReturn = 3;
       const inflationRate = 5;
       const realReturn = investmentReturn - inflationRate;
-      
+
       expect(realReturn).toBe(-2);
       expect(realReturn).toBeLessThan(0);
     });
@@ -156,9 +156,9 @@ describe('Extreme Value Edge Cases', () => {
       const homePrice = 500000;
       const downPayment = 100000; // Exactly 20%
       const downPercent = (downPayment / homePrice) * 100;
-      
+
       expect(downPercent).toBe(20);
-      
+
       const hasPMI = downPercent < 20;
       expect(hasPMI).toBe(false); // No PMI at exactly 20%
     });
@@ -167,9 +167,9 @@ describe('Extreme Value Edge Cases', () => {
       const homePrice = 500000;
       const downPayment = 99950; // 19.99%
       const downPercent = (downPayment / homePrice) * 100;
-      
+
       expect(downPercent).toBeCloseTo(19.99, 2);
-      
+
       const hasPMI = downPercent < 20;
       expect(hasPMI).toBe(true); // PMI required
     });
@@ -180,7 +180,7 @@ describe('Extreme Value Edge Cases', () => {
       const monthlyInterest = balance * rate;
       const payment = monthlyInterest;
       const principalPayment = payment - monthlyInterest;
-      
+
       expect(principalPayment).toBe(0);
       // This means debt never decreases!
     });
@@ -188,7 +188,7 @@ describe('Extreme Value Edge Cases', () => {
     it('should handle age exactly 50 (catch-up contribution threshold)', () => {
       const age = 50;
       const eligibleForCatchUp = age >= 50;
-      
+
       expect(eligibleForCatchUp).toBe(true);
     });
 
@@ -196,9 +196,9 @@ describe('Extreme Value Edge Cases', () => {
       const balance = 3000;
       const limit = 10000;
       const utilization = (balance / limit) * 100;
-      
+
       expect(utilization).toBe(30);
-      
+
       const isHealthy = utilization <= 30;
       expect(isHealthy).toBe(true); // Exactly at threshold is OK
     });
@@ -210,7 +210,7 @@ describe('Time-Based Edge Cases', () => {
     it('should handle end-of-month calculations', () => {
       const date = new Date('2024-01-31');
       date.setMonth(date.getMonth() + 1);
-      
+
       // JavaScript auto-adjusts to Feb 29 (leap year) or Feb 28/Mar 2-3
       // The exact day depends on the month, but month should be Feb or Mar
       expect(date.getMonth()).toBeGreaterThanOrEqual(1); // February or later
@@ -220,14 +220,14 @@ describe('Time-Based Edge Cases', () => {
     it('should handle leap year calculations', () => {
       const leapYear = 2024;
       const isLeap = leapYear % 4 === 0 && (leapYear % 100 !== 0 || leapYear % 400 === 0);
-      
+
       expect(isLeap).toBe(true);
     });
 
     it('should handle year-end date calculations', () => {
       const date = new Date(2024, 11, 31); // Dec 31, 2024
       date.setDate(date.getDate() + 1);
-      
+
       expect(date.getFullYear()).toBe(2025);
       expect(date.getMonth()).toBe(0); // January
       expect(date.getDate()).toBe(1);
@@ -237,7 +237,7 @@ describe('Time-Based Edge Cases', () => {
       const startDate = new Date(2024, 0, 1); // Jan 1, 2024
       const endDate = new Date(startDate);
       endDate.setFullYear(endDate.getFullYear() + 30);
-      
+
       expect(endDate.getFullYear()).toBe(2054);
     });
   });
@@ -250,7 +250,7 @@ describe('Time-Based Edge Cases', () => {
         { quarter: 'Q3', date: 'September 15' },
         { quarter: 'Q4', date: 'January 15 (next year)' },
       ];
-      
+
       expect(deadlines).toHaveLength(4);
       expect(deadlines[0].date).toBe('April 15');
     });
@@ -263,7 +263,7 @@ describe('Market Condition Edge Cases', () => {
       const homeAppreciation = -5; // -5% annual
       const investmentReturn = -10; // Market crash
       const jobLoss = true;
-      
+
       expect(homeAppreciation).toBeLessThan(0);
       expect(investmentReturn).toBeLessThan(0);
       expect(jobLoss).toBe(true);
@@ -272,7 +272,7 @@ describe('Market Condition Edge Cases', () => {
     it('should handle boom scenario (high appreciation + high returns)', () => {
       const homeAppreciation = 15; // Hot market
       const investmentReturn = 20; // Bull market
-      
+
       expect(homeAppreciation).toBeGreaterThan(10);
       expect(investmentReturn).toBeGreaterThan(15);
     });
@@ -281,8 +281,8 @@ describe('Market Condition Edge Cases', () => {
       const inflationRate = 25; // 25% annual (hyperinflation)
       const years = 5;
       const costToday = 50000;
-      const costFuture = costToday * Math.pow(1 + (inflationRate / 100), years);
-      
+      const costFuture = costToday * Math.pow(1 + inflationRate / 100, years);
+
       expect(costFuture).toBeGreaterThan(costToday * 2);
       expect(costFuture).toBeCloseTo(152587, -1); // Allow tolerance of 10
     });
@@ -292,14 +292,14 @@ describe('Market Condition Edge Cases', () => {
     it('should handle near-zero rates (ZIRP)', () => {
       const rate = 0.01; // 0.01% APR (Japan-style)
       const monthlyRate = rate / 100 / 12;
-      
+
       expect(monthlyRate).toBeCloseTo(0.0000083, 7);
     });
 
     it('should handle very high rates (payday loans)', () => {
       const rate = 400; // 400% APR (payday loan)
       const monthlyRate = rate / 100 / 12;
-      
+
       expect(monthlyRate).toBeCloseTo(0.333, 3);
     });
 
@@ -310,7 +310,7 @@ describe('Market Condition Edge Cases', () => {
         fair: 22.99,
         poor: 29.99,
       };
-      
+
       expect(rates.excellent).toBeLessThan(rates.poor);
       expect(rates.poor).toBeLessThan(35); // Legal limit in most states
     });
@@ -323,7 +323,7 @@ describe('User Journey Edge Cases', () => {
       const currentAge = 30;
       const retirementAge = 45; // FIRE movement
       const yearsToRetirement = retirementAge - currentAge;
-      
+
       expect(yearsToRetirement).toBe(15);
       expect(retirementAge).toBeLessThan(65);
     });
@@ -332,7 +332,7 @@ describe('User Journey Edge Cases', () => {
       const currentAge = 60;
       const retirementAge = 75; // Working longer
       const yearsToRetirement = retirementAge - currentAge;
-      
+
       expect(yearsToRetirement).toBe(15);
       expect(retirementAge).toBeGreaterThan(65);
     });
@@ -341,7 +341,7 @@ describe('User Journey Edge Cases', () => {
       const currentIncome = 100000;
       const futureIncome = 60000; // Career change to lower-paying field
       const incomeChange = ((futureIncome - currentIncome) / currentIncome) * 100;
-      
+
       expect(incomeChange).toBe(-40); // 40% income reduction
     });
 
@@ -352,10 +352,10 @@ describe('User Journey Edge Cases', () => {
         { type: 'auto', balance: 30000, rate: 4.5 },
         { type: 'credit-card', balance: 10000, rate: 18 },
       ];
-      
+
       const totalDebt = debts.reduce((sum, d) => sum + d.balance, 0);
-      const avgRate = debts.reduce((sum, d) => sum + (d.balance * d.rate), 0) / totalDebt;
-      
+      const avgRate = debts.reduce((sum, d) => sum + d.balance * d.rate, 0) / totalDebt;
+
       expect(totalDebt).toBe(540000);
       expect(avgRate).toBeCloseTo(4.19, 1); // Weighted average calculation
     });
@@ -366,7 +366,7 @@ describe('User Journey Edge Cases', () => {
       const stateTaxRate = 13.3; // California top rate
       const federalTaxRate = 37; // Top federal bracket
       const combinedTaxRate = stateTaxRate + federalTaxRate;
-      
+
       expect(combinedTaxRate).toBeCloseTo(50.3, 1);
     });
 
@@ -374,7 +374,7 @@ describe('User Journey Edge Cases', () => {
       const stateTaxRate = 0;
       const federalTaxRate = 22;
       const combinedTaxRate = stateTaxRate + federalTaxRate;
-      
+
       expect(combinedTaxRate).toBe(22);
     });
 
@@ -382,7 +382,7 @@ describe('User Journey Edge Cases', () => {
       const homePrice = 500000;
       const propertyTaxRate = 2.5; // NJ average
       const annualPropertyTax = homePrice * (propertyTaxRate / 100);
-      
+
       expect(annualPropertyTax).toBe(12500);
     });
 
@@ -390,7 +390,7 @@ describe('User Journey Edge Cases', () => {
       const homePrice = 500000;
       const propertyTaxRate = 0.3; // Hawaii
       const annualPropertyTax = homePrice * (propertyTaxRate / 100);
-      
+
       expect(annualPropertyTax).toBe(1500);
     });
   });
@@ -401,7 +401,7 @@ describe('User Journey Edge Cases', () => {
       const downPayment = 0; // VA allows 0% down
       const pmiRequired = false; // VA loans don't require PMI
       const financedAmount = homePrice - downPayment;
-      
+
       expect(downPayment).toBe(0);
       expect(pmiRequired).toBe(false);
       expect(financedAmount).toBe(homePrice);
@@ -411,7 +411,7 @@ describe('User Journey Edge Cases', () => {
       const homePrice = 300000;
       const minDownPayment = homePrice * 0.035; // 3.5% minimum
       const mipRequired = true; // FHA has mortgage insurance premium
-      
+
       expect(minDownPayment).toBeCloseTo(10500, 1);
       expect(mipRequired).toBe(true);
     });
@@ -420,7 +420,7 @@ describe('User Journey Edge Cases', () => {
       const loanAmount = 1000000;
       const conformingLimit = 766550; // 2024 limit
       const isJumbo = loanAmount > conformingLimit;
-      
+
       expect(isJumbo).toBe(true);
     });
   });
@@ -430,12 +430,12 @@ describe('Calculation Convergence Edge Cases', () => {
   describe('Non-Converging Scenarios', () => {
     it('should detect when payment does not cover interest', () => {
       const balance = 10000;
-      const rate = 0.20 / 12; // 20% APR
+      const rate = 0.2 / 12; // 20% APR
       const monthlyInterest = balance * rate;
       const payment = 100; // Less than $166 monthly interest!
-      
+
       const principalPayment = payment - monthlyInterest;
-      
+
       expect(principalPayment).toBeLessThan(0);
       // Debt grows - infinite loop if not handled
     });
@@ -446,20 +446,20 @@ describe('Calculation Convergence Edge Cases', () => {
       let balance = 10000;
       const rate = 0.18 / 12;
       const payment = 10; // Very low payment
-      
+
       while (balance > 0 && iterations < maxIterations) {
         const interest = balance * rate;
         const principal = payment - interest;
-        
+
         if (principal <= 0) {
           // Would loop forever - break
           break;
         }
-        
+
         balance -= principal;
         iterations++;
       }
-      
+
       expect(iterations).toBeLessThan(maxIterations);
     });
 
@@ -467,18 +467,18 @@ describe('Calculation Convergence Edge Cases', () => {
       const balance = 100000;
       const rate = 0.05 / 12;
       const payment = 500; // Very small relative to balance
-      
+
       let remaining = balance;
       let months = 0;
       const maxMonths = 600;
-      
+
       while (remaining > 0 && months < maxMonths) {
         const interest = remaining * rate;
         const principal = payment - interest;
         remaining -= principal;
         months++;
       }
-      
+
       if (months >= maxMonths) {
         // Cap at 50 years for display
         expect(months).toBe(maxMonths);
@@ -491,7 +491,7 @@ describe('Calculation Convergence Edge Cases', () => {
       const a = 0.1;
       const b = 0.2;
       const sum = a + b;
-      
+
       // 0.1 + 0.2 = 0.30000000000000004 in JavaScript
       expect(sum).not.toBe(0.3);
       expect(sum).toBeCloseTo(0.3, 10);
@@ -501,21 +501,21 @@ describe('Calculation Convergence Edge Cases', () => {
       const balance = 0.001; // Less than a cent
       const threshold = 0.01;
       const shouldConsiderPaidOff = balance < threshold;
-      
+
       expect(shouldConsiderPaidOff).toBe(true);
     });
 
     it('should handle currency rounding to 2 decimals', () => {
       const value = 1234.56789;
       const rounded = Math.round(value * 100) / 100;
-      
+
       expect(rounded).toBe(1234.57);
     });
 
     it('should handle percentage rounding to 2 decimals', () => {
       const value = 18.9876;
       const rounded = Math.round(value * 100) / 100;
-      
+
       expect(rounded).toBe(18.99);
     });
   });
@@ -527,13 +527,13 @@ describe('Tax Edge Cases', () => {
       const mortgageInterest = 20000; // Annual
       const propertyTax = 10000; // Annual
       const totalItemized = mortgageInterest + propertyTax; // $30k
-      
+
       const standardDeduction2024Single = 14600;
       const standardDeduction2024Married = 29200;
-      
+
       const shouldItemizeSingle = totalItemized > standardDeduction2024Single;
       const shouldItemizeMarried = totalItemized > standardDeduction2024Married;
-      
+
       expect(shouldItemizeSingle).toBe(true); // $30k > $14.6k
       expect(shouldItemizeMarried).toBe(true); // $30k > $29.2k (barely)
     });
@@ -544,7 +544,7 @@ describe('Tax Edge Cases', () => {
       const totalSALT = propertyTax + stateTax; // $23k
       const saltCap = 10000;
       const deductibleSALT = Math.min(totalSALT, saltCap);
-      
+
       expect(deductibleSALT).toBe(10000); // Capped
       expect(totalSALT - deductibleSALT).toBe(13000); // Lost deduction
     });
@@ -555,11 +555,11 @@ describe('Tax Edge Cases', () => {
       const netEarnings = 200000;
       const ssTaxableMax = 160200; // 2024 limit
       const medicareTaxableAll = netEarnings;
-      
+
       const ssTax = ssTaxableMax * 0.124; // 12.4%
       const medicareTax = medicareTaxableAll * 0.029; // 2.9%
       const totalSETax = (ssTax + medicareTax) * 0.9235; // On 92.35% of net
-      
+
       expect(totalSETax).toBeGreaterThan(0);
     });
 
@@ -568,7 +568,7 @@ describe('Tax Edge Cases', () => {
       const additionalMedicareThreshold = 200000;
       const excessEarnings = netEarnings - additionalMedicareThreshold;
       const additionalMedicareTax = excessEarnings * 0.009; // Additional 0.9%
-      
+
       expect(additionalMedicareTax).toBeCloseTo(450, 1);
     });
   });
@@ -585,7 +585,7 @@ describe('Credit and Lending Edge Cases', () => {
         excellent: 750,
         max: 850,
       };
-      
+
       expect(scores.min).toBeGreaterThanOrEqual(300);
       expect(scores.max).toBeLessThanOrEqual(850);
     });
@@ -598,7 +598,7 @@ describe('Credit and Lending Edge Cases', () => {
         if (score < 750) return 'Very Good';
         return 'Excellent';
       };
-      
+
       expect(categorize(550)).toBe('Poor');
       expect(categorize(620)).toBe('Fair');
       expect(categorize(680)).toBe('Good');
@@ -612,9 +612,9 @@ describe('Credit and Lending Edge Cases', () => {
       const homeValue = 500000;
       const loanBalance = 400000;
       const ltv = (loanBalance / homeValue) * 100;
-      
+
       expect(ltv).toBe(80);
-      
+
       const pmiRequired = ltv > 80;
       expect(pmiRequired).toBe(false); // PMI drops at 80% LTV
     });
@@ -623,7 +623,7 @@ describe('Credit and Lending Edge Cases', () => {
       const homeValue = 300000;
       const loanBalance = 350000; // Owe more than home is worth
       const ltv = (loanBalance / homeValue) * 100;
-      
+
       expect(ltv).toBeCloseTo(116.67, 2);
       expect(ltv).toBeGreaterThan(100);
     });
@@ -637,9 +637,9 @@ describe('Calculation Limit Edge Cases', () => {
       const catchUpContribution = 7500; // Additional for 50+
       const maxUnder50 = 23000;
       const maxOver50 = 23000 + 7500;
-      
+
       const computedMaxOver50 = contribution2024 + catchUpContribution;
-      
+
       expect(maxUnder50).toBe(contribution2024);
       expect(maxOver50).toBe(computedMaxOver50);
     });
@@ -648,10 +648,10 @@ describe('Calculation Limit Edge Cases', () => {
       const income = 150000;
       const rothIRAPhaseoutSingle = 138000; // Starts phasing out
       const rothIRAMaxSingle = 153000; // Completely phased out
-      
+
       const canContribute = income < rothIRAPhaseoutSingle;
       const canContributePartial = income >= rothIRAPhaseoutSingle && income < rothIRAMaxSingle;
-      
+
       expect(canContribute).toBe(false);
       expect(canContributePartial).toBe(true);
     });
@@ -662,14 +662,14 @@ describe('Calculation Limit Edge Cases', () => {
       const conformingLimit2024 = 766550;
       const loanAmount = 800000;
       const isJumbo = loanAmount > conformingLimit2024;
-      
+
       expect(isJumbo).toBe(true);
     });
 
     it('should handle FHA loan limits by county', () => {
       const fhaLimitLowCost = 498257; // Low-cost areas
       const fhaLimitHighCost = 1149825; // High-cost areas (SF, NYC)
-      
+
       expect(fhaLimitHighCost).toBeGreaterThan(fhaLimitLowCost * 2);
     });
   });
@@ -679,7 +679,7 @@ describe('Performance Edge Cases', () => {
   describe('Large Dataset Handling', () => {
     it('should handle amortization schedule for 30 years (360 rows)', () => {
       const schedule: Array<{ month: number; principal: number; interest: number }> = [];
-      
+
       for (let month = 1; month <= 360; month++) {
         schedule.push({
           month,
@@ -687,7 +687,7 @@ describe('Performance Edge Cases', () => {
           interest: 1500 - month,
         });
       }
-      
+
       expect(schedule).toHaveLength(360);
       expect(schedule[0].month).toBe(1);
       expect(schedule[359].month).toBe(360);
@@ -695,14 +695,14 @@ describe('Performance Edge Cases', () => {
 
     it('should handle yearly projections for 30 years', () => {
       const projections = [];
-      
+
       for (let year = 0; year <= 30; year++) {
         projections.push({
           year,
           balance: 10000 * Math.pow(1.07, year),
         });
       }
-      
+
       expect(projections).toHaveLength(31);
       expect(projections[30].balance).toBeGreaterThan(70000);
     });
@@ -711,13 +711,13 @@ describe('Performance Edge Cases', () => {
   describe('Calculation Complexity', () => {
     it('should handle nested iterations (year-by-year, month-by-month)', () => {
       let total = 0;
-      
+
       for (let year = 0; year < 30; year++) {
         for (let month = 0; month < 12; month++) {
           total += 100;
         }
       }
-      
+
       expect(total).toBe(36000);
     });
 
@@ -726,7 +726,7 @@ describe('Performance Edge Cases', () => {
         if (n <= 1) return n;
         return fib(n - 1) + fib(n - 2);
       };
-      
+
       // Should handle reasonable recursion depth
       expect(fib(10)).toBe(55);
       expect(() => fib(40)).not.toThrow(); // Slow but doesn't crash
@@ -739,7 +739,7 @@ describe('User Error Edge Cases', () => {
     it('should detect monthly vs annual income confusion', () => {
       const suspiciousIncome = 80000; // Entered as monthly but probably annual
       const likelyMonthly = suspiciousIncome / 12;
-      
+
       if (suspiciousIncome > 50000) {
         // Probably meant annual
         expect(likelyMonthly).toBeCloseTo(6667, 0);
@@ -748,7 +748,7 @@ describe('User Error Edge Cases', () => {
 
     it('should detect percentage entered as decimal', () => {
       const suspiciousRate = 0.065; // 6.5% entered as 0.065
-      
+
       if (suspiciousRate < 1) {
         // Probably meant percentage (6.5%), not decimal (0.065%)
         const corrected = suspiciousRate * 100;
@@ -758,7 +758,7 @@ describe('User Error Edge Cases', () => {
 
     it('should detect years entered instead of months', () => {
       const suspiciousMonths = 30; // User entered 30 (years) instead of 360 (months)
-      
+
       if (suspiciousMonths < 100) {
         // Probably meant years
         const corrected = suspiciousMonths * 12;
@@ -771,9 +771,9 @@ describe('User Error Edge Cases', () => {
       const monthlyRent = 500; // Way too low
       const annualRent = monthlyRent * 12;
       const rentToPriceRatio = (annualRent / homePrice) * 100;
-      
+
       expect(rentToPriceRatio).toBe(1.2);
-      
+
       if (rentToPriceRatio < 0.3) {
         // Suspiciously low - data entry error?
         expect(rentToPriceRatio).toBeLessThan(0.3);
@@ -786,7 +786,7 @@ describe('User Error Edge Cases', () => {
       const input = '1,000,000';
       const cleaned = input.replace(/,/g, '');
       const numeric = parseFloat(cleaned);
-      
+
       expect(numeric).toBe(1000000);
     });
 
@@ -794,7 +794,7 @@ describe('User Error Edge Cases', () => {
       const input = '$500,000';
       const cleaned = input.replace(/[$,]/g, '');
       const numeric = parseFloat(cleaned);
-      
+
       expect(numeric).toBe(500000);
     });
 
@@ -802,14 +802,14 @@ describe('User Error Edge Cases', () => {
       const input = '6.5%';
       const cleaned = input.replace(/%/g, '');
       const numeric = parseFloat(cleaned);
-      
+
       expect(numeric).toBe(6.5);
     });
 
     it('should handle scientific notation', () => {
       const input = '5e5'; // 500,000 in scientific notation
       const numeric = parseFloat(input);
-      
+
       expect(numeric).toBe(500000);
     });
   });
@@ -820,7 +820,7 @@ describe('Concurrent Usage Edge Cases', () => {
     it('should handle multiple calculations without state interference', () => {
       const calc1Result = { id: 'calc1', value: 100 };
       const calc2Result = { id: 'calc2', value: 200 };
-      
+
       expect(calc1Result.value).toBe(100);
       expect(calc2Result.value).toBe(200);
       expect(calc1Result.value).not.toBe(calc2Result.value);
@@ -829,15 +829,17 @@ describe('Concurrent Usage Edge Cases', () => {
     it('should handle rapid form submissions', () => {
       let submissionCount = 0;
       let isCalculating = false;
-      
+
       const submit = () => {
         if (isCalculating) return false;
         isCalculating = true;
         submissionCount++;
-        setTimeout(() => { isCalculating = false; }, 100);
+        setTimeout(() => {
+          isCalculating = false;
+        }, 100);
         return true;
       };
-      
+
       expect(submit()).toBe(true); // First submission
       expect(submit()).toBe(false); // Second submission blocked
       expect(submissionCount).toBe(1);
@@ -857,17 +859,17 @@ describe('Concurrent Usage Edge Cases', () => {
     it('should handle Math.pow vs ** operator', () => {
       const mathPow = Math.pow(1.07, 5);
       const exponentOperator = 1.07 ** 5;
-      
+
       expect(mathPow).toBeCloseTo(exponentOperator, 10);
     });
 
     it('should handle Intl.NumberFormat consistently', () => {
-      const formatter = new Intl.NumberFormat('en-US', { 
-        style: 'currency', 
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
         currency: 'USD',
         maximumFractionDigits: 0,
       });
-      
+
       expect(formatter.format(1234)).toBe('$1,234');
       expect(formatter.format(0)).toBe('$0');
     });
@@ -881,7 +883,7 @@ describe('Accessibility Edge Cases', () => {
       const textAlternative = 'Achieved';
       const ariaLabel = `Milestone ${textAlternative}`;
       const combinedIndicator = `${visualIndicator} ${textAlternative}`;
-      
+
       expect(combinedIndicator).toContain(visualIndicator);
       expect(ariaLabel).toContain(textAlternative);
     });
@@ -892,7 +894,7 @@ describe('Accessibility Edge Cases', () => {
         'aria-live': 'polite',
         'aria-atomic': 'true',
       };
-      
+
       expect(announcement.role).toBe('status');
       expect(announcement['aria-live']).toBe('polite');
     });
@@ -902,14 +904,14 @@ describe('Accessibility Edge Cases', () => {
     it('should support Enter key for form submission', () => {
       const event = { key: 'Enter', type: 'keydown' };
       const shouldSubmit = event.key === 'Enter';
-      
+
       expect(shouldSubmit).toBe(true);
     });
 
     it('should support Escape key for dialog close', () => {
       const event = { key: 'Escape', type: 'keydown' };
       const shouldClose = event.key === 'Escape';
-      
+
       expect(shouldClose).toBe(true);
     });
   });
@@ -919,19 +921,23 @@ describe('Internationalization Edge Cases', () => {
   describe('Currency Formatting', () => {
     it('should handle different locales', () => {
       const value = 1234.56;
-      
-      const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-      const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
-      
+
+      const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+        value
+      );
+      const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
+        value
+      );
+
       expect(usd).toContain('$');
       expect(eur).toContain('€');
     });
 
     it('should handle large numbers with locale formatting', () => {
       const million = 1000000;
-      
+
       const formatted = new Intl.NumberFormat('en-US').format(million);
-      
+
       expect(formatted).toBe('1,000,000');
     });
   });
@@ -940,19 +946,22 @@ describe('Internationalization Edge Cases', () => {
     it('should format dates consistently', () => {
       const date = new Date('2025-06-15');
       const formatted = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-      
+
       expect(formatted).toBe('June 2025');
     });
 
     it('should handle different date formats', () => {
       const date = new Date('2025-06-15');
-      
-      const long = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      const long = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
       const short = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
-      
+
       expect(long).toContain('June');
       expect(short).toContain('Jun');
     });
   });
 });
-

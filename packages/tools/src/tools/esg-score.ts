@@ -27,4 +27,3 @@ export class ESGScoreTool {
     return ESGScoringCalculator.analyze(validated);
   }
 }
-

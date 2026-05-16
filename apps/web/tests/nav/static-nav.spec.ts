@@ -13,7 +13,7 @@ test.describe('Static Nav Debug Page', () => {
     await expect(links).toHaveCount(3); // brand + 2 links
 
     const texts = await links.allInnerTexts();
-  expect(texts).toContain('Fanalyx');
+    expect(texts).toContain('Fanalyx');
     expect(texts.some((t) => /Models/i.test(t))).toBeTruthy();
     expect(texts.some((t) => /Analysis/i.test(t))).toBeTruthy();
   });

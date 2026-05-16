@@ -2,7 +2,10 @@
  * Disability Insurance MCP Tool
  */
 
-import { DisabilityInsuranceAnalyzer, DisabilityInsuranceInputSchema } from '@financial-analysis/analysis';
+import {
+  DisabilityInsuranceAnalyzer,
+  DisabilityInsuranceInputSchema,
+} from '@financial-analysis/analysis';
 
 export class DisabilityInsuranceTool {
   static readonly toolName = 'analyze_disability_insurance';
@@ -32,16 +35,40 @@ export class DisabilityInsuranceTool {
         type: 'object',
         properties: {
           hasGroupCoverage: { type: 'boolean', default: false, description: 'Has group coverage' },
-          groupCoverageAmount: { type: 'number', minimum: 0, default: 0, description: 'Group coverage amount' },
-          hasIndividualPolicy: { type: 'boolean', default: false, description: 'Has individual policy' },
+          groupCoverageAmount: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Group coverage amount',
+          },
+          hasIndividualPolicy: {
+            type: 'boolean',
+            default: false,
+            description: 'Has individual policy',
+          },
         },
       },
       needsAnalysis: {
         type: 'object',
         properties: {
-          targetReplacementIncome: { type: 'number', minimum: 0, maximum: 1, default: 0.6, description: 'Target replacement income percentage' },
-          includeSocialSecurity: { type: 'boolean', default: true, description: 'Include Social Security' },
-          expectedSSDIBenefit: { type: 'number', minimum: 0, default: 0, description: 'Expected SSDI benefit' },
+          targetReplacementIncome: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.6,
+            description: 'Target replacement income percentage',
+          },
+          includeSocialSecurity: {
+            type: 'boolean',
+            default: true,
+            description: 'Include Social Security',
+          },
+          expectedSSDIBenefit: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Expected SSDI benefit',
+          },
         },
       },
       policyOptions: {
@@ -54,23 +81,45 @@ export class DisabilityInsuranceTool {
             default: 'to-age-65',
             description: 'Benefit period',
           },
-          eliminationPeriod: { type: 'number', minimum: 30, maximum: 365, default: 90, description: 'Elimination period (days)' },
+          eliminationPeriod: {
+            type: 'number',
+            minimum: 30,
+            maximum: 365,
+            default: 90,
+            description: 'Elimination period (days)',
+          },
           definitionOfDisability: {
             type: 'string',
             enum: ['own-occupation', 'any-occupation', 'modified'],
             default: 'own-occupation',
             description: 'Definition of disability',
           },
-          estimatedAnnualPremium: { type: 'number', minimum: 0, description: 'Estimated annual premium' },
+          estimatedAnnualPremium: {
+            type: 'number',
+            minimum: 0,
+            description: 'Estimated annual premium',
+          },
         },
         required: ['benefitAmount', 'estimatedAnnualPremium'],
       },
       analysis: {
         type: 'object',
         properties: {
-          includeCoverageGapAnalysis: { type: 'boolean', default: true, description: 'Include coverage gap analysis' },
-          includeCostBenefitAnalysis: { type: 'boolean', default: true, description: 'Include cost-benefit analysis' },
-          includeProbabilityAnalysis: { type: 'boolean', default: true, description: 'Include probability analysis' },
+          includeCoverageGapAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include coverage gap analysis',
+          },
+          includeCostBenefitAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include cost-benefit analysis',
+          },
+          includeProbabilityAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include probability analysis',
+          },
         },
       },
     },
@@ -82,5 +131,3 @@ export class DisabilityInsuranceTool {
     return DisabilityInsuranceAnalyzer.analyze(validated);
   }
 }
-
-

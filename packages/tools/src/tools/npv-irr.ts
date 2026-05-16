@@ -27,4 +27,3 @@ export class NPVIRRTool {
     return NPVIRRCalculator.analyze(validated);
   }
 }
-

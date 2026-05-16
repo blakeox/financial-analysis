@@ -37,7 +37,9 @@ export function analyze(input: DebtPayoffInput): DebtPayoffResult {
   const alternativeStrategy = input.strategy === 'avalanche' ? 'snowball' : 'avalanche';
   const alternativeResult = calculateStrategy(input, alternativeStrategy);
 
-  const savings = new Decimal(alternativeResult.summary.totalInterestPaid).minus(primaryResult.summary.totalInterestPaid);
+  const savings = new Decimal(alternativeResult.summary.totalInterestPaid).minus(
+    primaryResult.summary.totalInterestPaid
+  );
 
   // Calculate balance transfer scenario if provided
   let balanceTransfer: BalanceTransferAnalysis | undefined;

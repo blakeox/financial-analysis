@@ -21,9 +21,10 @@ export class LongTermCareCalculator {
     const careCostAnalysis = this.calculateCareCosts(careNeeds, personalInfo);
 
     // Insurance analysis
-    const insuranceAnalysis = insuranceOptions.hasLTCInsurance && insuranceOptions.policyDetails
-      ? this.analyzeInsurance(insuranceOptions.policyDetails, careCostAnalysis, personalInfo)
-      : undefined;
+    const insuranceAnalysis =
+      insuranceOptions.hasLTCInsurance && insuranceOptions.policyDetails
+        ? this.analyzeInsurance(insuranceOptions.policyDetails, careCostAnalysis, personalInfo)
+        : undefined;
 
     // Self-funding analysis
     const selfFundingAnalysis = this.analyzeSelfFunding(
@@ -33,9 +34,10 @@ export class LongTermCareCalculator {
     );
 
     // Hybrid strategy analysis
-    const hybridAnalysis = strategy.fundingMethod === 'hybrid'
-      ? this.analyzeHybridStrategy(insuranceAnalysis, selfFundingAnalysis, careCostAnalysis)
-      : undefined;
+    const hybridAnalysis =
+      strategy.fundingMethod === 'hybrid'
+        ? this.analyzeHybridStrategy(insuranceAnalysis, selfFundingAnalysis, careCostAnalysis)
+        : undefined;
 
     const fundingAnalysis = {
       fundingGap: selfFundingAnalysis.shortfall,
@@ -50,7 +52,9 @@ export class LongTermCareCalculator {
     const comparison = {
       selfFundingCost: careCostAnalysis.lifetimeCost,
       insuranceCost: insuranceAnalysis?.totalPremiums || 0,
-      hybridCost: hybridAnalysis?.totalCoverage ? Math.max(0, careCostAnalysis.lifetimeCost - hybridAnalysis.totalCoverage) : 0,
+      hybridCost: hybridAnalysis?.totalCoverage
+        ? Math.max(0, careCostAnalysis.lifetimeCost - hybridAnalysis.totalCoverage)
+        : 0,
     };
 
     // Recommendations
@@ -95,7 +99,10 @@ export class LongTermCareCalculator {
     const ageFactor = Math.min(1, Math.max(0, (personalInfo.age - 40) / 60));
     const genderAdjustment = personalInfo.gender === 'female' ? 0.05 : 0;
     const baseProbability = 0.55;
-    const probabilityOfNeedingCare = Math.min(0.95, Math.max(0.1, baseProbability + ageFactor * 0.25 + genderAdjustment));
+    const probabilityOfNeedingCare = Math.min(
+      0.95,
+      Math.max(0.1, baseProbability + ageFactor * 0.25 + genderAdjustment)
+    );
 
     const expectedCost = careCosts.lifetimeCost * probabilityOfNeedingCare;
     // Assume some costs are covered via Medicare/Medicaid/other resources (simplified).
@@ -173,7 +180,8 @@ export class LongTermCareCalculator {
     const availableAssets = resources.currentAssets + resources.expectedRetirementAssets;
     const coveragePercentage = (availableAssets / careCosts.lifetimeCost) * 100;
     const shortfall = Math.max(0, careCosts.lifetimeCost - availableAssets);
-    const yearsOfCoverage = careCosts.lifetimeCost > 0 ? availableAssets / (careCosts.lifetimeCost / 3) : 0; // Assume 3 years average
+    const yearsOfCoverage =
+      careCosts.lifetimeCost > 0 ? availableAssets / (careCosts.lifetimeCost / 3) : 0; // Assume 3 years average
 
     return {
       availableAssets,
@@ -216,7 +224,9 @@ export class LongTermCareCalculator {
     recommendations.push(`Estimated lifetime LTC cost: $${careCosts.lifetimeCost.toFixed(0)}`);
 
     if (strategy.fundingMethod === 'self-fund' && selfFunding.shortfall > 0) {
-      recommendations.push(`Self-funding shortfall: $${selfFunding.shortfall.toFixed(0)} - consider insurance`);
+      recommendations.push(
+        `Self-funding shortfall: $${selfFunding.shortfall.toFixed(0)} - consider insurance`
+      );
     }
 
     if (insurance && insurance.netBenefit > 0) {
@@ -230,6 +240,3 @@ export class LongTermCareCalculator {
     return recommendations;
   }
 }
-
-
-

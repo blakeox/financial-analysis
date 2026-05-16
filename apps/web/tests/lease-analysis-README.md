@@ -93,7 +93,9 @@ await page.route('**/v1/api/analysis/lease', async (route) => {
   await route.fulfill({
     status: 200,
     headers: { 'content-type': 'application/json' },
-    json: { /* mock response */ },
+    json: {
+      /* mock response */
+    },
   });
 });
 ```
@@ -124,7 +126,9 @@ Saved analyses are tested using localStorage mocking:
 
 ```typescript
 await page.addInitScript(() => {
-  const savedAnalysis = { /* mock analysis data */ };
+  const savedAnalysis = {
+    /* mock analysis data */
+  };
   localStorage.setItem('lease-analyses', JSON.stringify([savedAnalysis]));
 });
 ```
@@ -222,7 +226,9 @@ const mockAnalysisResult = {
     presentValue: 110000,
     effectiveAnnualRate: 0.065,
   },
-  schedule: [/* payment schedule array */],
+  schedule: [
+    /* payment schedule array */
+  ],
   riskAnalysis: {
     flexibilityScore: 75,
     renewalRisk: 'medium',

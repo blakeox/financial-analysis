@@ -35,7 +35,7 @@ async function retryKVOperation<T>(
       if (errorMessage.includes('SQLITE_BUSY') || errorMessage.includes('500')) {
         if (attempt < maxRetries - 1) {
           const delay = baseDelay * Math.pow(2, attempt);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
       }
@@ -118,7 +118,7 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
         fingerprint,
         clientIP,
         url.pathname,
-        0, // Trust score drops to 0 on rate limit
+        0 // Trust score drops to 0 on rate limit
       );
     }
 

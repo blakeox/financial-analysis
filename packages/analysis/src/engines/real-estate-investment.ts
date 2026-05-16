@@ -38,12 +38,7 @@ export class RealEstateInvestmentAnalyzer {
     const cashFlow = this.calculateCashFlow(noi?.annualNOI || 0, mortgagePayment);
 
     // Projected returns
-    const projectedReturns = this.projectReturns(
-      propertyInfo,
-      financing,
-      projections,
-      cashFlow
-    );
+    const projectedReturns = this.projectReturns(propertyInfo, financing, projections, cashFlow);
 
     // IRR calculation
     const irr = analysis.includeIRR
@@ -271,12 +266,7 @@ export class RealEstateInvestmentAnalyzer {
     interpretation: string;
   } {
     // Simplified IRR calculation
-    const projectedReturns = this.projectReturns(
-      _propertyInfo,
-      _financing,
-      projections,
-      cashFlow
-    );
+    const projectedReturns = this.projectReturns(_propertyInfo, _financing, projections, cashFlow);
     const totalReturn = projectedReturns.totalReturn;
     const initialInvestment = _financing.downPayment;
 

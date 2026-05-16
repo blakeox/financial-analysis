@@ -166,7 +166,7 @@ describe('RevenueForecastEngine', () => {
       const result = RevenueForecastEngine.analyze(retailInput);
 
       // Revenue should vary by month due to seasonality
-      const revenues = result.monthlyForecasts.map(m => m.totalRevenue);
+      const revenues = result.monthlyForecasts.map((m) => m.totalRevenue);
       const minRevenue = Math.min(...revenues);
       const maxRevenue = Math.max(...revenues);
 
@@ -210,7 +210,7 @@ describe('RevenueForecastEngine', () => {
 
       const result = RevenueForecastEngine.analyze(noSeasonalityInput);
 
-      const revenues = result.monthlyForecasts.map(m => m.totalRevenue);
+      const revenues = result.monthlyForecasts.map((m) => m.totalRevenue);
       const variance = Math.max(...revenues) - Math.min(...revenues);
 
       // Without seasonality, minimal variance

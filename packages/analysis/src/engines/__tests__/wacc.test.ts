@@ -5,7 +5,7 @@ describe('WACCAnalyzer', () => {
   const baseInput: WACCInput = {
     equityValue: 1000000,
     debtValue: 500000,
-    costOfEquity: 0.10,
+    costOfEquity: 0.1,
     costOfDebt: 0.05,
     taxRate: 0.21,
   };
@@ -23,7 +23,7 @@ describe('WACCAnalyzer', () => {
     expect(result.wacc).toBeCloseTo(0.0798, 3);
     expect(result.equityWeight).toBeCloseTo(0.6667, 3);
     expect(result.debtWeight).toBeCloseTo(0.3333, 3);
-    expect(result.costOfEquity).toBe(0.10);
+    expect(result.costOfEquity).toBe(0.1);
     expect(result.costOfDebt).toBe(0.05);
     expect(result.taxRate).toBe(0.21);
     expect(result.afterTaxCostOfDebt).toBeCloseTo(0.0395, 4);
@@ -36,7 +36,7 @@ describe('WACCAnalyzer', () => {
     };
     const result = WACCAnalyzer.analyze(input);
 
-    expect(result.wacc).toBe(0.10);
+    expect(result.wacc).toBe(0.1);
     expect(result.equityWeight).toBe(1);
     expect(result.debtWeight).toBe(0);
   });

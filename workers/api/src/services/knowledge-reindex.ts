@@ -23,7 +23,9 @@ export interface KnowledgeReindexProcessResult {
   aiSearchJobId: string | null;
 }
 
-function resolveKnowledgeOrigin(env: Pick<Env, 'AI_SEARCH_SOURCE_DOMAIN' | 'BASE_URL'>): string | null {
+function resolveKnowledgeOrigin(
+  env: Pick<Env, 'AI_SEARCH_SOURCE_DOMAIN' | 'BASE_URL'>
+): string | null {
   return env.AI_SEARCH_SOURCE_DOMAIN ?? env.BASE_URL ?? null;
 }
 
@@ -44,12 +46,7 @@ function writeKnowledgeAnalytics(
 
   try {
     analytics.writeDataPoint({
-      indexes: [
-        'knowledge_reindex',
-        phase,
-        message.source,
-        details.aiSearchJobId ?? 'none',
-      ],
+      indexes: ['knowledge_reindex', phase, message.source, details.aiSearchJobId ?? 'none'],
       doubles: [
         details.urlCount,
         details.warmedCount,
@@ -66,19 +63,21 @@ function writeKnowledgeAnalytics(
   }
 }
 
-function buildDocumentCache(env: Pick<
-  Env,
-  | 'AI'
-  | 'KV'
-  | 'DOCUMENTS'
-  | 'VECTORIZE'
-  | 'BROWSER'
-  | 'BROWSER_RENDERING_ENABLED'
-  | 'BROWSER_RENDERING_PATH_PREFIXES'
-  | 'AI_SEARCH'
-  | 'AI_SEARCH_INSTANCE_NAME'
-  | 'AI_SEARCH_SOURCE_DOMAIN'
->): DocumentCache {
+function buildDocumentCache(
+  env: Pick<
+    Env,
+    | 'AI'
+    | 'KV'
+    | 'DOCUMENTS'
+    | 'VECTORIZE'
+    | 'BROWSER'
+    | 'BROWSER_RENDERING_ENABLED'
+    | 'BROWSER_RENDERING_PATH_PREFIXES'
+    | 'AI_SEARCH'
+    | 'AI_SEARCH_INSTANCE_NAME'
+    | 'AI_SEARCH_SOURCE_DOMAIN'
+  >
+): DocumentCache {
   return new DocumentCache({
     ...(env.AI ? { ai: env.AI } : {}),
     ...(env.KV ? { kv: env.KV } : {}),
@@ -88,37 +87,33 @@ function buildDocumentCache(env: Pick<
     ...(env.BROWSER_RENDERING_ENABLED === 'true' ? { browserRenderingEnabled: true } : {}),
     ...(env.BROWSER_RENDERING_PATH_PREFIXES
       ? {
-          browserRenderingPathPrefixes: env.BROWSER_RENDERING_PATH_PREFIXES
-            .split(',')
+          browserRenderingPathPrefixes: env.BROWSER_RENDERING_PATH_PREFIXES.split(',')
             .map((prefix) => prefix.trim())
             .filter(Boolean),
         }
       : {}),
     ...(env.AI_SEARCH ? { aiSearchNamespace: env.AI_SEARCH } : {}),
-    ...(env.AI_SEARCH_INSTANCE_NAME
-      ? { aiSearchInstanceName: env.AI_SEARCH_INSTANCE_NAME }
-      : {}),
-    ...(env.AI_SEARCH_SOURCE_DOMAIN
-      ? { aiSearchSourceDomain: env.AI_SEARCH_SOURCE_DOMAIN }
-      : {}),
+    ...(env.AI_SEARCH_INSTANCE_NAME ? { aiSearchInstanceName: env.AI_SEARCH_INSTANCE_NAME } : {}),
+    ...(env.AI_SEARCH_SOURCE_DOMAIN ? { aiSearchSourceDomain: env.AI_SEARCH_SOURCE_DOMAIN } : {}),
   });
 }
 
 export function buildKnowledgeReindexUrls(origin: string, paths?: string[]): string[] {
   const normalizedOrigin = origin.replace(/\/$/, '');
-  const requestedPaths =
-    paths && paths.length > 0 ? paths : [...DEFAULT_KNOWLEDGE_REINDEX_PATHS];
+  const requestedPaths = paths && paths.length > 0 ? paths : [...DEFAULT_KNOWLEDGE_REINDEX_PATHS];
 
-  return [...new Set(
-    requestedPaths.map((path) => {
-      if (/^https?:\/\//i.test(path)) {
-        return path;
-      }
+  return [
+    ...new Set(
+      requestedPaths.map((path) => {
+        if (/^https?:\/\//i.test(path)) {
+          return path;
+        }
 
-      const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-      return `${normalizedOrigin}${normalizedPath}`;
-    })
-  )];
+        const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+        return `${normalizedOrigin}${normalizedPath}`;
+      })
+    ),
+  ];
 }
 
 export async function enqueueKnowledgeReindex(
@@ -175,7 +170,9 @@ export async function processKnowledgeReindex(
   const startedAt = Date.now();
   const origin = resolveKnowledgeOrigin(env);
   if (!origin) {
-    throw new Error('AI_SEARCH_SOURCE_DOMAIN or BASE_URL must be configured for knowledge reindexing.');
+    throw new Error(
+      'AI_SEARCH_SOURCE_DOMAIN or BASE_URL must be configured for knowledge reindexing.'
+    );
   }
 
   const urls = buildKnowledgeReindexUrls(origin, message.paths);

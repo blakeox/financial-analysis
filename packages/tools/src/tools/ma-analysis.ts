@@ -27,7 +27,10 @@ export class MAAnalysisTool {
             description: 'Transaction structure',
           },
           announcementDate: { type: 'string', description: 'Announcement date (ISO format)' },
-          expectedClosingDate: { type: 'string', description: 'Expected closing date (ISO format)' },
+          expectedClosingDate: {
+            type: 'string',
+            description: 'Expected closing date (ISO format)',
+          },
           status: {
             type: 'string',
             enum: ['announced', 'pending', 'completed', 'terminated'],
@@ -102,8 +105,20 @@ export class MAAnalysisTool {
             type: 'object',
             properties: {
               annualAmount: { type: 'number', minimum: 0, description: 'Annual cost synergies' },
-              realizationPeriod: { type: 'number', minimum: 1, maximum: 5, default: 3, description: 'Years to realize' },
-              probability: { type: 'number', minimum: 0, maximum: 1, default: 0.8, description: 'Probability' },
+              realizationPeriod: {
+                type: 'number',
+                minimum: 1,
+                maximum: 5,
+                default: 3,
+                description: 'Years to realize',
+              },
+              probability: {
+                type: 'number',
+                minimum: 0,
+                maximum: 1,
+                default: 0.8,
+                description: 'Probability',
+              },
               categories: {
                 type: 'array',
                 items: {
@@ -122,8 +137,20 @@ export class MAAnalysisTool {
             type: 'object',
             properties: {
               annualAmount: { type: 'number', minimum: 0, description: 'Annual revenue synergies' },
-              realizationPeriod: { type: 'number', minimum: 1, maximum: 5, default: 3, description: 'Years to realize' },
-              probability: { type: 'number', minimum: 0, maximum: 1, default: 0.6, description: 'Probability' },
+              realizationPeriod: {
+                type: 'number',
+                minimum: 1,
+                maximum: 5,
+                default: 3,
+                description: 'Years to realize',
+              },
+              probability: {
+                type: 'number',
+                minimum: 0,
+                maximum: 1,
+                default: 0.6,
+                description: 'Probability',
+              },
               categories: {
                 type: 'array',
                 items: {
@@ -142,8 +169,20 @@ export class MAAnalysisTool {
             type: 'object',
             properties: {
               annualAmount: { type: 'number', minimum: 0, description: 'Annual tax synergies' },
-              realizationPeriod: { type: 'number', minimum: 1, maximum: 5, default: 2, description: 'Years to realize' },
-              probability: { type: 'number', minimum: 0, maximum: 1, default: 0.7, description: 'Probability' },
+              realizationPeriod: {
+                type: 'number',
+                minimum: 1,
+                maximum: 5,
+                default: 2,
+                description: 'Years to realize',
+              },
+              probability: {
+                type: 'number',
+                minimum: 0,
+                maximum: 1,
+                default: 0.7,
+                description: 'Probability',
+              },
             },
             required: ['annualAmount', 'realizationPeriod', 'probability'],
           },
@@ -153,13 +192,29 @@ export class MAAnalysisTool {
       integration: {
         type: 'object',
         properties: {
-          timeline: { type: 'number', minimum: 1, maximum: 10, default: 2, description: 'Integration timeline (years)' },
+          timeline: {
+            type: 'number',
+            minimum: 1,
+            maximum: 10,
+            default: 2,
+            description: 'Integration timeline (years)',
+          },
           costs: {
             type: 'object',
             properties: {
-              oneTimeCosts: { type: 'number', minimum: 0, description: 'One-time integration costs' },
+              oneTimeCosts: {
+                type: 'number',
+                minimum: 0,
+                description: 'One-time integration costs',
+              },
               annualCosts: { type: 'number', minimum: 0, description: 'Annual integration costs' },
-              duration: { type: 'number', minimum: 1, maximum: 5, default: 2, description: 'Cost duration (years)' },
+              duration: {
+                type: 'number',
+                minimum: 1,
+                maximum: 5,
+                default: 2,
+                description: 'Cost duration (years)',
+              },
             },
             required: ['oneTimeCosts', 'annualCosts', 'duration'],
           },
@@ -171,7 +226,11 @@ export class MAAnalysisTool {
                 category: { type: 'string', description: 'Risk category' },
                 description: { type: 'string', description: 'Risk description' },
                 probability: { type: 'number', minimum: 0, maximum: 1, description: 'Probability' },
-                impact: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Impact level' },
+                impact: {
+                  type: 'string',
+                  enum: ['low', 'medium', 'high'],
+                  description: 'Impact level',
+                },
                 mitigation: { type: 'string', description: 'Mitigation strategy' },
               },
               required: ['category', 'description', 'probability', 'impact', 'mitigation'],
@@ -183,18 +242,62 @@ export class MAAnalysisTool {
       analysis: {
         type: 'object',
         properties: {
-          discountRate: { type: 'number', minimum: 0, maximum: 1, default: 0.1, description: 'Discount rate' },
-          taxRate: { type: 'number', minimum: 0, maximum: 1, default: 0.25, description: 'Tax rate' },
-          terminalGrowthRate: { type: 'number', minimum: 0, maximum: 0.1, default: 0.025, description: 'Terminal growth rate' },
-          includeAccretionDilution: { type: 'boolean', default: true, description: 'Include accretion/dilution analysis' },
-          includeSensitivity: { type: 'boolean', default: true, description: 'Include sensitivity analysis' },
-          includeScenarios: { type: 'boolean', default: true, description: 'Include scenario analysis' },
-          forecastPeriod: { type: 'number', minimum: 3, maximum: 10, default: 5, description: 'Forecast period (years)' },
+          discountRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.1,
+            description: 'Discount rate',
+          },
+          taxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.25,
+            description: 'Tax rate',
+          },
+          terminalGrowthRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.1,
+            default: 0.025,
+            description: 'Terminal growth rate',
+          },
+          includeAccretionDilution: {
+            type: 'boolean',
+            default: true,
+            description: 'Include accretion/dilution analysis',
+          },
+          includeSensitivity: {
+            type: 'boolean',
+            default: true,
+            description: 'Include sensitivity analysis',
+          },
+          includeScenarios: {
+            type: 'boolean',
+            default: true,
+            description: 'Include scenario analysis',
+          },
+          forecastPeriod: {
+            type: 'number',
+            minimum: 3,
+            maximum: 10,
+            default: 5,
+            description: 'Forecast period (years)',
+          },
         },
         required: ['discountRate', 'taxRate', 'terminalGrowthRate'],
       },
     },
-    required: ['transaction', 'acquirer', 'target', 'transactionTerms', 'synergies', 'integration', 'analysis'],
+    required: [
+      'transaction',
+      'acquirer',
+      'target',
+      'transactionTerms',
+      'synergies',
+      'integration',
+      'analysis',
+    ],
   };
 
   static async execute(input: unknown) {
@@ -202,11 +305,3 @@ export class MAAnalysisTool {
     return MAAnalysisEngine.analyze(validated);
   }
 }
-
-
-
-
-
-
-
-

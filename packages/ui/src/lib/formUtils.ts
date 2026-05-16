@@ -12,7 +12,7 @@ const identityParser = <T>(value: string) => value as unknown as T;
 /**
  * Creates a type-safe onChange handler for form inputs.
  * Extracts value from event and calls callback with the parsed value.
- * 
+ *
  * @param callback - Function to call with the parsed value
  * @param parser - Optional parser function (defaults to identity)
  * @returns Event handler function
@@ -31,7 +31,7 @@ export function createChangeHandler<T = string>(
 
 /**
  * Creates an onChange handler that updates a specific field in an object.
- * 
+ *
  * @param setter - State setter function
  * @param field - Field name to update
  * @param parser - Optional parser function
@@ -66,29 +66,28 @@ export function createFieldHandler<T extends Record<string, unknown>, K extends 
 export const parsers = {
   /** Parse value as number */
   number: (value: string): number => Number(value),
-  
+
   /** Parse value as number or undefined if empty */
-  optionalNumber: (value: string): number | undefined => 
-    value === '' ? undefined : Number(value),
-  
+  optionalNumber: (value: string): number | undefined => (value === '' ? undefined : Number(value)),
+
   /** Parse value as integer */
   int: (value: string): number => parseInt(value, 10),
-  
+
   /** Parse value as float */
   float: (value: string): number => parseFloat(value),
-  
+
   /** Parse value as boolean (checkbox) */
   boolean: (value: string): boolean => value === 'true' || value === '1',
-  
+
   /** Parse value as percentage (divide by 100) */
   percentage: (value: string): number => Number(value) / 100,
-  
+
   /** Parse value as date */
   date: (value: string): Date => new Date(value),
-  
+
   /** Trim whitespace */
   trim: (value: string): string => value.trim(),
-  
+
   /** Parse JSON string */
   json: <T = unknown>(value: string): T => JSON.parse(value),
 } as const;
@@ -96,7 +95,7 @@ export const parsers = {
 /**
  * Creates a debounced onChange handler.
  * Useful for expensive operations like API calls or complex validations.
- * 
+ *
  * @param callback - Function to call with the value
  * @param delay - Delay in milliseconds
  * @param parser - Optional parser function
@@ -124,7 +123,7 @@ export function createDebouncedHandler<T = string>(
 
 /**
  * Creates a form reset handler.
- * 
+ *
  * @param setter - State setter function
  * @param initialValues - Initial form values
  * @returns Reset handler function
@@ -140,7 +139,7 @@ export function createResetHandler<T>(
 
 /**
  * Validates form fields and returns errors.
- * 
+ *
  * @param values - Form values to validate
  * @param rules - Validation rules object
  * @returns Object with field errors
@@ -170,7 +169,7 @@ export function validateForm<T extends Record<string, unknown>>(
 
 /**
  * Checks if form has any errors.
- * 
+ *
  * @param errors - Errors object from validateForm
  * @returns true if there are any errors
  */
@@ -182,7 +181,7 @@ export function hasErrors<T extends Record<string, unknown>>(
 
 /**
  * Gets error message for a field.
- * 
+ *
  * @param errors - Errors object
  * @param field - Field name
  * @returns Error message or undefined

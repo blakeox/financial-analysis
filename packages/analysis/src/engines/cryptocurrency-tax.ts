@@ -13,12 +13,20 @@ interface CryptocurrencyTaxAnalysisResult {
     incomeTax: number;
     totalTaxLiability: number;
   };
-  realizedGains: {
-    gains: Array<{ transactionId: string | undefined; asset: string; gain: number; costBasis: number; proceeds: number }>;
-    totalGains: number;
-    totalLosses: number;
-    netGains: number;
-  } | undefined;
+  realizedGains:
+    | {
+        gains: Array<{
+          transactionId: string | undefined;
+          asset: string;
+          gain: number;
+          costBasis: number;
+          proceeds: number;
+        }>;
+        totalGains: number;
+        totalLosses: number;
+        netGains: number;
+      }
+    | undefined;
   unrealizedGains?: unknown;
   taxLossHarvesting?: unknown;
   washSaleAnalysis?: unknown;
@@ -66,11 +74,7 @@ export class CryptocurrencyTaxCalculator {
     const incomeTax = this.calculateIncomeTax(incomeTransactions, taxInfo);
 
     // Total tax liability
-    const totalTaxLiability = this.calculateTotalTaxLiability(
-      realizedGains,
-      incomeTax,
-      taxInfo
-    );
+    const totalTaxLiability = this.calculateTotalTaxLiability(realizedGains, incomeTax, taxInfo);
 
     // Recommendations
     const recommendations = this.generateRecommendations(
@@ -102,15 +106,23 @@ export class CryptocurrencyTaxCalculator {
     transactions: CryptocurrencyTaxInput['transactions'],
     method: CryptocurrencyTaxInput['costBasisMethod']
   ): {
-    gains: Array<{ transactionId: string | undefined; asset: string; gain: number; costBasis: number; proceeds: number }>;
+    gains: Array<{
+      transactionId: string | undefined;
+      asset: string;
+      gain: number;
+      costBasis: number;
+      proceeds: number;
+    }>;
     totalGains: number;
     totalLosses: number;
     netGains: number;
   } {
-    const sellTransactions = transactions.filter((t) => (t as any).transactionType === 'sell' || (t as any).transactionType === 'trade');
-    const buyTransactions = transactions.filter((t) => (t as any).transactionType === 'buy').sort((a, b) => 
-      new Date((a as any).date).getTime() - new Date((b as any).date).getTime()
+    const sellTransactions = transactions.filter(
+      (t) => (t as any).transactionType === 'sell' || (t as any).transactionType === 'trade'
     );
+    const buyTransactions = transactions
+      .filter((t) => (t as any).transactionType === 'buy')
+      .sort((a, b) => new Date((a as any).date).getTime() - new Date((b as any).date).getTime());
 
     const gains = sellTransactions.map((sell) => {
       const sellTyped = sell as any;
@@ -147,7 +159,9 @@ export class CryptocurrencyTaxCalculator {
     });
 
     const totalGains = gains.filter((g) => g.gain > 0).reduce((sum, g) => sum + g.gain, 0);
-    const totalLosses = Math.abs(gains.filter((g) => g.gain < 0).reduce((sum, g) => sum + g.gain, 0));
+    const totalLosses = Math.abs(
+      gains.filter((g) => g.gain < 0).reduce((sum, g) => sum + g.gain, 0)
+    );
     const netGains = totalGains - totalLosses;
 
     return {
@@ -197,7 +211,9 @@ export class CryptocurrencyTaxCalculator {
     sell: CryptocurrencyTaxInput['transactions'][0],
     buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    const relevantBuys = buys.filter((b) => (b as any).asset === (sell as any).asset).sort((a, b) => (b as any).pricePerUnit - (a as any).pricePerUnit);
+    const relevantBuys = buys
+      .filter((b) => (b as any).asset === (sell as any).asset)
+      .sort((a, b) => (b as any).pricePerUnit - (a as any).pricePerUnit);
     let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
 
@@ -215,7 +231,9 @@ export class CryptocurrencyTaxCalculator {
     sell: CryptocurrencyTaxInput['transactions'][0],
     buys: CryptocurrencyTaxInput['transactions']
   ): number {
-    const relevantBuys = buys.filter((b) => (b as any).asset === (sell as any).asset).sort((a, b) => (a as any).pricePerUnit - (b as any).pricePerUnit);
+    const relevantBuys = buys
+      .filter((b) => (b as any).asset === (sell as any).asset)
+      .sort((a, b) => (a as any).pricePerUnit - (b as any).pricePerUnit);
     let remainingQuantity = (sell as any).quantity;
     let costBasis = 0;
 
@@ -229,10 +247,14 @@ export class CryptocurrencyTaxCalculator {
     return costBasis;
   }
 
-  private static calculateUnrealizedGains(
-    transactions: CryptocurrencyTaxInput['transactions']
-  ): {
-    holdings: Array<{ asset: string; quantity: number; costBasis: number; currentValue: number; unrealizedGain: number }>;
+  private static calculateUnrealizedGains(transactions: CryptocurrencyTaxInput['transactions']): {
+    holdings: Array<{
+      asset: string;
+      quantity: number;
+      costBasis: number;
+      currentValue: number;
+      unrealizedGain: number;
+    }>;
     totalUnrealizedGains: number;
   } {
     const holdings = new Map<string, { quantity: number; costBasis: number }>();
@@ -250,15 +272,18 @@ export class CryptocurrencyTaxCalculator {
         const quantitySold = (t as any).quantity;
         holdings.set((t as any).asset, {
           quantity: current.quantity - quantitySold,
-          costBasis: current.costBasis - (avgCostBasis * quantitySold),
+          costBasis: current.costBasis - avgCostBasis * quantitySold,
         });
       }
     });
 
     const holdingsArray = Array.from(holdings.entries()).map(([asset, holding]) => {
-      const latestPrice = transactions
-        .filter((t) => (t as any).asset === asset)
-        .sort((a, b) => new Date((b as any).date).getTime() - new Date((a as any).date).getTime())[0]?.pricePerUnit || 0;
+      const latestPrice =
+        transactions
+          .filter((t) => (t as any).asset === asset)
+          .sort(
+            (a, b) => new Date((b as any).date).getTime() - new Date((a as any).date).getTime()
+          )[0]?.pricePerUnit || 0;
       const currentValue = holding.quantity * latestPrice;
       const unrealizedGain = currentValue - holding.costBasis;
 
@@ -311,9 +336,7 @@ export class CryptocurrencyTaxCalculator {
     };
   }
 
-  private static analyzeWashSales(
-    transactions: CryptocurrencyTaxInput['transactions']
-  ): {
+  private static analyzeWashSales(transactions: CryptocurrencyTaxInput['transactions']): {
     washSaleRisks: Array<{ transactionId: string | undefined; asset: string; risk: string }>;
   } {
     // Simplified wash sale detection - crypto doesn't have traditional wash sale rules but similar assets may
@@ -324,7 +347,8 @@ export class CryptocurrencyTaxCalculator {
           (t) =>
             (t as any).asset === (sell as any).asset &&
             (t as any).transactionType === 'buy' &&
-            new Date((t as any).date).getTime() - new Date((sell as any).date).getTime() < 30 * 24 * 60 * 60 * 1000
+            new Date((t as any).date).getTime() - new Date((sell as any).date).getTime() <
+              30 * 24 * 60 * 60 * 1000
         );
 
         return {
@@ -349,7 +373,12 @@ export class CryptocurrencyTaxCalculator {
     totalIncome: number;
     totalTax: number;
   } {
-    const totalIncome = income.miningIncome + income.stakingRewards + income.defiYield + income.airdrops + income.forks;
+    const totalIncome =
+      income.miningIncome +
+      income.stakingRewards +
+      income.defiYield +
+      income.airdrops +
+      income.forks;
     const totalTax = totalIncome * (taxInfo.federalTaxRate.shortTerm + taxInfo.stateTaxRate);
 
     return {
@@ -400,7 +429,9 @@ export class CryptocurrencyTaxCalculator {
     if (washSale) {
       const risks = washSale.washSaleRisks.filter((r) => r.risk === 'potential-wash-sale');
       if (risks.length > 0) {
-        recommendations.push(`Be aware of potential wash sale rules for ${risks.length} transactions`);
+        recommendations.push(
+          `Be aware of potential wash sale rules for ${risks.length} transactions`
+        );
       }
     }
 
@@ -409,6 +440,3 @@ export class CryptocurrencyTaxCalculator {
     return recommendations;
   }
 }
-
-
-

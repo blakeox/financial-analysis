@@ -296,15 +296,10 @@ describe('FranchiseROICalculator', () => {
 
   it('should fallback when IRR derivative is near zero', () => {
     const irr = (FranchiseROICalculator as any).calculateIRR({
-      annualCashFlows: [
-        { netCashFlow: 0 },
-        { netCashFlow: 0 },
-        { netCashFlow: 0 },
-      ],
+      annualCashFlows: [{ netCashFlow: 0 }, { netCashFlow: 0 }, { netCashFlow: 0 }],
     });
 
     expect(irr).toBeGreaterThanOrEqual(0);
     expect(irr).toBeLessThanOrEqual(100);
   });
 });
-

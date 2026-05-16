@@ -31,7 +31,9 @@ const fillRequiredInputs = async (page: Page) => {
 };
 
 test.describe('Amortization calculator browser contract', () => {
-  test('renders the amortization entrypoint on the current calculator route with deterministic results', async ({ page }) => {
+  test('renders the amortization entrypoint on the current calculator route with deterministic results', async ({
+    page,
+  }) => {
     let requestBody: Record<string, unknown> | null = null;
 
     await page.route('**/v1/api/analysis/amortization', async (route) => {

@@ -1,5 +1,5 @@
-import Decimal from "decimal.js";
-import type { StudentLoanInput } from "../schemas/student-loan.js";
+import Decimal from 'decimal.js';
+import type { StudentLoanInput } from '../schemas/student-loan.js';
 import type {
   StudentLoanResult,
   StudentLoanMonth,
@@ -8,7 +8,7 @@ import type {
   StandardPayoffSummary,
   IncomeDrivenAnalysis,
   RefinancingAnalysis,
-} from "../types/student-loan-result.js";
+} from '../types/student-loan-result.js';
 
 const MAX_MONTHS = 360; // 30 years safety limit
 const POVERTY_GUIDELINE_SINGLE = 15060; // 2024 federal poverty guideline (will be used for IDR calculations)
@@ -44,7 +44,12 @@ export function analyze(input: StudentLoanInput): StudentLoanResult {
   }
 
   // Generate recommendations
-  const recommendations = generateRecommendations(input, standardResult, idrAnalysis, refinancingAnalysis);
+  const recommendations = generateRecommendations(
+    input,
+    standardResult,
+    idrAnalysis,
+    refinancingAnalysis
+  );
 
   const totalBalance = input.loans.reduce((sum, loan) => sum + loan.balance, 0);
   const weightedRate =
@@ -65,14 +70,15 @@ export function analyze(input: StudentLoanInput): StudentLoanResult {
     recommendations,
     metadata: {
       calculatedAt: new Date().toISOString(),
-      version: "1.0.0",
+      version: '1.0.0',
     },
   };
 }
 
-function calculateStandardPayoff(
-  input: StudentLoanInput
-): { schedule: StudentLoanMonth[]; summary: StandardPayoffSummary } {
+function calculateStandardPayoff(input: StudentLoanInput): {
+  schedule: StudentLoanMonth[];
+  summary: StandardPayoffSummary;
+} {
   const loans: LoanState[] = input.loans.map((loan) => ({
     name: loan.name,
     loanType: loan.loanType,
@@ -87,9 +93,9 @@ function calculateStandardPayoff(
   const extraPayment = new Decimal(input.extraMonthlyPayment);
 
   // Sort loans by strategy
-  if (input.paymentStrategy === "avalanche") {
+  if (input.paymentStrategy === 'avalanche') {
     loans.sort((a, b) => b.rate.minus(a.rate).toNumber());
-  } else if (input.paymentStrategy === "snowball") {
+  } else if (input.paymentStrategy === 'snowball') {
     loans.sort((a, b) => a.balance.minus(b.balance).toNumber());
   }
 
@@ -107,10 +113,10 @@ function calculateStandardPayoff(
       if (loan.balance.lte(0)) {
         monthPayments.push({
           loanName: loan.name,
-          payment: "0.00",
-          principal: "0.00",
-          interest: "0.00",
-          balance: "0.00",
+          payment: '0.00',
+          principal: '0.00',
+          interest: '0.00',
+          balance: '0.00',
         });
         continue;
       }
@@ -225,9 +231,9 @@ function calculateIncomeDrivenRepayment(
 
   // Calculate percentage of discretionary income (varies by plan)
   let paymentPercent: Decimal;
-  if (planType === "IBR" || planType === "PAYE") {
+  if (planType === 'IBR' || planType === 'PAYE') {
     paymentPercent = new Decimal(0.1); // 10%
-  } else if (planType === "REPAYE") {
+  } else if (planType === 'REPAYE') {
     paymentPercent = new Decimal(0.1); // 10%
   } else {
     // ICR
@@ -240,7 +246,7 @@ function calculateIncomeDrivenRepayment(
   const totalBalance = input.loans.reduce((sum, loan) => sum + loan.balance, 0);
   const weightedRate =
     input.loans.reduce((sum, loan) => sum + loan.balance * loan.interestRate, 0) / totalBalance;
-  
+
   let balance = new Decimal(totalBalance);
   let totalPaid = new Decimal(0);
   let totalInterest = new Decimal(0);
@@ -248,7 +254,7 @@ function calculateIncomeDrivenRepayment(
   let currentIncome = annualIncome;
   let month = 0;
 
-  const forgivenessMonths = input.forgivenessEligible ? (input.forgivenessMonths || 240) : MAX_MONTHS;
+  const forgivenessMonths = input.forgivenessEligible ? input.forgivenessMonths || 240 : MAX_MONTHS;
 
   while (balance.gt(0) && month < forgivenessMonths) {
     month++;
@@ -256,10 +262,7 @@ function calculateIncomeDrivenRepayment(
     // Recalculate payment each year based on income growth
     if (month % 12 === 0) {
       currentIncome = currentIncome.times(new Decimal(1).plus(incomeIncreaseRate));
-      const newDiscretionaryIncome = Decimal.max(
-        0,
-        currentIncome.minus(povertyLine.times(1.5))
-      );
+      const newDiscretionaryIncome = Decimal.max(0, currentIncome.minus(povertyLine.times(1.5)));
       monthlyPayment = newDiscretionaryIncome.times(paymentPercent).div(12);
     }
 
@@ -287,7 +290,7 @@ function calculateIncomeDrivenRepayment(
   const timeDiff = month - standardMonths;
 
   let recommended = false;
-  let reason = "";
+  let reason = '';
 
   if (potentialForgiveness.gt(0)) {
     recommended = true;
@@ -332,7 +335,9 @@ function calculateRefinancing(
 
   // Calculate new monthly payment using amortization formula
   const monthlyRate = newRate.div(12);
-  const numerator = principal.times(monthlyRate).times(new Decimal(1).plus(monthlyRate).pow(newTermMonths));
+  const numerator = principal
+    .times(monthlyRate)
+    .times(new Decimal(1).plus(monthlyRate).pow(newTermMonths));
   const denominator = new Decimal(1).plus(monthlyRate).pow(newTermMonths).minus(1);
   const newMonthlyPayment = numerator.div(denominator);
 
@@ -345,16 +350,16 @@ function calculateRefinancing(
 
   const warnings: string[] = [];
   let recommended = false;
-  let reason = "";
+  let reason = '';
 
   // Check if refinancing federal loans (loses benefits)
   const hasFederalLoans = input.loans.some(
-    (loan) => loan.loanType === "federal_subsidized" || loan.loanType === "federal_unsubsidized"
+    (loan) => loan.loanType === 'federal_subsidized' || loan.loanType === 'federal_unsubsidized'
   );
 
   if (hasFederalLoans) {
     warnings.push(
-      "Refinancing federal loans means losing federal protections (IDR, forgiveness, forbearance)"
+      'Refinancing federal loans means losing federal protections (IDR, forgiveness, forbearance)'
     );
   }
 
@@ -366,7 +371,8 @@ function calculateRefinancing(
     reason = `Current loan terms are better. Refinancing would cost an additional $${totalSavings.abs().toFixed(0)}`;
   }
 
-  const oldRate = input.loans.reduce((sum, loan) => sum + loan.balance * loan.interestRate, 0) / totalBalance;
+  const oldRate =
+    input.loans.reduce((sum, loan) => sum + loan.balance * loan.interestRate, 0) / totalBalance;
   if (newRate.gte(oldRate)) {
     warnings.push(
       `New rate (${newRate.times(100).toFixed(2)}%) is not lower than weighted average current rate (${new Decimal(oldRate).times(100).toFixed(2)}%)`
@@ -396,13 +402,13 @@ function generateRecommendations(
   const recommendations: string[] = [];
 
   // Strategy-specific recommendations
-  if (input.paymentStrategy === "avalanche") {
+  if (input.paymentStrategy === 'avalanche') {
     recommendations.push(
-      "Avalanche method targets highest interest loans first, minimizing total interest paid"
+      'Avalanche method targets highest interest loans first, minimizing total interest paid'
     );
-  } else if (input.paymentStrategy === "snowball") {
+  } else if (input.paymentStrategy === 'snowball') {
     recommendations.push(
-      "Snowball method targets smallest balances first for psychological wins, but may cost more in interest"
+      'Snowball method targets smallest balances first for psychological wins, but may cost more in interest'
     );
   }
 
@@ -410,7 +416,7 @@ function generateRecommendations(
   const extraPayment = new Decimal(input.extraMonthlyPayment);
   if (extraPayment.eq(0)) {
     recommendations.push(
-      "Consider making extra payments to reduce interest and pay off loans faster"
+      'Consider making extra payments to reduce interest and pay off loans faster'
     );
   }
 
@@ -429,11 +435,11 @@ function generateRecommendations(
 
   // Federal loan specific
   const hasFederalLoans = input.loans.some(
-    (loan) => loan.loanType === "federal_subsidized" || loan.loanType === "federal_unsubsidized"
+    (loan) => loan.loanType === 'federal_subsidized' || loan.loanType === 'federal_unsubsidized'
   );
   if (hasFederalLoans && !idrAnalysis) {
     recommendations.push(
-      "Explore income-driven repayment plans (IBR, PAYE, REPAYE) for potential lower payments and forgiveness"
+      'Explore income-driven repayment plans (IBR, PAYE, REPAYE) for potential lower payments and forgiveness'
     );
   }
 

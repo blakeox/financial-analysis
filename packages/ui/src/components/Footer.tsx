@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '../lib/utils';
-import { surfaceDividerClasses, textColors } from '../lib/classNames';
 
 interface FooterProps {
   className?: string;
@@ -24,7 +23,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
   return (
     <footer
       className={cn(
-        `border-t ${surfaceDividerClasses} bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,250,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.98),rgba(9,14,36,0.98))]`,
+        'border-t border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,250,255,0.98))] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.98),rgba(9,14,36,0.98))]',
         className
       )}
     >
@@ -35,21 +34,21 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 text-lg font-extrabold tracking-[-0.06em] text-white shadow-[0_14px_30px_rgba(109,74,255,0.24)]">
                 F
               </span>
-              <h2 className={cn('text-lg font-semibold tracking-[-0.03em]', textColors.primary)}>
+              <h2 className="text-lg font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">
                 Fanalyx
               </h2>
             </div>
-            <p className={cn('mt-5 max-w-xs text-sm leading-7', textColors.secondary)}>
+            <p className="mt-5 max-w-xs text-sm leading-7 text-slate-600 dark:text-slate-300">
               AI-powered financial analysis for clearer questions, clearer formulas, and clearer
               decisions.
             </p>
           </div>
 
           <div>
-             <h3 className={cn('text-sm font-semibold uppercase tracking-[0.16em]', textColors.muted)}>
-               Product
-             </h3>
-             <ul className={cn('mt-5 space-y-3 text-sm', textColors.secondary)}>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Product
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
               <li>
                 <a
                   href="/"
@@ -86,10 +85,10 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           </div>
 
           <div>
-             <h3 className={cn('text-sm font-semibold uppercase tracking-[0.16em]', textColors.muted)}>
-               Resources
-             </h3>
-             <ul className={cn('mt-5 space-y-3 text-sm', textColors.secondary)}>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Resources
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
               <li>
                 <a
                   href="/developers"
@@ -126,10 +125,10 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           </div>
 
           <div>
-             <h3 className={cn('text-sm font-semibold uppercase tracking-[0.16em]', textColors.muted)}>
-               Legal
-             </h3>
-             <ul className={cn('mt-5 space-y-3 text-sm', textColors.secondary)}>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Legal
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
               <li>
                 <a
                   href="/privacy"
@@ -157,8 +156,8 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
             </ul>
           </div>
         </div>
-        <div className={cn('mt-12 border-t pt-8', surfaceDividerClasses)}>
-          <p className={cn('text-sm leading-7 xl:text-center', textColors.secondary)}>
+        <div className="mt-12 border-t border-slate-200/80 pt-8 dark:border-slate-800">
+          <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 xl:text-center">
             &copy; {currentYear} Fanalyx. Educational decision support only. Not financial advice.
           </p>
         </div>

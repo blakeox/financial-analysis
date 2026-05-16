@@ -14,7 +14,11 @@ export class CarbonCreditValuationTool {
       tonnesCO2e: { type: 'number', minimum: 0 },
       pricePerTonne: { type: 'number', minimum: 0 },
       yearsUntilSale: { type: 'number', minimum: 0, default: 0 },
-      priceGrowthRate: { type: 'number', default: 0, description: 'Annual price growth rate (decimal)' },
+      priceGrowthRate: {
+        type: 'number',
+        default: 0,
+        description: 'Annual price growth rate (decimal)',
+      },
       discountRate: { type: 'number', default: 0, description: 'Annual discount rate (decimal)' },
     },
     required: ['tonnesCO2e', 'pricePerTonne'],
@@ -25,4 +29,3 @@ export class CarbonCreditValuationTool {
     return CarbonCreditValuationCalculator.analyze(validated);
   }
 }
-

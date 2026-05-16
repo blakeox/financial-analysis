@@ -138,7 +138,9 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
       },
     } as unknown as OneZeroThreeOneExchangeInput);
 
-    expect(result.comparison?.recommendation).toBe('Tax savings may not justify exchange complexity');
+    expect(result.comparison?.recommendation).toBe(
+      'Tax savings may not justify exchange complexity'
+    );
     expect(result.recommendations).toContain('Tax on boot received: $2500');
   });
 
@@ -203,7 +205,9 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
       },
     } as unknown as OneZeroThreeOneExchangeInput);
 
-    expect(result.comparison?.recommendation).toBe('1031 exchange provides significant tax deferral');
+    expect(result.comparison?.recommendation).toBe(
+      '1031 exchange provides significant tax deferral'
+    );
   });
 
   it('should fall back when optional sections are missing', () => {
@@ -222,11 +226,12 @@ describe('OneZeroThreeOneExchangeAnalyzer', () => {
   });
 
   it('should default timeline fields when exchange timeline is omitted', () => {
-    const result = OneZeroThreeOneExchangeAnalyzer.analyze({} as unknown as OneZeroThreeOneExchangeInput);
+    const result = OneZeroThreeOneExchangeAnalyzer.analyze(
+      {} as unknown as OneZeroThreeOneExchangeInput
+    );
 
     expect(result.summary).toBeDefined();
     expect(result.recommendations).toContain('Identification deadline: ');
     expect(result.recommendations).toContain('Closing deadline: ');
   });
 });
-

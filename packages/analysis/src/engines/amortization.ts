@@ -31,19 +31,21 @@ export interface AmortizationAnalysisResult {
   totalMonthlyPayment?: number | undefined; // P+I+T+I+HOA
   // APR and Total Cost Summary
   apr?: number | undefined;
-  totalCostSummary?: {
-    downPayment: number;
-    loanAmount: number;
-    totalPrincipal: number;
-    totalInterest: number;
-    totalPMI: number;
-    totalTaxes: number;
-    totalInsurance: number;
-    totalHOA: number;
-    closingCosts: number;
-    totalCost: number;
-    totalPaid: number;
-  } | undefined;
+  totalCostSummary?:
+    | {
+        downPayment: number;
+        loanAmount: number;
+        totalPrincipal: number;
+        totalInterest: number;
+        totalPMI: number;
+        totalTaxes: number;
+        totalInsurance: number;
+        totalHOA: number;
+        closingCosts: number;
+        totalCost: number;
+        totalPaid: number;
+      }
+    | undefined;
 }
 
 export type AmortizationMilestoneId =
@@ -202,7 +204,7 @@ function calculateAPR(
 ): number {
   // Net amount received by borrower (loan - upfront costs)
   const netProceeds = loanAmount - upfrontCosts;
-  
+
   if (netProceeds <= 0 || monthlyPayment <= 0 || termMonths <= 0) {
     return 0;
   }
@@ -220,16 +222,16 @@ function calculateAPR(
     for (let month = 1; month <= termMonths; month++) {
       const discount = Math.pow(1 + rate, -month);
       npv += monthlyPayment * discount;
-      derivative -= month * monthlyPayment * discount / (1 + rate);
+      derivative -= (month * monthlyPayment * discount) / (1 + rate);
     }
 
     const newRate = rate - npv / derivative;
-    
+
     if (Math.abs(newRate - rate) < tolerance) {
       rate = newRate;
       break;
     }
-    
+
     rate = newRate;
   }
 
@@ -412,7 +414,7 @@ export class AmortizationAnalyzer {
     const totalInsurance = monthlyInsurance * schedule.length;
     const totalHOA = monthlyHOA * schedule.length;
     const totalPMINum = Number(totalPMI.toDecimalPlaces(2));
-    
+
     const totalCostSummary = {
       downPayment: parsed.downPayment,
       loanAmount: principal,
@@ -423,10 +425,19 @@ export class AmortizationAnalyzer {
       totalInsurance: Number(new Decimal(totalInsurance).toDecimalPlaces(2)),
       totalHOA: Number(new Decimal(totalHOA).toDecimalPlaces(2)),
       closingCosts: upfrontCosts,
-      totalCost: Number(new Decimal(
-        parsed.downPayment + upfrontCosts + actualPayments + totalTaxes + totalInsurance + totalHOA
-      ).toDecimalPlaces(2)),
-      totalPaid: Number(new Decimal(actualPayments + totalTaxes + totalInsurance + totalHOA).toDecimalPlaces(2)),
+      totalCost: Number(
+        new Decimal(
+          parsed.downPayment +
+            upfrontCosts +
+            actualPayments +
+            totalTaxes +
+            totalInsurance +
+            totalHOA
+        ).toDecimalPlaces(2)
+      ),
+      totalPaid: Number(
+        new Decimal(actualPayments + totalTaxes + totalInsurance + totalHOA).toDecimalPlaces(2)
+      ),
     };
 
     return {
@@ -440,17 +451,27 @@ export class AmortizationAnalyzer {
       pmiDropoffMonth: pmiDropoffMonth || undefined,
       schedule,
       // PITI fields
-      monthlyPropertyTax: monthlyPropertyTax > 0 ? Number(new Decimal(monthlyPropertyTax).toDecimalPlaces(2)) : undefined,
-      monthlyInsurance: monthlyInsurance > 0 ? Number(new Decimal(monthlyInsurance).toDecimalPlaces(2)) : undefined,
+      monthlyPropertyTax:
+        monthlyPropertyTax > 0
+          ? Number(new Decimal(monthlyPropertyTax).toDecimalPlaces(2))
+          : undefined,
+      monthlyInsurance:
+        monthlyInsurance > 0 ? Number(new Decimal(monthlyInsurance).toDecimalPlaces(2)) : undefined,
       monthlyHOA: monthlyHOA > 0 ? Number(new Decimal(monthlyHOA).toDecimalPlaces(2)) : undefined,
-      totalMonthlyPayment: (monthlyPropertyTax > 0 || monthlyInsurance > 0 || monthlyHOA > 0) 
-        ? Number(new Decimal(totalMonthlyPayment).toDecimalPlaces(2)) 
-        : undefined,
+      totalMonthlyPayment:
+        monthlyPropertyTax > 0 || monthlyInsurance > 0 || monthlyHOA > 0
+          ? Number(new Decimal(totalMonthlyPayment).toDecimalPlaces(2))
+          : undefined,
       // APR and Total Cost Summary
       apr: upfrontCosts > 0 ? Number(new Decimal(apr).toDecimalPlaces(6)) : undefined,
-      totalCostSummary: (parsed.downPayment > 0 || upfrontCosts > 0 || totalTaxes > 0 || totalInsurance > 0 || totalHOA > 0)
-        ? totalCostSummary
-        : undefined,
+      totalCostSummary:
+        parsed.downPayment > 0 ||
+        upfrontCosts > 0 ||
+        totalTaxes > 0 ||
+        totalInsurance > 0 ||
+        totalHOA > 0
+          ? totalCostSummary
+          : undefined,
     };
   }
 
@@ -612,8 +633,7 @@ type NarrativeOptions = {
 const clampNumber = (value: number, fallback = 0): number =>
   Number.isFinite(value) ? value : fallback;
 
-const safeRound = (value: number, digits = 2): number =>
-  clampNumber(Number(value.toFixed(digits)));
+const safeRound = (value: number, digits = 2): number => clampNumber(Number(value.toFixed(digits)));
 
 const amortizationPrincipalFromSchedule = (schedule: AmortizationResultItem[]): number => {
   if (!schedule.length) return 0;
@@ -703,23 +723,18 @@ export function buildAmortizationComprehensiveAnalysis(
   const monthlyPayment = clampNumber(result.monthlyPayment);
   const totalInterest = clampNumber(result.totalInterest);
   const totalPayments = clampNumber(result.totalPayments);
-  const effectiveTermMonths = schedule.length || clampNumber(
-    monthlyPayment > 0 ? Math.round(totalPayments / monthlyPayment) : 0
-  );
+  const effectiveTermMonths =
+    schedule.length ||
+    clampNumber(monthlyPayment > 0 ? Math.round(totalPayments / monthlyPayment) : 0);
   const years = effectiveTermMonths / 12;
-  const annualRate = clampNumber(
-    schedule.length ? estimateAnnualRate(schedule, principal) : 0
-  );
+  const annualRate = clampNumber(schedule.length ? estimateAnnualRate(schedule, principal) : 0);
   const totalPMI =
     clampNumber(result.totalPMI ?? 0) ||
     safeRound(sumBy(schedule, (item) => clampNumber(item.pmi ?? 0)));
   const totalExtraPayments = safeRound(
     sumBy(schedule, (item) => clampNumber(item.extraPayment ?? 0))
   );
-  const paymentToIncomeRatio = calculatePaymentToIncomeRatio(
-    monthlyPayment,
-    assumedMonthlyIncome
-  );
+  const paymentToIncomeRatio = calculatePaymentToIncomeRatio(monthlyPayment, assumedMonthlyIncome);
 
   const firstYearInterest = safeRound(
     sumBy(schedule.slice(0, 12), (item) => clampNumber(item.interest))
@@ -775,12 +790,7 @@ export function buildAmortizationComprehensiveAnalysis(
             assumedMonthlyIncome
           )} income (28% benchmark).`
         : 'Unable to evaluate payment-to-income ratio without an income assumption.',
-      impact:
-        paymentToIncomeRatio > 0.3
-          ? 'high'
-          : paymentToIncomeRatio > 0.2
-            ? 'medium'
-            : 'low',
+      impact: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
       actionable: true,
     },
     {
@@ -869,9 +879,7 @@ export function buildAmortizationComprehensiveAnalysis(
       title: 'Explore $250 Extra Scenario',
       description:
         savings250 > savings100
-          ? `A $250 monthly boost improves savings to ${formatCurrency(
-              savings250
-            )}.`
+          ? `A $250 monthly boost improves savings to ${formatCurrency(savings250)}.`
           : 'Larger extra payments yield compounding interest reductions.',
       potentialSavings: savings250,
       effort: 'high',
@@ -914,12 +922,7 @@ export function buildAmortizationComprehensiveAnalysis(
   const riskFactors: AmortizationRiskFactor[] = [
     {
       factor: 'Payment Burden',
-      risk:
-        paymentToIncomeRatio > 0.3
-          ? 'high'
-          : paymentToIncomeRatio > 0.2
-            ? 'medium'
-            : 'low',
+      risk: paymentToIncomeRatio > 0.3 ? 'high' : paymentToIncomeRatio > 0.2 ? 'medium' : 'low',
       description: `Payment represents ${safeRound(paymentToIncomeRatio * 100, 1)}% of assumed income.`,
     },
     {
@@ -929,12 +932,7 @@ export function buildAmortizationComprehensiveAnalysis(
     },
     {
       factor: 'Interest Cost Exposure',
-      risk:
-        summary.interestShare > 0.5
-          ? 'high'
-          : summary.interestShare > 0.35
-            ? 'medium'
-            : 'low',
+      risk: summary.interestShare > 0.5 ? 'high' : summary.interestShare > 0.35 ? 'medium' : 'low',
       description: `Interest equals ${safeRound(summary.interestShare * 100, 1)}% of loan cost.`,
     },
     {
@@ -1048,10 +1046,7 @@ const formatCurrency = (value: number): string =>
     maximumFractionDigits: 0,
   }).format(clampNumber(value));
 
-const estimateAnnualRate = (
-  schedule: AmortizationResultItem[],
-  principal: number
-): number => {
+const estimateAnnualRate = (schedule: AmortizationResultItem[], principal: number): number => {
   if (!schedule.length || principal <= 0) return 0;
   const first = schedule[0];
   if (!first) return 0;

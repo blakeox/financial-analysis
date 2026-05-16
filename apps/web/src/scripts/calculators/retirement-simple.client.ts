@@ -72,7 +72,7 @@ class SimpleRetirementCalculator {
 
     const yearsToRetirement = retirementAge - currentAge;
     let annualContribution = monthlyContribution * 12;
-    
+
     // Calculate catch-up contributions for age 50+
     let catchUpContributionsTotal = 0;
     let yearsCatchUp = 0;
@@ -82,15 +82,18 @@ class SimpleRetirementCalculator {
       const catchUpAnnual = 7500;
       catchUpContributionsTotal = catchUpAnnual * yearsCatchUp;
     }
-    
+
     // Calculate employer match (typically 3-6% of salary, max 50% of contribution)
     const employerMatchRate = employerMatch / 100;
     let employerMatchTotal = 0;
     for (let year = 0; year < yearsToRetirement; year++) {
       const salaryThisYear = currentIncome * Math.pow(1 + incomeIncreaseRate / 100, year);
       const contributionThisYear = Math.min(annualContribution, salaryThisYear * 0.25); // Cap at 25% of salary
-      const matchThisYear = Math.min(contributionThisYear * employerMatchRate, salaryThisYear * 0.06); // Cap at 6% of salary
-      
+      const matchThisYear = Math.min(
+        contributionThisYear * employerMatchRate,
+        salaryThisYear * 0.06
+      ); // Cap at 6% of salary
+
       // Add to total with growth
       const yearsOfGrowth = yearsToRetirement - year;
       employerMatchTotal += matchThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
@@ -106,21 +109,27 @@ class SimpleRetirementCalculator {
     let futureValueOfContributions = 0;
     for (let year = 0; year < yearsToRetirement; year++) {
       let contributionThisYear = annualContribution;
-      
+
       // Add catch-up if applicable
       if (currentAge + year >= 50) {
         contributionThisYear += 7500; // Annual catch-up
       }
-      
+
       const yearsOfGrowth = yearsToRetirement - year;
-      futureValueOfContributions += contributionThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
+      futureValueOfContributions +=
+        contributionThisYear * Math.pow(1 + expectedAnnualReturn / 100, yearsOfGrowth);
     }
 
-    const projectedBalanceAtRetirement = futureValueOfCurrentSavings + futureValueOfContributions + employerMatchTotal;
-    const totalGrowth = projectedBalanceAtRetirement - currentSavings - totalContributions - employerMatchTotal;
+    const projectedBalanceAtRetirement =
+      futureValueOfCurrentSavings + futureValueOfContributions + employerMatchTotal;
+    const totalGrowth =
+      projectedBalanceAtRetirement - currentSavings - totalContributions - employerMatchTotal;
 
     // Inflation adjustment to keep figures in today's dollars
-    const inflationAdjustmentFactor = Math.pow(1 + inflationRate / 100, Math.max(yearsToRetirement, 0));
+    const inflationAdjustmentFactor = Math.pow(
+      1 + inflationRate / 100,
+      Math.max(yearsToRetirement, 0)
+    );
     const inflationAdjustedBalance = projectedBalanceAtRetirement / inflationAdjustmentFactor;
 
     // Calculate retirement income using 4% rule
@@ -131,47 +140,53 @@ class SimpleRetirementCalculator {
     const finalSalary = currentIncome * Math.pow(1 + incomeIncreaseRate / 100, yearsToRetirement);
     const replacementRatio = (monthlyRetirementIncome * 12) / finalSalary;
     const finalSalaryReal = finalSalary / inflationAdjustmentFactor;
-    const realReplacementRatio = finalSalaryReal > 0 ? (realMonthlyIncome * 12) / finalSalaryReal : 0;
+    const realReplacementRatio =
+      finalSalaryReal > 0 ? (realMonthlyIncome * 12) / finalSalaryReal : 0;
 
     // Calculate savings rate
     const savingsRate = (annualContribution / currentIncome) * 100;
-    
+
     // Calculate tax implications
     const currentTaxRateDecimal = currentTaxRate / 100;
     const retirementTaxRateDecimal = retirementTaxRate / 100;
-    
-    const taxSavingsNow = accountType === 'traditional' ? totalContributions * currentTaxRateDecimal : 0;
-    const afterTaxBalance = accountType === 'traditional' 
-      ? projectedBalanceAtRetirement * (1 - retirementTaxRateDecimal)
-      : projectedBalanceAtRetirement; // Roth is already tax-free
+
+    const taxSavingsNow =
+      accountType === 'traditional' ? totalContributions * currentTaxRateDecimal : 0;
+    const afterTaxBalance =
+      accountType === 'traditional'
+        ? projectedBalanceAtRetirement * (1 - retirementTaxRateDecimal)
+        : projectedBalanceAtRetirement; // Roth is already tax-free
     const afterTaxMonthlyIncome = (afterTaxBalance * 0.04) / 12;
-    
+
     // Roth vs Traditional comparison
     let rothVsTraditional: RetirementResults['rothVsTraditional'];
-    
+
     if (accountType === 'both') {
       // Traditional scenario
       const traditionalBalance = projectedBalanceAtRetirement;
       const traditionalAfterTax = traditionalBalance * (1 - retirementTaxRateDecimal);
       const traditionalMonthlyAfterTax = (traditionalAfterTax * 0.04) / 12;
-      
+
       // Roth scenario - same contributions but after-tax, so less principal growth in taxable account
       // Assume you invest the tax savings from Traditional in a taxable account
       const rothBalance = projectedBalanceAtRetirement; // Same pre-tax growth
       const rothAfterTax = rothBalance; // Tax-free withdrawals
       const rothMonthlyAfterTax = (rothAfterTax * 0.04) / 12;
-      
+
       const difference = rothAfterTax - traditionalAfterTax;
-      
+
       let recommendation = '';
       if (currentTaxRate > retirementTaxRate + 5) {
-        recommendation = 'Traditional IRA/401(k) recommended: Your tax rate is significantly higher now than expected in retirement. Lock in tax savings today.';
+        recommendation =
+          'Traditional IRA/401(k) recommended: Your tax rate is significantly higher now than expected in retirement. Lock in tax savings today.';
       } else if (retirementTaxRate > currentTaxRate + 5) {
-        recommendation = 'Roth IRA/401(k) recommended: Your tax rate is expected to be higher in retirement. Pay taxes now at a lower rate.';
+        recommendation =
+          'Roth IRA/401(k) recommended: Your tax rate is expected to be higher in retirement. Pay taxes now at a lower rate.';
       } else {
-        recommendation = 'Consider Both: Tax rates are similar. Split contributions for tax diversification and flexibility.';
+        recommendation =
+          'Consider Both: Tax rates are similar. Split contributions for tax diversification and flexibility.';
       }
-      
+
       rothVsTraditional = {
         traditional: {
           balance: traditionalBalance,
@@ -255,7 +270,9 @@ const displayResults = (result: RetirementResults): void => {
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
-    ${result.rothVsTraditional ? `
+    ${
+      result.rothVsTraditional
+        ? `
     <!-- Roth vs Traditional Comparison -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -265,7 +282,7 @@ const displayResults = (result: RetirementResults): void => {
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <!-- Traditional -->
-        <div class="fa-subcard border-2 border-violet-300 dark:border-violet-700">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-2 border-violet-300 dark:border-violet-700">
           <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-3">Traditional IRA/401(k)</h4>
           <div class="space-y-2">
             <div class="flex justify-between">
@@ -281,14 +298,14 @@ const displayResults = (result: RetirementResults): void => {
               <span class="font-semibold">${formatCurrency(result.rothVsTraditional.traditional.monthlyAfterTax)}</span>
             </div>
           </div>
-          <div class="mt-3 pt-3 fa-panel-divider-top">
+          <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <p class="fa-script-note">✓ Tax deduction now</p>
             <p class="fa-script-note">✓ Lower taxable income today</p>
           </div>
         </div>
         
         <!-- Roth -->
-        <div class="fa-subcard border-2 border-emerald-300 dark:border-emerald-700">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-2 border-emerald-300 dark:border-emerald-700">
           <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-3">Roth IRA/401(k)</h4>
           <div class="space-y-2">
             <div class="flex justify-between">
@@ -304,14 +321,14 @@ const displayResults = (result: RetirementResults): void => {
               <span class="font-semibold">${formatCurrency(result.rothVsTraditional.roth.monthlyAfterTax)}</span>
             </div>
           </div>
-          <div class="mt-3 pt-3 fa-panel-divider-top">
+          <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <p class="fa-script-note">✓ Tax-free withdrawals</p>
             <p class="fa-script-note">✓ No RMDs (Required Minimum Distributions)</p>
           </div>
         </div>
       </div>
       
-      <div class="fa-subcard border-l-4 ${result.rothVsTraditional.difference > 0 ? 'border-emerald-500' : 'border-violet-500'}">
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 ${result.rothVsTraditional.difference > 0 ? 'border-emerald-500' : 'border-violet-500'}">
         <h5 class="font-semibold mb-2">${result.rothVsTraditional.difference > 0 ? '🏆 Roth Advantage' : '🏆 Traditional Advantage'}</h5>
         <p class="fa-script-copy-strong mb-2">
           After-tax difference: <span class="font-bold">${formatCurrency(Math.abs(result.rothVsTraditional.difference))}</span>
@@ -319,36 +336,40 @@ const displayResults = (result: RetirementResults): void => {
         <p class="fa-script-copy-muted">${result.rothVsTraditional.recommendation}</p>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Retirement Projection</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Retirement Projection</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Projected Balance at Retirement</span>
             <p class="fa-script-copy-subtle">Total savings accumulated</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.projectedBalanceAtRetirement)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.projectedBalanceAtRetirement)}</span>
             <p class="text-xs text-violet-700 dark:text-violet-300">Inflation-adjusted: ${formatCurrency(result.inflationAdjustedBalance)}</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Your Contributions</span>
             <p class="fa-script-copy-subtle">Base + catch-up</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.totalContributions)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.totalContributions)}</span>
             ${result.catchUpContributionsTotal ? `<p class="text-xs text-orange-600 dark:text-orange-400">Includes ${formatCurrency(result.catchUpContributionsTotal)} catch-up (50+)</p>` : ''}
           </div>
         </div>
         
-        ${result.employerMatchTotal ? `
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        ${
+          result.employerMatchTotal
+            ? `
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Employer Match</span>
             <p class="fa-script-copy-subtle">Free money!</p>
@@ -357,9 +378,11 @@ const displayResults = (result: RetirementResults): void => {
             <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.employerMatchTotal)}</span>
           </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Investment Growth</span>
             <p class="fa-script-copy-subtle">Earnings from compound interest</p>
@@ -369,8 +392,10 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        ${result.taxSavingsNow ? `
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        ${
+          result.taxSavingsNow
+            ? `
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Tax Savings (Now)</span>
             <p class="fa-script-copy-subtle">Traditional IRA/401(k) deduction</p>
@@ -379,25 +404,27 @@ const displayResults = (result: RetirementResults): void => {
             <span class="font-semibold text-violet-600 dark:text-violet-400">${formatCurrency(result.taxSavingsNow)}</span>
           </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Annual Contribution</span>
             <p class="fa-script-copy-subtle">Monthly × 12</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(result.annualContribution)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.annualContribution)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Retirement Income Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Retirement Income Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Monthly Retirement Income</span>
             <p class="fa-script-copy-subtle">Using 4% withdrawal rule</p>
@@ -408,7 +435,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Income Replacement Ratio</span>
             <p class="fa-script-copy-subtle">Percentage of final salary</p>
@@ -419,7 +446,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Current Savings Rate</span>
             <p class="fa-script-copy-subtle">Annual contribution / income</p>
@@ -429,7 +456,7 @@ const displayResults = (result: RetirementResults): void => {
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Years to Retirement</span>
             <p class="fa-script-copy-subtle">Time remaining to save</p>
@@ -441,8 +468,8 @@ const displayResults = (result: RetirementResults): void => {
       </div>
     </div>
 
-    <div class="fa-card p-6">
-      <h3 class="fa-panel-title text-xl mb-6">Key Insights</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
         <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
@@ -468,11 +495,11 @@ const displayResults = (result: RetirementResults): void => {
         Figures adjusted using a ${formattedInflationImpact} cumulative inflation factor over ${result.yearsToRetirement} years.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="fa-subcard shadow-sm">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 shadow-sm">
           <h4 class="fa-script-copy-muted font-medium mb-1">Nominal vs Real Balance</h4>
           <p class="fa-script-note mb-2">${formatCurrency(result.projectedBalanceAtRetirement)} → ${formatCurrency(result.inflationAdjustedBalance)}</p>
         </div>
-        <div class="fa-subcard shadow-sm">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 shadow-sm">
           <h4 class="fa-script-copy-muted font-medium mb-1">Nominal vs Real Monthly Income</h4>
           <p class="fa-script-note mb-2">${formatCurrency(result.monthlyRetirementIncome)} → ${formatCurrency(result.realMonthlyIncome)}</p>
         </div>

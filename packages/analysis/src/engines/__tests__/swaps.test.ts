@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { InterestRateSwapAnalyzer, CurrencySwapAnalyzer, InterestRateSwapInputSchema, CurrencySwapInputSchema } from '../swaps';
+import {
+  InterestRateSwapAnalyzer,
+  CurrencySwapAnalyzer,
+  InterestRateSwapInputSchema,
+  CurrencySwapInputSchema,
+} from '../swaps';
 
 describe('InterestRateSwapAnalyzer', () => {
   const baseInput = {
@@ -52,9 +57,9 @@ describe('InterestRateSwapAnalyzer', () => {
       expect(result.netCashFlows.length).toBe(10);
 
       // Fixed payments should be constant
-      const expectedFixedPayment = 1000000 * 0.045 / 2; // $22,500
+      const expectedFixedPayment = (1000000 * 0.045) / 2; // $22,500
       expect(result.fixedCashFlows[0]).toBeCloseTo(expectedFixedPayment, 2);
-      expect(result.fixedCashFlows.every(flow => flow === result.fixedCashFlows[0])).toBe(true);
+      expect(result.fixedCashFlows.every((flow) => flow === result.fixedCashFlows[0])).toBe(true);
     });
 
     it('should calculate risk metrics', () => {
@@ -92,7 +97,7 @@ describe('InterestRateSwapAnalyzer', () => {
       expect(result.insights).toBeDefined();
       expect(Array.isArray(result.insights)).toBe(true);
       expect(result.insights.length).toBeGreaterThan(0);
-      expect(result.insights.some(insight => insight.includes('duration'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('duration'))).toBe(true);
     });
 
     it('should identify risks', () => {
@@ -101,7 +106,7 @@ describe('InterestRateSwapAnalyzer', () => {
       expect(result.risks).toBeDefined();
       expect(Array.isArray(result.risks)).toBe(true);
       expect(result.risks.length).toBeGreaterThan(0);
-      expect(result.risks.some(risk => risk.includes('Interest rate risk'))).toBe(true);
+      expect(result.risks.some((risk) => risk.includes('Interest rate risk'))).toBe(true);
     });
   });
 
@@ -142,7 +147,9 @@ describe('InterestRateSwapAnalyzer', () => {
       const longInput = {
         ...baseInput,
         timeToMaturity: 30,
-        spotRates: Array(60).fill(0).map((_, i) => 0.04 + i * 0.0001), // 60 spot rates for 30 years quarterly
+        spotRates: Array(60)
+          .fill(0)
+          .map((_, i) => 0.04 + i * 0.0001), // 60 spot rates for 30 years quarterly
         paymentFrequency: 4,
       };
       const result = InterestRateSwapAnalyzer.analyze(longInput);
@@ -165,7 +172,7 @@ describe('CurrencySwapAnalyzer', () => {
     foreignCurrency: 'EUR',
     exchangeRate: 0.85,
     domesticRates: [0.04, 0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049],
-    foreignRates: [0.035, 0.036, 0.037, 0.038, 0.039, 0.040, 0.041, 0.042, 0.043, 0.044],
+    foreignRates: [0.035, 0.036, 0.037, 0.038, 0.039, 0.04, 0.041, 0.042, 0.043, 0.044],
   };
 
   describe('Input Validation', () => {
@@ -196,14 +203,14 @@ describe('CurrencySwapAnalyzer', () => {
     it('should include FX insights', () => {
       const result = CurrencySwapAnalyzer.analyze(baseCurrencyInput);
 
-      expect(result.insights.some(insight => insight.includes('Exchange rate'))).toBe(true);
-      expect(result.insights.some(insight => insight.includes('FX risk'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('Exchange rate'))).toBe(true);
+      expect(result.insights.some((insight) => insight.includes('FX risk'))).toBe(true);
     });
 
     it('should include FX risks', () => {
       const result = CurrencySwapAnalyzer.analyze(baseCurrencyInput);
 
-      expect(result.risks.some(risk => risk.includes('Foreign exchange risk'))).toBe(true);
+      expect(result.risks.some((risk) => risk.includes('Foreign exchange risk'))).toBe(true);
     });
   });
 
@@ -230,10 +237,7 @@ describe('Integration Tests', () => {
       currentFloatingRate: 0.0525, // 5.25%
       timeToMaturity: 5,
       paymentFrequency: 2, // Semi-annual
-      spotRates: [
-        0.0520, 0.0525, 0.0530, 0.0535, 0.0540,
-        0.0545, 0.0550, 0.0555, 0.0560, 0.0565
-      ],
+      spotRates: [0.052, 0.0525, 0.053, 0.0535, 0.054, 0.0545, 0.055, 0.0555, 0.056, 0.0565],
       payFixed: true,
     };
 
@@ -260,19 +264,23 @@ describe('Integration Tests', () => {
       currentFloatingRate: 0.035,
       timeToMaturity: 3,
       paymentFrequency: 4,
-      spotRates: [0.04, 0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049, 0.050, 0.051],
+      spotRates: [0.04, 0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049, 0.05, 0.051],
       payFixed: true,
       domesticCurrency: 'USD',
       foreignCurrency: 'GBP',
       exchangeRate: 0.78,
-      domesticRates: [0.04, 0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049, 0.050, 0.051],
-      foreignRates: [0.045, 0.046, 0.047, 0.048, 0.049, 0.050, 0.051, 0.052, 0.053, 0.054, 0.055, 0.056],
+      domesticRates: [
+        0.04, 0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049, 0.05, 0.051,
+      ],
+      foreignRates: [
+        0.045, 0.046, 0.047, 0.048, 0.049, 0.05, 0.051, 0.052, 0.053, 0.054, 0.055, 0.056,
+      ],
     };
 
     const result = CurrencySwapAnalyzer.analyze(currencySwapInput);
 
     expect(result.fxRisk).toBeGreaterThan(0);
     expect(result.currencyMismatch).toBe(true);
-    expect(result.insights.some(insight => insight.includes('GBP/USD'))).toBe(true);
+    expect(result.insights.some((insight) => insight.includes('GBP/USD'))).toBe(true);
   });
 });

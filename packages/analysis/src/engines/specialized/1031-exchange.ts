@@ -28,9 +28,7 @@ export class OneZeroThreeOneExchangeAnalyzer {
       : undefined;
 
     // Boot analysis
-    const bootAnalysis = analysis.includeBootAnalysis
-      ? this.analyzeBoot(boot, taxInfo)
-      : undefined;
+    const bootAnalysis = analysis.includeBootAnalysis ? this.analyzeBoot(boot, taxInfo) : undefined;
 
     // Comparison to selling without exchange
     const comparison = analysis.includeComparison
@@ -189,6 +187,3 @@ export class OneZeroThreeOneExchangeAnalyzer {
     return recommendations;
   }
 }
-
-
-

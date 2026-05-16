@@ -24,25 +24,25 @@ export default defineConfig({
   workers: 10, // Can now use more parallel workers with increased limits
   timeout: 60_000, // Increased timeout for cloud execution
   globalSetup,
-  
+
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report' }],
-    ['junit', { outputFile: 'test-results.xml' }]
+    ['junit', { outputFile: 'test-results.xml' }],
   ],
-  
+
   use: {
     // Use Cloudflare Browser Rendering endpoint
     // This connects to Cloudflare's headless browser infrastructure
     ...cloudConnection,
 
     baseURL: process.env.BASE_URL || 'https://financial-analysis-web.blakeoxford.workers.dev',
-    
+
     // Enhanced settings for cloud browsers
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    
+
     // Longer timeouts for cloud execution
     navigationTimeout: 30_000,
     actionTimeout: 15_000,
@@ -53,15 +53,15 @@ export default defineConfig({
     // Desktop browsers on Cloudflare infrastructure
     {
       name: 'chromium-cloud',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Use Cloudflare Browser Rendering for this project
         ...cloudConnection,
       },
     },
     {
-      name: 'firefox-cloud', 
-      use: { 
+      name: 'firefox-cloud',
+      use: {
         ...devices['Desktop Firefox'],
         ...cloudConnection,
       },
@@ -69,12 +69,12 @@ export default defineConfig({
     // Mobile testing on cloud browsers
     {
       name: 'mobile-chrome-cloud',
-      use: { 
+      use: {
         ...devices['Pixel 5'],
         ...cloudConnection,
       },
     },
-    
+
     // Keep local fallback for development
     {
       name: 'chromium-local',

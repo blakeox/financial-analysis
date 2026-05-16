@@ -72,9 +72,23 @@ describe('FiveTwoNineOptimizer', () => {
     const inputWithStates: FiveTwoNineOptimizerInput = {
       ...baseInput,
       state529Options: [
-        { state: 'CA', stateTaxDeduction: false, maxDeduction: 0, fees: 0.001, investmentOptions: 'good', minimumContribution: 0 },
-        { state: 'NY', stateTaxDeduction: true, maxDeduction: 5000, fees: 0.0015, investmentOptions: 'good', minimumContribution: 0 }
-      ]
+        {
+          state: 'CA',
+          stateTaxDeduction: false,
+          maxDeduction: 0,
+          fees: 0.001,
+          investmentOptions: 'good',
+          minimumContribution: 0,
+        },
+        {
+          state: 'NY',
+          stateTaxDeduction: true,
+          maxDeduction: 5000,
+          fees: 0.0015,
+          investmentOptions: 'good',
+          minimumContribution: 0,
+        },
+      ],
     };
     const result = FiveTwoNineOptimizer.analyze(inputWithStates);
     expect(result.stateComparison).toBeDefined();
@@ -213,9 +227,7 @@ describe('FiveTwoNineOptimizer', () => {
     const result = FiveTwoNineOptimizer.analyze(input);
     expect(result.projections?.totalBalance).toBe(0);
     expect(result.projections?.perChildProjections[0]?.projectedBalance).toBe(0);
-    expect(result.aidImpact?.recommendation).toBe(
-      '529 plan may reduce financial aid eligibility'
-    );
+    expect(result.aidImpact?.recommendation).toBe('529 plan may reduce financial aid eligibility');
   });
 
   it('adds shortfall and optimal state recommendations when applicable', () => {
@@ -272,4 +284,3 @@ describe('FiveTwoNineOptimizer', () => {
     expect(result.recommendations).toBeDefined();
   });
 });
-

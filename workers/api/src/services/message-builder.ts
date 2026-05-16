@@ -28,9 +28,7 @@ export class MessageBuilder {
 
     // Build prompt using template
     // Add conversation history to variables if present
-    const context = conversationHistory 
-      ? { ...variables, conversationHistory }
-      : variables;
+    const context = conversationHistory ? { ...variables, conversationHistory } : variables;
 
     const prompt = buildPrompt(templateName, context);
 
@@ -99,7 +97,11 @@ export class MessageBuilder {
     for (let i = 0; i < lines.length; i++) {
       const line = (lines[i] || '').toLowerCase();
       // Look for transition markers
-      if (line.includes('user question:') || line.includes('user message:') || line.includes('context:')) {
+      if (
+        line.includes('user question:') ||
+        line.includes('user message:') ||
+        line.includes('context:')
+      ) {
         systemEndIndex = i;
         break;
       }
@@ -136,7 +138,7 @@ export class MessageBuilder {
    */
   truncateToTokens(text: string, maxTokens: number): string {
     const currentTokens = this.estimateTokens(text);
-    
+
     if (currentTokens <= maxTokens) {
       return text;
     }
@@ -149,4 +151,3 @@ export class MessageBuilder {
     return text.substring(0, Math.max(0, targetLength)) + '...';
   }
 }
-

@@ -256,8 +256,3 @@ test.describe('Student Loans Calculator E2E', () => {
     await expect(page.locator('button:has-text("Optimization")')).toBeVisible();
   });
 });
-
-
-
-
-

@@ -109,7 +109,14 @@ export class OptionsPricingTool {
         },
       },
     },
-    required: ['optionType', 'strikePrice', 'currentPrice', 'expiryDate', 'volatility', 'riskFreeRate'],
+    required: [
+      'optionType',
+      'strikePrice',
+      'currentPrice',
+      'expiryDate',
+      'volatility',
+      'riskFreeRate',
+    ],
   };
 
   static async execute(args: unknown): Promise<string> {

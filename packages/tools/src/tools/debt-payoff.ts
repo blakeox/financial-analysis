@@ -6,7 +6,7 @@ import type { DebtPayoffInput, DebtPayoffResult } from '@financial-analysis/anal
  */
 export class DebtPayoffTool {
   static readonly toolName = 'analyze_debt_payoff';
-  
+
   static readonly description = `Analyze debt payoff strategies and compare avalanche vs snowball methods.
 
 Features:
@@ -78,7 +78,8 @@ Returns:
       strategy: {
         type: 'string',
         enum: ['avalanche', 'snowball'],
-        description: 'Payoff strategy: avalanche (highest rate first) or snowball (lowest balance first)',
+        description:
+          'Payoff strategy: avalanche (highest rate first) or snowball (lowest balance first)',
         default: 'avalanche',
       },
       balanceTransferOffer: {

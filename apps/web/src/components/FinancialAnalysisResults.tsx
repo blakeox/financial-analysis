@@ -251,7 +251,10 @@ export const FinancialAnalysisResults: React.FC<FinancialAnalysisResultsProps> =
                   </thead>
                   <tbody>
                     {table.rows.map((row, rowIndex) => (
-                      <tr key={rowIndex} className="fa-panel-divider-soft">
+                      <tr
+                        key={rowIndex}
+                        className="border-b border-slate-100 dark:border-slate-800"
+                      >
                         {row.map((cell, cellIndex) => (
                           <td key={cellIndex} className="py-2 px-3 fa-list-copy">
                             {typeof cell === 'number' && cellIndex > 0

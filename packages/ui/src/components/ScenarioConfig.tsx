@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './Input';
 import { Button } from './Button';
 import { parsers } from '../lib/formUtils';
-import { cardVariants, cn, inputClasses, textColors } from '../lib/classNames';
+import { cn, inputClasses, textColors } from '../lib/classNames';
 
 export interface ScenarioConfigData {
   scenarioName: string;
@@ -144,7 +144,9 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
             label="Billable Hours Growth (%)"
             type="number"
             value={(data.billableHoursGrowthRate * 100).toFixed(2)}
-            onChange={(e) => updateField('billableHoursGrowthRate', parsers.percentage(e.target.value))}
+            onChange={(e) =>
+              updateField('billableHoursGrowthRate', parsers.percentage(e.target.value))
+            }
             step="0.1"
             min="-50"
             max="100"
@@ -179,8 +181,8 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         </div>
 
         {/* Summary */}
-        <div className={cn(cardVariants.subtle, 'p-4')}>
-          <h4 className={cn('mb-2 font-semibold', textColors.primary)}>Scenario Summary</h4>
+        <div className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <h4 className="mb-2 font-semibold text-slate-900 dark:text-white">Scenario Summary</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className={textColors.secondary}>
               <span className="font-medium">Forecast Period:</span> {data.projectionMonths} months (
@@ -237,7 +239,9 @@ export function ScenarioConfig({ data, onChange, readonly = false }: ScenarioCon
         {/* Seasonality Factors */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className={cn('font-semibold', textColors.primary)}>Seasonality Factors (Optional)</h4>
+            <h4 className="font-semibold text-slate-900 dark:text-white">
+              Seasonality Factors (Optional)
+            </h4>
             {!readonly && (
               <div className="space-x-2">
                 {!hasSeasonalityFactors ? (

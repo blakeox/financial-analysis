@@ -20,6 +20,7 @@
     "dev": "tsc --watch",
     "lint": "eslint src --ext .ts --ignore-pattern '*.d.ts'",
     "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
     "test": "pnpm run build && vitest run --config ./vitest.config.mjs",
     "test:fast": "pnpm run build && vitest run --config ./vitest.config.mjs --exclude **/performance.test.ts",

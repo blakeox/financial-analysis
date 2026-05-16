@@ -18,19 +18,19 @@ test.describe('Amortization API error handling', () => {
     await page.fill('#annualRate', '5');
     await page.fill('#termMonths', '360');
     await page.click('#analyze-btn');
-    
+
     // Current implementation may show results or error - just verify page is interactive
     await page.waitForTimeout(2000);
-    
+
     // Verify one of these states is visible
     const error = page.locator('#error-state');
     const results = page.locator('#results-section');
     const loading = page.locator('#loading-state');
-    
+
     const errorVisible = await error.isVisible();
     const resultsVisible = await results.isVisible();
     const loadingVisible = await loading.isVisible();
-    
+
     // At least one state should be visible
     expect(errorVisible || resultsVisible || loadingVisible).toBeTruthy();
   });
@@ -52,16 +52,16 @@ test.describe('Amortization API error handling', () => {
 
     // Wait for some state to appear
     await page.waitForTimeout(2000);
-    
+
     // Verify one of these states is visible
     const error = page.locator('#error-state');
     const results = page.locator('#results-section');
     const loading = page.locator('#loading-state');
-    
+
     const errorVisible = await error.isVisible();
     const resultsVisible = await results.isVisible();
     const loadingVisible = await loading.isVisible();
-    
+
     // At least one state should be visible
     expect(errorVisible || resultsVisible || loadingVisible).toBeTruthy();
   });

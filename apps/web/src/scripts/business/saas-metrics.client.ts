@@ -3,7 +3,14 @@
  * MRR, ARR, Churn, CAC, LTV, LTV:CAC, Payback Period, Rule of 40
  */
 
-import { coerceNumber, formatCurrency, showLoading, hideLoading, showError, hideError } from '../../utils/calculator-utilities';
+import {
+  coerceNumber,
+  formatCurrency,
+  showLoading,
+  hideLoading,
+  showError,
+  hideError,
+} from '../../utils/calculator-utilities';
 
 export interface SaaSInput {
   activeCustomers: number;
@@ -34,92 +41,128 @@ export interface SaaSResult {
 function calculateSaaSMetrics(input: SaaSInput): SaaSResult {
   // MRR (Monthly Recurring Revenue)
   const mrr = input.averageMonthlyRevenue * input.activeCustomers;
-  
+
   // ARR (Annual Recurring Revenue)
   const arr = mrr * 12;
-  
+
   // Churn Rate (% of customers lost per month)
   const churnRate = (input.churnedCustomersLastMonth / input.activeCustomers) * 100;
-  
+
   // CAC (Customer Acquisition Cost)
-  const cac = input.newCustomersLastMonth > 0 ? input.salesMarketingSpend / input.newCustomersLastMonth : 0;
-  
+  const cac =
+    input.newCustomersLastMonth > 0 ? input.salesMarketingSpend / input.newCustomersLastMonth : 0;
+
   // LTV (Customer Lifetime Value)
-  const avgLifetimeMonths = input.averageCustomerLifetimeMonths || (churnRate > 0 ? 1 / (churnRate / 100) : 36);
+  const avgLifetimeMonths =
+    input.averageCustomerLifetimeMonths || (churnRate > 0 ? 1 / (churnRate / 100) : 36);
   const ltv = input.averageMonthlyRevenue * avgLifetimeMonths * (input.grossMargin / 100);
-  
+
   // LTV:CAC Ratio
   const ltvCacRatio = cac > 0 ? ltv / cac : 0;
-  
+
   // CAC Payback Period (months to recover acquisition cost)
   const monthlyGrossProfit = input.averageMonthlyRevenue * (input.grossMargin / 100);
   const paybackPeriod = cac > 0 && monthlyGrossProfit > 0 ? cac / monthlyGrossProfit : 0;
-  
+
   // Net Revenue Retention (assuming no expansion for simplicity)
   const nrr = 100 - churnRate;
-  
+
   // Rule of 40 (Growth Rate + Profit Margin should be ≥ 40%)
   const profitMargin = input.grossMargin - 50; // Rough estimate: gross margin - typical SaaS opex
   const ruleOf40 = input.revenueGrowthRate + profitMargin;
-  
+
   // Health Score
   let healthScore = 0;
   if (ltvCacRatio >= 3) healthScore += 25;
   else if (ltvCacRatio >= 1) healthScore += 10;
-  
+
   if (churnRate <= 2) healthScore += 25;
   else if (churnRate <= 5) healthScore += 15;
   else if (churnRate <= 10) healthScore += 5;
-  
+
   if (paybackPeriod <= 12) healthScore += 25;
   else if (paybackPeriod <= 18) healthScore += 15;
   else if (paybackPeriod <= 24) healthScore += 5;
-  
+
   if (ruleOf40 >= 40) healthScore += 25;
   else if (ruleOf40 >= 20) healthScore += 10;
-  
-  const grade = healthScore >= 80 ? 'A' : healthScore >= 60 ? 'B' : healthScore >= 40 ? 'C' : healthScore >= 20 ? 'D' : 'F';
-  const status = healthScore >= 80 ? 'Excellent' : healthScore >= 60 ? 'Good' : healthScore >= 40 ? 'Fair' : healthScore >= 20 ? 'Poor' : 'Critical';
-  
+
+  const grade =
+    healthScore >= 80
+      ? 'A'
+      : healthScore >= 60
+        ? 'B'
+        : healthScore >= 40
+          ? 'C'
+          : healthScore >= 20
+            ? 'D'
+            : 'F';
+  const status =
+    healthScore >= 80
+      ? 'Excellent'
+      : healthScore >= 60
+        ? 'Good'
+        : healthScore >= 40
+          ? 'Fair'
+          : healthScore >= 20
+            ? 'Poor'
+            : 'Critical';
+
   // Recommendations
   const recommendations: string[] = [];
-  
+
   if (ltvCacRatio < 3) {
     if (ltvCacRatio < 1) {
-      recommendations.push('🚨 LTV:CAC < 1 means you lose money on every customer! Reduce CAC or increase LTV immediately.');
+      recommendations.push(
+        '🚨 LTV:CAC < 1 means you lose money on every customer! Reduce CAC or increase LTV immediately.'
+      );
     } else {
-      recommendations.push('⚠️ LTV:CAC below 3:1. Target is 3:1 or higher. Focus on reducing churn or improving monetization.');
+      recommendations.push(
+        '⚠️ LTV:CAC below 3:1. Target is 3:1 or higher. Focus on reducing churn or improving monetization.'
+      );
     }
   } else {
     recommendations.push('✓ Excellent LTV:CAC ratio (≥3:1). Strong unit economics.');
   }
-  
+
   if (churnRate > 5) {
-    recommendations.push(`⚠️ Monthly churn of ${churnRate.toFixed(1)}% is high. Target <5% (annual <50%). Improve product, support, or onboarding.`);
+    recommendations.push(
+      `⚠️ Monthly churn of ${churnRate.toFixed(1)}% is high. Target <5% (annual <50%). Improve product, support, or onboarding.`
+    );
   } else if (churnRate > 2) {
-    recommendations.push(`📊 Churn of ${churnRate.toFixed(1)}% is moderate. Best-in-class SaaS companies achieve <2% monthly.`);
+    recommendations.push(
+      `📊 Churn of ${churnRate.toFixed(1)}% is moderate. Best-in-class SaaS companies achieve <2% monthly.`
+    );
   } else {
     recommendations.push('✓ Excellent churn rate (<2%). Strong product-market fit.');
   }
-  
+
   if (paybackPeriod > 18) {
-    recommendations.push(`💰 CAC payback period of ${paybackPeriod.toFixed(1)} months is long. Target <12 months for healthy cash flow.`);
+    recommendations.push(
+      `💰 CAC payback period of ${paybackPeriod.toFixed(1)} months is long. Target <12 months for healthy cash flow.`
+    );
   } else if (paybackPeriod <= 12) {
     recommendations.push('✓ Great CAC payback period (≤12 months). Efficient sales & marketing.');
   }
-  
+
   if (ruleOf40 < 40) {
-    recommendations.push(`📈 Rule of 40 score: ${ruleOf40.toFixed(1)}%. Target ≥40% (growth + profit margin). Balance growth and profitability.`);
+    recommendations.push(
+      `📈 Rule of 40 score: ${ruleOf40.toFixed(1)}%. Target ≥40% (growth + profit margin). Balance growth and profitability.`
+    );
   } else {
     recommendations.push('✓ Exceeding Rule of 40 - excellent balance of growth and efficiency.');
   }
-  
+
   if (nrr < 100) {
-    recommendations.push('💡 Focus on expansion revenue (upsells, cross-sells) to achieve >100% NRR.');
+    recommendations.push(
+      '💡 Focus on expansion revenue (upsells, cross-sells) to achieve >100% NRR.'
+    );
   }
-  
-  recommendations.push(`💵 With ${formatCurrency(mrr)} MRR growing at ${input.revenueGrowthRate}% annually, you'll reach ${formatCurrency(mrr * Math.pow(1 + input.revenueGrowthRate / 100, 1))} MRR in 12 months.`);
-  
+
+  recommendations.push(
+    `💵 With ${formatCurrency(mrr)} MRR growing at ${input.revenueGrowthRate}% annually, you'll reach ${formatCurrency(mrr * Math.pow(1 + input.revenueGrowthRate / 100, 1))} MRR in 12 months.`
+  );
+
   return {
     mrr,
     arr,
@@ -167,22 +210,22 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">📊 Core SaaS Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <h3 class="fa-list-copy-strong">Revenue Metrics</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Revenue Metrics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">MRR (Monthly Recurring)</span>
               <span class="font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.mrr)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">ARR (Annual Recurring)</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.arr)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">Revenue per Customer</span>
               <span class="font-semibold">${formatCurrency(input.averageMonthlyRevenue)}/mo</span>
             </div>
@@ -190,17 +233,17 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
         </div>
         
         <div class="space-y-4">
-          <h3 class="fa-list-copy-strong">Unit Economics</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-white">Unit Economics</h3>
           <div class="space-y-3">
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">CAC (Customer Acquisition Cost)</span>
               <span class="font-semibold">${formatCurrency(result.cac)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">LTV (Lifetime Value)</span>
               <span class="font-semibold">${formatCurrency(result.ltv)}</span>
             </div>
-            <div class="flex justify-between py-2 fa-panel-divider-soft">
+            <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-800">
               <span class="text-slate-700 dark:text-slate-300">LTV:CAC Ratio</span>
               <span class="font-bold ${result.ltvCacRatio >= 3 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltvCacRatio.toFixed(1)}:1</span>
             </div>
@@ -213,26 +256,26 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
       <h2 class="text-xl font-semibold mb-4">📈 Growth & Efficiency Metrics</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Monthly Churn Rate</h4>
           <p class="text-3xl font-bold ${result.churnRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.churnRate.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Target: <2% (excellent)</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <h4 class="fa-script-copy-muted font-semibold mb-2">CAC Payback Period</h4>
           <p class="text-3xl font-bold ${result.paybackPeriod <= 12 ? 'text-emerald-600 dark:text-emerald-400' : result.paybackPeriod <= 18 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.paybackPeriod.toFixed(1)}</p>
           <p class="fa-script-note mt-2">Target: <12 months</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Net Revenue Retention</h4>
           <p class="text-3xl font-bold ${result.nrr >= 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.nrr.toFixed(0)}%</p>
           <p class="fa-script-note mt-2">Target: >100% (with expansion)</p>
         </div>
       </div>
       
-      <div class="mt-4 fa-subcard">
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <h4 class="fa-script-copy-muted font-semibold mb-2">Rule of 40</h4>
         <div class="flex items-center gap-4">
           <p class="text-4xl font-bold ${result.ruleOf40 >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-yellow-600 dark:text-yellow-400'}">${result.ruleOf40.toFixed(1)}%</p>
@@ -259,7 +302,7 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
               ${result.health.score}/100
             </div>
           </div>
-          <p class="fa-help-copy mt-2">
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
             Based on LTV:CAC (25 pts), Churn (25 pts), Payback Period (25 pts), Rule of 40 (25 pts)
           </p>
         </div>
@@ -269,13 +312,17 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
     <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3">💡 Recommendations & Insights</h2>
       <div class="space-y-3">
-        ${result.recommendations.map(rec => `
-          <div class="fa-subcard p-3 text-sm">${rec}</div>
-        `).join('')}
+        ${result.recommendations
+          .map(
+            (rec) => `
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
+        `
+          )
+          .join('')}
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -309,13 +356,15 @@ function initializeSaaSMetrics(): void {
       const input = parseFormInput(form);
       if (input.activeCustomers <= 0) throw new Error('Active customers must be positive');
       if (input.averageMonthlyRevenue <= 0) throw new Error('Average revenue must be positive');
-      
+
       const result = calculateSaaSMetrics(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'saas-metrics', result, formData: input },
-      }));
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'saas-metrics', result, formData: input },
+        })
+      );
     } catch (error) {
       showError(error instanceof Error ? error.message : 'Calculation failed');
     } finally {

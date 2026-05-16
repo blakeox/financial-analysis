@@ -2,7 +2,10 @@
  * Charitable Giving MCP Tool
  */
 
-import { CharitableGivingInputSchema, CharitableGivingOptimizer } from '@financial-analysis/analysis';
+import {
+  CharitableGivingInputSchema,
+  CharitableGivingOptimizer,
+} from '@financial-analysis/analysis';
 
 export class CharitableGivingTool {
   static readonly toolName = 'analyze_charitable_giving';
@@ -28,10 +31,26 @@ export class CharitableGivingTool {
       taxInfo: {
         type: 'object',
         properties: {
-          federalTaxRate: { type: 'number', minimum: 0, maximum: 0.5, description: 'Federal tax rate' },
-          stateTaxRate: { type: 'number', minimum: 0, maximum: 0.2, default: 0, description: 'State tax rate' },
+          federalTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.5,
+            description: 'Federal tax rate',
+          },
+          stateTaxRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0.2,
+            default: 0,
+            description: 'State tax rate',
+          },
           itemizeDeductions: { type: 'boolean', default: false, description: 'Itemize deductions' },
-          standardDeduction: { type: 'number', minimum: 0, default: 14600, description: 'Standard deduction' },
+          standardDeduction: {
+            type: 'number',
+            minimum: 0,
+            default: 14600,
+            description: 'Standard deduction',
+          },
         },
         required: ['federalTaxRate'],
       },
@@ -47,10 +66,18 @@ export class CharitableGivingTool {
           appreciatedAssetDetails: {
             type: 'object',
             properties: {
-              assetType: { type: 'string', enum: ['stocks', 'real-estate', 'other'], description: 'Asset type' },
+              assetType: {
+                type: 'string',
+                enum: ['stocks', 'real-estate', 'other'],
+                description: 'Asset type',
+              },
               costBasis: { type: 'number', minimum: 0, description: 'Cost basis' },
               currentValue: { type: 'number', minimum: 0, description: 'Current value' },
-              holdingPeriod: { type: 'string', enum: ['short-term', 'long-term'], description: 'Holding period' },
+              holdingPeriod: {
+                type: 'string',
+                enum: ['short-term', 'long-term'],
+                description: 'Holding period',
+              },
             },
           },
           qcdDetails: {
@@ -74,15 +101,29 @@ export class CharitableGivingTool {
             description: 'Optimization goal',
           },
           bunchingStrategy: { type: 'boolean', default: false, description: 'Bunching strategy' },
-          includeEstatePlanning: { type: 'boolean', default: false, description: 'Include estate planning' },
+          includeEstatePlanning: {
+            type: 'boolean',
+            default: false,
+            description: 'Include estate planning',
+          },
         },
       },
       analysis: {
         type: 'object',
         properties: {
           compareMethods: { type: 'boolean', default: true, description: 'Compare giving methods' },
-          includeMultiYearProjection: { type: 'boolean', default: true, description: 'Include multi-year projection' },
-          projectionYears: { type: 'number', minimum: 1, maximum: 20, default: 5, description: 'Projection years' },
+          includeMultiYearProjection: {
+            type: 'boolean',
+            default: true,
+            description: 'Include multi-year projection',
+          },
+          projectionYears: {
+            type: 'number',
+            minimum: 1,
+            maximum: 20,
+            default: 5,
+            description: 'Projection years',
+          },
         },
       },
     },

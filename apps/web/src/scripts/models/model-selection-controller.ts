@@ -119,7 +119,7 @@ const configureCtaElement = (
   const enableCta = isAvailable && hasRoute;
 
   element.hidden = false;
-  element.textContent = enableCta ? metadata.ctaLabel ?? 'Open Model' : 'Coming Soon';
+  element.textContent = enableCta ? (metadata.ctaLabel ?? 'Open Model') : 'Coming Soon';
 
   if (element instanceof HTMLAnchorElement) {
     if (enableCta && metadata.ctaHref) {

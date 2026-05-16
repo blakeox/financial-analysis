@@ -35,19 +35,21 @@ export class FinancialRatioAnalyzer {
       : undefined;
 
     // Market ratios
-    const marketRatios = analysis.includeMarketRatios && marketData.sharePrice
-      ? this.calculateMarketRatios(financialStatements, marketData)
-      : undefined;
+    const marketRatios =
+      analysis.includeMarketRatios && marketData.sharePrice
+        ? this.calculateMarketRatios(financialStatements, marketData)
+        : undefined;
 
     // Benchmarking
-    const benchmarking = analysis.includeBenchmarking && marketData.industryAverages
-      ? this.performBenchmarking(
-          liquidityRatios,
-          profitabilityRatios,
-          leverageRatios,
-          marketData.industryAverages
-        )
-      : undefined;
+    const benchmarking =
+      analysis.includeBenchmarking && marketData.industryAverages
+        ? this.performBenchmarking(
+            liquidityRatios,
+            profitabilityRatios,
+            leverageRatios,
+            marketData.industryAverages
+          )
+        : undefined;
 
     // Recommendations
     const recommendations = this.generateRecommendations(
@@ -88,15 +90,19 @@ export class FinancialRatioAnalyzer {
     cashRatio: number;
     interpretation: string;
   } {
-    const currentRatio = statements.balanceSheet.currentLiabilities > 0
-      ? statements.balanceSheet.currentAssets / statements.balanceSheet.currentLiabilities
-      : 0;
-    const quickRatio = statements.balanceSheet.currentLiabilities > 0
-      ? (statements.balanceSheet.currentAssets - statements.balanceSheet.inventory) / statements.balanceSheet.currentLiabilities
-      : 0;
-    const cashRatio = statements.balanceSheet.currentLiabilities > 0
-      ? statements.balanceSheet.cash / statements.balanceSheet.currentLiabilities
-      : 0;
+    const currentRatio =
+      statements.balanceSheet.currentLiabilities > 0
+        ? statements.balanceSheet.currentAssets / statements.balanceSheet.currentLiabilities
+        : 0;
+    const quickRatio =
+      statements.balanceSheet.currentLiabilities > 0
+        ? (statements.balanceSheet.currentAssets - statements.balanceSheet.inventory) /
+          statements.balanceSheet.currentLiabilities
+        : 0;
+    const cashRatio =
+      statements.balanceSheet.currentLiabilities > 0
+        ? statements.balanceSheet.cash / statements.balanceSheet.currentLiabilities
+        : 0;
 
     let interpretation = 'Liquidity ratios are healthy';
     if (currentRatio < 1) {
@@ -121,24 +127,32 @@ export class FinancialRatioAnalyzer {
     roa: number;
     roic: number;
   } {
-    const grossMargin = statements.incomeStatement.revenue > 0
-      ? (statements.incomeStatement.grossProfit / statements.incomeStatement.revenue) * 100
-      : 0;
-    const operatingMargin = statements.incomeStatement.revenue > 0
-      ? (statements.incomeStatement.ebit / statements.incomeStatement.revenue) * 100
-      : 0;
-    const netMargin = statements.incomeStatement.revenue > 0
-      ? (statements.incomeStatement.netIncome / statements.incomeStatement.revenue) * 100
-      : 0;
-    const roe = statements.balanceSheet.totalEquity > 0
-      ? (statements.incomeStatement.netIncome / statements.balanceSheet.totalEquity) * 100
-      : 0;
-    const roa = statements.balanceSheet.totalAssets > 0
-      ? (statements.incomeStatement.netIncome / statements.balanceSheet.totalAssets) * 100
-      : 0;
-    const roic = (statements.balanceSheet.totalEquity + statements.balanceSheet.longTermDebt) > 0
-      ? (statements.incomeStatement.ebit / (statements.balanceSheet.totalEquity + statements.balanceSheet.longTermDebt)) * 100
-      : 0;
+    const grossMargin =
+      statements.incomeStatement.revenue > 0
+        ? (statements.incomeStatement.grossProfit / statements.incomeStatement.revenue) * 100
+        : 0;
+    const operatingMargin =
+      statements.incomeStatement.revenue > 0
+        ? (statements.incomeStatement.ebit / statements.incomeStatement.revenue) * 100
+        : 0;
+    const netMargin =
+      statements.incomeStatement.revenue > 0
+        ? (statements.incomeStatement.netIncome / statements.incomeStatement.revenue) * 100
+        : 0;
+    const roe =
+      statements.balanceSheet.totalEquity > 0
+        ? (statements.incomeStatement.netIncome / statements.balanceSheet.totalEquity) * 100
+        : 0;
+    const roa =
+      statements.balanceSheet.totalAssets > 0
+        ? (statements.incomeStatement.netIncome / statements.balanceSheet.totalAssets) * 100
+        : 0;
+    const roic =
+      statements.balanceSheet.totalEquity + statements.balanceSheet.longTermDebt > 0
+        ? (statements.incomeStatement.ebit /
+            (statements.balanceSheet.totalEquity + statements.balanceSheet.longTermDebt)) *
+          100
+        : 0;
 
     return {
       grossMargin,
@@ -158,18 +172,22 @@ export class FinancialRatioAnalyzer {
     receivablesTurnover: number;
     payablesTurnover: number;
   } {
-    const assetTurnover = statements.balanceSheet.totalAssets > 0
-      ? statements.incomeStatement.revenue / statements.balanceSheet.totalAssets
-      : 0;
-    const inventoryTurnover = statements.balanceSheet.inventory > 0
-      ? statements.incomeStatement.costOfGoodsSold / statements.balanceSheet.inventory
-      : 0;
-    const receivablesTurnover = statements.balanceSheet.accountsReceivable > 0
-      ? statements.incomeStatement.revenue / statements.balanceSheet.accountsReceivable
-      : 0;
-    const payablesTurnover = statements.balanceSheet.accountsPayable > 0
-      ? statements.incomeStatement.costOfGoodsSold / statements.balanceSheet.accountsPayable
-      : 0;
+    const assetTurnover =
+      statements.balanceSheet.totalAssets > 0
+        ? statements.incomeStatement.revenue / statements.balanceSheet.totalAssets
+        : 0;
+    const inventoryTurnover =
+      statements.balanceSheet.inventory > 0
+        ? statements.incomeStatement.costOfGoodsSold / statements.balanceSheet.inventory
+        : 0;
+    const receivablesTurnover =
+      statements.balanceSheet.accountsReceivable > 0
+        ? statements.incomeStatement.revenue / statements.balanceSheet.accountsReceivable
+        : 0;
+    const payablesTurnover =
+      statements.balanceSheet.accountsPayable > 0
+        ? statements.incomeStatement.costOfGoodsSold / statements.balanceSheet.accountsPayable
+        : 0;
 
     return {
       assetTurnover,
@@ -188,18 +206,18 @@ export class FinancialRatioAnalyzer {
     timesInterestEarned: number;
   } {
     const totalDebt = statements.balanceSheet.shortTermDebt + statements.balanceSheet.longTermDebt;
-    const debtToEquity = statements.balanceSheet.totalEquity > 0
-      ? totalDebt / statements.balanceSheet.totalEquity
-      : 0;
-    const debtToAssets = statements.balanceSheet.totalAssets > 0
-      ? totalDebt / statements.balanceSheet.totalAssets
-      : 0;
-    const equityRatio = statements.balanceSheet.totalAssets > 0
-      ? statements.balanceSheet.totalEquity / statements.balanceSheet.totalAssets
-      : 0;
-    const timesInterestEarned = statements.incomeStatement.interestExpense > 0
-      ? statements.incomeStatement.ebit / statements.incomeStatement.interestExpense
-      : 0;
+    const debtToEquity =
+      statements.balanceSheet.totalEquity > 0 ? totalDebt / statements.balanceSheet.totalEquity : 0;
+    const debtToAssets =
+      statements.balanceSheet.totalAssets > 0 ? totalDebt / statements.balanceSheet.totalAssets : 0;
+    const equityRatio =
+      statements.balanceSheet.totalAssets > 0
+        ? statements.balanceSheet.totalEquity / statements.balanceSheet.totalAssets
+        : 0;
+    const timesInterestEarned =
+      statements.incomeStatement.interestExpense > 0
+        ? statements.incomeStatement.ebit / statements.incomeStatement.interestExpense
+        : 0;
 
     return {
       debtToEquity,
@@ -234,8 +252,12 @@ export class FinancialRatioAnalyzer {
     const priceToBook = bookValuePerShare > 0 ? market.sharePrice / bookValuePerShare : 0;
     const revenuePerShare = statements.incomeStatement.revenue / market.sharesOutstanding;
     const priceToSales = revenuePerShare > 0 ? market.sharePrice / revenuePerShare : 0;
-    const enterpriseValue = marketCap + statements.balanceSheet.longTermDebt - statements.balanceSheet.cash;
-    const evToEbitda = statements.incomeStatement.ebitda > 0 ? enterpriseValue / statements.incomeStatement.ebitda : 0;
+    const enterpriseValue =
+      marketCap + statements.balanceSheet.longTermDebt - statements.balanceSheet.cash;
+    const evToEbitda =
+      statements.incomeStatement.ebitda > 0
+        ? enterpriseValue / statements.incomeStatement.ebitda
+        : 0;
 
     return {
       peRatio,
@@ -303,12 +325,11 @@ export class FinancialRatioAnalyzer {
     }
 
     if (benchmarking && benchmarking.liquidityComparison.variance < -0.5) {
-      recommendations.push('Liquidity ratios below industry average - improve working capital management');
+      recommendations.push(
+        'Liquidity ratios below industry average - improve working capital management'
+      );
     }
 
     return recommendations;
   }
 }
-
-
-

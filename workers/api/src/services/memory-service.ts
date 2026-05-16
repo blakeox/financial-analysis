@@ -49,12 +49,19 @@ interface MessageRow {
 export class MemoryService {
   constructor(private db: D1Database) {}
 
-  async createConversation(userId: string, title?: string, metadata?: Record<string, unknown>): Promise<Conversation> {
+  async createConversation(
+    userId: string,
+    title?: string,
+    metadata?: Record<string, unknown>
+  ): Promise<Conversation> {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    await this.db.prepare(
-      'INSERT INTO conversations (id, user_id, title, created_at, updated_at, metadata) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(id, userId, title || null, now, now, metadata ? JSON.stringify(metadata) : null).run();
+    await this.db
+      .prepare(
+        'INSERT INTO conversations (id, user_id, title, created_at, updated_at, metadata) VALUES (?, ?, ?, ?, ?, ?)'
+      )
+      .bind(id, userId, title || null, now, now, metadata ? JSON.stringify(metadata) : null)
+      .run();
 
     return {
       id,
@@ -62,22 +69,29 @@ export class MemoryService {
       title,
       created_at: now,
       updated_at: now,
-      metadata
+      metadata,
     };
   }
 
-  async addMessage(conversationId: string, role: 'user' | 'assistant' | 'system', content: string, metadata?: Record<string, unknown>): Promise<Message> {
+  async addMessage(
+    conversationId: string,
+    role: 'user' | 'assistant' | 'system',
+    content: string,
+    metadata?: Record<string, unknown>
+  ): Promise<Message> {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    
+
     // Use a transaction to insert message and update conversation timestamp
     await this.db.batch([
-      this.db.prepare(
-        'INSERT INTO messages (id, conversation_id, role, content, created_at, metadata) VALUES (?, ?, ?, ?, ?, ?)'
-      ).bind(id, conversationId, role, content, now, metadata ? JSON.stringify(metadata) : null),
-      this.db.prepare(
-        'UPDATE conversations SET updated_at = ? WHERE id = ?'
-      ).bind(now, conversationId)
+      this.db
+        .prepare(
+          'INSERT INTO messages (id, conversation_id, role, content, created_at, metadata) VALUES (?, ?, ?, ?, ?, ?)'
+        )
+        .bind(id, conversationId, role, content, now, metadata ? JSON.stringify(metadata) : null),
+      this.db
+        .prepare('UPDATE conversations SET updated_at = ? WHERE id = ?')
+        .bind(now, conversationId),
     ]);
 
     return {
@@ -86,37 +100,47 @@ export class MemoryService {
       role,
       content,
       created_at: now,
-      metadata
+      metadata,
     };
   }
 
   async getConversationHistory(conversationId: string): Promise<Message[]> {
-    const { results } = await this.db.prepare(
-      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC'
-    ).bind(conversationId).all<MessageRow>();
+    const { results } = await this.db
+      .prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
+      .bind(conversationId)
+      .all<MessageRow>();
 
-    return results.map(row => ({
+    return results.map((row) => ({
       ...row,
-      metadata: row.metadata ? JSON.parse(row.metadata) : undefined
+      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
     }));
   }
 
   async getUserConversations(userId: string): Promise<Conversation[]> {
-    const { results } = await this.db.prepare(
-      'SELECT * FROM conversations WHERE user_id = ? ORDER BY updated_at DESC'
-    ).bind(userId).all<ConversationRow>();
+    const { results } = await this.db
+      .prepare('SELECT * FROM conversations WHERE user_id = ? ORDER BY updated_at DESC')
+      .bind(userId)
+      .all<ConversationRow>();
 
-    return results.map(row => ({
+    return results.map((row) => ({
       ...row,
-      metadata: row.metadata ? JSON.parse(row.metadata) : undefined
+      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
     }));
   }
 
-  async saveMemory(userId: string, content: string, category: string = 'general', confidence: number = 1.0): Promise<Memory> {
+  async saveMemory(
+    userId: string,
+    content: string,
+    category: string = 'general',
+    confidence: number = 1.0
+  ): Promise<Memory> {
     const now = new Date().toISOString();
-    const result = await this.db.prepare(
-      'INSERT INTO memories (user_id, content, category, confidence, created_at, last_accessed_at) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(userId, content, category, confidence, now, now).run();
+    const result = await this.db
+      .prepare(
+        'INSERT INTO memories (user_id, content, category, confidence, created_at, last_accessed_at) VALUES (?, ?, ?, ?, ?, ?)'
+      )
+      .bind(userId, content, category, confidence, now, now)
+      .run();
 
     return {
       id: result.meta.last_row_id as number,
@@ -125,24 +149,28 @@ export class MemoryService {
       category,
       confidence,
       created_at: now,
-      last_accessed_at: now
+      last_accessed_at: now,
     };
   }
 
   async searchMemories(userId: string, query: string): Promise<Memory[]> {
     // Simple LIKE search for now. In a real "semantic" memory, we'd use vector search (Vectorize).
-    const { results } = await this.db.prepare(
-      'SELECT * FROM memories WHERE user_id = ? AND content LIKE ? ORDER BY created_at DESC'
-    ).bind(userId, `%${query}%`).all<Memory>();
+    const { results } = await this.db
+      .prepare(
+        'SELECT * FROM memories WHERE user_id = ? AND content LIKE ? ORDER BY created_at DESC'
+      )
+      .bind(userId, `%${query}%`)
+      .all<Memory>();
 
     return results;
   }
-  
+
   async getAllMemories(userId: string): Promise<Memory[]> {
-      const { results } = await this.db.prepare(
-        'SELECT * FROM memories WHERE user_id = ? ORDER BY created_at DESC'
-      ).bind(userId).all<Memory>();
-      
-      return results;
+    const { results } = await this.db
+      .prepare('SELECT * FROM memories WHERE user_id = ? ORDER BY created_at DESC')
+      .bind(userId)
+      .all<Memory>();
+
+    return results;
   }
 }

@@ -14,4 +14,3 @@ export const ESGScoreInputSchema = z.object({
 });
 
 export type ESGScoreInput = z.infer<typeof ESGScoreInputSchema>;
-

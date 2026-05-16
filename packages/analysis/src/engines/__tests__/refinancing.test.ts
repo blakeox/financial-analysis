@@ -81,7 +81,9 @@ describe('RefinancingCalculator', () => {
     });
 
     expect(result.breakEvenAnalysis?.breakEvenMonths).toBeLessThan(24);
-    expect(result.recommendations.some((item) => item.includes('Excellent break-even point'))).toBe(true);
+    expect(result.recommendations.some((item) => item.includes('Excellent break-even point'))).toBe(
+      true
+    );
     expect(
       result.recommendations.some((item) =>
         item.includes('Refinancing to shorter term will save significant interest')
@@ -132,6 +134,8 @@ describe('RefinancingCalculator', () => {
       )
     ).toBe(true);
     expect(result.recommendations.some((item) => item.includes('Total net savings:'))).toBe(false);
-    expect(result.recommendations.some((item) => item.includes('Total interest savings:'))).toBe(false);
+    expect(result.recommendations.some((item) => item.includes('Total interest savings:'))).toBe(
+      false
+    );
   });
 });

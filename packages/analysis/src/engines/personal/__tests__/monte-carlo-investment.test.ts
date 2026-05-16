@@ -19,8 +19,12 @@ describe('MonteCarloInvestmentSimulator', () => {
     const r1 = MonteCarloInvestmentSimulator.analyze(input);
     const r2 = MonteCarloInvestmentSimulator.analyze(input);
     expect(r1).toEqual(r2);
-    expect(r1.endingValue.percentiles['0.05']).toBeLessThanOrEqual(r1.endingValue.percentiles['0.5']);
-    expect(r1.endingValue.percentiles['0.5']).toBeLessThanOrEqual(r1.endingValue.percentiles['0.95']);
+    expect(r1.endingValue.percentiles['0.05']).toBeLessThanOrEqual(
+      r1.endingValue.percentiles['0.5']
+    );
+    expect(r1.endingValue.percentiles['0.5']).toBeLessThanOrEqual(
+      r1.endingValue.percentiles['0.95']
+    );
   });
 
   describe('Comprehensive Analysis', () => {
@@ -44,7 +48,7 @@ describe('MonteCarloInvestmentSimulator', () => {
       expect(result).toHaveProperty('simulations');
       expect(result).toHaveProperty('stepsPerYear');
       expect(result).toHaveProperty('endingValue');
-      
+
       expect(result.endingValue).toHaveProperty('mean');
       expect(result.endingValue).toHaveProperty('median');
       expect(result.endingValue).toHaveProperty('min');
@@ -93,4 +97,3 @@ describe('MonteCarloInvestmentSimulator', () => {
     expect(result.endingValue.max).toBe(0);
   });
 });
-

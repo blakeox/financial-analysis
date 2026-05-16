@@ -1,14 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useHydrated, useAutoScroll, useEscapeKey } from '../lib/hooks';
-import {
-  buttonBaseClasses,
-  buttonVariants,
-  cardVariants,
-  cn,
-  inputClasses,
-  surfaceDividerClasses,
-  textColors,
-} from '../lib/classNames';
+import { buttonBaseClasses, buttonVariants, cn, inputClasses, textColors } from '../lib/classNames';
 import { Button } from './Button';
 
 type Role = 'system' | 'user' | 'assistant';
@@ -140,14 +132,13 @@ export function ChatPanel({
             aria-modal="true"
             aria-label="Chat assistant"
             data-z-fallback="90"
-            className={cn(
-              cardVariants.rail,
-              'fixed top-0 right-0 z-90 h-full w-full rounded-none border-y-0 border-r-0 p-0 shadow-2xl transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0 sm:w-[380px] md:w-[420px]'
-            )}
+            className="fixed top-0 right-0 z-90 h-full w-full border-l border-slate-200/80 bg-white/95 shadow-2xl transition-transform duration-200 ease-in-out will-change-transform-opacity gpu translate-x-0 dark:border-slate-800 dark:bg-slate-950/96 sm:w-[380px] md:w-[420px]"
           >
             {/* Header */}
-            <div className={cn('flex h-16 items-center justify-between border-b px-3 sm:px-4', surfaceDividerClasses)}>
-              <div className={cn('flex items-center gap-2 text-sm font-semibold', textColors.primary)}>
+            <div className="flex h-16 items-center justify-between border-b border-slate-200/80 px-3 sm:px-4 dark:border-slate-800">
+              <div
+                className={cn('flex items-center gap-2 text-sm font-semibold', textColors.primary)}
+              >
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-violet-700 text-white shadow-[0_10px_24px_rgba(109,74,255,0.24)]">
                   AI
                 </span>
@@ -185,16 +176,21 @@ export function ChatPanel({
               {messages.map((m, idx) => (
                 <div
                   key={idx}
-                    className={cn('text-sm', m.role === 'user' ? textColors.primary : textColors.secondary)}
-                  >
+                  className={cn(
+                    'text-sm',
+                    m.role === 'user'
+                      ? 'text-slate-950 dark:text-slate-100'
+                      : 'text-slate-800 dark:text-slate-200'
+                  )}
+                >
                   <div
-                      className={cn(
-                        'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-2xl border px-4 py-3 shadow-sm',
-                        m.role === 'user'
-                          ? 'border-violet-300/70 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/45 dark:text-violet-50'
-                          : cn(cardVariants.subtle, 'px-4 py-3')
-                      )}
-                    >
+                    className={cn(
+                      'inline-block max-w-[90%] whitespace-pre-wrap break-words rounded-2xl border px-4 py-3 shadow-sm',
+                      m.role === 'user'
+                        ? 'border-violet-300/70 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/45 dark:text-violet-50'
+                        : 'border-slate-200/80 bg-white/85 text-slate-900 dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-100'
+                    )}
+                  >
                     {m.content}
                   </div>
                 </div>
@@ -203,24 +199,16 @@ export function ChatPanel({
             </div>
 
             {/* Composer */}
-            <div className={cn('flex items-center gap-2 border-t px-3 py-3 sm:px-4', surfaceDividerClasses)}>
+            <div className="flex items-center gap-2 border-t border-slate-200/80 px-3 py-3 sm:px-4 dark:border-slate-800">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={busy ? 'Please wait…' : 'Type a message (⌘/Ctrl+Enter to send)'}
-                className={cn(
-                  inputClasses,
-                  'h-11 min-h-11 flex-1 resize-none py-2.5 leading-5'
-                )}
+                className={cn(inputClasses, 'h-11 min-h-11 flex-1 resize-none py-2.5 leading-5')}
                 disabled={busy}
               />
-              <Button
-                type="button"
-                onClick={onSend}
-                disabled={busy || !input.trim()}
-                size="sm"
-              >
+              <Button type="button" onClick={onSend} disabled={busy || !input.trim()} size="sm">
                 Send
               </Button>
             </div>

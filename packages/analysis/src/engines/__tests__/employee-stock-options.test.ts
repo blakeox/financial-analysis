@@ -175,4 +175,3 @@ describe('EmployeeStockOptionsValuator', () => {
     expect(result.taxAnalysis.options[0].exerciseTax).toBeCloseTo(420, 2);
   });
 });
-

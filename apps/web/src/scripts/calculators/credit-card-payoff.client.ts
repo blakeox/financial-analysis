@@ -1,6 +1,6 @@
 /**
  * Credit Card Payoff Calculator
- * 
+ *
  * Specialized credit card debt calculator with balance transfer analysis,
  * 0% APR offers, utilization impact, and optimization strategies.
  */
@@ -74,25 +74,25 @@ function calculatePayoffStrategy(
   let totalInterest = 0;
   let months = 0;
   const maxMonths = 600; // 50 years cap
-  
+
   while (remainingBalance > 0.01 && months < maxMonths) {
     const interestCharge = remainingBalance * monthlyRate;
     const principalPayment = Math.min(monthlyPayment - interestCharge, remainingBalance);
-    
+
     if (principalPayment <= 0) {
       // Payment doesn't cover interest - debt grows
       months = maxMonths;
       break;
     }
-    
+
     totalInterest += interestCharge;
     remainingBalance -= principalPayment;
     months++;
   }
-  
+
   const utilizationReduction = (balance / balance) * 100; // Will calculate properly with credit limit
   const creditScoreImpact = Math.min(100, months < 24 ? 50 : months < 48 ? 30 : 10);
-  
+
   return {
     name: strategyName,
     monthsToPayoff: months,
@@ -113,39 +113,39 @@ function calculateBalanceTransferStrategy(
   originalRate: number
 ): PayoffStrategy {
   // Add transfer fee to balance
-  const transferBalance = balance + (balance * (transferFee / 100));
+  const transferBalance = balance + balance * (transferFee / 100);
   const promoMonths = promoPeriod;
-  const monthlyPromoRate = (transferAPR / 100) / 12;
-  
+  const monthlyPromoRate = transferAPR / 100 / 12;
+
   let remainingBalance = transferBalance;
   let totalInterest = 0;
   let months = 0;
-  
+
   // During promo period
   for (let month = 0; month < promoMonths && remainingBalance > 0; month++) {
     const interestCharge = remainingBalance * monthlyPromoRate;
     const principalPayment = Math.min(monthlyPayment - interestCharge, remainingBalance);
-    
+
     totalInterest += interestCharge;
     remainingBalance -= principalPayment;
     months++;
   }
-  
+
   // After promo period (reverts to regular rate, typically high)
-  const postPromoRate = Math.max(originalRate, 0.20); // Often 20%+ after promo
+  const postPromoRate = Math.max(originalRate, 0.2); // Often 20%+ after promo
   const monthlyPostPromoRate = postPromoRate / 12;
-  
+
   while (remainingBalance > 0.01 && months < 600) {
     const interestCharge = remainingBalance * monthlyPostPromoRate;
     const principalPayment = Math.min(monthlyPayment - interestCharge, remainingBalance);
-    
+
     if (principalPayment <= 0) break;
-    
+
     totalInterest += interestCharge;
     remainingBalance -= principalPayment;
     months++;
   }
-  
+
   return {
     name: 'Balance Transfer',
     monthsToPayoff: months,
@@ -159,13 +159,10 @@ function calculateBalanceTransferStrategy(
 
 function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
   const annualRate = input.interestRate / 100;
-  
+
   // Minimum payment (typically 2-3% of balance or $25, whichever is greater)
-  const minimumPayment = Math.max(
-    input.balance * (input.minimumPaymentPercent / 100),
-    25
-  );
-  
+  const minimumPayment = Math.max(input.balance * (input.minimumPaymentPercent / 100), 25);
+
   // Strategy 1: Minimum payments only
   const minimumOnly = calculatePayoffStrategy(
     input.balance,
@@ -173,7 +170,7 @@ function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
     minimumPayment,
     'Minimum Payments Only'
   );
-  
+
   // Strategy 2: User's monthly payment
   const currentStrategy = calculatePayoffStrategy(
     input.balance,
@@ -181,7 +178,7 @@ function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
     input.monthlyPayment,
     'Your Current Plan'
   );
-  
+
   // Strategy 3: Aggressive (2x minimum or user payment + 50%)
   const aggressivePayment = Math.max(minimumPayment * 2, input.monthlyPayment * 1.5);
   const aggressiveStrategy = calculatePayoffStrategy(
@@ -190,7 +187,7 @@ function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
     aggressivePayment,
     'Aggressive Payoff'
   );
-  
+
   // Strategy 4: Balance transfer (if offered)
   let balanceTransfer: PayoffStrategy | undefined;
   if (input.balanceTransferOffer) {
@@ -203,32 +200,38 @@ function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
       annualRate
     );
   }
-  
+
   // Credit utilization analysis
   const currentUtilization = (input.balance / input.creditLimit) * 100;
-  const balanceAfter6Months = Math.max(0, input.balance - (input.monthlyPayment * 6 - (input.balance * annualRate / 12 * 6)));
+  const balanceAfter6Months = Math.max(
+    0,
+    input.balance - (input.monthlyPayment * 6 - ((input.balance * annualRate) / 12) * 6)
+  );
   const utilizationAfter6 = (balanceAfter6Months / input.creditLimit) * 100;
-  
+
   let creditScoreImpact = '';
   if (currentUtilization > 70) {
     creditScoreImpact = 'CRITICAL: >70% utilization severely hurts your score. Pay down ASAP.';
   } else if (currentUtilization > 50) {
-    creditScoreImpact = 'HIGH: >50% utilization significantly lowers your score. Prioritize payoff.';
+    creditScoreImpact =
+      'HIGH: >50% utilization significantly lowers your score. Prioritize payoff.';
   } else if (currentUtilization > 30) {
     creditScoreImpact = 'MODERATE: >30% utilization impacts your score. Aim to get below 30%.';
   } else {
     creditScoreImpact = 'GOOD: <30% utilization is healthy for your credit score.';
   }
-  
+
   // Determine best strategy
-  const strategies = [currentStrategy, aggressiveStrategy, balanceTransfer].filter(Boolean) as PayoffStrategy[];
-  const bestStrategy = strategies.reduce((best, current) => 
+  const strategies = [currentStrategy, aggressiveStrategy, balanceTransfer].filter(
+    Boolean
+  ) as PayoffStrategy[];
+  const bestStrategy = strategies.reduce((best, current) =>
     current.totalInterest < best.totalInterest ? current : best
   );
-  
+
   const savings = currentStrategy.totalInterest - bestStrategy.totalInterest;
   const timeSaved = currentStrategy.monthsToPayoff - bestStrategy.monthsToPayoff;
-  
+
   let recommendation = '';
   if (balanceTransfer && bestStrategy.name === 'Balance Transfer') {
     recommendation = `Transfer to 0% APR card and pay off during promo period (${input.transferPromoPeriod} months). Save ${formatCurrency(savings)} in interest! Critical: Pay off before promo ends.`;
@@ -237,7 +240,7 @@ function analyzeCreditCard(input: CreditCardInput): CreditCardResult {
   } else {
     recommendation = `Maintain current payments of ${formatCurrency(input.monthlyPayment)}/month. This is already an aggressive strategy.`;
   }
-  
+
   return {
     currentStrategy,
     aggressiveStrategy,
@@ -272,8 +275,15 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     return;
   }
 
-  const strategies = [result.currentStrategy, result.aggressiveStrategy, result.balanceTransfer, result.minimumOnly].filter(Boolean) as PayoffStrategy[];
-  const bestStrategy = strategies.reduce((best, current) => current.totalInterest < best.totalInterest ? current : best);
+  const strategies = [
+    result.currentStrategy,
+    result.aggressiveStrategy,
+    result.balanceTransfer,
+    result.minimumOnly,
+  ].filter(Boolean) as PayoffStrategy[];
+  const bestStrategy = strategies.reduce((best, current) =>
+    current.totalInterest < best.totalInterest ? current : best
+  );
 
   summaryCards.innerHTML = `
     <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
@@ -304,7 +314,7 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>🎯</span> Recommended Strategy
       </h2>
-      <p class="fa-panel-title text-lg mb-2">${result.recommendation.bestStrategy}</p>
+      <p class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${result.recommendation.bestStrategy}</p>
       <p class="fa-script-copy-strong">${result.recommendation.reasoning}</p>
     </div>
     
@@ -316,26 +326,26 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
       <p class="fa-script-copy-muted mb-4">${result.utilization.creditScoreImpact}</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Current</p>
           <p class="text-3xl font-bold ${result.utilization.current > 50 ? 'text-rose-600 dark:text-rose-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.utilization.current.toFixed(0)}%</p>
           <p class="fa-script-note mt-1">${formatCurrency(input.balance)} / ${formatCurrency(input.creditLimit)}</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">After 6 Months</p>
           <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${result.utilization.after6Months.toFixed(0)}%</p>
           <p class="fa-script-note mt-1">With current payments</p>
         </div>
         
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">After Payoff</p>
           <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">0%</p>
           <p class="fa-script-note mt-1">+50-100 point boost</p>
         </div>
       </div>
       
-      <div class="mt-4 fa-subcard">
+      <div class="mt-4 bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <div class="flex justify-between text-sm mb-2">
           <span class="fa-script-copy-muted">Utilization Progress</span>
           <span class="font-semibold">${result.utilization.current.toFixed(0)}% → 0%</span>
@@ -350,20 +360,21 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     </div>
     
     <!-- Strategy Comparison -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>⚖️</span> Payoff Strategy Comparison
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-${strategies.length} gap-4">
-        ${strategies.map(strategy => {
-          const isBest = strategy.name === bestStrategy.name;
-          const isMinimum = strategy.name === 'Minimum Payments Only';
-          return `
-            <div class="border-2 ${isBest ? 'border-emerald-500' : isMinimum ? 'border-rose-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-4">
+        ${strategies
+          .map((strategy) => {
+            const isBest = strategy.name === bestStrategy.name;
+            const isMinimum = strategy.name === 'Minimum Payments Only';
+            return `
+            <div class="border-2 ${isBest ? 'border-emerald-500' : isMinimum ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700'} rounded-lg p-4">
               ${isBest ? '<div class="fa-chip fa-chip-success mb-3">✓ BEST</div>' : ''}
               ${isMinimum ? '<div class="fa-chip fa-chip-danger mb-3">⚠️ WORST</div>' : ''}
-              <h3 class="text-base fa-list-copy-strong mb-3">${strategy.name}</h3>
+              <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">${strategy.name}</h3>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="fa-script-copy-muted">Monthly Payment</span>
@@ -377,18 +388,21 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
                   <span class="fa-script-copy-muted">Total Interest</span>
                   <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(strategy.totalInterest)}</span>
                 </div>
-                <div class="flex justify-between fa-panel-divider-top pt-2">
-                  <span class="fa-list-copy-strong">Total Paid</span>
+                <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
+                  <span class="text-slate-900 dark:text-white font-medium">Total Paid</span>
                   <span class="font-bold">${formatCurrency(strategy.totalPaid)}</span>
                 </div>
               </div>
             </div>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
     </div>
     
-    ${input.balanceTransferOffer && result.balanceTransfer ? `
+    ${
+      input.balanceTransferOffer && result.balanceTransfer
+        ? `
     <!-- Balance Transfer Analysis -->
     <div class="bg-gradient-to-br from-violet-50 to-pink-50 dark:from-violet-900/20 dark:to-pink-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -397,8 +411,8 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
       <p class="fa-script-copy-muted mb-4">${input.transferAPR === 0 ? '0% APR' : `${input.transferAPR}% APR`} for ${input.transferPromoPeriod} months</p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div class="fa-subcard">
-          <h4 class="fa-list-copy-strong mb-3">Transfer Details</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Transfer Details</h4>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Original Balance</span>
@@ -408,15 +422,15 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
               <span class="fa-script-copy-muted">Transfer Fee (${input.transferFee}%)</span>
               <span class="text-rose-600 dark:text-rose-400">+${formatCurrency(input.balance * (input.transferFee / 100))}</span>
             </div>
-            <div class="flex justify-between fa-panel-divider-top pt-2">
+            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
               <span class="font-medium">New Balance</span>
               <span class="font-semibold">${formatCurrency(input.balance * (1 + input.transferFee / 100))}</span>
             </div>
           </div>
         </div>
         
-        <div class="fa-subcard">
-          <h4 class="fa-list-copy-strong mb-3">Savings vs Current</h4>
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
+          <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Savings vs Current</h4>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Interest Saved</span>
@@ -438,7 +452,9 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
         </p>
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <!-- Minimum Payment Warning -->
     <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-6 border-l-4 border-rose-500">
@@ -458,7 +474,7 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -503,21 +519,23 @@ function initializeCreditCardPayoff(): void {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     hideError();
     showLoading(calculateBtn);
 
     try {
       const input = parseFormInput(form);
       validateInput(input);
-      
+
       const result = analyzeCreditCard(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'credit-card-payoff', result, formData: input },
-      }));
-      
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'credit-card-payoff', result, formData: input },
+        })
+      );
+
       if (typeof gtag !== 'undefined') {
         gtag('event', 'credit_card_calculated', {
           utilization: result.utilization.current,

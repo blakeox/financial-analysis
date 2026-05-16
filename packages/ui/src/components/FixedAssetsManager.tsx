@@ -3,7 +3,7 @@ import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { ValidatedInput, ValidatedNumberInput } from './ValidatedField';
 import { formatCurrency } from '../lib/formatters';
-import { badgeVariants, cardVariants, checkboxClasses, cn, textColors } from '../lib/classNames';
+import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 export interface FixedAssetData {
   id: string;
@@ -24,14 +24,21 @@ type FixedAssetDraft = {
   isActive: boolean;
 };
 
-export function FixedAssetsManager({ assets, onChange, readonly = false }: FixedAssetsManagerProps) {
+export function FixedAssetsManager({
+  assets,
+  onChange,
+  readonly = false,
+}: FixedAssetsManagerProps) {
   const [newAsset, setNewAsset] = useState<FixedAssetDraft>({
     name: '',
     monthlyDepreciation: 0,
     isActive: true,
   });
 
-  const validateName = useCallback((value: string) => (value.trim() ? null : 'Name is required'), []);
+  const validateName = useCallback(
+    (value: string) => (value.trim() ? null : 'Name is required'),
+    []
+  );
   const validateAmount = useCallback((value: number | undefined) => {
     if (value === undefined) {
       return 'Amount is required';
@@ -40,8 +47,8 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
   }, []);
 
   const addAsset = () => {
-  const trimmedName = newAsset.name.trim();
-  if (!trimmedName || typeof newAsset.monthlyDepreciation !== 'number') {
+    const trimmedName = newAsset.name.trim();
+    if (!trimmedName || typeof newAsset.monthlyDepreciation !== 'number') {
       return;
     }
 
@@ -60,7 +67,11 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
     onChange(assets.filter((a) => a.id !== id));
   };
 
-  const updateAsset = <K extends keyof FixedAssetData>(id: string, field: K, value: FixedAssetData[K]) => {
+  const updateAsset = <K extends keyof FixedAssetData>(
+    id: string,
+    field: K,
+    value: FixedAssetData[K]
+  ) => {
     onChange(assets.map((a) => (a.id === id ? { ...a, [field]: value } : a)));
   };
 
@@ -78,17 +89,32 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className={cn(summaryCardBase, 'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-violet-200 bg-violet-50/90 dark:border-violet-900/70 dark:bg-violet-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.accent)}>{assets.length}</div>
             <div className={cn('text-sm', textColors.secondary)}>Assets</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-amber-200 bg-amber-50/90 dark:border-amber-900/70 dark:bg-amber-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.warning)}>
               {formatCurrency(totalMonthlyDepreciation)}
             </div>
             <div className={cn('text-sm', textColors.secondary)}>Monthly Depreciation</div>
           </div>
-          <div className={cn(summaryCardBase, 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30')}>
+          <div
+            className={cn(
+              summaryCardBase,
+              'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/70 dark:bg-emerald-950/30'
+            )}
+          >
             <div className={cn('text-2xl font-bold', textColors.success)}>
               {formatCurrency(totalMonthlyDepreciation * 12)}
             </div>
@@ -100,7 +126,7 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
           {assets.map((asset) => (
             <div
               key={asset.id}
-              className={cn(cardVariants.subtle, 'p-4 shadow-sm')}
+              className="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/85"
             >
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <ValidatedInput
@@ -114,7 +140,9 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
                   label="Monthly Depreciation"
                   type="number"
                   value={asset.monthlyDepreciation}
-                  onValueChange={(value) => updateAsset(asset.id, 'monthlyDepreciation', value ?? 0)}
+                  onValueChange={(value) =>
+                    updateAsset(asset.id, 'monthlyDepreciation', value ?? 0)
+                  }
                   validator={validateAmount}
                   disabled={readonly}
                   min="0"
@@ -126,7 +154,7 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
                       checked={asset.isActive}
                       onChange={(event) => updateAsset(asset.id, 'isActive', event.target.checked)}
                       disabled={readonly}
-                      className={checkboxClasses}
+                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500/40 dark:border-slate-700"
                     />
                     <span
                       className={cn(
@@ -149,8 +177,8 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
         </div>
 
         {!readonly && (
-          <div className={cn(cardVariants.subtle, 'border-2 border-dashed p-5')}>
-            <h4 className={cn('mb-3 font-semibold', textColors.primary)}>Add Fixed Asset</h4>
+          <div className="rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/60">
+            <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">Add Fixed Asset</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <ValidatedInput
                 label="Name"
@@ -176,7 +204,9 @@ export function FixedAssetsManager({ assets, onChange, readonly = false }: Fixed
             <div className="mt-3">
               <Button
                 onClick={addAsset}
-                disabled={!newAsset.name?.trim() || typeof newAsset.monthlyDepreciation !== 'number'}
+                disabled={
+                  !newAsset.name?.trim() || typeof newAsset.monthlyDepreciation !== 'number'
+                }
               >
                 Add Asset
               </Button>

@@ -1,6 +1,10 @@
 name: CI
 
 on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -64,11 +68,22 @@ jobs:
       - name: Check for duplicate files
         run: pnpm run check:duplicates
 
+      - name: Build shared packages
+        run: |
+          pnpm --filter @financial-analysis/analysis run build
+          pnpm --filter @financial-analysis/ui run build
+
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Lint
         run: pnpm lint
+
+      - name: Format check
+        run: pnpm run format:check
+
+      - name: Security audit
+        run: pnpm audit --audit-level moderate
 
       - name: Run unit tests
         run: pnpm test

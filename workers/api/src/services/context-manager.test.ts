@@ -75,16 +75,16 @@ describe('ContextManager', () => {
         {
           url: 'https://example.com/doc1',
           content: 'This is relevant content from the website.',
-          metadata: { title: 'Relevant Doc' }
-        }
+          metadata: { title: 'Relevant Doc' },
+        },
       ],
       source: 'ai-search',
     });
-    
+
     // Setup the mock implementation
-    vi.mocked(DocumentCache).mockImplementation(function() {
+    vi.mocked(DocumentCache).mockImplementation(function () {
       return {
-        searchWithSource: mockSearchWithSource
+        searchWithSource: mockSearchWithSource,
       } as unknown as DocumentCache;
     });
 
@@ -94,7 +94,7 @@ describe('ContextManager', () => {
       message: 'Tell me about the website content',
       contextKey: 'general',
       availableTools: [],
-      enableAutoRAG: true
+      enableAutoRAG: true,
     });
 
     expect(mockSearchWithSource).toHaveBeenCalledWith('Tell me about the website content', 3);
@@ -109,14 +109,14 @@ describe('ContextManager', () => {
     const currentModel = {
       loanAmount: 500000,
       interestRate: 0.05,
-      termMonths: 360
+      termMonths: 360,
     };
 
     const result = await manager.build({
       message: 'Change interest to 6%',
       contextKey: 'general',
       availableTools: [],
-      contextData: { currentModel }
+      contextData: { currentModel },
     });
 
     expect(result.prompt).toContain('Additional Context');
@@ -128,12 +128,12 @@ describe('ContextManager', () => {
   it('includes conversation history in general context', async () => {
     const manager = new ContextManager({} as unknown as DocumentCacheConfig);
     const history = 'User: Hi\nAI: Hello';
-    
+
     const result = await manager.build({
       message: 'How are you?',
       contextKey: 'general',
       availableTools: [],
-      memoryContext: { conversationHistory: history }
+      memoryContext: { conversationHistory: history },
     });
 
     expect(result.prompt).toContain('Previous Conversation:');
@@ -145,7 +145,7 @@ describe('ContextManager', () => {
     const result = await manager.build({
       message: 'Analyze my budget',
       contextKey: 'general',
-      availableTools: []
+      availableTools: [],
     });
 
     // Check full prompt as system prompt splitting might vary
@@ -173,14 +173,14 @@ describe('ContextManager', () => {
     const manager = new ContextManager();
     const negative_constraints = [
       "Do not say 'I can help update the model'",
-      "Do not say 'Try: set interest to'"
+      "Do not say 'Try: set interest to'",
     ];
 
     const result = await manager.build({
       message: 'Hello',
       contextKey: 'general',
       availableTools: [],
-      negative_constraints
+      negative_constraints,
     });
 
     expect(result.systemPrompt).toContain('CRITICAL: NEGATIVE CONSTRAINTS (FORBIDDEN RESPONSES)');

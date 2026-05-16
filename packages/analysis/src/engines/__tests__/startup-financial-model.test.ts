@@ -297,4 +297,3 @@ describe('StartupFinancialModel', () => {
     expect(result.fundingNeeds.totalFundingNeeded).toBe(200000);
   });
 });
-

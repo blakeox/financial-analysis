@@ -1388,7 +1388,8 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
         placeholder: 'IT|Systems integration|0.4|high|Dedicated integration PMO',
         group: 'Integration (Advanced)',
         advancedOnly: true,
-        helpText: 'One per line: Category|Description|Probability(0-1)|Impact(low/medium/high)|Mitigation',
+        helpText:
+          'One per line: Category|Description|Probability(0-1)|Impact(low/medium/high)|Mitigation',
       },
 
       {
@@ -7073,7 +7074,7 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 fa-checkbox">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
       break;
   }
 
@@ -7219,7 +7220,7 @@ function generateFieldHTML(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 fa-checkbox">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
       break;
   }
 

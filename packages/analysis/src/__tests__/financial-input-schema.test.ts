@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { FinancialInputSchema, validateFinancialInput } from '../index.js';
 
-const buildInput = (overrides: Partial<{ principal: number; annualRate: number; termMonths: number; residualValue?: number }> = {}) => ({
+const buildInput = (
+  overrides: Partial<{
+    principal: number;
+    annualRate: number;
+    termMonths: number;
+    residualValue?: number;
+  }> = {}
+) => ({
   principal: 10000,
   annualRate: 0.05,
   termMonths: 60,

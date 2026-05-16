@@ -699,12 +699,9 @@ function getConciseDescription(toolName: string): string {
     analyze_risk_adjusted_returns: 'Calculate Sharpe and Sortino ratios from return series',
     calculate_npv_irr: 'Calculate NPV and IRR with optional sensitivity analysis',
     analyze_break_even: 'Calculate break-even units and revenue given costs and pricing',
-    simulate_investment_monte_carlo:
-      'Deterministic Monte Carlo simulation for investment outcomes',
-    calculate_dividend_reinvestment:
-      'Model investment growth with dividend reinvestment over time',
-    analyze_fx_hedge:
-      'Compute FX forward rates and hedged vs unhedged return impact',
+    simulate_investment_monte_carlo: 'Deterministic Monte Carlo simulation for investment outcomes',
+    calculate_dividend_reinvestment: 'Model investment growth with dividend reinvestment over time',
+    analyze_fx_hedge: 'Compute FX forward rates and hedged vs unhedged return impact',
     calculate_esg_score: 'Compute a basic ESG score and rating',
     analyze_p2p_lending: 'Estimate expected returns for peer-to-peer lending',
     value_carbon_credits: 'Value carbon credits with price growth and discounting',

@@ -32,4 +32,3 @@ export class MonteCarloInvestmentTool {
     return MonteCarloInvestmentSimulator.analyze(validated);
   }
 }
-

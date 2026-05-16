@@ -1,6 +1,6 @@
 import React from 'react';
 import type { InputState } from '../lib/primitiveContracts';
-import { fieldLabelClasses, helperTextClasses, inputClasses, inputStateClasses } from '../lib/classNames';
+import { inputClasses, inputStateClasses } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className={fieldLabelClasses}
+            className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
           >
             {label}
           </label>
@@ -53,7 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'text-sm',
               resolvedState === 'success'
                 ? 'text-emerald-600 dark:text-emerald-300'
-                : helperTextClasses
+                : 'text-slate-500 dark:text-slate-400'
             )}
           >
             {helperText}

@@ -2,7 +2,6 @@ import React, { useEffect, useId, useMemo, useState } from 'react';
 import { cn } from '../lib/utils';
 import { Menu, X, Coffee } from 'lucide-react';
 import { Button } from './Button';
-import { buttonVariants, cardVariants, surfaceDividerClasses, textColors } from '../lib/classNames';
 
 interface NavItem {
   name: string;
@@ -78,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
   return (
     <nav
       className={cn(
-        `supports-backdrop-blur:bg-white/70 border-b ${surfaceDividerClasses} bg-white/80 backdrop-blur dark:bg-slate-950/70`,
+        'supports-backdrop-blur:bg-white/70 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800/60 dark:bg-slate-950/70',
         sticky && 'sticky top-0 z-50',
         scrolled && 'shadow-sm',
         className
@@ -95,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
               aria-label="Home"
               className="inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
             >
-              <Coffee className={cn('h-5 w-5', textColors.primary)} aria-hidden="true" />
+              <Coffee className="h-5 w-5 text-slate-900 dark:text-white" aria-hidden="true" />
             </a>
             {/* Desktop nav (md and up) */}
             <div className="hidden md:flex items-center gap-1 ml-2">
@@ -134,10 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
             <div className="flex md:hidden">
               <button
                 type="button"
-                className={cn(
-                  buttonVariants.outline,
-                  'inline-flex h-10 w-10 items-center justify-center rounded-full px-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70'
-                )}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/70 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70"
                 onClick={() => setMobileMenuOpen((v) => !v)}
                 aria-controls={menuId}
                 aria-expanded={mobileMenuOpen ? 'true' : 'false'}
@@ -159,10 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
       {mobileMenuOpen && (
         <div
           id={menuId}
-          className={cn(
-            cardVariants.rail,
-            'fixed inset-x-0 top-16 bottom-0 z-40 rounded-none border-x-0 border-b-0 p-0 backdrop-blur-sm md:hidden'
-          )}
+          className="fixed inset-x-0 top-16 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95 md:hidden"
           role="region"
           aria-label="Mobile primary navigation"
         >
@@ -189,7 +182,12 @@ export const Navbar: React.FC<NavbarProps> = ({ className, items, currentPath, s
 
             {cta ? (
               <div className="pt-2">
-                <a href={cta.href} aria-label={cta.label} onClick={() => setMobileMenuOpen(false)} className="block">
+                <a
+                  href={cta.href}
+                  aria-label={cta.label}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block"
+                >
                   <Button className="w-full">{cta.label}</Button>
                 </a>
               </div>

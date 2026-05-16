@@ -80,9 +80,7 @@ describe('HELOCAnalyzer', () => {
       /HELOC typically offers lower rates|Personal loan may be simpler/
     );
     expect(result.recommendations).toEqual(
-      expect.arrayContaining([
-        result.personalLoanComparison.comparison.recommendation,
-      ])
+      expect.arrayContaining([result.personalLoanComparison.comparison.recommendation])
     );
   });
 
@@ -97,9 +95,7 @@ describe('HELOCAnalyzer', () => {
 
     expect(result.taxAnalysis.note).toContain('NOT tax-deductible');
     expect(result.recommendations).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('NOT tax-deductible'),
-      ])
+      expect.arrayContaining([expect.stringContaining('NOT tax-deductible')])
     );
   });
 
@@ -130,7 +126,9 @@ describe('HELOCAnalyzer', () => {
       },
     });
 
-    const factors = result.riskAssessment.riskFactors.map((factor: { factor: string }) => factor.factor);
+    const factors = result.riskAssessment.riskFactors.map(
+      (factor: { factor: string }) => factor.factor
+    );
     expect(result.riskAssessment.overallRisk).toBe('high');
     expect(factors).toEqual(
       expect.arrayContaining([
@@ -182,9 +180,9 @@ describe('HELOCAnalyzer', () => {
     expect(result.paymentScenarios).toBeDefined();
     expect(result.paymentScenarios.interestOnly.drawPeriodPayment).toBeGreaterThan(0);
     expect(result.paymentScenarios.amortizing.monthlyPayment).toBeGreaterThan(0);
-    expect(result.paymentScenarios.interestOnlyThenAmortizing.repaymentPeriodPayment).toBeGreaterThan(
-      result.paymentScenarios.interestOnlyThenAmortizing.drawPeriodPayment
-    );
+    expect(
+      result.paymentScenarios.interestOnlyThenAmortizing.repaymentPeriodPayment
+    ).toBeGreaterThan(result.paymentScenarios.interestOnlyThenAmortizing.drawPeriodPayment);
   });
 
   it('recommends cash-out refinancing when HELOC is less favorable', () => {
@@ -207,7 +205,9 @@ describe('HELOCAnalyzer', () => {
     });
 
     expect(result.refinancingComparison).toBeDefined();
-    expect(result.refinancingComparison.comparison.recommendation).toContain('Cash-out refinancing may provide better terms');
+    expect(result.refinancingComparison.comparison.recommendation).toContain(
+      'Cash-out refinancing may provide better terms'
+    );
     expect(result.recommendations).toEqual(
       expect.arrayContaining([
         expect.stringContaining('Cash-out refinancing may provide better terms'),

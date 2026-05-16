@@ -49,41 +49,47 @@ function calculateTCO(
   insuranceMonthly: number = 150,
   maintenanceYearly: number = 1200,
   fuelMpg: number = 25,
-  gasPrice: number = 3.50
+  gasPrice: number = 3.5
 ): TCOCalculation {
   const loanYears = loanTermMonths / 12;
-  
+
   // Loan costs (already calculated)
   const monthlyPayment = toNumber(result.summary.monthlyPayment);
   const totalLoanCost = toNumber(result.summary.totalCost);
   const totalInterest = toNumber(result.summary.totalInterest);
-  
+
   // Insurance (typically $100-$200/month depending on age, location, vehicle)
   const insuranceTotal = insuranceMonthly * loanTermMonths;
-  
+
   // Maintenance (oil changes, tires, brakes, etc. - typically $1,000-$1,500/year)
   const maintenanceMonthly = maintenanceYearly / 12;
   const maintenanceTotal = maintenanceYearly * loanYears;
-  
+
   // Fuel costs
   const milesPerMonth = annualMileage / 12;
   const gallonsPerMonth = milesPerMonth / fuelMpg;
   const fuelMonthly = gallonsPerMonth * gasPrice;
   const fuelTotal = fuelMonthly * loanTermMonths;
-  
+
   // Depreciation (new cars typically lose ~20% first year, ~15% each year after)
   // Use straight-line for simplicity: new cars retain ~40-50% after 5 years
-  const deprecationRate = vehiclePrice > 30000 ? 0.60 : 0.55; // Luxury cars depreciate faster
+  const deprecationRate = vehiclePrice > 30000 ? 0.6 : 0.55; // Luxury cars depreciate faster
   const estimatedResaleValue = vehiclePrice * (1 - deprecationRate * (loanYears / 5));
   const depreciation = Math.max(0, vehiclePrice - estimatedResaleValue);
-  
+
   // Calculate totals
-  const monthlyTCO = monthlyPayment + insuranceMonthly + maintenanceMonthly + fuelMonthly + (depreciation / loanTermMonths);
+  const monthlyTCO =
+    monthlyPayment +
+    insuranceMonthly +
+    maintenanceMonthly +
+    fuelMonthly +
+    depreciation / loanTermMonths;
   const annualTCO = monthlyTCO * 12;
-  const totalOverLoanTerm = totalLoanCost + insuranceTotal + maintenanceTotal + fuelTotal + depreciation;
+  const totalOverLoanTerm =
+    totalLoanCost + insuranceTotal + maintenanceTotal + fuelTotal + depreciation;
   const totalMiles = annualMileage * loanYears;
   const costPerMile = totalOverLoanTerm / totalMiles;
-  
+
   return {
     loanCosts: {
       monthlyPayment,
@@ -109,7 +115,10 @@ const toggleOptionalInput = (checkboxId: string, inputId: string): void => {
   const checkboxElement = document.getElementById(checkboxId);
   const inputElement = document.getElementById(inputId);
 
-  if (!(checkboxElement instanceof HTMLInputElement) || !(inputElement instanceof HTMLInputElement)) {
+  if (
+    !(checkboxElement instanceof HTMLInputElement) ||
+    !(inputElement instanceof HTMLInputElement)
+  ) {
     return;
   }
 
@@ -200,18 +209,19 @@ export const renderAutoLoanResults = (
   }
 
   // Calculate TCO if enabled
-  const tco = enableTCO && vehiclePrice > 0
-    ? calculateTCO(
-        result,
-        vehiclePrice,
-        termMonths,
-        annualMileage ?? 12000,
-        insuranceMonthly ?? 150,
-        maintenanceYearly ?? 1200,
-        fuelMpg ?? 25,
-        gasPrice ?? 3.5
-      )
-    : null;
+  const tco =
+    enableTCO && vehiclePrice > 0
+      ? calculateTCO(
+          result,
+          vehiclePrice,
+          termMonths,
+          annualMileage ?? 12000,
+          insuranceMonthly ?? 150,
+          maintenanceYearly ?? 1200,
+          fuelMpg ?? 25,
+          gasPrice ?? 3.5
+        )
+      : null;
 
   // Render summary cards with TCO
   summaryCards.innerHTML = `
@@ -244,91 +254,91 @@ export const renderAutoLoanResults = (
     Number.parseFloat(costBreakdown.extendedWarranty);
 
   resultsContainer.innerHTML = `
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Cost Breakdown</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Cost Breakdown</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Vehicle Price</span>
-          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.vehiclePrice)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.vehiclePrice)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Down Payment</span>
-          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.downPayment)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.downPayment)}</span>
         </div>
         
         ${
           Number.isFinite(netTradeIn) && netTradeIn !== 0
             ? `
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Trade-in Value</span>
-          <span class="fa-list-copy-strong">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
         </div>
         `
             : ''
         }
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Sales Tax</span>
-          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.salesTax)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.salesTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Fees</span>
-          <span class="fa-list-copy-strong">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="text-slate-700 dark:text-slate-300">Amount Financed</span>
-          <span class="fa-list-copy-strong">${formatCurrency(costBreakdown.amountFinanced)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.amountFinanced)}</span>
         </div>
       </div>
     </div>
 
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">Loan Summary</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Loan Summary</h3>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
             <span class="text-slate-700 dark:text-slate-300">Total Payments</span>
-            <span class="fa-list-copy-strong">${formatCurrency(summary.totalPayments)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.totalPayments)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
             <span class="text-slate-700 dark:text-slate-300">Effective APR</span>
-            <span class="fa-list-copy-strong">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
           </div>
         </div>
         
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
             <span class="text-slate-700 dark:text-slate-300">Loan-to-Value</span>
-            <span class="fa-list-copy-strong">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
           </div>
           
-          <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
             <span class="text-slate-700 dark:text-slate-300">Cost per Mile</span>
-            <span class="fa-list-copy-strong">${formatCurrency(summary.costPerMile)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fa-card p-6">
-      <h3 class="fa-panel-title text-xl mb-6">Early Payoff Scenarios</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Early Payoff Scenarios</h3>
       
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-          <thead class="fa-table-head">
+          <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="fa-help-copy px-4 py-3 text-left uppercase tracking-wider">Payoff Time</th>
-              <th class="fa-help-copy px-4 py-3 text-right uppercase tracking-wider">Remaining Balance</th>
-              <th class="fa-help-copy px-4 py-3 text-right uppercase tracking-wider">Interest Saved</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
             </tr>
           </thead>
-          <tbody class="fa-table-body">
+          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
             ${earlyPayoffScenarios
               .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;

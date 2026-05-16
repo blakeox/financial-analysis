@@ -327,7 +327,8 @@ describe('Journey Analysis', () => {
       expect(analysis.keyMetrics).toHaveLength(3);
       expect(analysis.actionItems).toHaveLength(3);
       const debtToIncome = (
-        (journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome) * 100
+        (journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome) *
+        100
       ).toFixed(1);
       const savingsRatePercent = (journeyData.budget.savingsRate * 100).toFixed(0);
       expect(analysis.keyMetrics[0].value).toBe(`${debtToIncome}%`);
@@ -381,7 +382,8 @@ describe('Journey Analysis', () => {
 
       expect(risks).toHaveLength(3);
       expect(risks[0]).toContain('Low savings rate');
-      const debtToIncome = journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome;
+      const debtToIncome =
+        journeyData['student-loan'].monthlyPayment / journeyData.budget.monthlyIncome;
       expect(debtToIncome).toBeGreaterThan(0.1);
       expect(journeyData.budget.savingsRate).toBeLessThan(0.1);
     });
@@ -559,7 +561,3 @@ describe('Journey Integration Tests', () => {
     expect(resumedJourney.completedSteps).toContain('amortization');
   });
 });
-
-
-
-

@@ -14,14 +14,14 @@ export interface BondMetrics {
   yieldToCall?: number; // For callable bonds
   yieldToWorst?: number; // Worst case yield
   currentYield: number; // Annual coupon / current price
-  
+
   // Duration and convexity
   macaulayDuration: number; // Weighted average time to cash flows
   modifiedDuration: number; // Price sensitivity to yield changes
   dollarDuration: number; // Price change per 1% yield change
   convexity: number; // Second derivative of price/yield relationship
   dv01: number; // Dollar value of 1 basis point (0.01%)
-  
+
   // Return metrics
   totalReturn?: number; // If holding period specified
   holdingPeriodReturn?: number;
@@ -75,31 +75,31 @@ export interface BondPricingResult {
   bondType: string;
   faceValue: number;
   couponRate: number;
-  
+
   // Timing
   issueDate: string;
   maturityDate: string;
   settlementDate: string;
   yearsToMaturity: number;
   remainingPayments: number;
-  
+
   // Pricing and metrics
   metrics: BondMetrics;
-  
+
   // Cash flow schedule
   couponSchedule: CouponPayment[];
-  
+
   // Analysis components
   sensitivityAnalysis: SensitivityAnalysis;
   riskMetrics: RiskMetrics;
   taxAdjustedMetrics?: TaxAdjustedMetrics;
   callAnalysis?: CallAnalysis;
   convertibleAnalysis?: ConvertibleAnalysis;
-  
+
   // Insights and recommendations
   insights: string[];
   recommendation: 'Strong Buy' | 'Buy' | 'Hold' | 'Sell' | 'Strong Sell';
-  
+
   // Additional metadata
   calculationDate: string;
   assumptions: string[];

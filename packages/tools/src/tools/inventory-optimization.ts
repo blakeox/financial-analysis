@@ -36,15 +36,37 @@ export class InventoryOptimizationTool {
       costs: {
         type: 'object',
         properties: {
-          orderingCost: { type: 'number', minimum: 0, default: 50, description: 'Ordering cost per order' },
-          holdingCostRate: { type: 'number', minimum: 0, maximum: 1, default: 0.2, description: 'Annual holding cost rate' },
-          stockoutCost: { type: 'number', minimum: 0, default: 0, description: 'Stockout cost per unit' },
+          orderingCost: {
+            type: 'number',
+            minimum: 0,
+            default: 50,
+            description: 'Ordering cost per order',
+          },
+          holdingCostRate: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.2,
+            description: 'Annual holding cost rate',
+          },
+          stockoutCost: {
+            type: 'number',
+            minimum: 0,
+            default: 0,
+            description: 'Stockout cost per unit',
+          },
         },
       },
       serviceLevel: {
         type: 'object',
         properties: {
-          targetServiceLevel: { type: 'number', minimum: 0, maximum: 1, default: 0.95, description: 'Target service level' },
+          targetServiceLevel: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.95,
+            description: 'Target service level',
+          },
         },
       },
       analysis: {
@@ -52,9 +74,21 @@ export class InventoryOptimizationTool {
         properties: {
           includeEOQ: { type: 'boolean', default: true, description: 'Include EOQ analysis' },
           includeABC: { type: 'boolean', default: true, description: 'Include ABC analysis' },
-          includeSafetyStock: { type: 'boolean', default: true, description: 'Include safety stock' },
-          includeReorderPoint: { type: 'boolean', default: true, description: 'Include reorder point' },
-          includeTotalCostAnalysis: { type: 'boolean', default: true, description: 'Include total cost analysis' },
+          includeSafetyStock: {
+            type: 'boolean',
+            default: true,
+            description: 'Include safety stock',
+          },
+          includeReorderPoint: {
+            type: 'boolean',
+            default: true,
+            description: 'Include reorder point',
+          },
+          includeTotalCostAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include total cost analysis',
+          },
         },
       },
     },
@@ -66,5 +100,3 @@ export class InventoryOptimizationTool {
     return InventoryOptimizer.analyze(validated);
   }
 }
-
-

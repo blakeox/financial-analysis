@@ -25,7 +25,9 @@ export class CarbonCreditValuationCalculator {
     const futureValue = new Decimal(input.tonnesCO2e).times(futurePricePerTonne).toNumber();
 
     const discountFactor = new Decimal(1).plus(input.discountRate).pow(input.yearsUntilSale);
-    const presentValue = discountFactor.gt(0) ? new Decimal(futureValue).div(discountFactor).toNumber() : Number.NaN;
+    const presentValue = discountFactor.gt(0)
+      ? new Decimal(futureValue).div(discountFactor).toNumber()
+      : Number.NaN;
 
     return {
       tonnesCO2e: input.tonnesCO2e,
@@ -40,4 +42,3 @@ export class CarbonCreditValuationCalculator {
     };
   }
 }
-

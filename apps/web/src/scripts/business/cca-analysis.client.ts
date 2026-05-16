@@ -34,7 +34,7 @@ class CCAnalysisCalculator {
 
     const newPeer = document.createElement('div');
     newPeer.className =
-      'grid grid-cols-1 md:grid-cols-6 gap-4 p-4 fa-surface-muted rounded-lg';
+      'grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     newPeer.innerHTML = `
       <div>
         <label class="fa-field-label mb-2">Name</label>
@@ -215,7 +215,7 @@ class CCAnalysisCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="fa-panel-title text-lg mb-2">CCA Analysis Complete</h3>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">CCA Analysis Complete</h3>
           <p class="text-slate-700 dark:text-slate-300">
             Your comparable company analysis is complete. Use the AI assistant to get detailed recommendations and valuation insights.
           </p>

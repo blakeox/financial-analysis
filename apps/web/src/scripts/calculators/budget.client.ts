@@ -40,16 +40,18 @@ function calculateEmergencyFundProgress(
   const percentComplete = (currentAmount / targetAmount) * 100;
   const remaining = Math.max(0, targetAmount - currentAmount);
   const monthsToComplete = monthlySavings > 0 ? Math.ceil(remaining / monthlySavings) : Infinity;
-  
+
   let status: EmergencyFundProgress['status'] = 'none';
   let recommendation = '';
-  
+
   if (monthsOfExpenses === 0) {
     status = 'none';
-    recommendation = 'Start building your emergency fund! Aim for at least 1 month of expenses first.';
+    recommendation =
+      'Start building your emergency fund! Aim for at least 1 month of expenses first.';
   } else if (monthsOfExpenses < 1) {
     status = 'starter';
-    recommendation = 'Good start! Continue building toward 3-6 months of expenses for full protection.';
+    recommendation =
+      'Good start! Continue building toward 3-6 months of expenses for full protection.';
   } else if (monthsOfExpenses < 3) {
     status = 'partial';
     recommendation = 'Making progress! Aim for at least 3 months to cover most emergencies.';
@@ -58,12 +60,14 @@ function calculateEmergencyFundProgress(
     recommendation = `Almost there! ${(targetMonths - monthsOfExpenses).toFixed(1)} more months to reach your ${targetMonths}-month goal.`;
   } else if (monthsOfExpenses >= targetMonths && monthsOfExpenses < targetMonths + 3) {
     status = 'complete';
-    recommendation = 'Excellent! You have a solid emergency fund. Consider investing excess savings.';
+    recommendation =
+      'Excellent! You have a solid emergency fund. Consider investing excess savings.';
   } else {
     status = 'excess';
-    recommendation = 'Your emergency fund is well-funded! Consider investing excess funds for growth.';
+    recommendation =
+      'Your emergency fund is well-funded! Consider investing excess funds for growth.';
   }
-  
+
   return {
     currentAmount,
     targetAmount,
@@ -103,7 +107,11 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
   // Calculate emergency fund progress
   const monthlyExpenses = parseFloat(result.expenseSummary.totalMonthlyExpenses || '0');
   const monthlySavings = parseFloat(result.metrics.monthlyNetIncome || '0');
-  const emergencyFund = calculateEmergencyFundProgress(emergencyFundAmount, monthlyExpenses, monthlySavings);
+  const emergencyFund = calculateEmergencyFundProgress(
+    emergencyFundAmount,
+    monthlyExpenses,
+    monthlySavings
+  );
 
   // Render summary cards with emergency fund
   summaryCards.innerHTML = `
@@ -139,27 +147,27 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       <p class="fa-script-copy-muted mb-4">${emergencyFund.recommendation}</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Current Fund</p>
-          <p class="fa-panel-title text-2xl">${formatCurrency(emergencyFund.currentAmount)}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(emergencyFund.currentAmount)}</p>
           <p class="fa-script-note mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months</p>
         </div>
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Target Fund</p>
-          <p class="fa-panel-title text-2xl">${formatCurrency(emergencyFund.targetAmount)}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(emergencyFund.targetAmount)}</p>
           <p class="fa-script-note mt-1">${emergencyFund.targetMonths} months</p>
         </div>
-        <div class="fa-subcard">
+        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Time to Complete</p>
-          <p class="fa-panel-title text-2xl">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${emergencyFund.monthsToComplete === Infinity ? 'N/A' : `${emergencyFund.monthsToComplete} mo`}</p>
           <p class="fa-script-note mt-1">At current savings</p>
         </div>
       </div>
       
-      <div class="fa-subcard">
+      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
         <div class="flex justify-between text-sm mb-2">
           <span class="fa-script-copy-muted">Progress</span>
-          <span class="fa-list-copy-strong">${emergencyFund.percentComplete.toFixed(1)}%</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${emergencyFund.percentComplete.toFixed(1)}%</span>
         </div>
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
           <div class="bg-linear-to-r from-emerald-500 to-emerald-500 h-4 rounded-full transition-all duration-500" style="width: ${emergencyFund.percentComplete}%"></div>
@@ -172,47 +180,47 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
       </div>
     </div>
     
-    <div class="fa-card p-6 mb-8">
-      <h3 class="fa-panel-title text-xl mb-6">50/30/20 Budget Analysis</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">50/30/20 Budget Analysis</h3>
       
       <div class="space-y-4">
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Needs (50%)</span>
             <p class="fa-script-copy-subtle">Housing, utilities, food, transportation</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(needs.current)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(needs.current)}</span>
             <p class="text-sm ${needs.currentPercent > needs.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(needs.currentPercent)} vs ${formatPercent(needs.recommendedPercent)} target</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Wants (30%)</span>
             <p class="fa-script-copy-subtle">Entertainment, dining, hobbies</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(wants.current)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(wants.current)}</span>
             <p class="text-sm ${wants.currentPercent > wants.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(wants.currentPercent)} vs ${formatPercent(wants.recommendedPercent)} target</p>
           </div>
         </div>
         
-        <div class="flex justify-between items-center py-3 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label font-medium">Savings (20%)</span>
             <p class="fa-script-copy-subtle">Emergency fund, retirement, investments</p>
           </div>
           <div class="text-right">
-            <span class="fa-list-copy-strong">${formatCurrency(savings.current)}</span>
+            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(savings.current)}</span>
             <p class="text-sm ${savings.currentPercent < savings.recommendedPercent ? 'text-rose-600' : 'text-emerald-600'}">${formatPercent(savings.currentPercent)} vs ${formatPercent(savings.recommendedPercent)} target</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fa-card p-6">
-      <h3 class="fa-panel-title text-xl mb-6">Recommendations</h3>
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
       
       <ul class="space-y-3">
         ${result.recommendations

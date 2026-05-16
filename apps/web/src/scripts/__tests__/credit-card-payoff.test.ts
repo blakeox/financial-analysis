@@ -49,7 +49,7 @@ describe('Credit Card Payoff Calculator', () => {
       const minimumPercent = 2;
       const minimum = balance * (minimumPercent / 100);
       const tooLow = minimum - 1;
-      
+
       expect(tooLow).toBeLessThan(minimum);
     });
 
@@ -64,7 +64,7 @@ describe('Credit Card Payoff Calculator', () => {
       const highBalance = 5000;
       const minimum1 = Math.max(highBalance * 0.02, 25);
       expect(minimum1).toBe(100);
-      
+
       const lowBalance = 500;
       const minimum2 = Math.max(lowBalance * 0.02, 25);
       expect(minimum2).toBe(25); // Floor of $25
@@ -74,21 +74,21 @@ describe('Credit Card Payoff Calculator', () => {
       // $5000 at 18.99% APR with only 2% minimum payment
       const balance = 5000;
       const rate = 0.1899 / 12;
-      
+
       let remaining = balance;
       let months = 0;
-      
+
       while (remaining > 1 && months < 600) {
         const minimum = Math.max(remaining * 0.02, 25);
         const interest = remaining * rate;
         const principal = minimum - interest;
-        
+
         if (principal <= 0) break; // Payment doesn't cover interest
-        
+
         remaining -= principal;
         months++;
       }
-      
+
       // Should take many years (typically 15-30 years for minimum payments)
       expect(months).toBeGreaterThan(150); // More than 12 years
     });
@@ -96,23 +96,23 @@ describe('Credit Card Payoff Calculator', () => {
     it('should calculate total interest for minimum-only payments', () => {
       const balance = 5000;
       const rate = 0.1899 / 12;
-      
+
       let remaining = balance;
       let totalInterest = 0;
       let months = 0;
-      
+
       while (remaining > 1 && months < 600) {
         const minimum = Math.max(remaining * 0.02, 25);
         const interest = remaining * rate;
         const principal = minimum - interest;
-        
+
         if (principal <= 0) break;
-        
+
         totalInterest += interest;
         remaining -= principal;
         months++;
       }
-      
+
       // Interest paid should be MUCH higher than original balance
       expect(totalInterest).toBeGreaterThan(balance);
       expect(totalInterest / balance).toBeGreaterThan(1); // More than 100% of original balance!
@@ -124,17 +124,17 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 5000;
       const rate = 0.1899 / 12;
       const aggressivePayment = 400;
-      
+
       let remaining = balance;
       let months = 0;
-      
+
       while (remaining > 0.01) {
         const interest = remaining * rate;
         const principal = aggressivePayment - interest;
         remaining -= principal;
         months++;
       }
-      
+
       // Should pay off in ~14-15 months
       expect(months).toBeLessThan(20);
       expect(months).toBeGreaterThan(12);
@@ -143,7 +143,7 @@ describe('Credit Card Payoff Calculator', () => {
     it('should save significant interest with aggressive payments', () => {
       const balance = 5000;
       const rate = 0.1899 / 12;
-      
+
       // Minimum payments
       let minBalance = balance;
       let minInterest = 0;
@@ -155,7 +155,7 @@ describe('Credit Card Payoff Calculator', () => {
         minInterest += interest;
         minBalance -= principal;
       }
-      
+
       // Aggressive payments
       let aggBalance = balance;
       let aggInterest = 0;
@@ -165,7 +165,7 @@ describe('Credit Card Payoff Calculator', () => {
         aggInterest += interest;
         aggBalance -= principal;
       }
-      
+
       // Aggressive should save thousands
       expect(minInterest - aggInterest).toBeGreaterThan(3000);
     });
@@ -176,7 +176,7 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 5000;
       const transferFee = 3; // 3%
       const feeAmount = balance * (transferFee / 100);
-      
+
       expect(feeAmount).toBe(150);
     });
 
@@ -184,7 +184,7 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 5000;
       const transferFee = 150;
       const newBalance = balance + transferFee;
-      
+
       expect(newBalance).toBe(5150);
     });
 
@@ -194,7 +194,7 @@ describe('Credit Card Payoff Calculator', () => {
       const promoRate = 0; // 0% APR
       const months = 12;
       const monthlyPayment = 450;
-      
+
       // Original card interest
       let origBalance = balance;
       let origInterest = 0;
@@ -204,7 +204,7 @@ describe('Credit Card Payoff Calculator', () => {
         origInterest += interest;
         origBalance -= principal;
       }
-      
+
       // Transfer card interest (0%)
       let transferBalance = balance + 150; // Include fee
       let transferInterest = 0;
@@ -214,7 +214,7 @@ describe('Credit Card Payoff Calculator', () => {
         transferInterest += interest;
         transferBalance -= principal;
       }
-      
+
       // Should save all the interest (minus transfer fee)
       const netSavings = origInterest - transferInterest - 150;
       expect(netSavings).toBeGreaterThan(0);
@@ -225,11 +225,11 @@ describe('Credit Card Payoff Calculator', () => {
       const promoMonths = 12;
       const monthlyPayment = 300;
       const transferBalance = 5150;
-      
+
       // Amount paid off during promo
       const paidDuringPromo = monthlyPayment * promoMonths;
       const remainingAfterPromo = transferBalance - paidDuringPromo;
-      
+
       if (remainingAfterPromo > 0) {
         // Remaining balance will be charged at high rate (often 20%+)
         expect(remainingAfterPromo).toBeGreaterThan(0);
@@ -240,7 +240,7 @@ describe('Credit Card Payoff Calculator', () => {
       const transferBalance = 5150;
       const promoMonths = 12;
       const requiredPayment = transferBalance / promoMonths;
-      
+
       expect(requiredPayment).toBeCloseTo(429.17, 2);
     });
   });
@@ -250,7 +250,7 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 5000;
       const creditLimit = 10000;
       const utilization = (balance / creditLimit) * 100;
-      
+
       expect(utilization).toBe(50);
     });
 
@@ -269,10 +269,10 @@ describe('Credit Card Payoff Calculator', () => {
       const initialBalance = 5000;
       const creditLimit = 10000;
       const initialUtil = (initialBalance / creditLimit) * 100;
-      
+
       const afterPayment = 3000;
       const newUtil = (afterPayment / creditLimit) * 100;
-      
+
       expect(newUtil).toBeLessThan(initialUtil);
       expect(initialUtil).toBe(50);
       expect(newUtil).toBe(30);
@@ -282,7 +282,7 @@ describe('Credit Card Payoff Calculator', () => {
       // Dropping from 70% to 30% utilization can improve score by 50-100 points
       const utilizationDrop = 70 - 30; // 40 percentage points
       const estimatedImprovement = utilizationDrop * 2; // Rough estimate: 2 points per %
-      
+
       expect(estimatedImprovement).toBeGreaterThan(50);
       expect(estimatedImprovement).toBeLessThan(100);
     });
@@ -296,7 +296,7 @@ describe('Credit Card Payoff Calculator', () => {
       const aggressive = 400;
       const monthsAggressive = Math.ceil(balance / aggressive);
       const monthsMinimum = Math.ceil(balance / minimum);
-      
+
       expect(aggressive).toBeGreaterThan(current);
       expect(current).toBeGreaterThan(minimum);
       expect(monthsAggressive).toBeLessThan(monthsMinimum);
@@ -307,9 +307,9 @@ describe('Credit Card Payoff Calculator', () => {
       const minInterest = 8000; // Minimum payments
       const currentInterest = 1500; // Current payments
       const aggressiveInterest = 600; // Aggressive payments
-      
+
       const bestInterest = Math.min(minInterest, currentInterest, aggressiveInterest);
-      
+
       expect(bestInterest).toBe(aggressiveInterest);
     });
 
@@ -318,9 +318,9 @@ describe('Credit Card Payoff Calculator', () => {
       const transferFee = 150;
       const transferInterest = 0; // 0% APR
       const transferTotal = transferFee + transferInterest;
-      
+
       const savings = originalInterest - transferTotal;
-      
+
       expect(savings).toBe(1350);
       expect(savings).toBeGreaterThan(0);
     });
@@ -332,11 +332,11 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 8000;
       const rate = 0.21 / 12;
       const payment = 300;
-      
+
       let remaining = balance;
       let months = 0;
       let totalInterest = 0;
-      
+
       while (remaining > 0.01 && months < 100) {
         const interest = remaining * rate;
         const principal = payment - interest;
@@ -344,11 +344,11 @@ describe('Credit Card Payoff Calculator', () => {
         remaining -= principal;
         months++;
       }
-      
+
       // Should pay off in ~32-35 months
       expect(months).toBeGreaterThan(30);
       expect(months).toBeLessThan(40);
-      
+
       // Interest should be ~$2,000-$2,500
       expect(totalInterest).toBeGreaterThan(1800);
       expect(totalInterest).toBeLessThan(3000);
@@ -359,10 +359,10 @@ describe('Credit Card Payoff Calculator', () => {
       const balance = 5000;
       const fee = balance * 0.03;
       const newBalance = balance + fee;
-      
+
       expect(fee).toBe(150);
       expect(newBalance).toBe(5150);
-      
+
       // Must pay off in 12 months to avoid rate jump
       const requiredMonthly = newBalance / 12;
       expect(requiredMonthly).toBeCloseTo(429, 0);
@@ -379,4 +379,3 @@ function validateInput(input: CreditCardInput): void {
     throw new Error('Monthly payment must be at least the minimum');
   }
 }
-

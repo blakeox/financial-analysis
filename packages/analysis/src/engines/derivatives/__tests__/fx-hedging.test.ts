@@ -34,4 +34,3 @@ describe('FXHedgingAnalyzer', () => {
     expect(result.unhedgedReturn).toBeUndefined();
   });
 });
-

@@ -232,9 +232,7 @@ describe('StudentLoanAnalyzer', () => {
 
       expect(result.refinancingAnalysis!.warnings).toBeDefined();
       expect(result.refinancingAnalysis!.warnings.length).toBeGreaterThan(0);
-      expect(
-        result.refinancingAnalysis!.warnings.some((w) => w.includes('federal'))
-      ).toBe(true);
+      expect(result.refinancingAnalysis!.warnings.some((w) => w.includes('federal'))).toBe(true);
     });
 
     it('should recommend against higher rate refinancing', () => {
@@ -275,27 +273,21 @@ describe('StudentLoanAnalyzer', () => {
       const input = createBasicInput({ extraMonthlyPayment: 0 });
       const result = analyze(input);
 
-      expect(
-        result.recommendations.some((r) => r.toLowerCase().includes('extra'))
-      ).toBe(true);
+      expect(result.recommendations.some((r) => r.toLowerCase().includes('extra'))).toBe(true);
     });
 
     it('should explain avalanche method', () => {
       const input = createBasicInput({ paymentStrategy: 'avalanche' });
       const result = analyze(input);
 
-      expect(
-        result.recommendations.some((r) => r.toLowerCase().includes('avalanche'))
-      ).toBe(true);
+      expect(result.recommendations.some((r) => r.toLowerCase().includes('avalanche'))).toBe(true);
     });
 
     it('should explain snowball method', () => {
       const input = createBasicInput({ paymentStrategy: 'snowball' });
       const result = analyze(input);
 
-      expect(
-        result.recommendations.some((r) => r.toLowerCase().includes('snowball'))
-      ).toBe(true);
+      expect(result.recommendations.some((r) => r.toLowerCase().includes('snowball'))).toBe(true);
     });
 
     it('should recommend IDR for federal loans', () => {

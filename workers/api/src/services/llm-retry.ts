@@ -14,16 +14,8 @@ export class LLMRetryHandler {
   /**
    * Execute operation with retry logic
    */
-  async callWithRetry<T>(
-    operation: () => Promise<T>,
-    options: RetryOptions = {}
-  ): Promise<T> {
-    const {
-      maxRetries = 3,
-      backoffMs = 1000,
-      onRetry,
-      shouldRetry = () => true,
-    } = options;
+  async callWithRetry<T>(operation: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
+    const { maxRetries = 3, backoffMs = 1000, onRetry, shouldRetry = () => true } = options;
 
     let lastError: Error;
 
@@ -46,7 +38,7 @@ export class LLMRetryHandler {
 
         // Calculate backoff delay (exponential)
         const delay = backoffMs * Math.pow(2, attempt);
-        
+
         // Wait before retry
         await new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -82,13 +74,7 @@ export class LLMRetryHandler {
    * Determine if error is a validation error (not retriable)
    */
   static isValidationError(error: Error): boolean {
-    const validationPatterns = [
-      /invalid/i,
-      /validation/i,
-      /schema/i,
-      /malformed/i,
-      /parse/i,
-    ];
+    const validationPatterns = [/invalid/i, /validation/i, /schema/i, /malformed/i, /parse/i];
 
     const message = error.message.toLowerCase();
     return validationPatterns.some((pattern) => pattern.test(message));
@@ -107,11 +93,3 @@ export function defaultShouldRetry(error: Error): boolean {
   // Retry network/timeout errors
   return LLMRetryHandler.isRetriableError(error);
 }
-
-
-
-
-
-
-
-

@@ -193,7 +193,9 @@ describe('CollegeSavingsPlanner', () => {
 
       const result = CollegeSavingsPlanner.analyze(input);
 
-      expect(result.costProjections[0].totalCost).toBeGreaterThan(result.costProjections[1].totalCost);
+      expect(result.costProjections[0].totalCost).toBeGreaterThan(
+        result.costProjections[1].totalCost
+      );
     });
   });
 
@@ -391,7 +393,9 @@ describe('CollegeSavingsPlanner', () => {
       const result = CollegeSavingsPlanner.analyze(input);
 
       if (result.summary.savingsGap > 0) {
-        expect(result.recommendations.some((r) => r.includes('Increase monthly contributions'))).toBe(true);
+        expect(
+          result.recommendations.some((r) => r.includes('Increase monthly contributions'))
+        ).toBe(true);
       }
     });
 

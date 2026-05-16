@@ -2,7 +2,10 @@
  * Revenue Recognition MCP Tool
  */
 
-import { RevenueRecognitionInputSchema, RevenueRecognitionCalculator } from '@financial-analysis/analysis';
+import {
+  RevenueRecognitionInputSchema,
+  RevenueRecognitionCalculator,
+} from '@financial-analysis/analysis';
 
 export class RevenueRecognitionTool {
   static readonly toolName = 'analyze_revenue_recognition';
@@ -45,7 +48,11 @@ export class RevenueRecognitionTool {
                 type: 'object',
                 properties: {
                   obligationId: { type: 'string', description: 'Obligation ID' },
-                  standaloneSellingPrice: { type: 'number', minimum: 0, description: 'Standalone selling price' },
+                  standaloneSellingPrice: {
+                    type: 'number',
+                    minimum: 0,
+                    description: 'Standalone selling price',
+                  },
                   fulfillmentMethod: {
                     type: 'string',
                     enum: ['over-time', 'point-in-time'],
@@ -58,22 +65,55 @@ export class RevenueRecognitionTool {
             paymentTerms: {
               type: 'object',
               properties: {
-                upfrontPayment: { type: 'number', minimum: 0, default: 0, description: 'Upfront payment' },
+                upfrontPayment: {
+                  type: 'number',
+                  minimum: 0,
+                  default: 0,
+                  description: 'Upfront payment',
+                },
               },
             },
           },
-          required: ['contractId', 'contractValue', 'contractStartDate', 'contractEndDate', 'performanceObligations'],
+          required: [
+            'contractId',
+            'contractValue',
+            'contractStartDate',
+            'contractEndDate',
+            'performanceObligations',
+          ],
         },
         minItems: 1,
       },
       analysis: {
         type: 'object',
         properties: {
-          includeRevenueSchedule: { type: 'boolean', default: true, description: 'Include revenue schedule' },
-          includeDeferredRevenue: { type: 'boolean', default: true, description: 'Include deferred revenue' },
-          includeContractAssetAnalysis: { type: 'boolean', default: true, description: 'Include contract asset analysis' },
-          includeComplianceCheck: { type: 'boolean', default: true, description: 'Include compliance check' },
-          projectionPeriod: { type: 'number', minimum: 1, maximum: 10, default: 5, description: 'Projection period (years)' },
+          includeRevenueSchedule: {
+            type: 'boolean',
+            default: true,
+            description: 'Include revenue schedule',
+          },
+          includeDeferredRevenue: {
+            type: 'boolean',
+            default: true,
+            description: 'Include deferred revenue',
+          },
+          includeContractAssetAnalysis: {
+            type: 'boolean',
+            default: true,
+            description: 'Include contract asset analysis',
+          },
+          includeComplianceCheck: {
+            type: 'boolean',
+            default: true,
+            description: 'Include compliance check',
+          },
+          projectionPeriod: {
+            type: 'number',
+            minimum: 1,
+            maximum: 10,
+            default: 5,
+            description: 'Projection period (years)',
+          },
         },
         required: ['projectionPeriod'],
       },
@@ -86,5 +126,3 @@ export class RevenueRecognitionTool {
     return RevenueRecognitionCalculator.analyze(validated);
   }
 }
-
-

@@ -6,16 +6,16 @@ import { test, expect } from '@playwright/test';
 test.describe('Amortization (dev proxy toggle)', () => {
   test('Monthly/Yearly toggle updates chart view', async ({ page }) => {
     await page.goto('/analysis');
-    
+
     // Wait for form to be ready
     await expect(page.locator('#analysis-form')).toBeVisible();
-    
+
     // Fill and submit form
     await page.fill('#principal', '100000');
     await page.fill('#annualRate', '5');
     await page.fill('#termMonths', '360');
     await page.click('#analyze-btn');
-    
+
     // Verify results appear
     const results = page.locator('#results-section');
     await expect(results).toBeVisible({ timeout: 10000 });

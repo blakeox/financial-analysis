@@ -72,7 +72,8 @@ class JourneyAnalysisManager {
 
     const completedSteps = this.analysisData.completedSteps.length;
     const totalSteps = Object.keys(this.analysisData.journeyData).length;
-    const completionPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+    const completionPercentage =
+      totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
     summaryContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -90,7 +91,7 @@ class JourneyAnalysisManager {
         </div>
       </div>
       
-      <div class="mt-4 p-4 fa-table-head rounded-lg">
+      <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
         <h4 class="fa-script-title-sm mb-2">Completed Steps:</h4>
         <div class="flex flex-wrap gap-2">
           ${this.analysisData.completedSteps
@@ -211,7 +212,7 @@ class JourneyAnalysisManager {
         </div>
         
         <div class="space-y-4">
-          <h4 class="fa-list-copy-strong">Key Recommendations</h4>
+          <h4 class="font-semibold text-slate-900 dark:text-white">Key Recommendations</h4>
           <ul class="space-y-2">
             ${analysis.recommendations
               .map(
@@ -241,7 +242,7 @@ class JourneyAnalysisManager {
         ${analysis.insights
           .map(
             (insight) => `
-          <div class="p-4 fa-table-head rounded-lg">
+          <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
             <div class="flex items-start">
               <div class="shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center text-sm font-medium mr-3">
                 💡
@@ -268,10 +269,10 @@ class JourneyAnalysisManager {
         ${analysis.keyMetrics
           .map(
             (metric) => `
-          <div class="flex justify-between items-center p-3 fa-table-head rounded-lg">
+          <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
             <span class="text-sm font-medium text-slate-700 dark:text-slate-300">${metric.label}</span>
             <div class="flex items-center space-x-2">
-              <span class="fa-list-copy-strong">${metric.value}</span>
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">${metric.value}</span>
               ${
                 metric.trend
                   ? `
@@ -318,7 +319,7 @@ class JourneyAnalysisManager {
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <p class="fa-script-title-sm">${item.task}</p>
-                <p class="fa-meta-copy mt-1">Timeline: ${item.timeline}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Timeline: ${item.timeline}</p>
               </div>
               <span class="text-xs px-2 py-1 rounded-full ${
                 item.priority === 'high'

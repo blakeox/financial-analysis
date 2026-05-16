@@ -201,14 +201,19 @@ export function highlightFieldChange(
   field.classList.add('ai-modified-field');
 
   // Create AI indicator badge with error state if validation failed
-  const container = (field.closest('.field-container') as HTMLElement | null) || field.parentElement;
+  const container =
+    (field.closest('.field-container') as HTMLElement | null) || field.parentElement;
   if (container && showBadge && !container.querySelector('.ai-indicator')) {
     const badge = document.createElement('div');
-    badge.className = isValid ? 'ai-indicator' : 'ai-indicator ai-indicator-warning';
+    badge.className = 'ai-indicator';
     badge.textContent = isValid ? badgeText : 'AI ⚠️';
     badge.title = isValid
       ? 'This field was modified by AI'
       : 'This field was modified by AI (validation warning)';
+
+    if (!isValid) {
+      badge.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+    }
 
     container.style.position = 'relative';
     container.appendChild(badge);

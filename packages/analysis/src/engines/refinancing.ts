@@ -34,10 +34,7 @@ export class RefinancingCalculator {
     const currentRemainingPayments = this.calculateRemainingPayments(currentMortgage);
 
     // Calculate total interest comparison
-    const interestComparison = this.compareInterestCosts(
-      currentMortgage,
-      newPayment
-    );
+    const interestComparison = this.compareInterestCosts(currentMortgage, newPayment);
 
     // Break-even analysis
     const breakEvenAnalysis = goals.includeBreakEvenAnalysis

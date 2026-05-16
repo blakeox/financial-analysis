@@ -53,7 +53,12 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
     it('turns negative when inflows never cover the investment', () => {
       const input = createCoreInput({
         cashFlows: [
-          { period: 0, cashFlow: -100000, category: 'capital-expenditure', inflationAdjusted: false },
+          {
+            period: 0,
+            cashFlow: -100000,
+            category: 'capital-expenditure',
+            inflationAdjusted: false,
+          },
           { period: 1, cashFlow: 12000, category: 'revenue', inflationAdjusted: false },
           { period: 2, cashFlow: 12000, category: 'revenue', inflationAdjusted: false },
           { period: 3, cashFlow: 12000, category: 'revenue', inflationAdjusted: false },
@@ -98,9 +103,24 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
       const result = CashFlowAnalyzer.analyze(
         createCoreInput({
           cashFlows: [
-            { period: 0, cashFlow: -50000, category: 'capital-expenditure', inflationAdjusted: false },
-            { period: 1, cashFlow: -10000, category: 'operating-expense', inflationAdjusted: false },
-            { period: 2, cashFlow: -10000, category: 'operating-expense', inflationAdjusted: false },
+            {
+              period: 0,
+              cashFlow: -50000,
+              category: 'capital-expenditure',
+              inflationAdjusted: false,
+            },
+            {
+              period: 1,
+              cashFlow: -10000,
+              category: 'operating-expense',
+              inflationAdjusted: false,
+            },
+            {
+              period: 2,
+              cashFlow: -10000,
+              category: 'operating-expense',
+              inflationAdjusted: false,
+            },
           ],
         })
       );
@@ -126,7 +146,12 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
       const result = CashFlowAnalyzer.analyze(
         createCoreInput({
           cashFlows: [
-            { period: 0, cashFlow: -80000, category: 'capital-expenditure', inflationAdjusted: false },
+            {
+              period: 0,
+              cashFlow: -80000,
+              category: 'capital-expenditure',
+              inflationAdjusted: false,
+            },
             { period: 1, cashFlow: 15000, category: 'revenue', inflationAdjusted: false },
             { period: 2, cashFlow: 15000, category: 'revenue', inflationAdjusted: false },
             { period: 3, cashFlow: 15000, category: 'revenue', inflationAdjusted: false },
@@ -142,7 +167,7 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
     it('scales linearly with the magnitude of cash flows', () => {
       const baseInput = createCoreInput();
       const scaledInput = createCoreInput({
-        cashFlows: baseInput.cashFlows.map(cf => ({ ...cf, cashFlow: cf.cashFlow * 2 })),
+        cashFlows: baseInput.cashFlows.map((cf) => ({ ...cf, cashFlow: cf.cashFlow * 2 })),
       });
 
       const baseResult = CashFlowAnalyzer.analyze(baseInput);
@@ -164,7 +189,12 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
       const shortHorizon = CashFlowAnalyzer.analyze(
         createCoreInput({
           cashFlows: [
-            { period: 0, cashFlow: -100000, category: 'capital-expenditure', inflationAdjusted: false },
+            {
+              period: 0,
+              cashFlow: -100000,
+              category: 'capital-expenditure',
+              inflationAdjusted: false,
+            },
             { period: 1, cashFlow: 55000, category: 'revenue', inflationAdjusted: false },
             { period: 2, cashFlow: 60000, category: 'revenue', inflationAdjusted: false },
           ],
@@ -173,7 +203,12 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
       const longHorizon = CashFlowAnalyzer.analyze(
         createCoreInput({
           cashFlows: [
-            { period: 0, cashFlow: -100000, category: 'capital-expenditure', inflationAdjusted: false },
+            {
+              period: 0,
+              cashFlow: -100000,
+              category: 'capital-expenditure',
+              inflationAdjusted: false,
+            },
             { period: 1, cashFlow: 25000, category: 'revenue', inflationAdjusted: false },
             { period: 2, cashFlow: 25000, category: 'revenue', inflationAdjusted: false },
             { period: 3, cashFlow: 25000, category: 'revenue', inflationAdjusted: false },
@@ -203,7 +238,9 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
     });
 
     it('remains finite even with low discount rates', () => {
-      const result = CashFlowAnalyzer.analyze(createCoreInput({ discounting: { discountRate: 0.01 } }));
+      const result = CashFlowAnalyzer.analyze(
+        createCoreInput({ discounting: { discountRate: 0.01 } })
+      );
 
       expect(Number.isFinite(result.futureValue)).toBe(true);
     });
@@ -220,7 +257,12 @@ describe('CashFlowAnalyzer - Core Valuation Metrics', () => {
       const result = CashFlowAnalyzer.analyze(
         createCoreInput({
           cashFlows: [
-            { period: 0, cashFlow: -60000, category: 'capital-expenditure', inflationAdjusted: false },
+            {
+              period: 0,
+              cashFlow: -60000,
+              category: 'capital-expenditure',
+              inflationAdjusted: false,
+            },
             { period: 1, cashFlow: 5000, category: 'revenue', inflationAdjusted: false },
             { period: 2, cashFlow: 5000, category: 'revenue', inflationAdjusted: false },
           ],

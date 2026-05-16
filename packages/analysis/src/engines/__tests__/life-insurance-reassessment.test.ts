@@ -181,4 +181,3 @@ describe('LifeInsuranceReassessmentCalculator', () => {
     expect(result.currentCoverageAnalysis.termCoverage).toBe(0);
   });
 });
-

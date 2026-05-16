@@ -45,7 +45,9 @@ describe('BusinessLoanScenariosAnalyzer', () => {
     const result = BusinessLoanScenariosAnalyzer.analyze(baseInput) as any;
 
     const cheapestName = result.comparison.cheapest.scenario;
-    const scenariosSorted = [...result.scenarios].sort((a: any, b: any) => a.totalCost - b.totalCost);
+    const scenariosSorted = [...result.scenarios].sort(
+      (a: any, b: any) => a.totalCost - b.totalCost
+    );
 
     expect(cheapestName).toBe(scenariosSorted[0].name);
     expect(result.comparison.cheapest.totalCost).toBeCloseTo(scenariosSorted[0].totalCost, 6);

@@ -66,7 +66,7 @@ User Question: "${userQuery}"
 ${context ? `Context: ${JSON.stringify(context)}\n` : ''}
 
 Available Tools:
-${availableTools.map(t => `- ${t.name}: ${t.description}`).join('\n')}
+${availableTools.map((t) => `- ${t.name}: ${t.description}`).join('\n')}
 
 Return ONLY valid JSON in this exact format:
 {
@@ -126,13 +126,11 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
 
     // Find matching tools by keyword (longer keywords first for specificity)
     const sortedKeywords = [...keywordToTools.keys()].sort((a, b) => b.length - a.length);
-    
+
     for (const keyword of sortedKeywords) {
       if (query.includes(keyword)) {
         const tools = keywordToTools.get(keyword) || [];
-        const matchedTools = tools.filter(name =>
-          availableTools.some(t => t.name === name)
-        );
+        const matchedTools = tools.filter((name) => availableTools.some((t) => t.name === name));
         if (matchedTools.length > 0) {
           return {
             primaryTool: matchedTools[0],
@@ -174,5 +172,3 @@ If the question is general conversation and doesn't need a tool, set "primaryToo
     return params;
   }
 }
-
-

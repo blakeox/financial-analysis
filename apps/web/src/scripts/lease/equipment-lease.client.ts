@@ -1,6 +1,6 @@
 /**
  * Equipment Lease Calculator Client Script
- * 
+ *
  * Handles form submission, data parsing, API calls, and result rendering
  * for equipment lease calculations.
  */
@@ -52,7 +52,7 @@ async function handleSubmit(e: Event) {
 
   const form = e.target as HTMLFormElement;
   const formData = parseEquipmentLeaseInput(form);
-  
+
   if (!validateInput(formData)) {
     console.error('Invalid equipment lease input');
     return;
@@ -183,9 +183,10 @@ function displayResults(result: EquipmentLeaseResult) {
   // Display lease vs buy comparison if available
   if (result.leaseVsBuy) {
     const comparisonContainer = document.createElement('div');
-    comparisonContainer.className = 'fa-card mt-6 p-6';
+    comparisonContainer.className =
+      'mt-6 bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6';
     comparisonContainer.innerHTML = `
-      <h3 class="fa-panel-title text-lg mb-4">Lease vs Buy Comparison</h3>
+      <h3 class="text-lg font-semibold mb-4">Lease vs Buy Comparison</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
           <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Lease Total Cost</div>
@@ -206,7 +207,7 @@ function displayResults(result: EquipmentLeaseResult) {
         </p>
       </div>
     `;
-    
+
     const resultsContent = document.getElementById('results-content');
     if (resultsContent) {
       resultsContent.appendChild(comparisonContainer);
@@ -229,23 +230,23 @@ function displaySchedule(schedule: EquipmentLeaseResult['schedule']) {
   const thead = scheduleContainer.querySelector('thead tr');
   if (thead) {
     thead.innerHTML = `
-      <th class="fa-help-copy px-3 py-3 text-left uppercase tracking-wider">Month</th>
-      <th class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider">Payment</th>
-      <th class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider">Principal</th>
-      <th class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider">Interest</th>
-      <th class="fa-help-copy px-3 py-3 text-right uppercase tracking-wider">Balance</th>
+      <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Month</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payment</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Principal</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Balance</th>
     `;
   }
 
   tableBody.innerHTML = schedule
     .map(
       (row) => `
-    <tr class="fa-panel-divider-top fa-table-row-hover">
-      <td class="fa-list-copy-strong px-3 py-3">${row.month}</td>
-      <td class="fa-list-copy px-3 py-3 text-right">$${row.payment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="fa-list-copy px-3 py-3 text-right">$${row.principal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="fa-list-copy px-3 py-3 text-right">$${row.interest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-      <td class="fa-list-copy px-3 py-3 text-right">$${row.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white">${row.month}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.payment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.principal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.interest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+      <td class="px-3 py-3 text-sm text-slate-900 dark:text-white text-right">$${row.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
     </tr>
   `
     )
@@ -275,6 +276,3 @@ function showError(message: string) {
 }
 
 export {};
-
-
-

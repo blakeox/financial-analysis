@@ -30,7 +30,7 @@ export const openChatWithContext = (label: string, data?: Record<string, unknown
 export const registerChatButton = (
   target: string | HTMLButtonElement | null,
   label: string,
-  data?: ChatData,
+  data?: ChatData
 ): void => {
   onDocumentReady(() => {
     const button =

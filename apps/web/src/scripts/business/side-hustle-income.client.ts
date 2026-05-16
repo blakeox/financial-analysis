@@ -1,6 +1,6 @@
 /**
  * Side Hustle / Freelance Income Calculator
- * 
+ *
  * Calculates after-tax income, quarterly estimated taxes, self-employment tax,
  * and break-even analysis for freelance/gig work.
  */
@@ -74,69 +74,86 @@ function calculateSideHustleIncome(input: SideHustleInput): SideHustleResult {
   const annualRevenue = input.monthlyRevenue * 12;
   const annualExpenses = input.businessExpenses * 12;
   const annualHours = input.hoursPerWeek * 52;
-  
+
   // Net income (profit)
   const annualNetIncome = annualRevenue - annualExpenses;
   const monthlyNetIncome = annualNetIncome / 12;
-  
+
   // Self-employment tax (15.3% on 92.35% of net income)
   const selfEmploymentTaxBase = annualNetIncome * 0.9235;
   const selfEmploymentTax = selfEmploymentTaxBase * 0.153;
-  
+
   // Deduct half of SE tax from income
-  const adjustedIncome = input.selfEmploymentTaxDeduction 
-    ? annualNetIncome - (selfEmploymentTax / 2)
+  const adjustedIncome = input.selfEmploymentTaxDeduction
+    ? annualNetIncome - selfEmploymentTax / 2
     : annualNetIncome;
-  
+
   // QBI deduction (up to 20% of qualified business income for certain businesses)
-  const qbiDeduction = input.qbiDeduction ? Math.min(adjustedIncome * 0.20, adjustedIncome) : 0;
+  const qbiDeduction = input.qbiDeduction ? Math.min(adjustedIncome * 0.2, adjustedIncome) : 0;
   const taxableIncome = adjustedIncome - qbiDeduction + input.otherIncome;
-  
+
   // Federal income tax (simplified progressive brackets for 2024)
   let federalTax = 0;
-  const brackets = input.filingStatus === 'single' 
-    ? [[11000, 0.10], [44725, 0.12], [95375, 0.22], [182100, 0.24], [231250, 0.32], [578125, 0.35], [Infinity, 0.37]]
-    : [[22000, 0.10], [89050, 0.12], [190750, 0.22], [364200, 0.24], [462500, 0.32], [693750, 0.35], [Infinity, 0.37]];
-  
+  const brackets =
+    input.filingStatus === 'single'
+      ? [
+          [11000, 0.1],
+          [44725, 0.12],
+          [95375, 0.22],
+          [182100, 0.24],
+          [231250, 0.32],
+          [578125, 0.35],
+          [Infinity, 0.37],
+        ]
+      : [
+          [22000, 0.1],
+          [89050, 0.12],
+          [190750, 0.22],
+          [364200, 0.24],
+          [462500, 0.32],
+          [693750, 0.35],
+          [Infinity, 0.37],
+        ];
+
   let remainingIncome = taxableIncome;
   let previousBracket = 0;
-  
+
   for (const [limit, rate] of brackets) {
     const taxableInBracket = Math.min(remainingIncome, (limit as number) - previousBracket);
     if (taxableInBracket <= 0) break;
-    
+
     federalTax += taxableInBracket * (rate as number);
     remainingIncome -= taxableInBracket;
     previousBracket = limit as number;
-    
+
     if (remainingIncome <= 0) break;
   }
-  
+
   // State income tax (simplified flat rate)
   const stateTax = taxableIncome * (input.stateTaxRate / 100);
-  
+
   // Total taxes
   const totalTaxes = selfEmploymentTax + federalTax + stateTax;
   const effectiveTaxRate = (totalTaxes / annualNetIncome) * 100;
-  
+
   // After-tax income
   const annualAfterTax = annualNetIncome - totalTaxes;
   const monthlyAfterTax = annualAfterTax / 12;
   const hourlyAfterTaxRate = annualAfterTax / annualHours;
-  
+
   // Quarterly estimated tax
   const quarterlyEstimated = totalTaxes / 4;
-  
+
   // W-2 equivalent (what salary would give you the same take-home)
   // W-2 employee doesn't pay SE tax, employer pays half of FICA
-  const w2EquivalentGross = annualAfterTax / (1 - ((federalTax + stateTax) / taxableIncome));
-  
+  const w2EquivalentGross = annualAfterTax / (1 - (federalTax + stateTax) / taxableIncome);
+
   // Value of benefits (typically 20-30% of salary for full-time W-2)
   const benefitsValue = w2EquivalentGross * 0.25; // Health insurance, 401k match, PTO, etc.
-  
+
   // True hourly rate accounting for ALL costs
   const trueHourlyRate = hourlyAfterTaxRate;
-  
+
   return {
     gross: {
       monthlyRevenue: input.monthlyRevenue,
@@ -214,13 +231,13 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
 
   resultsContainer.innerHTML = `
     <!-- Tax Breakdown -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💸</span> Tax Breakdown
       </h2>
       
       <div class="space-y-3">
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <div>
             <span class="fa-script-label">Self-Employment Tax (15.3%)</span>
             <p class="fa-script-note">Social Security + Medicare on 92.35% of profit</p>
@@ -228,19 +245,19 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.selfEmploymentTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="fa-script-label">Federal Income Tax</span>
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.federalIncomeTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-soft">
+        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
           <span class="fa-script-label">State Income Tax</span>
           <span class="font-semibold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.stateIncomeTax)}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 fa-panel-divider-top pt-3">
+        <div class="flex justify-between items-center py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-3">
           <div>
-            <span class="fa-list-copy-strong">Total Annual Taxes</span>
+            <span class="text-slate-900 dark:text-white font-semibold">Total Annual Taxes</span>
             <p class="fa-script-note">Effective rate: ${result.taxes.effectiveTaxRate.toFixed(1)}%</p>
           </div>
           <span class="font-bold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.totalTaxes)}</span>
@@ -259,7 +276,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
     </div>
     
     <!-- Income Breakdown -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> Income Breakdown
       </h2>
@@ -267,7 +284,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       <div class="space-y-3">
         <div class="flex justify-between py-2">
           <span class="fa-script-label">Gross Revenue (Annual)</span>
-          <span class="fa-list-copy-strong">${formatCurrency(result.gross.annualRevenue)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.gross.annualRevenue)}</span>
         </div>
         
         <div class="flex justify-between py-2">
@@ -275,9 +292,9 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">- ${formatCurrency(result.expenses.annualExpenses)}</span>
         </div>
         
-        <div class="flex justify-between py-2 fa-panel-divider-top">
+        <div class="flex justify-between py-2 border-t border-slate-200 dark:border-slate-800">
           <span class="fa-script-label font-medium">Net Profit (Before Tax)</span>
-          <span class="fa-list-copy-strong">${formatCurrency(result.netIncome.annualNet)}</span>
+          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(result.netIncome.annualNet)}</span>
         </div>
         
         <div class="flex justify-between py-2">
@@ -285,15 +302,15 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-semibold text-rose-600 dark:text-rose-400">- ${formatCurrency(result.taxes.totalTaxes)}</span>
         </div>
         
-        <div class="flex justify-between py-2 fa-panel-divider-top pt-2">
-          <span class="fa-list-copy-strong font-bold">After-Tax Income</span>
+        <div class="flex justify-between py-2 border-t-2 border-slate-300 dark:border-slate-700 pt-2">
+          <span class="text-slate-900 dark:text-white font-bold">After-Tax Income</span>
           <span class="font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.afterTax.annualAfterTax)}</span>
         </div>
       </div>
     </div>
     
     <!-- Hourly Rate Analysis -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>⏰</span> Hourly Rate Analysis
       </h2>
@@ -301,7 +318,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
           <p class="fa-script-copy-muted mb-1">Gross Hourly</p>
-          <p class="fa-panel-title text-2xl">${formatCurrency(result.gross.hourlyRate)}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.gross.hourlyRate)}</p>
           <p class="fa-script-note mt-1">Before expenses & taxes</p>
         </div>
         
@@ -327,7 +344,7 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
     </div>
     
     <!-- W-2 Comparison -->
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>💼</span> W-2 Job Comparison
       </h2>
@@ -400,12 +417,12 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
         
         <div class="flex gap-2">
           <span>✓</span>
-          <p><strong>QBI Deduction:</strong> ${input.qbiDeduction ? 'You\'re using the 20% QBI deduction - great!' : 'Consider if you qualify for the 20% Qualified Business Income deduction (income limits apply).'}</p>
+          <p><strong>QBI Deduction:</strong> ${input.qbiDeduction ? "You're using the 20% QBI deduction - great!" : 'Consider if you qualify for the 20% Qualified Business Income deduction (income limits apply).'}</p>
         </div>
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -419,7 +436,8 @@ function parseFormInput(form: HTMLFormElement): SideHustleInput {
     monthlyRevenue: coerceNumber(formData.get('monthlyRevenue'), 0),
     hoursPerWeek: coerceNumber(formData.get('hoursPerWeek'), 0),
     businessExpenses: coerceNumber(formData.get('businessExpenses'), 0),
-    filingStatus: (formData.get('filingStatus') as string || 'single') as SideHustleInput['filingStatus'],
+    filingStatus: ((formData.get('filingStatus') as string) ||
+      'single') as SideHustleInput['filingStatus'],
     otherIncome: coerceNumber(formData.get('otherIncome'), 0),
     selfEmploymentTaxDeduction: formData.get('selfEmploymentTaxDeduction') === 'yes',
     qbiDeduction: formData.get('qbiDeduction') === 'yes',
@@ -444,21 +462,23 @@ function initializeSideHustle(): void {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     hideError();
     showLoading(calculateBtn);
 
     try {
       const input = parseFormInput(form);
       validateInput(input);
-      
+
       const result = calculateSideHustleIncome(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'side-hustle-income', result, formData: input },
-      }));
-      
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'side-hustle-income', result, formData: input },
+        })
+      );
+
       if (typeof gtag !== 'undefined') {
         gtag('event', 'side_hustle_calculated', {
           annual_revenue: result.gross.annualRevenue,

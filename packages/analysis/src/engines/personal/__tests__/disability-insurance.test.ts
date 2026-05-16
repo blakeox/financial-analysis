@@ -95,4 +95,3 @@ describe('DisabilityInsuranceAnalyzer', () => {
     expect(highRisk.monthlyPremium).toBeGreaterThan(base.monthlyPremium);
   });
 });
-

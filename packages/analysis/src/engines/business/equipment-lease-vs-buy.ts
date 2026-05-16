@@ -86,7 +86,7 @@ export class EquipmentLeaseVsBuyCalculator {
           leaseTaxSavings: leaseAnalysis.totalCost - leaseAnalysis.afterTaxCost,
           purchaseTaxSavings: purchaseAnalysis.taxSavings,
           taxSavingsDifference:
-            (leaseAnalysis.totalCost - leaseAnalysis.afterTaxCost) - purchaseAnalysis.taxSavings,
+            leaseAnalysis.totalCost - leaseAnalysis.afterTaxCost - purchaseAnalysis.taxSavings,
         }
       : undefined;
 
@@ -175,7 +175,7 @@ export class EquipmentLeaseVsBuyCalculator {
         ? loanAmount / Math.max(1, numPayments)
         : (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
           (Math.pow(1 + monthlyRate, numPayments) - 1);
-    const totalInterest = (monthlyPayment * numPayments) - loanAmount;
+    const totalInterest = monthlyPayment * numPayments - loanAmount;
 
     // Maintenance and insurance
     const totalMaintenance = purchaseTerms.annualMaintenanceCost * assumptions.analysisPeriod;
@@ -190,15 +190,21 @@ export class EquipmentLeaseVsBuyCalculator {
       ? purchasePrice * (taxInfo.bonusDepreciationPercentage ?? 0)
       : 0;
     const totalDepreciation = section179 + bonusDepreciation + depreciation;
-    const taxSavings =
-      totalDepreciation * (taxInfo.federalTaxRate + (taxInfo.stateTaxRate ?? 0));
+    const taxSavings = totalDepreciation * (taxInfo.federalTaxRate + (taxInfo.stateTaxRate ?? 0));
 
     // Resale value
     const resaleValue =
       equipment.expectedResidualValue *
       Math.pow(1 - assumptions.inflationRate, assumptions.analysisPeriod);
 
-    const totalCost = purchasePrice + salesTax + totalInterest + totalMaintenance + totalInsurance - taxSavings - resaleValue;
+    const totalCost =
+      purchasePrice +
+      salesTax +
+      totalInterest +
+      totalMaintenance +
+      totalInsurance -
+      taxSavings -
+      resaleValue;
     const afterTaxCost = totalCost;
 
     // NPV
@@ -257,8 +263,12 @@ export class EquipmentLeaseVsBuyCalculator {
   ): string[] {
     const recommendations: string[] = [];
 
-    recommendations.push(`${comparison.betterOption === 'lease' ? 'Leasing' : 'Buying'} is more cost-effective`);
-    recommendations.push(`Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysisPeriod} years`);
+    recommendations.push(
+      `${comparison.betterOption === 'lease' ? 'Leasing' : 'Buying'} is more cost-effective`
+    );
+    recommendations.push(
+      `Cost difference: $${comparison.costDifference.toFixed(0)} over ${analysisPeriod} years`
+    );
 
     if (comparison.betterOption === 'lease') {
       recommendations.push('Leasing provides tax benefits and preserves capital');
@@ -269,6 +279,3 @@ export class EquipmentLeaseVsBuyCalculator {
     return recommendations;
   }
 }
-
-
-

@@ -18,7 +18,11 @@ export class CCAAnalysisTool {
         properties: {
           name: { type: 'string', description: 'Target company name' },
           industry: { type: 'string', description: 'Industry' },
-          size: { type: 'string', enum: ['small', 'medium', 'large', 'enterprise'], description: 'Company size' },
+          size: {
+            type: 'string',
+            enum: ['small', 'medium', 'large', 'enterprise'],
+            description: 'Company size',
+          },
           country: { type: 'string', default: 'US', description: 'Country' },
           currency: { type: 'string', default: 'USD', description: 'Currency' },
         },
@@ -106,9 +110,25 @@ export class CCAAnalysisTool {
       valuation: {
         type: 'object',
         properties: {
-          applyPremiumsDiscounts: { type: 'boolean', default: true, description: 'Apply premiums/discounts' },
-          controlPremium: { type: 'number', minimum: 0, maximum: 1, default: 0.2, description: 'Control premium' },
-          liquidityDiscount: { type: 'number', minimum: 0, maximum: 1, default: 0.15, description: 'Liquidity discount' },
+          applyPremiumsDiscounts: {
+            type: 'boolean',
+            default: true,
+            description: 'Apply premiums/discounts',
+          },
+          controlPremium: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.2,
+            description: 'Control premium',
+          },
+          liquidityDiscount: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.15,
+            description: 'Liquidity discount',
+          },
         },
       },
     },
@@ -120,11 +140,3 @@ export class CCAAnalysisTool {
     return CCAValuationEngine.analyze(validated);
   }
 }
-
-
-
-
-
-
-
-

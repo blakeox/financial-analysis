@@ -18,13 +18,7 @@ export const RentVsBuyInputSchema = z.object({
     .min(0)
     .max(100)
     .describe('Annual mortgage interest rate as percentage (e.g., 6.5 for 6.5%)'),
-  loanTermYears: z
-    .number()
-    .int()
-    .min(1)
-    .max(50)
-    .default(30)
-    .describe('Mortgage term in years'),
+  loanTermYears: z.number().int().min(1).max(50).default(30).describe('Mortgage term in years'),
 
   // Home ownership costs
   propertyTaxRate: z

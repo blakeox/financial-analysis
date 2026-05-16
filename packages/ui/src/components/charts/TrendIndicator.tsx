@@ -1,5 +1,3 @@
-import { textColors } from '../../lib/classNames';
-
 export interface TrendIndicatorProps {
   value: number;
   formatter?: (value: number) => string;
@@ -15,22 +13,22 @@ export function TrendIndicator({
 }: TrendIndicatorProps) {
   const isPositive = value > 0;
   const isNegative = value < 0;
-  
+
   // For metrics like expenses, positive is bad (red), negative is good (green)
   const colorClass = invertColors
     ? isPositive
       ? 'text-rose-600 dark:text-rose-300'
       : isNegative
         ? 'text-emerald-600 dark:text-emerald-300'
-        : textColors.secondary
+        : 'text-slate-600 dark:text-slate-400'
     : isPositive
       ? 'text-emerald-600 dark:text-emerald-300'
       : isNegative
         ? 'text-rose-600 dark:text-rose-300'
-        : textColors.secondary;
+        : 'text-slate-600 dark:text-slate-400';
 
   const icon = isPositive ? '↑' : isNegative ? '↓' : '→';
-  
+
   const displayValue = formatter
     ? formatter(Math.abs(value))
     : showPercentage

@@ -77,7 +77,9 @@ describe('BusinessExpansionLoanJourney', () => {
       expect(result.loanScenarios.optimal.rate).toBe(0.06);
       expect(result.loanScenarios.optimal.monthlyPayment).toBeGreaterThan(0);
       expect(result.loanScenarios.optimal.totalInterest).toBeGreaterThan(0);
-      expect(result.loanScenarios.optimal.totalCost).toBeGreaterThan(basicInput.expansionPlan.loanAmount);
+      expect(result.loanScenarios.optimal.totalCost).toBeGreaterThan(
+        basicInput.expansionPlan.loanAmount
+      );
 
       expect(result.dscr).toBeDefined();
       expect(result.dscr.ratio).toBeGreaterThan(0);
@@ -156,7 +158,9 @@ describe('BusinessExpansionLoanJourney', () => {
       const result = BusinessExpansionLoanJourney.analyze(basicInput) as any;
 
       expect(result.debtCapacity.maxLoanAmount).toBeGreaterThan(0);
-      expect(result.debtCapacity.recommendedLoanAmount).toBeLessThanOrEqual(result.debtCapacity.maxLoanAmount);
+      expect(result.debtCapacity.recommendedLoanAmount).toBeLessThanOrEqual(
+        result.debtCapacity.maxLoanAmount
+      );
       expect(result.debtCapacity.debtCapacityRatio).toBeGreaterThan(0);
     });
 
@@ -194,7 +198,10 @@ describe('BusinessExpansionLoanJourney', () => {
       expect(result.cashFlowProjection.summary.averageMonthlyCashFlow).toBeDefined();
       expect(result.cashFlowProjection.summary.monthsPositive).toBeGreaterThanOrEqual(0);
       expect(result.cashFlowProjection.summary.monthsNegative).toBeGreaterThanOrEqual(0);
-      expect(result.cashFlowProjection.summary.monthsPositive + result.cashFlowProjection.summary.monthsNegative).toBe(24);
+      expect(
+        result.cashFlowProjection.summary.monthsPositive +
+          result.cashFlowProjection.summary.monthsNegative
+      ).toBe(24);
     });
 
     it('should calculate DSCR correctly', () => {
@@ -249,7 +256,9 @@ describe('BusinessExpansionLoanJourney', () => {
 
       expect(result.summary.riskLevel).toBe('high');
       expect(result.riskAssessment.riskFactors.length).toBeGreaterThan(0);
-      const hasHighSeverityRisk = result.riskAssessment.riskFactors.some((r: any) => r.severity === 'high');
+      const hasHighSeverityRisk = result.riskAssessment.riskFactors.some(
+        (r: any) => r.severity === 'high'
+      );
       expect(hasHighSeverityRisk).toBe(true);
     });
 

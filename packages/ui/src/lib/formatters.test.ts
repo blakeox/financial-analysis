@@ -29,7 +29,7 @@ describe('formatters', () => {
 
     it('rounds to nearest dollar', () => {
       expect(formatCurrency(1234.49)).toBe('$1,234');
-      expect(formatCurrency(1234.50)).toBe('$1,235');
+      expect(formatCurrency(1234.5)).toBe('$1,235');
       expect(formatCurrency(1234.99)).toBe('$1,235');
     });
 
@@ -130,6 +130,11 @@ describe('formatters', () => {
       const formatted = formatDate('2025-10-11');
       expect(formatted).toContain('Oct');
       expect(formatted).toContain('2025');
+    });
+
+    it('formats ISO date-only strings as calendar dates in UTC', () => {
+      const formatted = formatDate('2024-10-01');
+      expect(formatted).toBe('Oct 1, 2024');
     });
 
     it('formats with custom options', () => {

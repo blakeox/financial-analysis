@@ -104,7 +104,7 @@ describe('InsuranceNeedsCalculator', () => {
 
   it('should provide comprehensive analysis with summary and recommendations', () => {
     const result = InsuranceNeedsCalculator.analyze(baseInput);
-    
+
     // Check insurance summary
     expect(result.insuranceSummary).toBeDefined();
     expect(result.insuranceSummary.totalRecommendedCoverage).toBeGreaterThan(0);
@@ -112,16 +112,16 @@ describe('InsuranceNeedsCalculator', () => {
     expect(result.insuranceSummary.insuranceHealthScore).toBeLessThanOrEqual(100);
     expect(result.insuranceSummary.priorityRecommendations).toBeDefined();
     expect(result.insuranceSummary.priorityRecommendations.length).toBeGreaterThan(0);
-    
+
     // Check risk assessment
     expect(result.riskAssessment).toBeDefined();
     expect(result.riskAssessment.overallRiskLevel).toMatch(/low|medium|high/);
     expect(result.riskAssessment.riskFactors.length).toBeGreaterThan(0);
-    
+
     // Check cost analysis
     expect(result.costAnalysis).toBeDefined();
     expect(result.costAnalysis.affordabilityAssessment).toMatch(/affordable|stretch|unaffordable/);
-    
+
     // Check insights and recommendations
     expect(result.insights).toBeDefined();
     expect(result.insights.length).toBeGreaterThan(0);

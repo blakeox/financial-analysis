@@ -41,10 +41,7 @@ export function createEventBus<Events extends EventMap>(): TypedEventBus<Events>
     }
   };
 
-  const on = <K extends EventKey<Events>>(
-    type: K,
-    listener: Listener<Events[K]>
-  ): (() => void) => {
+  const on = <K extends EventKey<Events>>(type: K, listener: Listener<Events[K]>): (() => void) => {
     const eventName = type as string;
     const handlers = listeners.get(eventName) ?? new Set<Listener<unknown>>();
     handlers.add(listener as Listener<unknown>);
@@ -109,7 +106,9 @@ export function getOrCreateGlobalBus<Events extends EventMap>(
   // typechecked without DOM libs). Cast to `any` so this is a no-op in non-
   // browser runtimes.
   try {
-    const g = globalThis as unknown as Record<string, unknown> & { __appEventBus?: TypedEventBus<Events> };
+    const g = globalThis as unknown as Record<string, unknown> & {
+      __appEventBus?: TypedEventBus<Events>;
+    };
     g.__appEventBus = bus;
   } catch {
     // ignore - some runtimes may restrict globalThis assignment
@@ -166,6 +165,4 @@ export interface AppEventMap extends EventMap {
   'model:error': ModelErrorEvent;
 }
 
-export const appEventBus = getOrCreateGlobalBus<AppEventMap>(() =>
-  createEventBus<AppEventMap>()
-);
+export const appEventBus = getOrCreateGlobalBus<AppEventMap>(() => createEventBus<AppEventMap>());

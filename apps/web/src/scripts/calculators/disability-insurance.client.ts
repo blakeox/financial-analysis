@@ -45,7 +45,9 @@ class DisabilityInsuranceCalculator {
           hasIndividualPolicy: formData.get('hasIndividualPolicy') === 'true',
         },
         needsAnalysis: {
-          targetReplacementIncome: parseFloat((formData.get('targetReplacementIncome') as string) || '0.6'),
+          targetReplacementIncome: parseFloat(
+            (formData.get('targetReplacementIncome') as string) || '0.6'
+          ),
           includeSocialSecurity: formData.get('includeSocialSecurity') !== 'false',
           expectedSSDIBenefit: parseFloat((formData.get('expectedSSDIBenefit') as string) || '0'),
         },
@@ -53,8 +55,11 @@ class DisabilityInsuranceCalculator {
           benefitAmount: parseFloat((formData.get('benefitAmount') as string) || '0'),
           benefitPeriod: (formData.get('benefitPeriod') as string) || 'to-age-65',
           eliminationPeriod: parseInt((formData.get('eliminationPeriod') as string) || '90'),
-          definitionOfDisability: (formData.get('definitionOfDisability') as string) || 'own-occupation',
-          estimatedAnnualPremium: parseFloat((formData.get('estimatedAnnualPremium') as string) || '0'),
+          definitionOfDisability:
+            (formData.get('definitionOfDisability') as string) || 'own-occupation',
+          estimatedAnnualPremium: parseFloat(
+            (formData.get('estimatedAnnualPremium') as string) || '0'
+          ),
         },
         analysis: {
           includeCoverageGapAnalysis: formData.get('includeCoverageGapAnalysis') !== 'false',
@@ -93,7 +98,7 @@ class DisabilityInsuranceCalculator {
     contentDiv.innerHTML = `
       <div class="space-y-4">
         <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="fa-panel-title text-lg mb-2">Disability Insurance Analysis</h3>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Disability Insurance Analysis</h3>
           <p class="text-slate-700 dark:text-slate-300">
             Your disability insurance analysis is complete. Use the AI assistant to get detailed recommendations.
           </p>

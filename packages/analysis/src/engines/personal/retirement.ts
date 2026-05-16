@@ -1,5 +1,5 @@
-import Decimal from "decimal.js";
-import type { RetirementInput } from "../../schemas/retirement.js";
+import Decimal from 'decimal.js';
+import type { RetirementInput } from '../../schemas/retirement.js';
 import type {
   RetirementResult,
   RetirementYear,
@@ -8,7 +8,7 @@ import type {
   TaxAdvantageAnalysis,
   WithdrawalAnalysis,
   RetirementSummary,
-} from "../../types/retirement-result.js";
+} from '../../types/retirement-result.js';
 
 const MAX_YEARS = 50; // Maximum projection years
 
@@ -17,9 +17,9 @@ const MAX_YEARS = 50; // Maximum projection years
  */
 export function analyze(input: RetirementInput): RetirementResult {
   const yearsToRetirement = input.retirementAge - input.currentAge;
-  
+
   if (yearsToRetirement <= 0) {
-    throw new Error("Retirement age must be greater than current age");
+    throw new Error('Retirement age must be greater than current age');
   }
 
   // Build year-by-year projection
@@ -47,7 +47,10 @@ export function analyze(input: RetirementInput): RetirementResult {
   );
 
   const totalCurrentBalance = input.accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
-  const totalAnnualContribution = input.accounts.reduce((sum, acc) => sum + acc.annualContribution, 0);
+  const totalAnnualContribution = input.accounts.reduce(
+    (sum, acc) => sum + acc.annualContribution,
+    0
+  );
 
   return {
     input: {
@@ -67,12 +70,15 @@ export function analyze(input: RetirementInput): RetirementResult {
     recommendations,
     metadata: {
       calculatedAt: new Date().toISOString(),
-      version: "1.0.0",
+      version: '1.0.0',
     },
   };
 }
 
-function buildProjectionSchedule(input: RetirementInput, yearsToRetirement: number): RetirementYear[] {
+function buildProjectionSchedule(
+  input: RetirementInput,
+  yearsToRetirement: number
+): RetirementYear[] {
   const schedule: RetirementYear[] = [];
   const inflationRate = new Decimal(input.inflationRate);
   const returnRate = new Decimal(input.expectedAnnualReturn);
@@ -106,7 +112,7 @@ function buildProjectionSchedule(input: RetirementInput, yearsToRetirement: numb
     for (const account of accountBalances) {
       // Calculate employer match (for 401k accounts)
       let employerMatchAmount = new Decimal(0);
-      if (account.accountType === "401k" || account.accountType === "roth_401k") {
+      if (account.accountType === '401k' || account.accountType === 'roth_401k') {
         const contributionPercent = account.contribution.div(currentIncome);
         const matchPercent = Decimal.min(contributionPercent, account.employerMatchLimit);
         employerMatchAmount = currentIncome.times(matchPercent).times(account.employerMatch);
@@ -159,7 +165,7 @@ function analyzeEmployerMatch(input: RetirementInput): EmployerMatchAnalysis {
   const currentIncome = new Decimal(input.currentIncome);
 
   for (const account of input.accounts) {
-    if (account.accountType === "401k" || account.accountType === "roth_401k") {
+    if (account.accountType === '401k' || account.accountType === 'roth_401k') {
       const employerMatch = new Decimal(account.employerMatch ?? 0);
       const employerMatchLimit = new Decimal(account.employerMatchLimit ?? 0.06);
       const contribution = new Decimal(account.annualContribution);
@@ -213,9 +219,13 @@ function analyzeTaxAdvantages(input: RetirementInput): TaxAdvantageAnalysis {
 
   for (const account of input.accounts) {
     const contribution = new Decimal(account.annualContribution);
-    if (account.accountType === "401k" || account.accountType === "traditional_ira" || account.accountType === "sep_ira") {
+    if (
+      account.accountType === '401k' ||
+      account.accountType === 'traditional_ira' ||
+      account.accountType === 'sep_ira'
+    ) {
       totalPreTax = totalPreTax.plus(contribution);
-    } else if (account.accountType === "roth_401k" || account.accountType === "roth_ira") {
+    } else if (account.accountType === 'roth_401k' || account.accountType === 'roth_ira') {
       totalRoth = totalRoth.plus(contribution);
     }
   }
@@ -225,25 +235,25 @@ function analyzeTaxAdvantages(input: RetirementInput): TaxAdvantageAnalysis {
   const estimatedTaxSavings = totalPreTax.times(assumedTaxRate);
 
   const totalContributions = totalPreTax.plus(totalRoth);
-  const preTaxPercent = totalContributions.gt(0) 
-    ? totalPreTax.div(totalContributions).times(100) 
+  const preTaxPercent = totalContributions.gt(0)
+    ? totalPreTax.div(totalContributions).times(100)
     : new Decimal(0);
 
   const recommendations: string[] = [];
-  
+
   if (totalPreTax.eq(0)) {
     recommendations.push(
-      "Consider traditional IRA/401(k) contributions for immediate tax deductions"
+      'Consider traditional IRA/401(k) contributions for immediate tax deductions'
     );
   } else if (totalRoth.eq(0)) {
     recommendations.push(
-      "Consider Roth IRA/401(k) for tax-free growth and withdrawals in retirement"
+      'Consider Roth IRA/401(k) for tax-free growth and withdrawals in retirement'
     );
   }
 
   if (preTaxPercent.gt(80) || preTaxPercent.lt(20)) {
     recommendations.push(
-      "Consider diversifying between pre-tax and Roth accounts for tax flexibility in retirement"
+      'Consider diversifying between pre-tax and Roth accounts for tax flexibility in retirement'
     );
   }
 
@@ -262,7 +272,7 @@ function analyzeWithdrawalStrategy(
 ): WithdrawalAnalysis {
   const finalYear = projectionSchedule[projectionSchedule.length - 1];
   if (!finalYear) {
-    throw new Error("No projection data available");
+    throw new Error('No projection data available');
   }
 
   const portfolioBalance = new Decimal(finalYear.totalBalance);
@@ -271,29 +281,29 @@ function analyzeWithdrawalStrategy(
   let firstYearWithdrawal = new Decimal(0);
   let monthlyIncome = new Decimal(0);
   let portfolioLastsUntilAge = 100;
-  let probabilityOfSuccess = "75";
+  let probabilityOfSuccess = '75';
 
-  if (strategy === "4_percent_rule") {
+  if (strategy === '4_percent_rule') {
     firstYearWithdrawal = portfolioBalance.times(0.04);
     monthlyIncome = firstYearWithdrawal.div(12);
     portfolioLastsUntilAge = input.retirementAge + 30; // Typically lasts 30+ years
-    probabilityOfSuccess = "95"; // Historical success rate
-  } else if (strategy === "fixed_amount") {
-    const desiredIncome = input.desiredRetirementIncome 
-      ? new Decimal(input.desiredRetirementIncome) 
+    probabilityOfSuccess = '95'; // Historical success rate
+  } else if (strategy === 'fixed_amount') {
+    const desiredIncome = input.desiredRetirementIncome
+      ? new Decimal(input.desiredRetirementIncome)
       : portfolioBalance.times(0.04);
     firstYearWithdrawal = desiredIncome;
     monthlyIncome = desiredIncome.div(12);
-    
+
     // Calculate how long portfolio lasts
     const yearsLasts = portfolioBalance.div(desiredIncome);
     portfolioLastsUntilAge = input.retirementAge + Math.floor(yearsLasts.toNumber());
-    probabilityOfSuccess = yearsLasts.gte(30) ? "90" : "60";
+    probabilityOfSuccess = yearsLasts.gte(30) ? '90' : '60';
   } else {
     // required_minimum (RMD starts at age 73)
     const rmdAge = 73;
     const yearsUntilRMD = rmdAge - input.retirementAge;
-    
+
     if (yearsUntilRMD > 0) {
       firstYearWithdrawal = portfolioBalance.times(0.04); // Use 4% until RMD
     } else {
@@ -301,14 +311,14 @@ function analyzeWithdrawalStrategy(
       const distributionPeriod = new Decimal(100 - input.retirementAge);
       firstYearWithdrawal = portfolioBalance.div(distributionPeriod);
     }
-    
+
     monthlyIncome = firstYearWithdrawal.div(12);
     portfolioLastsUntilAge = 100;
-    probabilityOfSuccess = "85";
+    probabilityOfSuccess = '85';
   }
 
   const recommendations: string[] = [];
-  
+
   const replacementRatio = firstYearWithdrawal.div(input.currentIncome).times(100);
   if (replacementRatio.lt(70)) {
     recommendations.push(
@@ -316,18 +326,14 @@ function analyzeWithdrawalStrategy(
     );
   }
 
-  if (strategy === "4_percent_rule") {
-    recommendations.push(
-      "The 4% rule has a 95% historical success rate for 30-year retirements"
-    );
+  if (strategy === '4_percent_rule') {
+    recommendations.push('The 4% rule has a 95% historical success rate for 30-year retirements');
   }
 
+  recommendations.push('Adjust withdrawals for inflation each year to maintain purchasing power');
+
   recommendations.push(
-    "Adjust withdrawals for inflation each year to maintain purchasing power"
-  );
-  
-  recommendations.push(
-    "Consider tax-efficient withdrawal sequencing: taxable accounts first, then tax-deferred, then Roth"
+    'Consider tax-efficient withdrawal sequencing: taxable accounts first, then tax-deferred, then Roth'
   );
 
   return {
@@ -346,10 +352,10 @@ function buildSummary(
   withdrawalAnalysis: WithdrawalAnalysis
 ): RetirementSummary {
   const currentTotalBalance = input.accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
-  
+
   const finalYear = projectionSchedule[projectionSchedule.length - 1];
   if (!finalYear) {
-    throw new Error("No projection data available");
+    throw new Error('No projection data available');
   }
 
   const projectedBalance = new Decimal(finalYear.totalBalance);
@@ -403,10 +409,10 @@ function generateRecommendations(
     recommendations.push(
       `You're projected to have a shortfall of $${new Decimal(summary.shortfall).toFixed(0)}/year in retirement income`
     );
-    
+
     const additionalNeeded = new Decimal(summary.shortfall).div(0.04); // Rough estimate
     const additionalContribution = additionalNeeded.div(input.retirementAge - input.currentAge);
-    
+
     recommendations.push(
       `Consider increasing annual contributions by $${additionalContribution.toFixed(0)} to close the gap`
     );
@@ -427,18 +433,18 @@ function generateRecommendations(
   const yearsToRetirement = input.retirementAge - input.currentAge;
   if (yearsToRetirement > 20) {
     recommendations.push(
-      "With 20+ years until retirement, prioritize growth investments (stocks, equity funds)"
+      'With 20+ years until retirement, prioritize growth investments (stocks, equity funds)'
     );
   } else if (yearsToRetirement <= 10) {
     recommendations.push(
-      "With 10 or fewer years until retirement, gradually shift toward more conservative investments"
+      'With 10 or fewer years until retirement, gradually shift toward more conservative investments'
     );
   }
 
   // Contribution limits
   const limit401k = 23000; // 2024 limit
   const catchUpAge = 50;
-  
+
   if (input.currentAge >= catchUpAge) {
     recommendations.push(
       `You're eligible for catch-up contributions! 401(k) limit is $${limit401k + 7500}/year, IRA limit is $8,000/year`

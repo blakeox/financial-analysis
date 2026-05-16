@@ -177,7 +177,9 @@ export async function mockLeaseAnalysis(
 
 export async function openLeaseAnalysis(page: Page) {
   await page.goto('/lease-analysis');
-  await expect(page.getByRole('heading', { level: 1, name: 'Enhanced Lease Analysis' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Enhanced Lease Analysis' })
+  ).toBeVisible();
   await expect(page.getByRole('tablist')).toBeVisible();
 }
 

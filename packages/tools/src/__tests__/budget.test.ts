@@ -32,9 +32,7 @@ describe('BudgetTool', () => {
   describe('execute', () => {
     it('analyzes basic budget', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 5000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 5000, type: 'salary' }],
         expenses: [
           { name: 'Rent', monthlyAmount: 1500, type: 'housing', isFixed: true, isEssential: true },
           { name: 'Groceries', monthlyAmount: 400, type: 'food', isEssential: true },
@@ -51,16 +49,26 @@ describe('BudgetTool', () => {
 
     it('includes debt analysis', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 6000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 6000, type: 'salary' }],
         expenses: [
           { name: 'Rent', monthlyAmount: 1800, type: 'housing', isFixed: true },
           { name: 'Utilities', monthlyAmount: 150, type: 'utilities', isFixed: true },
         ],
         debts: [
-          { name: 'Credit Card', totalBalance: 5000, monthlyPayment: 200, interestRate: 0.18, type: 'credit_card' },
-          { name: 'Car Loan', totalBalance: 15000, monthlyPayment: 350, interestRate: 0.05, type: 'auto' },
+          {
+            name: 'Credit Card',
+            totalBalance: 5000,
+            monthlyPayment: 200,
+            interestRate: 0.18,
+            type: 'credit_card',
+          },
+          {
+            name: 'Car Loan',
+            totalBalance: 15000,
+            monthlyPayment: 350,
+            interestRate: 0.05,
+            type: 'auto',
+          },
         ],
       });
 
@@ -69,9 +77,7 @@ describe('BudgetTool', () => {
 
     it('calculates budget metrics', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 5000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 5000, type: 'salary' }],
         expenses: [
           { name: 'Rent', monthlyAmount: 1500, type: 'housing' },
           { name: 'Food', monthlyAmount: 500, type: 'food' },
@@ -83,11 +89,15 @@ describe('BudgetTool', () => {
 
     it('provides optimized budget', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 7000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 7000, type: 'salary' }],
         expenses: [
-          { name: 'Housing', monthlyAmount: 2000, type: 'housing', isFixed: true, isEssential: true },
+          {
+            name: 'Housing',
+            monthlyAmount: 2000,
+            type: 'housing',
+            isFixed: true,
+            isEssential: true,
+          },
           { name: 'Food', monthlyAmount: 600, type: 'food', isEssential: true },
           { name: 'Entertainment', monthlyAmount: 500, type: 'entertainment', isEssential: false },
           { name: 'Shopping', monthlyAmount: 400, type: 'personal', isEssential: false },
@@ -100,9 +110,7 @@ describe('BudgetTool', () => {
 
     it('includes 50/30/20 budget rule analysis', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 5000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 5000, type: 'salary' }],
         expenses: [
           { name: 'Rent', monthlyAmount: 1400, type: 'housing', isEssential: true },
           { name: 'Food', monthlyAmount: 400, type: 'food', isEssential: true },
@@ -121,9 +129,7 @@ describe('BudgetTool', () => {
           { name: 'Side Business', monthlyAmount: 1000, type: 'business' },
           { name: 'Investments', monthlyAmount: 500, type: 'investment' },
         ],
-        expenses: [
-          { name: 'Rent', monthlyAmount: 1500, type: 'housing' },
-        ],
+        expenses: [{ name: 'Rent', monthlyAmount: 1500, type: 'housing' }],
       });
 
       expect(result).toBeDefined();
@@ -132,15 +138,19 @@ describe('BudgetTool', () => {
 
     it('handles reduce_debt optimization goal', async () => {
       const result = await BudgetTool.execute({
-        income: [
-          { name: 'Salary', monthlyAmount: 5000, type: 'salary' },
-        ],
+        income: [{ name: 'Salary', monthlyAmount: 5000, type: 'salary' }],
         expenses: [
           { name: 'Rent', monthlyAmount: 1200, type: 'housing' },
           { name: 'Food', monthlyAmount: 400, type: 'food' },
         ],
         debts: [
-          { name: 'Credit Card', totalBalance: 10000, monthlyPayment: 300, interestRate: 0.22, type: 'credit_card' },
+          {
+            name: 'Credit Card',
+            totalBalance: 10000,
+            monthlyPayment: 300,
+            interestRate: 0.22,
+            type: 'credit_card',
+          },
         ],
         optimizationGoal: 'reduce_debt',
       });
@@ -153,9 +163,7 @@ describe('BudgetTool', () => {
       await expect(
         BudgetTool.execute({
           income: [],
-          expenses: [
-            { name: 'Rent', monthlyAmount: 1500, type: 'housing' },
-          ],
+          expenses: [{ name: 'Rent', monthlyAmount: 1500, type: 'housing' }],
         })
       ).rejects.toThrow();
     });
@@ -163,9 +171,7 @@ describe('BudgetTool', () => {
     it('rejects empty expenses array', async () => {
       await expect(
         BudgetTool.execute({
-          income: [
-            { name: 'Salary', monthlyAmount: 5000, type: 'salary' },
-          ],
+          income: [{ name: 'Salary', monthlyAmount: 5000, type: 'salary' }],
           expenses: [],
         })
       ).rejects.toThrow();

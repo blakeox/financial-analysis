@@ -25,7 +25,9 @@ export class CharitableGivingOptimizer {
     // Basic implementation - calculate tax savings from charitable deductions
     const itemizedDeductions = input.givingDetails.annualGivingAmount;
 
-    const taxSavings = new Decimal(itemizedDeductions).times(input.taxInfo.federalTaxRate).toNumber();
+    const taxSavings = new Decimal(itemizedDeductions)
+      .times(input.taxInfo.federalTaxRate)
+      .toNumber();
     const methodComparison = input.analysis.compareMethods
       ? this.buildMethodComparison(input)
       : undefined;
@@ -33,7 +35,11 @@ export class CharitableGivingOptimizer {
     return {
       totalTaxSavings: taxSavings,
       optimalGivingStrategy: 'Maximize itemized deductions while maintaining tax efficiency',
-      recommendedCharities: ['Local community organizations', 'Educational institutions', 'Healthcare foundations'],
+      recommendedCharities: [
+        'Local community organizations',
+        'Educational institutions',
+        'Healthcare foundations',
+      ],
       ...(methodComparison ? { methodComparison } : {}),
       projectedImpact: {
         immediateTaxBenefit: taxSavings,
@@ -43,12 +49,12 @@ export class CharitableGivingOptimizer {
       recommendations: [
         'Consider bunching donations to exceed standard deduction',
         'Explore donor-advised funds for tax planning',
-        'Consider qualified charitable distributions from IRAs if over 70½'
+        'Consider qualified charitable distributions from IRAs if over 70½',
       ],
       risks: [
         'Changes in tax laws could affect deductions',
-        'Over-donation may impact personal financial goals'
-      ]
+        'Over-donation may impact personal financial goals',
+      ],
     };
   }
 
@@ -56,7 +62,9 @@ export class CharitableGivingOptimizer {
     input: CharitableGivingInput
   ): NonNullable<CharitableGivingResult['methodComparison']> {
     const donationAmount = new Decimal(input.givingDetails.annualGivingAmount);
-    const combinedRate = new Decimal(input.taxInfo.federalTaxRate).plus(input.taxInfo.stateTaxRate ?? 0);
+    const combinedRate = new Decimal(input.taxInfo.federalTaxRate).plus(
+      input.taxInfo.stateTaxRate ?? 0
+    );
 
     const methods: Array<{
       method: CharitableGivingInput['givingDetails']['givingMethod'];
@@ -80,7 +88,11 @@ export class CharitableGivingOptimizer {
       },
       {
         method: 'qcd',
-        multiplier: new Decimal(input.personalInfo.age >= 70.5 ? input.taxInfo.federalTaxRate : input.taxInfo.federalTaxRate * 0.5),
+        multiplier: new Decimal(
+          input.personalInfo.age >= 70.5
+            ? input.taxInfo.federalTaxRate
+            : input.taxInfo.federalTaxRate * 0.5
+        ),
         summary: 'Best when IRA distributions can be excluded from taxable income',
       },
       {
@@ -97,4 +109,3 @@ export class CharitableGivingOptimizer {
     }));
   }
 }
-

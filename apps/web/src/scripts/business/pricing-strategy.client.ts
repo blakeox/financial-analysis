@@ -3,7 +3,14 @@
  * Cost-plus, value-based, competitive pricing optimization
  */
 
-import { coerceNumber, formatCurrency, showLoading, hideLoading, showError, hideError } from '../../utils/calculator-utilities';
+import {
+  coerceNumber,
+  formatCurrency,
+  showLoading,
+  hideLoading,
+  showError,
+  hideError,
+} from '../../utils/calculator-utilities';
 
 export interface PricingInput {
   costPerUnit: number;
@@ -28,38 +35,45 @@ function calculatePricing(input: PricingInput): PricingResult {
   const costPlusPrice = input.costPerUnit * (1 + input.targetMargin / 100);
   const costPlusMargin = ((costPlusPrice - input.costPerUnit) / costPlusPrice) * 100;
   const costPlusProfit = (costPlusPrice - input.costPerUnit) * input.unitsSoldMonthly;
-  
+
   // Value-Based Pricing (30-40% of value delivered)
   const valueBasePrice = input.valueToCustomer * 0.35;
   const valueBaseMargin = ((valueBasePrice - input.costPerUnit) / valueBasePrice) * 100;
-  const valueBaseUnits = input.unitsSoldMonthly * (1 - (valueBasePrice - costPlusPrice) / costPlusPrice * (input.priceElasticity / 100));
+  const valueBaseUnits =
+    input.unitsSoldMonthly *
+    (1 - ((valueBasePrice - costPlusPrice) / costPlusPrice) * (input.priceElasticity / 100));
   const valueBaseProfit = (valueBasePrice - input.costPerUnit) * Math.max(valueBaseUnits, 0);
-  
+
   // Competitive Pricing (match market)
   const competitivePrice = input.marketPrice;
   const competitiveMargin = ((competitivePrice - input.costPerUnit) / competitivePrice) * 100;
   const competitiveProfit = (competitivePrice - input.costPerUnit) * input.unitsSoldMonthly;
-  
+
   // Optimal Price (maximize profit with elasticity)
   let optimalPrice = costPlusPrice;
   let maxProfit = costPlusProfit;
-  
-  for (let price = input.costPerUnit * 1.2; price <= Math.min(valueBasePrice, input.marketPrice * 1.5); price += input.costPerUnit * 0.05) {
+
+  for (
+    let price = input.costPerUnit * 1.2;
+    price <= Math.min(valueBasePrice, input.marketPrice * 1.5);
+    price += input.costPerUnit * 0.05
+  ) {
     const priceChange = (price - costPlusPrice) / costPlusPrice;
     const demandChange = -priceChange * (input.priceElasticity / 100);
     const estimatedUnits = input.unitsSoldMonthly * (1 + demandChange);
     const profit = (price - input.costPerUnit) * Math.max(estimatedUnits, 0);
-    
+
     if (profit > maxProfit) {
       maxProfit = profit;
       optimalPrice = price;
     }
   }
-  
-  const optimalDemandChange = -((optimalPrice - costPlusPrice) / costPlusPrice) * (input.priceElasticity / 100);
+
+  const optimalDemandChange =
+    -((optimalPrice - costPlusPrice) / costPlusPrice) * (input.priceElasticity / 100);
   const optimalUnits = input.unitsSoldMonthly * (1 + optimalDemandChange);
   const optimalRevenue = optimalPrice * optimalUnits;
-  
+
   // Sensitivity Analysis
   const sensitivity: PricingResult['sensitivity'] = [];
   for (let i = -20; i <= 20; i += 5) {
@@ -70,28 +84,45 @@ function calculatePricing(input: PricingInput): PricingResult {
     const profit = (price - input.costPerUnit) * units;
     sensitivity.push({ price, units, revenue, profit });
   }
-  
+
   const recommendations: string[] = [];
-  
+
   if (valueBasePrice > costPlusPrice * 1.3) {
-    recommendations.push(`💰 You're leaving money on the table! Customers value this at ${formatCurrency(input.valueToCustomer)} but you're pricing based on cost.`);
+    recommendations.push(
+      `💰 You're leaving money on the table! Customers value this at ${formatCurrency(input.valueToCustomer)} but you're pricing based on cost.`
+    );
   }
-  
+
   if (competitiveMargin < 20) {
-    recommendations.push('⚠️ Market price gives you low margins (<20%). Consider differentiation or cost reduction.');
+    recommendations.push(
+      '⚠️ Market price gives you low margins (<20%). Consider differentiation or cost reduction.'
+    );
   }
-  
+
   if (Math.abs(optimalPrice - costPlusPrice) / costPlusPrice > 0.15) {
-    recommendations.push(`📊 Optimal price is ${((optimalPrice - costPlusPrice) / costPlusPrice * 100).toFixed(0)}% different from cost-plus. Test gradually.`);
+    recommendations.push(
+      `📊 Optimal price is ${(((optimalPrice - costPlusPrice) / costPlusPrice) * 100).toFixed(0)}% different from cost-plus. Test gradually.`
+    );
   }
-  
-  recommendations.push('💡 Tip: Test $X.99 pricing (e.g., $49.99 vs $50) - psychological pricing can boost conversion 10-20%.');
-  
+
+  recommendations.push(
+    '💡 Tip: Test $X.99 pricing (e.g., $49.99 vs $50) - psychological pricing can boost conversion 10-20%.'
+  );
+
   return {
     costPlus: { price: costPlusPrice, margin: costPlusMargin, monthlyProfit: costPlusProfit },
     valueBase: { price: valueBasePrice, margin: valueBaseMargin, monthlyProfit: valueBaseProfit },
-    competitive: { price: competitivePrice, margin: competitiveMargin, monthlyProfit: competitiveProfit },
-    optimal: { price: optimalPrice, estimatedUnits: optimalUnits, revenue: optimalRevenue, profit: maxProfit },
+    competitive: {
+      price: competitivePrice,
+      margin: competitiveMargin,
+      monthlyProfit: competitiveProfit,
+    },
+    optimal: {
+      price: optimalPrice,
+      estimatedUnits: optimalUnits,
+      revenue: optimalRevenue,
+      profit: maxProfit,
+    },
     sensitivity,
     recommendations,
   };
@@ -110,13 +141,19 @@ function displayResults(result: PricingResult, input: PricingInput): void {
     { name: 'Competitive', data: result.competitive, icon: '🎯' },
   ];
 
-  summaryCards.innerHTML = strategies.map(s => `
+  summaryCards.innerHTML =
+    strategies
+      .map(
+        (s) => `
     <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">${s.icon} ${s.name}</h5>
       <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(s.data.price)}</p>
       <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${s.data.margin.toFixed(1)}% margin</p>
     </div>
-  `).join('') + `
+  `
+      )
+      .join('') +
+    `
     <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
       <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">⭐ Optimal Price</h5>
       <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.optimal.price)}</p>
@@ -125,12 +162,12 @@ function displayResults(result: PricingResult, input: PricingInput): void {
   `;
 
   resultsContainer.innerHTML = `
-    <div class="fa-card p-6 mb-6">
+    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">Pricing Strategy Comparison</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="fa-panel-divider">
+            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
               <th class="text-left py-2 px-2">Strategy</th>
               <th class="text-right py-2 px-2">Price</th>
               <th class="text-right py-2 px-2">Margin %</th>
@@ -138,15 +175,19 @@ function displayResults(result: PricingResult, input: PricingInput): void {
             </tr>
           </thead>
           <tbody>
-            ${strategies.map(s => `
-              <tr class="fa-panel-divider-soft">
+            ${strategies
+              .map(
+                (s) => `
+              <tr class="border-b border-slate-200 dark:border-slate-800">
                 <td class="py-2 px-2 font-medium">${s.icon} ${s.name}</td>
                 <td class="text-right py-2 px-2">${formatCurrency(s.data.price)}</td>
                 <td class="text-right py-2 px-2">${s.data.margin.toFixed(1)}%</td>
                 <td class="text-right py-2 px-2 font-semibold text-emerald-600 dark:text-emerald-400">${formatCurrency(s.data.monthlyProfit)}</td>
               </tr>
-            `).join('')}
-            <tr class="fa-panel-divider-top font-bold bg-emerald-50 dark:bg-emerald-900/20">
+            `
+              )
+              .join('')}
+            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-bold bg-emerald-50 dark:bg-emerald-900/20">
               <td class="py-3 px-2">⭐ Optimal (Math-Based)</td>
               <td class="text-right py-3 px-2">${formatCurrency(result.optimal.price)}</td>
               <td class="text-right py-3 px-2">${(((result.optimal.price - input.costPerUnit) / result.optimal.price) * 100).toFixed(1)}%</td>
@@ -162,7 +203,7 @@ function displayResults(result: PricingResult, input: PricingInput): void {
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
           <thead>
-            <tr class="border-b border-slate-200/80 dark:border-slate-800">
+            <tr class="border-b border-slate-300 dark:border-slate-700">
               <th class="text-left py-2">Price</th>
               <th class="text-right py-2">Est. Units</th>
               <th class="text-right py-2">Revenue</th>
@@ -170,14 +211,18 @@ function displayResults(result: PricingResult, input: PricingInput): void {
             </tr>
           </thead>
           <tbody>
-            ${result.sensitivity.map(s => `
-              <tr class="fa-panel-divider-soft">
+            ${result.sensitivity
+              .map(
+                (s) => `
+              <tr class="border-b border-slate-200 dark:border-slate-800">
                 <td class="py-2">${formatCurrency(s.price)}</td>
                 <td class="text-right py-2">${Math.round(s.units)}</td>
                 <td class="text-right py-2">${formatCurrency(s.revenue)}</td>
                 <td class="text-right py-2 ${s.profit > result.optimal.profit * 0.95 ? 'font-bold text-emerald-600 dark:text-emerald-400' : ''}">${formatCurrency(s.profit)}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
       </div>
@@ -186,13 +231,17 @@ function displayResults(result: PricingResult, input: PricingInput): void {
     <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-3">💡 Pricing Recommendations</h2>
       <div class="space-y-3">
-        ${result.recommendations.map(rec => `
-          <div class="fa-subcard p-3 text-sm">${rec}</div>
-        `).join('')}
+        ${result.recommendations
+          .map(
+            (rec) => `
+          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-3 text-sm">${rec}</div>
+        `
+          )
+          .join('')}
       </div>
     </div>
   `;
-  
+
   resultsSection.classList.remove('hidden');
 }
 
@@ -224,13 +273,15 @@ function initializePricingStrategy(): void {
       const input = parseFormInput(form);
       if (input.costPerUnit <= 0) throw new Error('Cost per unit must be positive');
       if (input.unitsSoldMonthly <= 0) throw new Error('Units sold must be positive');
-      
+
       const result = calculatePricing(input);
       displayResults(result, input);
-      
-      window.dispatchEvent(new CustomEvent('calculator-completed', {
-        detail: { calculatorId: 'pricing-strategy', result, formData: input },
-      }));
+
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'pricing-strategy', result, formData: input },
+        })
+      );
     } catch (error) {
       showError(error instanceof Error ? error.message : 'Calculation failed');
     } finally {
