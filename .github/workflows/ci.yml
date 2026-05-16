@@ -68,6 +68,11 @@ jobs:
       - name: Check for duplicate files
         run: pnpm run check:duplicates
 
+      - name: Build shared packages
+        run: |
+          pnpm --filter @financial-analysis/analysis run build
+          pnpm --filter @financial-analysis/ui run build
+
       - name: Typecheck
         run: pnpm typecheck
 
