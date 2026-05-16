@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoPath, setViewportDesktop, waitForNavReady } from '../_shared/nav';
+import { gotoPath, setViewportDesktop, waitForNavReady } from '../utils/nav';
 
 test.describe('Navbar search overlay', () => {
   test('open/close and focus management', async ({ page }) => {
