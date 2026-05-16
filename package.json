@@ -27,6 +27,7 @@
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive exec prettier --check .",
     "typecheck": "pnpm --recursive run typecheck",
+    "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "clean:finder-duplicates": "node scripts/clean-finder-duplicates.mjs",
     "reinstall": "rm -rf node_modules apps/*/node_modules packages/*/node_modules workers/*/node_modules && pnpm install",

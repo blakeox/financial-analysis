@@ -45,7 +45,7 @@ financial-analysis/
 Requirements:
 
 - Node.js 22+ (see `.nvmrc`)
-- pnpm 8+
+- pnpm 10+ (see `packageManager` in `package.json`)
 - Cloudflare account (for deployment)
 - Git
 
@@ -61,7 +61,14 @@ Requirements:
 2. **Install dependencies**
 
    ```bash
+   nvm use   # or install Node 22+
    pnpm install
+   ```
+
+   First-time setup or after dependency issues (macOS Finder duplicates, stale `node_modules`):
+
+   ```bash
+   pnpm run setup:local
    ```
 
 3. **Set up environment variables**

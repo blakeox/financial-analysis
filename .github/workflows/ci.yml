@@ -1,6 +1,10 @@
 name: CI
 
 on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -69,6 +73,12 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Format check
+        run: pnpm run format:check
+
+      - name: Security audit
+        run: pnpm audit --audit-level moderate
 
       - name: Run unit tests
         run: pnpm test
