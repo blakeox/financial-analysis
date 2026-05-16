@@ -42,7 +42,7 @@
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.50.0",
-    "ajv": "^8.17.1",
+    "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "esbuild": "0.27.0",
     "eslint": "^9.39.1",
