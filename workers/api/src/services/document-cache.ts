@@ -286,7 +286,10 @@ export class DocumentCache {
       return await response.text();
     } catch (error) {
       console.error('Live fetch failed:', error);
-      throw new Error(`Failed to fetch ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to fetch ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error },
+      );
     }
   }
 
