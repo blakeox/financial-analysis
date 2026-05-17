@@ -3,8 +3,26 @@ name: CI
 on:
   push:
     branches: [main, dev]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/chatmodes/**'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.md'
+      - 'SECURITY.md'
   pull_request:
     branches: [main, dev]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/chatmodes/**'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.md'
+      - 'SECURITY.md'
   workflow_dispatch:
 
 permissions:
