@@ -29,6 +29,7 @@
     "format:check": "pnpm --recursive run format:check",
     "pretypecheck": "pnpm run build:libs",
     "typecheck": "pnpm --recursive run typecheck",
+    "test:ci": "pnpm run check:duplicates && pnpm test:smoke && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm audit --audit-level moderate && pnpm test",
     "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "clean:finder-duplicates": "node scripts/clean-finder-duplicates.mjs",
