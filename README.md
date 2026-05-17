@@ -1,6 +1,7 @@
 # Financial Analysis Tooling
 
 ![CI](https://github.com/blakeox/financial-analysis/actions/workflows/ci.yml/badge.svg)
+![CI Pipeline](https://github.com/blakeox/financial-analysis/actions/workflows/ci-cd.yml/badge.svg)
 ![License: MIT](https://img.shields.io/github/license/blakeox/financial-analysis)
 ![GitHub contributors](https://img.shields.io/github/contributors/blakeox/financial-analysis)
 
@@ -148,6 +149,12 @@ const response = await fetch('/api/mcp', {
 ## 🧪 Testing
 
 ```bash
+# Full local gate (same checks as CI: duplicates, build, typecheck, lint, format, test)
+pnpm run verify
+
+# Build workspace libraries before typecheck (also runs automatically via pretypecheck)
+pnpm run build:libs
+
 # Run all workspace tests
 pnpm run test
 
@@ -369,10 +376,16 @@ cd workers/web && pnpm run build                    # dry-run deploy
 
 ### CI and Preview Deploys
 
-This repo includes GitHub Actions for CI and preview deploys:
+GitHub Actions run on pushes and PRs to `main` and `dev`:
 
-- `.github/workflows/ci.yml`: Typecheck, lint, and run unit tests on PRs and pushes to `main`.
-- `.github/workflows/deploy-preview.yml`: Builds the site and deploys both Workers to Cloudflare preview. It injects `COMMIT_SHA` so `/version` returns the current commit.
+- `.github/workflows/ci.yml` — API smoke tests, typecheck, lint, format, audit, unit tests, Playwright site smoke
+- `.github/workflows/ci-cd.yml` — Quality gate, workspace tests, production build artifacts, `pnpm audit`, CodeQL
+- `.github/workflows/pull-request.yml` — Duplicate-file check, dependency review, secret scan
+- `.github/workflows/e2e-web.yml` — Cross-browser smoke matrix on web-related PRs; weekly extended smoke; manual full/matrix/flake lanes
+
+Manual workflows (`workflow_dispatch`): `e2e-web`, `coverage`, `mutation`, `deploy-preview`, `deploy-production`, worker monitors.
+
+- `.github/workflows/deploy-preview.yml` — Builds the site and deploys both Workers to Cloudflare preview. Injects `COMMIT_SHA` so `/version` returns the current commit.
 
 Required GitHub secrets (Repository Settings → Secrets and variables → Actions):
 

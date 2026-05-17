@@ -1,6 +1,17 @@
 name: E2E Web
 
 on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/analysis/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/e2e-web.yml'
+  schedule:
+    # Weekly extended web smoke (Mon 12:00 UTC)
+    - cron: '0 12 * * 1'
   workflow_dispatch:
     inputs:
       mode:
@@ -43,7 +54,7 @@ concurrency:
 
 jobs:
   smoke:
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -64,6 +75,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Install Playwright Browsers
         working-directory: apps/web
@@ -111,6 +125,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Install Playwright Browsers
         working-directory: apps/web
@@ -163,6 +180,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared packages
+        run: pnpm run build:libs
+
       - name: Install Playwright Browsers
         working-directory: apps/web
         env:
@@ -213,6 +233,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Install Playwright Browsers
         working-directory: apps/web
