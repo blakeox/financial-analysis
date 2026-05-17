@@ -123,7 +123,10 @@ Closes #
 - [ ] ✅ No merge conflicts
 - [ ] ✅ Ready for review
 
-<!-- Optional: add label `deploy-preview` to trigger Cloudflare preview deploy -->
+<!-- Optional labels:
+  - `deploy-preview` — trigger Cloudflare preview deploy
+  - `skip-ci` — skip CI / PR checks (trivial or docs-only when ci.yml already skipped); remove before merge if checks are required
+-->
 
 ## Additional Notes
 
