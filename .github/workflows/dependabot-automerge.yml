@@ -51,7 +51,7 @@ jobs:
           fi
           login=$(echo "$pr_json" | jq -r .user.login)
           state=$(echo "$pr_json" | jq -r .state)
-          if [[ "$login" != "dependabot[bot]" ]] || [[ "$state" != "open" ]]; then
+          if [[ "$login" != "dependabot[bot]" ]] || [[ "${state,,}" != "open" ]]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "Skipping (author=$login, state=$state)."
           fi

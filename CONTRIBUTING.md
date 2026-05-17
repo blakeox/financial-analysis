@@ -211,6 +211,11 @@ Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
 
 Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via the **Sync GitHub labels** workflow on `main`.
 
+**Repo settings (maintainers):**
+
+- **Actions → Run workflows from Dependabot pull requests** — so dependency PRs run full CI before auto-merge
+- **Secrets → `CODECOV_TOKEN`** (optional) — uploads coverage to Codecov from [coverage.yml](.github/workflows/coverage.yml)
+
 ## Pull Request Process
 
 1. Ensure your PR includes:
