@@ -1,0 +1,26 @@
+name: PR skip-ci gate
+description: Detects the skip-ci label on pull requests (no-op on push/workflow_dispatch).
+
+inputs:
+  pr_labels:
+    description: Comma-separated PR label names (pass join(github.event.pull_request.labels.*.name, ','))
+    required: false
+    default: ''
+
+outputs:
+  skip_ci:
+    description: 'true when the PR has the skip-ci label'
+    value: ${{ steps.eval.outputs.skip_ci }}
+
+runs:
+  using: composite
+  steps:
+    - id: eval
+      shell: bash
+      run: |
+        skip=false
+        labels="${{ inputs.pr_labels }}"
+        if [[ -n "$labels" ]] && [[ ",${labels}," == *",skip-ci,"* ]]; then
+          skip=true
+        fi
+        echo "skip_ci=$skip" >> "$GITHUB_OUTPUT"

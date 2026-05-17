@@ -54,8 +54,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      skip_ci: ${{ steps.skip.outputs.skip_ci }}
+    steps:
+      - name: Detect skip-ci label
+        id: skip
+        uses: ./.github/actions/pr-skip-ci
+        with:
+          pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
   smoke:
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
+    needs: [gate]
+    if: |
+      always() &&
+      (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -93,7 +108,11 @@ jobs:
           retention-days: 7
 
   smoke-matrix:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix')
+    needs: [gate]
+    if: |
+      always() &&
+      (github.event_name != 'pull_request' || (needs.gate.result == 'success' && needs.gate.outputs.skip_ci != 'true')) &&
+      (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

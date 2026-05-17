@@ -1,0 +1,38 @@
+name: Dependabot auto-merge
+
+# Approves and enables squash auto-merge for Dependabot patch/minor PRs once CI is green.
+# Requires: repo Settings → General → Allow auto-merge, and branch protection with required checks.
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot-automerge:
+    name: Auto-merge Dependabot (patch/minor)
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Approve and enable auto-merge
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --squash "$PR_URL"
+
+      - name: Major updates need manual review
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: echo "Skipping auto-merge for major version bump — review manually."
