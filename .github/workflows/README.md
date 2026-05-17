@@ -28,7 +28,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | Workflow | Schedule | Purpose |
 |----------|----------|---------|
 | [e2e-web.yml](./e2e-web.yml) | Mon 12:00 UTC | Weekly web smoke |
-| [coverage.yml](./coverage.yml) | Mon 06:00 UTC | Analysis + web coverage → Codecov |
+| [coverage.yml](./coverage.yml) | Mon 06:00 UTC | Analysis + web coverage (Codecov when `CODECOV_TOKEN` is set) |
 | [mutation.yml](./mutation.yml) | 1st of month 08:00 UTC | Analysis mutation tests |
 | [monitor-workers-health.yml](./monitor-workers-health.yml) | Daily | Workers health |
 | [monitor-r2-quotas.yml](./monitor-r2-quotas.yml) | Daily | R2 quota checks |
