@@ -9,6 +9,7 @@ on:
       - 'apps/web/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/coverage.yml'
+      - '.github/actions/**'
   schedule:
     # Weekly coverage report (Mon 06:00 UTC)
     - cron: '0 6 * * 1'
