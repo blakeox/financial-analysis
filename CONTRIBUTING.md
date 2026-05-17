@@ -195,6 +195,21 @@ Report vulnerabilities privately — see [SECURITY.md](./SECURITY.md). Do not op
 - Run full local gate: `pnpm run verify`
 - Preview deploy: add the `deploy-preview` label on your PR (requires repo secrets) or run the workflow manually
 
+## CI and PR labels
+
+Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
+
+| Label | When to use |
+|-------|-------------|
+| `skip-ci` | Trivial PRs where you intentionally skip checks (jobs still report success). Remove before merge if branch protection requires green CI. |
+| `deploy-preview` | Deploy a Cloudflare preview for this PR |
+
+- **Doc-only** changes (`*.md`, `docs/`, templates): `ci.yml` does not run; `pull-request.yml` still runs.
+- **Workers-only** changes: `ci.yml` runs without Playwright; `e2e-web` does not run.
+- **Dependabot** patch/minor PRs may auto-merge when CI is green (see workflow README).
+
+Create labels once: `gh label create skip-ci --description "Skip CI workflows" --color "fef2c0"`
+
 ## Pull Request Process
 
 1. Ensure your PR includes:
@@ -204,7 +219,7 @@ Report vulnerabilities privately — see [SECURITY.md](./SECURITY.md). Do not op
    - Updated documentation if needed
 
 2. PRs require:
-   - Passing CI checks (doc-only PRs that change only `*.md` / `docs/` skip the main `ci.yml` job)
+   - Passing CI checks (doc-only PRs skip `ci.yml`; workers-only PRs skip Playwright in `ci.yml`)
    - At least one review
    - No merge conflicts
 

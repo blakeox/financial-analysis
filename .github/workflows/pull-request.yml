@@ -14,28 +14,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  duplicate-check:
-    name: Duplicate file check
+  gate:
+    name: PR gate
     runs-on: ubuntu-latest
+    outputs:
+      skip_ci: ${{ steps.skip.outputs.skip_ci }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Detect skip-ci label
+        id: skip
+        uses: ./.github/actions/pr-skip-ci
+        with:
+          pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
+  duplicate-check:
+    name: Duplicate file check
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skipped (skip-ci label)
+        if: needs.gate.outputs.skip_ci == 'true'
+        run: echo "Duplicate check skipped via skip-ci label."
+
+      - name: Checkout
+        if: needs.gate.outputs.skip_ci != 'true'
+        uses: actions/checkout@v6
+
       - name: Setup monorepo
+        if: needs.gate.outputs.skip_ci != 'true'
         uses: ./.github/actions/setup-monorepo
 
       - name: Check for duplicate files
+        if: needs.gate.outputs.skip_ci != 'true'
         run: pnpm run check:duplicates
 
   dependency-review:
     name: Dependency review
+    needs: gate
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
+      - name: Skipped (skip-ci label)
+        if: needs.gate.outputs.skip_ci == 'true'
+        run: echo "Dependency review skipped via skip-ci label."
+
       - name: Checkout
+        if: needs.gate.outputs.skip_ci != 'true'
         uses: actions/checkout@v6
 
       - name: Dependency review
+        if: needs.gate.outputs.skip_ci != 'true'
         uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
@@ -43,14 +73,21 @@ jobs:
 
   secret-scan:
     name: Secret scan
+    needs: gate
     runs-on: ubuntu-latest
     steps:
+      - name: Skipped (skip-ci label)
+        if: needs.gate.outputs.skip_ci == 'true'
+        run: echo "Secret scan skipped via skip-ci label."
+
       - name: Checkout
+        if: needs.gate.outputs.skip_ci != 'true'
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: TruffleHog OSS
+        if: needs.gate.outputs.skip_ci != 'true'
         uses: trufflesecurity/trufflehog@v3.95.3
         with:
           extra_args: --only-verified
