@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'packages/analysis/**'
+      - 'packages/ui/**'
       - 'apps/web/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/coverage.yml'
