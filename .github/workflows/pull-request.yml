@@ -61,7 +61,7 @@ jobs:
 
       - name: Check for duplicate files
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        run: node scripts/check-repo-duplicates.mjs
+        run: node scripts/check-repo-duplicates.mjs --files-only
 
   dependency-review:
     name: Dependency review

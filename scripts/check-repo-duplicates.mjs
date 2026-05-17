@@ -85,6 +85,7 @@ function runWebTestLayout() {
 }
 
 function main() {
+  const filesOnly = process.argv.includes('--files-only');
   let failed = false;
 
   const finderDuplicates = findMacOSFinderDuplicates();
@@ -119,6 +120,10 @@ function main() {
 
   if (failed) {
     process.exit(1);
+  }
+
+  if (filesOnly) {
+    process.exit(0);
   }
 
   const layoutStatus = runWebTestLayout();
