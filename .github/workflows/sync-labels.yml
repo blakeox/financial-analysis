@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Sync labels from .github/labels.yml
-        uses: micnncim/action-label-sync@v2
+        uses: micnncim/action-label-syncer@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           prune: false

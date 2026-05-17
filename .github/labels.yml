@@ -22,3 +22,7 @@
 - name: tools
   color: c5def5
   description: Changes to packages/tools (MCP handlers)
+
+- name: github-actions
+  color: e6e6e6
+  description: Changes to GitHub Actions workflows or actions
