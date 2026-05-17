@@ -46,24 +46,58 @@ jobs:
             echo "Not a Dependabot PR — skipping."
           fi
 
-      - name: Dependabot metadata
-        if: steps.author.outputs.skip != 'true'
+      - name: Dependabot metadata (pull_request_target only)
+        if: steps.author.outputs.skip != 'true' && github.event_name == 'pull_request_target'
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          pr-number: ${{ steps.pr.outputs.number }}
+
+      - name: Detect update type from PR title (workflow_run)
+        if: steps.author.outputs.skip != 'true' && github.event_name == 'workflow_run'
+        id: title-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title=$(gh pr view "${{ steps.pr.outputs.number }}" --json title --jq .title)
+          # Parse "Bump X from A.B.C to D.E.F" format used by Dependabot
+          if [[ "$title" =~ from\ ([0-9]+)\.([0-9]+)\.[0-9]+\ to\ ([0-9]+)\.([0-9]+)\.[0-9]+ ]]; then
+            old_major="${BASH_REMATCH[1]}" old_minor="${BASH_REMATCH[2]}"
+            new_major="${BASH_REMATCH[3]}" new_minor="${BASH_REMATCH[4]}"
+            if (( new_major > old_major )); then
+              echo "update-type=major" >> "$GITHUB_OUTPUT"
+            elif (( new_minor > old_minor )); then
+              echo "update-type=minor" >> "$GITHUB_OUTPUT"
+            else
+              echo "update-type=patch" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "::warning::Could not parse version from title: $title"
+            echo "update-type=unknown" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Enable auto-merge (patch/minor)
         if: |
           steps.author.outputs.skip != 'true' && (
-            steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-minor'
+            (github.event_name == 'pull_request_target' && (
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+              steps.metadata.outputs.update-type == 'version-update:semver-minor'
+            )) ||
+            (github.event_name == 'workflow_run' && (
+              steps.title-check.outputs.update-type == 'patch' ||
+              steps.title-check.outputs.update-type == 'minor'
+            ))
           )
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr merge --auto --squash "${{ steps.pr.outputs.number }}"
 
       - name: Major updates need manual review
-        if: steps.author.outputs.skip != 'true' && steps.metadata.outputs.update-type == 'version-update:semver-major'
+        if: |
+          steps.author.outputs.skip != 'true' && (
+            (github.event_name == 'pull_request_target' &&
+              steps.metadata.outputs.update-type == 'version-update:semver-major') ||
+            (github.event_name == 'workflow_run' &&
+              steps.title-check.outputs.update-type == 'major')
+          )
         run: echo "Skipping auto-merge for major version bump — review manually."
