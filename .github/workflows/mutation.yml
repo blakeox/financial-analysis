@@ -1,6 +1,9 @@
 name: Mutation Tests (Analysis)
 
 on:
+  schedule:
+    # Monthly mutation testing (1st of month, 08:00 UTC)
+    - cron: '0 8 1 * *'
   workflow_dispatch:
 
 concurrency:
@@ -28,6 +31,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Run mutation tests (analysis)
         run: pnpm --filter @financial-analysis/analysis test:mutation
