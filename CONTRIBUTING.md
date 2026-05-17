@@ -82,6 +82,7 @@ Run tests, typecheck, and lint across the monorepo:
 ```bash
 pnpm run build:libs  # Build analysis + ui (required before typecheck on fresh clone)
 pnpm run test:ci     # CI without Playwright: duplicates, smoke, typecheck, lint, format, audit, tests
+pnpm run test:ci:full  # test:ci + Playwright smoke (full CI for web changes)
 pnpm run verify      # duplicates + build:libs + typecheck + lint + format + test (pre-push hook)
 pnpm test            # Run all workspace unit tests
 pnpm typecheck       # Typecheck all packages (runs build:libs first via pretypecheck)
@@ -208,7 +209,7 @@ Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
 - **Workers-only** changes: `ci.yml` runs without Playwright; `e2e-web` does not run.
 - **Dependabot** patch/minor PRs may auto-merge when CI is green (see workflow README).
 
-Create labels once: `gh label create skip-ci --description "Skip CI workflows" --color "fef2c0"`
+Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via the **Sync GitHub labels** workflow on `main`.
 
 ## Pull Request Process
 

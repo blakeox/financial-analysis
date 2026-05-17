@@ -10,6 +10,8 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [pull-request.yml](./pull-request.yml) | Every PR | Duplicate check, dependency review, TruffleHog secret scan |
 | [e2e-web.yml](./e2e-web.yml) | PRs touching `apps/web`, `packages/ui`, `packages/analysis`, lockfile, or this workflow | Playwright smoke-matrix (chromium + firefox + webkit + mobile-safari) |
 | [dependabot-automerge.yml](./dependabot-automerge.yml) | Dependabot PRs | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review) |
+| [pr-labeler.yml](./pr-labeler.yml) | Every PR | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`) |
+| [sync-labels.yml](./sync-labels.yml) | Push to `main` when [labels.yml](../labels.yml) changes | Keeps GitHub labels in sync |
 
 **Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` is skipped via `paths-ignore`; `pull-request.yml` still runs.
 
@@ -39,17 +41,13 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 
 ## Labels
 
-Create once (repo admin):
-
-```bash
-gh label create skip-ci --description "Skip CI workflows (trivial/docs-only PRs)" --color "fef2c0" 2>/dev/null || true
-gh label create deploy-preview --description "Deploy Cloudflare preview for this PR" --color "0e8a16" 2>/dev/null || true
-```
+Canonical definitions live in [.github/labels.yml](../labels.yml). After merging label changes to `main`, run **Sync GitHub labels** (`sync-labels.yml`) or push to `main` to apply.
 
 | Label | Effect |
 |-------|--------|
 | `skip-ci` | `ci.yml`, `pull-request.yml`, and `e2e-web` jobs exit successfully without running checks (re-run after removing the label) |
 | `deploy-preview` | Triggers preview deploy workflow |
+| `frontend` / `backend` / `analysis` / `tools` | Applied automatically by [pr-labeler.yml](./pr-labeler.yml) from changed paths |
 
 ## Path behavior
 
@@ -72,11 +70,21 @@ Requires in **Settings → General**:
 
 Patch and minor Dependabot PRs are approved and queued for squash merge when checks pass. **Major** bumps require manual review.
 
+Dependabot watches: `/`, `/apps/web`, `/workers/api`, `/workers/web`, `/packages/analysis`, `/packages/ui`, `/packages/tools`, and GitHub Actions.
+
+## Repository settings checklist (maintainers)
+
+1. **General → Allow auto-merge** — required for Dependabot auto-merge
+2. **Branches → `main` / `dev` protection** — require `build-and-test` (or job name from `ci.yml`), PR reviews, up-to-date branch
+3. **Secrets** — Cloudflare tokens for deploy workflows; optional `CODECOV_TOKEN`, Slack webhooks for monitors
+4. **Environments** — `preview` / `production` with protection rules if using deploy workflows
+
 ## Local equivalents
 
 ```bash
-pnpm run test:ci    # CI without Playwright
-pnpm run verify     # Pre-push hook (typecheck, lint, format, unit tests)
+pnpm run test:ci       # CI without Playwright
+pnpm run test:ci:full  # test:ci + Playwright smoke (matches CI when web paths change)
+pnpm run verify        # Pre-push hook (typecheck, lint, format, unit tests)
 ```
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) and [AGENTS.md](../../AGENTS.md).
