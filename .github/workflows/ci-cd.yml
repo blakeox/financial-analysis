@@ -115,10 +115,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared packages
+        run: pnpm run build:libs
+
       - name: Build all packages
         run: |
-          # Build UI library first (for Astro prebuild)
-          pnpm -C packages/ui run build
+          # UI already built via build:libs; build Astro site next
           # Build Astro web app to produce apps/web/dist for the web worker assets
           pnpm -C apps/web run build
           # Build Workers (web dry-run and API typecheck build)
