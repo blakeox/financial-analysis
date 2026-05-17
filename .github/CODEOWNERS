@@ -11,6 +11,7 @@ packages/ui/ @blakeox
 
 # Backend (Cloudflare Workers + API)
 /workers/api/ @blakeox
+/workers/web/ @blakeox
 /packages/tools/ @blakeox
 
 # Analysis Engines (Financial Logic)

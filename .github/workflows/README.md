@@ -12,8 +12,9 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [dependabot-automerge.yml](./dependabot-automerge.yml) | Dependabot PRs | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review) |
 | [pr-labeler.yml](./pr-labeler.yml) | Every PR | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`) |
 | [sync-labels.yml](./sync-labels.yml) | Push to `main` when [labels.yml](../labels.yml) changes | Keeps GitHub labels in sync |
+| [stale.yml](./stale.yml) | Mon 14:00 UTC | Marks inactive issues/PRs stale (30d) and closes after 14d more |
 
-**Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` is skipped via `paths-ignore`; `pull-request.yml` still runs.
+**Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` is skipped via `paths-ignore`; `pull-request.yml` runs secret scan only (no duplicate check or dependency review).
 
 ## `main` push only
 
@@ -68,9 +69,11 @@ Requires in **Settings → General**:
 - **Allow auto-merge** enabled
 - Branch protection with required checks (auto-merge waits for green CI)
 
-Patch and minor Dependabot PRs are approved and queued for squash merge when checks pass. **Major** bumps require manual review.
+Patch and minor Dependabot PRs are queued for squash auto-merge when checks pass (no bot approval — branch protection has 0 required reviews). **Major** bumps require manual review.
 
-Dependabot watches: `/`, `/apps/web`, `/workers/api`, `/workers/web`, `/packages/analysis`, `/packages/ui`, `/packages/tools`, and GitHub Actions.
+Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync; path labels come from `pr-labeler.yml`.
+
+Optional: enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** if you later require PR approvals for auto-merge.
 
 ## Repository settings checklist (maintainers)
 

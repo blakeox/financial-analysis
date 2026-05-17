@@ -1,10 +1,12 @@
 name: Dependabot auto-merge
 
-# Approves and enables squash auto-merge for Dependabot patch/minor PRs once CI is green.
-# Requires: repo Settings → General → Allow auto-merge, and branch protection with required checks.
+# Enables squash auto-merge for Dependabot patch/minor PRs once required checks pass.
+# Does not submit PR reviews (blocked unless "Allow GitHub Actions to approve pull requests" is on).
+# Requires: Settings → General → Allow auto-merge.
 
 on:
   pull_request_target:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -22,16 +24,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Approve and enable auto-merge
+      - name: Enable auto-merge (patch/minor)
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: |
-          gh pr review --approve "$PR_URL"
-          gh pr merge --auto --squash "$PR_URL"
+        run: gh pr merge --auto --squash "$PR_URL"
 
       - name: Major updates need manual review
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'

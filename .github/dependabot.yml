@@ -1,8 +1,10 @@
 version: 2
 updates:
-  # Root workspace (shared devDependencies and tooling)
+  # Single root entry keeps pnpm-lock.yaml in sync across the monorepo.
+  # Path labels (frontend, backend, etc.) come from pr-labeler.yml on each PR.
   - package-ecosystem: 'npm'
     directory: '/'
+    versioning-strategy: increase
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -23,95 +25,10 @@ updates:
         dependency-type: 'development'
         patterns:
           - '*'
-
-  - package-ecosystem: 'npm'
-    directory: '/apps/web'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
-      - 'frontend'
-
-  - package-ecosystem: 'npm'
-    directory: '/workers/api'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
-      - 'backend'
-
-  - package-ecosystem: 'npm'
-    directory: '/workers/web'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
-      - 'backend'
-
-  - package-ecosystem: 'npm'
-    directory: '/packages/ui'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
-      - 'frontend'
-
-  - package-ecosystem: 'npm'
-    directory: '/packages/tools'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
-      - 'tools'
-
-  - package-ecosystem: 'npm'
-    directory: '/packages/analysis'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'America/New_York'
-    open-pull-requests-limit: 5
-    assignees:
-      - 'blakeox'
-    labels:
-      - 'dependencies'
-      - 'automated'
+      production-dependencies:
+        dependency-type: 'production'
+        patterns:
+          - '*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
