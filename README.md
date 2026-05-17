@@ -149,7 +149,10 @@ const response = await fetch('/api/mcp', {
 ## 🧪 Testing
 
 ```bash
-# Full local gate (same checks as CI: duplicates, build, typecheck, lint, format, test)
+# CI checks without Playwright (~5 min)
+pnpm run test:ci
+
+# Full local gate (typecheck, lint, format, unit tests; pre-push hook)
 pnpm run verify
 
 # Build workspace libraries before typecheck (also runs automatically via pretypecheck)

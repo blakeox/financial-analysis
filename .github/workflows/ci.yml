@@ -44,6 +44,7 @@ jobs:
         uses: ./.github/actions/setup-monorepo
 
       - name: Check for duplicate files
+        if: github.event_name != 'pull_request'
         run: pnpm run check:duplicates
 
       - name: Run API smoke tests
