@@ -15,34 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check for duplicate files
-        run: pnpm run check:duplicates
-
-      - name: Run smoke tests
-        run: pnpm test:smoke
-
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -50,23 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Check for duplicate files
         run: pnpm run check:duplicates
+
+      - name: Run API smoke tests
+        run: pnpm test:smoke
 
       - name: Typecheck
         run: pnpm run typecheck
