@@ -25,10 +25,29 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
-      - name: Create Release PR or Publish with Changesets
+      - name: Check for pending changesets
+        id: pending
+        shell: bash
+        run: |
+          found=false
+          for f in .changeset/*.md; do
+            [[ -f "$f" ]] || continue
+            [[ "$(basename "$f")" == "README.md" ]] && continue
+            found=true
+            break
+          done
+          echo "found=$found" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release PR with Changesets
+        if: steps.pending.outputs.found == 'true'
         uses: changesets/action@v1
         with:
           version: pnpm -w changeset version
-          publish: pnpm -w changeset publish
+          # Monorepo is not published to npm; version PR only.
+          publish: echo "Skipping npm publish — packages are consumed in-repo."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: No pending changesets
+        if: steps.pending.outputs.found != 'true'
+        run: echo "No changesets to version — skipping release job."
