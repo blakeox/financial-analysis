@@ -13,6 +13,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [pr-labeler.yml](./pr-labeler.yml) | Every PR | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`) |
 | [sync-labels.yml](./sync-labels.yml) | Push to `main` when [labels.yml](../labels.yml) changes | Keeps GitHub labels in sync |
 | [stale.yml](./stale.yml) | Mon 14:00 UTC | Marks inactive issues/PRs stale (30d) and closes after 14d more |
+| [scorecard.yml](./scorecard.yml) | Mon 08:00 UTC | OpenSSF Scorecard supply-chain analysis (SARIF → Security tab) |
 
 **Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` is skipped via `paths-ignore`; `pull-request.yml` runs secret scan only (no duplicate check or dependency review).
 
@@ -79,10 +80,13 @@ Optional: enable **Settings → Actions → General → Allow GitHub Actions to 
 
 ## Repository settings checklist (maintainers)
 
+Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
+
 1. **General → Allow auto-merge** — required for Dependabot auto-merge
-2. **Branches → `main` / `dev` protection** — require `build-and-test` (or job name from `ci.yml`), PR reviews, up-to-date branch
-3. **Secrets** — Cloudflare tokens for deploy workflows; optional `CODECOV_TOKEN`, Slack webhooks for monitors
-4. **Environments** — `preview` / `production` with protection rules if using deploy workflows
+2. **Actions → Run workflows from Dependabot pull requests** — full CI on dependency PRs
+3. **Branch protection** — `pnpm run sync:branch-protection` applies [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`)
+4. **Secrets** — Cloudflare tokens for deploy; optional `CODECOV_TOKEN`; Slack for monitors
+5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
 
 ## Local equivalents
 

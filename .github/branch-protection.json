@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Desired branch protection for financial-analysis. Apply with: pnpm run sync:branch-protection",
+  "branches": ["main", "dev"],
+  "enforce_admins": true,
+  "required_linear_history": false,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 0,
+    "dismiss_stale_reviews": false,
+    "require_code_owner_reviews": false
+  },
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["PR gate", "Secret scan"]
+  },
+  "notes": [
+    "PR gate and Secret scan run on every PR via pull-request.yml (including doc-only).",
+    "Build and test (ci.yml) is intentionally not required here because ci.yml skips doc-only paths; code PRs should still pass CI before merge.",
+    "For stricter protection, add Build and test after changing ci.yml to always run a no-op job on doc-only PRs."
+  ]
+}

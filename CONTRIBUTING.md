@@ -211,10 +211,7 @@ Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
 
 Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via the **Sync GitHub labels** workflow on `main`.
 
-**Repo settings (maintainers):**
-
-- **Actions → Run workflows from Dependabot pull requests** — so dependency PRs run full CI before auto-merge
-- **Secrets → `CODECOV_TOKEN`** (optional) — uploads coverage to Codecov from [coverage.yml](.github/workflows/coverage.yml)
+**Repo settings (maintainers):** see [.github/MAINTAINER_SETUP.md](.github/MAINTAINER_SETUP.md) for Dependabot workflows, Codecov, branch protection, and Scorecard.
 
 ## Pull Request Process
 
@@ -226,7 +223,8 @@ Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via th
 
 2. PRs require:
    - Passing CI checks (doc-only PRs skip `ci.yml`; workers-only PRs skip Playwright in `ci.yml`)
-   - At least one review
+   - **PR gate** and **Secret scan** (branch protection); code changes should also pass **Build and test**
+   - Review encouraged; branch protection does not require approvals (Dependabot auto-merge)
    - No merge conflicts
 
 3. New financial tools must be added as ToolModules under `/packages/tools/<slug>`
