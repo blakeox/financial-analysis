@@ -380,7 +380,7 @@ GitHub Actions:
 
 **On every push/PR to `main` and `dev`**
 
-- `.github/workflows/ci.yml` — API smoke, typecheck, lint, format, audit, unit tests, Playwright site smoke
+- `.github/workflows/ci.yml` — Single job: duplicates, API smoke, typecheck, lint, format, audit, unit tests, Playwright site smoke
 - `.github/workflows/pull-request.yml` (PRs only) — Duplicate-file check, dependency review, secret scan
 - `.github/workflows/e2e-web.yml` (web-related PRs) — Cross-browser smoke matrix
 

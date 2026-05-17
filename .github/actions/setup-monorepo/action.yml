@@ -1,0 +1,29 @@
+name: Setup monorepo
+description: Install pnpm, Node.js, and workspace dependencies for this repository
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '22'
+  install-args:
+    description: Arguments passed to pnpm install
+    required: false
+    default: '--frozen-lockfile'
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v6
+      with:
+        version: 10.17.0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install ${{ inputs.install-args }}

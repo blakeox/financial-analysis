@@ -28,6 +28,7 @@ pnpm run dev           # Astro build + web worker (8788) + API (8787)
 
 ## CI (do not duplicate locally)
 
+- Workflows use `.github/actions/setup-monorepo` for pnpm + Node 22 + install
 - **PR / `dev` push:** `ci.yml`, `pull-request.yml`, `e2e-web` (web paths)
 - **`main` push only:** `ci-cd.yml` (artifacts, CodeQL)
 - **Never commit:** Finder duplicates (`file 2`), flat Playwright specs, or `tests/utils/nav.ts` (use `tests/_shared/`)
