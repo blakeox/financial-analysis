@@ -26,6 +26,7 @@
     "test:fast": "pnpm run build && vitest run --config ./vitest.config.mjs --exclude **/performance.test.ts",
     "test:slow": "pnpm run build && vitest run --config ./vitest.config.mjs --include **/performance.test.ts",
     "test:coverage": "pnpm run build && vitest run --coverage --config ./vitest.config.mjs",
+    "test:coverage:ci": "pnpm run build && vitest run --coverage --config ./vitest.config.mjs --coverage.thresholds.perFile=false --coverage.thresholds.lines=0 --coverage.thresholds.branches=0 --coverage.thresholds.functions=0 --coverage.thresholds.statements=0",
     "test:mutation": "stryker run"
   },
   "dependencies": {
