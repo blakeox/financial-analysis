@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Site navigation contract', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'mobile-safari',
+      'These tests assert desktop navigation chrome'
+    );
+  });
+
   test('desktop nav exposes the current public site routes', async ({ page }) => {
     await page.goto('/');
 
