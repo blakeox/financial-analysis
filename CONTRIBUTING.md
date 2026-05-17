@@ -189,10 +189,10 @@ Report vulnerabilities privately — see [SECURITY.md](./SECURITY.md). Do not op
 
 ## Testing
 
-- Engines: 100% covered with unit tests (edge cases: escalations, free rent overlaps, extra payments)
-- End-to-end happy path tests with Playwright
-- Run tests locally: `pnpm test`
-- GitHub Actions: lint, typecheck, unit tests, preview deploy
+- Engines: unit tests with Vitest (edge cases: escalations, free rent overlaps, extra payments)
+- Playwright e2e under `apps/web/tests/` (see `apps/web/scripts/check-test-layout.mjs` for layout rules)
+- Run full local gate: `pnpm run verify`
+- Preview deploy: add the `deploy-preview` label on your PR (requires repo secrets) or run the workflow manually
 
 ## Pull Request Process
 

@@ -59,9 +59,11 @@ This file defines how AI coding assistants should contribute to this repository.
 
 ## Testing & CI
 
-- Engines: 100% covered with unit tests (edge cases: escalations, free rent overlaps, extra payments).
-- End-to-end happy path tests with Playwright.
-- GitHub Actions: lint, typecheck, unit tests, preview deploy.
+- Engines: unit tests with Vitest (edge cases: escalations, free rent overlaps, extra payments).
+- Playwright e2e under `apps/web/tests/{chat,nav,site,...}/` (shared helpers in `tests/_shared/`).
+- Local gate: `pnpm run verify` (duplicates, typecheck, lint, format, tests). Hooks run format/lint/typecheck on commit and verify on push.
+- CI on PR/`dev`: `ci.yml`, `pull-request.yml`, `e2e-web` (web paths). `ci-cd.yml` runs on `main` push only (build artifacts, CodeQL).
+- Preview deploy: add label `deploy-preview` on a PR or run `deploy-preview` workflow manually.
 
 ---
 

@@ -395,9 +395,11 @@ GitHub Actions:
 - `mutation` — Monthly analysis mutation tests (1st of month)
 - `monitor-workers-health` / `monitor-r2-quotas` — Daily production checks (skip gracefully without secrets)
 
-**Manual (`workflow_dispatch`)**
+**Manual / on-demand**
 
-`e2e-web` (full/flake lanes), `deploy-preview`, `deploy-production`, and all of the above.
+- `deploy-preview` — manual, or add label **`deploy-preview`** on a PR
+- `deploy-production` — manual from `main` with confirmation
+- `e2e-web` (full/flake lanes) and all scheduled jobs above
 
 - `.github/workflows/deploy-preview.yml` — Builds the site and deploys both Workers to Cloudflare preview. Injects `COMMIT_SHA` so `/version` returns the current commit.
 

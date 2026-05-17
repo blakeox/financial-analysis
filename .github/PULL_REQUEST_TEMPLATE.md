@@ -116,11 +116,14 @@ Closes #
 
 ## Checklist
 
+- [ ] ✅ `pnpm run verify` passes locally
 - [ ] ✅ Code follows project conventions (TypeScript, ESLint, Prettier)
 - [ ] ✅ Commit messages are clear and descriptive
-- [ ] ✅ Branch is up to date with main
+- [ ] ✅ Branch is up to date with `main`
 - [ ] ✅ No merge conflicts
 - [ ] ✅ Ready for review
+
+<!-- Optional: add label `deploy-preview` to trigger Cloudflare preview deploy -->
 
 ## Additional Notes
 
