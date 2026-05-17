@@ -29,7 +29,7 @@
     "@cloudflare/puppeteer": "^1.1.0",
     "@cloudflare/shell": "^0.3.7",
     "@cloudflare/think": "^0.6.1",
-    "@cloudflare/workers-types": "^4.20260516.1",
+    "@cloudflare/workers-types": "^4.20260517.1",
     "@financial-analysis/analysis": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
     "agents": "^0.12.4",
