@@ -21,8 +21,8 @@ jobs:
           days-before-close: 14
           stale-issue-label: stale
           stale-pr-label: stale
-          exempt-issue-labels: pinned,security,dependabot
-          exempt-pr-labels: pinned,security,dependabot,skip-ci
+          exempt-issue-labels: pinned,security,dependencies
+          exempt-pr-labels: pinned,security,dependencies,skip-ci
           stale-issue-message: This issue has been inactive for 30 days and will be closed in 14 days unless there is new activity.
           stale-pr-message: This pull request has been inactive for 30 days and will be closed in 14 days unless there is new activity.
           close-issue-message: Closed due to inactivity.
