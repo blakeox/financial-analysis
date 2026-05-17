@@ -34,6 +34,7 @@
     "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "check:duplicates:files": "node scripts/check-repo-duplicates.mjs --files-only",
+    "sync:branch-protection": "node scripts/sync-branch-protection.mjs",
     "clean:finder-duplicates": "node scripts/clean-finder-duplicates.mjs",
     "reinstall": "rm -rf node_modules apps/*/node_modules packages/*/node_modules workers/*/node_modules && pnpm install",
     "setup:local": "pnpm run reinstall && pnpm --filter @financial-analysis/web exec playwright install chromium",
