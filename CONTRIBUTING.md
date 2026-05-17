@@ -203,7 +203,7 @@ Report vulnerabilities privately — see [SECURITY.md](./SECURITY.md). Do not op
    - Updated documentation if needed
 
 2. PRs require:
-   - Passing CI checks
+   - Passing CI checks (doc-only PRs that change only `*.md` / `docs/` skip the main `ci.yml` job)
    - At least one review
    - No merge conflicts
 
