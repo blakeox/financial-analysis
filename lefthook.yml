@@ -9,8 +9,8 @@ pre-commit:
 
 pre-push:
   commands:
-    test:
-      run: pnpm test
+    verify:
+      run: pnpm run verify
 
 commit-msg:
   commands:

@@ -80,9 +80,12 @@ Future Extensions (optional):
 Run tests, typecheck, and lint across the monorepo:
 
 ```bash
-pnpm test         # Run all tests (unit, e2e)
-pnpm typecheck    # Typecheck all packages
-pnpm lint         # Lint all packages
+pnpm run build:libs  # Build analysis + ui (required before typecheck on fresh clone)
+pnpm run verify      # duplicates + build:libs + typecheck + lint + format + test (matches CI)
+pnpm test            # Run all workspace unit tests
+pnpm typecheck       # Typecheck all packages (runs build:libs first via pretypecheck)
+pnpm lint            # Lint all packages
+pnpm run format:check
 ```
 
 #### Debugging Tips
@@ -115,7 +118,7 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
 3. Make your changes following the coding standards below
 4. Write or update tests as needed
-5. Ensure all tests pass: `npm test`
+5. Ensure all checks pass: `pnpm run verify`
 6. Commit your changes: `git commit -m "Add: brief description of changes"`
 7. Push to your fork: `git push origin feature/your-feature-name`
 8. Create a Pull Request

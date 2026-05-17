@@ -27,6 +27,7 @@
     "lint": "pnpm --recursive run lint",
     "format": "pnpm --recursive run format",
     "format:check": "pnpm --recursive run format:check",
+    "pretypecheck": "pnpm run build:libs",
     "typecheck": "pnpm --recursive run typecheck",
     "verify": "pnpm run check:duplicates && pnpm run build:libs && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
