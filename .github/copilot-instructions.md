@@ -14,9 +14,10 @@ Daily workflows (use pnpm)
 
 - Dev all (recommended): `pnpm dev` runs `scripts/dev-all.mjs` → builds `apps/web`, starts `@financial-analysis/web-worker` on 8788, then API on 8787.
 - Individual dev: `pnpm --filter @financial-analysis/api dev` and `pnpm --filter @financial-analysis/web-worker dev` (ensure `apps/web` built first).
-- Typecheck/lint/test (monorepo): `pnpm typecheck && pnpm lint && pnpm test`.
+- CI gate (monorepo): `pnpm run verify` (duplicates, typecheck, lint, format, tests).
+- Typecheck/lint/test only: `pnpm typecheck && pnpm lint && pnpm test` (`pretypecheck` runs `build:libs`).
 - Web app prebuild: `apps/web/package.json` runs `prebuild` to rebuild `@financial-analysis/ui` and clear `node_modules/.vite` to avoid stale chunks.
-- Playwright e2e (web): from `apps/web` run `pnpm test:e2e`; HMR stability: `pnpm test:e2e:hmr` (uses `playwright.dev.config.ts`).
+- Playwright e2e (web): specs live under `apps/web/tests/{chat,nav,site,...}/`; smoke: `pnpm test:e2e:smoke`; HMR-only: `pnpm test:e2e:hmr`.
 
 API and contracts (concrete patterns)
 

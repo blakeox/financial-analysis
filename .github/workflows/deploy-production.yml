@@ -37,17 +37,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '22'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build analysis and UI packages (for Astro build)
-        run: |
-          pnpm --filter @financial-analysis/analysis run build
-          pnpm --filter @financial-analysis/ui run build
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Build Astro site
         working-directory: apps/web
