@@ -75,6 +75,8 @@ Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync;
 
 Optional: enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** if you later require PR approvals for auto-merge.
 
+**Dependabot PRs and CI:** Enable **Settings → Actions → General → Run workflows from Dependabot pull requests** so `ci.yml` runs on dependency PRs (auto-merge waits for those checks). Without this, only `pull_request_target` workflows (e.g. auto-merge) run until a maintainer approves workflow execution.
+
 ## Repository settings checklist (maintainers)
 
 1. **General → Allow auto-merge** — required for Dependabot auto-merge
