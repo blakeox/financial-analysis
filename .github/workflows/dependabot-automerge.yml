@@ -4,7 +4,7 @@ name: Dependabot auto-merge
 # Requires: repo Settings → General → Allow auto-merge, and branch protection with required checks.
 
 on:
-  pull_request:
+  pull_request_target:
 
 permissions:
   contents: write

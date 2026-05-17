@@ -20,6 +20,9 @@ jobs:
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Detect skip-ci label
         id: skip
         uses: ./.github/actions/pr-skip-ci
