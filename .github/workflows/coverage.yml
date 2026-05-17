@@ -33,15 +33,20 @@ jobs:
         run: pnpm run build:libs
 
       - name: Run analysis coverage
-        run: pnpm --filter @financial-analysis/analysis run test:coverage
+        run: pnpm --filter @financial-analysis/analysis run test:coverage:ci
 
       - name: Upload coverage (Codecov)
+        if: ${{ secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v6
         with:
           files: packages/analysis/coverage/coverage-final.json
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Codecov skipped (no token)
+        if: ${{ secrets.CODECOV_TOKEN == '' }}
+        run: echo "CODECOV_TOKEN not configured — coverage artifacts uploaded only."
 
       - name: Upload analysis coverage artifacts
         if: always()
@@ -67,12 +72,17 @@ jobs:
         run: pnpm --filter @financial-analysis/web run test:coverage
 
       - name: Upload web coverage (Codecov)
+        if: ${{ secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v6
         with:
           files: apps/web/coverage/vitest/lcov.info
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Codecov skipped (no token)
+        if: ${{ secrets.CODECOV_TOKEN == '' }}
+        run: echo "CODECOV_TOKEN not configured — coverage artifacts uploaded only."
 
       - name: Upload web coverage artifacts
         if: always()

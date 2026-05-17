@@ -49,6 +49,7 @@ export default defineConfig({
         'src/engines/401k-match.ts',
         'src/engines/estate-planning.ts',
         'src/engines/business/startup-financial-model.ts',
+        '**/*-stub.ts',
       ],
     },
     // Use threads pool (default) which is more stable than forks
