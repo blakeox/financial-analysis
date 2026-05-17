@@ -69,7 +69,7 @@ Requires in **Settings → General**:
 - **Allow auto-merge** enabled
 - Branch protection with required checks (auto-merge waits for green CI)
 
-Patch and minor Dependabot PRs are queued for squash auto-merge when checks pass (no bot approval — branch protection has 0 required reviews). **Major** bumps require manual review.
+Patch and minor Dependabot PRs are queued for squash auto-merge when **CI** passes (`dependabot-automerge.yml` runs on PR open and again after the CI workflow completes). No bot approval — branch protection has 0 required reviews. **Major** bumps require manual review.
 
 Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync; path labels come from `pr-labeler.yml`.
 
