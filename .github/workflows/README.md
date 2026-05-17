@@ -21,7 +21,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | Workflow | Purpose |
 |----------|---------|
 | [ci-cd.yml](./ci-cd.yml) | Quality, tests, build artifacts, CodeQL, audit |
-| [release.yml](./release.yml) | Changesets version PR / publish |
+| [release.yml](./release.yml) | Changesets version PR when `.changeset/*.md` exist (no npm publish) |
 
 ## Scheduled / manual
 
