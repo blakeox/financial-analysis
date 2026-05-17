@@ -25,7 +25,7 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
-      - name: Create Release PR with Changesets
+      - name: Create Release PR or Publish with Changesets
         uses: changesets/action@v1
         with:
           version: pnpm -w changeset version
