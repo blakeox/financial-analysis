@@ -11,6 +11,7 @@ Guidance for AI coding assistants working in this repository.
 ```bash
 pnpm run setup:local   # clean install + Playwright chromium (first time / broken node_modules)
 pnpm run test:ci       # CI job without Playwright (~5 min): duplicates, smoke, typecheck, lint, format, audit, tests
+pnpm run test:ci:full  # test:ci + Playwright smoke (when web paths would run e2e in CI)
 pnpm run verify        # Full gate: duplicates, typecheck, lint, format, unit tests (hooks / pre-push)
 pnpm run build:libs    # build @financial-analysis/analysis + ui (runs before typecheck via pretypecheck)
 pnpm run dev           # Astro build + web worker (8788) + API (8787)

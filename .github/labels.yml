@@ -1,0 +1,28 @@
+# Canonical repo labels — synced by .github/workflows/sync-labels.yml
+- name: skip-ci
+  color: fef2c0
+  description: Skip CI workflows (trivial or docs-only PRs)
+
+- name: deploy-preview
+  color: 0e8a16
+  description: Deploy Cloudflare preview for this PR
+
+- name: frontend
+  color: 168700
+  description: Changes to apps/web or packages/ui
+
+- name: backend
+  color: 0366d6
+  description: Changes to workers/api or workers/web
+
+- name: analysis
+  color: 7057ff
+  description: Changes to packages/analysis engines
+
+- name: tools
+  color: c5def5
+  description: Changes to packages/tools (MCP handlers)
+
+- name: github-actions
+  color: e6e6e6
+  description: Changes to GitHub Actions workflows or actions

@@ -55,6 +55,51 @@ updates:
       - 'backend'
 
   - package-ecosystem: 'npm'
+    directory: '/workers/web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'backend'
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/ui'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'frontend'
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/tools'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'blakeox'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'tools'
+
+  - package-ecosystem: 'npm'
     directory: '/packages/analysis'
     schedule:
       interval: 'weekly'
