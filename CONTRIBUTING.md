@@ -205,7 +205,7 @@ Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
 | `skip-ci` | Trivial PRs where you intentionally skip checks (jobs still report success). Remove before merge if branch protection requires green CI. |
 | `deploy-preview` | Deploy a Cloudflare preview for this PR |
 
-- **Doc-only** changes (`*.md`, `docs/`, templates): `ci.yml` does not run; `pull-request.yml` still runs.
+- **Doc-only** changes (`*.md`, `docs/`, templates): `ci.yml` does not run; `pull-request.yml` runs secret scan only.
 - **Workers-only** changes: `ci.yml` runs without Playwright; `e2e-web` does not run.
 - **Dependabot** patch/minor PRs may auto-merge when CI is green (see workflow README).
 

@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
+      code_changed: ${{ steps.filter.outputs.code }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -29,26 +30,38 @@ jobs:
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
+      - name: Detect non-doc code changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - '**'
+              - '!**.md'
+              - '!docs/**'
+              - '!.github/ISSUE_TEMPLATE/**'
+              - '!.github/PULL_REQUEST_TEMPLATE.md'
+              - '!.github/chatmodes/**'
+              - '!LICENSE'
+              - '!CODE_OF_CONDUCT.md'
+              - '!SECURITY.md'
+
   duplicate-check:
     name: Duplicate file check
     needs: gate
     runs-on: ubuntu-latest
     steps:
-      - name: Skipped (skip-ci label)
-        if: needs.gate.outputs.skip_ci == 'true'
-        run: echo "Duplicate check skipped via skip-ci label."
+      - name: Skipped (skip-ci or docs-only)
+        if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
+        run: echo "Duplicate check skipped."
 
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/checkout@v6
 
-      - name: Setup monorepo
-        if: needs.gate.outputs.skip_ci != 'true'
-        uses: ./.github/actions/setup-monorepo
-
       - name: Check for duplicate files
-        if: needs.gate.outputs.skip_ci != 'true'
-        run: pnpm run check:duplicates
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        run: node scripts/check-repo-duplicates.mjs --files-only
 
   dependency-review:
     name: Dependency review
@@ -56,16 +69,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Skipped (skip-ci label)
-        if: needs.gate.outputs.skip_ci == 'true'
-        run: echo "Dependency review skipped via skip-ci label."
+      - name: Skipped (skip-ci or docs-only)
+        if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
+        run: echo "Dependency review skipped."
 
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/checkout@v6
 
       - name: Dependency review
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
