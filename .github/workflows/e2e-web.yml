@@ -9,6 +9,7 @@ on:
       - 'packages/analysis/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/e2e-web.yml'
+      - '.github/actions/**'
   schedule:
     # Weekly extended web smoke (Mon 12:00 UTC)
     - cron: '0 12 * * 1'
@@ -61,20 +62,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
         run: pnpm run build:libs
@@ -111,20 +100,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
         run: pnpm run build:libs
@@ -165,20 +142,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
         run: pnpm run build:libs
@@ -219,20 +184,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.17.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
         run: pnpm run build:libs
