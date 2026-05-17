@@ -10,7 +10,8 @@ Guidance for AI coding assistants working in this repository.
 
 ```bash
 pnpm run setup:local   # clean install + Playwright chromium (first time / broken node_modules)
-pnpm run verify        # CI gate: duplicates, typecheck, lint, format, tests
+pnpm run test:ci       # CI job without Playwright (~5 min): duplicates, smoke, typecheck, lint, format, audit, tests
+pnpm run verify        # Full gate: duplicates, typecheck, lint, format, unit tests (hooks / pre-push)
 pnpm run build:libs    # build @financial-analysis/analysis + ui (runs before typecheck via pretypecheck)
 pnpm run dev           # Astro build + web worker (8788) + API (8787)
 ```
@@ -29,7 +30,8 @@ pnpm run dev           # Astro build + web worker (8788) + API (8787)
 ## CI (do not duplicate locally)
 
 - Workflows use `.github/actions/setup-monorepo` for pnpm + Node 22 + install
-- **PR / `dev` push:** `ci.yml`, `pull-request.yml`, `e2e-web` (web paths)
+- **PR / `dev` push:** `ci.yml`, `pull-request.yml` (duplicate check), `e2e-web` (web paths)
+- **Doc-only PRs:** skip `ci.yml`; `pull-request.yml` still runs
 - **`main` push only:** `ci-cd.yml` (artifacts, CodeQL)
 - **Never commit:** Finder duplicates (`file 2`), flat Playwright specs, or `tests/utils/nav.ts` (use `tests/_shared/`)
 

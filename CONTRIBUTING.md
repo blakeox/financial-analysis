@@ -81,7 +81,8 @@ Run tests, typecheck, and lint across the monorepo:
 
 ```bash
 pnpm run build:libs  # Build analysis + ui (required before typecheck on fresh clone)
-pnpm run verify      # duplicates + build:libs + typecheck + lint + format + test (matches CI)
+pnpm run test:ci     # CI without Playwright: duplicates, smoke, typecheck, lint, format, audit, tests
+pnpm run verify      # duplicates + build:libs + typecheck + lint + format + test (pre-push hook)
 pnpm test            # Run all workspace unit tests
 pnpm typecheck       # Typecheck all packages (runs build:libs first via pretypecheck)
 pnpm lint            # Lint all packages
