@@ -1,10 +1,9 @@
 name: CI Pipeline
 
 on:
+  # Main-only: PR/dev gates run via ci.yml, pull-request.yml, and e2e-web.yml
   push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+    branches: [main]
   workflow_dispatch:
 
 # Default, least-privilege permissions for all jobs; override per-job when needed

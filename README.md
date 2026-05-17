@@ -376,14 +376,28 @@ cd workers/web && pnpm run build                    # dry-run deploy
 
 ### CI and Preview Deploys
 
-GitHub Actions run on pushes and PRs to `main` and `dev`:
+GitHub Actions:
 
-- `.github/workflows/ci.yml` — API smoke tests, typecheck, lint, format, audit, unit tests, Playwright site smoke
-- `.github/workflows/ci-cd.yml` — Quality gate, workspace tests, production build artifacts, `pnpm audit`, CodeQL
-- `.github/workflows/pull-request.yml` — Duplicate-file check, dependency review, secret scan
-- `.github/workflows/e2e-web.yml` — Cross-browser smoke matrix on web-related PRs; weekly extended smoke; manual full/matrix/flake lanes
+**On every push/PR to `main` and `dev`**
 
-Manual workflows (`workflow_dispatch`): `e2e-web`, `coverage`, `mutation`, `deploy-preview`, `deploy-production`, worker monitors.
+- `.github/workflows/ci.yml` — API smoke, typecheck, lint, format, audit, unit tests, Playwright site smoke
+- `.github/workflows/pull-request.yml` (PRs only) — Duplicate-file check, dependency review, secret scan
+- `.github/workflows/e2e-web.yml` (web-related PRs) — Cross-browser smoke matrix
+
+**On push to `main` only**
+
+- `.github/workflows/ci-cd.yml` — Build artifacts, CodeQL, security audit (avoids duplicating PR gates)
+
+**Scheduled**
+
+- `e2e-web` — Weekly extended smoke (Mon 12:00 UTC)
+- `coverage` — Weekly coverage (Mon 06:00 UTC); also on `main` when analysis/web change
+- `mutation` — Monthly analysis mutation tests (1st of month)
+- `monitor-workers-health` / `monitor-r2-quotas` — Daily production checks (skip gracefully without secrets)
+
+**Manual (`workflow_dispatch`)**
+
+`e2e-web` (full/flake lanes), `deploy-preview`, `deploy-production`, and all of the above.
 
 - `.github/workflows/deploy-preview.yml` — Builds the site and deploys both Workers to Cloudflare preview. Injects `COMMIT_SHA` so `/version` returns the current commit.
 

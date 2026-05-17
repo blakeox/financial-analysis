@@ -1,6 +1,16 @@
 name: Coverage
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/analysis/**'
+      - 'apps/web/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/coverage.yml'
+  schedule:
+    # Weekly coverage report (Mon 06:00 UTC)
+    - cron: '0 6 * * 1'
   workflow_dispatch:
 
 concurrency:
@@ -28,6 +38,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Run analysis coverage
         run: pnpm --filter @financial-analysis/analysis run test:coverage
@@ -68,6 +81,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm run build:libs
 
       - name: Run web coverage
         run: pnpm --filter @financial-analysis/web run test:coverage

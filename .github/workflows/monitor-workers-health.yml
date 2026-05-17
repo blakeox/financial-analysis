@@ -1,6 +1,9 @@
 name: Monitor Workers Health (prod)
 
 on:
+  schedule:
+    # Daily production worker health (09:00 UTC)
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 permissions:

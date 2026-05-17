@@ -68,11 +68,8 @@ jobs:
       - name: Check for duplicate files
         run: pnpm run check:duplicates
 
-      - name: Build shared packages
-        run: pnpm run build:libs
-
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm run typecheck
 
       - name: Lint
         run: pnpm lint
