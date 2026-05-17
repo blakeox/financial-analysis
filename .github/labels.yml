@@ -23,6 +23,10 @@
   color: c5def5
   description: Changes to packages/tools (MCP handlers)
 
+- name: stale
+  color: eeeeee
+  description: Marked inactive by stale bot
+
 - name: github-actions
   color: e6e6e6
   description: Changes to GitHub Actions workflows or actions
