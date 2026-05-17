@@ -69,9 +69,7 @@ jobs:
         run: pnpm run check:duplicates
 
       - name: Build shared packages
-        run: |
-          pnpm --filter @financial-analysis/analysis run build
-          pnpm --filter @financial-analysis/ui run build
+        run: pnpm run build:libs
 
       - name: Typecheck
         run: pnpm typecheck
@@ -96,4 +94,4 @@ jobs:
 
       - name: Run Playwright smoke tests
         working-directory: apps/web
-        run: pnpm test:e2e:hmr
+        run: pnpm test:e2e:smoke
