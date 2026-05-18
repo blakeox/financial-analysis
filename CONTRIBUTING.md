@@ -97,6 +97,7 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 - Use `pnpm run dev:all` to build the web app and run both workers in parallel.
 - For Playwright e2e tests: `cd apps/web && pnpm test:e2e`
 - For accessibility tests: `cd apps/web && pnpm test:e2e:a11y` (smoke routes in `tests/a11y/a11y-smoke.spec.ts`)
+- For unused-code hygiene (report only, not CI): `pnpm run report:knip` (see `knip.json`)
 - For API tests: `cd workers/api && pnpm test`
 - For analysis engine tests: `cd packages/analysis && pnpm test`
 
