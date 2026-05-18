@@ -57,7 +57,7 @@ const renderPricingCards = (pricing: PricingTier[]) => {
 
       const overageMarkup =
         overagePerRequest > 0
-          ? `<p class="mt-4 text-center text-sm text-slate-500">Overage: $${overagePerRequest}/request</p>`
+          ? `<p class="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">Overage: $${overagePerRequest}/request</p>`
           : '';
 
       return `
@@ -67,7 +67,7 @@ const renderPricingCards = (pricing: PricingTier[]) => {
             <h3 class="text-2xl font-bold capitalize text-slate-900">${name}</h3>
             <div class="mt-4 flex items-baseline">
               <span class="text-5xl font-extrabold text-slate-900">$${price}</span>
-              ${price > 0 ? '<span class="ml-2 text-slate-500">/month</span>' : '<span class="ml-2 text-slate-500">Forever</span>'}
+              ${price > 0 ? '<span class="ml-2 text-slate-600 dark:text-slate-400">/month</span>' : '<span class="ml-2 text-slate-600 dark:text-slate-400">Forever</span>'}
             </div>
             <ul class="mt-8 space-y-4">
               <li class="flex items-start">
