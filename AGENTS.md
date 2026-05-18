@@ -38,7 +38,7 @@ pnpm run dev           # Astro build + web worker (8788) + API (8787)
 - **Dependabot:** patch/minor auto-merge via `dependabot-automerge.yml` (majors manual)
 - **Workflow map:** [.github/workflows/README.md](.github/workflows/README.md)
 - **Maintainer setup:** [.github/MAINTAINER_SETUP.md](.github/MAINTAINER_SETUP.md) (Codecov, Dependabot workflows, branch protection sync)
-- **`main` push only:** `ci-cd.yml` (artifacts, CodeQL)
+- **`main` push only:** `ci-cd.yml` (artifacts)
 - **Security:** OpenSSF Scorecard in `scorecard.yml` (weekly + Security tab SARIF)
 - **Never commit:** Finder duplicates (`file 2`), flat Playwright specs, or `tests/utils/nav.ts` (use `tests/_shared/`)
 

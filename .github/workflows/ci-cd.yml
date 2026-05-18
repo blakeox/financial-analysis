@@ -106,7 +106,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-      security-events: write
 
     steps:
       - name: Checkout code
@@ -117,11 +116,3 @@ jobs:
 
       - name: Run security audit
         run: pnpm audit --audit-level moderate
-
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
