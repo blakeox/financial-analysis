@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  administration: write
+  contents: read
 
 concurrency:
   group: sync-branch-protection-${{ github.ref }}
@@ -20,6 +20,9 @@ jobs:
   sync:
     name: Apply branch protection
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      administration: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
