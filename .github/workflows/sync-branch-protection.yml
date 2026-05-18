@@ -21,6 +21,7 @@ jobs:
     name: Apply branch protection
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       administration: write
     steps:
       - name: Checkout
