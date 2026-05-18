@@ -5,12 +5,16 @@ import AxeBuilder from '@axe-core/playwright';
 const smokePaths = [
   '/',
   '/models',
+  '/models/personal',
+  '/calculators',
   '/ebitda-forecasting',
   '/journey',
   '/agent',
   '/analysis',
   '/calculator/amortization',
   '/lease-analysis',
+  '/pricing',
+  '/status',
 ];
 
 test.describe('Accessibility smoke', () => {
