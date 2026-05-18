@@ -14,15 +14,6 @@ on:
       - 'SECURITY.md'
   pull_request:
     branches: [main, dev]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
-      - '.github/chatmodes/**'
-      - 'LICENSE'
-      - 'CODE_OF_CONDUCT.md'
-      - 'SECURITY.md'
   workflow_dispatch:
 
 permissions:
@@ -38,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
+      code_changed: ${{ steps.code.outputs.code }}
       run_e2e: ${{ steps.e2e.outputs.run_e2e }}
     steps:
       - name: Checkout
@@ -48,6 +40,32 @@ jobs:
         uses: ./.github/actions/pr-skip-ci
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
+      - name: Detect non-doc code changes
+        id: code-filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            code:
+              - '**'
+              - '!**.md'
+              - '!docs/**'
+              - '!.github/ISSUE_TEMPLATE/**'
+              - '!.github/PULL_REQUEST_TEMPLATE.md'
+              - '!.github/chatmodes/**'
+              - '!LICENSE'
+              - '!CODE_OF_CONDUCT.md'
+              - '!SECURITY.md'
+
+      - name: Decide code changed
+        id: code
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ steps.code-filter.outputs.code }}" == "true" ]]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Detect web-related changes
         id: filter
@@ -83,54 +101,58 @@ jobs:
         run: |
           echo "CI skipped via skip-ci label. Remove the label or push new commits to run checks."
 
+      - name: Doc-only change (no code paths)
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed != 'true'
+        run: echo "Doc-only PR — skipping install, typecheck, lint, audit, and tests."
+
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/checkout@v6
 
       - name: Setup monorepo
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: ./.github/actions/setup-monorepo
 
       - name: Check for duplicate files
-        if: needs.gate.outputs.skip_ci != 'true' && github.event_name != 'pull_request'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && github.event_name != 'pull_request'
         run: pnpm run check:duplicates
 
       - name: Run API smoke tests
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm test:smoke
 
       - name: Typecheck
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm run typecheck
 
       - name: Lint
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm lint
 
       - name: Format check
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm run format:check
 
       - name: Security audit
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm audit --audit-level moderate
 
       - name: Run unit tests
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm test
 
       - name: Install Playwright browsers
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.run_e2e == 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
         working-directory: apps/web
         env:
           DEBIAN_FRONTEND: noninteractive
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright smoke tests
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.run_e2e == 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
         working-directory: apps/web
         run: pnpm test:e2e:smoke
 
       - name: Playwright skipped (workers-only / no web paths)
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.run_e2e != 'true'
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e != 'true'
         run: echo "Skipping Playwright — no web-related paths changed (see .github/workflows/README.md)."
