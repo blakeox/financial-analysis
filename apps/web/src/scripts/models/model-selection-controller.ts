@@ -357,20 +357,34 @@ export function initializeModelSelection(
 
   const cardContainer = modelCards[0]?.parentElement ?? null;
 
-  if (cardContainer && !cardContainer.hasAttribute('role')) {
+  const cardHasNestedInteractive = (root: HTMLElement) =>
+    root.querySelector('a[href], button, input, select, textarea') !== null;
+
+  const tabCards = cardElements.filter(({ root }) => !cardHasNestedInteractive(root));
+
+  if (cardContainer && tabCards.length > 0 && !cardContainer.hasAttribute('role')) {
     cardContainer.setAttribute('role', 'tablist');
     cardContainer.setAttribute('aria-orientation', 'horizontal');
   }
 
   if (infoSection?.id) {
-    for (const { root } of cardElements) {
+    for (const { root } of tabCards) {
       if (!root.hasAttribute('aria-controls')) {
         root.setAttribute('aria-controls', infoSection.id);
       }
     }
   }
 
-  for (const [index, { root }] of cardElements.entries()) {
+  for (const { root } of cardElements) {
+    if (cardHasNestedInteractive(root)) {
+      root.removeAttribute('role');
+      root.removeAttribute('aria-selected');
+      root.removeAttribute('tabindex');
+      root.removeAttribute('aria-controls');
+    }
+  }
+
+  for (const [index, { root }] of tabCards.entries()) {
     root.setAttribute('role', 'tab');
     root.setAttribute('aria-selected', 'false');
     if (!root.hasAttribute('tabindex')) {
@@ -529,7 +543,7 @@ export function initializeModelSelection(
   const updateSelectionAttributes = (selectedCard: HTMLElement | null) => {
     const defaultFocusableIndex = 0;
 
-    for (const [index, { root }] of cardElements.entries()) {
+    for (const [index, { root }] of tabCards.entries()) {
       const isSelected = root === selectedCard;
       root.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       const targetTabIndex = selectedCard

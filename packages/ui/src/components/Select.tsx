@@ -1,4 +1,4 @@
-import { type SelectHTMLAttributes } from 'react';
+import React, { type SelectHTMLAttributes } from 'react';
 import { cn, inputClasses } from '../lib/classNames';
 
 interface Option {
@@ -21,16 +21,28 @@ export function Select({
   helperText,
   error,
   className = '',
+  id,
   ...props
 }: SelectProps) {
+  const selectId = id ?? React.useId();
+  const errorId = error ? `${selectId}-error` : undefined;
+  const helperId = helperText && !error ? `${selectId}-helper` : undefined;
+  const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
+
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <label
+          htmlFor={selectId}
+          className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
+        >
           {label}
         </label>
       )}
       <select
+        id={selectId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
         className={cn(
           inputClasses,
           'appearance-none py-2.5',
@@ -49,9 +61,15 @@ export function Select({
         ))}
       </select>
       {helperText && !error && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
+        <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
+          {helperText}
+        </p>
       )}
-      {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
+      {error && (
+        <p id={errorId} className="text-sm text-rose-600 dark:text-rose-300" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
