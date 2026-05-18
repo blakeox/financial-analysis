@@ -7,6 +7,7 @@ import { parseCalendarDate } from '../lib/formatters';
 import { cn } from '../lib/utils';
 import { AmortizationChart } from './AmortizationChart';
 import { Card, CardContent } from './Card';
+import { ScrollableRegion } from './ScrollableRegion';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
 
@@ -340,11 +341,8 @@ export function AmortizationResults({
       ) : null}
 
       {showTable ? (
-        <div className="overflow-x-auto">
-          <table
-            className="min-w-full table-fixed border-collapse"
-            aria-label="Amortization schedule table"
-          >
+        <ScrollableRegion label="Amortization schedule table">
+          <table className="min-w-full table-fixed border-collapse">
             <thead>
               <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-900/60 dark:text-slate-300">
                 <th className="px-3 py-3 w-16">Month</th>
@@ -397,7 +395,7 @@ export function AmortizationResults({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableRegion>
       ) : null}
     </div>
   );

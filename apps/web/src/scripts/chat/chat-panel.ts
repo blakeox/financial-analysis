@@ -946,7 +946,7 @@ class ChatPanel {
     } else if (length > MAX_MESSAGE_LENGTH) {
       this.charCounter.style.color = '#f14c4c'; // Error red
     } else {
-      this.charCounter.style.color = '#858585'; // Default gray
+      this.charCounter.style.color = '#6b7280'; // Default gray (WCAG AA on white)
     }
   }
 

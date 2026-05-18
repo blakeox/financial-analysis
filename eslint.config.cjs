@@ -4,6 +4,7 @@ const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const astroParser = require('astro-eslint-parser');
 const astroPlugin = require('eslint-plugin-astro');
+const jsxA11y = require('eslint-plugin-jsx-a11y');
 
 module.exports = [
   // Base JS recommendations
@@ -40,6 +41,17 @@ module.exports = [
       // ESLint 10: engines often use placeholder init before branch-only reassignment
       'no-useless-assignment': 'off',
       'preserve-caught-error': 'error',
+    },
+  },
+
+  // JSX/TSX accessibility (React components in web + ui)
+  {
+    files: ['**/*.{jsx,tsx}'],
+    plugins: { 'jsx-a11y': jsxA11y },
+    rules: {
+      ...jsxA11y.flatConfigs.recommended.rules,
+      // Crashes under ESLint 10 (minimatch default export); axe covers label association in E2E.
+      'jsx-a11y/label-has-associated-control': 'off',
     },
   },
 
