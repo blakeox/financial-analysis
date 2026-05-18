@@ -3,13 +3,6 @@ name: E2E Web
 on:
   pull_request:
     branches: [main, dev]
-    paths:
-      - 'apps/web/**'
-      - 'packages/ui/**'
-      - 'packages/analysis/**'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/e2e-web.yml'
-      - '.github/actions/**'
   schedule:
     # Weekly extended web smoke (Mon 12:00 UTC)
     - cron: '0 12 * * 1'
@@ -54,11 +47,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  gate:
+  e2e-smoke:
+    name: E2E smoke
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    outputs:
-      skip_ci: ${{ steps.skip.outputs.skip_ci }}
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -69,11 +62,57 @@ jobs:
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
+      - name: Detect path changes
+        id: paths
+        uses: dorny/paths-filter@v4
+        with:
+          filters: .github/path-filters.yml
+
+      - name: Skipped (skip-ci label)
+        if: steps.skip.outputs.skip_ci == 'true'
+        run: echo "E2E skipped via skip-ci label."
+
+      - name: Skipped (no web-related paths)
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web != 'true'
+        run: echo "E2E skipped — no web-related paths changed."
+
+      - name: Setup monorepo
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Build shared packages
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: pnpm run build:libs
+
+      - name: Install Playwright Browsers
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        working-directory: apps/web
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Build web
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        working-directory: apps/web
+        run: pnpm build
+
+      - name: Run web smoke matrix lane
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        working-directory: apps/web
+        run: pnpm run test:ci:smoke:matrix
+
+      - name: Upload smoke matrix Playwright artifacts
+        if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-smoke-matrix-artifacts
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results/playwright
+          retention-days: 7
+
   smoke:
-    needs: [gate]
-    if: |
-      always() &&
-      (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke'))
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -111,11 +150,7 @@ jobs:
           retention-days: 7
 
   smoke-matrix:
-    needs: [gate]
-    if: |
-      always() &&
-      (github.event_name != 'pull_request' || (needs.gate.result == 'success' && needs.gate.outputs.skip_ci != 'true')) &&
-      (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'))
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

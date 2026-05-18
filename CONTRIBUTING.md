@@ -223,7 +223,7 @@ Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via th
 
 2. PRs require:
    - Passing CI checks (doc-only PRs skip heavy steps; workers-only PRs skip Playwright in `ci.yml`)
-   - **PR gate**, **Secret scan**, **CI gate**, and **Build and test** (branch protection)
+   - **PR gate**, **Secret scan**, **CI gate**, **Build and test**, **E2E smoke**, and **CodeQL** (branch protection)
    - Review encouraged; branch protection does not require approvals (Dependabot auto-merge)
    - No merge conflicts
 
