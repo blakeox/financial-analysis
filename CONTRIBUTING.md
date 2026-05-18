@@ -205,7 +205,7 @@ Workflow reference: [.github/workflows/README.md](.github/workflows/README.md).
 | `skip-ci` | Trivial PRs where you intentionally skip checks (jobs still report success). Remove before merge if branch protection requires green CI. |
 | `deploy-preview` | Deploy a Cloudflare preview for this PR |
 
-- **Doc-only** changes (`*.md`, `docs/`, templates): `ci.yml` does not run; `pull-request.yml` runs secret scan only.
+- **Doc-only** changes (`*.md`, `docs/`, templates): full PR checks run; heavy CI steps are skipped (fast pass).
 - **Workers-only** changes: `ci.yml` runs without Playwright; `e2e-web` does not run.
 - **Dependabot** patch/minor PRs may auto-merge when CI is green (see workflow README).
 
@@ -222,8 +222,8 @@ Labels are defined in [.github/labels.yml](.github/labels.yml) and synced via th
    - Updated documentation if needed
 
 2. PRs require:
-   - Passing CI checks (doc-only PRs skip `ci.yml`; workers-only PRs skip Playwright in `ci.yml`)
-   - **PR gate** and **Secret scan** (branch protection); code changes should also pass **Build and test**
+   - Passing CI checks (doc-only PRs skip heavy steps; workers-only PRs skip Playwright in `ci.yml`)
+   - **PR gate**, **Secret scan**, **CI gate**, and **Build and test** (branch protection)
    - Review encouraged; branch protection does not require approvals (Dependabot auto-merge)
    - No merge conflicts
 

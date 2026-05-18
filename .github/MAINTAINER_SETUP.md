@@ -33,7 +33,7 @@ pnpm run sync:branch-protection
 node scripts/sync-branch-protection.mjs --dry-run
 ```
 
-Default required checks: **PR gate**, **Secret scan** (always run on PRs). **Build and test** is not required at the protection layer because `ci.yml` skips doc-only paths; still require green CI for code changes before merging.
+Default required checks: **PR gate**, **Secret scan**, **CI gate**, **Build and test** (all run on every PR; doc-only PRs skip heavy CI steps but still report success).
 
 ## 4. Auto-merge and Dependabot
 

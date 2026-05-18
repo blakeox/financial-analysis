@@ -6,7 +6,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 
 | Workflow | When it runs | What it does |
 |----------|----------------|--------------|
-| [ci.yml](./ci.yml) | Code changes (not doc-only `paths-ignore`) | Duplicates (push only), smoke, typecheck, lint, format, audit, unit tests; Playwright smoke only if web paths changed |
+| [ci.yml](./ci.yml) | Every PR; push when not doc-only `paths-ignore` | Duplicates (push only), smoke, typecheck, lint, format, audit, unit tests; Playwright when web paths change; doc-only PRs skip heavy steps |
 | [pull-request.yml](./pull-request.yml) | Every PR | Duplicate check, dependency review, TruffleHog secret scan |
 | [e2e-web.yml](./e2e-web.yml) | PRs touching `apps/web`, `packages/ui`, `packages/analysis`, lockfile, or this workflow | Playwright smoke-matrix (chromium + firefox + webkit + mobile-safari) |
 | [dependabot-automerge.yml](./dependabot-automerge.yml) | Dependabot PRs | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review) |
@@ -15,7 +15,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [stale.yml](./stale.yml) | Mon 14:00 UTC | Marks inactive issues/PRs stale (30d) and closes after 14d more |
 | [scorecard.yml](./scorecard.yml) | Mon 08:00 UTC | OpenSSF Scorecard supply-chain analysis (SARIF → Security tab) |
 
-**Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` is skipped via `paths-ignore`; `pull-request.yml` runs secret scan only (no duplicate check or dependency review).
+**Doc-only PRs** (markdown, `docs/`, templates, legal files): `ci.yml` and `pull-request.yml` still run; **Build and test** and **PR gate** succeed quickly without install. Duplicate check and dependency review are skipped.
 
 ## `main` push only
 
@@ -61,7 +61,7 @@ Canonical definitions live in [.github/labels.yml](../labels.yml). After merging
 
 ### Doc-only
 
-Both `push` and `pull_request` on `ci.yml` use `paths-ignore` for `**.md`, `docs/**`, issue/PR templates, and legal files.
+`push` on `ci.yml` uses `paths-ignore` for doc-only paths. `pull_request` always triggers `ci.yml` (doc-only jobs skip heavy steps).
 
 ## Dependabot auto-merge
 
@@ -84,7 +84,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 
 1. **General → Allow auto-merge** — required for Dependabot auto-merge
 2. **Actions → Run workflows from Dependabot pull requests** — full CI on dependency PRs
-3. **Branch protection** — `pnpm run sync:branch-protection` applies [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`)
+3. **Branch protection** — `pnpm run sync:branch-protection` applies [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`, `CI gate`, `Build and test`)
 4. **Secrets** — Cloudflare tokens for deploy; optional `CODECOV_TOKEN`; Slack for monitors
 5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
 
