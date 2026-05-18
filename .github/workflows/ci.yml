@@ -42,7 +42,7 @@ jobs:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
       - name: Detect non-doc code changes
-        id: code
+        id: code-filter
         uses: dorny/paths-filter@v4
         with:
           filters: |
@@ -56,6 +56,16 @@ jobs:
               - '!LICENSE'
               - '!CODE_OF_CONDUCT.md'
               - '!SECURITY.md'
+
+      - name: Decide code changed
+        id: code
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ steps.code-filter.outputs.code }}" == "true" ]]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Detect web-related changes
         id: filter
