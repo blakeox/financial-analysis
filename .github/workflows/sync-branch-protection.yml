@@ -32,11 +32,13 @@ jobs:
         run: |
           if [[ -n "$REPO_ADMIN_TOKEN" ]]; then
             export GH_TOKEN="$REPO_ADMIN_TOKEN"
-          else
-            export GH_TOKEN="${{ github.token }}"
-          fi
-          if node scripts/sync-branch-protection.mjs; then
+            node scripts/sync-branch-protection.mjs
             echo "Branch protection applied."
           else
-            echo "::warning::Could not apply branch protection via API. Add REPO_ADMIN_TOKEN (admin PAT) or run: pnpm run sync:branch-protection"
+            export GH_TOKEN="${{ github.token }}"
+            if node scripts/sync-branch-protection.mjs; then
+              echo "Branch protection applied."
+            else
+              echo "::warning::Could not apply branch protection via API. Add REPO_ADMIN_TOKEN (admin PAT) or run: pnpm run sync:branch-protection"
+            fi
           fi
