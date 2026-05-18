@@ -1,0 +1,68 @@
+name: CodeQL
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Detect skip-ci label
+        if: github.event_name == 'pull_request'
+        id: skip
+        uses: ./.github/actions/pr-skip-ci
+        with:
+          pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
+      - name: Detect path changes
+        if: github.event_name == 'pull_request'
+        id: paths
+        uses: dorny/paths-filter@v4
+        with:
+          filters: .github/path-filters.yml
+
+      - name: Skipped (doc-only or skip-ci)
+        if: |
+          github.event_name == 'pull_request' && (
+            steps.skip.outputs.skip_ci == 'true' ||
+            steps.paths.outputs.code != 'true'
+          )
+        run: echo "CodeQL skipped — doc-only PR or skip-ci label."
+
+      - name: Initialize CodeQL
+        if: |
+          github.event_name != 'pull_request' || (
+            steps.skip.outputs.skip_ci != 'true' &&
+            steps.paths.outputs.code == 'true'
+          )
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+
+      - name: Perform CodeQL Analysis
+        if: |
+          github.event_name != 'pull_request' || (
+            steps.skip.outputs.skip_ci != 'true' &&
+            steps.paths.outputs.code == 'true'
+          )
+        uses: github/codeql-action/analyze@v4

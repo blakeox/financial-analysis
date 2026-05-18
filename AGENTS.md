@@ -31,9 +31,9 @@ pnpm run dev           # Astro build + web worker (8788) + API (8787)
 ## CI (do not duplicate locally)
 
 - Workflows use `.github/actions/setup-monorepo` for pnpm + Node 22 + install
-- **PR / `dev` push:** `ci.yml`, `pull-request.yml`, `e2e-web` (web paths only)
+- **PR / `dev` push:** `ci.yml`, `pull-request.yml`, `e2e-web`, `codeql.yml` (E2E/CodeQL skip heavy steps when paths unchanged)
 - **Doc-only PRs:** `ci.yml` runs but skips install/tests; `pull-request.yml` skips duplicate/dependency review
-- **Workers-only PRs:** full `ci.yml` minus Playwright; no `e2e-web`
+- **Workers-only PRs:** full `ci.yml` minus Playwright; **E2E smoke** fast pass
 - **Labels:** `skip-ci` (skip all PR checks), `deploy-preview` (preview deploy)
 - **Dependabot:** patch/minor auto-merge via `dependabot-automerge.yml` (majors manual)
 - **Workflow map:** [.github/workflows/README.md](.github/workflows/README.md)
