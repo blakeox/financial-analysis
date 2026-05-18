@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Select } from './Select';
+import { ScrollableRegion } from './ScrollableRegion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
 import type {
   EnhancedLeaseInput,
@@ -3200,7 +3201,7 @@ export function LeaseAnalysisDashboard({
                 <CardTitle>Payment Schedule</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                <ScrollableRegion label="Payment schedule table">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800">
@@ -3236,7 +3237,7 @@ export function LeaseAnalysisDashboard({
                       Showing first 12 months of {result.schedule.length} month schedule
                     </p>
                   )}
-                </div>
+                </ScrollableRegion>
               </CardContent>
             </Card>
 

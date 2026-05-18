@@ -7,6 +7,7 @@ import { parseCalendarDate } from '../lib/formatters';
 import { cn } from '../lib/utils';
 import { AmortizationChart } from './AmortizationChart';
 import { Card, CardContent } from './Card';
+import { ScrollableRegion } from './ScrollableRegion';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
 
@@ -340,7 +341,7 @@ export function AmortizationResults({
       ) : null}
 
       {showTable ? (
-        <div className="overflow-x-auto">
+        <ScrollableRegion label="Amortization schedule table">
           <table
             className="min-w-full table-fixed border-collapse"
             aria-label="Amortization schedule table"
@@ -397,7 +398,7 @@ export function AmortizationResults({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableRegion>
       ) : null}
     </div>
   );
