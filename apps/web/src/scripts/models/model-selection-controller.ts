@@ -558,19 +558,19 @@ export function initializeModelSelection(
   };
 
   const focusCardAtIndex = (index: number) => {
-    const target = cardElements[index]?.root;
+    const target = tabCards[index]?.root;
     if (target) {
       target.focus();
     }
   };
 
   const focusCardByOffset = (currentCard: HTMLElement, offset: number) => {
-    const currentIndex = cardElements.findIndex(({ root }) => root === currentCard);
+    const currentIndex = tabCards.findIndex(({ root }) => root === currentCard);
     if (currentIndex === -1) {
       return;
     }
 
-    const count = cardElements.length;
+    const count = tabCards.length;
     if (count === 0) {
       return;
     }
@@ -782,7 +782,7 @@ export function initializeModelSelection(
 
       if (keyboardEvent.key === 'End') {
         keyboardEvent.preventDefault();
-        focusCardAtIndex(cardElements.length - 1);
+        focusCardAtIndex(tabCards.length - 1);
         return;
       }
 

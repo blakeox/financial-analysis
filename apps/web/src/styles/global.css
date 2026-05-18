@@ -34,6 +34,10 @@
   --chat-panel-top-offset: 0px;
 }
 
+.dark {
+  --color-gray-500: #9ca3af;
+}
+
 /* Custom base styles */
 @layer base {
   html {
