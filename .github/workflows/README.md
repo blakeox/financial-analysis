@@ -8,7 +8,8 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 |----------|----------------|--------------|
 | [ci.yml](./ci.yml) | Every PR; push when not doc-only `paths-ignore` | Duplicates (push only), smoke, typecheck, lint, format, audit, unit tests; Playwright when web paths change; doc-only PRs skip heavy steps |
 | [pull-request.yml](./pull-request.yml) | Every PR | Duplicate check, dependency review, TruffleHog secret scan |
-| [e2e-web.yml](./e2e-web.yml) | PRs touching `apps/web`, `packages/ui`, `packages/analysis`, lockfile, or this workflow | Playwright smoke-matrix (chromium + firefox + webkit + mobile-safari) |
+| [e2e-web.yml](./e2e-web.yml) | Every PR (Playwright when web paths change) | **E2E smoke** — smoke-matrix on web PRs; fast pass otherwise |
+| [codeql.yml](./codeql.yml) | Every PR + push to `main`/`dev` | **CodeQL** — analysis when code changes; fast pass on doc-only PRs |
 | [dependabot-automerge.yml](./dependabot-automerge.yml) | Dependabot PRs | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review) |
 | [pr-labeler.yml](./pr-labeler.yml) | Every PR | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`) |
 | [sync-labels.yml](./sync-labels.yml) | Push to `main` when [labels.yml](../labels.yml) changes | Keeps GitHub labels in sync |
@@ -58,7 +59,7 @@ Canonical definitions live in [.github/labels.yml](../labels.yml). After merging
 
 `ci.yml` skips **Playwright** when the diff has no web-related paths (`apps/web`, `packages/ui`, `packages/analysis`, root lockfile/workspace manifests). Workers-only changes still run API smoke, typecheck, lint, format, audit, and unit tests.
 
-`e2e-web.yml` only triggers on web-related paths (see workflow `paths` filter).
+`e2e-web.yml` runs on every PR; Playwright runs only when web-related paths change.
 
 ### Doc-only
 
@@ -85,7 +86,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 
 1. **General → Allow auto-merge** — required for Dependabot auto-merge
 2. **Actions → Run workflows from Dependabot pull requests** — full CI on dependency PRs
-3. **Branch protection** — `pnpm run sync:branch-protection` applies [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`, `CI gate`, `Build and test`)
+3. **Branch protection** — auto-synced from [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`, `CI gate`, `Build and test`, `E2E smoke`, `CodeQL`)
 4. **Secrets** — Cloudflare tokens for deploy; optional `CODECOV_TOKEN`; Slack for monitors
 5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
 

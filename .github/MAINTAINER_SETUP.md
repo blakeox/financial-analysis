@@ -35,7 +35,7 @@ node scripts/sync-branch-protection.mjs --dry-run
 
 Shared doc/code path rules for CI live in [path-filters.yml](./path-filters.yml).
 
-Default required checks: **PR gate**, **Secret scan**, **CI gate**, **Build and test** (all run on every PR; doc-only PRs skip heavy CI steps but still report success).
+Default required checks: **PR gate**, **Secret scan**, **CI gate**, **Build and test**, **E2E smoke**, **CodeQL** (all run on every PR; doc-only/workers-only PRs skip heavy steps but still report success).
 
 ## 4. Auto-merge and Dependabot
 
