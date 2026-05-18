@@ -28,11 +28,17 @@ jobs:
 
       - name: Apply protection rules
         env:
-          GH_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN || github.token }}
+          REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
         run: |
-          if node scripts/sync-branch-protection.mjs; then
+          if [[ -n "$REPO_ADMIN_TOKEN" ]]; then
+            export GH_TOKEN="$REPO_ADMIN_TOKEN"
+            node scripts/sync-branch-protection.mjs
             echo "Branch protection applied."
           else
-            echo "::warning::Could not apply branch protection via API. Add REPO_ADMIN_TOKEN (admin PAT) or run: pnpm run sync:branch-protection"
-            exit 1
+            export GH_TOKEN="${{ github.token }}"
+            if node scripts/sync-branch-protection.mjs; then
+              echo "Branch protection applied."
+            else
+              echo "::warning::Could not apply branch protection via API. Add REPO_ADMIN_TOKEN (admin PAT) or run: pnpm run sync:branch-protection"
+            fi
           fi
