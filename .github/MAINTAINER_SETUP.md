@@ -25,7 +25,7 @@ Coverage artifacts are always uploaded from [coverage.yml](../workflows/coverage
 
 ## 3. Branch protection
 
-Desired rules live in [branch-protection.json](./branch-protection.json). They are applied automatically on push to `main` ([sync-branch-protection.yml](./workflows/sync-branch-protection.yml)). To apply locally with admin `gh` access:
+Desired rules live in [branch-protection.json](./branch-protection.json). On push to `main`, [sync-branch-protection.yml](./workflows/sync-branch-protection.yml) applies them when **`REPO_ADMIN_TOKEN`** is set (fine-grained PAT with **Administration: read and write**). Otherwise apply locally with admin `gh` access:
 
 ```bash
 pnpm run sync:branch-protection
