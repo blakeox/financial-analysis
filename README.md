@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/blakeox/financial-analysis/actions/workflows/ci.yml/badge.svg)
 ![CI Pipeline](https://github.com/blakeox/financial-analysis/actions/workflows/ci-cd.yml/badge.svg)
+![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/blakeox/financial-analysis/badge)
 ![License: MIT](https://img.shields.io/github/license/blakeox/financial-analysis)
 ![GitHub contributors](https://img.shields.io/github/contributors/blakeox/financial-analysis)
 

@@ -32,19 +32,9 @@ jobs:
 
       - name: Detect non-doc code changes
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
-          filters: |
-            code:
-              - '**'
-              - '!**.md'
-              - '!docs/**'
-              - '!.github/ISSUE_TEMPLATE/**'
-              - '!.github/PULL_REQUEST_TEMPLATE.md'
-              - '!.github/chatmodes/**'
-              - '!LICENSE'
-              - '!CODE_OF_CONDUCT.md'
-              - '!SECURITY.md'
+          filters: .github/path-filters.yml
 
   duplicate-check:
     name: Duplicate file check
