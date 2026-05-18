@@ -25,13 +25,15 @@ Coverage artifacts are always uploaded from [coverage.yml](../workflows/coverage
 
 ## 3. Branch protection
 
-Desired rules live in [branch-protection.json](./branch-protection.json). Apply with admin `gh` access:
+Desired rules live in [branch-protection.json](./branch-protection.json). They are applied automatically on push to `main` ([sync-branch-protection.yml](./workflows/sync-branch-protection.yml)). To apply locally with admin `gh` access:
 
 ```bash
 pnpm run sync:branch-protection
 # preview payload only:
 node scripts/sync-branch-protection.mjs --dry-run
 ```
+
+Shared doc/code path rules for CI live in [path-filters.yml](./path-filters.yml).
 
 Default required checks: **PR gate**, **Secret scan**, **CI gate**, **Build and test** (all run on every PR; doc-only PRs skip heavy CI steps but still report success).
 
