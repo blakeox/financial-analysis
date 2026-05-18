@@ -172,6 +172,8 @@ describe('models.client selection behavior', () => {
       status: 'available' | 'coming-soon';
       ctaHref?: string;
       ctaLabel?: string;
+      /** When true, renders an in-card link (disables tab semantics; see model-selection-controller). */
+      withInnerCta?: boolean;
     };
 
     const createCard = (config: CardConfig) => {
@@ -199,13 +201,15 @@ describe('models.client selection behavior', () => {
       featureTwo.textContent = `${config.label} insights`;
       card.appendChild(featureTwo);
 
-      const cta = document.createElement('a');
-      cta.setAttribute('data-model-cta', '');
-      cta.textContent = config.ctaLabel ?? 'Coming Soon';
-      if (config.ctaHref) {
-        cta.href = config.ctaHref;
+      if (config.withInnerCta) {
+        const cta = document.createElement('a');
+        cta.setAttribute('data-model-cta', '');
+        cta.textContent = config.ctaLabel ?? 'Coming Soon';
+        if (config.ctaHref) {
+          cta.href = config.ctaHref;
+        }
+        card.appendChild(cta);
       }
-      card.appendChild(cta);
 
       mainContainer.appendChild(card);
       return card;

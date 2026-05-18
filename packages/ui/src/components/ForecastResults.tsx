@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { ScrollableRegion } from './ScrollableRegion';
 import { Button } from './Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
 import {
@@ -371,7 +372,7 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                 <CardTitle>Monthly Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                <ScrollableRegion label="Monthly forecast breakdown table">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800">
@@ -415,7 +416,7 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </ScrollableRegion>
               </CardContent>
             </Card>
           </TabsContent>

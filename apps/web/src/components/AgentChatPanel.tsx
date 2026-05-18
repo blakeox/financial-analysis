@@ -128,9 +128,12 @@ export function AgentChatPanel() {
           submitMessage(input);
         }}
       >
-        <label className="fa-field-label mb-2">Message</label>
+        <label htmlFor="agent-chat-message" className="fa-field-label mb-2">
+          Message
+        </label>
         <div className="flex flex-col gap-3 md:flex-row">
           <textarea
+            id="agent-chat-message"
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Ask for a payment schedule, lease summary, or the workflows this agent supports."

@@ -4,6 +4,7 @@ const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const astroParser = require('astro-eslint-parser');
 const astroPlugin = require('eslint-plugin-astro');
+const jsxA11y = require('eslint-plugin-jsx-a11y');
 
 module.exports = [
   js.configs.recommended,
@@ -30,6 +31,15 @@ module.exports = [
       'no-undef': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-useless-assignment': 'off',
+    },
+  },
+  {
+    files: ['**/*.{jsx,tsx}'],
+    plugins: { 'jsx-a11y': jsxA11y },
+    rules: {
+      ...jsxA11y.flatConfigs.recommended.rules,
+      // Crashes under ESLint 10 (minimatch default export); axe covers label association in E2E.
+      'jsx-a11y/label-has-associated-control': 'off',
     },
   },
   {
