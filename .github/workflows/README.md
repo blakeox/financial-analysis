@@ -12,6 +12,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [dependabot-automerge.yml](./dependabot-automerge.yml) | Dependabot PRs | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review) |
 | [pr-labeler.yml](./pr-labeler.yml) | Every PR | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`) |
 | [sync-labels.yml](./sync-labels.yml) | Push to `main` when [labels.yml](../labels.yml) changes | Keeps GitHub labels in sync |
+| [sync-branch-protection.yml](./sync-branch-protection.yml) | Push to `main` when [branch-protection.json](../branch-protection.json) changes | Applies branch rules via API |
 | [stale.yml](./stale.yml) | Mon 14:00 UTC | Marks inactive issues/PRs stale (30d) and closes after 14d more |
 | [scorecard.yml](./scorecard.yml) | Mon 08:00 UTC | OpenSSF Scorecard supply-chain analysis (SARIF → Security tab) |
 
