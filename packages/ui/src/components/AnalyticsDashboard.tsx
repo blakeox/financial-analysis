@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { ScrollableRegion } from './ScrollableRegion';
 import { getApiMonitor, type ApiAnalysis, type ApiCallMetrics } from '../lib/api-monitor';
 import { formatNumber } from '../lib/formatters';
 import { badgeVariants, cn, textColors } from '../lib/classNames';
@@ -114,7 +115,7 @@ export function AnalyticsDashboard({
             <CardTitle>Slowest API Calls</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            <ScrollableRegion label="Slowest API calls table">
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
@@ -188,7 +189,7 @@ export function AnalyticsDashboard({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollableRegion>
           </CardContent>
         </Card>
       )}
@@ -231,7 +232,7 @@ export function AnalyticsDashboard({
             <CardTitle>Endpoint Statistics</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            <ScrollableRegion label="Endpoint statistics table">
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
                 <thead>
                   <tr>
@@ -322,7 +323,7 @@ export function AnalyticsDashboard({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollableRegion>
           </CardContent>
         </Card>
       )}

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Select } from './Select';
+import { ScrollableRegion } from './ScrollableRegion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
 import type {
   EnhancedLeaseInput,
@@ -2201,9 +2202,10 @@ export function LeaseAnalysisDashboard({
           <CardContent>
             <div className="space-y-3">
               {leaseTemplates.slice(0, 3).map((template) => (
-                <div
+                <button
+                  type="button"
                   key={template.id}
-                  className="p-4 sm:p-3 border border-slate-200 dark:border-slate-800 rounded-lg hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:active:bg-violet-900/20 cursor-pointer transition-colors touch-manipulation"
+                  className="w-full p-4 text-left sm:p-3 border border-slate-200 dark:border-slate-800 rounded-lg hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:active:bg-violet-900/20 cursor-pointer transition-colors touch-manipulation"
                   onClick={() => loadTemplate(template)}
                 >
                   <div className="flex justify-between items-start">
@@ -2226,9 +2228,10 @@ export function LeaseAnalysisDashboard({
                       </div>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
               <button
+                type="button"
                 className="w-full p-3 sm:p-2 text-violet-600 hover:text-violet-700 active:text-violet-800 text-sm font-medium border border-dashed border-violet-300 rounded-lg hover:bg-violet-50 active:bg-violet-100 dark:hover:bg-violet-900/20 dark:active:bg-violet-800/30 transition-colors touch-manipulation"
                 disabled
               >
@@ -2294,8 +2297,16 @@ export function LeaseAnalysisDashboard({
                     {savedAnalyses.slice(0, 3).map((analysis) => (
                       <div
                         key={analysis.id}
+                        role="button"
+                        tabIndex={0}
                         className="cursor-pointer rounded-lg border border-slate-200 p-4 transition-colors touch-manipulation hover:border-violet-300 active:border-violet-400 active:bg-violet-50 dark:border-slate-800 dark:active:bg-violet-900/20 sm:p-3"
                         onClick={() => loadAnalysis(analysis)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            loadAnalysis(analysis);
+                          }
+                        }}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
@@ -2321,6 +2332,7 @@ export function LeaseAnalysisDashboard({
                             </div>
                           </div>
                           <button
+                            type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               deleteAnalysis(analysis.id);
@@ -3189,7 +3201,7 @@ export function LeaseAnalysisDashboard({
                 <CardTitle>Payment Schedule</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                <ScrollableRegion label="Payment schedule table">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800">
@@ -3225,7 +3237,7 @@ export function LeaseAnalysisDashboard({
                       Showing first 12 months of {result.schedule.length} month schedule
                     </p>
                   )}
-                </div>
+                </ScrollableRegion>
               </CardContent>
             </Card>
 
@@ -3691,19 +3703,24 @@ export function LeaseAnalysisDashboard({
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="fa-field-label mb-1">Analysis Name</label>
+                <label htmlFor="save-analysis-name" className="fa-field-label mb-1">
+                  Analysis Name
+                </label>
                 <input
+                  id="save-analysis-name"
                   type="text"
                   value={saveFormName}
                   onChange={(e) => setSaveFormName(e.target.value)}
                   placeholder="e.g., analysis name"
                   className="fa-input-surface w-full"
-                  autoFocus
                 />
               </div>
               <div>
-                <label className="fa-field-label mb-1">Description (optional)</label>
+                <label htmlFor="save-analysis-description" className="fa-field-label mb-1">
+                  Description (optional)
+                </label>
                 <textarea
+                  id="save-analysis-description"
                   value={saveFormDescription}
                   onChange={(e) => setSaveFormDescription(e.target.value)}
                   placeholder="Add a description..."

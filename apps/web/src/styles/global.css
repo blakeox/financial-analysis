@@ -19,7 +19,7 @@
   --color-gray-200: #e7e4f2;
   --color-gray-300: #d2ccdf;
   --color-gray-400: #b0aabe;
-  --color-gray-500: #8b90a3;
+  --color-gray-500: #6b7280;
   --color-gray-600: #5e6478;
   --color-gray-700: #40465d;
   --color-gray-800: #232947;
@@ -32,6 +32,10 @@
   --font-serif: 'Fraunces', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
   --chat-panel-active-width: 0px;
   --chat-panel-top-offset: 0px;
+}
+
+.dark {
+  --color-gray-500: #9ca3af;
 }
 
 /* Custom base styles */
@@ -779,7 +783,7 @@
   }
 
   .dark .fa-shell-input::placeholder {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .dark .fa-progress-panel {
@@ -806,7 +810,7 @@
   }
 
   .dark .fa-input-surface::placeholder {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .fa-card {
@@ -1071,7 +1075,7 @@
   }
 
   .dark .fa-meta-copy {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .fa-form-label {
@@ -1095,7 +1099,7 @@
   }
 
   .dark .fa-price-period {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .fa-inline-link {
@@ -1606,7 +1610,7 @@
   }
 
   .dark .fa-model-intro {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .fa-model-title {
@@ -1643,7 +1647,7 @@
   }
 
   .dark .fa-model-feature {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .dark .fa-model-feature > svg {
@@ -1660,7 +1664,7 @@
   }
 
   .dark .fa-icon-button-ghost {
-    color: #8b90a3;
+    color: var(--color-gray-500);
   }
 
   .dark .fa-icon-button-ghost:hover {

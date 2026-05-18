@@ -184,8 +184,9 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
     <div className={`tool-analysis-panel ${className}`}>
       {/* Collapsed View */}
       {!isExpanded && (
-        <div
-          className="fa-card fa-floating-panel fixed bottom-4 right-4 z-40 cursor-pointer p-4 transition-all duration-200 hover:shadow-xl"
+        <button
+          type="button"
+          className="fa-card fa-floating-panel fixed bottom-4 right-4 z-40 cursor-pointer p-4 text-left transition-all duration-200 hover:shadow-xl"
           onClick={() => setIsExpanded(true)}
         >
           <div className="flex items-center space-x-3">
@@ -207,7 +208,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
               <div className="fa-help-copy">Click to view details</div>
             </div>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Expanded View */}
@@ -234,9 +235,10 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
           <div className="max-h-80 overflow-y-auto">
             {relevantAnalyses.map((analysis) => (
-              <div
+              <button
+                type="button"
                 key={analysis.timestamp}
-                className={`p-4 fa-panel-divider-soft fa-list-row-interactive cursor-pointer ${
+                className={`w-full p-4 text-left fa-panel-divider-soft fa-list-row-interactive cursor-pointer ${
                   selectedAnalysis?.timestamp === analysis.timestamp ? 'fa-highlight-card' : ''
                 }`}
                 onClick={() => setSelectedAnalysis(analysis)}
@@ -262,7 +264,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 

@@ -25,7 +25,18 @@ Coverage artifacts are always uploaded from [coverage.yml](../workflows/coverage
 
 ## 3. Branch protection
 
-Desired rules live in [branch-protection.json](./branch-protection.json). On push to `main`, [sync-branch-protection.yml](./workflows/sync-branch-protection.yml) applies them when **`REPO_ADMIN_TOKEN`** is set (fine-grained PAT with **Administration: read and write**). Otherwise apply locally with admin `gh` access:
+Desired rules live in [branch-protection.json](./branch-protection.json). On push to `main`, [sync-branch-protection.yml](./workflows/sync-branch-protection.yml) applies them when **`REPO_ADMIN_TOKEN`** is set.
+
+**Set or rotate the secret** (repo admin; token needs permission to update branch protection):
+
+```bash
+# Classic gh CLI token with repo scope (repo owner/admin):
+gh secret set REPO_ADMIN_TOKEN --repo blakeox/financial-analysis --body "$(gh auth token)"
+
+# Or use a fine-grained PAT with Administration: read and write on this repository.
+```
+
+Without the secret, apply locally:
 
 ```bash
 pnpm run sync:branch-protection
