@@ -1,6 +1,8 @@
 name: Sync branch protection
 
 # Applies .github/branch-protection.json when it changes on main.
+# GITHUB_TOKEN cannot update branch protection; set REPO_ADMIN_TOKEN (fine-grained PAT
+# with Administration: read/write) or run `pnpm run sync:branch-protection` locally.
 on:
   push:
     branches: [main]
@@ -20,14 +22,17 @@ jobs:
   sync:
     name: Apply branch protection
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      administration: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Apply protection rules
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/sync-branch-protection.mjs
+          GH_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN || github.token }}
+        run: |
+          if node scripts/sync-branch-protection.mjs; then
+            echo "Branch protection applied."
+          else
+            echo "::warning::Could not apply branch protection via API. Add REPO_ADMIN_TOKEN (admin PAT) or run: pnpm run sync:branch-protection"
+            exit 1
+          fi
