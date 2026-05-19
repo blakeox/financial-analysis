@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreWorkspaces": ["packages/config"],
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/**/*.{mjs,js,ts}"],
+      "project": ["scripts/**/*.{mjs,js,ts}"]
+    },
+    "apps/web": {
+      "entry": ["src/pages/**/*.{astro,ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx,astro}", "tests/**/*.{ts,tsx}"]
+    }
+  }
+}
