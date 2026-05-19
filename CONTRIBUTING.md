@@ -126,6 +126,19 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 7. Push to your fork: `git push origin feature/your-feature-name`
 8. Create a Pull Request
 
+### Branching model
+
+Only two long-lived branches exist on the upstream repo:
+
+| Branch | Role |
+|--------|------|
+| **`main`** | Default branch; production-oriented merges and Dependabot targets. Protected with required CI. |
+| **`dev`** | Integration branch; should match **`main`** in tree content after each sync. CI runs on PRs to `dev` the same as `main`. |
+
+**Day-to-day work:** branch from `dev` (or `main` if you only touch docs), open a PR into **`main`** for features and fixes. After merging to `main`, sync `dev` with a PR from `main` → `dev` (or ask a maintainer) so both tips stay aligned.
+
+**Short-lived branches:** use `feat/`, `fix/`, or `chore/` prefixes. Delete the branch when the PR merges (GitHub “Delete branch”).
+
 ## Coding Standards
 
 ### General Principles
