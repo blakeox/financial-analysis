@@ -28,7 +28,6 @@ export const A11Y_MODEL_TOOL_PATHS = [
   '/amortization',
   '/commercial-real-estate-lease',
   '/enhanced-lease',
-  '/lease-analysis',
   '/cash-flow-analysis',
   '/cca-analysis',
 ] as const;
@@ -41,8 +40,6 @@ export const A11Y_STATIC_TOOL_PATHS = [
   '/home-buying-affordability',
   '/investment-portfolio',
   '/social-security',
-  '/cash-flow-analysis',
-  '/cca-analysis',
   '/options-pricing',
   '/business-expansion-loan',
   '/financial-journey',
@@ -110,7 +107,7 @@ export function calculatorPath(id: string): string {
 
 export function buildA11ySmokePaths(): string[] {
   const calculatorPaths = A11Y_REPRESENTATIVE_CALCULATOR_IDS.map(calculatorPath);
-  return [...A11Y_CORE_PATHS, ...A11Y_MODEL_TOOL_PATHS, ...calculatorPaths];
+  return [...new Set([...A11Y_CORE_PATHS, ...A11Y_MODEL_TOOL_PATHS, ...calculatorPaths])];
 }
 
 export function buildA11yAllCalculatorPaths(): string[] {
