@@ -15,7 +15,7 @@ const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.astro', '.mjs']);
 
 const IGNORE_PATH_PARTS = ['/pages/calculator/', 'calculators/index.ts', 'calculators/configs/'];
 
-const HREF_PATTERN = /\/calculator\/([a-z][a-z0-9-]*)/g;
+const HREF_PATTERN = /\/calculator\/([a-z0-9][a-z0-9-]*)/g;
 
 async function walk(dir, files = []) {
   const entries = await readdir(dir, { withFileTypes: true });

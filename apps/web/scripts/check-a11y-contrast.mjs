@@ -41,7 +41,6 @@ function hasBareLightSlate500(line) {
   if (/placeholder:text-slate-500/.test(line)) return false;
   // Paired dark secondary copy is acceptable in CI (ESLint still suggests textColors.muted).
   if (/\bdark:text-slate-[34]00\b/.test(line)) return false;
-  if (/\btext-slate-600\b/.test(line) && /\bdark:text-slate-400\b/.test(line)) return false;
   return true;
 }
 
