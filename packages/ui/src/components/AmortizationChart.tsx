@@ -95,7 +95,7 @@ const numberFormatter = new Intl.NumberFormat('en-US', {
 // For UI summaries where we want to avoid exact collisions with chart scale labels,
 // insert a thin space after the currency sign. This keeps visual parity but yields a different exact string.
 const formatCurrencyWithThinSpace = (value: number) =>
-  currencyFormatter.format(value).replace('$', '$\u2009');
+  currencyFormatter.format(value).replaceAll('$', '$\u2009');
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 

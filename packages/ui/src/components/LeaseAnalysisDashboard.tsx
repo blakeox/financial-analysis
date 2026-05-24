@@ -14,6 +14,7 @@ import type {
   AdditionalCosts,
   ExtractedLeaseData,
 } from '@financial-analysis/analysis';
+import { escapeHtml } from '../lib/escape-html';
 import { formatCurrency, formatPercentage } from '../lib/formatters';
 import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
@@ -1300,6 +1301,8 @@ export function LeaseAnalysisDashboard({
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
+    const html = (value: string) => escapeHtml(value);
+
     printWindow.document.write(`
       <html>
         <head>
@@ -1318,33 +1321,33 @@ export function LeaseAnalysisDashboard({
         </head>
         <body>
           <h1>Lease Analysis Report</h1>
-          <p>Generated on ${new Date().toLocaleDateString()}</p>
+          <p>Generated on ${html(new Date().toLocaleDateString())}</p>
           
           <h2>Financial Summary</h2>
           <div class="summary">
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.averageMonthlyPayment)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.averageMonthlyPayment))}</div>
               <div>Avg Monthly Payment</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.totalCost)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.totalCost))}</div>
               <div>Total Cost</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.presentValue)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.presentValue))}</div>
               <div>Present Value</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatPercentage(result.metrics.effectiveAnnualRate)}</div>
+              <div class="metric-value">${html(formatPercentage(result.metrics.effectiveAnnualRate))}</div>
               <div>Effective Rate</div>
             </div>
           </div>
 
           <h2>Risk Assessment</h2>
           <table class="table">
-            <tr><td>Flexibility Score</td><td>${result.riskAnalysis.flexibilityScore}/100</td></tr>
-            <tr><td>Early Termination Cost</td><td>${formatCurrency(result.riskAnalysis.earlyTerminationCost)}</td></tr>
-            <tr><td>Renewal Risk</td><td>${result.riskAnalysis.renewalRisk}</td></tr>
+            <tr><td>Flexibility Score</td><td>${html(String(result.riskAnalysis.flexibilityScore))}/100</td></tr>
+            <tr><td>Early Termination Cost</td><td>${html(formatCurrency(result.riskAnalysis.earlyTerminationCost))}</td></tr>
+            <tr><td>Renewal Risk</td><td>${html(result.riskAnalysis.renewalRisk)}</td></tr>
           </table>
 
           ${
@@ -1352,12 +1355,12 @@ export function LeaseAnalysisDashboard({
               ? `
             <h2>Lease vs Buy Comparison</h2>
             <div class="recommendation">
-              <strong>Recommendation: ${result.leaseVsBuy.recommendation.toUpperCase()}</strong>
+              <strong>Recommendation: ${html(result.leaseVsBuy.recommendation.toUpperCase())}</strong>
             </div>
             <table class="table">
               <tr><th>Option</th><th>Total Cost</th><th>Monthly Payment</th></tr>
-              <tr><td>Lease</td><td>${formatCurrency(result.leaseVsBuy.leaseOption.totalCost)}</td><td>${formatCurrency(result.leaseVsBuy.leaseOption.monthlyPayment)}</td></tr>
-              <tr><td>Buy</td><td>${formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost)}</td><td>${formatCurrency(result.leaseVsBuy.buyOption.loanPayment)}</td></tr>
+              <tr><td>Lease</td><td>${html(formatCurrency(result.leaseVsBuy.leaseOption.totalCost))}</td><td>${html(formatCurrency(result.leaseVsBuy.leaseOption.monthlyPayment))}</td></tr>
+              <tr><td>Buy</td><td>${html(formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost))}</td><td>${html(formatCurrency(result.leaseVsBuy.buyOption.loanPayment))}</td></tr>
             </table>
           `
               : ''
@@ -1371,11 +1374,11 @@ export function LeaseAnalysisDashboard({
               .map(
                 (payment) => `
               <tr>
-                <td>${payment.month}</td>
-                <td>${formatCurrency(payment.escalatedPayment)}</td>
-                <td>${formatCurrency(payment.additionalCosts.total)}</td>
-                <td>${formatCurrency(payment.totalPayment)}</td>
-                <td>${formatCurrency(payment.cumulativePaid)}</td>
+                <td>${html(String(payment.month))}</td>
+                <td>${html(formatCurrency(payment.escalatedPayment))}</td>
+                <td>${html(formatCurrency(payment.additionalCosts.total))}</td>
+                <td>${html(formatCurrency(payment.totalPayment))}</td>
+                <td>${html(formatCurrency(payment.cumulativePaid))}</td>
               </tr>
             `
               )

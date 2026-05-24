@@ -7,6 +7,15 @@
 
 import { enhanceInteractiveScenarioCards } from '../a11y/interactive-cards.client';
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export interface ScenarioModel {
   id: string;
   name: string;
@@ -756,26 +765,35 @@ export class MultiModelScenarioManager {
         const isCompleted = this.completedModels.has(model.id);
         const statusClass = isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'fa-help-copy';
         const statusIcon = isCompleted ? '✓' : '○';
+        const modelName = escapeHtml(model.name);
+        const modelDescription = escapeHtml(model.description);
+        const modelUrl = escapeHtml(model.url);
+        const actionLabel = isCompleted ? 'Review' : 'Start';
 
         return `
         <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg mb-2">
           <div class="flex items-center">
             <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
             <div>
-              <h4 class="fa-script-title-sm">${model.name}</h4>
-              <p class="fa-script-copy-muted">${model.description}</p>
+              <h4 class="fa-script-title-sm">${modelName}</h4>
+              <p class="fa-script-copy-muted">${modelDescription}</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
             ${model.required ? '<span class="fa-badge-danger">Required</span>' : ''}
-            <a href="${model.url}" class="fa-button-info-compact">
-              ${isCompleted ? 'Review' : 'Start'}
+            <a href="${modelUrl}" class="fa-button-info-compact">
+              ${actionLabel}
             </a>
           </div>
         </div>
       `;
       })
       .join('');
+
+    const complexityLabel = escapeHtml(
+      scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1)
+    );
+    const durationLabel = escapeHtml(scenario.estimatedDuration);
 
     return `
       <div class="mb-4">
@@ -787,11 +805,11 @@ export class MultiModelScenarioManager {
       <div class="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg p-4">
         <h5 class="font-medium text-violet-900 dark:text-violet-300 mb-2">Workflow Steps:</h5>
         <ol class="list-decimal list-inside space-y-1 text-sm text-violet-800 dark:text-violet-400">
-          ${scenario.workflow.map((step) => `<li>${step}</li>`).join('')}
+          ${scenario.workflow.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}
         </ol>
         <div class="mt-3 flex items-center justify-between text-sm text-violet-700 dark:text-violet-300">
-          <span>Estimated Duration: ${scenario.estimatedDuration}</span>
-          <span>Complexity: ${scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1)}</span>
+          <span>Estimated Duration: ${durationLabel}</span>
+          <span>Complexity: ${complexityLabel}</span>
         </div>
       </div>
     `;

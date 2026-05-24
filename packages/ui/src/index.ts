@@ -143,3 +143,5 @@ export type {
 
 export { getApiMonitor, monitoredFetch, monitoredFetchWithRetry } from './lib/api-monitor';
 export type { ApiCallMetrics, ApiAnalysis, EndpointStats } from './lib/api-monitor';
+
+export { escapeHtml } from './lib/escape-html';
