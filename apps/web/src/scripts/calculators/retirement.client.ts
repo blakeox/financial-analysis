@@ -121,16 +121,14 @@ export const describeIncomeReplacement = (result: RetirementResult): string | nu
     return null;
   }
 
-  const parts = [
-    '<p class="text-slate-600 dark:text-slate-400">Projected Annual Retirement Income:</p>',
-  ];
+  const parts = ['<p class="fa-help-copy">Projected Annual Retirement Income:</p>'];
 
   if (annualIncome) {
     parts.push(`<p class="text-xl font-semibold text-emerald-600">${annualIncome}</p>`);
   }
 
   if (replacementRatio) {
-    parts.push(`<p class="text-sm text-slate-500 mt-2">${replacementRatio} of final salary</p>`);
+    parts.push(`<p class="text-sm fa-meta-copy mt-2">${replacementRatio} of final salary</p>`);
   }
 
   return parts.join('');

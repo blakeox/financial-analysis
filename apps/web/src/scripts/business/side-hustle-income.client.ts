@@ -5,6 +5,8 @@
  * and break-even analysis for freelance/gig work.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -206,28 +208,32 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
     return;
   }
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Annual After-Tax</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.afterTax.annualAfterTax)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.afterTax.monthlyAfterTax)}/mo</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">True Hourly Rate</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.afterTax.hourlyAfterTaxRate)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">after taxes & expenses</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Quarterly Tax</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.taxes.quarterlyEstimated)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">estimated payments</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Take-Home %</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.afterTax.takeHomePercent.toFixed(1)}%</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">of revenue</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Annual After-Tax',
+      value: formatCurrency(result.afterTax.annualAfterTax),
+      meta: `${formatCurrency(result.afterTax.monthlyAfterTax)}/mo`,
+      tone: 'violet',
+    },
+    {
+      title: 'True Hourly Rate',
+      value: formatCurrency(result.afterTax.hourlyAfterTaxRate),
+      meta: 'after taxes & expenses',
+      tone: 'emerald',
+    },
+    {
+      title: 'Quarterly Tax',
+      value: formatCurrency(result.taxes.quarterlyEstimated),
+      meta: 'estimated payments',
+      tone: 'violet',
+    },
+    {
+      title: 'Take-Home %',
+      value: `${result.afterTax.takeHomePercent.toFixed(1)}%`,
+      meta: 'of revenue',
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <!-- Tax Breakdown -->
@@ -472,6 +478,7 @@ function initializeSideHustle(): void {
 
       const result = calculateSideHustleIncome(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_side_hustle_income', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

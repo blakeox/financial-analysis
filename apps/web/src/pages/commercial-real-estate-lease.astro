@@ -4,6 +4,7 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
 import AdSense from '../components/AdSense.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 
 const baseUrl = 'https://fanalyx.com';
 const currentUrl = `${baseUrl}/commercial-real-estate-lease`;
@@ -84,6 +85,9 @@ const structuredData = {
   description="Free commercial real estate lease calculator with NNN, modified gross, and full service lease analysis. Calculate total occupancy costs, CAM charges, and compare lease structures."
   keywords="commercial real estate lease, NNN lease calculator, CAM charges, triple net lease, commercial lease analysis, retail lease calculator, office lease calculator"
   canonical={Astro.url.href}
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <ToolPageShell
@@ -96,12 +100,20 @@ const structuredData = {
       { label: 'Commercial Real Estate Lease' },
     ]}
   >
-    <SurfaceCard className="mb-8">
-      <div id="commercial-real-estate-lease-container"></div>
-    </SurfaceCard>
+    <div id="results" class="hidden" aria-hidden="true"></div>
 
-    <!-- AdSense: After dashboard ad -->
-    <AdSense slot="1234509876" format="horizontal" className="mt-8" />
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
+        <SurfaceCard className="mb-8">
+          <div id="commercial-real-estate-lease-container"></div>
+        </SurfaceCard>
+
+        <!-- AdSense: After dashboard ad -->
+        <AdSense slot="1234509876" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="lease" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="commercial-real-estate-lease" />

@@ -5,6 +5,7 @@ const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const astroParser = require('astro-eslint-parser');
 const astroPlugin = require('eslint-plugin-astro');
 const jsxA11y = require('eslint-plugin-jsx-a11y');
+const faA11y = require('./packages/config/eslint-plugin-fa-a11y/index.cjs');
 
 module.exports = [
   // Base JS recommendations
@@ -52,6 +53,18 @@ module.exports = [
       ...jsxA11y.flatConfigs.recommended.rules,
       // Crashes under ESLint 10 (minimatch default export); axe covers label association in E2E.
       'jsx-a11y/label-has-associated-control': 'off',
+    },
+  },
+
+  // Accessible text contrast (secondary/muted copy)
+  {
+    files: [
+      'apps/web/src/**/*.{ts,tsx,astro}',
+      'packages/ui/src/**/*.{ts,tsx}',
+    ],
+    plugins: { 'fa-a11y': faA11y },
+    rules: {
+      'fa-a11y/prefer-accessible-muted-text': 'error',
     },
   },
 

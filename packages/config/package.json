@@ -5,8 +5,12 @@
   "description": "Shared configs for tsconfig, ESLint, Prettier",
   "main": "index.js",
   "files": [
-    "*"
+    "*",
+    "eslint-plugin-fa-a11y"
   ],
+  "scripts": {
+    "test:eslint-a11y": "node eslint-plugin-fa-a11y/eslint-rule.test.cjs"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^8.59.4",

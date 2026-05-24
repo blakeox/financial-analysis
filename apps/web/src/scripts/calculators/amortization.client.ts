@@ -3,13 +3,17 @@ import type {
   AmortizationInput,
   AmortizationResultItem,
 } from '@financial-analysis/analysis';
+import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderMetricCard } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
+  hideError,
   isFiniteNumber,
   parseNumberWithFallback as parseNumber,
 } from '../../utils/calculator-utilities';
 import { AnalysisRequestError, postAnalysisRequest } from '../analysis/analysis-api';
+import { dispatchAnalysisResultUpdated } from '../analysis/analysis-event-contract';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { publishChatContext } from '../chat/chat-context';
 
@@ -580,22 +584,28 @@ export const renderSummaryCards = (
   const interestShare =
     totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
 
-  target.innerHTML = `
-    <div class="bg-violet-600 text-white rounded-lg p-6">
-      <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Monthly Payment</p>
-      <p class="text-3xl font-bold">${toCurrency(monthlyPayment)}</p>
-    </div>
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
-      <p class="fa-script-copy-subtle mb-2">Total Interest</p>
-      <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">${toCurrency(totalInterest)}</p>
-      <p class="fa-script-note mt-1">${interestShare}% of total payments</p>
-    </div>
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 shadow">
-      <p class="fa-script-copy-subtle mb-2">Total Paid</p>
-      <p class="text-2xl font-semibold text-violet-600 dark:text-violet-400">${toCurrency(totalPayments)}</p>
-      <p class="fa-script-note mt-1">Over ${termMonths} months</p>
-    </div>
-  `;
+  target.innerHTML = [
+    renderMetricCard({
+      title: 'Monthly Payment',
+      value: toCurrency(monthlyPayment),
+      tone: 'primary',
+      valueClassName: 'fa-metric-card-value-lg',
+    }),
+    renderMetricCard({
+      title: 'Total Interest',
+      value: toCurrency(totalInterest),
+      meta: `${interestShare}% of total payments`,
+      tone: 'surface',
+      valueClassName: 'fa-metric-card-value-emerald',
+    }),
+    renderMetricCard({
+      title: 'Total Paid',
+      value: toCurrency(totalPayments),
+      meta: `Over ${termMonths} months`,
+      tone: 'surface',
+      valueClassName: 'fa-metric-card-value-violet',
+    }),
+  ].join('\n');
 };
 
 export const renderChart = (
@@ -867,7 +877,7 @@ export const renderSchedule = (
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${interest}</td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">${balance}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-600 dark:text-slate-400">${cumulativeInterest}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-right fa-help-copy">${cumulativeInterest}</td>
         </tr>
       `;
     })
@@ -885,11 +895,11 @@ export const parseAmortizationInput = (formData: FormData): AmortizationInput =>
   }
 
   if (!isFiniteNumber(annualRatePercent) || annualRatePercent < 0 || annualRatePercent > 100) {
-    throw new Error('Interest rate must be between 0 and 100');
+    throw new Error('Annual rate must be between 0 and 100');
   }
 
   if (!isFiniteNumber(termMonths) || termMonths < 1) {
-    throw new Error('Please enter a valid loan term');
+    throw new Error('Please enter a valid loan term (months)');
   }
 
   const propertyTaxAnnual = parseNumber(formData.get('propertyTaxAnnual'), 0);
@@ -1007,9 +1017,10 @@ const updateEnhancedAnalysis = (
     const detail = {
       modelType: 'amortization',
       result: analysisData,
+      toolName: 'analyze_amortization',
     };
 
-    document.dispatchEvent(new CustomEvent('analysis-result-updated', { detail }));
+    dispatchAnalysisResultUpdated(detail);
     window.dispatchEvent(new CustomEvent('amortization-analysis-ready', { detail: analysisData }));
 
     publishChatContext('amortization', 'Amortization analysis', {
@@ -1084,24 +1095,11 @@ const hideLoading = (): void => {
   loadingState?.classList.add('hidden');
 };
 
-const showError = (message: string): void => {
-  const errorState = document.getElementById('error-state');
-  const resultsContainer = document.getElementById('results-container');
-  const resultsSection = document.getElementById('results-section');
-  const errorMessage = document.getElementById('error-message');
-
+const showAmortizationError = (message: string, form: HTMLFormElement): void => {
   hideLoading();
-  resultsContainer?.classList.add('hidden');
-  resultsSection?.classList.add('hidden');
-  if (errorState) errorState.classList.remove('hidden');
-  if (errorMessage) errorMessage.textContent = message;
-};
-
-const hideError = (): void => {
-  const errorState = document.getElementById('error-state');
-  if (errorState) errorState.classList.add('hidden');
-  const errorMessage = document.getElementById('error-message');
-  if (errorMessage) errorMessage.textContent = '';
+  document.getElementById('results-container')?.classList.add('hidden');
+  document.getElementById('results-section')?.classList.add('hidden');
+  handleCalculatorFormError(form, new Error(message));
 };
 
 // Initialize amortization calculator
@@ -1120,6 +1118,7 @@ function initializeAmortization() {
   if (form instanceof HTMLFormElement) {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      clearCalculatorFormErrors(form);
       hideError();
       showLoading();
       setAnalyzing(true);
@@ -1141,7 +1140,7 @@ function initializeAmortization() {
             : error instanceof Error
               ? error.message
               : 'Failed to calculate amortization';
-        showError(message);
+        showAmortizationError(message, form);
       } finally {
         hideLoading();
         setAnalyzing(false);
@@ -1157,6 +1156,8 @@ function initializeAmortization() {
   if (resetBtn instanceof HTMLButtonElement && form instanceof HTMLFormElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      clearCalculatorFormErrors(form);
+      hideError();
       const resultsContainer = document.getElementById('results-container');
       const resultsSection = document.getElementById('results-section');
       const chartContainer = document.getElementById('amortization-chart-container');

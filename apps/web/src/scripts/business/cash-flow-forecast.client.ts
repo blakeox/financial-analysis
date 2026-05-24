@@ -5,6 +5,8 @@
  * burn rate, and cash runway analysis.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -292,28 +294,48 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
 
   if (!resultsContainer || !summaryCards || !resultsSection) return;
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Starting Cash</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(input.startingCash)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Beginning balance</p>
-    </div>
-    <div class="bg-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-50 dark:bg-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-900 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-100">Ending Cash (12 mo)</h5>
-      <p class="text-2xl font-bold text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-600 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-400">${formatCurrency(result.summary.endingCash)}</p>
-      <p class="text-xs text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-700 dark:text-${result.summary.endingCash > input.startingCash ? 'green' : result.summary.endingCash > 0 ? 'yellow' : 'red'}-300 mt-1">${result.summary.endingCash > input.startingCash ? '✓ Growing' : result.summary.endingCash > 0 ? 'Declining' : '🚨 Negative!'}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Lowest Cash Month</h5>
-      <p class="text-2xl font-bold ${result.summary.lowestCash.amount < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-violet-600 dark:text-violet-400'}">${formatCurrency(result.summary.lowestCash.amount)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${result.summary.lowestCash.monthName}</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Cash Runway</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.summary.cashRunway === Infinity ? '∞' : result.summary.cashRunway.toFixed(1)} mo</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">${result.summary.averageBurnRate > 0 ? formatCurrency(result.summary.averageBurnRate) + '/mo burn' : 'Profitable'}</p>
-    </div>
-  `;
+  const endingTone =
+    result.summary.endingCash > input.startingCash
+      ? 'emerald'
+      : result.summary.endingCash > 0
+        ? 'amber'
+        : 'amber';
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Starting Cash',
+      value: formatCurrency(input.startingCash),
+      meta: 'Beginning balance',
+      tone: 'violet',
+    },
+    {
+      title: 'Ending Cash (12 mo)',
+      value: formatCurrency(result.summary.endingCash),
+      meta:
+        result.summary.endingCash > input.startingCash
+          ? 'Growing'
+          : result.summary.endingCash > 0
+            ? 'Declining'
+            : 'Negative',
+      tone: endingTone,
+    },
+    {
+      title: 'Lowest Cash Month',
+      value: formatCurrency(result.summary.lowestCash.amount),
+      meta: result.summary.lowestCash.monthName,
+      tone: result.summary.lowestCash.amount < 0 ? 'amber' : 'violet',
+    },
+    {
+      title: 'Cash Runway',
+      value:
+        result.summary.cashRunway === Infinity ? '∞' : `${result.summary.cashRunway.toFixed(1)} mo`,
+      meta:
+        result.summary.averageBurnRate > 0
+          ? `${formatCurrency(result.summary.averageBurnRate)}/mo burn`
+          : 'Profitable',
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     ${
@@ -356,9 +378,9 @@ function displayResults(result: CashFlowResult, input: CashFlowInput): void {
               (p) => `
             <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700">
               <td class="py-2 px-2 font-medium">${p.monthName}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.revenue)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.revenue)}</td>
               <td class="text-right py-2 px-2 text-emerald-600 dark:text-emerald-400">${formatCurrency(p.cashCollected)}</td>
-              <td class="text-right py-2 px-2 text-slate-600 dark:text-slate-400">${formatCurrency(p.expenses)}</td>
+              <td class="text-right py-2 px-2 fa-help-copy">${formatCurrency(p.expenses)}</td>
               <td class="text-right py-2 px-2 text-rose-600 dark:text-rose-400">${formatCurrency(p.cashPaid)}</td>
               <td class="text-right py-2 px-2 font-semibold ${p.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.netCashFlow)}</td>
               <td class="text-right py-2 px-2 font-bold ${p.endingCash >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(p.endingCash)}</td>
@@ -499,6 +521,7 @@ function initializeCashFlowForecast(): void {
 
       const result = calculateCashFlow(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_cash_flow_forecast', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

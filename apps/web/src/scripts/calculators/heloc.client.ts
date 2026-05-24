@@ -2,66 +2,113 @@
  * HELOC Analyzer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class HELOCCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('heloc-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('HELOC form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const availableEquity = Number(summary.availableEquity) || 0;
+  const monthlyPayment = Number(summary.monthlyPayment) || 0;
+  const totalCost = Number(summary.totalCost) || 0;
+  const creditLimit = Number(summary.helocCreditLimit) || 0;
+  const equityPct = Number(summary.equityPercentage) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Available Equity',
+      value: formatCurrency(availableEquity),
+      meta: `${equityPct.toFixed(1)}% of home value`,
+      tone: 'violet',
+    },
+    {
+      title: 'Credit Limit',
+      value: formatCurrency(creditLimit),
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Payment',
+      value: formatCurrency(monthlyPayment),
+      meta: 'amortizing after draw period',
+      tone: monthlyPayment > 2500 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Total Cost',
+      value: formatCurrency(totalCost),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initHelocCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const drawAmount = parseNumber(form, 'drawAmount');
 
       const input = {
         propertyInfo: {
-          currentHomeValue: parseFloat((formData.get('currentHomeValue') as string) || '0'),
-          currentMortgageBalance: parseFloat(
-            (formData.get('currentMortgageBalance') as string) || '0'
-          ),
-          mortgageInterestRate: parseFloat((formData.get('mortgageInterestRate') as string) || '0'),
-          yearsRemaining: parseInt((formData.get('yearsRemaining') as string) || '30'),
+          currentHomeValue: parseNumber(form, 'currentHomeValue'),
+          currentMortgageBalance: parseNumber(form, 'currentMortgageBalance'),
+          mortgageInterestRate: parseRate(form, 'mortgageInterestRate'),
+          yearsRemaining: Math.round(parseNumber(form, 'yearsRemaining')) || 30,
         },
         helocDetails: {
-          creditLimit: parseFloat((formData.get('creditLimit') as string) || '0'),
-          interestRate: parseFloat((formData.get('interestRate') as string) || '0'),
-          drawPeriod: parseInt((formData.get('drawPeriod') as string) || '10'),
-          repaymentPeriod: parseInt((formData.get('repaymentPeriod') as string) || '20'),
-          initialDraw: parseFloat((formData.get('initialDraw') as string) || '0'),
-          annualFee: parseFloat((formData.get('annualFee') as string) || '0'),
+          creditLimit: parseNumber(form, 'creditLimit'),
+          interestRate: parseRate(form, 'interestRate'),
+          drawPeriod: Math.round(parseNumber(form, 'drawPeriod')) || 10,
+          repaymentPeriod: Math.round(parseNumber(form, 'repaymentPeriod')) || 20,
+          initialDraw: drawAmount,
+          annualFee: 0,
         },
         usage: {
-          purpose: (formData.get('purpose') as string) || 'other',
-          drawAmount: parseFloat((formData.get('drawAmount') as string) || '0'),
-          drawTiming: (formData.get('drawTiming') as string) || 'immediate',
+          purpose: (form.elements.namedItem('purpose') as HTMLSelectElement)?.value || 'other',
+          drawAmount,
+          drawTiming: 'immediate' as const,
         },
         comparison: {
-          compareToRefinancing: formData.get('compareToRefinancing') === 'true',
-          compareToPersonalLoan: formData.get('compareToPersonalLoan') === 'true',
-          newMortgageRate: formData.get('newMortgageRate')
-            ? parseFloat(formData.get('newMortgageRate') as string)
-            : undefined,
-          personalLoanRate: formData.get('personalLoanRate')
-            ? parseFloat(formData.get('personalLoanRate') as string)
-            : undefined,
+          compareToRefinancing: true,
+          compareToPersonalLoan: false,
         },
       };
 
@@ -72,42 +119,24 @@ class HELOCCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze HELOC');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze HELOC');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_heloc', result);
     } catch (error) {
       console.error('HELOC error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze HELOC');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('heloc-results');
-    const contentDiv = document.getElementById('heloc-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">HELOC Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your HELOC analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new HELOCCalculator());
+  document.addEventListener('DOMContentLoaded', initHelocCalculator);
 } else {
-  new HELOCCalculator();
+  initHelocCalculator();
 }

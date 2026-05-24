@@ -3,6 +3,20 @@
  * This allows the chat panel to access outputs from the current page
  */
 
+import {
+  dispatchAnalysisResultUpdated,
+  mapToolNameToModelType,
+  type AnalysisResultEventDetail,
+} from './analysis-event-contract';
+
+export type { AnalysisResultEventDetail } from './analysis-event-contract';
+export {
+  ANALYSIS_ENGINE_MODEL_TYPES,
+  hasAnalysisEngine,
+  mapToolNameToModelType,
+  normalizeAnalysisResultEventDetail,
+} from './analysis-event-contract';
+
 export type AnalysisResults = Record<string, unknown>;
 
 declare global {
@@ -21,23 +35,21 @@ export function storeAnalysisResult(toolName: string, result: unknown): void {
     window.analysisResults = {};
   }
 
+  const modelType = mapToolNameToModelType(toolName);
   window.analysisResults[toolName] = result;
 
-  // Also store in data attribute on results container if it exists
   const resultsContainer = document.getElementById('results');
   if (resultsContainer) {
     resultsContainer.setAttribute('data-tool-name', toolName);
+    resultsContainer.setAttribute('data-model-type', modelType);
     resultsContainer.setAttribute('data-analysis-result', JSON.stringify(result));
   }
 
-  // Notify chat panel of new results
-  const event = new CustomEvent('analysis-result-updated', {
-    detail: { toolName, result },
-  });
-  window.dispatchEvent(event);
+  const detail: AnalysisResultEventDetail = { modelType, result, toolName };
+  dispatchAnalysisResultUpdated(detail);
 
   if (import.meta.env.DEV) {
-    console.log(`[AnalysisResults] Stored result for tool: ${toolName}`);
+    console.log(`[AnalysisResults] Stored result for ${toolName} (modelType: ${modelType})`);
   }
 }
 
@@ -70,6 +82,7 @@ export function clearAnalysisResult(toolName: string): void {
   const resultsContainer = document.getElementById('results');
   if (resultsContainer) {
     resultsContainer.removeAttribute('data-tool-name');
+    resultsContainer.removeAttribute('data-model-type');
     resultsContainer.removeAttribute('data-analysis-result');
   }
 }

@@ -2,7 +2,9 @@ import type { DebtPayoffResult } from '@financial-analysis/analysis';
 import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
-import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
+import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import { formatCurrency, hideError, parseNumber } from '../../utils/calculator-utilities';
 
 // Currency formatter for displaying monetary values
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -207,7 +209,7 @@ export const buildTimeline = (result: DebtPayoffResult, primaryStrategy: Strateg
       (entry: TimelineEntry, index: number) => `
         <div class="flex justify-between items-center text-sm">
           <span class="font-medium">${index + 1}. ${entry.name}</span>
-          <span class="text-slate-600 dark:text-slate-400">Month ${entry.monthsToPayoff}</span>
+          <span class="fa-help-copy">Month ${entry.monthsToPayoff}</span>
         </div>
       `
     )
@@ -250,28 +252,35 @@ export const displayResults = (
 
   // Calculate credit score impact
   // Render summary cards with enhancements
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Debt</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${toCurrency(result.input.totalDebtBalance)}</p>
-      ${creditScore ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Credit Score: ${creditScore.currentEstimate} → ${creditScore.finalEstimate}</p>` : ''}
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Debt-Free Date</h5>
-      <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${debtFreeDateStr}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${primary.totalMonthsToPayoff} months from now</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Best Strategy</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${primaryIsAvalanche ? 'Avalanche' : 'Snowball'}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatMonths(primary.totalMonthsToPayoff)}</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Saved</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${interestSavingsDisplay}</p>
-      ${alternative ? `<p class="text-xs text-orange-700 dark:text-orange-300 mt-1">vs ${primaryIsAvalanche ? 'Snowball' : 'Avalanche'}</p>` : ''}
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Total Debt',
+      value: toCurrency(result.input.totalDebtBalance),
+      meta: creditScore
+        ? `Credit Score: ${creditScore.currentEstimate} → ${creditScore.finalEstimate}`
+        : undefined,
+      tone: 'violet',
+    },
+    {
+      title: 'Debt-Free Date',
+      value: debtFreeDateStr,
+      meta: `${primary.totalMonthsToPayoff} months from now`,
+      tone: 'emerald',
+      valueClassName: 'fa-metric-card-value-lg',
+    },
+    {
+      title: 'Best Strategy',
+      value: primaryIsAvalanche ? 'Avalanche' : 'Snowball',
+      meta: formatMonths(primary.totalMonthsToPayoff),
+      tone: 'violet',
+    },
+    {
+      title: 'Interest Saved',
+      value: interestSavingsDisplay,
+      meta: alternative ? `vs ${primaryIsAvalanche ? 'Snowball' : 'Avalanche'}` : undefined,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed comparison
   resultsContainer.innerHTML = `
@@ -425,6 +434,7 @@ const initDebtPayoffPage = () => {
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    clearCalculatorFormErrors(form);
 
     // Show loading state
     const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
@@ -514,7 +524,7 @@ const initDebtPayoffPage = () => {
       );
     } catch (error) {
       console.error('Debt payoff calculation error:', error);
-      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+      handleCalculatorFormError(form, error);
     } finally {
       // Reset button state
       if (calculateBtn) {
@@ -529,6 +539,8 @@ const initDebtPayoffPage = () => {
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      clearCalculatorFormErrors(form);
+      hideError();
       const resultsSection = document.getElementById('results-section');
       const resultsContainer = document.getElementById('results-container');
       const summaryCards = document.getElementById('summary-cards');

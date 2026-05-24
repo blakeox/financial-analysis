@@ -2,69 +2,125 @@
  * Business Succession Planning Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class BusinessSuccessionPlanningCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('business-succession-planning-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Business Succession Planning form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const businessValue = Number(summary.businessValue) || 0;
+  const estateTax = Number(summary.estateTax) || 0;
+  const transferTax = Number(summary.transferTax) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Business Value',
+      value: formatCurrency(businessValue),
+      tone: 'primary',
+    },
+    {
+      title: 'Estate Tax',
+      value: formatCurrency(estateTax),
+      tone: estateTax > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Transfer Tax',
+      value: formatCurrency(transferTax),
+      tone: 'amber',
+    },
+    {
+      title: 'Years to Transfer',
+      value: `${Number(summary.yearsUntilTransfer) || 0}`,
+      meta: String(summary.recommendedStrategy ?? '').slice(0, 24),
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initBusinessSuccessionPlanningCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const businessValue = parseNumber(form, 'businessValue');
+      const age = Math.round(parseNumber(form, 'age')) || 55;
+      const exitAge = Math.round(parseNumber(form, 'expectedRetirementAge')) || 65;
 
       const input = {
         businessInfo: {
-          businessName: (formData.get('businessName') as string) || '',
-          businessType: (formData.get('businessType') as string) || 'llc',
-          annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
-          businessValue: parseFloat((formData.get('businessValue') as string) || '0'),
+          businessName: (form.elements.namedItem('businessName') as HTMLInputElement)?.value || '',
+          businessType: 'llc' as const,
+          annualRevenue: businessValue * 0.4,
+          annualEBITDA: businessValue * 0.15,
+          totalAssets: businessValue * 0.8,
+          totalDebt: businessValue * 0.2,
         },
-        ownerInfo: {
-          age: parseInt((formData.get('age') as string) || '50'),
-          ownershipPercentage: parseFloat((formData.get('ownershipPercentage') as string) || '1'),
-          expectedRetirementAge: parseInt(
-            (formData.get('expectedRetirementAge') as string) || '65'
-          ),
+        ownership: {
+          currentOwners: [
+            {
+              ownershipPercentage: 1,
+              age,
+              expectedExitAge: exitAge,
+            },
+          ],
+          totalOwnership: 1,
+        },
+        valuation: {
+          valuationMethod: 'market-multiple' as const,
+          estimatedValue: businessValue,
+          valuationMultiple: 5,
         },
         successionOptions: {
-          successionType: (formData.get('successionType') as string) || 'family-transfer',
-          hasBuySellAgreement: formData.get('hasBuySellAgreement') === 'true',
-          buySellFunding: (formData.get('buySellFunding') as string) || 'life-insurance',
+          transferMethod: 'family-transfer' as const,
         },
-        estatePlanning: {
-          estateTaxExemption: parseFloat(
-            (formData.get('estateTaxExemption') as string) || '12920000'
-          ),
-          includeGiftingStrategy: formData.get('includeGiftingStrategy') !== 'false',
-          annualGiftExclusion: parseFloat(
-            (formData.get('annualGiftExclusion') as string) || '18000'
-          ),
+        taxPlanning: {
+          federalEstateTaxExemption: 13_610_000,
+          giftTaxExemption: 18_000,
+        },
+        buySellAgreement: {
+          hasAgreement: false,
+          fundingMethod: 'life-insurance' as const,
         },
         analysis: {
-          includeValuation: formData.get('includeValuation') !== 'false',
-          includeTaxAnalysis: formData.get('includeTaxAnalysis') !== 'false',
-          includeTransitionPlan: formData.get('includeTransitionPlan') !== 'false',
-          includeFundingAnalysis: formData.get('includeFundingAnalysis') !== 'false',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '10'),
+          includeTaxAnalysis: true,
+          includeEstateTaxImpact: true,
+          includeTransferStrategies: true,
+          includeTimingAnalysis: true,
+          includeFundingAnalysis: true,
         },
       };
 
@@ -75,44 +131,29 @@ class BusinessSuccessionPlanningCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze business succession planning');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message ||
+            'Failed to analyze business succession planning'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_business_succession_planning', result);
     } catch (error) {
       console.error('Business Succession Planning error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze business succession planning'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('business-succession-planning-results');
-    const contentDiv = document.getElementById('business-succession-planning-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Business Succession Planning Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your business succession planning analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new BusinessSuccessionPlanningCalculator());
+  document.addEventListener('DOMContentLoaded', initBusinessSuccessionPlanningCalculator);
 } else {
-  new BusinessSuccessionPlanningCalculator();
+  initBusinessSuccessionPlanningCalculator();
 }

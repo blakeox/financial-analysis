@@ -6,6 +6,7 @@ import PageHero from '../components/site/PageHero.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout 
@@ -14,6 +15,9 @@ import Layout from '../layouts/Layout.astro';
   keywords="financial journey, financial planning, financial goals, financial roadmap, personal finance planning, financial milestones, financial progress tracking"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData 
@@ -80,6 +84,10 @@ import Layout from '../layouts/Layout.astro';
         description="Comprehensive multi-stage financial planning with personalized recommendations and progress tracking."
       />
 
+      <div id="results" class="hidden" aria-hidden="true"></div>
+
+      <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+        <div class="space-y-8">
       <!-- Financial Journey Form -->
       <SurfaceCard className="mb-8">
         <h2 class="fa-panel-title mb-6">Personal Information</h2>
@@ -313,6 +321,10 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- AdSense -->
       <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+        </div>
+
+        <WorkflowSupportRail modelType="financial-journey" />
+      </div>
     </div>
   </div>
 

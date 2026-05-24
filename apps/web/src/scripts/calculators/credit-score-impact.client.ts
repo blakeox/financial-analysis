@@ -2,66 +2,110 @@
  * Credit Score Impact Calculator Client Script
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class CreditScoreImpactCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('credit-score-impact-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Credit Score Impact form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const current = Number(summary.currentScore) || 0;
+  const projected = Number(summary.projectedScore) || current;
+  const scoreChange = Number(summary.scoreChange) || projected - current;
+  const health = String(summary.creditHealth ?? '');
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Current Score',
+      value: `${current}`,
+      meta: health || undefined,
+      tone: current >= 740 ? 'emerald' : current >= 670 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Projected Score',
+      value: `${projected}`,
+      tone: projected >= current ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Point Change',
+      value: scoreChange >= 0 ? `+${scoreChange}` : `${scoreChange}`,
+      meta: 'with planned actions',
+      tone: scoreChange > 0 ? 'emerald' : scoreChange < 0 ? 'orange' : 'violet',
+    },
+    {
+      title: 'Utilization',
+      value:
+        record.utilizationAnalysis &&
+        typeof record.utilizationAnalysis === 'object' &&
+        'utilizationPercentage' in (record.utilizationAnalysis as object)
+          ? `${(Number((record.utilizationAnalysis as Record<string, unknown>).utilizationPercentage) * 100).toFixed(0)}%`
+          : '—',
+      meta: 'target under 30%',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCreditScoreImpactCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const limit = parseNumber(form, 'totalCreditLimit');
+      const used = parseNumber(form, 'totalCreditUsed');
+      const utilization = limit > 0 ? used / limit : 0;
 
       const input = {
         currentCredit: {
-          currentScore: parseInt((formData.get('currentScore') as string) || '700'),
-          creditBureau: (formData.get('creditBureau') as string) || 'fico-8',
+          currentScore: Math.round(parseNumber(form, 'currentScore')) || 700,
+          creditBureau: 'fico-8' as const,
         },
         creditUtilization: {
-          totalCreditLimit: parseFloat((formData.get('totalCreditLimit') as string) || '0'),
-          totalCreditUsed: parseFloat((formData.get('totalCreditUsed') as string) || '0'),
-          utilizationPercentage: parseFloat(
-            (formData.get('utilizationPercentage') as string) || '0'
-          ),
+          totalCreditLimit: limit,
+          totalCreditUsed: used,
+          utilizationPercentage: utilization,
         },
         paymentHistory: {
-          onTimePayments: parseFloat((formData.get('onTimePayments') as string) || '100'),
-          latePayments30Days: parseInt((formData.get('latePayments30Days') as string) || '0'),
-          latePayments60Days: parseInt((formData.get('latePayments60Days') as string) || '0'),
-          latePayments90Days: parseInt((formData.get('latePayments90Days') as string) || '0'),
+          onTimePayments: 100,
+          latePayments30Days: 0,
+          latePayments60Days: 0,
+          latePayments90Days: 0,
         },
         plannedActions: {
-          payDownDebt: {
-            amount: parseFloat((formData.get('payDownAmount') as string) || '0'),
-            targetUtilization: parseFloat((formData.get('targetUtilization') as string) || '0.3'),
-          },
-          openNewAccount: formData.get('openNewAccount') === 'true',
-          requestCreditLimitIncrease: formData.get('requestCreditLimitIncrease') === 'true',
+          payDownDebt: { amount: 0, targetUtilization: 0.3 },
         },
         analysis: {
-          includeScoreProjection: formData.get('includeScoreProjection') !== 'false',
-          includeActionRecommendations: formData.get('includeActionRecommendations') !== 'false',
-          includeTimelineAnalysis: formData.get('includeTimelineAnalysis') !== 'false',
-          projectionMonths: parseInt((formData.get('projectionMonths') as string) || '12'),
+          includeScoreProjection: true,
+          includeActionRecommendations: true,
+          includeTimelineAnalysis: true,
+          projectionMonths: 12,
         },
       };
 
@@ -72,42 +116,26 @@ class CreditScoreImpactCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze credit score impact');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze credit score impact'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_credit_score_impact', result);
     } catch (error) {
       console.error('Credit Score Impact error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze credit score impact');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('credit-score-impact-results');
-    const contentDiv = document.getElementById('credit-score-impact-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Credit Score Impact Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your credit score impact analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CreditScoreImpactCalculator());
+  document.addEventListener('DOMContentLoaded', initCreditScoreImpactCalculator);
 } else {
-  new CreditScoreImpactCalculator();
+  initCreditScoreImpactCalculator();
 }

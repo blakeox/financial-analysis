@@ -2,67 +2,107 @@
  * Depreciation Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class DepreciationCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('depreciation-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Depreciation form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Total Depreciation',
+      value: formatCurrency(Number(summary.totalDepreciation) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Tax Savings',
+      value: formatCurrency(Number(summary.totalTaxSavings) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Book Value',
+      value: formatCurrency(Number(summary.bookValue) || 0),
+      tone: 'amber',
+    },
+    {
+      title: 'Asset Cost',
+      value: formatCurrency(Number(summary.assetCost) || 0),
+      tone: 'orange',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initDepreciationCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const purchaseCost = parseNumber(form, 'purchaseCost');
+      const usefulLife = Math.round(parseNumber(form, 'usefulLife')) || 5;
 
       const input = {
         assetInfo: {
-          purchaseDate:
-            (formData.get('purchaseDate') as string) || new Date().toISOString().split('T')[0],
-          purchaseCost: parseFloat((formData.get('purchaseCost') as string) || '0'),
-          salvageValue: parseFloat((formData.get('salvageValue') as string) || '0'),
-          usefulLife: parseInt((formData.get('usefulLife') as string) || '5'),
-          assetClass: (formData.get('assetClass') as string) || 'equipment',
-          businessUsePercentage: parseFloat(
-            (formData.get('businessUsePercentage') as string) || '1'
-          ),
+          purchaseDate: new Date().toISOString().split('T')[0],
+          purchaseCost,
+          salvageValue: 0,
+          usefulLife,
+          assetClass: 'equipment',
+          businessUsePercentage: 1,
         },
-        depreciationMethod: (formData.get('depreciationMethod') as string) || 'straight-line',
+        depreciationMethod:
+          (form.elements.namedItem('depreciationMethod') as HTMLSelectElement)?.value ||
+          'straight-line',
         taxInfo: {
-          taxYear: parseInt(
-            (formData.get('taxYear') as string) || new Date().getFullYear().toString()
-          ),
-          federalTaxRate: parseFloat((formData.get('federalTaxRate') as string) || '0.21'),
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
-          section179Limit: parseFloat((formData.get('section179Limit') as string) || '1080000'),
-          bonusDepreciationPercentage: parseFloat(
-            (formData.get('bonusDepreciationPercentage') as string) || '0.6'
-          ),
+          taxYear: new Date().getFullYear(),
+          federalTaxRate: parseRate(form, 'federalTaxRate') || 0.21,
+          stateTaxRate: 0,
+          section179Limit: 1080000,
+          bonusDepreciationPercentage: 0.6,
         },
-        macrsDetails: formData.get('macrsDetails')
-          ? JSON.parse(formData.get('macrsDetails') as string)
-          : undefined,
         analysis: {
-          includeSchedule: formData.get('includeSchedule') !== 'false',
-          includeTaxSavings: formData.get('includeTaxSavings') !== 'false',
-          includeMethodComparison: formData.get('includeMethodComparison') === 'true',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '5'),
+          includeSchedule: true,
+          includeTaxSavings: true,
+          includeMethodComparison: false,
+          projectionYears: usefulLife,
         },
       };
 
@@ -73,42 +113,26 @@ class DepreciationCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze depreciation');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze depreciation'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_depreciation', result);
     } catch (error) {
       console.error('Depreciation error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze depreciation');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('depreciation-results');
-    const contentDiv = document.getElementById('depreciation-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Depreciation Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your depreciation analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new DepreciationCalculator());
+  document.addEventListener('DOMContentLoaded', initDepreciationCalculator);
 } else {
-  new DepreciationCalculator();
+  initDepreciationCalculator();
 }

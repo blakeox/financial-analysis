@@ -4,6 +4,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -12,6 +13,9 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
   keywords="college savings, 529 plan, education funding, college planning, Coverdell ESA, financial aid, college cost calculator, education savings"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -78,6 +82,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       { label: 'College Savings' },
     ]}
   >
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
     <!-- College Savings Form -->
     <div class="fa-card p-6 mb-8">
       <h2 class="fa-panel-title mb-6">Family Information</h2>
@@ -245,6 +253,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
 
     <!-- AdSense -->
     <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="college-savings" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="college-savings" />

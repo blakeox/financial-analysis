@@ -22,6 +22,7 @@ import {
   formatMonths,
 } from '../../utils/calculator-utilities';
 import type { AmortizationComprehensiveAnalysis } from '../calculators/amortization.client';
+import { normalizeAnalysisResultEventDetail } from './analysis-event-contract';
 
 type AnalysisChatContext = {
   summary?: string;
@@ -34,10 +35,6 @@ type ComprehensiveAnalysisData = AmortizationComprehensiveAnalysis &
     chatContext?: AnalysisChatContext;
     rawResult?: unknown;
   };
-
-type AnalysisResultEventDetail = {
-  result?: ComprehensiveAnalysisData;
-};
 
 type AnalysisElements = {
   tabs: NodeListOf<HTMLElement>;
@@ -346,17 +343,15 @@ if (typeof window !== 'undefined') {
   // Listen for analysis events as a fallback
   const handleAnalysisResultUpdated = (event: Event): void => {
     if (!(event instanceof CustomEvent)) return;
-    const detail = event.detail as AnalysisResultEventDetail;
-    console.log('Received analysis-result-updated event:', detail);
-    if (detail?.result) {
-      populateAnalysisData(detail.result);
+    const normalized = normalizeAnalysisResultEventDetail(event.detail);
+    if (normalized?.modelType === 'amortization' && normalized.result) {
+      populateAnalysisData(normalized.result as AmortizationComprehensiveAnalysis);
     }
   };
 
   const handleAmortizationReady = (event: Event): void => {
     if (!(event instanceof CustomEvent)) return;
     const detail = event.detail as ComprehensiveAnalysisData;
-    console.log('Received amortization-analysis-ready event:', detail);
     if (detail) {
       populateAnalysisData(detail);
     }

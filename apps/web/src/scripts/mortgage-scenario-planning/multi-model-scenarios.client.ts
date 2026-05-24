@@ -5,6 +5,8 @@
  * for comprehensive scenario-based analysis.
  */
 
+import { enhanceInteractiveScenarioCards } from '../a11y/interactive-cards.client';
+
 export interface ScenarioModel {
   id: string;
   name: string;
@@ -664,6 +666,9 @@ export class MultiModelScenarioManager {
     document.addEventListener('analysis-result-updated', () => {
       this.updateScenarioProgress();
     });
+
+    enhanceInteractiveScenarioCards();
+    document.dispatchEvent(new CustomEvent('scenario-cards-updated'));
   }
 
   /**
@@ -700,8 +705,7 @@ export class MultiModelScenarioManager {
    * Select a financial scenario
    */
   public selectScenario(scenarioId: string): void {
-    const scenario = this.scenarios.get(scenarioId);
-    if (!scenario) {
+    if (!this.scenarios.has(scenarioId)) {
       console.error(`Scenario ${scenarioId} not found`);
       return;
     }
@@ -710,7 +714,7 @@ export class MultiModelScenarioManager {
 
     // All scenarios on analysis page should go to journey pages (multi-step)
     // Business calculators are standalone tools accessed from /models/business
-    window.location.href = `/journey/${scenarioId}`;
+    window.location.assign(`/journey/${encodeURIComponent(scenarioId)}`);
   }
 
   /**
@@ -731,7 +735,7 @@ export class MultiModelScenarioManager {
     }
 
     if (modelsElement) {
-      modelsElement.innerHTML = this.generateModelsHTML(scenario);
+      this.renderScenarioModels(scenario, modelsElement);
     }
 
     if (infoElement) {
@@ -742,56 +746,102 @@ export class MultiModelScenarioManager {
     this.updateScenarioCardsState(scenario.id);
   }
 
-  /**
-   * Generate HTML for scenario models
-   */
-  private generateModelsHTML(scenario: FinancialScenario): string {
-    const modelsHTML = scenario.models
-      .map((model) => {
-        const isCompleted = this.completedModels.has(model.id);
-        const statusClass = isCompleted
-          ? 'text-emerald-600 dark:text-emerald-400'
-          : 'text-slate-600 dark:text-slate-400';
-        const statusIcon = isCompleted ? '✓' : '○';
+  /** Render scenario models without innerHTML (CodeQL-safe). */
+  private renderScenarioModels(scenario: FinancialScenario, container: HTMLElement): void {
+    container.replaceChildren();
 
-        return `
-        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg mb-2">
-          <div class="flex items-center">
-            <span class="text-lg mr-3 ${statusClass}">${statusIcon}</span>
-            <div>
-              <h4 class="fa-script-title-sm">${model.name}</h4>
-              <p class="fa-script-copy-muted">${model.description}</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            ${model.required ? '<span class="fa-badge-danger">Required</span>' : ''}
-            <a href="${model.url}" class="fa-button-info-compact">
-              ${isCompleted ? 'Review' : 'Start'}
-            </a>
-          </div>
-        </div>
-      `;
-      })
-      .join('');
+    const modelsSection = document.createElement('div');
+    modelsSection.className = 'mb-4';
 
-    return `
-      <div class="mb-4">
-        <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Models in this Scenario</h4>
-        <div class="space-y-2">
-          ${modelsHTML}
-        </div>
-      </div>
-      <div class="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg p-4">
-        <h5 class="font-medium text-violet-900 dark:text-violet-300 mb-2">Workflow Steps:</h5>
-        <ol class="list-decimal list-inside space-y-1 text-sm text-violet-800 dark:text-violet-400">
-          ${scenario.workflow.map((step) => `<li>${step}</li>`).join('')}
-        </ol>
-        <div class="mt-3 flex items-center justify-between text-sm text-violet-700 dark:text-violet-300">
-          <span>Estimated Duration: ${scenario.estimatedDuration}</span>
-          <span>Complexity: ${scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1)}</span>
-        </div>
-      </div>
-    `;
+    const modelsTitle = document.createElement('h4');
+    modelsTitle.className = 'text-lg font-semibold text-slate-900 dark:text-white mb-3';
+    modelsTitle.textContent = 'Models in this Scenario';
+    modelsSection.appendChild(modelsTitle);
+
+    const modelsList = document.createElement('div');
+    modelsList.className = 'space-y-2';
+
+    for (const model of scenario.models) {
+      const isCompleted = this.completedModels.has(model.id);
+      const statusClass = isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'fa-help-copy';
+      const statusIcon = isCompleted ? '✓' : '○';
+
+      const card = document.createElement('div');
+      card.className =
+        'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg mb-2';
+
+      const left = document.createElement('div');
+      left.className = 'flex items-center';
+
+      const icon = document.createElement('span');
+      icon.className = `text-lg mr-3 ${statusClass}`;
+      icon.textContent = statusIcon;
+
+      const textWrap = document.createElement('div');
+      const nameEl = document.createElement('h4');
+      nameEl.className = 'fa-script-title-sm';
+      nameEl.textContent = model.name;
+      const descEl = document.createElement('p');
+      descEl.className = 'fa-script-copy-muted';
+      descEl.textContent = model.description;
+      textWrap.append(nameEl, descEl);
+      left.append(icon, textWrap);
+
+      const actions = document.createElement('div');
+      actions.className = 'flex items-center space-x-2';
+      if (model.required) {
+        const badge = document.createElement('span');
+        badge.className = 'fa-badge-danger';
+        badge.textContent = 'Required';
+        actions.appendChild(badge);
+      }
+      const link = document.createElement('a');
+      link.href = model.url;
+      link.className = 'fa-button-info-compact';
+      link.textContent = isCompleted ? 'Review' : 'Start';
+      actions.appendChild(link);
+
+      card.append(left, actions);
+      modelsList.appendChild(card);
+    }
+
+    modelsSection.appendChild(modelsList);
+    container.appendChild(modelsSection);
+
+    const workflowSection = document.createElement('div');
+    workflowSection.className =
+      'bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg p-4';
+
+    const workflowTitle = document.createElement('h5');
+    workflowTitle.className = 'font-medium text-violet-900 dark:text-violet-300 mb-2';
+    workflowTitle.textContent = 'Workflow Steps:';
+    workflowSection.appendChild(workflowTitle);
+
+    const stepsList = document.createElement('ol');
+    stepsList.className =
+      'list-decimal list-inside space-y-1 text-sm text-violet-800 dark:text-violet-400';
+    for (const step of scenario.workflow) {
+      const item = document.createElement('li');
+      item.textContent = step;
+      stepsList.appendChild(item);
+    }
+    workflowSection.appendChild(stepsList);
+
+    const metaRow = document.createElement('div');
+    metaRow.className =
+      'mt-3 flex items-center justify-between text-sm text-violet-700 dark:text-violet-300';
+
+    const duration = document.createElement('span');
+    duration.textContent = `Estimated Duration: ${scenario.estimatedDuration}`;
+
+    const complexity = document.createElement('span');
+    const complexityLabel =
+      scenario.complexity.charAt(0).toUpperCase() + scenario.complexity.slice(1);
+    complexity.textContent = `Complexity: ${complexityLabel}`;
+
+    metaRow.append(duration, complexity);
+    workflowSection.appendChild(metaRow);
+    container.appendChild(workflowSection);
   }
 
   /**

@@ -1,3 +1,4 @@
+import { copyClasses } from '../../lib/classNames';
 import { Card, CardContent } from '../Card';
 import { TrendIndicator } from './TrendIndicator';
 
@@ -40,9 +41,7 @@ export function EnhancedMetricCard({
                 {...(formatter ? { formatter } : {})}
                 invertColors={invertTrendColors}
               />
-              {trendLabel && (
-                <span className="text-xs text-slate-500 dark:text-slate-400">{trendLabel}</span>
-              )}
+              {trendLabel && <span className={copyClasses.caption}>{trendLabel}</span>}
             </div>
           )}
         </div>

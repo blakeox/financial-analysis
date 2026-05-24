@@ -2,75 +2,123 @@
  * Project Finance Analyzer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class ProjectFinanceAnalyzer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('project-finance-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Project Finance form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const npv = Number(summary.npv) || 0;
+  const irr = Number(summary.irr) || 0;
+  const irrPct = irr > 1 ? irr : irr * 100;
+  const payback = Number(summary.paybackPeriod) || 0;
+  const viability = String(summary.projectViability ?? '');
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'NPV',
+      value: formatCurrency(npv),
+      meta: npv >= 0 ? 'value-accretive' : 'negative NPV',
+      tone: npv >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'IRR',
+      value: `${irrPct.toFixed(1)}%`,
+      tone: irrPct >= 12 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Payback',
+      value: payback > 0 ? `${payback.toFixed(1)} yr` : '—',
+      tone: 'violet',
+    },
+    {
+      title: 'Viability',
+      value: viability || 'Review',
+      tone: viability.toLowerCase().includes('viable') ? 'emerald' : 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initProjectFinanceCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const years = Math.max(1, Math.round(parseNumber(form, 'cashFlowYears')) || 5);
+      const initialInvestment = parseNumber(form, 'initialInvestment');
+      const annualNet = initialInvestment * 0.22;
 
-      // Parse annual cash flows from form
-      const cashFlowYears = parseInt((formData.get('cashFlowYears') as string) || '5');
-      const annualCashFlows = [];
-      for (let year = 1; year <= cashFlowYears; year++) {
-        annualCashFlows.push({
+      const annualCashFlows = Array.from({ length: years }, (_, index) => {
+        const year = index + 1;
+        const revenue = annualNet * 1.15;
+        return {
           year,
-          revenue: parseFloat((formData.get(`revenue_${year}`) as string) || '0'),
-          operatingExpenses: parseFloat(
-            (formData.get(`operatingExpenses_${year}`) as string) || '0'
-          ),
-          capitalExpenditures: parseFloat((formData.get(`capex_${year}`) as string) || '0'),
-          workingCapital: parseFloat((formData.get(`workingCapital_${year}`) as string) || '0'),
-        });
-      }
+          revenue,
+          operatingExpenses: revenue * 0.55,
+          capitalExpenditures: year === 1 ? initialInvestment * 0.05 : 0,
+          workingCapital: 0,
+        };
+      });
 
+      const equityPct = parseRate(form, 'equityPercentage') || 0.3;
       const input = {
         projectInfo: {
-          name: (formData.get('projectName') as string) || 'Project',
-          type: (formData.get('projectType') as string) || 'other',
-          duration: parseInt((formData.get('duration') as string) || '5'),
+          name: (form.elements.namedItem('projectName') as HTMLInputElement)?.value || 'Project',
+          type: (form.elements.namedItem('projectType') as HTMLSelectElement)?.value || 'other',
+          duration: years,
         },
-        cashFlows: {
-          initialInvestment: parseFloat((formData.get('initialInvestment') as string) || '0'),
-          annualCashFlows,
-        },
+        cashFlows: { initialInvestment, annualCashFlows },
         financing: {
-          equityPercentage: parseFloat((formData.get('equityPercentage') as string) || '30'),
-          debtPercentage: parseFloat((formData.get('debtPercentage') as string) || '70'),
-          costOfEquity: parseFloat((formData.get('costOfEquity') as string) || '0'),
-          costOfDebt: parseFloat((formData.get('costOfDebt') as string) || '0'),
-          taxRate: parseFloat((formData.get('taxRate') as string) || '0'),
+          equityPercentage: equityPct * 100,
+          debtPercentage: (1 - equityPct) * 100,
+          costOfEquity: parseRate(form, 'costOfEquity') || 0.12,
+          costOfDebt: parseRate(form, 'costOfDebt') || 0.06,
+          taxRate: 0.25,
         },
         analysis: {
           includeNPV: true,
           includeIRR: true,
           includePayback: true,
-          includeSensitivity: true,
-          discountRate: formData.get('discountRate')
-            ? parseFloat(formData.get('discountRate') as string)
-            : undefined,
+          includeSensitivity: false,
         },
       };
 
@@ -81,42 +129,26 @@ class ProjectFinanceAnalyzer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze project finance');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze project finance'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_project_finance', result);
     } catch (error) {
       console.error('Project Finance error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze project finance');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('project-finance-results');
-    const contentDiv = document.getElementById('project-finance-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Project Finance Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your project finance analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new ProjectFinanceAnalyzer());
+  document.addEventListener('DOMContentLoaded', initProjectFinanceCalculator);
 } else {
-  new ProjectFinanceAnalyzer();
+  initProjectFinanceCalculator();
 }

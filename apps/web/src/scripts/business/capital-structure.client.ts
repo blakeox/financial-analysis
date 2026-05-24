@@ -2,63 +2,117 @@
  * Capital Structure Optimizer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CapitalStructureOptimizer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('capital-structure-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Capital Structure form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const currentWacc = Number(summary.currentWACC) || 0;
+  const optimalWacc = Number(summary.optimalWACC) || currentWacc;
+  const waccPct = currentWacc > 1 ? currentWacc : currentWacc * 100;
+  const optimalPct = optimalWacc > 1 ? optimalWacc : optimalWacc * 100;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Current WACC',
+      value: `${waccPct.toFixed(2)}%`,
+      tone: 'violet',
+    },
+    {
+      title: 'Optimal WACC',
+      value: `${optimalPct.toFixed(2)}%`,
+      meta: waccPct > optimalPct ? 'room to improve' : 'near optimal',
+      tone: waccPct > optimalPct + 0.5 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Debt / Equity',
+      value: `${Number(summary.currentDebtToEquity).toFixed(2)}x`,
+      tone: 'orange',
+    },
+    {
+      title: 'Debt Capacity',
+      value: formatCurrency(Number(summary.debtCapacity) || 0),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCapitalStructureCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const marketCap = parseNumber(form, 'marketCap');
+      const currentDebt = parseNumber(form, 'currentDebt');
+      const annualEBITDA = parseNumber(form, 'annualEBITDA');
+      const stockPrice = marketCap > 0 ? 50 : 1;
+      const sharesOutstanding = marketCap > 0 ? marketCap / stockPrice : 1;
 
       const input = {
         companyInfo: {
-          marketCap: parseFloat((formData.get('marketCap') as string) || '0'),
-          currentDebt: parseFloat((formData.get('currentDebt') as string) || '0'),
-          cashAndEquivalents: parseFloat((formData.get('cashAndEquivalents') as string) || '0'),
-          sharesOutstanding: parseFloat((formData.get('sharesOutstanding') as string) || '0'),
-          stockPrice: parseFloat((formData.get('stockPrice') as string) || '0'),
+          marketCap,
+          currentDebt,
+          cashAndEquivalents: marketCap * 0.05,
+          sharesOutstanding,
+          stockPrice,
         },
         financials: {
-          annualEBITDA: parseFloat((formData.get('annualEBITDA') as string) || '0'),
-          annualEBIT: parseFloat((formData.get('annualEBIT') as string) || '0'),
-          netIncome: parseFloat((formData.get('netIncome') as string) || '0'),
-          taxRate: parseFloat((formData.get('taxRate') as string) || '0'),
-          annualInterestExpense: parseFloat(
-            (formData.get('annualInterestExpense') as string) || '0'
-          ),
+          annualEBITDA,
+          annualEBIT: annualEBITDA * 0.85,
+          netIncome: annualEBITDA * 0.55,
+          taxRate: parseRate(form, 'taxRate') || 0.21,
+          annualInterestExpense: currentDebt * 0.05,
         },
         marketData: {
-          riskFreeRate: parseFloat((formData.get('riskFreeRate') as string) || '0'),
-          marketRiskPremium: parseFloat((formData.get('marketRiskPremium') as string) || '0.06'),
-          beta: parseFloat((formData.get('beta') as string) || '1'),
-          creditRating: (formData.get('creditRating') as string) || undefined,
+          riskFreeRate: parseRate(form, 'riskFreeRate') || 0.04,
+          marketRiskPremium: 0.06,
+          beta: parseNumber(form, 'beta') || 1,
         },
         analysis: {
           includeWACCOptimization: true,
           includeDebtCapacity: true,
           includeCreditRatingImpact: true,
-          includeDividendPolicy: formData.get('includeDividendPolicy') === 'true',
+          includeDividendPolicy: false,
         },
       };
 
@@ -69,42 +123,26 @@ class CapitalStructureOptimizer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to optimize capital structure');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to optimize capital structure'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_capital_structure', result);
     } catch (error) {
       console.error('Capital Structure error:', error);
       showError(error instanceof Error ? error.message : 'Failed to optimize capital structure');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('capital-structure-results');
-    const contentDiv = document.getElementById('capital-structure-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Capital Structure Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your capital structure optimization is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CapitalStructureOptimizer());
+  document.addEventListener('DOMContentLoaded', initCapitalStructureCalculator);
 } else {
-  new CapitalStructureOptimizer();
+  initCapitalStructureCalculator();
 }

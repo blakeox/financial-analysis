@@ -2,64 +2,115 @@
  * International Tax Planning Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class InternationalTaxPlanningCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('international-tax-planning-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('International Tax Planning form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const taxLiability =
+    record.taxLiability && typeof record.taxLiability === 'object'
+      ? (record.taxLiability as Record<string, unknown>)
+      : {};
 
-  private async handleSubmit(e: Event): Promise<void> {
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Net U.S. Tax',
+      value: formatCurrency(Number(taxLiability.netTaxOwed) || 0),
+      tone: 'orange',
+    },
+    {
+      title: 'Foreign Tax Credit',
+      value: formatCurrency(Number(taxLiability.foreignTaxCredit) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Projected Savings',
+      value: formatCurrency(Number(record.projectedSavings) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Total Tax',
+      value: formatCurrency(Number(taxLiability.totalTax) || 0),
+      meta: 'before credits',
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initInternationalTaxPlanningCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const domesticIncome = parseNumber(form, 'domesticIncome');
+      const foreignIncome = parseNumber(form, 'foreignIncome');
+      const residency =
+        (form.elements.namedItem('residency') as HTMLInputElement)?.value || 'Unknown';
 
       const input = {
         personalInfo: {
-          citizenship: (formData.get('citizenship') as string) || '',
-          residency: (formData.get('residency') as string) || '',
-          filingStatus: (formData.get('filingStatus') as string) || 'single',
+          citizenship: (form.elements.namedItem('citizenship') as HTMLInputElement)?.value || 'US',
+          residenceCountry: residency,
+          filingStatus:
+            (form.elements.namedItem('filingStatus') as HTMLSelectElement)?.value || 'single',
+          taxYear: new Date().getFullYear(),
         },
-        income: {
-          domesticIncome: parseFloat((formData.get('domesticIncome') as string) || '0'),
-          foreignIncome: parseFloat((formData.get('foreignIncome') as string) || '0'),
-          foreignTaxPaid: parseFloat((formData.get('foreignTaxPaid') as string) || '0'),
+        foreignIncome: {
+          foreignEarnedIncome: foreignIncome,
+          foreignUnearnedIncome: 0,
+          foreignTaxPaid: foreignIncome * 0.15,
+          foreignTaxRate: 0.15,
+          countries: [{ country: residency, income: foreignIncome, taxPaid: foreignIncome * 0.15 }],
         },
-        taxTreaties: {
-          hasTaxTreaty: formData.get('hasTaxTreaty') === 'true',
-          treatyCountry: (formData.get('treatyCountry') as string) || '',
-          treatyBenefits: formData.get('treatyBenefits')
-            ? JSON.parse(formData.get('treatyBenefits') as string)
-            : [],
+        feie: {
+          eligibleForFEIE: foreignIncome > 0 && foreignIncome >= domesticIncome * 0.5,
+          physicalPresenceTest: true,
+          bonaFideResidenceTest: false,
+          daysAbroad: 330,
         },
-        businessStructure: {
-          hasForeignEntity: formData.get('hasForeignEntity') === 'true',
-          entityType: (formData.get('entityType') as string) || 'corporation',
-          transferPricing: formData.get('transferPricing') === 'true',
+        foreignTaxCredit: {
+          eligibleForFTC: true,
+          foreignTaxPaid: foreignIncome * 0.15,
+          foreignIncome,
+          useFTC: true,
         },
+        foreignAssets: { foreignBankAccounts: [], foreignFinancialAssets: [] },
+        taxTreaties: [],
         analysis: {
-          includeForeignTaxCredit: formData.get('includeForeignTaxCredit') !== 'false',
-          includeTaxTreatyAnalysis: formData.get('includeTaxTreatyAnalysis') !== 'false',
-          includeTransferPricing: formData.get('includeTransferPricing') !== 'false',
-          includeCFCAnalysis: formData.get('includeCFCAnalysis') !== 'false',
-          includeBEPSCompliance: formData.get('includeBEPSCompliance') !== 'false',
+          includeFEIEvsFTC: true,
+          includeTaxSavings: true,
+          includeComplianceCheck: true,
+          includeOptimization: true,
         },
       };
 
@@ -70,44 +121,28 @@ class InternationalTaxPlanningCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze international tax planning');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze international tax planning'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_international_tax_planning', result);
     } catch (error) {
       console.error('International Tax Planning error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze international tax planning'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('international-tax-planning-results');
-    const contentDiv = document.getElementById('international-tax-planning-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">International Tax Planning Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your international tax planning analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new InternationalTaxPlanningCalculator());
+  document.addEventListener('DOMContentLoaded', initInternationalTaxPlanningCalculator);
 } else {
-  new InternationalTaxPlanningCalculator();
+  initInternationalTaxPlanningCalculator();
 }

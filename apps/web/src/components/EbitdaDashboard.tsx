@@ -1,3 +1,4 @@
+import { storeAnalysisResult } from '../scripts/analysis/analysis-results';
 import {
   Button,
   Card,
@@ -139,15 +140,7 @@ export function EbitdaDashboard() {
 
       const results = (await response.json()) as EbitdaForecastResult;
 
-      // Store result for chat panel
-      if (typeof window !== 'undefined' && window.analysisResults) {
-        window.analysisResults['analyze_ebitda_forecast'] = results;
-        window.dispatchEvent(
-          new CustomEvent('analysis-result-updated', {
-            detail: { toolName: 'analyze_ebitda_forecast', result: results },
-          })
-        );
-      }
+      storeAnalysisResult('analyze_ebitda_forecast', results);
 
       setState((prev) => ({ ...prev, results, isLoading: false }));
     } catch (error) {
@@ -388,7 +381,7 @@ export function EbitdaDashboard() {
                   className={`text-2xl mb-2 ${
                     Object.values(state.financials).some((v) => (v || 0) > 0)
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   💰
@@ -406,7 +399,7 @@ export function EbitdaDashboard() {
                   className={`text-2xl mb-2 ${
                     state.employees.length > 0
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   👥
@@ -424,7 +417,7 @@ export function EbitdaDashboard() {
                   className={`text-2xl mb-2 ${
                     state.expenseTypes.length > 0
                       ? 'text-emerald-600 dark:text-emerald-300'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   📊
