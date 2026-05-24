@@ -47,7 +47,7 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
       const isOptional = groupName.includes('Optional');
       const sectionClass = isOptional ? 'fa-subcard' : 'fa-highlight-card';
       html += `<div class="mb-6 p-6 ${sectionClass}">
-        <h3 class="fa-scenario-title mb-4">${groupName}</h3>`;
+        <h2 class="fa-scenario-title mb-4">${groupName}</h2>`;
     }
 
     html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
