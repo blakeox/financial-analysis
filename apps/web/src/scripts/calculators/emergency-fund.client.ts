@@ -2,50 +2,99 @@
  * Emergency Fund Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class EmergencyFundCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('emergency-fund-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Emergency Fund form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const targetFund = Number(summary.targetFund) || 0;
+  const currentFund = Number(summary.currentFund) || 0;
+  const shortfall = Number(summary.shortfall) || Math.max(0, targetFund - currentFund);
+  const onTrack = Boolean(summary.onTrack ?? currentFund >= targetFund);
+  const monthsToBuild = Number(summary.monthsToBuild) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Target Fund',
+      value: formatCurrency(targetFund),
+      meta: onTrack ? 'Goal met' : `${formatCurrency(shortfall)} remaining`,
+      tone: onTrack ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Current Savings',
+      value: formatCurrency(currentFund),
+      tone: 'violet',
+    },
+    {
+      title: 'Months to Build',
+      value: monthsToBuild > 0 ? `${monthsToBuild}` : '—',
+      meta: monthsToBuild > 0 ? 'at current savings rate' : 'increase monthly savings',
+      tone: monthsToBuild > 0 && monthsToBuild <= 24 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Status',
+      value: onTrack ? 'On track' : 'Building',
+      tone: onTrack ? 'emerald' : 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initEmergencyFundCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
-
-      const formData = new FormData(this.form);
 
       const input = {
         currentSituation: {
-          monthlyExpenses: parseFloat((formData.get('monthlyExpenses') as string) || '0'),
-          monthlyIncome: parseFloat((formData.get('monthlyIncome') as string) || '0'),
-          currentEmergencyFund: parseFloat((formData.get('currentEmergencyFund') as string) || '0'),
-          dependents: parseInt((formData.get('dependents') as string) || '0'),
-          employmentStatus: (formData.get('employmentStatus') as string) || 'employed',
+          monthlyExpenses: parseNumber(form, 'monthlyExpenses'),
+          monthlyIncome: parseNumber(form, 'monthlyIncome'),
+          currentEmergencyFund: parseNumber(form, 'currentEmergencyFund'),
+          dependents: Math.round(parseNumber(form, 'dependents')),
+          employmentStatus:
+            (form.elements.namedItem('employmentStatus') as HTMLSelectElement)?.value || 'employed',
         },
         goals: {
-          targetMonths: parseInt((formData.get('targetMonths') as string) || '6'),
-          priority: (formData.get('priority') as string) || 'build-gradually',
+          targetMonths: Math.round(parseNumber(form, 'targetMonths')) || 6,
+          priority: 'build-gradually',
         },
         assumptions: {
-          monthlySavings: parseFloat((formData.get('monthlySavings') as string) || '0'),
-          expectedReturn: parseFloat((formData.get('expectedReturn') as string) || '0.02'),
+          monthlySavings: parseNumber(form, 'monthlySavings'),
+          expectedReturn: parseNumber(form, 'expectedReturn') / 100 || 0.02,
         },
         analysis: {
           includeTimeline: true,
@@ -60,42 +109,30 @@ class EmergencyFundCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to calculate emergency fund');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to calculate emergency fund'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_emergency_fund', result);
+
+      document.getElementById('results')?.classList.remove('hidden');
     } catch (error) {
       console.error('Emergency Fund error:', error);
       showError(error instanceof Error ? error.message : 'Failed to calculate emergency fund');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('emergency-fund-results');
-    const contentDiv = document.getElementById('emergency-fund-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Emergency Fund Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your emergency fund analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new EmergencyFundCalculator());
-} else {
-  new EmergencyFundCalculator();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEmergencyFundCalculator);
+  } else {
+    initEmergencyFundCalculator();
+  }
 }

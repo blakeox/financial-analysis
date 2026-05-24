@@ -4,6 +4,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -12,6 +13,9 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
   keywords="retirement planning, retirement calculator, Social Security optimization, retirement readiness, retirement accounts, 401k, IRA, retirement strategy"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -78,6 +82,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       { label: 'Retirement Planning' },
     ]}
   >
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
     <!-- Retirement Planning Form -->
     <div class="fa-card p-6 mb-8">
       <h2 class="fa-panel-title mb-6">Personal Information</h2>
@@ -353,6 +361,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
 
     <!-- AdSense -->
     <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="retirement-planning" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="retirement-planning" />

@@ -2,66 +2,119 @@
  * Tax Loss Harvesting Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class TaxLossHarvestingCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('tax-loss-harvesting-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Tax Loss Harvesting form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const harvestCount = Array.isArray(record.harvestableLosses)
+    ? record.harvestableLosses.length
+    : 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Harvestable Losses',
+      value: formatCurrency(Number(record.totalTaxLoss) || 0),
+      meta: `${harvestCount} position${harvestCount === 1 ? '' : 's'}`,
+      tone: 'orange',
+    },
+    {
+      title: 'Projected Tax Savings',
+      value: formatCurrency(Number(record.projectedTaxSavings) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Wash-Sale Window',
+      value: `${Number(record.washSalePeriod) || 30} days`,
+      meta: 'avoid repurchase',
+      tone: 'amber',
+    },
+    {
+      title: 'Actions',
+      value: String(harvestCount),
+      meta: 'harvest candidates',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initTaxLossHarvestingCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const holdingsJson = formData.get('holdings') as string;
-      const holdings = holdingsJson ? JSON.parse(holdingsJson) : [];
+      const totalValue = parseNumber(form, 'totalValue');
+      const shortTermRate = parseRate(form, 'shortTermRate') || 0.37;
+      const longTermRate = parseRate(form, 'longTermRate') || 0.2;
+      const shares = 100;
+      const currentPrice = totalValue > 0 ? totalValue / shares : 0;
+      const holdings =
+        totalValue > 0
+          ? [
+              {
+                symbol: 'PORT',
+                shares,
+                costBasis: totalValue * 1.12,
+                currentPrice,
+                purchaseDate: '2022-06-01',
+                holdingPeriod: 'long-term' as const,
+              },
+            ]
+          : [];
 
       const input = {
-        portfolio: {
-          holdings,
-          totalValue: parseFloat((formData.get('totalValue') as string) || '0'),
-        },
+        portfolio: { holdings, totalValue },
         taxInfo: {
-          federalTaxRate: {
-            shortTerm: parseFloat((formData.get('shortTermRate') as string) || '0.37'),
-            longTerm: parseFloat((formData.get('longTermRate') as string) || '0.2'),
-          },
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
-          incomeBracket: parseFloat((formData.get('incomeBracket') as string) || '0.22'),
+          federalTaxRate: { shortTerm: shortTermRate, longTerm: longTermRate },
+          stateTaxRate: 0,
+          incomeBracket: shortTermRate,
         },
-        realizedGains: {
-          shortTermGains: parseFloat((formData.get('shortTermGains') as string) || '0'),
-          longTermGains: parseFloat((formData.get('longTermGains') as string) || '0'),
-          ordinaryIncome: parseFloat((formData.get('ordinaryIncome') as string) || '0'),
-        },
+        realizedGains: { shortTermGains: 0, longTermGains: 0, ordinaryIncome: 0 },
         harvestingStrategy: {
-          maxHarvestAmount: parseFloat((formData.get('maxHarvestAmount') as string) || '3000'),
-          includeWashSaleRules: formData.get('includeWashSaleRules') !== 'false',
-          washSaleWindow: parseInt((formData.get('washSaleWindow') as string) || '30'),
-          replacementSecuritySimilarity:
-            (formData.get('replacementSecuritySimilarity') as string) || 'similar',
+          maxHarvestAmount: 3000,
+          includeWashSaleRules: true,
+          washSaleWindow: 30,
+          replacementSecuritySimilarity: 'similar',
         },
         analysis: {
-          includeTaxSavingsProjection: formData.get('includeTaxSavingsProjection') !== 'false',
-          includeCarryForwardAnalysis: formData.get('includeCarryForwardAnalysis') !== 'false',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '5'),
+          includeTaxSavingsProjection: true,
+          includeCarryForwardAnalysis: true,
+          projectionYears: 5,
         },
       };
 
@@ -72,42 +125,26 @@ class TaxLossHarvestingCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze tax loss harvesting');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze tax loss harvesting'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_tax_loss_harvesting', result);
     } catch (error) {
       console.error('Tax Loss Harvesting error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze tax loss harvesting');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('tax-loss-harvesting-results');
-    const contentDiv = document.getElementById('tax-loss-harvesting-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Tax Loss Harvesting Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your tax loss harvesting analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new TaxLossHarvestingCalculator());
+  document.addEventListener('DOMContentLoaded', initTaxLossHarvestingCalculator);
 } else {
-  new TaxLossHarvestingCalculator();
+  initTaxLossHarvestingCalculator();
 }

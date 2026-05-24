@@ -1,0 +1,101 @@
+import type { CalculatorConfig } from '../../types';
+
+export const break_evenCalculator: CalculatorConfig = {
+  id: 'break-even',
+  title: 'Break-Even Analysis Calculator',
+  description:
+    'Calculate your break-even point in units and revenue, analyze contribution margin, and understand when your business becomes profitable',
+  category: 'business',
+  icon: '📊',
+  color: 'blue',
+  keywords: [
+    'break-even',
+    'contribution margin',
+    'fixed costs',
+    'variable costs',
+    'profitability',
+    'margin of safety',
+  ],
+  faqSchema: {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What is break-even analysis?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Break-even analysis determines the sales volume needed to cover all costs. It shows when you stop losing money and start making profit.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is contribution margin?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Contribution margin is the selling price minus variable costs per unit. It represents how much each unit sold contributes toward covering fixed costs.',
+        },
+      },
+    ],
+  },
+  breadcrumbs: [
+    { name: 'Home', href: '/' },
+    { name: 'Business Tools', href: '/models/business' },
+    { name: 'Break-Even Analysis', href: '/calculator/break-even' },
+  ],
+  formFields: [
+    {
+      id: 'fixedCosts',
+      name: 'fixedCosts',
+      type: 'number',
+      label: 'Fixed Costs (Monthly)',
+      placeholder: '50000',
+      min: 0,
+      step: 100,
+      required: true,
+      helpText: "Rent, salaries, insurance - costs that don't change with volume",
+    },
+    {
+      id: 'variableCostPerUnit',
+      name: 'variableCostPerUnit',
+      type: 'number',
+      label: 'Variable Cost per Unit',
+      placeholder: '25',
+      min: 0,
+      step: 0.01,
+      required: true,
+      helpText: 'Materials, direct labor - costs that vary with each unit produced',
+    },
+    {
+      id: 'sellingPricePerUnit',
+      name: 'sellingPricePerUnit',
+      type: 'number',
+      label: 'Selling Price per Unit',
+      placeholder: '50',
+      min: 0,
+      step: 0.01,
+      required: true,
+      helpText: 'Price you charge customers for one unit',
+    },
+    {
+      id: 'currentSalesUnits',
+      name: 'currentSalesUnits',
+      type: 'number',
+      label: 'Current Sales (Units/Month)',
+      placeholder: '2000',
+      min: 0,
+      helpText: 'Optional: Your current monthly sales volume',
+    },
+    {
+      id: 'targetProfit',
+      name: 'targetProfit',
+      type: 'number',
+      label: 'Target Monthly Profit',
+      placeholder: '20000',
+      min: 0,
+      helpText: 'Optional: Desired monthly profit goal',
+    },
+  ],
+  clientScript: 'break-even',
+  analysisType: 'break-even',
+};

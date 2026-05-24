@@ -5,6 +5,8 @@
  * Includes property appreciation, tax benefits, opportunity costs, and maintenance.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -482,29 +484,32 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
   const rentRealNetPosition = result.rent.netPosition / inflationFactor;
   const realDifference = buyRealNetPosition - rentRealNetPosition;
 
-  // Summary cards
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Net Position (Buy)</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.buy.netPosition)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.buy.equity)} equity</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Net Position (Rent)</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.rent.netPosition)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${formatCurrency(result.rent.equity)} invested</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Difference</h5>
-      <p class="text-2xl font-bold ${result.comparison.difference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(result.comparison.difference))}</p>
-      <p class="text-xs ${result.comparison.difference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${result.comparison.factors.costAdvantage} wins</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Break-Even</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.comparison.breakEvenYear ? `Year ${result.comparison.breakEvenYear}` : 'Never'}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">in ${input.yearsToAnalyze} years</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Net Position (Buy)',
+      value: formatCurrency(result.buy.netPosition),
+      meta: `${formatCurrency(result.buy.equity)} equity`,
+      tone: 'violet',
+    },
+    {
+      title: 'Net Position (Rent)',
+      value: formatCurrency(result.rent.netPosition),
+      meta: `${formatCurrency(result.rent.equity)} invested`,
+      tone: 'emerald',
+    },
+    {
+      title: 'Difference',
+      value: formatCurrency(Math.abs(result.comparison.difference)),
+      meta: `${result.comparison.factors.costAdvantage} wins`,
+      tone: result.comparison.difference > 0 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Break-Even',
+      value: result.comparison.breakEvenYear ? `Year ${result.comparison.breakEvenYear}` : 'Never',
+      meta: `in ${input.yearsToAnalyze} years`,
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
@@ -909,6 +914,7 @@ function initializeRentVsBuy(): void {
 
       const result = compareRentVsBuy(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_rent_vs_buy', result);
 
       // Dispatch completion event
       window.dispatchEvent(

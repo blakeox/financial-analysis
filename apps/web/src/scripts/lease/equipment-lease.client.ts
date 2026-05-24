@@ -5,6 +5,9 @@
  * for equipment lease calculations.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+
 interface EquipmentLeaseInput {
   equipmentCost: number;
   downPayment?: number;
@@ -77,6 +80,14 @@ async function handleSubmit(e: Event) {
 
     const result: EquipmentLeaseResult = await response.json();
     console.log('Equipment lease result:', result);
+
+    storeAnalysisResult('analyze_equipment_lease', {
+      ...result,
+      equipmentCost: formData.equipmentCost,
+      leaseTerm: formData.leaseTerm,
+      interestRate: formData.interestRate,
+      residualValue: formData.residualValue ?? 0,
+    });
 
     // Display results
     displayResults(result);
@@ -162,22 +173,16 @@ function displayResults(result: EquipmentLeaseResult) {
   // Display summary cards
   const summaryCards = document.getElementById('summary-cards');
   if (summaryCards) {
-    summaryCards.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Monthly Payment</div>
-          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
-          <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Total Payments</div>
-          <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">$${result.totalPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Total Interest</div>
-          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-      </div>
-    `;
+    const formatUsd = (n: number) =>
+      n.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    summaryCards.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${renderMetricCards(
+      [
+        { title: 'Monthly Payment', value: formatUsd(result.monthlyPayment), tone: 'violet' },
+        { title: 'Total Payments', value: formatUsd(result.totalPayment), tone: 'emerald' },
+        { title: 'Total Interest', value: formatUsd(result.totalInterest), tone: 'violet' },
+      ]
+    )}</div>`;
   }
 
   // Display lease vs buy comparison if available
@@ -230,11 +235,11 @@ function displaySchedule(schedule: EquipmentLeaseResult['schedule']) {
   const thead = scheduleContainer.querySelector('thead tr');
   if (thead) {
     thead.innerHTML = `
-      <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Month</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payment</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Principal</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest</th>
-      <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Balance</th>
+      <th class="px-3 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Month</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Payment</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Principal</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Interest</th>
+      <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Balance</th>
     `;
   }
 

@@ -2,59 +2,101 @@
  * Business Loan Scenarios Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class BusinessLoanScenariosCalculator {
-  private form: HTMLFormElement | null = null;
+function getText(form: HTMLFormElement, name: string): string {
+  return (form.elements.namedItem(name) as HTMLInputElement | null)?.value?.trim() ?? '';
+}
 
-  constructor() {
-    this.init();
-  }
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  private init(): void {
-    this.form = document.getElementById('calculator-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Calculator form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const comparison =
+    record.comparison && typeof record.comparison === 'object'
+      ? (record.comparison as Record<string, unknown>)
+      : {};
+  const cheapest =
+    comparison.cheapest && typeof comparison.cheapest === 'object'
+      ? (comparison.cheapest as Record<string, unknown>)
+      : {};
+  const lowestPayment =
+    comparison.lowestPayment && typeof comparison.lowestPayment === 'object'
+      ? (comparison.lowestPayment as Record<string, unknown>)
+      : {};
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Lowest Total Cost',
+      value: String(cheapest.scenario ?? '—'),
+      meta: formatCurrency(Number(cheapest.totalCost) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Lowest Payment',
+      value: String(lowestPayment.scenario ?? '—'),
+      meta: `${formatCurrency(Number(lowestPayment.monthlyPayment) || 0)}/mo`,
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initBusinessLoanScenariosCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const loanAmount = parseFloat((formData.get('loanAmount') as string) || '0');
-      const currentDebtPayments = parseFloat(
-        (formData.get('currentDebtPayments') as string) || '0'
-      );
-
       const scenarios = [];
-      if (formData.get('scenario1Name')) {
+      const name1 = getText(form, 'scenario1Name');
+      if (name1) {
         scenarios.push({
-          name: formData.get('scenario1Name') as string,
-          term: parseInt(formData.get('scenario1Term') as string),
-          rate: parseFloat(formData.get('scenario1Rate') as string) / 100,
+          name: name1,
+          term: Math.round(parseNumber(form, 'scenario1Term')) || 5,
+          rate: parseNumber(form, 'scenario1Rate') / 100,
         });
       }
-      if (formData.get('scenario2Name')) {
+      const name2 = getText(form, 'scenario2Name');
+      if (name2) {
         scenarios.push({
-          name: formData.get('scenario2Name') as string,
-          term: parseInt(formData.get('scenario2Term') as string),
-          rate: parseFloat(formData.get('scenario2Rate') as string) / 100,
+          name: name2,
+          term: Math.round(parseNumber(form, 'scenario2Term')) || 7,
+          rate: parseNumber(form, 'scenario2Rate') / 100,
         });
       }
 
       const input = {
-        loanAmount,
+        loanAmount: parseNumber(form, 'loanAmount'),
         scenarios,
-        currentDebtPayments,
+        currentDebtPayments: parseNumber(form, 'currentDebtPayments'),
       };
 
       const response = await fetch('/api/analyze-business-loan-scenarios', {
@@ -64,41 +106,30 @@ class BusinessLoanScenariosCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to compare loan scenarios');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to compare loan scenarios'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_business_loan_scenarios', result);
+
+      document.getElementById('results')?.classList.remove('hidden');
     } catch (error) {
       console.error('Loan scenarios error:', error);
       showError(error instanceof Error ? error.message : 'Failed to compare loan scenarios');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    resultsDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Loan Scenario Comparison</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your loan scenario comparison is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new BusinessLoanScenariosCalculator());
-} else {
-  new BusinessLoanScenariosCalculator();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBusinessLoanScenariosCalculator);
+  } else {
+    initBusinessLoanScenariosCalculator();
+  }
 }

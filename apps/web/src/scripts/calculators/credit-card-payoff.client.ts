@@ -5,6 +5,8 @@
  * 0% APR offers, utilization impact, and optimization strategies.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -285,28 +287,33 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     current.totalInterest < best.totalInterest ? current : best
   );
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Your Plan</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.currentStrategy.monthsToPayoff} mo</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.currentStrategy.totalInterest)} interest</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Best Strategy</h5>
-      <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${bestStrategy.name}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Save ${formatCurrency(result.recommendation.savings)}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Utilization</h5>
-      <p class="text-2xl font-bold ${result.utilization.current > 50 ? 'text-rose-600 dark:text-rose-400' : result.utilization.current > 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">${result.utilization.current.toFixed(0)}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">→ ${result.utilization.after6Months.toFixed(0)}% in 6mo</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Min Payment Trap</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.minimumOnly.monthsToPayoff} mo</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">${formatCurrency(result.minimumOnly.totalInterest)} interest!</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Your Plan',
+      value: `${result.currentStrategy.monthsToPayoff} mo`,
+      meta: `${formatCurrency(result.currentStrategy.totalInterest)} interest`,
+      tone: 'violet',
+    },
+    {
+      title: 'Best Strategy',
+      value: bestStrategy.name,
+      meta: `Save ${formatCurrency(result.recommendation.savings)}`,
+      tone: 'emerald',
+      valueClassName: 'fa-metric-card-value text-lg',
+    },
+    {
+      title: 'Utilization',
+      value: `${result.utilization.current.toFixed(0)}%`,
+      meta: `→ ${result.utilization.after6Months.toFixed(0)}% in 6mo`,
+      tone: result.utilization.current > 50 ? 'amber' : 'violet',
+    },
+    {
+      title: 'Min Payment Trap',
+      value: `${result.minimumOnly.monthsToPayoff} mo`,
+      meta: `${formatCurrency(result.minimumOnly.totalInterest)} interest`,
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
@@ -529,6 +536,7 @@ function initializeCreditCardPayoff(): void {
 
       const result = analyzeCreditCard(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_credit_card_payoff', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

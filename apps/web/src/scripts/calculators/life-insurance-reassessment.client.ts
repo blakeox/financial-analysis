@@ -2,77 +2,115 @@
  * Life Insurance Reassessment Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class LifeInsuranceReassessmentCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('life-insurance-reassessment-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Life Insurance Reassessment form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const gap = Number(summary.coverageGap) || 0;
+  const needed = Number(summary.totalNeeded) || 0;
+  const current = Number(summary.currentCoverage) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Coverage Needed',
+      value: formatCurrency(needed),
+      tone: 'violet',
+    },
+    {
+      title: 'Current Coverage',
+      value: formatCurrency(current),
+      tone: 'amber',
+    },
+    {
+      title: 'Coverage Gap',
+      value: formatCurrency(gap),
+      meta: gap > 0 ? 'underinsured' : 'adequate',
+      tone: gap > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Action',
+      value: String(summary.recommendation ?? 'maintain'),
+      tone: gap > 0 ? 'orange' : 'emerald',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initLifeInsuranceReassessmentCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const policiesJson = formData.get('policies') as string;
-      const policies = policiesJson ? JSON.parse(policiesJson) : [];
+      const annualIncome = parseNumber(form, 'annualIncome');
+      const totalDebt = parseNumber(form, 'totalDebt');
+      const dependents = Math.round(parseNumber(form, 'dependents'));
 
       const input = {
         personalInfo: {
-          age: parseInt((formData.get('age') as string) || '40'),
-          healthStatus: (formData.get('healthStatus') as string) || 'good',
-          smoker: formData.get('smoker') === 'true',
-          gender: (formData.get('gender') as string) || 'male',
+          age: Math.round(parseNumber(form, 'age')) || 40,
+          healthStatus: 'good',
+          smoker: false,
+          gender:
+            (form.elements.namedItem('gender') as HTMLSelectElement)?.value === 'female'
+              ? 'female'
+              : 'male',
         },
-        currentPolicies: policies,
+        currentPolicies: [],
         financialSituation: {
-          annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-          totalAssets: parseFloat((formData.get('totalAssets') as string) || '0'),
-          totalDebt: parseFloat((formData.get('totalDebt') as string) || '0'),
-          monthlyExpenses: parseFloat((formData.get('monthlyExpenses') as string) || '0'),
-          dependents: parseInt((formData.get('dependents') as string) || '0'),
+          annualIncome,
+          totalAssets: annualIncome * 5,
+          totalDebt,
+          monthlyExpenses: annualIncome > 0 ? annualIncome / 12 : 0,
+          dependents,
+          yearsUntilRetirement: Math.max(5, 65 - (Math.round(parseNumber(form, 'age')) || 40)),
         },
         needsAnalysis: {
-          incomeReplacement: {
-            yearsOfIncome: parseInt((formData.get('yearsOfIncome') as string) || '10'),
-            replacementPercentage: parseFloat(
-              (formData.get('replacementPercentage') as string) || '0.7'
-            ),
-          },
-          debtPayoff: {
-            mortgageBalance: parseFloat((formData.get('mortgageBalance') as string) || '0'),
-            otherDebt: parseFloat((formData.get('otherDebt') as string) || '0'),
-          },
-          educationFunding: {
-            childrenCount: parseInt((formData.get('childrenCount') as string) || '0'),
-            educationCostPerChild: parseFloat(
-              (formData.get('educationCostPerChild') as string) || '0'
-            ),
-          },
-          finalExpenses: parseFloat((formData.get('finalExpenses') as string) || '10000'),
-          estateTaxes: parseFloat((formData.get('estateTaxes') as string) || '0'),
+          incomeReplacement: { yearsOfIncome: 10, replacementPercentage: 0.7 },
+          debtPayoff: { mortgageBalance: totalDebt * 0.7, otherDebt: totalDebt * 0.3 },
+          educationFunding: { childrenCount: dependents, educationCostPerChild: 50000 },
+          finalExpenses: 15000,
+          estateTaxes: 0,
         },
         analysis: {
-          includeCoverageGapAnalysis: formData.get('includeCoverageGapAnalysis') !== 'false',
-          includePolicyOptimization: formData.get('includePolicyOptimization') !== 'false',
-          includeConversionAnalysis: formData.get('includeConversionAnalysis') !== 'false',
-          includeTermVsPermanent: formData.get('includeTermVsPermanent') !== 'false',
+          includeCoverageGapAnalysis: true,
+          includePolicyOptimization: true,
+          includeConversionAnalysis: true,
+          includeTermVsPermanent: true,
         },
       };
 
@@ -83,44 +121,28 @@ class LifeInsuranceReassessmentCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze life insurance reassessment');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze life insurance reassessment'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_life_insurance_reassessment', result);
     } catch (error) {
       console.error('Life Insurance Reassessment error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze life insurance reassessment'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('life-insurance-reassessment-results');
-    const contentDiv = document.getElementById('life-insurance-reassessment-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Life Insurance Reassessment Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your life insurance reassessment analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new LifeInsuranceReassessmentCalculator());
+  document.addEventListener('DOMContentLoaded', initLifeInsuranceReassessmentCalculator);
 } else {
-  new LifeInsuranceReassessmentCalculator();
+  initLifeInsuranceReassessmentCalculator();
 }

@@ -1,0 +1,87 @@
+import type { CalculatorConfig } from '../../types';
+
+export const revenue_forecastCalculator: CalculatorConfig = {
+  id: 'revenue-forecast',
+  title: 'Revenue Forecast Calculator',
+  description:
+    'Project future revenue using growth rates, seasonality patterns, and optional customer-based inputs',
+  category: 'business',
+  icon: '📈',
+  color: 'violet',
+  keywords: ['revenue forecast', 'growth', 'seasonality', 'ARR', 'projections'],
+  faqSchema: {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How many revenue streams can I model?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'You can add up to ten revenue streams with individual growth and seasonality assumptions. At least one stream is required.',
+        },
+      },
+    ],
+  },
+  breadcrumbs: [
+    { name: 'Home', href: '/' },
+    { name: 'Business Tools', href: '/models/business' },
+    { name: 'Revenue Forecast', href: '/calculator/revenue-forecast' },
+  ],
+  formFields: [
+    {
+      id: 'forecastMonths',
+      name: 'forecastMonths',
+      type: 'number',
+      label: 'Forecast Period (Months)',
+      min: 1,
+      max: 36,
+      step: 1,
+      required: true,
+      default: 12,
+    },
+    {
+      id: 'existingCustomers',
+      name: 'existingCustomers',
+      type: 'number',
+      label: 'Existing Customers',
+      min: 0,
+      step: 1,
+      required: false,
+      group: 'Customer-Based Model (Optional)',
+    },
+    {
+      id: 'averageRevenuePerCustomer',
+      name: 'averageRevenuePerCustomer',
+      type: 'number',
+      label: 'Average Revenue per Customer ($/mo)',
+      min: 0,
+      step: 0.01,
+      required: false,
+      group: 'Customer-Based Model (Optional)',
+    },
+    {
+      id: 'monthlyChurnRate',
+      name: 'monthlyChurnRate',
+      type: 'number',
+      label: 'Monthly Churn Rate (%)',
+      min: 0,
+      max: 100,
+      step: 0.1,
+      required: false,
+      group: 'Customer-Based Model (Optional)',
+    },
+    {
+      id: 'newCustomersPerMonth',
+      name: 'newCustomersPerMonth',
+      type: 'number',
+      label: 'New Customers per Month',
+      min: 0,
+      step: 1,
+      required: false,
+      group: 'Customer-Based Model (Optional)',
+    },
+  ],
+  clientScript: 'revenue-forecast',
+  analysisType: 'revenue-forecast',
+};

@@ -4,6 +4,13 @@
  * Provides a simple form controller for calculator pages with validation and event handling.
  */
 
+import {
+  clearFormFieldErrors,
+  setFieldError,
+  setFormFieldErrors,
+} from '../scripts/_shared/form-field-errors';
+import { hideError, showError } from './calculator-utilities';
+
 export interface FormValidationRule {
   type: 'number' | 'text' | 'email';
   required?: boolean;
@@ -15,6 +22,17 @@ export interface FormValidationRule {
 
 export interface FormControllerConfig {
   [key: string]: FormValidationRule;
+}
+
+function getFieldControl(
+  form: HTMLFormElement,
+  fieldName: string
+): HTMLInputElement | HTMLSelectElement | null {
+  const field = form.querySelector(`[name="${fieldName}"]`);
+  if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+    return field;
+  }
+  return null;
 }
 
 export function createModelFormController(formId: string, config: FormControllerConfig) {
@@ -55,19 +73,24 @@ export function createModelFormController(formId: string, config: FormController
 
   const validateForm = (): boolean => {
     let isValid = true;
+    const fieldErrors: Record<string, string> = {};
 
     Object.entries(config).forEach(([fieldName, rule]) => {
-      const input = form.querySelector(`[name="${fieldName}"]`) as HTMLInputElement;
-      if (input) {
-        const fieldValid = validateField(input, rule);
-        if (!fieldValid) {
-          isValid = false;
-          input.classList.add('border-rose-500');
-        } else {
-          input.classList.remove('border-rose-500');
-        }
+      const input = getFieldControl(form, fieldName);
+      if (!input) return;
+
+      const fieldValid = validateField(input as HTMLInputElement, rule);
+      if (!fieldValid) {
+        isValid = false;
+        fieldErrors[fieldName] = 'Please check this value and try again.';
       }
     });
+
+    if (!isValid) {
+      setFormFieldErrors(form, fieldErrors);
+    } else {
+      clearFormFieldErrors(form);
+    }
 
     return isValid;
   };
@@ -91,38 +114,20 @@ export function createModelFormController(formId: string, config: FormController
     return data;
   };
 
-  const showError = (message: string): void => {
-    // Simple error display - could be enhanced with toast notifications
-    console.error('Form validation error:', message);
-
-    // Create or update error message element
-    let errorElement = document.getElementById('form-error');
-    if (!errorElement) {
-      errorElement = document.createElement('div');
-      errorElement.id = 'form-error';
-      errorElement.className =
-        'mb-4 rounded border border-rose-400 bg-rose-100 px-4 py-3 text-rose-700';
-      form.insertBefore(errorElement, form.firstChild);
-    }
-
-    errorElement.textContent = message;
-    errorElement.classList.remove('hidden');
-
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      errorElement?.classList.add('hidden');
-    }, 5000);
+  const showFormControllerError = (message: string): void => {
+    showError(message);
   };
 
   const onSubmit = (callback: (data: Record<string, unknown>) => void): void => {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      hideError();
 
       if (validateForm()) {
         const data = getFormData();
         callback(data);
       } else {
-        showError('Please check your inputs and try again.');
+        showFormControllerError('Please check your inputs and try again.');
       }
     });
   };
@@ -133,16 +138,11 @@ export function createModelFormController(formId: string, config: FormController
       resetButton.addEventListener('click', (event) => {
         event.preventDefault();
         form.reset();
+        clearFormFieldErrors(form);
+        hideError();
 
-        // Clear validation errors
-        form.querySelectorAll('.border-rose-500').forEach((element) => {
-          element.classList.remove('border-rose-500');
-        });
-
-        const errorElement = document.getElementById('form-error');
-        if (errorElement) {
-          errorElement.classList.add('hidden');
-        }
+        const legacyFormError = document.getElementById('form-error');
+        legacyFormError?.classList.add('hidden');
 
         callback();
       });
@@ -152,8 +152,15 @@ export function createModelFormController(formId: string, config: FormController
   return {
     onSubmit,
     onReset,
-    showError,
+    showError: showFormControllerError,
     validateForm,
     getFormData,
+    setFieldError: (fieldName: string, message: string) => {
+      const field = getFieldControl(form, fieldName);
+      if (field) {
+        setFieldError(field, message);
+      }
+    },
+    clearFieldErrors: () => clearFormFieldErrors(form),
   };
 }

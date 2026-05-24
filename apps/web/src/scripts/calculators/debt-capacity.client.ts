@@ -2,52 +2,102 @@
  * Debt Capacity Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class DebtCapacityCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number | undefined {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  if (!raw.trim()) return undefined;
+  const pct = Number.parseFloat(raw.replace(/,/g, ''));
+  if (!Number.isFinite(pct)) return undefined;
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('calculator-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Calculator form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const maxLoan = Number(record.maxLoanAmount) || 0;
+  const recommended = Number(record.recommendedLoanAmount) || 0;
+  const monthlyCapacity = Number(record.monthlyPaymentCapacity) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Max Loan Amount',
+      value: formatCurrency(maxLoan),
+      meta: 'at 1.5x DSCR target',
+      tone: maxLoan > 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Recommended',
+      value: formatCurrency(recommended),
+      meta: '80% of max (safety buffer)',
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Capacity',
+      value: formatCurrency(monthlyCapacity),
+      meta: 'for new debt service',
+      tone: 'amber',
+    },
+    {
+      title: 'Requested vs Max',
+      value:
+        record.debtCapacityRatio !== undefined
+          ? `${(Number(record.debtCapacityRatio) * 100).toFixed(0)}%`
+          : '—',
+      meta: 'of max capacity used',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initDebtCapacityCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
       const input = {
         financials: {
-          annualEBITDA: parseFloat((formData.get('annualEBITDA') as string) || '0'),
-          monthlyDebtPayments: parseFloat((formData.get('monthlyDebtPayments') as string) || '0'),
-          expectedEBITDAIncrease: parseFloat(
-            (formData.get('expectedEBITDAIncrease') as string) || '0'
-          ),
+          annualEBITDA: parseNumber(form, 'annualEBITDA'),
+          monthlyDebtPayments: parseNumber(form, 'monthlyDebtPayments'),
+          expectedEBITDAIncrease: parseNumber(form, 'expectedEBITDAIncrease'),
         },
         loanPreferences: {
-          preferredTerm: parseInt((formData.get('preferredTerm') as string) || '5'),
-          preferredRate: formData.get('preferredRate')
-            ? parseFloat(formData.get('preferredRate') as string) / 100
-            : undefined,
-          loanType: (formData.get('loanType') as string) || 'term-loan',
+          preferredTerm: Math.round(parseNumber(form, 'preferredTerm')) || 5,
+          preferredRate: parseRate(form, 'preferredRate'),
+          loanType:
+            (form.elements.namedItem('loanType') as HTMLSelectElement)?.value || 'term-loan',
         },
-        requestedAmount: formData.get('requestedAmount')
-          ? parseFloat(formData.get('requestedAmount') as string)
-          : undefined,
+        requestedAmount: parseNumber(form, 'requestedAmount') || undefined,
       };
 
       const response = await fetch('/api/analyze-debt-capacity', {
@@ -57,41 +107,26 @@ class DebtCapacityCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to calculate debt capacity');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to calculate debt capacity'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_debt_capacity', result);
     } catch (error) {
       console.error('Debt capacity error:', error);
       showError(error instanceof Error ? error.message : 'Failed to calculate debt capacity');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    resultsDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Debt Capacity Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your debt capacity analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new DebtCapacityCalculator());
+  document.addEventListener('DOMContentLoaded', initDebtCapacityCalculator);
 } else {
-  new DebtCapacityCalculator();
+  initDebtCapacityCalculator();
 }

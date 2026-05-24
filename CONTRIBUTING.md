@@ -96,10 +96,33 @@ If you see a build loop, ensure `.astro/` and `dist/` are ignored (see `apps/web
 
 - Use `pnpm run dev:all` to build the web app and run both workers in parallel.
 - For Playwright e2e tests: `cd apps/web && pnpm test:e2e`
-- For accessibility tests: `cd apps/web && pnpm test:e2e:a11y` (smoke routes in `tests/a11y/a11y-smoke.spec.ts`)
+- For accessibility tests:
+  - PR smoke: `tests/a11y/a11y-smoke.spec.ts` (core routes + model tools + representative calculators; route list in `tests/a11y/smoke-routes.ts`)
+  - Full calculator catalog: `cd apps/web && pnpm test:e2e:a11y` (includes `a11y-calculators.spec.ts` for every `/calculator/*` page)
+- Contrast guard (runs in `apps/web` `test:layout`): `cd apps/web && node scripts/check-a11y-contrast.mjs` — blocks `text-slate-400` / bare `text-slate-500` on light surfaces; prefer `textColors.muted` from `@financial-analysis/ui`
+- ESLint: `fa-a11y/prefer-accessible-muted-text` errors on `text-slate-400` / bare `text-slate-500` in `className` — use `textColors.muted` or `copyClasses.helper` instead
+- Pattern guard: `node scripts/check-a11y-patterns.mjs` (runs in `test:layout`) — blocks `<div onclick>` without button semantics
+- Calculator href guard: `node scripts/check-calculator-hrefs.mjs` (runs in `test:layout`) — every `/calculator/{id}` link in `apps/web/src` must exist in `CALCULATOR_CONFIGS`
+- Full static page axe sweep: `pnpm test:e2e:a11y` (smoke + all calculators + tool/legal/journey entry + representative journey steps in `tests/a11y/`)
 - For unused-code hygiene (report only, not CI): `pnpm run report:knip` (see `knip.json`)
 - For API tests: `cd workers/api && pnpm test`
 - For analysis engine tests: `cd packages/analysis && pnpm test`
+
+### Design system
+
+Visual patterns for calculators and the workflow rail are documented in [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md). Calculator configs live under `apps/web/src/calculators/configs/` (merged in `calculators/index.ts`). Use `renderMetricCards()` from `apps/web/src/scripts/_shared/metric-card-html.ts` for `#summary-cards` KPI tiles instead of one-off colored divs.
+
+### Form validation styling
+
+Use one protocol across template calculators and React fields:
+
+| Context | Visual | Accessibility |
+|---------|--------|----------------|
+| Astro template inputs (`calculator-form`) | `fa-field-error` on the control | `aria-invalid="true"` and message in sibling `.field-error` with `role="alert"` |
+| React `Input` / `CurrencyField` | `inputStateClasses.error` from `@financial-analysis/ui` | built-in `error` prop sets `aria-invalid` |
+| Page-level errors | `#error` (`.fa-callout-danger`) on template pages | message in `#error-message` |
+
+Client scripts should use `handleCalculatorFormError(form, error)` from `apps/web/src/scripts/_shared/form-field-errors.ts` instead of `alert()`. `showError()` / `hideError()` in `calculator-utilities.ts` support both `#error` and legacy `#error-state`.
 
 #### Common Tasks
 

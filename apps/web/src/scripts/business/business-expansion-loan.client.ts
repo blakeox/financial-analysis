@@ -1,55 +1,141 @@
 /**
- * Business Expansion Loan Journey Client Script
- * Handles business expansion loan analysis and form interactions
+ * Business Expansion Loan Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class BusinessExpansionLoanCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('business-expansion-loan-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Business expansion loan form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('expansion-loan-results');
+  const contentDiv = document.getElementById('expansion-loan-results-content');
+  if (!resultsDiv || !contentDiv) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Health Score',
+      value: `${Number(summary.financialHealthScore) || 0}/100`,
+      tone:
+        Number(summary.financialHealthScore) >= 70
+          ? 'emerald'
+          : Number(summary.financialHealthScore) >= 50
+            ? 'amber'
+            : 'orange',
+    },
+    {
+      title: 'Recommended Loan',
+      value: formatCurrency(Number(summary.recommendedLoanAmount) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'DSCR',
+      value: `${(Number(summary.dscr) || 0).toFixed(2)}x`,
+      meta: Number(summary.dscr) >= 1.25 ? 'adequate' : 'tight',
+      tone: Number(summary.dscr) >= 1.25 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Success Odds',
+      value: `${Number(summary.successProbability) || 0}%`,
+      tone: 'amber',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initBusinessExpansionLoanCalculator(): void {
+  const form = document.getElementById('business-expansion-loan-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
+      const input = {
+        businessInfo: {
+          businessName: (form.elements.namedItem('businessName') as HTMLInputElement)?.value || '',
+          industry: (form.elements.namedItem('industry') as HTMLInputElement)?.value || 'general',
+          yearsInBusiness: Math.round(parseNumber(form, 'yearsInBusiness')) || 5,
+          businessType: 'llc',
+          employeeCount: Math.round(parseNumber(form, 'employeeCount')) || 10,
+        },
+        currentFinancials: {
+          annualRevenue: parseNumber(form, 'annualRevenue'),
+          annualEBITDA: parseNumber(form, 'annualEBITDA'),
+          currentDebt: parseNumber(form, 'currentDebt'),
+          monthlyDebtPayments: parseNumber(form, 'monthlyDebtPayments'),
+          cashOnHand: parseNumber(form, 'cashOnHand'),
+          accountsReceivable: parseNumber(form, 'annualRevenue') * 0.08,
+          accountsPayable: parseNumber(form, 'annualRevenue') * 0.05,
+          creditScore: parseNumber(form, 'creditScore') || undefined,
+        },
+        expansionPlan: {
+          loanAmount: parseNumber(form, 'loanAmount'),
+          loanPurpose:
+            (form.elements.namedItem('loanPurpose') as HTMLSelectElement)?.value || 'expansion',
+          expectedRevenueIncrease: parseNumber(form, 'expectedRevenueIncrease'),
+          expectedEBITDAIncrease: parseNumber(form, 'expectedEBITDAIncrease'),
+          timeline: Math.round(parseNumber(form, 'timeline')) || 3,
+        },
+        loanPreferences: {
+          preferredTerm: Math.round(parseNumber(form, 'preferredTerm')) || 5,
+          preferredRate: parseRate(form, 'preferredRate') || undefined,
+          loanType:
+            (form.elements.namedItem('loanType') as HTMLSelectElement)?.value || 'term-loan',
+          collateralAvailable: false,
+          collateralValue: 0,
+        },
+        goals: {
+          riskTolerance: 'moderate',
+          priority:
+            (form.elements.namedItem('priority') as HTMLSelectElement)?.value || 'lowest-cost',
+          includeScenarioAnalysis: true,
+        },
+      };
 
-      // Call API endpoint
       const response = await fetch('/api/analyze-business-expansion-loan', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze business expansion loan');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze business expansion loan'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_business_expansion_loan', result);
     } catch (error) {
       console.error('Business expansion loan error:', error);
       showError(
@@ -58,91 +144,11 @@ class BusinessExpansionLoanCalculator {
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      businessInfo: {
-        businessName: formData.get('businessName') || '',
-        industry: formData.get('industry') || '',
-        yearsInBusiness: parseInt((formData.get('yearsInBusiness') as string) || '0'),
-        businessType: (formData.get('businessType') as string) || 'llc',
-        employeeCount: parseInt((formData.get('employeeCount') as string) || '0'),
-      },
-      currentFinancials: {
-        annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
-        annualEBITDA: parseFloat((formData.get('annualEBITDA') as string) || '0'),
-        currentDebt: parseFloat((formData.get('currentDebt') as string) || '0'),
-        monthlyDebtPayments: parseFloat((formData.get('monthlyDebtPayments') as string) || '0'),
-        cashOnHand: parseFloat((formData.get('cashOnHand') as string) || '0'),
-        accountsReceivable: 0,
-        accountsPayable: 0,
-        creditScore: formData.get('creditScore')
-          ? parseInt(formData.get('creditScore') as string)
-          : undefined,
-      },
-      expansionPlan: {
-        loanAmount: parseFloat((formData.get('loanAmount') as string) || '0'),
-        loanPurpose: (formData.get('loanPurpose') as string) || 'expansion',
-        expectedRevenueIncrease: parseFloat(
-          (formData.get('expectedRevenueIncrease') as string) || '0'
-        ),
-        expectedEBITDAIncrease: parseFloat(
-          (formData.get('expectedEBITDAIncrease') as string) || '0'
-        ),
-        timeline: parseInt((formData.get('timeline') as string) || '3'),
-        description: '',
-      },
-      loanPreferences: {
-        preferredTerm: parseInt((formData.get('preferredTerm') as string) || '5'),
-        preferredRate: formData.get('preferredRate')
-          ? parseFloat(formData.get('preferredRate') as string) / 100
-          : undefined,
-        loanType: (formData.get('loanType') as string) || 'term-loan',
-        collateralAvailable: false,
-        collateralValue: 0,
-      },
-      goals: {
-        riskTolerance: 'moderate',
-        priority: (formData.get('priority') as string) || 'lowest-cost',
-        includeScenarioAnalysis: true,
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('expansion-loan-results');
-    const contentDiv = document.getElementById('expansion-loan-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Expansion Loan Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your business expansion loan analysis is complete. Use the AI assistant to get detailed recommendations and strategies.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered expansion loan recommendations based on your specific business situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new BusinessExpansionLoanCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initBusinessExpansionLoanCalculator);
 } else {
-  new BusinessExpansionLoanCalculator();
+  initBusinessExpansionLoanCalculator();
 }

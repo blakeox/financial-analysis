@@ -2,6 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 
 const title = 'Enhanced Lease Analysis Calculator | Fanalyx';
 const description =
@@ -41,7 +43,7 @@ const structuredData = {
 };
 ---
 
-<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href}>
+<Layout title={title} description={description} keywords={keywords} canonical={Astro.url.href} showChat={false} showToolAnalysis={false}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   <ToolPageShell
     eyebrow="Lease analysis"
@@ -53,26 +55,18 @@ const structuredData = {
       { label: 'Enhanced Lease Analysis' },
     ]}
   >
-    <SurfaceCard>
-      <div id="enhanced-lease-container"></div>
-    </SurfaceCard>
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
+        <SurfaceCard>
+          <div id="enhanced-lease-container"></div>
+        </SurfaceCard>
+      </div>
+
+      <WorkflowSupportRail modelType="lease" />
+    </div>
   </ToolPageShell>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="enhanced-lease" />
 </Layout>
-
-<script>
-  import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
-  import { createElement } from 'react';
-  import { createRoot } from 'react-dom/client';
-
-  const container = document.getElementById('enhanced-lease-container');
-  if (container) {
-    const root = createRoot(container);
-    root.render(
-      createElement(LeaseAnalysisDashboard, {
-        onAnalyze: (result) => {
-          console.log('Enhanced lease analysis result:', result);
-        },
-      })
-    );
-  }
-</script>

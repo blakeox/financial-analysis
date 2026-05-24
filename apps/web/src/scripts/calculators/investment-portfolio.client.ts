@@ -1,138 +1,169 @@
 /**
  * Investment Portfolio Analyzer Client Script
- * Handles portfolio analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class InvestmentPortfolioCalculator {
-  private form: HTMLFormElement | null = null;
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
-  constructor() {
-    this.init();
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('portfolio-results');
+  const contentDiv = document.getElementById('portfolio-results-content');
+  const summaryHost = document.getElementById('portfolio-summary-cards');
+
+  if (!resultsDiv || !contentDiv) return;
+
+  resultsDiv.classList.remove('hidden');
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+  const actual =
+    summary.actualAllocation && typeof summary.actualAllocation === 'object'
+      ? (summary.actualAllocation as Record<string, unknown>)
+      : {};
+
+  const currentValue = Number(summary.currentValue) || 0;
+  const score = Number(summary.portfolioScore) || 0;
+  const drift = Number(summary.allocationDrift) || 0;
+  const stockPct = Number(actual.stocks) || 0;
+
+  if (summaryHost) {
+    summaryHost.innerHTML = renderMetricCards([
+      {
+        title: 'Portfolio Value',
+        value: formatCurrency(currentValue),
+        tone: 'primary',
+      },
+      {
+        title: 'Fit Score',
+        value: `${score}/100`,
+        tone: score >= 80 ? 'emerald' : score >= 60 ? 'amber' : 'orange',
+      },
+      {
+        title: 'Allocation Drift',
+        value: `${drift.toFixed(1)}%`,
+        tone: drift > 15 ? 'orange' : 'emerald',
+      },
+      {
+        title: 'Stock Allocation',
+        value: `${stockPct.toFixed(1)}%`,
+        meta: 'current weight',
+        tone: 'violet',
+      },
+    ]);
   }
 
-  private init(): void {
-    this.form = document.getElementById('investment-portfolio-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Investment portfolio form not found');
-      return;
-    }
+  const recommendations = Array.isArray(record.recommendations)
+    ? (record.recommendations as string[])
+    : [];
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  contentDiv.innerHTML =
+    recommendations.length > 0
+      ? `<ul class="list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">${recommendations
+          .slice(0, 5)
+          .map((item) => `<li>${escapeHtml(item)}</li>`)
+          .join('')}</ul>`
+      : '<p class="text-sm text-slate-600 dark:text-slate-400">Allocation is within target bands.</p>';
 
-  private async handleSubmit(e: Event): Promise<void> {
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initInvestmentPortfolioCalculator(): void {
+  const form = document.getElementById('investment-portfolio-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
+      const formData = new FormData(form);
+      const totalValue = parseFloat((formData.get('totalValue') as string) || '0');
+      const targetStocks = parseFloat((formData.get('targetStocks') as string) || '70') / 100;
+      const targetBonds = parseFloat((formData.get('targetBonds') as string) || '20') / 100;
+      const targetCash = parseFloat((formData.get('targetCash') as string) || '10') / 100;
+      const targetAlternatives = Math.max(0, 1 - targetStocks - targetBonds - targetCash);
 
-      // Call API endpoint
+      const input = {
+        personalInfo: {
+          age: parseInt((formData.get('age') as string) || '35', 10),
+          maritalStatus: 'single',
+          dependents: 0,
+          employmentStatus: 'employed',
+        },
+        currentPortfolio: {
+          totalValue,
+          holdings: [
+            {
+              symbol: 'SAMPLE',
+              name: 'Sample Stock',
+              shares: 100,
+              currentPrice: totalValue > 0 ? (totalValue * targetStocks) / 100 : 0,
+              sector: 'Technology',
+              assetClass: 'stock',
+            },
+          ],
+          cashReserve: totalValue * targetCash,
+        },
+        goals: {
+          targetAllocation: {
+            stocks: targetStocks,
+            bonds: targetBonds,
+            cash: targetCash,
+            alternatives: targetAlternatives,
+          },
+          riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
+          timeHorizon: 20,
+          rebalancingFrequency: 'annually',
+        },
+      };
+
       const response = await fetch('/api/analyze-investment-portfolio', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze investment portfolio');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze investment portfolio'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_investment_portfolio', result);
     } catch (error) {
       console.error('Investment portfolio error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze investment portfolio');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    const totalValue = parseFloat((formData.get('totalValue') as string) || '0');
-    const targetStocks = parseFloat((formData.get('targetStocks') as string) || '70') / 100;
-    const targetBonds = parseFloat((formData.get('targetBonds') as string) || '20') / 100;
-    const targetCash = parseFloat((formData.get('targetCash') as string) || '10') / 100;
-    const targetAlternatives = 1 - targetStocks - targetBonds - targetCash;
-
-    return {
-      personalInfo: {
-        age: parseInt((formData.get('age') as string) || '35'),
-        maritalStatus: 'single',
-        dependents: 0,
-        employmentStatus: 'employed',
-      },
-      currentPortfolio: {
-        totalValue,
-        holdings: [
-          {
-            symbol: 'SAMPLE',
-            name: 'Sample Stock',
-            shares: 100,
-            currentPrice: (totalValue * targetStocks) / 100,
-            sector: 'Technology',
-            assetClass: 'stock',
-          },
-        ],
-        cashReserve: totalValue * targetCash,
-      },
-      goals: {
-        targetAllocation: {
-          stocks: targetStocks,
-          bonds: targetBonds,
-          cash: targetCash,
-          alternatives: Math.max(0, targetAlternatives),
-        },
-        riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-        timeHorizon: 20,
-        rebalancingFrequency: 'annually',
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('portfolio-results');
-    const contentDiv = document.getElementById('portfolio-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Portfolio Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your investment portfolio analysis is complete. Use the AI assistant to get detailed recommendations and rebalancing strategies.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered portfolio recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new InvestmentPortfolioCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initInvestmentPortfolioCalculator);
 } else {
-  new InvestmentPortfolioCalculator();
+  initInvestmentPortfolioCalculator();
 }

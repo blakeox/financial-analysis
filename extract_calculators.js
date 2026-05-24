@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const filePath = path.join(process.cwd(), 'apps/web/src/components/CalculatorTemplate.tsx');
+const filePath = path.join(process.cwd(), 'apps/web/src/calculators/calculator-configs.ts');
 const content = fs.readFileSync(filePath, 'utf8');
 
 // Regex to find calculator definitions

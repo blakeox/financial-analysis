@@ -1,241 +1,251 @@
 /**
  * CCA Analysis Client Script
- * Handles comparable company analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CCAnalysisCalculator {
-  private form: HTMLFormElement | null = null;
+function parseMillions(value: FormDataEntryValue | null): number {
+  const parsed = Number.parseFloat(String(value ?? '0').replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed * 1_000_000 : 0;
+}
 
-  constructor() {
-    this.init();
+function buildPeer(
+  name: FormDataEntryValue | null,
+  ticker: string,
+  industry: string,
+  marketCapM: FormDataEntryValue | null,
+  evM: FormDataEntryValue | null,
+  revM: FormDataEntryValue | null,
+  ebitdaM: FormDataEntryValue | null,
+  niM: FormDataEntryValue | null,
+  price = 50
+) {
+  const revenue = parseMillions(revM);
+  const ebitda = parseMillions(ebitdaM);
+  return {
+    name: String(name),
+    ticker,
+    industry,
+    country: 'US',
+    marketCap: parseMillions(marketCapM),
+    enterpriseValue: parseMillions(evM) || parseMillions(marketCapM) * 1.2,
+    revenue,
+    ebitda,
+    ebit: ebitda * 0.85,
+    netIncome: parseMillions(niM),
+    totalDebt: parseMillions(evM) * 0.3,
+    cashAndEquivalents: parseMillions(marketCapM) * 0.1,
+    sharesOutstanding: Math.max(1, parseMillions(marketCapM) / price),
+    bookValue: parseMillions(marketCapM) * 0.5,
+    freeCashFlow: ebitda * 0.6,
+    capex: revenue * 0.05,
+    depreciation: revenue * 0.03,
+    currentPrice: price,
+    beta: 1,
+  };
+}
+
+function buildInput(formData: FormData): Record<string, unknown> {
+  const industry =
+    (formData.get('targetIndustry') as string) ||
+    (formData.get('industry') as string) ||
+    'Technology';
+  const targetName = (formData.get('targetName') as string) || 'Target Co';
+
+  const peerCompanies: Array<Record<string, unknown>> = [];
+  const peerNames = formData.getAll('peerName');
+  const peerMarketCaps = formData.getAll('peerMarketCap');
+  const peerEnterpriseValues = formData.getAll('peerEnterpriseValue');
+  const peerRevenues = formData.getAll('peerRevenue');
+  const peerEbitdas = formData.getAll('peerEbitda');
+  const peerNetIncomes = formData.getAll('peerNetIncome');
+
+  for (let i = 0; i < peerNames.length; i++) {
+    if (peerNames[i] && peerMarketCaps[i]) {
+      peerCompanies.push(
+        buildPeer(
+          peerNames[i],
+          `PEER${i + 1}`,
+          industry,
+          peerMarketCaps[i],
+          peerEnterpriseValues[i],
+          peerRevenues[i],
+          peerEbitdas[i],
+          peerNetIncomes[i]
+        )
+      );
+    }
   }
 
-  private init(): void {
-    this.form = document.getElementById('cca-analysis-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('CCA analysis form not found');
-      return;
-    }
-
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-
-    // Add peer company button
-    const addButton = document.getElementById('add-peer-company');
-    if (addButton) {
-      addButton.addEventListener('click', this.addPeerCompany.bind(this));
-    }
+  if (peerCompanies.length === 0) {
+    peerCompanies.push(
+      buildPeer('Peer A', 'PEER1', industry, '100', '120', '50', '10', '5'),
+      buildPeer('Peer B', 'PEER2', industry, '80', '95', '40', '8', '4')
+    );
   }
 
-  private addPeerCompany(): void {
+  const revenue = parseMillions(formData.get('targetRevenue')) || 25_000_000;
+  const ebitda = parseMillions(formData.get('targetEbitda')) || revenue * 0.2;
+  const marketCap = parseMillions(formData.get('targetMarketCap')) || revenue * 3;
+
+  return {
+    targetCompany: {
+      name: targetName,
+      industry,
+      size: 'medium',
+      country: 'US',
+      currency: 'USD',
+    },
+    targetFinancials: {
+      marketCap,
+      enterpriseValue: parseMillions(formData.get('targetEnterpriseValue')) || marketCap * 1.15,
+      revenue,
+      ebitda,
+      ebit: ebitda * 0.85,
+      netIncome: parseMillions(formData.get('targetNetIncome')) || ebitda * 0.6,
+      totalDebt: marketCap * 0.25,
+      cashAndEquivalents: marketCap * 0.08,
+      sharesOutstanding: Math.max(1, marketCap / 50),
+      bookValue: marketCap * 0.45,
+      freeCashFlow: ebitda * 0.55,
+      capex: revenue * 0.04,
+      depreciation: revenue * 0.03,
+    },
+    peerGroupCriteria: {
+      industry: [industry],
+      sizeRange: { minRevenue: revenue * 0.5, maxRevenue: revenue * 2 },
+      geography: ['US'],
+    },
+    peerCompanies,
+    analysis: {
+      multiplesToCalculate: ['ev-revenue', 'ev-ebitda', 'pe'],
+      excludeOutliers: true,
+      outlierThreshold: 2,
+    },
+    valuation: {
+      applyPremiumsDiscounts: true,
+      controlPremium: 0.2,
+      liquidityDiscount: 0.15,
+      sizeDiscount: 0.05,
+    },
+  };
+}
+
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('cca-results');
+  const contentDiv = document.getElementById('cca-results-content');
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const valuation =
+    record.valuation && typeof record.valuation === 'object'
+      ? (record.valuation as Record<string, unknown>)
+      : {};
+  const equity =
+    valuation.equityValue && typeof valuation.equityValue === 'object'
+      ? (valuation.equityValue as Record<string, unknown>)
+      : {};
+  const perShare =
+    valuation.valuePerShare && typeof valuation.valuePerShare === 'object'
+      ? (valuation.valuePerShare as Record<string, unknown>)
+      : {};
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Equity Value (median)',
+      value: formatCurrency(Number(equity.median) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Value / Share',
+      value: formatCurrency(Number(perShare.median) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Upside / Downside',
+      value: `${(Number(valuation.upsideDownside) || 0).toFixed(1)}%`,
+      tone: Number(valuation.upsideDownside) >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Peers',
+      value: String(
+        record.peerGroup &&
+          typeof record.peerGroup === 'object' &&
+          Array.isArray((record.peerGroup as Record<string, unknown>).companies)
+          ? (record.peerGroup as { companies: unknown[] }).companies.length
+          : '—'
+      ),
+      meta: 'in comp set',
+      tone: 'amber',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCcaAnalysisCalculator(): void {
+  const form = document.getElementById('cca-analysis-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  const addButton = document.getElementById('add-peer-company');
+  addButton?.addEventListener('click', () => {
     const peersContainer = document.getElementById('peer-companies');
     if (!peersContainer) return;
-
     const newPeer = document.createElement('div');
     newPeer.className =
       'grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
     newPeer.innerHTML = `
-      <div>
-        <label class="fa-field-label mb-2">Name</label>
-        <input
-          type="text"
-          name="peerName"
-          class="fa-input-surface w-full"
-          placeholder="Peer Co."
-        />
-      </div>
-      <div>
-        <label class="fa-field-label mb-2">Market Cap ($M)</label>
-        <input
-          type="number"
-          name="peerMarketCap"
-          min="0"
-          step="1"
-          class="fa-input-surface w-full"
-          placeholder="100"
-        />
-      </div>
-      <div>
-        <label class="fa-field-label mb-2">EV ($M)</label>
-        <input
-          type="number"
-          name="peerEnterpriseValue"
-          min="0"
-          step="1"
-          class="fa-input-surface w-full"
-          placeholder="120"
-        />
-      </div>
-      <div>
-        <label class="fa-field-label mb-2">Revenue ($M)</label>
-        <input
-          type="number"
-          name="peerRevenue"
-          min="0"
-          step="1"
-          class="fa-input-surface w-full"
-          placeholder="50"
-        />
-      </div>
-      <div>
-        <label class="fa-field-label mb-2">EBITDA ($M)</label>
-        <input
-          type="number"
-          name="peerEbitda"
-          step="1"
-          class="fa-input-surface w-full"
-          placeholder="10"
-        />
-      </div>
-      <div>
-        <label class="fa-field-label mb-2">Net Income ($M)</label>
-        <input
-          type="number"
-          name="peerNetIncome"
-          step="1"
-          class="fa-input-surface w-full"
-          placeholder="5"
-        />
-      </div>
+      <div><label class="fa-field-label mb-2">Name</label><input type="text" name="peerName" class="fa-input-surface w-full" /></div>
+      <div><label class="fa-field-label mb-2">Market Cap ($M)</label><input type="number" name="peerMarketCap" min="0" class="fa-input-surface w-full" /></div>
+      <div><label class="fa-field-label mb-2">EV ($M)</label><input type="number" name="peerEnterpriseValue" min="0" class="fa-input-surface w-full" /></div>
+      <div><label class="fa-field-label mb-2">Revenue ($M)</label><input type="number" name="peerRevenue" min="0" class="fa-input-surface w-full" /></div>
+      <div><label class="fa-field-label mb-2">EBITDA ($M)</label><input type="number" name="peerEbitda" class="fa-input-surface w-full" /></div>
+      <div><label class="fa-field-label mb-2">Net Income ($M)</label><input type="number" name="peerNetIncome" class="fa-input-surface w-full" /></div>
     `;
     peersContainer.appendChild(newPeer);
-  }
+  });
 
-  private async handleSubmit(e: Event): Promise<void> {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-cca-valuation', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(new FormData(form))),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze CCA');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze CCA');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_cca_valuation', result);
     } catch (error) {
       console.error('CCA analysis error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze CCA');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    // Collect peer companies
-    const peerCompanies: Array<Record<string, unknown>> = [];
-    const peerNames = formData.getAll('peerName');
-    const peerMarketCaps = formData.getAll('peerMarketCap');
-    const peerEnterpriseValues = formData.getAll('peerEnterpriseValue');
-    const peerRevenues = formData.getAll('peerRevenue');
-    const peerEbitdas = formData.getAll('peerEbitda');
-    const peerNetIncomes = formData.getAll('peerNetIncome');
-
-    for (let i = 0; i < peerNames.length; i++) {
-      if (peerNames[i] && peerMarketCaps[i]) {
-        peerCompanies.push({
-          name: peerNames[i],
-          ticker: `PEER${i + 1}`,
-          marketCap: parseFloat((peerMarketCaps[i] as string) || '0') * 1000000,
-          enterpriseValue: parseFloat((peerEnterpriseValues[i] as string) || '0') * 1000000,
-          revenue: parseFloat((peerRevenues[i] as string) || '0') * 1000000,
-          ebitda: parseFloat((peerEbitdas[i] as string) || '0') * 1000000,
-          netIncome: parseFloat((peerNetIncomes[i] as string) || '0') * 1000000,
-          tradingPrice: 0,
-        });
-      }
-    }
-
-    // Collect multiples
-    const multiples = formData.getAll('multiples') as string[];
-
-    return {
-      targetCompany: {
-        name: formData.get('targetName') || '',
-        industry: formData.get('targetIndustry') || '',
-        marketCap: parseFloat((formData.get('targetMarketCap') as string) || '0'),
-        enterpriseValue: parseFloat((formData.get('targetEnterpriseValue') as string) || '0'),
-        revenue: parseFloat((formData.get('targetRevenue') as string) || '0'),
-        ebitda: parseFloat((formData.get('targetEbitda') as string) || '0'),
-        netIncome: parseFloat((formData.get('targetNetIncome') as string) || '0'),
-      },
-      peerCompanies:
-        peerCompanies.length > 0
-          ? peerCompanies
-          : [
-              {
-                name: 'Sample Peer',
-                ticker: 'PEER1',
-                marketCap: 100000000,
-                enterpriseValue: 120000000,
-                revenue: 50000000,
-                ebitda: 10000000,
-                netIncome: 5000000,
-                tradingPrice: 50,
-              },
-            ],
-      analysisSettings: {
-        multiplesToAnalyze: multiples.length > 0 ? multiples : ['ev-revenue', 'ev-ebitda', 'pe'],
-        outlierThreshold: parseFloat((formData.get('outlierThreshold') as string) || '0.2'),
-        includeOutliers: false,
-      },
-      goals: {
-        analysisType: 'trading-multiples',
-        includeValuationRange: true,
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('cca-results');
-    const contentDiv = document.getElementById('cca-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">CCA Analysis Complete</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your comparable company analysis is complete. Use the AI assistant to get detailed recommendations and valuation insights.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered CCA analysis and recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new CCAnalysisCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initCcaAnalysisCalculator);
 } else {
-  new CCAnalysisCalculator();
+  initCcaAnalysisCalculator();
 }

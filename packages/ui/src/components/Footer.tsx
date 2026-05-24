@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { copyClasses } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 interface FooterProps {
@@ -45,7 +46,9 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <h3
+              className={cn('text-sm font-semibold uppercase tracking-[0.16em]', copyClasses.muted)}
+            >
               Product
             </h3>
             <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
@@ -85,7 +88,9 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <h3
+              className={cn('text-sm font-semibold uppercase tracking-[0.16em]', copyClasses.muted)}
+            >
               Resources
             </h3>
             <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">
@@ -125,7 +130,9 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <h3
+              className={cn('text-sm font-semibold uppercase tracking-[0.16em]', copyClasses.muted)}
+            >
               Legal
             </h3>
             <ul className="mt-5 space-y-3 text-sm text-slate-600 dark:text-slate-300">

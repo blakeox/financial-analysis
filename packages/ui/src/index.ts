@@ -18,6 +18,7 @@ export type {
   FormActionsProps,
 } from './components/financial-forms';
 export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
+/** Production chat UI is `apps/web/src/components/ChatPanel.astro`; this export is for tests/tooling only. */
 export { ChatPanel } from './components/ChatPanel';
 export { StorageUsageCard } from './components/StorageUsageCard';
 export { AnalyticsDashboard } from './components/AnalyticsDashboard';
@@ -92,6 +93,7 @@ export {
   badgeVariants,
   gridLayouts,
   textColors,
+  copyClasses,
 } from './lib/classNames';
 export { primitiveContracts, primitiveOwnership } from './lib/primitiveContracts';
 export type { ButtonVariant, ButtonSize, CardVariant, InputState } from './lib/primitiveContracts';

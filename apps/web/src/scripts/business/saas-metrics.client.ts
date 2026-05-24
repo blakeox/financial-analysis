@@ -3,6 +3,8 @@
  * MRR, ARR, Churn, CAC, LTV, LTV:CAC, Payback Period, Rule of 40
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -186,28 +188,39 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
 
   if (!resultsContainer || !summaryCards || !resultsSection) return;
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">MRR</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.mrr)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.arr)} ARR</p>
-    </div>
-    <div class="bg-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-50 dark:bg-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-900 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-100">LTV:CAC Ratio</h5>
-      <p class="text-2xl font-bold text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-600 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-400">${result.ltvCacRatio.toFixed(1)}:1</p>
-      <p class="text-xs text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-700 dark:text-${result.ltvCacRatio >= 3 ? 'green' : result.ltvCacRatio >= 1 ? 'yellow' : 'red'}-300 mt-1">${result.ltvCacRatio >= 3 ? '✓ Excellent' : result.ltvCacRatio >= 1 ? '⚠️ Needs work' : '🚨 Losing money'}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Churn</h5>
-      <p class="text-2xl font-bold ${result.churnRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' : result.churnRate <= 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.churnRate.toFixed(1)}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${(result.churnRate * 12).toFixed(0)}% annual</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Health Grade</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.health.grade}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">${result.health.status} (${result.health.score}/100)</p>
-    </div>
-  `;
+  const ltvTone = result.ltvCacRatio >= 3 ? 'emerald' : result.ltvCacRatio >= 1 ? 'amber' : 'amber';
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'MRR',
+      value: formatCurrency(result.mrr),
+      meta: `${formatCurrency(result.arr)} ARR`,
+      tone: 'violet',
+    },
+    {
+      title: 'LTV:CAC Ratio',
+      value: `${result.ltvCacRatio.toFixed(1)}:1`,
+      meta:
+        result.ltvCacRatio >= 3
+          ? 'Excellent'
+          : result.ltvCacRatio >= 1
+            ? 'Needs work'
+            : 'Below target',
+      tone: ltvTone,
+    },
+    {
+      title: 'Monthly Churn',
+      value: `${result.churnRate.toFixed(1)}%`,
+      meta: `${(result.churnRate * 12).toFixed(0)}% annual`,
+      tone: result.churnRate <= 2 ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Health Grade',
+      value: result.health.grade,
+      meta: `${result.health.status} (${result.health.score}/100)`,
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
@@ -302,7 +315,7 @@ function displayResults(result: SaaSResult, input: SaaSInput): void {
               ${result.health.score}/100
             </div>
           </div>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+          <p class="text-xs fa-help-copy mt-2">
             Based on LTV:CAC (25 pts), Churn (25 pts), Payback Period (25 pts), Rule of 40 (25 pts)
           </p>
         </div>
@@ -359,6 +372,7 @@ function initializeSaaSMetrics(): void {
 
       const result = calculateSaaSMetrics(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_saas_metrics', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

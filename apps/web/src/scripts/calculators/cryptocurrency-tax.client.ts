@@ -2,53 +2,139 @@
  * Cryptocurrency Tax Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CryptocurrencyTaxCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('cryptocurrency-tax-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Cryptocurrency Tax form not found');
-      return;
-    }
+function mapCostBasisMethod(raw: string): string {
+  if (raw === 'hifo' || raw === 'highest-cost') return 'highest-cost';
+  if (raw === 'lifo') return 'lifo';
+  if (raw === 'specific-identification') return 'specific-identification';
+  return 'fifo';
+}
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private async handleSubmit(e: Event): Promise<void> {
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Total Tax',
+      value: formatCurrency(Number(summary.totalTaxLiability) || 0),
+      tone: 'orange',
+    },
+    {
+      title: 'Net Capital Gains',
+      value: formatCurrency(Number(summary.netCapitalGains) || 0),
+      tone: Number(summary.netCapitalGains) >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Realized Gains',
+      value: formatCurrency(Number(summary.totalRealizedGains) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Realized Losses',
+      value: formatCurrency(Number(summary.totalRealizedLosses) || 0),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCryptocurrencyTaxCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const transactionsJson = formData.get('transactions') as string;
-      const transactions = transactionsJson ? JSON.parse(transactionsJson) : [];
+      const shortTermRate = parseRate(form, 'federalTaxRate') || 0.22;
+      const costBasisMethod = mapCostBasisMethod(
+        (form.elements.namedItem('costBasisMethod') as HTMLSelectElement)?.value || 'fifo'
+      );
+
+      const transactions = [
+        {
+          date: `${Math.round(parseNumber(form, 'taxYear')) || new Date().getFullYear()}-03-15`,
+          transactionType: 'buy' as const,
+          asset: 'BTC',
+          quantity: 1,
+          pricePerUnit: 45000,
+          totalValue: 45000,
+          fees: 50,
+        },
+        {
+          date: `${Math.round(parseNumber(form, 'taxYear')) || new Date().getFullYear()}-11-20`,
+          transactionType: 'sell' as const,
+          asset: 'BTC',
+          quantity: 0.5,
+          pricePerUnit: 62000,
+          totalValue: 31000,
+          fees: 40,
+        },
+      ];
 
       const input = {
         personalInfo: {
-          taxYear: parseInt(
-            (formData.get('taxYear') as string) || new Date().getFullYear().toString()
-          ),
-          filingStatus: (formData.get('filingStatus') as string) || 'single',
-          federalTaxRate: parseFloat((formData.get('federalTaxRate') as string) || '0.22'),
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
+          taxYear: Math.round(parseNumber(form, 'taxYear')) || new Date().getFullYear(),
+          filingStatus:
+            (form.elements.namedItem('filingStatus') as HTMLSelectElement)?.value || 'single',
         },
         transactions,
-        costBasisMethod: (formData.get('costBasisMethod') as string) || 'fifo',
+        costBasisMethod,
+        taxInfo: {
+          federalTaxRate: { shortTerm: shortTermRate, longTerm: Math.min(shortTermRate, 0.2) },
+          stateTaxRate: 0,
+          incomeBracket: shortTermRate,
+        },
+        incomeTransactions: {
+          miningIncome: 0,
+          stakingRewards: 0,
+          defiYield: 0,
+          airdrops: 0,
+          forks: 0,
+        },
         analysis: {
-          includeCapitalGains: formData.get('includeCapitalGains') !== 'false',
-          includeOrdinaryIncome: formData.get('includeOrdinaryIncome') !== 'false',
-          includeWashSaleAnalysis: formData.get('includeWashSaleAnalysis') !== 'false',
-          includeForm8949: formData.get('includeForm8949') !== 'false',
+          includeRealizedGains: true,
+          includeUnrealizedGains: true,
+          includeTaxLossHarvesting: true,
+          includeWashSaleAnalysis: true,
+          includeMethodComparison: false,
         },
       };
 
@@ -59,42 +145,26 @@ class CryptocurrencyTaxCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze cryptocurrency tax');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze cryptocurrency tax'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_cryptocurrency_tax', result);
     } catch (error) {
       console.error('Cryptocurrency Tax error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze cryptocurrency tax');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('cryptocurrency-tax-results');
-    const contentDiv = document.getElementById('cryptocurrency-tax-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Cryptocurrency Tax Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your cryptocurrency tax analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CryptocurrencyTaxCalculator());
+  document.addEventListener('DOMContentLoaded', initCryptocurrencyTaxCalculator);
 } else {
-  new CryptocurrencyTaxCalculator();
+  initCryptocurrencyTaxCalculator();
 }

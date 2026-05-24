@@ -2,70 +2,134 @@
  * Startup Financial Model Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class StartupFinancialModelCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('startup-financial-model-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Startup Financial Model form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const runwayMonths = Number(summary.runwayMonths) || 0;
+  const monthlyBurn = Number(summary.monthlyBurnRate) || 0;
+  const fundingNeeded = Number(summary.fundingNeeded) || 0;
+  const currentCash = Number(summary.currentCash) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Cash on Hand',
+      value: formatCurrency(currentCash),
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Burn',
+      value: formatCurrency(monthlyBurn),
+      tone: monthlyBurn > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Runway',
+      value: runwayMonths > 0 ? `${runwayMonths.toFixed(1)} mo` : '—',
+      meta: runwayMonths < 6 ? 'critical — plan raise' : 'months at current burn',
+      tone: runwayMonths >= 12 ? 'emerald' : runwayMonths >= 6 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Funding Needed',
+      value: fundingNeeded > 0 ? formatCurrency(fundingNeeded) : 'None modeled',
+      tone: fundingNeeded > 0 ? 'amber' : 'emerald',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initStartupFinancialModelCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const currentCash = parseNumber(form, 'currentCash');
+      const monthlyBurnRate = parseNumber(form, 'monthlyBurnRate');
+      const monthlyRevenue = parseNumber(form, 'monthlyRevenue');
 
       const input = {
         companyInfo: {
-          companyName: (formData.get('companyName') as string) || '',
-          industry: (formData.get('industry') as string) || '',
-          businessModel: (formData.get('businessModel') as string) || 'saas',
-          stage: (formData.get('stage') as string) || 'seed',
+          name: (form.elements.namedItem('companyName') as HTMLInputElement)?.value || undefined,
+          stage: 'seed' as const,
+          businessModel: 'saas' as const,
         },
-        financials: {
-          currentCash: parseFloat((formData.get('currentCash') as string) || '0'),
-          monthlyBurnRate: parseFloat((formData.get('monthlyBurnRate') as string) || '0'),
-          monthlyRevenue: parseFloat((formData.get('monthlyRevenue') as string) || '0'),
-          annualRecurringRevenue: parseFloat(
-            (formData.get('annualRecurringRevenue') as string) || '0'
-          ),
+        currentSituation: {
+          currentCash,
+          monthlyBurnRate,
+          currentRevenue: monthlyRevenue * 12,
+          currentMRR: monthlyRevenue,
+          currentCustomers: 0,
         },
         revenueProjections: {
-          monthlyGrowthRate: parseFloat((formData.get('monthlyGrowthRate') as string) || '0.1'),
-          churnRate: parseFloat((formData.get('churnRate') as string) || '0.05'),
-          averageRevenuePerUser: parseFloat(
-            (formData.get('averageRevenuePerUser') as string) || '0'
-          ),
+          revenueModel: 'subscription' as const,
+          monthlyRevenue: [],
+          growthAssumptions: {
+            customerGrowthRate: 0.1,
+            revenuePerCustomer: 0,
+            churnRate: 0.05,
+          },
         },
-        unitEconomics: {
-          customerAcquisitionCost: parseFloat(
-            (formData.get('customerAcquisitionCost') as string) || '0'
-          ),
-          lifetimeValue: parseFloat((formData.get('lifetimeValue') as string) || '0'),
-          grossMargin: parseFloat((formData.get('grossMargin') as string) || '0.7'),
+        expenses: {
+          fixedCosts: {
+            salaries: monthlyBurnRate * 12,
+            rent: 0,
+            utilities: 0,
+            insurance: 0,
+            otherFixed: 0,
+          },
+          variableCosts: {
+            costOfGoodsSold: 0.2,
+            marketing: 0.3,
+            sales: 0.1,
+            customerAcquisitionCost: 0,
+          },
         },
+        funding: {
+          fundingRounds: [],
+          plannedFunding: [],
+        },
+        milestones: [],
         analysis: {
-          includeRunway: formData.get('includeRunway') !== 'false',
-          includeBurnRate: formData.get('includeBurnRate') !== 'false',
-          includeUnitEconomics: formData.get('includeUnitEconomics') !== 'false',
-          includeFundingScenarios: formData.get('includeFundingScenarios') !== 'false',
-          projectionMonths: parseInt((formData.get('projectionMonths') as string) || '24'),
+          includeBurnRate: true,
+          includeRunway: true,
+          includeUnitEconomics: false,
+          includeFundingNeeds: true,
+          includeMilestoneTracking: false,
+          projectionMonths: 24,
         },
       };
 
@@ -76,44 +140,28 @@ class StartupFinancialModelCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze startup financial model');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze startup financial model'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_startup_financial_model', result);
     } catch (error) {
-      console.error('Startup Financial Model error:', error);
+      console.error('Startup financial model error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze startup financial model'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('startup-financial-model-results');
-    const contentDiv = document.getElementById('startup-financial-model-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Startup Financial Model Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your startup financial model analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new StartupFinancialModelCalculator());
+  document.addEventListener('DOMContentLoaded', initStartupFinancialModelCalculator);
 } else {
-  new StartupFinancialModelCalculator();
+  initStartupFinancialModelCalculator();
 }

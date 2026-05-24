@@ -1,0 +1,101 @@
+import type { CalculatorConfig } from '../../types';
+
+export const debt_capacityCalculator: CalculatorConfig = {
+  id: 'debt-capacity',
+  title: 'Debt Capacity Calculator',
+  description:
+    'Calculate your business maximum safe loan amount based on EBITDA, DSCR, and cash flow capacity',
+  category: 'business',
+  icon: '💰',
+  color: 'green',
+  keywords: ['debt capacity', 'loan capacity', 'borrowing capacity', 'DSCR', 'EBITDA'],
+  faqSchema: {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How is debt capacity calculated?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Debt capacity is calculated based on EBITDA, existing debt service, and a target DSCR (typically 1.5x). The calculator works backwards from payment capacity to determine maximum loan amount.',
+        },
+      },
+    ],
+  },
+  breadcrumbs: [
+    { name: 'Home', href: '/' },
+    { name: 'Business Tools', href: '/models/business' },
+    { name: 'Debt Capacity', href: '/calculator/debt-capacity' },
+  ],
+  formFields: [
+    {
+      id: 'annualEBITDA',
+      name: 'annualEBITDA',
+      type: 'number',
+      label: 'Annual EBITDA ($)',
+      step: 10000,
+      required: true,
+    },
+    {
+      id: 'monthlyDebtPayments',
+      name: 'monthlyDebtPayments',
+      type: 'number',
+      label: 'Monthly Debt Payments ($)',
+      min: 0,
+      step: 1000,
+      required: true,
+    },
+    {
+      id: 'expectedEBITDAIncrease',
+      name: 'expectedEBITDAIncrease',
+      type: 'number',
+      label: 'Expected EBITDA Increase ($)',
+      step: 10000,
+      default: 0,
+    },
+    {
+      id: 'preferredTerm',
+      name: 'preferredTerm',
+      type: 'number',
+      label: 'Preferred Loan Term (Years)',
+      min: 1,
+      max: 30,
+      step: 1,
+      required: true,
+    },
+    {
+      id: 'preferredRate',
+      name: 'preferredRate',
+      type: 'number',
+      label: 'Expected Interest Rate (%)',
+      min: 0,
+      max: 20,
+      step: 0.1,
+    },
+    {
+      id: 'loanType',
+      name: 'loanType',
+      type: 'select',
+      label: 'Loan Type',
+      required: true,
+      options: [
+        { value: 'term-loan', label: 'Term Loan' },
+        { value: 'line-of-credit', label: 'Line of Credit' },
+        { value: 'sba', label: 'SBA Loan' },
+        { value: 'equipment-financing', label: 'Equipment Financing' },
+        { value: 'commercial-mortgage', label: 'Commercial Mortgage' },
+      ],
+    },
+    {
+      id: 'requestedAmount',
+      name: 'requestedAmount',
+      type: 'number',
+      label: 'Requested Loan Amount ($) (Optional)',
+      min: 0,
+      step: 10000,
+    },
+  ],
+  clientScript: 'debt-capacity',
+  analysisType: 'debt-capacity',
+};

@@ -5,6 +5,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import {
   formatCurrencyWhole as formatCurrency,
@@ -196,28 +197,21 @@ const displayResults = (result: RiskResults): void => {
   }
 
   // Render summary cards
-  summaryCards.innerHTML = `
-    <div class="fa-metric-card fa-metric-card-danger">
-      <h5 class="text-sm font-medium">Daily VaR</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.daily)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-warning">
-      <h5 class="text-sm font-medium">Weekly VaR</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.weekly)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-warning">
-      <h5 class="text-sm font-medium">Monthly VaR</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.valueAtRisk.monthly)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-info">
-      <h5 class="text-sm font-medium">Custom ${result.customTimeHorizon.days}-Day VaR</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.customTimeHorizon.valueAtRisk)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-accent">
-      <h5 class="text-sm font-medium">Sharpe Ratio</h5>
-      <p class="text-2xl font-bold">${result.riskMetrics.sharpeRatio.toFixed(2)}</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    { title: 'Daily VaR', value: formatCurrency(result.valueAtRisk.daily), tone: 'amber' },
+    { title: 'Weekly VaR', value: formatCurrency(result.valueAtRisk.weekly), tone: 'orange' },
+    { title: 'Monthly VaR', value: formatCurrency(result.valueAtRisk.monthly), tone: 'orange' },
+    {
+      title: `Custom ${result.customTimeHorizon.days}-Day VaR`,
+      value: formatCurrency(result.customTimeHorizon.valueAtRisk),
+      tone: 'violet',
+    },
+    {
+      title: 'Sharpe Ratio',
+      value: result.riskMetrics.sharpeRatio.toFixed(2),
+      tone: 'emerald',
+    },
+  ]);
   // Render detailed breakdown
   resultsContainer.innerHTML = `
     <div class="fa-card mb-8">

@@ -1,5 +1,5 @@
 import React, { type SelectHTMLAttributes } from 'react';
-import { cn, inputClasses } from '../lib/classNames';
+import { cn, copyClasses, inputClasses } from '../lib/classNames';
 
 interface Option {
   value: string;
@@ -61,7 +61,7 @@ export function Select({
         ))}
       </select>
       {helperText && !error && (
-        <p id={helperId} className="text-sm text-slate-500 dark:text-slate-400">
+        <p id={helperId} className={copyClasses.helper}>
           {helperText}
         </p>
       )}

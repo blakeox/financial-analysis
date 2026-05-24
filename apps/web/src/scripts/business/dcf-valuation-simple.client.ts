@@ -5,6 +5,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import {
   formatCurrencyWhole as formatCurrency,
@@ -115,24 +116,12 @@ const displayResults = (result: DCFResults): void => {
   }
 
   // Render summary cards
-  summaryCards.innerHTML = `
-    <div class="fa-metric-card fa-metric-card-info">
-      <h5 class="text-sm font-medium">Enterprise Value</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.enterpriseValue)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-success">
-      <h5 class="text-sm font-medium">Equity Value</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.equityValue)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-accent">
-      <h5 class="text-sm font-medium">Share Price</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.sharePrice)}</p>
-    </div>
-    <div class="fa-metric-card fa-metric-card-warning">
-      <h5 class="text-sm font-medium">Terminal Value</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.terminalValue)}</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    { title: 'Enterprise Value', value: formatCurrency(result.enterpriseValue), tone: 'violet' },
+    { title: 'Equity Value', value: formatCurrency(result.equityValue), tone: 'emerald' },
+    { title: 'Share Price', value: formatCurrency(result.sharePrice), tone: 'violet' },
+    { title: 'Terminal Value', value: formatCurrency(result.terminalValue), tone: 'orange' },
+  ]);
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
@@ -189,11 +178,11 @@ const displayResults = (result: DCFResults): void => {
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
           <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Year</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Revenue</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">EBITDA</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Free Cash Flow</th>
-              <th class="px-3 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Present Value</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Year</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Revenue</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">EBITDA</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Free Cash Flow</th>
+              <th class="px-3 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Present Value</th>
             </tr>
           </thead>
           <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">

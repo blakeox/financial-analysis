@@ -5,6 +5,8 @@
  * for comprehensive scenario-based analysis.
  */
 
+import { enhanceInteractiveScenarioCards } from '../a11y/interactive-cards.client';
+
 export interface ScenarioModel {
   id: string;
   name: string;
@@ -664,6 +666,9 @@ export class MultiModelScenarioManager {
     document.addEventListener('analysis-result-updated', () => {
       this.updateScenarioProgress();
     });
+
+    enhanceInteractiveScenarioCards();
+    document.dispatchEvent(new CustomEvent('scenario-cards-updated'));
   }
 
   /**
@@ -749,9 +754,7 @@ export class MultiModelScenarioManager {
     const modelsHTML = scenario.models
       .map((model) => {
         const isCompleted = this.completedModels.has(model.id);
-        const statusClass = isCompleted
-          ? 'text-emerald-600 dark:text-emerald-400'
-          : 'text-slate-600 dark:text-slate-400';
+        const statusClass = isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'fa-help-copy';
         const statusIcon = isCompleted ? '✓' : '○';
 
         return `

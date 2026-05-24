@@ -192,7 +192,7 @@ export function getJourneyData(): JourneyData {
           id: 'cash-flow-projections',
           name: 'Cash Flow Projections',
           description: 'Project cash flow with loan payments over 24 months',
-          url: '/calculator/cash-flow',
+          url: '/calculator/cash-flow-forecast',
           order: 4,
           required: true,
         },

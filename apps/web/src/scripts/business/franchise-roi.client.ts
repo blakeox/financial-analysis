@@ -2,64 +2,116 @@
  * Franchise ROI Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class FranchiseROICalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('franchise-roi-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Franchise ROI form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const roi = Number(summary.roi ?? summary.totalROI) || 0;
+  const roiPct = roi > 1 ? roi : roi * 100;
+  const payback = Number(summary.paybackPeriod) || 0;
+  const npv = Number(summary.npv) || 0;
+  const irr = Number(summary.irr) || 0;
+  const irrPct = irr > 1 ? irr : irr * 100;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'ROI',
+      value: `${roiPct.toFixed(1)}%`,
+      tone: roiPct >= 20 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Payback',
+      value: payback > 0 ? `${payback.toFixed(1)} yr` : '—',
+      tone: payback <= 4 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'NPV',
+      value: formatCurrency(npv),
+      tone: npv >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'IRR',
+      value: irr ? `${irrPct.toFixed(1)}%` : '—',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initFranchiseRoiCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const franchiseFee = parseNumber(form, 'franchiseFee');
+      const totalInvestment = parseNumber(form, 'initialInvestment');
+      const firstYearRevenue = parseNumber(form, 'firstYearRevenue');
 
       const input = {
         franchiseInfo: {
-          franchiseName: (formData.get('franchiseName') as string) || '',
-          industry: (formData.get('industry') as string) || '',
-          location: (formData.get('location') as string) || '',
+          franchiseName:
+            (form.elements.namedItem('franchiseName') as HTMLInputElement)?.value || 'Franchise',
+          franchiseType: 'service' as const,
         },
         initialInvestment: {
-          franchiseFee: parseFloat((formData.get('franchiseFee') as string) || '0'),
-          initialInvestment: parseFloat((formData.get('initialInvestment') as string) || '0'),
-          workingCapital: parseFloat((formData.get('workingCapital') as string) || '0'),
-          realEstateCost: parseFloat((formData.get('realEstateCost') as string) || '0'),
-          equipmentCost: parseFloat((formData.get('equipmentCost') as string) || '0'),
+          franchiseFee,
+          totalInvestment,
         },
         ongoingCosts: {
-          royaltyFee: parseFloat((formData.get('royaltyFee') as string) || '0.05'),
-          marketingFee: parseFloat((formData.get('marketingFee') as string) || '0.02'),
-          annualOperatingCosts: parseFloat((formData.get('annualOperatingCosts') as string) || '0'),
+          royaltyFee: parseRate(form, 'royaltyFee') || 0.05,
+          marketingFee: 0.02,
         },
         revenueProjections: {
-          firstYearRevenue: parseFloat((formData.get('firstYearRevenue') as string) || '0'),
-          revenueGrowthRate: parseFloat((formData.get('revenueGrowthRate') as string) || '0.1'),
-          grossMargin: parseFloat((formData.get('grossMargin') as string) || '0.3'),
+          firstYearRevenue,
+          revenueGrowthRate: 0.08,
+          revenueProjectionYears: 10,
         },
         analysis: {
-          includeROI: formData.get('includeROI') !== 'false',
-          includeBreakEven: formData.get('includeBreakEven') !== 'false',
-          includePaybackPeriod: formData.get('includePaybackPeriod') !== 'false',
-          includeScenarioAnalysis: formData.get('includeScenarioAnalysis') !== 'false',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '10'),
+          includeROI: true,
+          includePaybackPeriod: true,
+          includeNPV: true,
+          includeIRR: true,
+          includeBreakEven: true,
         },
       };
 
@@ -70,42 +122,26 @@ class FranchiseROICalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze franchise ROI');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze franchise ROI'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_franchise_roi', result);
     } catch (error) {
       console.error('Franchise ROI error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze franchise ROI');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('franchise-roi-results');
-    const contentDiv = document.getElementById('franchise-roi-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Franchise ROI Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your franchise ROI analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new FranchiseROICalculator());
+  document.addEventListener('DOMContentLoaded', initFranchiseRoiCalculator);
 } else {
-  new FranchiseROICalculator();
+  initFranchiseRoiCalculator();
 }

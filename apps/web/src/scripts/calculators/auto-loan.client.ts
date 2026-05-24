@@ -1,11 +1,14 @@
 import type { AutoLoanInput, AutoLoanResult } from '@financial-analysis/analysis';
 import { AutoLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   parseNumber,
   formatCurrency,
   formatCurrencyWhole,
   formatPercentDecimal,
+  hideError,
 } from '../../utils/calculator-utilities';
 
 // Alias for consistency with existing code
@@ -155,7 +158,7 @@ export const parseAutoLoanInput = (formData: FormData): AutoLoanInput => {
   }
 
   if (!loanTermMonths || loanTermMonths < 1) {
-    throw new Error('Please enter a valid loan term.');
+    throw new Error('Please enter a valid vehicle loan term.');
   }
 
   const includeGapInsurance = formData.has('includeGapInsurance');
@@ -224,26 +227,30 @@ export const renderAutoLoanResults = (
       : null;
 
   // Render summary cards with TCO
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Payment</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(summary.monthlyPayment)}</p>
-      ${tco ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo</p>` : ''}
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Total Interest</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(summary.totalInterest)}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Cost</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrencyWhole(summary.totalCost)}</p>
-      ${tco ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}</p>` : ''}
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">${tco ? 'Cost Per Mile' : 'Loan Term'}</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${tco ? formatCurrency(tco.totals.costPerMile) : `${termMonths} months`}</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Monthly Payment',
+      value: formatCurrency(summary.monthlyPayment),
+      meta: tco ? `TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo` : undefined,
+      tone: 'violet',
+    },
+    {
+      title: 'Total Interest',
+      value: formatCurrency(summary.totalInterest),
+      tone: 'emerald',
+    },
+    {
+      title: 'Total Cost',
+      value: formatCurrencyWhole(summary.totalCost),
+      meta: tco ? `With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}` : undefined,
+      tone: 'violet',
+    },
+    {
+      title: tco ? 'Cost Per Mile' : 'Loan Term',
+      value: tco ? formatCurrency(tco.totals.costPerMile) : `${termMonths} months`,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed breakdown
   const netTradeIn = Number.parseFloat(costBreakdown.netTradeIn);
@@ -333,9 +340,9 @@ export const renderAutoLoanResults = (
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
           <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
             </tr>
           </thead>
           <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
@@ -366,8 +373,6 @@ const initAutoLoanPage = (): void => {
   const form = document.getElementById('calculator-form');
   const loading = document.getElementById('loading');
   const results = document.getElementById('results');
-  const error = document.getElementById('error');
-  const errorMessage = document.getElementById('error-message');
 
   if (!(form instanceof HTMLFormElement)) {
     console.error('Auto loan form not found');
@@ -376,6 +381,7 @@ const initAutoLoanPage = (): void => {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    clearCalculatorFormErrors(form);
 
     // Show loading state
     const calculateBtn = document.getElementById('calculate-btn');
@@ -385,8 +391,7 @@ const initAutoLoanPage = (): void => {
     }
     loading?.classList.remove('hidden');
     results?.classList.add('hidden');
-    error?.classList.add('hidden');
-    if (errorMessage) errorMessage.textContent = '';
+    hideError();
 
     // Hide previous results
     const resultsSection = document.getElementById('results-section');
@@ -421,12 +426,7 @@ const initAutoLoanPage = (): void => {
       );
     } catch (err) {
       console.error('Auto loan calculation error:', err);
-      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
-      if (errorMessage instanceof HTMLElement) {
-        errorMessage.textContent = message;
-      }
-      error?.classList.remove('hidden');
-      alert(message);
+      handleCalculatorFormError(form, err);
     } finally {
       // Reset button state
       if (calculateBtn instanceof HTMLButtonElement) {
@@ -442,6 +442,8 @@ const initAutoLoanPage = (): void => {
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      clearCalculatorFormErrors(form);
+      hideError();
       const resultsSection = document.getElementById('results-section');
       const resultsContainer = document.getElementById('results-container');
       const summaryCards = document.getElementById('summary-cards');

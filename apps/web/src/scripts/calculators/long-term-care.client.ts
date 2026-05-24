@@ -1,70 +1,110 @@
 /**
- * Long-Term Care Calculator Client Script
+ * Long-Term Care Planning Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class LongTermCareCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('long-term-care-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Long-Term Care form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const lifetimeCost = Number(summary.estimatedLifetimeCost ?? summary.totalLifetimeCost) || 0;
+  const shortfall = Number(summary.selfFundingShortfall) || 0;
+  const coverage = Number(summary.insuranceCoverage) || 0;
+  const strategy = String(summary.recommendedStrategy ?? 'hybrid');
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Lifetime Care Cost',
+      value: formatCurrency(lifetimeCost),
+      tone: 'violet',
+    },
+    {
+      title: 'Funding Shortfall',
+      value: shortfall > 0 ? formatCurrency(shortfall) : 'Covered',
+      meta: shortfall > 0 ? 'self-funding gap' : 'assets + insurance',
+      tone: shortfall > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Insurance Coverage',
+      value: formatCurrency(coverage),
+      tone: 'violet',
+    },
+    {
+      title: 'Strategy',
+      value: strategy.replace(/-/g, ' '),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initLongTermCareCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const age = Math.round(parseNumber(form, 'age')) || 60;
+      const annualCareCost = parseNumber(form, 'annualCareCost');
+      const currentAssets = parseNumber(form, 'currentAssets');
 
       const input = {
         personalInfo: {
-          age: parseInt((formData.get('age') as string) || '55'),
-          gender: (formData.get('gender') as string) || 'male',
-          healthStatus: (formData.get('healthStatus') as string) || 'good',
+          age,
+          gender: (form.elements.namedItem('gender') as HTMLSelectElement)?.value || 'female',
+          healthStatus:
+            (form.elements.namedItem('healthStatus') as HTMLSelectElement)?.value || 'good',
+          familyHistory: { hasLTCNeeds: false, averageLTCDuration: 3 },
         },
         careNeeds: {
-          expectedCareStartAge: parseInt((formData.get('expectedCareStartAge') as string) || '80'),
-          expectedCareDuration: parseFloat((formData.get('expectedCareDuration') as string) || '3'),
-          careType: (formData.get('careType') as string) || 'mixed',
-          annualCareCost: parseFloat((formData.get('annualCareCost') as string) || '100000'),
-          careCostInflation: parseFloat((formData.get('careCostInflation') as string) || '0.05'),
+          expectedCareStartAge: Math.min(85, age + 20),
+          expectedCareDuration: 3,
+          careType: 'mixed' as const,
+          annualCareCost,
+          careCostInflation: 0.05,
         },
-        insuranceOptions: {
-          hasLTCInsurance: formData.get('hasLTCInsurance') === 'true',
-          policyDetails: formData.get('policyDetails')
-            ? JSON.parse(formData.get('policyDetails') as string)
-            : undefined,
-        },
+        insuranceOptions: { hasLTCInsurance: false },
         financialResources: {
-          currentAssets: parseFloat((formData.get('currentAssets') as string) || '0'),
-          annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-          expectedRetirementAssets: parseFloat(
-            (formData.get('expectedRetirementAssets') as string) || '0'
-          ),
+          currentAssets,
+          annualIncome: 0,
+          expectedRetirementAssets: currentAssets,
+          otherInsurance: { hasMedicaid: false, hasMedicare: true, hasHybridPolicy: false },
         },
-        strategy: {
-          fundingMethod: (formData.get('fundingMethod') as string) || 'hybrid',
-        },
-        analysis: {
-          includeProbabilityAnalysis: formData.get('includeProbabilityAnalysis') !== 'false',
-          includeScenarioAnalysis: formData.get('includeScenarioAnalysis') !== 'false',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '30'),
-        },
+        strategy: { fundingMethod: 'hybrid' as const },
+        analysis: { includeProbabilityAnalysis: true, includeScenarioAnalysis: true },
       };
 
       const response = await fetch('/api/analyze-long-term-care', {
@@ -74,42 +114,28 @@ class LongTermCareCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze long-term care');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze long-term care planning'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_long_term_care', result);
     } catch (error) {
-      console.error('Long-Term Care error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to analyze long-term care');
+      console.error('Long-term care error:', error);
+      showError(
+        error instanceof Error ? error.message : 'Failed to analyze long-term care planning'
+      );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('long-term-care-results');
-    const contentDiv = document.getElementById('long-term-care-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Long-Term Care Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your long-term care analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new LongTermCareCalculator());
+  document.addEventListener('DOMContentLoaded', initLongTermCareCalculator);
 } else {
-  new LongTermCareCalculator();
+  initLongTermCareCalculator();
 }

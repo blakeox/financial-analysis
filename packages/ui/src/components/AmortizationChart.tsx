@@ -1,6 +1,7 @@
 import type { AmortizationAnalysisResult } from '@financial-analysis/analysis';
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { parsers } from '../lib/formUtils';
+import { copyClasses } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 type ScheduleItem = AmortizationAnalysisResult['schedule'][number];
@@ -363,7 +364,7 @@ const DetailCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
 }) => (
   <div className="rounded-md border border-slate-200/70 bg-white/80 p-3 shadow-sm dark:border-slate-700/70 dark:bg-slate-950/60">
-    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    <dt className={cn('text-xs font-semibold uppercase tracking-wide', copyClasses.muted)}>
       {title}
     </dt>
     <dd className="mt-2 space-y-2">{children}</dd>
@@ -569,11 +570,11 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className={copyClasses.caption}>
             Highlight a month to inspect the payment mix and remaining balance.
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <div className={cn('flex items-center gap-4', copyClasses.caption)}>
           <div className="flex items-center gap-1">
             <span className="inline-flex h-2 w-2 rounded-full bg-violet-500" aria-hidden />
             <span>Remaining balance</span>
@@ -588,7 +589,9 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
           </div>
           {showViewToggle ? (
             <div className="ml-2 flex items-center gap-1">
-              <span className="text-slate-400">•</span>
+              <span className={copyClasses.muted} aria-hidden="true">
+                •
+              </span>
               <div className="inline-flex overflow-hidden rounded border border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
@@ -659,7 +662,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   x={-LEFT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-slate-400 dark:text-slate-500"
+                  className={cn('text-[10px]', copyClasses.muted)}
                   textAnchor="end"
                   dominantBaseline="middle"
                 >
@@ -669,7 +672,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                   x={chartBodyWidth + RIGHT_LABEL_OFFSET}
                   y={y}
                   fill="currentColor"
-                  className="text-[10px] text-slate-400 dark:text-slate-500"
+                  className={cn('text-[10px]', copyClasses.muted)}
                   textAnchor="start"
                   dominantBaseline="middle"
                 >
@@ -804,7 +807,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <label
             htmlFor={sliderId}
-            className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            className={cn('text-xs font-medium uppercase tracking-wide', copyClasses.muted)}
           >
             Highlight month {activeItem ? `${activeItem.month}` : '--'} of{' '}
             {numberFormatter.format(viewSchedule[viewSchedule.length - 1]?.month ?? monthCount)}
@@ -913,7 +916,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
                 <span className="font-semibold uppercase tracking-wide">
                   {milestoneLabel(milestone)}
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                <span className={cn('text-[11px]', copyClasses.muted)}>
                   Month {numberFormatter.format(milestone.month)}
                 </span>
                 <span className="text-[11px] text-slate-600 dark:text-slate-300">
@@ -971,9 +974,7 @@ export const AmortizationChart: React.FC<AmortizationChartProps> = ({
             </DetailCard>
           </dl>
         ) : (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            No amortization schedule available.
-          </p>
+          <p className={copyClasses.helper}>No amortization schedule available.</p>
         )}
       </div>
     </div>

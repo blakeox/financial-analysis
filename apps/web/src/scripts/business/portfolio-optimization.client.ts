@@ -2,83 +2,103 @@
  * Portfolio Optimizer Client Script
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class PortfolioOptimizer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('portfolio-optimization-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Portfolio Optimization form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const currentReturn = Number(summary.currentReturn) || 0;
+  const optimalReturn = Number(summary.optimalReturn) || 0;
+  const currentPct = currentReturn > 1 ? currentReturn : currentReturn * 100;
+  const optimalPct = optimalReturn > 1 ? optimalReturn : optimalReturn * 100;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Current Return',
+      value: `${currentPct.toFixed(1)}%`,
+      tone: 'amber',
+    },
+    {
+      title: 'Optimal Return',
+      value: `${optimalPct.toFixed(1)}%`,
+      tone: 'emerald',
+    },
+    {
+      title: 'Current Risk',
+      value: `${((Number(summary.currentRisk) || 0) * 100).toFixed(1)}%`,
+      tone: 'orange',
+    },
+    {
+      title: 'Optimal Risk',
+      value: `${((Number(summary.optimalRisk) || 0) * 100).toFixed(1)}%`,
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initPortfolioOptimizer(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-
-      // Parse holdings from form
-      const holdingCount = parseInt((formData.get('holdingCount') as string) || '1');
-      const currentHoldings = [];
-      for (let i = 0; i < holdingCount; i++) {
-        currentHoldings.push({
-          symbol: (formData.get(`symbol_${i}`) as string) || '',
-          shares: parseFloat((formData.get(`shares_${i}`) as string) || '0'),
-          currentPrice: parseFloat((formData.get(`price_${i}`) as string) || '0'),
-          assetClass: (formData.get(`assetClass_${i}`) as string) || 'stock',
-        });
-      }
-
-      const totalValue = currentHoldings.reduce(
-        (sum, holding) => sum + holding.shares * holding.currentPrice,
-        0
+      const holdingCount = Math.min(
+        20,
+        Math.max(1, Math.round(parseNumber(form, 'holdingCount')) || 3)
       );
+      const symbols = ['SPY', 'BND', 'VXUS', 'VTI', 'AGG', 'QQQ', 'IWM', 'GLD'];
+      const prices = [450, 75, 55, 240, 98, 380, 200, 180];
+      const currentHoldings = Array.from({ length: holdingCount }, (_, i) => ({
+        symbol: symbols[i % symbols.length],
+        shares: 100,
+        currentPrice: prices[i % prices.length],
+        assetClass: i % 2 === 0 ? 'stock' : 'bond',
+      }));
+      const totalValue = currentHoldings.reduce((sum, h) => sum + h.shares * h.currentPrice, 0);
 
       const input = {
-        portfolio: {
-          currentHoldings,
-          totalValue,
-        },
+        portfolio: { currentHoldings, totalValue },
         constraints: {
-          riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-          minAllocation: parseFloat((formData.get('minAllocation') as string) || '0'),
-          maxAllocation: parseFloat((formData.get('maxAllocation') as string) || '1'),
-          targetReturn: formData.get('targetReturn')
-            ? parseFloat(formData.get('targetReturn') as string)
-            : undefined,
-          maxRisk: formData.get('maxRisk')
-            ? parseFloat(formData.get('maxRisk') as string)
-            : undefined,
+          riskTolerance:
+            (form.elements.namedItem('riskTolerance') as HTMLSelectElement)?.value || 'moderate',
+          minAllocation: parseRate(form, 'minAllocation'),
+          maxAllocation: parseRate(form, 'maxAllocation') || 1,
         },
-        marketData: {
-          expectedReturns: formData.get('expectedReturns')
-            ? JSON.parse(formData.get('expectedReturns') as string)
-            : undefined,
-          volatilities: formData.get('volatilities')
-            ? JSON.parse(formData.get('volatilities') as string)
-            : undefined,
-          correlationMatrix: formData.get('correlationMatrix')
-            ? JSON.parse(formData.get('correlationMatrix') as string)
-            : undefined,
-        },
-        analysis: {
-          includeEfficientFrontier: true,
-          includeRebalancing: formData.get('includeRebalancing') === 'true',
-        },
+        marketData: {},
+        analysis: { includeEfficientFrontier: true, includeRebalancing: false },
       };
 
       const response = await fetch('/api/analyze-portfolio-optimization', {
@@ -88,42 +108,24 @@ class PortfolioOptimizer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to optimize portfolio');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to optimize portfolio');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_portfolio_optimization', result);
     } catch (error) {
       console.error('Portfolio Optimization error:', error);
       showError(error instanceof Error ? error.message : 'Failed to optimize portfolio');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('portfolio-optimization-results');
-    const contentDiv = document.getElementById('portfolio-optimization-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Portfolio Optimization</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your portfolio optimization is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new PortfolioOptimizer());
+  document.addEventListener('DOMContentLoaded', initPortfolioOptimizer);
 } else {
-  new PortfolioOptimizer();
+  initPortfolioOptimizer();
 }

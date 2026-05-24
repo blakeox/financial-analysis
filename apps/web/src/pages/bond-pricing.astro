@@ -4,6 +4,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -12,6 +13,9 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
   keywords="bond pricing, bond calculator, YTM, yield to maturity, duration, convexity, fixed income, bond valuation, bond analysis"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -78,6 +82,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       { label: 'Bond Pricing' },
     ]}
   >
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
     <!-- Bond Pricing Form -->
     <div class="fa-card p-6 mb-8">
       <h2 class="fa-panel-title mb-6">Bond Parameters</h2>
@@ -218,6 +226,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
 
     <!-- AdSense -->
     <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="bond-pricing" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="bond-pricing" />

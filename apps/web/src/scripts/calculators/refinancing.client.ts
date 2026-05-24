@@ -2,57 +2,112 @@
  * Refinancing Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class RefinancingCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('refinancing-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Refinancing form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const monthlySavings = Number(summary.monthlySavings) || 0;
+  const netBenefit = Number(summary.netBenefit) || 0;
+  const breakEvenMonths = Number(summary.breakEvenMonths) || 0;
+  const newPayment = Number(summary.newMonthlyPayment) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Monthly Savings',
+      value: formatCurrency(Math.abs(monthlySavings)),
+      meta: monthlySavings >= 0 ? 'vs current payment' : 'payment increase',
+      tone: monthlySavings > 0 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'New Payment',
+      value: formatCurrency(newPayment),
+      tone: 'violet',
+    },
+    {
+      title: 'Break-even',
+      value: breakEvenMonths > 0 ? `${breakEvenMonths} mo` : '—',
+      meta: breakEvenMonths > 0 ? 'to recover closing costs' : 'add cost details',
+      tone: breakEvenMonths > 0 && breakEvenMonths <= 24 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Net Benefit',
+      value: formatCurrency(netBenefit),
+      tone: netBenefit > 0 ? 'emerald' : 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initRefinancingCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const refinanceType =
+        (form.elements.namedItem('refinanceType') as HTMLSelectElement)?.value || 'rate-and-term';
 
       const input = {
         currentMortgage: {
-          principalBalance: parseFloat((formData.get('principalBalance') as string) || '0'),
-          interestRate: parseFloat((formData.get('currentInterestRate') as string) || '0'),
-          remainingTerm: parseInt((formData.get('remainingTerm') as string) || '30'),
-          monthlyPayment: parseFloat((formData.get('monthlyPayment') as string) || '0'),
+          principalBalance: parseNumber(form, 'principalBalance'),
+          interestRate: parseRate(form, 'currentInterestRate'),
+          remainingTerm: Math.round(parseNumber(form, 'remainingTerm')) || 30,
+          monthlyPayment: parseNumber(form, 'monthlyPayment'),
         },
         newMortgage: {
-          interestRate: parseFloat((formData.get('newInterestRate') as string) || '0'),
-          term: parseInt((formData.get('newTerm') as string) || '30'),
-          refinanceType: (formData.get('refinanceType') as string) || 'rate-and-term',
-          cashOutAmount: parseFloat((formData.get('cashOutAmount') as string) || '0'),
-          cashInAmount: parseFloat((formData.get('cashInAmount') as string) || '0'),
+          interestRate: parseRate(form, 'newInterestRate'),
+          term: Math.round(parseNumber(form, 'newTerm')) || 30,
+          refinanceType,
+          cashOutAmount: 0,
+          cashInAmount: 0,
         },
         costs: {
-          closingCosts: parseFloat((formData.get('closingCosts') as string) || '0'),
-          points: parseFloat((formData.get('points') as string) || '0'),
-          appraisalFee: parseFloat((formData.get('appraisalFee') as string) || '0'),
-          otherFees: parseFloat((formData.get('otherFees') as string) || '0'),
+          closingCosts: parseNumber(form, 'closingCosts'),
+          points: 0,
+          appraisalFee: 0,
+          otherFees: 0,
         },
         goals: {
-          priority: (formData.get('priority') as string) || 'lower-rate',
+          priority: 'lower-rate' as const,
           includeBreakEvenAnalysis: true,
         },
       };
@@ -64,42 +119,24 @@ class RefinancingCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze refinancing');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze refinancing');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_refinancing', result);
     } catch (error) {
       console.error('Refinancing error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze refinancing');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('refinancing-results');
-    const contentDiv = document.getElementById('refinancing-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Refinancing Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your refinancing analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new RefinancingCalculator());
+  document.addEventListener('DOMContentLoaded', initRefinancingCalculator);
 } else {
-  new RefinancingCalculator();
+  initRefinancingCalculator();
 }

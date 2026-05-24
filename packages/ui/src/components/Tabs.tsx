@@ -42,7 +42,7 @@ export function TabsList({ className = '', children }: TabsListProps) {
     <div
       role="tablist"
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1 text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-400',
+        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1 text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900/85 dark:text-slate-400',
         className
       )}
     >

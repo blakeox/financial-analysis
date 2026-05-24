@@ -42,7 +42,14 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
     // Listen for analysis result updates
     const handleAnalysisUpdate = (event: CustomEvent) => {
-      const { toolName, result } = event.detail;
+      const detail = event.detail as {
+        toolName?: string;
+        modelType?: string;
+        result?: unknown;
+      };
+      const toolName = detail.toolName ?? detail.modelType;
+      const result = detail.result;
+      if (!toolName || result === undefined) return;
 
       // Update the most recent analysis with new results
       setAnalyses((prev) => {
@@ -51,7 +58,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
         if (latestIndex !== -1) {
           updated[latestIndex] = {
             ...updated[latestIndex],
-            output: result,
+            output: result as Record<string, unknown>,
             timestamp: Date.now(),
           };
         }
@@ -217,7 +224,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
           <div className="p-4 fa-panel-divider">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="fa-scenario-title">Tool Analysis</h3>
+                <h2 className="fa-scenario-title">Tool Analysis</h2>
                 <p className="fa-help-copy">{getContextDisplayName()}</p>
               </div>
               <button onClick={() => setIsExpanded(false)} className="fa-shell-icon-button h-9 w-9">
@@ -273,7 +280,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
             <div className="fa-subcard fa-panel-divider-top rounded-t-none">
               <div className="space-y-3">
                 <div>
-                  <h4 className="fa-scenario-title mb-2 text-sm">Analysis Results</h4>
+                  <h3 className="fa-scenario-title mb-2 text-sm">Analysis Results</h3>
                   <div className="fa-list-copy text-sm whitespace-pre-wrap">
                     {selectedAnalysis.analysis}
                   </div>
@@ -281,7 +288,7 @@ export const ToolAnalysisPanel: React.FC<ToolAnalysisPanelProps> = ({
 
                 {selectedAnalysis.insights.length > 0 && (
                   <div>
-                    <h4 className="fa-scenario-title mb-2 text-sm">Key Insights</h4>
+                    <h3 className="fa-scenario-title mb-2 text-sm">Key Insights</h3>
                     <ul className="space-y-1">
                       {selectedAnalysis.insights.map((insight, index) => (
                         <li key={index} className="fa-list-copy text-sm flex items-start">

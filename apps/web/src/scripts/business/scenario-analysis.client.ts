@@ -1,115 +1,137 @@
 /**
  * Multi-Model Scenario Analysis Client Script
- * Handles scenario analysis and form interactions
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class ScenarioAnalysisCalculator {
-  private form: HTMLFormElement | null = null;
+function unwrapScenarioResult(result: unknown): Record<string, unknown> {
+  if (!result || typeof result !== 'object') return {};
 
-  constructor() {
-    this.init();
-  }
+  const record = result as Record<string, unknown>;
+  if (record.scenario) return record;
 
-  private init(): void {
-    this.form = document.getElementById('scenario-analysis-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Scenario analysis form not found');
-      return;
+  const content = record.content;
+  if (Array.isArray(content)) {
+    for (const item of content) {
+      if (item && typeof item === 'object' && 'text' in item) {
+        try {
+          const parsed = JSON.parse(String((item as { text: string }).text));
+          if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>;
+        } catch {
+          /* ignore non-JSON chunks */
+        }
+      }
     }
-
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
-  private async handleSubmit(e: Event): Promise<void> {
-    e.preventDefault();
+  return record;
+}
 
-    if (!this.form) return;
+function buildInput(formData: FormData): Record<string, unknown> {
+  return {
+    scenarioId: formData.get('scenarioId') || 'young-professional',
+    userProfile: {
+      age: parseInt((formData.get('userAge') as string) || '35', 10),
+      income: parseFloat((formData.get('userIncome') as string) || '0'),
+      maritalStatus: 'single',
+      dependents: 0,
+      riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
+    },
+    currentProgress: {
+      completedModels: [],
+      currentModel: null,
+      overallProgress: 0,
+    },
+    analysisType: 'comprehensive',
+  };
+}
+
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('scenario-results');
+  const contentDiv = document.getElementById('scenario-results-content');
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = unwrapScenarioResult(result);
+  const scenario =
+    record.scenario && typeof record.scenario === 'object'
+      ? (record.scenario as Record<string, unknown>)
+      : {};
+  const progress =
+    scenario.progress && typeof scenario.progress === 'object'
+      ? (scenario.progress as Record<string, unknown>)
+      : {};
+
+  const pct = Number(progress.percentage) || 0;
+  const completed = Number(progress.completed) || 0;
+  const total = Number(progress.total) || 0;
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Scenario',
+      value: String(scenario.name ?? scenario.id ?? '—'),
+      tone: 'primary',
+    },
+    {
+      title: 'Progress',
+      value: `${pct}%`,
+      meta: `${completed}/${total} models`,
+      tone: pct >= 50 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Completed',
+      value: String(completed),
+      tone: 'violet',
+    },
+    {
+      title: 'Remaining',
+      value: String(Math.max(0, total - completed)),
+      tone: 'orange',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initScenarioAnalysisCalculator(): void {
+  const form = document.getElementById('scenario-analysis-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/multi-model-scenario-analysis', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(new FormData(form))),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze scenario');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze scenario');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      const payload = unwrapScenarioResult(result);
+      displayResults(payload);
+      storeAnalysisResult('multi_model_scenario_analysis', payload);
     } catch (error) {
       console.error('Scenario analysis error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze scenario');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      scenarioId: formData.get('scenarioId') || 'young-professional',
-      userProfile: {
-        age: parseInt((formData.get('userAge') as string) || '35'),
-        income: parseFloat((formData.get('userIncome') as string) || '0'),
-        maritalStatus: 'single',
-        dependents: 0,
-        riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-      },
-      currentProgress: {
-        completedModels: [],
-        currentModel: null,
-        overallProgress: 0,
-      },
-      analysisType: 'comprehensive',
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('scenario-results');
-    const contentDiv = document.getElementById('scenario-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Scenario Analysis Complete</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your scenario analysis is complete. Use the AI assistant to get detailed recommendations and guidance.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered scenario analysis and recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new ScenarioAnalysisCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initScenarioAnalysisCalculator);
 } else {
-  new ScenarioAnalysisCalculator();
+  initScenarioAnalysisCalculator();
 }

@@ -2,69 +2,115 @@
  * Estate Planning Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class EstatePlanningCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function isChecked(form: HTMLFormElement, name: string): boolean {
+  const el = form.elements.namedItem(name);
+  return el instanceof HTMLInputElement && el.type === 'checkbox' && el.checked;
+}
 
-  private init(): void {
-    this.form = document.getElementById('estate-planning-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Estate Planning form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const projected = Number(summary.projectedEstateValue ?? summary.currentEstateValue) || 0;
+  const estateTax = Number(summary.estimatedEstateTax) || 0;
+  const netInheritance = Number(summary.netInheritance) || 0;
+  const taxSavings = Number(summary.taxSavings) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Projected Estate',
+      value: formatCurrency(projected),
+      tone: 'violet',
+    },
+    {
+      title: 'Estimated Estate Tax',
+      value: formatCurrency(estateTax),
+      tone: estateTax > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Net Inheritance',
+      value: formatCurrency(netInheritance),
+      tone: 'emerald',
+    },
+    {
+      title: 'Tax Planning Savings',
+      value: formatCurrency(taxSavings),
+      meta: 'from modeled strategies',
+      tone: taxSavings > 0 ? 'emerald' : 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initEstatePlanningCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
-
-      const formData = new FormData(this.form);
 
       const input = {
         personalInfo: {
-          age: parseInt((formData.get('age') as string) || '65'),
-          maritalStatus: (formData.get('maritalStatus') as string) || 'married',
-          stateOfResidence: (formData.get('stateOfResidence') as string) || 'CA',
+          age: Math.round(parseNumber(form, 'age')) || 65,
+          maritalStatus:
+            (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'married',
+          stateOfResidence: 'CA',
         },
         assets: {
-          totalAssets: parseFloat((formData.get('totalAssets') as string) || '0'),
-          realEstate: parseFloat((formData.get('realEstate') as string) || '0'),
-          investments: parseFloat((formData.get('investments') as string) || '0'),
-          retirementAccounts: parseFloat((formData.get('retirementAccounts') as string) || '0'),
-          businessInterests: parseFloat((formData.get('businessInterests') as string) || '0'),
-          otherAssets: parseFloat((formData.get('otherAssets') as string) || '0'),
+          totalAssets: parseNumber(form, 'totalAssets'),
+          realEstate: parseNumber(form, 'realEstate'),
+          investments: parseNumber(form, 'investments'),
+          retirementAccounts: parseNumber(form, 'retirementAccounts'),
+          businessInterests: 0,
+          otherAssets: 0,
         },
         estatePlan: {
-          hasWill: formData.get('hasWill') === 'true',
-          hasTrust: formData.get('hasTrust') === 'true',
-          beneficiaries: parseInt((formData.get('beneficiaries') as string) || '1'),
-          charitableGiving: parseFloat((formData.get('charitableGiving') as string) || '0'),
+          hasWill: isChecked(form, 'hasWill'),
+          hasTrust: isChecked(form, 'hasTrust'),
+          beneficiaries: Math.round(parseNumber(form, 'beneficiaries')) || 1,
+          charitableGiving: 0,
         },
         taxInfo: {
-          federalEstateTaxExemption: parseFloat(
-            (formData.get('federalEstateTaxExemption') as string) || '12920000'
-          ),
-          stateEstateTaxExemption: parseFloat(
-            (formData.get('stateEstateTaxExemption') as string) || '0'
-          ),
-          expectedGrowthRate: parseFloat((formData.get('expectedGrowthRate') as string) || '0.05'),
-          yearsToProject: parseInt((formData.get('yearsToProject') as string) || '20'),
+          expectedGrowthRate: 0.05,
+          yearsToProject: 20,
         },
         analysis: {
           includeEstateTaxProjection: true,
           includeInheritanceProjection: true,
-          includeTrustAnalysis: formData.get('includeTrustAnalysis') === 'true',
+          includeTrustAnalysis: isChecked(form, 'hasTrust'),
         },
       };
 
@@ -75,42 +121,26 @@ class EstatePlanningCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze estate planning');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze estate planning'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_estate_planning', result);
     } catch (error) {
       console.error('Estate Planning error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze estate planning');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('estate-planning-results');
-    const contentDiv = document.getElementById('estate-planning-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Estate Planning Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your estate planning analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new EstatePlanningCalculator());
+  document.addEventListener('DOMContentLoaded', initEstatePlanningCalculator);
 } else {
-  new EstatePlanningCalculator();
+  initEstatePlanningCalculator();
 }

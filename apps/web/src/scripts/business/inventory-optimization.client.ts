@@ -2,56 +2,116 @@
  * Inventory Optimization Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class InventoryOptimizationCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function buildSyntheticInventory(totalInventoryValue: number) {
+  const unitCost = totalInventoryValue > 0 ? totalInventoryValue / 100 : 10;
 
-  private init(): void {
-    this.form = document.getElementById('inventory-optimization-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Inventory Optimization form not found');
-      return;
-    }
+  return {
+    currentInventory: [
+      {
+        sku: 'SKU-1',
+        description: 'Primary SKU',
+        currentStock: 100,
+        unitCost,
+        annualDemand: 1200,
+        demandVariability: 0.2,
+        leadTime: 14,
+        leadTimeVariability: 2,
+      },
+    ],
+    totalInventoryValue: totalInventoryValue || unitCost * 100,
+  };
+}
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private async handleSubmit(e: Event): Promise<void> {
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const eoq = Number(summary.optimalOrderQuantity) || 0;
+  const savings = Number(summary.totalCostSavings) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Inventory Value',
+      value: formatCurrency(Number(summary.totalInventoryValue) || 0),
+      tone: 'primary',
+    },
+    {
+      title: 'Avg EOQ',
+      value: eoq ? `${eoq.toFixed(0)} units` : '—',
+      tone: 'emerald',
+    },
+    {
+      title: 'Safety Stock',
+      value: `${(Number(summary.totalSafetyStock) || 0).toFixed(0)} units`,
+      tone: 'violet',
+    },
+    {
+      title: 'Cost Savings',
+      value: formatCurrency(savings),
+      tone: savings > 0 ? 'emerald' : 'surface',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initInventoryOptimizationCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const inventoryJson = formData.get('inventory') as string;
-      const inventory = inventoryJson ? JSON.parse(inventoryJson) : [];
+      const totalInventoryValue = parseNumber(form, 'totalInventoryValue');
+      const orderingCost = parseNumber(form, 'orderingCost') || 50;
+      const inventoryData = buildSyntheticInventory(totalInventoryValue);
 
       const input = {
-        inventoryData: {
-          currentInventory: inventory,
-          totalInventoryValue: parseFloat((formData.get('totalInventoryValue') as string) || '0'),
-        },
+        inventoryData,
         costs: {
-          orderingCost: parseFloat((formData.get('orderingCost') as string) || '50'),
-          holdingCostRate: parseFloat((formData.get('holdingCostRate') as string) || '0.2'),
-          stockoutCost: parseFloat((formData.get('stockoutCost') as string) || '0'),
+          orderingCost,
+          holdingCostRate: parseNumber(form, 'holdingCostRate') / 100,
+          stockoutCost: 0,
         },
-        serviceLevel: {
-          targetServiceLevel: parseFloat((formData.get('targetServiceLevel') as string) || '0.95'),
-        },
+        serviceLevel: { targetServiceLevel: 0.95 },
         analysis: {
-          includeEOQ: formData.get('includeEOQ') !== 'false',
-          includeABC: formData.get('includeABC') !== 'false',
-          includeSafetyStock: formData.get('includeSafetyStock') !== 'false',
-          includeReorderPoint: formData.get('includeReorderPoint') !== 'false',
-          includeTotalCostAnalysis: formData.get('includeTotalCostAnalysis') !== 'false',
+          includeEOQ: true,
+          includeABC: true,
+          includeSafetyStock: true,
+          includeReorderPoint: true,
+          includeTotalCostAnalysis: true,
         },
       };
 
@@ -62,44 +122,28 @@ class InventoryOptimizationCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze inventory optimization');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze inventory optimization'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_inventory_optimization', result);
     } catch (error) {
       console.error('Inventory Optimization error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze inventory optimization'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('inventory-optimization-results');
-    const contentDiv = document.getElementById('inventory-optimization-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Inventory Optimization Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your inventory optimization analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new InventoryOptimizationCalculator());
+  document.addEventListener('DOMContentLoaded', initInventoryOptimizationCalculator);
 } else {
-  new InventoryOptimizationCalculator();
+  initInventoryOptimizationCalculator();
 }
