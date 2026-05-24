@@ -3,12 +3,13 @@
  * Handles M&A deal analysis and form interactions
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   CURRENCY_WHOLE_FORMATTER,
   DOM_IDS,
   formatCurrencyWhole,
   formatPercentDecimal,
-  handleCalculatorResult,
   hideError,
   hideLoading,
   hideResults,
@@ -405,21 +406,24 @@ function displayResults(result: unknown): void {
   const valueCreationPercent = r?.valuation?.valueCreationPercent;
   const synergyPV = r?.synergyAnalysis?.totalSynergies?.presentValue;
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-      <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Purchase Price</div>
-      <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">${formatCurrencyWhole(purchasePrice)}</div>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
-      <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Value Creation</div>
-      <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">${formatCurrencyWhole(valueCreation)}</div>
-      <div class="text-sm text-emerald-700 dark:text-emerald-300">${formatPercentDecimal(valueCreationPercent)}</div>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-      <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Synergy PV</div>
-      <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">${formatCurrencyWhole(synergyPV)}</div>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Purchase Price',
+      value: formatCurrencyWhole(purchasePrice),
+      tone: 'violet',
+    },
+    {
+      title: 'Value Creation',
+      value: formatCurrencyWhole(valueCreation),
+      meta: formatPercentDecimal(valueCreationPercent),
+      tone: 'emerald',
+    },
+    {
+      title: 'Synergy PV',
+      value: formatCurrencyWhole(synergyPV),
+      tone: 'violet',
+    },
+  ]);
 
   const accretionSummary = r?.accretionDilution?.summary;
   const premium = r?.transactionSummary?.premium;
@@ -565,12 +569,13 @@ function initializeMAAnalysisCalculator(): void {
       const result = await analyzeMADeal(input);
 
       displayResults(result);
+      storeAnalysisResult('analyze_ma', result);
 
-      handleCalculatorResult({
-        calculatorId: 'ma-analysis',
-        result,
-        formData: input,
-      });
+      window.dispatchEvent(
+        new CustomEvent('calculator-completed', {
+          detail: { calculatorId: 'ma-analysis', result, formData: input },
+        })
+      );
     } catch (error) {
       console.error('M&A analysis error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze M&A deal');

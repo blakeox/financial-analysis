@@ -8,6 +8,8 @@ type ScriptLoaderMap = {
   budget: () => Promise<unknown>;
   'debt-payoff': () => Promise<unknown>;
   'commercial-real-estate-lease': () => Promise<unknown>;
+  'enhanced-lease': () => Promise<unknown>;
+  'lease-analysis': () => Promise<unknown>;
   'journey-page': () => Promise<unknown>;
   models: () => Promise<unknown>;
   'multi-model-scenarios': () => Promise<unknown>;
@@ -15,7 +17,6 @@ type ScriptLoaderMap = {
   retirement: () => Promise<unknown>;
   'savings-goal': () => Promise<unknown>;
   'student-loans': () => Promise<unknown>;
-  'calculator-quick-access': () => Promise<unknown>;
   'calculator-comprehensive-analysis': () => Promise<unknown>;
   'analysis-content-generators': () => Promise<unknown>;
   'field-highlighting': () => Promise<unknown>;
@@ -32,6 +33,10 @@ type ScriptLoaderMap = {
   'break-even': () => Promise<unknown>;
   'cash-flow-forecast': () => Promise<unknown>;
   'cash-flow-analysis': () => Promise<unknown>;
+  'employee-stock-options': () => Promise<unknown>;
+  'accounts-payable-optimization': () => Promise<unknown>;
+  'accounts-receivable-aging': () => Promise<unknown>;
+  'inventory-optimization': () => Promise<unknown>;
   'business-loan-qualifier': () => Promise<unknown>;
   'bond-pricing': () => Promise<unknown>;
   'options-pricing': () => Promise<unknown>;
@@ -42,6 +47,7 @@ type ScriptLoaderMap = {
   'scenario-analysis': () => Promise<unknown>;
   'business-expansion-loan': () => Promise<unknown>;
   'business-financial-health': () => Promise<unknown>;
+  'business-succession-planning': () => Promise<unknown>;
   'debt-capacity': () => Promise<unknown>;
   dscr: () => Promise<unknown>;
   'business-loan-scenarios': () => Promise<unknown>;
@@ -66,6 +72,7 @@ type ScriptLoaderMap = {
   'business-valuation': () => Promise<unknown>;
   'revenue-forecast': () => Promise<unknown>;
   'dashboard-personal': () => Promise<unknown>;
+  'a11y-interactive-cards': () => Promise<unknown>;
   // Personal finance calculators
   'rent-vs-buy': () => Promise<unknown>;
   'invest-vs-payoff-debt': () => Promise<unknown>;
@@ -77,6 +84,7 @@ type ScriptLoaderMap = {
   'home-buying-affordability': () => Promise<unknown>;
   'investment-portfolio': () => Promise<unknown>;
   'retirement-planning': () => Promise<unknown>;
+  'roth-vs-traditional-ira': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {
@@ -100,9 +108,10 @@ const scriptLoaders: ScriptLoaderMap = {
     import('../scripts/calculators/home-buying-affordability.client.ts'),
   'investment-portfolio': () => import('../scripts/calculators/investment-portfolio.client.ts'),
   'retirement-planning': () => import('../scripts/calculators/retirement-planning.client.ts'),
+  'roth-vs-traditional-ira': () =>
+    import('../scripts/calculators/roth-vs-traditional-ira.client.ts'),
   // Analysis
   analysis: () => import('../scripts/analysis/analysis.client.ts'),
-  'calculator-quick-access': () => import('../scripts/analysis/calculator-quick-access.client.ts'),
   'calculator-comprehensive-analysis': () =>
     import('../scripts/analysis/calculator-comprehensive-analysis.client.ts'),
   'analysis-content-generators': () =>
@@ -112,6 +121,8 @@ const scriptLoaders: ScriptLoaderMap = {
   // Lease
   'commercial-real-estate-lease': () =>
     import('../scripts/lease/commercial-real-estate-lease.client.ts'),
+  'enhanced-lease': () => import('../scripts/lease/enhanced-lease.client.ts'),
+  'lease-analysis': () => import('../scripts/lease/lease-analysis.client.ts'),
   'equipment-lease': () => import('../scripts/lease/equipment-lease.client.ts'),
   // Journey-related scripts
   'journey-page': () => import('../scripts/journey/journey-page.client.ts'),
@@ -129,6 +140,12 @@ const scriptLoaders: ScriptLoaderMap = {
   'risk-management': () => import('../scripts/business/risk-management-simple.client.ts'),
   'cash-flow-forecast': () => import('../scripts/business/cash-flow-forecast.client.ts'),
   'cash-flow-analysis': () => import('../scripts/business/cash-flow-analysis.client.ts'),
+  'employee-stock-options': () => import('../scripts/business/employee-stock-options.client.ts'),
+  'accounts-payable-optimization': () =>
+    import('../scripts/business/accounts-payable-optimization.client.ts'),
+  'accounts-receivable-aging': () =>
+    import('../scripts/business/accounts-receivable-aging.client.ts'),
+  'inventory-optimization': () => import('../scripts/business/inventory-optimization.client.ts'),
   'business-loan-qualifier': () => import('../scripts/business/business-loan-qualifier.client.ts'),
   'bond-pricing': () => import('../scripts/business/bond-pricing.client.ts'),
   'options-pricing': () => import('../scripts/business/options-pricing.client.ts'),
@@ -138,6 +155,8 @@ const scriptLoaders: ScriptLoaderMap = {
   'business-expansion-loan': () => import('../scripts/business/business-expansion-loan.client.ts'),
   'business-financial-health': () =>
     import('../scripts/calculators/business-financial-health.client.ts'),
+  'business-succession-planning': () =>
+    import('../scripts/business/business-succession-planning.client.ts'),
   'debt-capacity': () => import('../scripts/calculators/debt-capacity.client.ts'),
   dscr: () => import('../scripts/calculators/dscr.client.ts'),
   'business-loan-scenarios': () =>
@@ -168,6 +187,7 @@ const scriptLoaders: ScriptLoaderMap = {
   // Shared/Utilities
   'field-highlighting': () => import('../scripts/_shared/field-highlighting.client.ts'),
   'dashboard-personal': () => import('../scripts/_shared/dashboard-personal.client.ts'),
+  'a11y-interactive-cards': () => import('../scripts/a11y/interactive-cards.client.ts'),
 };
 
 export type ClientScriptName = keyof typeof scriptLoaders;

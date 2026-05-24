@@ -1,111 +1,162 @@
 /**
  * Bond Pricing Calculator Client Script
- * Handles bond pricing analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class BondPricingCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
+
+function mapBondType(raw: string): string {
+  if (raw === 'zero-coupon') return 'zero-coupon';
+  if (raw === 'floating-rate') return 'floating-rate';
+  if (raw === 'convertible') return 'convertible';
+  if (raw === 'inflation-linked') return 'inflation-linked';
+  if (raw === 'treasury' || raw === 'municipal') return raw;
+  return 'corporate';
+}
+
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  const rawType = (form.elements.namedItem('bondType') as HTMLSelectElement)?.value || 'corporate';
+  const bondType = mapBondType(rawType);
+  const years = parseNumber(form, 'yearsToMaturity') || 10;
+  const couponRate = bondType === 'zero-coupon' ? 0 : parseRate(form, 'couponRate') || 0.05;
+  const issueDate = new Date();
+  const maturityDate = new Date();
+  maturityDate.setFullYear(maturityDate.getFullYear() + Math.round(years));
+  const marketPrice = parseNumber(form, 'marketPrice') || undefined;
+  let yieldToMaturity = parseRate(form, 'yieldToMaturity');
+  if (!yieldToMaturity && marketPrice) {
+    yieldToMaturity = couponRate + 0.005;
+  }
+  if (!yieldToMaturity) {
+    yieldToMaturity = couponRate || 0.05;
   }
 
-  private init(): void {
-    this.form = document.getElementById('bond-pricing-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Bond pricing form not found');
-      return;
-    }
+  const input: Record<string, unknown> = {
+    bondType,
+    faceValue: parseNumber(form, 'faceValue') || 1000,
+    couponRate,
+    couponFrequency: bondType === 'zero-coupon' ? 'zero' : 'semi-annual',
+    issueDate: issueDate.toISOString().split('T')[0],
+    maturityDate: maturityDate.toISOString().split('T')[0],
+    yieldToMaturity,
+    marketPrice,
+  };
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
+  if (bondType === 'floating-rate') {
+    input.floatingRateFeatures = {
+      referenceRate: 'SOFR',
+      spread: 0.02,
+      resetFrequency: 'quarterly',
+    };
+  }
+  if (bondType === 'convertible') {
+    input.convertibleFeatures = {
+      conversionRatio: 20,
+      conversionPrice: 50,
+      currentStockPrice: 55,
+    };
   }
 
-  private async handleSubmit(e: Event): Promise<void> {
+  return input;
+}
+
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('bond-results');
+  const contentDiv = document.getElementById('bond-results-content');
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const metrics =
+    record.metrics && typeof record.metrics === 'object'
+      ? (record.metrics as Record<string, unknown>)
+      : {};
+
+  const ytm = Number(metrics.yieldToMaturity) || 0;
+  const ytmPct = ytm > 1 ? ytm : ytm * 100;
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Clean Price',
+      value: formatCurrency(Number(metrics.price) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Yield to Maturity',
+      value: `${ytmPct.toFixed(2)}%`,
+      tone: 'emerald',
+    },
+    {
+      title: 'Modified Duration',
+      value: `${(Number(metrics.modifiedDuration) || 0).toFixed(2)} yrs`,
+      tone: 'amber',
+    },
+    {
+      title: 'Recommendation',
+      value: String(record.recommendation ?? 'Hold'),
+      tone: 'orange',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initBondPricingCalculator(): void {
+  const form = document.getElementById('bond-pricing-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-bond-pricing', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze bond pricing');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze bond pricing'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_bond_pricing', result);
     } catch (error) {
       console.error('Bond pricing error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze bond pricing');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      bondType: formData.get('bondType'),
-      faceValue: parseFloat((formData.get('faceValue') as string) || '1000'),
-      couponRate: parseFloat((formData.get('couponRate') as string) || '0') / 100,
-      yearsToMaturity: parseFloat((formData.get('yearsToMaturity') as string) || '10'),
-      marketPrice: formData.get('marketPrice')
-        ? parseFloat(formData.get('marketPrice') as string)
-        : undefined,
-      yieldToMaturity: formData.get('yieldToMaturity')
-        ? parseFloat(formData.get('yieldToMaturity') as string) / 100
-        : undefined,
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('bond-results');
-    const contentDiv = document.getElementById('bond-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Bond Pricing Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your bond pricing analysis is complete. Use the AI assistant to get detailed recommendations and insights.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered bond analysis and recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new BondPricingCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initBondPricingCalculator);
 } else {
-  new BondPricingCalculator();
+  initBondPricingCalculator();
 }

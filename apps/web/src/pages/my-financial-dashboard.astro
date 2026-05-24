@@ -14,7 +14,7 @@ const journeyData = getJourneyData();
 <Layout title={title} description={description} keywords="financial dashboard, personal finance tracker, journey progress" noindex={true}>
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Financial Dashboard' }]} />
 
-  <main class="fa-page-shell">
+  <div class="fa-page-shell">
       <PageHero
         eyebrow="Personal dashboard"
         title="My Financial Dashboard"
@@ -27,7 +27,7 @@ const journeyData = getJourneyData();
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
             <div>
-              <h3 class="fa-callout-title-info mb-1">Privacy First</h3>
+              <h2 class="fa-callout-title-info mb-1">Privacy First</h2>
               <p class="fa-callout-copy-info">
                 All your data is stored locally in your browser. We don't collect, store, or transmit any personal information to our servers.
               </p>
@@ -166,7 +166,7 @@ const journeyData = getJourneyData();
           </SurfaceCard>
         </div>
       </div>
-  </main>
+  </div>
 </Layout>
 
 <ClientScriptLoader client:load slot="pageScripts" name="dashboard-personal" />

@@ -5,6 +5,95 @@
  * for all financial models in the application.
  */
 
+import {
+  analyzeBusinessValuationFromResult,
+  analyzeDcfValuationFromResult,
+  analyzeMaAnalysisFromResult,
+  analyzeRevenueForecastFromResult,
+  analyzeRiskManagementFromResult,
+  analyzeStudentLoansFromResult,
+  analyzeUnitEconomicsFromResult,
+} from './financial-analysis-engine-business';
+import {
+  analyzeBreakEvenFromResult,
+  analyzeBusinessLoanQualifierFromResult,
+  analyzeBusinessLoanScenariosFromResult,
+  analyzeCashFlowForecastFromResult,
+  analyzeCreditCardPayoffFromResult,
+  analyzeEbitdaForecastFromResult,
+  analyzeEmergencyFundFromResult,
+  analyzeEquipmentLeaseFromResult,
+  analyzeFireCalculatorFromResult,
+  analyzeInvestVsPayoffDebtFromResult,
+  analyzeInvestmentPortfolioFromResult,
+  analyzeMortgageScenarioPlanningFromResult,
+  analyzeNetWorthFromResult,
+  analyzePricingStrategyFromResult,
+  analyze1031ExchangeFromResult,
+  analyze401kMatchFromResult,
+  analyze529OptimizerFromResult,
+  analyzeBondPricingFromResult,
+  analyzeBusinessExpansionLoanFromResult,
+  analyzeBusinessFinancialHealthFromResult,
+  analyzeBusinessSuccessionPlanningFromResult,
+  analyzeFinancialJourneyFromResult,
+  analyzeMultiModelScenarioFromResult,
+  analyzeAccountsPayableOptimizationFromResult,
+  analyzeAccountsReceivableAgingFromResult,
+  analyzeCashFlowFromResult,
+  analyzeCcaValuationFromResult,
+  analyzeEmployeeStockOptionsFromResult,
+  analyzeInventoryOptimizationFromResult,
+  analyzeCarLeaseVsBuyFromResult,
+  analyzeEquipmentLeaseVsBuyFromResult,
+  analyzeCharitableGivingFromResult,
+  analyzeCollegeSavingsFromResult,
+  analyzeCreditScoreImpactFromResult,
+  analyzeCreditRiskFromResult,
+  analyzeCryptocurrencyTaxFromResult,
+  analyzeCapitalStructureFromResult,
+  analyzeDepreciationFromResult,
+  analyzeDisabilityInsuranceFromResult,
+  analyzeFinancialRatioAnalyzerFromResult,
+  analyzeFranchiseRoiFromResult,
+  analyzeInsuranceNeedsFromResult,
+  analyzeInternationalTaxPlanningFromResult,
+  analyzeLifeInsuranceReassessmentFromResult,
+  analyzeOptionsPricingFromResult,
+  analyzePortfolioOptimizationFromResult,
+  analyzeSupplyChainFinanceFromResult,
+  analyzeTaxLossHarvestingFromResult,
+  analyzeTaxOptimizationFromResult,
+  analyzeWorkingCapitalFromResult,
+  analyzeDebtCapacityFromResult,
+  analyzeDscrFromResult,
+  analyzeEstatePlanningFromResult,
+  analyzeLboFromResult,
+  analyzeLongTermCareFromResult,
+  analyzeProjectFinanceFromResult,
+  analyzeHelocFromResult,
+  analyzeHomeBuyingAffordabilityFromResult,
+  analyzeHsaOptimizationFromResult,
+  analyzeRealEstateInvestmentFromResult,
+  analyzeRetirementPlanningFromResult,
+  analyzeRevenueRecognitionFromResult,
+  analyzeRefinancingFromResult,
+  analyzeVarFromResult,
+  analyzeSocialSecurityFromResult,
+  analyzeRentVsBuyFromResult,
+  analyzeRothVsTraditionalIraFromResult,
+  analyzeSaasMetricsFromResult,
+  analyzeSideHustleIncomeFromResult,
+  analyzeStartupFinancialModelFromResult,
+} from './financial-analysis-engine-extended';
+import {
+  analyzeAutoLoanFromResult,
+  analyzeBudgetFromResult,
+  analyzeDebtPayoffFromResult,
+  analyzeRetirementFromResult,
+  analyzeSavingsGoalFromResult,
+} from './financial-analysis-engine-personal';
+
 export interface AnalysisInsight {
   category: 'financial' | 'risk' | 'opportunity' | 'optimization';
   title: string;
@@ -703,5 +792,288 @@ export class FinancialAnalysisEngine {
     );
 
     return optimizedFutureValue - currentFutureValue;
+  }
+
+  /**
+   * Route calculator model output to the appropriate impact-summary analyzer.
+   */
+  static analyzeForModelType(modelType: string, data: Record<string, unknown>): DetailedAnalysis {
+    switch (modelType) {
+      case 'amortization':
+        return FinancialAnalysisEngine.analyzeAmortization({
+          principal: Number(data.principal) || 0,
+          annualRate: Number(data.annualRate) || 0,
+          termMonths: Number(data.termMonths) || 0,
+          extraPayment: Number(data.extraPayment) || 0,
+          monthlyPayment: Number(data.monthlyPayment) || undefined,
+          totalInterest: Number(data.totalInterest) || undefined,
+          totalPayments: Number(data.totalPayments) || undefined,
+        });
+
+      case 'lease':
+        return FinancialAnalysisEngine.analyzeLease({
+          principal: Number(data.principal) || 0,
+          annualRate: Number(data.annualRate) || 0,
+          termMonths: Number(data.termMonths) || 0,
+          residualValue: Number(data.residualValue) || 0,
+          monthlyPayment: Number(data.monthlyPayment) || undefined,
+          totalCost: Number(data.totalCost) || undefined,
+        });
+
+      case 'investment-portfolio':
+        return analyzeInvestmentPortfolioFromResult(data);
+
+      case 'debt-payoff':
+        return analyzeDebtPayoffFromResult(data);
+
+      case 'auto-loan':
+        return analyzeAutoLoanFromResult(data);
+
+      case 'budget':
+        return analyzeBudgetFromResult(data);
+
+      case 'retirement':
+        return analyzeRetirementFromResult(data);
+
+      case 'savings-goal':
+        return analyzeSavingsGoalFromResult(data);
+
+      case 'unit-economics':
+        return analyzeUnitEconomicsFromResult(data);
+
+      case 'business-valuation':
+        return analyzeBusinessValuationFromResult(data);
+
+      case 'revenue-forecast':
+        return analyzeRevenueForecastFromResult(data);
+
+      case 'student-loans':
+        return analyzeStudentLoansFromResult(data);
+
+      case 'dcf-valuation':
+        return analyzeDcfValuationFromResult(data);
+
+      case 'risk-management':
+        return analyzeRiskManagementFromResult(data);
+
+      case 'ma-analysis':
+        return analyzeMaAnalysisFromResult(data);
+
+      case 'saas-metrics':
+        return analyzeSaasMetricsFromResult(data);
+
+      case 'rent-vs-buy':
+        return analyzeRentVsBuyFromResult(data);
+
+      case 'credit-card-payoff':
+        return analyzeCreditCardPayoffFromResult(data);
+
+      case 'break-even':
+        return analyzeBreakEvenFromResult(data);
+
+      case 'cash-flow-forecast':
+        return analyzeCashFlowForecastFromResult(data);
+
+      case 'invest-vs-payoff-debt':
+        return analyzeInvestVsPayoffDebtFromResult(data);
+
+      case 'equipment-lease':
+        return analyzeEquipmentLeaseFromResult(data);
+
+      case 'mortgage-scenario-planning':
+        return analyzeMortgageScenarioPlanningFromResult(data);
+
+      case 'ebitda-forecast':
+        return analyzeEbitdaForecastFromResult(data);
+
+      case 'business-loan-qualifier':
+        return analyzeBusinessLoanQualifierFromResult(data);
+
+      case 'pricing-strategy':
+        return analyzePricingStrategyFromResult(data);
+
+      case 'side-hustle-income':
+        return analyzeSideHustleIncomeFromResult(data);
+
+      case 'roth-vs-traditional-ira':
+        return analyzeRothVsTraditionalIraFromResult(data);
+
+      case 'emergency-fund':
+        return analyzeEmergencyFundFromResult(data);
+
+      case 'net-worth':
+        return analyzeNetWorthFromResult(data);
+
+      case 'fire-calculator':
+        return analyzeFireCalculatorFromResult(data);
+
+      case 'business-loan-scenarios':
+        return analyzeBusinessLoanScenariosFromResult(data);
+
+      case 'refinancing':
+        return analyzeRefinancingFromResult(data);
+
+      case 'heloc':
+        return analyzeHelocFromResult(data);
+
+      case 'car-lease-vs-buy':
+        return analyzeCarLeaseVsBuyFromResult(data);
+
+      case 'startup-financial-model':
+        return analyzeStartupFinancialModelFromResult(data);
+
+      case 'social-security':
+        return analyzeSocialSecurityFromResult(data);
+
+      case '401k-match':
+        return analyze401kMatchFromResult(data);
+
+      case 'hsa-optimization':
+        return analyzeHsaOptimizationFromResult(data);
+
+      case '529-optimizer':
+        return analyze529OptimizerFromResult(data);
+
+      case 'home-buying-affordability':
+        return analyzeHomeBuyingAffordabilityFromResult(data);
+
+      case 'dscr':
+        return analyzeDscrFromResult(data);
+
+      case 'debt-capacity':
+        return analyzeDebtCapacityFromResult(data);
+
+      case 'real-estate-investment':
+        return analyzeRealEstateInvestmentFromResult(data);
+
+      case 'college-savings':
+        return analyzeCollegeSavingsFromResult(data);
+
+      case 'retirement-planning':
+        return analyzeRetirementPlanningFromResult(data);
+
+      case 'credit-score-impact':
+        return analyzeCreditScoreImpactFromResult(data);
+
+      case 'estate-planning':
+        return analyzeEstatePlanningFromResult(data);
+
+      case 'long-term-care':
+        return analyzeLongTermCareFromResult(data);
+
+      case 'project-finance':
+        return analyzeProjectFinanceFromResult(data);
+
+      case 'lbo':
+        return analyzeLboFromResult(data);
+
+      case 'charitable-giving':
+        return analyzeCharitableGivingFromResult(data);
+
+      case 'tax-optimization':
+        return analyzeTaxOptimizationFromResult(data);
+
+      case 'working-capital':
+        return analyzeWorkingCapitalFromResult(data);
+
+      case 'franchise-roi':
+        return analyzeFranchiseRoiFromResult(data);
+
+      case 'financial-ratio-analyzer':
+        return analyzeFinancialRatioAnalyzerFromResult(data);
+
+      case 'insurance-needs':
+        return analyzeInsuranceNeedsFromResult(data);
+
+      case 'disability-insurance':
+        return analyzeDisabilityInsuranceFromResult(data);
+
+      case 'tax-loss-harvesting':
+        return analyzeTaxLossHarvestingFromResult(data);
+
+      case 'depreciation':
+        return analyzeDepreciationFromResult(data);
+
+      case 'capital-structure':
+        return analyzeCapitalStructureFromResult(data);
+
+      case 'life-insurance-reassessment':
+        return analyzeLifeInsuranceReassessmentFromResult(data);
+
+      case 'international-tax-planning':
+        return analyzeInternationalTaxPlanningFromResult(data);
+
+      case 'supply-chain-finance':
+        return analyzeSupplyChainFinanceFromResult(data);
+
+      case 'bond-pricing':
+        return analyzeBondPricingFromResult(data);
+
+      case '1031-exchange':
+        return analyze1031ExchangeFromResult(data);
+
+      case 'portfolio-optimization':
+        return analyzePortfolioOptimizationFromResult(data);
+
+      case 'credit-risk':
+        return analyzeCreditRiskFromResult(data);
+
+      case 'options-pricing':
+        return analyzeOptionsPricingFromResult(data);
+
+      case 'cryptocurrency-tax':
+        return analyzeCryptocurrencyTaxFromResult(data);
+
+      case 'business-expansion-loan':
+        return analyzeBusinessExpansionLoanFromResult(data);
+
+      case 'business-financial-health':
+        return analyzeBusinessFinancialHealthFromResult(data);
+
+      case 'var':
+        return analyzeVarFromResult(data);
+
+      case 'revenue-recognition':
+        return analyzeRevenueRecognitionFromResult(data);
+
+      case 'equipment-lease-vs-buy':
+        return analyzeEquipmentLeaseVsBuyFromResult(data);
+
+      case 'cca-valuation':
+        return analyzeCcaValuationFromResult(data);
+
+      case 'cash-flow':
+        return analyzeCashFlowFromResult(data);
+
+      case 'employee-stock-options':
+        return analyzeEmployeeStockOptionsFromResult(data);
+
+      case 'accounts-payable-optimization':
+        return analyzeAccountsPayableOptimizationFromResult(data);
+
+      case 'accounts-receivable-aging':
+        return analyzeAccountsReceivableAgingFromResult(data);
+
+      case 'inventory-optimization':
+        return analyzeInventoryOptimizationFromResult(data);
+
+      case 'business-succession-planning':
+        return analyzeBusinessSuccessionPlanningFromResult(data);
+
+      case 'financial-journey':
+        return analyzeFinancialJourneyFromResult(data);
+
+      case 'multi-model-scenario':
+        return analyzeMultiModelScenarioFromResult(data);
+
+      default:
+        return {
+          summary: data,
+          insights: [],
+          recommendations: [],
+          riskAssessment: { overallRisk: 'low', factors: [] },
+          optimizationOpportunities: [],
+        };
+    }
   }
 }

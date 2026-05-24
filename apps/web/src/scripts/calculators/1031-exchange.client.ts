@@ -2,69 +2,137 @@
  * 1031 Exchange Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class OneZeroThreeOneExchangeCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('1031-exchange-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('1031 Exchange form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Tax Deferred',
+      value: formatCurrency(Number(summary.taxDeferred) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Net Tax Savings',
+      value: formatCurrency(Number(summary.netTaxSavings) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Boot Tax',
+      value: formatCurrency(Number(summary.taxOnBoot) || 0),
+      tone: Number(summary.taxOnBoot) > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Replacement Value',
+      value: formatCurrency(Number(summary.replacementValue) || 0),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function init1031ExchangeCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const salePrice = parseNumber(form, 'salePrice');
+      const adjustedBasis = parseNumber(form, 'adjustedBasis');
+      const replacementPrice = parseNumber(form, 'replacementPurchasePrice');
+      const capitalGainsRate = parseRate(form, 'capitalGainsRate') || 0.2;
+      const sellingExpenses = salePrice * 0.03;
+      const netProceeds = salePrice - sellingExpenses;
+      const boot = Math.max(0, netProceeds - replacementPrice);
+      const saleDate = new Date().toISOString().split('T')[0];
+      const identificationDeadline = new Date(Date.now() + 45 * 86_400_000)
+        .toISOString()
+        .split('T')[0];
+      const closingDeadline = new Date(Date.now() + 180 * 86_400_000).toISOString().split('T')[0];
 
       const input = {
         relinquishedProperty: {
-          propertyType: (formData.get('propertyType') as string) || 'real-estate',
-          purchasePrice: parseFloat((formData.get('purchasePrice') as string) || '0'),
-          adjustedBasis: parseFloat((formData.get('adjustedBasis') as string) || '0'),
-          salePrice: parseFloat((formData.get('salePrice') as string) || '0'),
-          accumulatedDepreciation: parseFloat(
-            (formData.get('accumulatedDepreciation') as string) || '0'
-          ),
-          sellingExpenses: parseFloat((formData.get('sellingExpenses') as string) || '0'),
+          purchaseDate: saleDate,
+          purchasePrice: adjustedBasis,
+          currentValue: salePrice,
+          adjustedBasis,
+          accumulatedDepreciation: Math.max(0, adjustedBasis * 0.2),
+          mortgageBalance: 0,
+          sellingPrice: salePrice,
+          sellingExpenses,
+          netProceeds,
         },
         replacementProperty: {
-          purchasePrice: parseFloat((formData.get('replacementPurchasePrice') as string) || '0'),
-          closingCosts: parseFloat((formData.get('closingCosts') as string) || '0'),
+          purchasePrice: replacementPrice,
+          purchaseExpenses: replacementPrice * 0.02,
+          expectedValue: replacementPrice,
+          mortgageAmount: 0,
+          downPayment: replacementPrice * 0.25,
         },
-        exchangeDetails: {
-          exchangeType: (formData.get('exchangeType') as string) || 'delayed',
-          identificationDeadline: (formData.get('identificationDeadline') as string) || '',
-          closingDeadline: (formData.get('closingDeadline') as string) || '',
-          qualifiedIntermediary: formData.get('qualifiedIntermediary') !== 'false',
+        exchangeTimeline: {
+          saleDate,
+          identificationDeadline,
+          closingDeadline,
+          qualifiedIntermediary: true,
         },
         taxInfo: {
           federalTaxRate: {
-            ordinary: parseFloat((formData.get('ordinaryTaxRate') as string) || '0.37'),
-            capitalGains: parseFloat((formData.get('capitalGainsRate') as string) || '0.2'),
+            ordinary: 0.37,
+            capitalGains: capitalGainsRate,
+            depreciationRecapture: 0.25,
           },
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
-          includeDepreciationRecapture: formData.get('includeDepreciationRecapture') !== 'false',
+          stateTaxRate: 0,
+        },
+        boot: {
+          cashReceived: boot,
+          debtRelief: 0,
+          nonLikeKindProperty: 0,
+          totalBoot: boot,
         },
         analysis: {
-          includeTaxDeferral: formData.get('includeTaxDeferral') !== 'false',
-          includeBootAnalysis: formData.get('includeBootAnalysis') !== 'false',
-          includeComplianceCheck: formData.get('includeComplianceCheck') !== 'false',
-          includeReplacementAnalysis: formData.get('includeReplacementAnalysis') !== 'false',
+          includeTaxDeferral: true,
+          includeDepreciationRecapture: true,
+          includeBootAnalysis: true,
+          includeComparison: true,
         },
       };
 
@@ -75,42 +143,26 @@ class OneZeroThreeOneExchangeCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze 1031 exchange');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze 1031 exchange'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_1031_exchange', result);
     } catch (error) {
       console.error('1031 Exchange error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze 1031 exchange');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('1031-exchange-results');
-    const contentDiv = document.getElementById('1031-exchange-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">1031 Exchange Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your 1031 exchange analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new OneZeroThreeOneExchangeCalculator());
+  document.addEventListener('DOMContentLoaded', init1031ExchangeCalculator);
 } else {
-  new OneZeroThreeOneExchangeCalculator();
+  init1031ExchangeCalculator();
 }

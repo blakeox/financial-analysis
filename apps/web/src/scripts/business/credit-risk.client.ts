@@ -2,62 +2,107 @@
  * Credit Risk Analyzer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CreditRiskAnalyzer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('credit-risk-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Credit Risk form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const pd = Number(summary.pd) || 0;
+  const pdPct = pd > 1 ? pd : pd * 100;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Probability of Default',
+      value: `${pdPct.toFixed(2)}%`,
+      tone: pdPct > 5 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Expected Loss',
+      value: formatCurrency(Number(summary.expectedLoss) || 0),
+      tone: 'orange',
+    },
+    {
+      title: 'Credit Rating',
+      value: String(summary.creditRating ?? '—'),
+      tone: 'violet',
+    },
+    {
+      title: 'LGD',
+      value: `${((Number(summary.lgd) || 0) > 1 ? Number(summary.lgd) : (Number(summary.lgd) || 0) * 100).toFixed(1)}%`,
+      meta: String(summary.riskLevel ?? ''),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCreditRiskAnalyzer(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const totalAssets = parseNumber(form, 'totalAssets');
+      const totalDebt = parseNumber(form, 'totalDebt');
 
       const input = {
-        borrowerInfo: {
-          companyName: (formData.get('companyName') as string) || undefined,
-          industry: (formData.get('industry') as string) || undefined,
-          yearsInBusiness: formData.get('yearsInBusiness')
-            ? parseInt(formData.get('yearsInBusiness') as string)
-            : undefined,
-        },
+        borrowerInfo: { industry: 'general' },
         financials: {
-          annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
-          ebitda: parseFloat((formData.get('ebitda') as string) || '0'),
-          netIncome: parseFloat((formData.get('netIncome') as string) || '0'),
-          totalDebt: parseFloat((formData.get('totalDebt') as string) || '0'),
-          totalAssets: parseFloat((formData.get('totalAssets') as string) || '0'),
-          cashAndEquivalents: parseFloat((formData.get('cashAndEquivalents') as string) || '0'),
-          currentLiabilities: parseFloat((formData.get('currentLiabilities') as string) || '0'),
+          annualRevenue: parseNumber(form, 'annualRevenue'),
+          ebitda: parseNumber(form, 'ebitda'),
+          netIncome: parseNumber(form, 'netIncome'),
+          totalDebt,
+          totalAssets,
+          cashAndEquivalents: totalAssets * 0.1,
+          currentLiabilities: totalDebt * 0.4,
         },
         debtInfo: {
-          exposureAtDefault: parseFloat((formData.get('exposureAtDefault') as string) || '0'),
-          currentRating: (formData.get('currentRating') as string) || undefined,
-          recoveryRate: parseFloat((formData.get('recoveryRate') as string) || '0.4'),
+          exposureAtDefault: parseNumber(form, 'exposureAtDefault') || totalDebt,
+          recoveryRate: parseRate(form, 'recoveryRate') || 0.4,
         },
         analysis: {
           includePD: true,
           includeLGD: true,
           includeEL: true,
-          includeStressTesting: formData.get('includeStressTesting') === 'true',
+          includeStressTesting: false,
         },
       };
 
@@ -68,42 +113,24 @@ class CreditRiskAnalyzer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze credit risk');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze credit risk');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_credit_risk', result);
     } catch (error) {
       console.error('Credit Risk error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze credit risk');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('credit-risk-results');
-    const contentDiv = document.getElementById('credit-risk-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Credit Risk Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your credit risk analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CreditRiskAnalyzer());
+  document.addEventListener('DOMContentLoaded', initCreditRiskAnalyzer);
 } else {
-  new CreditRiskAnalyzer();
+  initCreditRiskAnalyzer();
 }

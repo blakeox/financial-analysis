@@ -1,8 +1,8 @@
 /**
  * Calculator Migration Utility
  *
- * This utility helps migrate existing calculator pages to use the new
- * modular template system, reducing code duplication and improving maintainability.
+ * Legacy redirect map for pre-template calculator URLs. The catalog lives in
+ * `apps/web/src/calculators` (`CALCULATOR_CONFIGS`); use `getAllCalculatorIds()` for the full list.
  */
 
 import { CALCULATOR_CONFIGS, type CalculatorConfig } from '../components/CalculatorTemplate';

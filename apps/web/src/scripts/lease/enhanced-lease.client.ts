@@ -1,18 +1,5 @@
-import { createElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
+import { mountLeaseAnalysisDashboard } from './lease-analysis-dashboard-host.client';
 
-const container = document.getElementById('enhanced-lease-container');
-
-if (container) {
-  const root = createRoot(container);
-  root.render(
-    createElement(LeaseAnalysisDashboard, {
-      onAnalyze: (result: unknown) => {
-        console.log('Enhanced lease analysis result:', result);
-      },
-    })
-  );
-}
+mountLeaseAnalysisDashboard({ containerId: 'enhanced-lease-container' });
 
 export {};

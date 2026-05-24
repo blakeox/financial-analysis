@@ -45,6 +45,7 @@ export function FinancialFormExample() {
 
 ## Usage Notes
 
-- Each field renders an accessible `<label>` / `<input>` pair with sensible defaults (aria attributes, helper text slots, etc.). Client code can toggle error presentation by adding or removing the `border-red-500` and `focus:ring-red-500` classes on the rendered `<input>`.
+- Each field renders an accessible `<label>` / `<input>` pair with sensible defaults (aria attributes, helper text slots, etc.). In React, pass the `error` prop on `Input`, `CurrencyField`, or `PercentField` so `inputStateClasses.error` and `aria-invalid` are applied automatically.
+- Astro template calculators use `fa-field-error` on invalid controls plus a sibling `.field-error` message (`role="alert"`). Use `handleCalculatorFormError()` from `apps/web/src/scripts/_shared/form-field-errors.ts` in client scripts instead of `alert()` or ad hoc `border-rose-500` classes.
 - When used with `createModelFormController`, serialized form data can be validated and emitted across the typed application event bus (`model:context` / `model:submit` events).
 - `FormActions` emits a submit button and a secondary action out of the box. Attach form-level listeners (e.g., `form.addEventListener('submit', ...)`) rather than binding handlers directly to these buttons so that the component remains reusable across SSR contexts.

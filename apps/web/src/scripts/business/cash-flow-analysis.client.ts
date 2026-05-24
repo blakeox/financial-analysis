@@ -1,34 +1,121 @@
 /**
  * Cash Flow Analysis Client Script
- * Handles comprehensive cash flow analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CashFlowAnalysisCalculator {
-  private form: HTMLFormElement | null = null;
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('cash-flow-results');
+  const contentDiv = document.getElementById('cash-flow-results-content');
+  if (!resultsDiv || !contentDiv) return;
 
-  constructor() {
-    this.init();
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const metrics =
+    record.metrics && typeof record.metrics === 'object'
+      ? (record.metrics as Record<string, unknown>)
+      : {};
+  const liquidity =
+    record.liquidityAnalysis && typeof record.liquidityAnalysis === 'object'
+      ? (record.liquidityAnalysis as Record<string, unknown>)
+      : {};
+
+  const freeCashFlow = Number(metrics.freeCashFlow) || 0;
+  const runway = Number(metrics.runway) || 0;
+  const health = String(record.overallHealth ?? 'Fair');
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Overall Health',
+      value: health,
+      tone:
+        health === 'Excellent' || health === 'Good'
+          ? 'emerald'
+          : health === 'Fair'
+            ? 'amber'
+            : 'orange',
+    },
+    {
+      title: 'Free Cash Flow',
+      value: formatCurrency(freeCashFlow),
+      tone: freeCashFlow >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Cash Runway',
+      value: runway > 0 ? `${runway.toFixed(1)} mo` : 'Positive CF',
+      tone: runway > 0 && runway < 6 ? 'orange' : 'violet',
+    },
+    {
+      title: 'Liquidity',
+      value: String(liquidity.currentLiquidity ?? '—'),
+      tone: 'primary',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildInput(formData: FormData): Record<string, unknown> {
+  const cashFlowItems: Array<Record<string, unknown>> = [];
+  const itemDescriptions = formData.getAll('itemDescription');
+  const itemAmounts = formData.getAll('itemAmount');
+  const itemTypes = formData.getAll('itemType');
+  const itemFrequencies = formData.getAll('itemFrequency');
+
+  for (let i = 0; i < itemDescriptions.length; i++) {
+    if (itemDescriptions[i] && itemAmounts[i]) {
+      cashFlowItems.push({
+        description: itemDescriptions[i],
+        amount: parseFloat(itemAmounts[i] as string),
+        type: itemTypes[i] || 'operating',
+        category: 'revenue',
+        frequency: itemFrequencies[i] || 'monthly',
+        isRecurring: true,
+      });
+    }
   }
 
-  private init(): void {
-    this.form = document.getElementById('cash-flow-analysis-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Cash flow analysis form not found');
-      return;
-    }
+  return {
+    companyName: formData.get('companyName') || undefined,
+    analysisStartDate: new Date().toISOString(),
+    analysisPeriodMonths: parseInt((formData.get('analysisPeriodMonths') as string) || '12', 10),
+    cashFlowItems:
+      cashFlowItems.length > 0
+        ? cashFlowItems
+        : [
+            {
+              description: 'Sample Revenue',
+              amount: 10000,
+              type: 'operating',
+              category: 'revenue',
+              frequency: 'monthly',
+              isRecurring: true,
+            },
+          ],
+    openingCashBalance: parseFloat((formData.get('openingCashBalance') as string) || '0'),
+    minimumCashBalance: parseFloat((formData.get('minimumCashBalance') as string) || '0'),
+    discountRate: parseFloat((formData.get('discountRate') as string) || '10') / 100,
+    taxRate: parseFloat((formData.get('taxRate') as string) || '25') / 100,
+    method: 'direct',
+  };
+}
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-
-    // Add cash flow item button
-    const addButton = document.getElementById('add-cash-flow-item');
-    if (addButton) {
-      addButton.addEventListener('click', this.addCashFlowItem.bind(this));
-    }
+function initCashFlowAnalysisCalculator(): void {
+  const form = document.getElementById('cash-flow-analysis-form') as HTMLFormElement | null;
+  if (!form) {
+    console.error('Cash flow analysis form not found');
+    return;
   }
 
-  private addCashFlowItem(): void {
+  document.getElementById('add-cash-flow-item')?.addEventListener('click', () => {
     const itemsContainer = document.getElementById('cash-flow-items');
     if (!itemsContainer) return;
 
@@ -38,29 +125,15 @@ class CashFlowAnalysisCalculator {
     newItem.innerHTML = `
       <div>
         <label class="fa-field-label mb-2">Description</label>
-        <input
-          type="text"
-          name="itemDescription"
-          class="fa-input-surface w-full"
-          placeholder="Monthly Revenue"
-        />
+        <input type="text" name="itemDescription" class="fa-input-surface w-full" placeholder="Monthly Revenue" />
       </div>
       <div>
         <label class="fa-field-label mb-2">Amount ($)</label>
-        <input
-          type="number"
-          name="itemAmount"
-          step="100"
-          class="fa-input-surface w-full"
-          placeholder="10000"
-        />
+        <input type="number" name="itemAmount" step="100" class="fa-input-surface w-full" placeholder="10000" />
       </div>
       <div>
         <label class="fa-field-label mb-2">Type</label>
-        <select
-          name="itemType"
-          class="fa-input-surface w-full"
-        >
+        <select name="itemType" class="fa-input-surface w-full">
           <option value="operating">Operating</option>
           <option value="investing">Investing</option>
           <option value="financing">Financing</option>
@@ -68,10 +141,7 @@ class CashFlowAnalysisCalculator {
       </div>
       <div>
         <label class="fa-field-label mb-2">Frequency</label>
-        <select
-          name="itemFrequency"
-          class="fa-input-surface w-full"
-        >
+        <select name="itemFrequency" class="fa-input-surface w-full">
           <option value="monthly">Monthly</option>
           <option value="quarterly">Quarterly</option>
           <option value="annual">Annual</option>
@@ -80,124 +150,40 @@ class CashFlowAnalysisCalculator {
       </div>
     `;
     itemsContainer.appendChild(newItem);
-  }
+  });
 
-  private async handleSubmit(e: Event): Promise<void> {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-cash-flow', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(new FormData(form))),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze cash flow');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze cash flow');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_cash_flow', result);
     } catch (error) {
       console.error('Cash flow analysis error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze cash flow');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    const cashFlowItems: Array<Record<string, unknown>> = [];
-
-    // Collect all cash flow items
-    const itemDescriptions = formData.getAll('itemDescription');
-    const itemAmounts = formData.getAll('itemAmount');
-    const itemTypes = formData.getAll('itemType');
-    const itemFrequencies = formData.getAll('itemFrequency');
-
-    for (let i = 0; i < itemDescriptions.length; i++) {
-      if (itemDescriptions[i] && itemAmounts[i]) {
-        cashFlowItems.push({
-          description: itemDescriptions[i],
-          amount: parseFloat(itemAmounts[i] as string),
-          type: itemTypes[i] || 'operating',
-          category: 'revenue',
-          frequency: itemFrequencies[i] || 'monthly',
-          isRecurring: true,
-        });
-      }
-    }
-
-    return {
-      companyName: formData.get('companyName') || undefined,
-      analysisStartDate: new Date().toISOString(),
-      analysisPeriodMonths: parseInt((formData.get('analysisPeriodMonths') as string) || '12'),
-      cashFlowItems:
-        cashFlowItems.length > 0
-          ? cashFlowItems
-          : [
-              {
-                description: 'Sample Revenue',
-                amount: 10000,
-                type: 'operating',
-                category: 'revenue',
-                frequency: 'monthly',
-                isRecurring: true,
-              },
-            ],
-      openingCashBalance: parseFloat((formData.get('openingCashBalance') as string) || '0'),
-      minimumCashBalance: parseFloat((formData.get('minimumCashBalance') as string) || '0'),
-      discountRate: parseFloat((formData.get('discountRate') as string) || '10') / 100,
-      taxRate: parseFloat((formData.get('taxRate') as string) || '25') / 100,
-      method: 'direct',
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('cash-flow-results');
-    const contentDiv = document.getElementById('cash-flow-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Cash Flow Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your cash flow analysis is complete. Use the AI assistant to get detailed recommendations and insights.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered cash flow analysis and recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new CashFlowAnalysisCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initCashFlowAnalysisCalculator);
 } else {
-  new CashFlowAnalysisCalculator();
+  initCashFlowAnalysisCalculator();
 }

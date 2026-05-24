@@ -1,6 +1,6 @@
 import React from 'react';
 import type { InputState } from '../lib/primitiveContracts';
-import { inputClasses, inputStateClasses } from '../lib/classNames';
+import { copyClasses, inputClasses, inputStateClasses } from '../lib/classNames';
 import { cn } from '../lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -53,7 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'text-sm',
               resolvedState === 'success'
                 ? 'text-emerald-600 dark:text-emerald-300'
-                : 'text-slate-500 dark:text-slate-400'
+                : copyClasses.muted
             )}
           >
             {helperText}

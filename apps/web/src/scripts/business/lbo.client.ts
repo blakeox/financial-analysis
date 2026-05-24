@@ -2,65 +2,124 @@
  * LBO Model Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class LBOModel {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('lbo-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('LBO form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const irr = Number(summary.irr) || 0;
+  const irrPct = irr > 1 ? irr : irr * 100;
+  const moic = Number(summary.moic) || 0;
+  const leverage = Number(summary.leverage) || 0;
+  const exitValue = Number(summary.exitValue) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'IRR',
+      value: `${irrPct.toFixed(1)}%`,
+      meta: 'equity return',
+      tone: irrPct >= 20 ? 'emerald' : irrPct >= 15 ? 'amber' : 'orange',
+    },
+    {
+      title: 'MOIC',
+      value: `${moic.toFixed(2)}x`,
+      tone: moic >= 2 ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Leverage',
+      value: `${leverage.toFixed(1)}x`,
+      meta: 'debt / EBITDA',
+      tone: leverage > 6 ? 'orange' : 'violet',
+    },
+    {
+      title: 'Exit Value',
+      value: formatCurrency(exitValue),
+      tone: 'emerald',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initLboCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const ebitda = parseNumber(form, 'ebitda');
+      const purchasePrice = parseNumber(form, 'purchasePrice');
+      const equityContribution = parseNumber(form, 'equityContribution');
+      const debtAmount = parseNumber(form, 'debtAmount');
+      const seniorDebtAmount = parseNumber(form, 'seniorDebtAmount') || debtAmount;
 
       const input = {
         targetCompany: {
-          ebitda: parseFloat((formData.get('ebitda') as string) || '0'),
-          revenue: parseFloat((formData.get('revenue') as string) || '0'),
-          debt: parseFloat((formData.get('currentDebt') as string) || '0'),
-          equity: parseFloat((formData.get('equity') as string) || '0'),
+          ebitda,
+          revenue: parseNumber(form, 'revenue'),
+          debt: 0,
+          equity: 0,
         },
         transaction: {
-          purchasePrice: parseFloat((formData.get('purchasePrice') as string) || '0'),
-          equityContribution: parseFloat((formData.get('equityContribution') as string) || '0'),
-          debtAmount: parseFloat((formData.get('debtAmount') as string) || '0'),
-          transactionFees: parseFloat((formData.get('transactionFees') as string) || '0'),
+          purchasePrice,
+          equityContribution,
+          debtAmount,
+          transactionFees: purchasePrice * 0.02,
         },
         financing: {
           seniorDebt: {
-            amount: parseFloat((formData.get('seniorDebtAmount') as string) || '0'),
-            interestRate: parseFloat((formData.get('seniorDebtRate') as string) || '0'),
-            term: parseInt((formData.get('seniorDebtTerm') as string) || '7'),
+            amount: seniorDebtAmount,
+            interestRate: parseRate(form, 'seniorDebtRate') || 0.07,
+            term: 7,
           },
           mezzanineDebt: {
-            amount: parseFloat((formData.get('mezzanineDebtAmount') as string) || '0'),
-            interestRate: parseFloat((formData.get('mezzanineDebtRate') as string) || '0.12'),
-            term: parseInt((formData.get('mezzanineDebtTerm') as string) || '7'),
+            amount: Math.max(0, debtAmount - seniorDebtAmount),
+            interestRate: 0.12,
+            term: 7,
           },
         },
         projections: {
-          ebitdaGrowth: parseFloat((formData.get('ebitdaGrowth') as string) || '0.05'),
-          revenueGrowth: parseFloat((formData.get('revenueGrowth') as string) || '0.05'),
-          exitMultiple: parseFloat((formData.get('exitMultiple') as string) || '8'),
-          holdingPeriod: parseInt((formData.get('holdingPeriod') as string) || '5'),
+          ebitdaGrowth: 0.05,
+          revenueGrowth: 0.05,
+          exitMultiple: parseNumber(form, 'exitMultiple') || 8,
+          holdingPeriod: Math.round(parseNumber(form, 'holdingPeriod')) || 5,
         },
         analysis: {
           includeIRR: true,
@@ -77,42 +136,24 @@ class LBOModel {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze LBO');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze LBO');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_lbo', result);
     } catch (error) {
       console.error('LBO error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze LBO');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('lbo-results');
-    const contentDiv = document.getElementById('lbo-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">LBO Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your LBO analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new LBOModel());
+  document.addEventListener('DOMContentLoaded', initLboCalculator);
 } else {
-  new LBOModel();
+  initLboCalculator();
 }

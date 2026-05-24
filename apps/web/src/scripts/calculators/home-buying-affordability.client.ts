@@ -1,55 +1,128 @@
 /**
  * Home Buying Affordability Calculator Client Script
- * Handles home buying affordability analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class HomeBuyingAffordabilityCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('home-buying-results');
+  const contentDiv = document.getElementById('home-buying-results-content');
 
-  private init(): void {
-    this.form = document.getElementById('home-buying-affordability-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Home buying affordability form not found');
-      return;
-    }
+  if (!resultsDiv || !contentDiv) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const maxPrice = Number(summary.maxAffordablePrice) || 0;
+  const monthlyPayment = Number(summary.monthlyPayment) || 0;
+  const dti = Number(summary.debtToIncomeRatio) || 0;
+  const score = String(summary.affordabilityScore ?? '');
+
+  contentDiv.innerHTML = `<div class="grid grid-cols-1 gap-4">${renderMetricCards([
+    {
+      title: 'Max Affordable Price',
+      value: formatCurrency(maxPrice),
+      meta: score ? `score: ${score}` : undefined,
+      tone: 'emerald',
+    },
+    {
+      title: 'Monthly Payment',
+      value: formatCurrency(monthlyPayment),
+      meta: 'PITI estimate',
+      tone: 'violet',
+    },
+    {
+      title: 'Debt-to-Income',
+      value: `${dti.toFixed(1)}%`,
+      meta: dti > 43 ? 'above typical lender max' : 'within common limits',
+      tone: dti > 43 ? 'orange' : dti > 36 ? 'amber' : 'emerald',
+    },
+    {
+      title: 'Recommended Down Payment',
+      value: formatCurrency(Number(summary.recommendedDownPayment) || 0),
+      tone: 'violet',
+    },
+  ])}</div>`;
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initHomeBuyingAffordabilityCalculator(): void {
+  const form = document.getElementById('home-buying-affordability-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
+      const input = {
+        personalInfo: {
+          age: Math.round(parseNumber(form, 'age')) || 35,
+          maritalStatus: 'married' as const,
+          dependents: 0,
+          employmentStatus: 'employed' as const,
+          yearsEmployed: 5,
+          creditScore: Math.round(parseNumber(form, 'creditScore')) || 700,
+        },
+        finances: {
+          annualIncome: parseNumber(form, 'annualIncome'),
+          monthlyDebtPayments: parseNumber(form, 'monthlyDebtPayments'),
+          downPaymentAvailable: parseNumber(form, 'downPaymentAvailable'),
+          emergencyFund: parseNumber(form, 'emergencyFund'),
+          otherAssets: 0,
+        },
+        homePreferences: {
+          targetPrice: parseNumber(form, 'targetPrice'),
+          location: 'Unknown',
+          homeType:
+            (form.elements.namedItem('homeType') as HTMLSelectElement)?.value || 'single-family',
+          mustHaves: [],
+          niceToHaves: [],
+        },
+        goals: {
+          timeline: 2,
+          riskTolerance: 'moderate' as const,
+          priority: 'affordability' as const,
+        },
+      };
 
-      // Call API endpoint
       const response = await fetch('/api/analyze-home-buying-affordability', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze home buying affordability');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze home buying affordability'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_home_buying_affordability', result);
     } catch (error) {
       console.error('Home buying affordability error:', error);
       showError(
@@ -58,73 +131,11 @@ class HomeBuyingAffordabilityCalculator {
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      personalInfo: {
-        age: parseInt((formData.get('age') as string) || '35'),
-        maritalStatus: 'married',
-        dependents: 0,
-        employmentStatus: 'employed',
-        yearsEmployed: 5,
-        creditScore: parseInt((formData.get('creditScore') as string) || '700'),
-      },
-      finances: {
-        annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-        monthlyDebtPayments: parseFloat((formData.get('monthlyDebtPayments') as string) || '0'),
-        downPaymentAvailable: parseFloat((formData.get('downPaymentAvailable') as string) || '0'),
-        emergencyFund: parseFloat((formData.get('emergencyFund') as string) || '0'),
-        otherAssets: 0,
-      },
-      homePreferences: {
-        targetPrice: parseFloat((formData.get('targetPrice') as string) || '0'),
-        location: 'Unknown',
-        homeType: (formData.get('homeType') as string) || 'single-family',
-        mustHaves: [],
-        niceToHaves: [],
-      },
-      goals: {
-        timeline: 2,
-        riskTolerance: 'moderate',
-        priority: 'affordability',
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('home-buying-results');
-    const contentDiv = document.getElementById('home-buying-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Home Buying Affordability Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your home buying affordability analysis is complete. Use the AI assistant to get detailed recommendations and strategies.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered home buying recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new HomeBuyingAffordabilityCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initHomeBuyingAffordabilityCalculator);
 } else {
-  new HomeBuyingAffordabilityCalculator();
+  initHomeBuyingAffordabilityCalculator();
 }

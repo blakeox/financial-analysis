@@ -2,53 +2,89 @@
  * Business Financial Health Assessment Client Script
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class BusinessFinancialHealthCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
+  const resultsBanner = document.getElementById('results');
 
-  private init(): void {
-    this.form = document.getElementById('calculator-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Calculator form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const metrics =
+    record.metrics && typeof record.metrics === 'object'
+      ? (record.metrics as Record<string, unknown>)
+      : {};
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const score = Number(record.score) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Health Score',
+      value: `${score}/100`,
+      meta: String(record.interpretation ?? '').slice(0, 40),
+      tone: score >= 70 ? 'emerald' : score >= 50 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Debt / EBITDA',
+      value: `${(Number(metrics.debtToEBITDA) || 0).toFixed(1)}x`,
+      tone: Number(metrics.debtToEBITDA) > 3 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Current Ratio',
+      value: `${(Number(metrics.currentRatio) || 0).toFixed(2)}x`,
+      tone: Number(metrics.currentRatio) >= 1.5 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Quick Ratio',
+      value: `${(Number(metrics.quickRatio) || 0).toFixed(2)}x`,
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsBanner?.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initBusinessFinancialHealthCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const creditScore = parseNumber(form, 'creditScore');
       const input = {
         businessInfo: {
-          yearsInBusiness: parseInt((formData.get('yearsInBusiness') as string) || '0'),
-          industry: (formData.get('industry') as string) || undefined,
-          employeeCount: formData.get('employeeCount')
-            ? parseInt(formData.get('employeeCount') as string)
-            : undefined,
+          yearsInBusiness: Math.round(parseNumber(form, 'yearsInBusiness')),
+          industry: 'general',
         },
         financials: {
-          annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
-          annualEBITDA: parseFloat((formData.get('annualEBITDA') as string) || '0'),
-          currentDebt: parseFloat((formData.get('currentDebt') as string) || '0'),
-          monthlyDebtPayments: parseFloat((formData.get('monthlyDebtPayments') as string) || '0'),
-          cashOnHand: parseFloat((formData.get('cashOnHand') as string) || '0'),
-          accountsReceivable: parseFloat((formData.get('accountsReceivable') as string) || '0'),
-          accountsPayable: parseFloat((formData.get('accountsPayable') as string) || '0'),
-          creditScore: formData.get('creditScore')
-            ? parseInt(formData.get('creditScore') as string)
-            : undefined,
+          annualRevenue: parseNumber(form, 'annualRevenue'),
+          annualEBITDA: parseNumber(form, 'annualEBITDA'),
+          currentDebt: parseNumber(form, 'currentDebt'),
+          monthlyDebtPayments: parseNumber(form, 'monthlyDebtPayments'),
+          cashOnHand: parseNumber(form, 'cashOnHand'),
+          accountsReceivable: parseNumber(form, 'accountsReceivable'),
+          accountsPayable: parseNumber(form, 'accountsPayable'),
+          creditScore: creditScore >= 300 ? creditScore : undefined,
         },
       };
 
@@ -59,41 +95,26 @@ class BusinessFinancialHealthCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze financial health');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze financial health'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_business_financial_health', result);
     } catch (error) {
       console.error('Financial health error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze financial health');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    resultsDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Financial Health Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your business financial health analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new BusinessFinancialHealthCalculator());
+  document.addEventListener('DOMContentLoaded', initBusinessFinancialHealthCalculator);
 } else {
-  new BusinessFinancialHealthCalculator();
+  initBusinessFinancialHealthCalculator();
 }

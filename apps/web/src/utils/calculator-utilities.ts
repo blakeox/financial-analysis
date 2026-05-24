@@ -248,14 +248,23 @@ export function hideResults(): void {
   summaryCards?.classList.add('hidden');
 }
 
+function getPageErrorElements(): {
+  container: HTMLElement | null;
+  message: HTMLElement | null;
+} {
+  const container =
+    document.getElementById('error') ?? document.getElementById(DOM_IDS.ERROR_STATE);
+  const message = document.getElementById(DOM_IDS.ERROR_MESSAGE);
+  return { container, message };
+}
+
 /**
- * Show error message
+ * Show error message (supports template `#error` and legacy `#error-state` shells).
  */
 export function showError(message: string): void {
-  const errorState = document.getElementById(DOM_IDS.ERROR_STATE);
-  const errorMessage = document.getElementById(DOM_IDS.ERROR_MESSAGE);
+  const { container, message: errorMessage } = getPageErrorElements();
 
-  errorState?.classList.remove('hidden');
+  container?.classList.remove('hidden');
   if (errorMessage) {
     errorMessage.textContent = message;
   }
@@ -265,8 +274,11 @@ export function showError(message: string): void {
  * Hide error message
  */
 export function hideError(): void {
-  const errorState = document.getElementById(DOM_IDS.ERROR_STATE);
-  errorState?.classList.add('hidden');
+  const { container, message: errorMessage } = getPageErrorElements();
+  container?.classList.add('hidden');
+  if (errorMessage) {
+    errorMessage.textContent = '';
+  }
 }
 
 /**

@@ -2,61 +2,96 @@
  * Net Worth Tracker Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class NetWorthTracker {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('net-worth-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Net Worth form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Net Worth',
+      value: formatCurrency(Number(summary.currentNetWorth) || 0),
+      meta: `${formatCurrency(Number(summary.totalAssets) || 0)} assets`,
+      tone: 'violet',
+    },
+    {
+      title: 'Total Liabilities',
+      value: formatCurrency(Number(summary.totalLiabilities) || 0),
+      tone: 'amber',
+    },
+    {
+      title: 'Projected Net Worth',
+      value: formatCurrency(Number(summary.projectedNetWorth) || 0),
+      meta: summary.yearsToTarget
+        ? `target in ${summary.yearsToTarget} years`
+        : 'based on growth assumptions',
+      tone: 'emerald',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initNetWorthCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
-
-      const formData = new FormData(this.form);
 
       const input = {
         assets: {
-          cash: parseFloat((formData.get('cash') as string) || '0'),
-          investments: parseFloat((formData.get('investments') as string) || '0'),
-          realEstate: parseFloat((formData.get('realEstate') as string) || '0'),
-          retirementAccounts: parseFloat((formData.get('retirementAccounts') as string) || '0'),
-          businessValue: parseFloat((formData.get('businessValue') as string) || '0'),
-          otherAssets: parseFloat((formData.get('otherAssets') as string) || '0'),
+          cash: parseNumber(form, 'cash'),
+          investments: parseNumber(form, 'investments'),
+          realEstate: parseNumber(form, 'realEstate'),
+          retirementAccounts: parseNumber(form, 'retirementAccounts'),
+          businessValue: parseNumber(form, 'businessValue'),
+          otherAssets: parseNumber(form, 'otherAssets'),
         },
         liabilities: {
-          mortgages: parseFloat((formData.get('mortgages') as string) || '0'),
-          creditCardDebt: parseFloat((formData.get('creditCardDebt') as string) || '0'),
-          studentLoans: parseFloat((formData.get('studentLoans') as string) || '0'),
-          autoLoans: parseFloat((formData.get('autoLoans') as string) || '0'),
-          otherDebt: parseFloat((formData.get('otherDebt') as string) || '0'),
+          mortgages: parseNumber(form, 'mortgages'),
+          creditCardDebt: parseNumber(form, 'creditCardDebt'),
+          studentLoans: parseNumber(form, 'studentLoans'),
+          autoLoans: parseNumber(form, 'autoLoans'),
+          otherDebt: parseNumber(form, 'otherDebt'),
         },
         projections: {
-          assetGrowthRate: parseFloat((formData.get('assetGrowthRate') as string) || '0.07'),
-          debtPaydownRate: parseFloat((formData.get('debtPaydownRate') as string) || '0.05'),
-          yearsToProject: parseInt((formData.get('yearsToProject') as string) || '10'),
+          assetGrowthRate: parseNumber(form, 'assetGrowthRate') / 100 || 0.07,
+          debtPaydownRate: 0.05,
+          yearsToProject: 10,
         },
         goals: {
-          targetNetWorth: formData.get('targetNetWorth')
-            ? parseFloat(formData.get('targetNetWorth') as string)
-            : undefined,
-          targetDate: formData.get('targetDate') as string | undefined,
           includeMilestones: true,
         },
       };
@@ -68,42 +103,28 @@ class NetWorthTracker {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze net worth');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to analyze net worth');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_net_worth', result);
+
+      document.getElementById('results')?.classList.remove('hidden');
     } catch (error) {
       console.error('Net Worth error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze net worth');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('net-worth-results');
-    const contentDiv = document.getElementById('net-worth-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Net Worth Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your net worth analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new NetWorthTracker());
-} else {
-  new NetWorthTracker();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNetWorthCalculator);
+  } else {
+    initNetWorthCalculator();
+  }
 }

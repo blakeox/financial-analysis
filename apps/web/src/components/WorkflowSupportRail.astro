@@ -1,49 +1,60 @@
 ---
 import ChatPanel from './ChatPanel.astro';
 import EnhancedAnalysisResults from './EnhancedAnalysisResults.tsx';
+import { hasAnalysisEngine } from '../scripts/analysis/analysis-event-contract.ts';
 
 export interface Props {
   modelType: string;
   resultsTitle?: string;
   analysisTitle?: string;
+  showImpactSummary?: boolean;
 }
 
 const {
   modelType,
   resultsTitle = 'Live results',
   analysisTitle = 'Impact summary',
+  showImpactSummary,
 } = Astro.props as Props;
+
+const showImpact = showImpactSummary ?? hasAnalysisEngine(modelType);
 ---
 
 <aside class="space-y-4 xl:sticky xl:top-24">
   <ChatPanel variant="embedded" />
 
-  <section
-    id="results-section"
-    class="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
-  >
-    <div class="border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-      <h2 class="text-base font-semibold text-slate-900 dark:text-white">{resultsTitle}</h2>
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+  <section id="results-section" class="fa-rail-card hidden">
+    <div class="fa-rail-card-header">
+      <h2 class="fa-rail-card-title">{resultsTitle}</h2>
+      <p class="fa-rail-card-copy">
         Updated after each calculation and assistant-applied change.
       </p>
     </div>
-    <div class="p-5">
+    <div class="fa-rail-card-body">
       <slot name="results-content">
         <div id="results-content"></div>
       </slot>
     </div>
   </section>
 
-  <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <div class="border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-      <h2 class="text-base font-semibold text-slate-900 dark:text-white">{analysisTitle}</h2>
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-        Plain-English takeaways tied to the latest model output.
-      </p>
-    </div>
-    <div class="p-5">
-      <EnhancedAnalysisResults client:load modelType={modelType} modelData={{}} className="h-full" />
-    </div>
-  </section>
+  {
+    showImpact ? (
+      <section class="fa-rail-card">
+        <div class="fa-rail-card-header">
+          <h2 class="fa-rail-card-title">{analysisTitle}</h2>
+          <p class="fa-rail-card-copy">
+            Plain-English takeaways tied to the latest model output.
+          </p>
+        </div>
+        <div class="fa-rail-card-body">
+          <EnhancedAnalysisResults
+            client:load
+            modelType={modelType}
+            modelData={{}}
+            className="h-full"
+          />
+        </div>
+      </section>
+    ) : null
+  }
 </aside>

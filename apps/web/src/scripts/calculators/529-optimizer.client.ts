@@ -1,65 +1,126 @@
 /**
- * 529 Plan Optimizer Calculator Client Script
+ * 529 Plan Optimizer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class FiveTwoNineOptimizerCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('529-optimizer-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('529 Optimizer form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const totalCosts = Number(summary.totalEducationCosts) || 0;
+  const rawProjected = summary.projectedBalance ?? summary.projected529Balance;
+  const projected =
+    typeof rawProjected === 'object' && rawProjected !== null && 'toNumber' in rawProjected
+      ? Number((rawProjected as { toNumber: () => number }).toNumber())
+      : Number(rawProjected) || 0;
+  const shortfall = Number(summary.shortfall) || 0;
+  const optimalState = String(summary.optimalState ?? '');
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Education Costs',
+      value: formatCurrency(totalCosts),
+      tone: 'violet',
+    },
+    {
+      title: 'Projected 529 Balance',
+      value: formatCurrency(projected),
+      tone: shortfall > 0 ? 'amber' : 'emerald',
+    },
+    {
+      title: 'Funding Gap',
+      value: shortfall > 0 ? formatCurrency(shortfall) : 'On track',
+      meta: shortfall > 0 ? 'increase contributions' : 'covers estimated costs',
+      tone: shortfall > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Best State Plan',
+      value: optimalState || 'Compare plans',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function init529OptimizerCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const childrenJson = formData.get('children') as string;
-      const children = childrenJson ? JSON.parse(childrenJson) : [];
+      const annualContribution = parseNumber(form, 'annualContribution');
+      const stateOfResidence =
+        (form.elements.namedItem('stateOfResidence') as HTMLInputElement)?.value || 'CA';
 
       const input = {
         personalInfo: {
-          stateOfResidence: (formData.get('stateOfResidence') as string) || '',
-          filingStatus: (formData.get('filingStatus') as string) || 'single',
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
+          stateOfResidence,
+          filingStatus:
+            (form.elements.namedItem('filingStatus') as HTMLSelectElement)?.value ||
+            'married-joint',
+          stateTaxRate: 0,
         },
-        children,
+        children: [
+          {
+            age: 10,
+            yearsUntilCollege: 8,
+            expectedCollegeCost: 120000,
+            collegeType: 'public-in-state' as const,
+          },
+        ],
+        current529Accounts: [],
         contributionPlan: {
-          annualContribution: parseFloat((formData.get('annualContribution') as string) || '0'),
-          contributionIncrease: parseFloat(
-            (formData.get('contributionIncrease') as string) || '0.03'
-          ),
+          annualContribution,
+          contributionIncrease: 0.03,
+          lumpSumContributions: [],
         },
         financialAid: {
-          expectFinancialAid: formData.get('expectFinancialAid') !== 'false',
-          expectedAidPercentage: parseFloat(
-            (formData.get('expectedAidPercentage') as string) || '0.3'
-          ),
+          expectFinancialAid: true,
+          expectedAidPercentage: 0.3,
+          includeAidImpact: true,
         },
         strategy: {
-          optimizeFor: (formData.get('optimizeFor') as string) || 'max-tax-benefit',
-          includeMultiStateComparison: formData.get('includeMultiStateComparison') !== 'false',
+          optimizeFor: 'max-tax-benefit' as const,
+          includeMultiStateComparison: true,
+          includeCoverdellESA: false,
         },
         analysis: {
-          includeProjection: formData.get('includeProjection') !== 'false',
-          includeShortfallAnalysis: formData.get('includeShortfallAnalysis') !== 'false',
-          includeRolloverAnalysis: formData.get('includeRolloverAnalysis') !== 'false',
+          includeProjection: true,
+          includeShortfallAnalysis: true,
+          includeRolloverAnalysis: false,
         },
       };
 
@@ -70,42 +131,26 @@ class FiveTwoNineOptimizerCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze 529 optimizer');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze 529 plan optimization'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_529_optimizer', result);
     } catch (error) {
-      console.error('529 Optimizer error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to analyze 529 optimizer');
+      console.error('529 optimizer error:', error);
+      showError(error instanceof Error ? error.message : 'Failed to analyze 529 plan optimization');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('529-optimizer-results');
-    const contentDiv = document.getElementById('529-optimizer-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">529 Plan Optimizer Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your 529 plan optimizer analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new FiveTwoNineOptimizerCalculator());
+  document.addEventListener('DOMContentLoaded', init529OptimizerCalculator);
 } else {
-  new FiveTwoNineOptimizerCalculator();
+  init529OptimizerCalculator();
 }

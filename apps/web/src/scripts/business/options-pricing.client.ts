@@ -1,109 +1,130 @@
 /**
  * Options Pricing Calculator Client Script
- * Handles options pricing analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class OptionsPricingCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('options-pricing-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Options pricing form not found');
-      return;
-    }
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  const years = parseNumber(form, 'timeToExpiration') || 0.25;
+  const expirationDate = new Date();
+  expirationDate.setMonth(expirationDate.getMonth() + Math.round(years * 12));
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  return {
+    optionType:
+      (form.elements.namedItem('optionType') as HTMLSelectElement)?.value === 'put'
+        ? 'put'
+        : 'call',
+    optionStyle: (form.elements.namedItem('optionStyle') as HTMLSelectElement)?.value || 'american',
+    strikePrice: parseNumber(form, 'strikePrice') || 100,
+    currentPrice: parseNumber(form, 'stockPrice') || 100,
+    expirationDate: expirationDate.toISOString().split('T')[0],
+    riskFreeRate: parseRate(form, 'riskFreeRate') || 0.04,
+    volatility: parseRate(form, 'volatility') || 0.25,
+    dividendYield: parseRate(form, 'dividendYield'),
+    pricingModel: 'black-scholes',
+  };
+}
 
-  private async handleSubmit(e: Event): Promise<void> {
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('options-results');
+  const contentDiv = document.getElementById('options-results-content');
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const pricing =
+    record.pricing && typeof record.pricing === 'object'
+      ? (record.pricing as Record<string, unknown>)
+      : {};
+  const greeks =
+    record.greeks && typeof record.greeks === 'object'
+      ? (record.greeks as Record<string, unknown>)
+      : {};
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Theoretical Value',
+      value: formatCurrency(Number(pricing.theoreticalValue) || 0),
+      meta: String(pricing.moneyness ?? ''),
+      tone: 'violet',
+    },
+    {
+      title: 'Intrinsic Value',
+      value: formatCurrency(Number(pricing.intrinsicValue) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Delta',
+      value: (Number(greeks.delta) || 0).toFixed(3),
+      tone: 'amber',
+    },
+    {
+      title: 'Recommendation',
+      value: String(record.recommendation ?? 'Hold'),
+      tone: 'orange',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initOptionsPricingCalculator(): void {
+  const form = document.getElementById('options-pricing-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-options-pricing', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze options pricing');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze options pricing'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_options_pricing', result);
     } catch (error) {
       console.error('Options pricing error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze options pricing');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      optionType: formData.get('optionType'),
-      optionStyle: formData.get('optionStyle'),
-      stockPrice: parseFloat((formData.get('stockPrice') as string) || '0'),
-      strikePrice: parseFloat((formData.get('strikePrice') as string) || '0'),
-      timeToExpiration: parseFloat((formData.get('timeToExpiration') as string) || '0.25'),
-      volatility: parseFloat((formData.get('volatility') as string) || '0') / 100,
-      riskFreeRate: parseFloat((formData.get('riskFreeRate') as string) || '0') / 100,
-      dividendYield: parseFloat((formData.get('dividendYield') as string) || '0') / 100,
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('options-results');
-    const contentDiv = document.getElementById('options-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Options Pricing Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your options pricing analysis is complete. Use the AI assistant to get detailed recommendations and Greeks analysis.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered options analysis and strategy recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new OptionsPricingCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initOptionsPricingCalculator);
 } else {
-  new OptionsPricingCalculator();
+  initOptionsPricingCalculator();
 }

@@ -1,131 +1,146 @@
 /**
  * College Savings Planner Client Script
- * Handles college savings analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CollegeSavingsCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  const numberOfChildren = Math.max(1, Math.round(parseNumber(form, 'numberOfChildren')) || 1);
+  const children = [];
+  for (let i = 0; i < numberOfChildren; i++) {
+    children.push({
+      name: `Child ${i + 1}`,
+      age: 10 + i * 2,
+      expectedCollegeStartAge: 18,
+      expectedGraduationAge: 22,
+      collegeType: 'public' as const,
+      specialNeeds: false,
+    });
   }
 
-  private init(): void {
-    this.form = document.getElementById('college-savings-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('College savings form not found');
-      return;
-    }
+  return {
+    familyInfo: {
+      numberOfChildren,
+      children,
+      stateOfResidence:
+        (form.elements.namedItem('stateOfResidence') as HTMLInputElement)?.value || 'CA',
+      maritalStatus:
+        (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'married',
+    },
+    currentSavings: {
+      total529Balance: parseNumber(form, 'total529Balance'),
+      totalCoverdellBalance: 0,
+      totalOtherSavings: 0,
+      monthlyContribution: parseNumber(form, 'monthlyContribution'),
+    },
+    goals: {
+      targetCoverage: parseNumber(form, 'targetCoverage') / 100 || 1,
+      riskTolerance:
+        (form.elements.namedItem('riskTolerance') as HTMLSelectElement)?.value || 'moderate',
+      investmentStrategy: 'age-based' as const,
+    },
+  };
+}
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('college-savings-results');
+  const contentDiv = document.getElementById('college-savings-results-content');
 
-  private async handleSubmit(e: Event): Promise<void> {
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const totalCost = Number(summary.totalProjectedCost) || 0;
+  const gap = Number(summary.savingsGap) || 0;
+  const monthlyNeeded = Number(summary.requiredMonthlyContribution) || 0;
+  const successPct = Number(summary.successProbability) || 0;
+  const currentSavings = Number(summary.totalCurrentSavings) || 0;
+
+  contentDiv.innerHTML = `<div class="grid grid-cols-1 gap-4">${renderMetricCards([
+    {
+      title: 'Projected Costs',
+      value: formatCurrency(totalCost),
+      tone: 'violet',
+    },
+    {
+      title: 'Current Savings',
+      value: formatCurrency(currentSavings),
+      tone: 'violet',
+    },
+    {
+      title: 'Funding Gap',
+      value: gap > 0 ? formatCurrency(gap) : 'On track',
+      meta: gap > 0 ? `save ${formatCurrency(monthlyNeeded)}/mo` : undefined,
+      tone: gap > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Success Probability',
+      value: `${successPct.toFixed(0)}%`,
+      meta: 'meeting savings goals',
+      tone: successPct >= 85 ? 'emerald' : successPct >= 70 ? 'amber' : 'orange',
+    },
+  ])}</div>`;
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCollegeSavingsCalculator(): void {
+  const form = document.getElementById('college-savings-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-college-savings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze college savings');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze college savings'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_college_savings', result);
     } catch (error) {
       console.error('College savings error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze college savings');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    const numberOfChildren = parseInt((formData.get('numberOfChildren') as string) || '1');
-    const children = [];
-    for (let i = 0; i < numberOfChildren; i++) {
-      children.push({
-        name: `Child ${i + 1}`,
-        age: 10 + i * 2, // Sample ages
-        expectedCollegeStartAge: 18,
-        expectedGraduationAge: 22,
-        collegeType: 'public',
-        specialNeeds: false,
-      });
-    }
-
-    return {
-      familyInfo: {
-        numberOfChildren,
-        children,
-        stateOfResidence: formData.get('stateOfResidence') || 'CA',
-        maritalStatus: formData.get('maritalStatus') || 'married',
-      },
-      currentSavings: {
-        total529Balance: parseFloat((formData.get('total529Balance') as string) || '0'),
-        totalCoverdellBalance: 0,
-        totalOtherSavings: 0,
-        monthlyContribution: parseFloat((formData.get('monthlyContribution') as string) || '0'),
-      },
-      goals: {
-        targetCoverage: parseFloat((formData.get('targetCoverage') as string) || '100') / 100,
-        riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-        investmentStrategy: 'age-based',
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('college-savings-results');
-    const contentDiv = document.getElementById('college-savings-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">College Savings Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your college savings analysis is complete. Use the AI assistant to get detailed recommendations and strategies.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered college savings recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new CollegeSavingsCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initCollegeSavingsCalculator);
 } else {
-  new CollegeSavingsCalculator();
+  initCollegeSavingsCalculator();
 }

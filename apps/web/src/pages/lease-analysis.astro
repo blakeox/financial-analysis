@@ -4,7 +4,8 @@ import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import PageHero from '../components/site/PageHero.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
-import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout 
@@ -12,6 +13,9 @@ import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
   description="Free lease vs buy calculator with AI-powered analysis. Compare leasing versus purchasing equipment, vehicles, or property. Get detailed financial projections, NPV calculations, and expert recommendations."
   keywords="lease analysis, lease vs buy calculator, equipment lease calculator, property lease analysis, capital lease calculator, operating lease, lease NPV, lease vs purchase"
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData 
@@ -68,8 +72,18 @@ import { LeaseAnalysisDashboard } from '@financial-analysis/ui';
       description="Analyze lease vs buy scenarios with AI extraction, templates, and advanced financial modeling."
     />
 
-    <SurfaceCard>
-      <LeaseAnalysisDashboard client:load />
-    </SurfaceCard>
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
+        <SurfaceCard>
+          <div id="lease-analysis-container"></div>
+        </SurfaceCard>
+      </div>
+
+      <WorkflowSupportRail modelType="lease" />
+    </div>
   </div>
+
+  <ClientScriptLoader client:load slot="pageScripts" name="lease-analysis" />
 </Layout>

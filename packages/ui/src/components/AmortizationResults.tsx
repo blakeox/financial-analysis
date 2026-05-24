@@ -4,6 +4,7 @@ import {
 } from '@financial-analysis/analysis';
 import React, { useMemo } from 'react';
 import { parseCalendarDate } from '../lib/formatters';
+import { copyClasses } from '../lib/classNames';
 import { cn } from '../lib/utils';
 import { AmortizationChart } from './AmortizationChart';
 import { Card, CardContent } from './Card';
@@ -84,23 +85,21 @@ export function AmortizationResults({
 
         <Card>
           <CardContent className="space-y-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total interest</p>
+            <p className={cn('text-sm font-medium', copyClasses.muted)}>Total interest</p>
             <p className="text-2xl font-semibold text-emerald-500 dark:text-emerald-400">
               {currencyFormatter.format(result.totalInterest)}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {interestShare.toFixed(1)}% of total cost
-            </p>
+            <p className={copyClasses.caption}>{interestShare.toFixed(1)}% of total cost</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="space-y-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total paid</p>
+            <p className={cn('text-sm font-medium', copyClasses.muted)}>Total paid</p>
             <p className="text-2xl font-semibold text-violet-500 dark:text-violet-300">
               {currencyFormatter.format(result.totalPayments)}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className={copyClasses.caption}>
               Principal repaid: {currencyFormatter.format(totalPrincipal)}
             </p>
           </CardContent>
@@ -113,14 +112,12 @@ export function AmortizationResults({
           {totalPMI > 0 && (
             <Card variant="subtle" className="border-amber-200/80 dark:border-amber-900/60">
               <CardContent className="space-y-2">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total PMI</p>
+                <p className={cn('text-sm font-medium', copyClasses.muted)}>Total PMI</p>
                 <p className="text-xl font-semibold text-orange-500 dark:text-orange-400">
                   {currencyFormatter.format(totalPMI)}
                 </p>
                 {result.pmiDropoffMonth && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Drops off month {result.pmiDropoffMonth}
-                  </p>
+                  <p className={copyClasses.caption}>Drops off month {result.pmiDropoffMonth}</p>
                 )}
               </CardContent>
             </Card>
@@ -129,13 +126,11 @@ export function AmortizationResults({
           {totalExtraPayments > 0 && (
             <Card variant="subtle" className="border-emerald-200/80 dark:border-emerald-900/60">
               <CardContent className="space-y-2">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  Extra payments
-                </p>
+                <p className={cn('text-sm font-medium', copyClasses.muted)}>Extra payments</p>
                 <p className="text-xl font-semibold text-emerald-500 dark:text-emerald-300">
                   {currencyFormatter.format(totalExtraPayments)}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Principal acceleration</p>
+                <p className={copyClasses.caption}>Principal acceleration</p>
               </CardContent>
             </Card>
           )}
@@ -143,13 +138,11 @@ export function AmortizationResults({
           {result.interestSaved !== undefined && result.interestSaved > 0 && (
             <Card variant="subtle" className="border-cyan-200/80 dark:border-cyan-900/60">
               <CardContent className="space-y-2">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  Interest saved
-                </p>
+                <p className={cn('text-sm font-medium', copyClasses.muted)}>Interest saved</p>
                 <p className="text-xl font-semibold text-cyan-500 dark:text-cyan-400">
                   {currencyFormatter.format(result.interestSaved)}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">vs. standard loan</p>
+                <p className={copyClasses.caption}>vs. standard loan</p>
               </CardContent>
             </Card>
           )}
@@ -157,11 +150,11 @@ export function AmortizationResults({
           {result.timeReduced !== undefined && result.timeReduced > 0 && (
             <Card variant="subtle" className="border-violet-200/80 dark:border-violet-900/60">
               <CardContent className="space-y-2">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Time saved</p>
+                <p className={cn('text-sm font-medium', copyClasses.muted)}>Time saved</p>
                 <p className="text-xl font-semibold text-violet-500 dark:text-violet-300">
                   {Math.floor(result.timeReduced / 12)}y {result.timeReduced % 12}m
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">vs. standard loan</p>
+                <p className={copyClasses.caption}>vs. standard loan</p>
               </CardContent>
             </Card>
           )}
@@ -175,13 +168,13 @@ export function AmortizationResults({
           className="bg-linear-to-r from-violet-50 to-fuchsia-50 dark:from-violet-950/30 dark:to-fuchsia-950/20"
         >
           <CardContent className="space-y-3">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className={cn('text-sm font-medium', copyClasses.muted)}>
               Total Monthly Payment (PITI)
             </p>
             <p className="text-3xl font-bold text-violet-600 dark:text-violet-300">
               {currencyFormatter.format(result.totalMonthlyPayment)}
             </p>
-            <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+            <div className={cn('space-y-1', copyClasses.caption)}>
               <div className="flex justify-between">
                 <span>Principal + Interest:</span>
                 <span className="font-medium">
@@ -219,13 +212,13 @@ export function AmortizationResults({
       {result.apr && (
         <Card variant="subtle" className="border-amber-200/80 dark:border-amber-900/60">
           <CardContent className="space-y-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className={cn('text-sm font-medium', copyClasses.muted)}>
               APR (Annual Percentage Rate)
             </p>
             <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
               {(result.apr * 100).toFixed(3)}%
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Includes all closing costs</p>
+            <p className={copyClasses.caption}>Includes all closing costs</p>
           </CardContent>
         </Card>
       )}
@@ -240,7 +233,7 @@ export function AmortizationResults({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {result.totalCostSummary.downPayment > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Down Payment</p>
+                  <p className={copyClasses.caption}>Down Payment</p>
                   <p className="text-lg font-semibold">
                     {currencyFormatter.format(result.totalCostSummary.downPayment)}
                   </p>
@@ -248,27 +241,27 @@ export function AmortizationResults({
               )}
               {result.totalCostSummary.closingCosts > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Closing Costs</p>
+                  <p className={copyClasses.caption}>Closing Costs</p>
                   <p className="text-lg font-semibold">
                     {currencyFormatter.format(result.totalCostSummary.closingCosts)}
                   </p>
                 </div>
               )}
               <div className="space-y-1">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total Principal</p>
+                <p className={copyClasses.caption}>Total Principal</p>
                 <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
                   {currencyFormatter.format(result.totalCostSummary.totalPrincipal)}
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total Interest</p>
+                <p className={copyClasses.caption}>Total Interest</p>
                 <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">
                   {currencyFormatter.format(result.totalCostSummary.totalInterest)}
                 </p>
               </div>
               {result.totalCostSummary.totalPMI > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Total PMI</p>
+                  <p className={copyClasses.caption}>Total PMI</p>
                   <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
                     {currencyFormatter.format(result.totalCostSummary.totalPMI)}
                   </p>
@@ -276,7 +269,7 @@ export function AmortizationResults({
               )}
               {result.totalCostSummary.totalTaxes > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Total Property Tax</p>
+                  <p className={copyClasses.caption}>Total Property Tax</p>
                   <p className="text-lg font-semibold">
                     {currencyFormatter.format(result.totalCostSummary.totalTaxes)}
                   </p>
@@ -284,7 +277,7 @@ export function AmortizationResults({
               )}
               {result.totalCostSummary.totalInsurance > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Total Insurance</p>
+                  <p className={copyClasses.caption}>Total Insurance</p>
                   <p className="text-lg font-semibold">
                     {currencyFormatter.format(result.totalCostSummary.totalInsurance)}
                   </p>
@@ -292,7 +285,7 @@ export function AmortizationResults({
               )}
               {result.totalCostSummary.totalHOA > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Total HOA Fees</p>
+                  <p className={copyClasses.caption}>Total HOA Fees</p>
                   <p className="text-lg font-semibold">
                     {currencyFormatter.format(result.totalCostSummary.totalHOA)}
                   </p>
@@ -306,7 +299,7 @@ export function AmortizationResults({
                   {currencyFormatter.format(result.totalCostSummary.totalCost)}
                 </p>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className={cn(copyClasses.caption, 'mt-1')}>
                 Complete ownership cost over {result.schedule.length} months
               </p>
             </div>
@@ -321,9 +314,7 @@ export function AmortizationResults({
           className="bg-linear-to-r from-violet-50 to-emerald-50 dark:from-violet-950/25 dark:to-emerald-950/20"
         >
           <CardContent className="text-center space-y-2">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Final payment date
-            </p>
+            <p className={cn('text-sm font-medium', copyClasses.muted)}>Final payment date</p>
             <p className="text-2xl font-semibold text-slate-900 dark:text-white">
               {dateFormatter.format(parseCalendarDate(result.payoffDate))}
             </p>
@@ -344,7 +335,7 @@ export function AmortizationResults({
         <ScrollableRegion label="Amortization schedule table">
           <table className="min-w-full table-fixed border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-900/60 dark:text-slate-300">
+              <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:bg-slate-900/60 dark:text-slate-300">
                 <th className="px-3 py-3 w-16">Month</th>
                 {hasPaymentDates && <th className="px-3 py-3 w-24">Date</th>}
                 <th className="px-3 py-3 w-24">Payment</th>
@@ -365,7 +356,7 @@ export function AmortizationResults({
                     {item.month}
                   </td>
                   {hasPaymentDates && (
-                    <td className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+                    <td className={cn('px-3 py-2', copyClasses.caption)}>
                       {item.date ? dateFormatter.format(new Date(item.date)) : '-'}
                     </td>
                   )}

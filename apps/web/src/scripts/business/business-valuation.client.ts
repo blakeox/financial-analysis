@@ -8,6 +8,7 @@ import type { BusinessValuationInput, BusinessValuationResult } from '@financial
 import { BusinessValuationEngine } from '@financial-analysis/analysis';
 import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 
 type BusinessValuationMethod = BusinessValuationResult['methods'][number];
@@ -92,24 +93,27 @@ export const displayResults = (result: BusinessValuationResult): void => {
   resultsSection?.classList.remove('hidden');
 
   // Populate summary cards
-  summaryCards.innerHTML = `
-    <div class="bg-gradient-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-4 col-span-2">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Estimated Business Value</h5>
-      <p class="text-3xl font-bold text-violet-600 dark:text-violet-400 mt-2">${formatCurrency(result.valuationMid)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-2">Range: ${result.summary.valuationRange}</p>
-      <p class="text-xs text-violet-600 dark:text-violet-400 mt-1">Confidence: ${result.summary.confidenceLevel.toUpperCase()}</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Low Estimate</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.valuationLow)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Conservative scenario</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">High Estimate</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.valuationHigh)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Optimistic scenario</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Estimated Business Value',
+      value: formatCurrency(result.valuationMid),
+      meta: `Range: ${result.summary.valuationRange} · ${result.summary.confidenceLevel.toUpperCase()} confidence`,
+      tone: 'primary',
+      spanCols: 2,
+    },
+    {
+      title: 'Low Estimate',
+      value: formatCurrency(result.valuationLow),
+      meta: 'Conservative scenario',
+      tone: 'emerald',
+    },
+    {
+      title: 'High Estimate',
+      value: formatCurrency(result.valuationHigh),
+      meta: 'Optimistic scenario',
+      tone: 'violet',
+    },
+  ]);
 
   // Build detailed results
   resultsContainer.innerHTML = `
@@ -136,7 +140,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                   : method.confidence === 'medium'
                     ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    : 'bg-slate-100 dark:bg-slate-700 fa-copy-muted'
               }">
                 ${method.confidence.toUpperCase()} confidence
               </span>
@@ -210,7 +214,7 @@ export const displayResults = (result: BusinessValuationResult): void => {
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                   : adj.impact === 'negative'
                     ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    : 'bg-slate-100 dark:bg-slate-700 fa-copy-muted'
               }">
                 ${adj.adjustmentPercent > 0 ? '+' : ''}${adj.adjustmentPercent.toFixed(0)}%
               </span>
@@ -327,7 +331,7 @@ export const initBusinessValuationCalculator = (): void => {
       const result = BusinessValuationEngine.analyze(input);
 
       // Store result for AI assistant
-      storeAnalysisResult('business-valuation', result);
+      storeAnalysisResult('analyze_business_valuation', result);
 
       // Display results
       displayResults(result);

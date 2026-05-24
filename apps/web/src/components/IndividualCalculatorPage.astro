@@ -7,6 +7,7 @@ import ClientScriptLoader from './ClientScriptLoader.tsx';
 import { getJourneySuggestions } from '../utils/calculatorJourneyMapping';
 import WorkflowPageIntro from './WorkflowPageIntro.astro';
 import WorkflowSupportRail from './WorkflowSupportRail.astro';
+import { hasAnalysisEngine } from '../scripts/analysis/analysis-event-contract.ts';
 
 export interface Props {
   calculatorId: string;
@@ -52,7 +53,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
     ]}
   />
 
-  <main class="fa-page-shell">
+  <div class="fa-page-shell">
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
       <div class="space-y-6">
         <WorkflowPageIntro
@@ -154,9 +155,9 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
                   <span class="text-3xl">{journeySuggestions[0].journeyIcon}</span>
                 </div>
                 <div class="ml-4 flex-1">
-                  <h3 class="fa-scenario-title mb-2">
+                  <h2 class="fa-scenario-title mb-2">
                     Want a Complete Plan?
-                  </h3>
+                  </h2>
                   <p class="fa-scenario-copy mb-4">
                     {config.title} is part of the{' '}
                     <strong>{journeySuggestions[0].journeyName}</strong>. Complete the full journey
@@ -199,27 +200,27 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
                 <thead class="bg-slate-50 dark:bg-slate-900/60">
                   <tr>
                     <th
-                      class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Month</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Payment</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Principal</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Interest</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Balance</th
                     >
                     <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >Cumulative Interest</th
                     >
                   </tr>
@@ -235,7 +236,10 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         </div>
       </div>
 
-      <WorkflowSupportRail modelType={config.analysisType}>
+      <WorkflowSupportRail
+        modelType={config.analysisType}
+        showImpactSummary={hasAnalysisEngine(config.analysisType)}
+      >
         <Fragment slot="results-content">
           <div id="results-content">
             <div id="summary-cards" class="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
@@ -248,104 +252,8 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
     <div class="ad-container mx-auto mt-6 max-w-4xl">
       <AdSense slot="3456789012" />
     </div>
-  </main>
+  </div>
 
   <ClientScriptLoader client:load slot="pageScripts" name={config.clientScript as any} />
-  <ClientScriptLoader client:load slot="pageScripts" name="calculator-quick-access" />
   <ClientScriptLoader client:load slot="pageScripts" name="field-highlighting" />
-
-  <style>
-    .field-highlight {
-      position: relative;
-      animation: fieldHighlight 2s ease-in-out;
-      z-index: 10;
-    }
-
-    @keyframes fieldHighlight {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(109, 74, 255, 0.6);
-        border-color: #6d4aff;
-      }
-      25% {
-        transform: scale(1.015);
-        box-shadow: 0 0 0 8px rgba(109, 74, 255, 0.28);
-        border-color: #5b3df5;
-      }
-      50% {
-        transform: scale(1.03);
-        box-shadow: 0 0 0 12px rgba(109, 74, 255, 0.16);
-        border-color: #4c2fd4;
-      }
-      75% {
-        transform: scale(1.015);
-        box-shadow: 0 0 0 8px rgba(109, 74, 255, 0.08);
-        border-color: #5b3df5;
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(109, 74, 255, 0);
-        border-color: #d1d5db;
-      }
-    }
-
-    .dark .field-highlight {
-      animation: fieldHighlightDark 2s ease-in-out;
-    }
-
-    @keyframes fieldHighlightDark {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(109, 74, 255, 0.6);
-        border-color: #8b75ff;
-      }
-      25% {
-        transform: scale(1.015);
-        box-shadow: 0 0 0 8px rgba(109, 74, 255, 0.28);
-        border-color: #8b75ff;
-      }
-      50% {
-        transform: scale(1.03);
-        box-shadow: 0 0 0 12px rgba(109, 74, 255, 0.16);
-        border-color: #a694ff;
-      }
-      75% {
-        transform: scale(1.015);
-        box-shadow: 0 0 0 8px rgba(109, 74, 255, 0.08);
-        border-color: #8b75ff;
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(109, 74, 255, 0);
-        border-color: #4b5563;
-      }
-    }
-
-    .ai-indicator {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: linear-gradient(135deg, #6d4aff, #8b5cf6);
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      animation: aiBadgePulse 1.5s ease-in-out;
-      z-index: 20;
-    }
-
-    @keyframes aiBadgePulse {
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.03);
-        opacity: 0.9;
-      }
-    }
-  </style>
 </Layout>

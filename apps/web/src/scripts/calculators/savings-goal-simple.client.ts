@@ -5,6 +5,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import {
   formatCurrencyWhole as formatCurrency,
@@ -254,29 +255,36 @@ const displayResults = (result: SavingsGoalResults): void => {
   }
 
   // Render summary cards with inflation adjustment
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Time to Goal</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.yearsToGoal.toFixed(1)} years</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${result.targetDate}</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Final Balance</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.finalBalance)}</p>
-      ${result.realValue ? `<p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Real value: ${formatCurrency(result.realValue)}</p>` : ''}
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Progress</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.progressPercent?.toFixed(0) || 0}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">of goal achieved</p>
-      ${result.goalTypeLabel ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Goal: ${result.goalTypeLabel}</p>` : ''}
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Interest Earned</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatCurrency(result.totalInterestEarned)}</p>
-      ${result.inflationAdjustedGoal ? `<p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Inflation adj: ${formatCurrency(result.inflationAdjustedGoal)}</p>` : ''}
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Time to Goal',
+      value: `${result.yearsToGoal.toFixed(1)} years`,
+      meta: result.targetDate,
+      tone: 'violet',
+    },
+    {
+      title: 'Final Balance',
+      value: formatCurrency(result.finalBalance),
+      meta: result.realValue ? `Real value: ${formatCurrency(result.realValue)}` : undefined,
+      tone: 'emerald',
+    },
+    {
+      title: 'Progress',
+      value: `${result.progressPercent?.toFixed(0) || 0}%`,
+      meta: result.goalTypeLabel
+        ? `of goal achieved · ${result.goalTypeLabel}`
+        : 'of goal achieved',
+      tone: 'violet',
+    },
+    {
+      title: 'Interest Earned',
+      value: formatCurrency(result.totalInterestEarned),
+      meta: result.inflationAdjustedGoal
+        ? `Inflation adj: ${formatCurrency(result.inflationAdjustedGoal)}`
+        : undefined,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
@@ -293,7 +301,7 @@ const displayResults = (result: SavingsGoalResults): void => {
       <!-- Visual Progress Bar -->
       <div class="mb-6">
         <div class="flex justify-between text-sm mb-2">
-          <span class="text-slate-600 dark:text-slate-400">Current Progress</span>
+          <span class="fa-help-copy">Current Progress</span>
           <span class="font-semibold text-slate-900 dark:text-white">${result.progressPercent?.toFixed(1) || 0}%</span>
         </div>
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-6 relative">

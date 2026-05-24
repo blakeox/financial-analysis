@@ -32,6 +32,7 @@ export type CalculatorContextKey =
   | 'unit-economics'
   | 'business-valuation'
   | 'revenue-forecast'
+  | 'roth-vs-traditional-ira'
   | 'business-growth'
   | 'models'
   | 'general'
@@ -119,6 +120,18 @@ export const CALCULATOR_CONTEXTS: Record<CalculatorContextKey, CalculatorContext
       'What if I save $500 monthly?',
     ],
     fieldMappings: buildFieldMappingsFromConfig('retirement'),
+  },
+
+  'roth-vs-traditional-ira': {
+    id: 'roth-vs-traditional-ira',
+    label: 'Roth vs Traditional IRA',
+    intro: 'Hi — I can help compare Roth and Traditional IRA strategies.',
+    examples: [
+      'Set current tax rate to 22%',
+      'What if retirement tax rate is 15%?',
+      'Compare $7,000 annual contributions',
+    ],
+    fieldMappings: buildFieldMappingsFromConfig('roth-vs-traditional-ira'),
   },
 
   'savings-goal': {
@@ -511,6 +524,7 @@ export function detectCalculatorContext(pathname: string): CalculatorContextKey 
       'unit-economics': 'unit-economics',
       'business-valuation': 'business-valuation',
       'revenue-forecast': 'revenue-forecast',
+      'roth-vs-traditional-ira': 'roth-vs-traditional-ira',
       models: 'models',
     };
 

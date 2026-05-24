@@ -2,60 +2,106 @@
  * Social Security Optimizer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class SocialSecurityCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('social-security-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Social Security form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const optimalAge = Number(summary.optimalClaimingAge) || 67;
+  const maxLifetime = Number(summary.maximumLifetimeBenefit) || 0;
+  const pia = Number(summary.primaryInsuranceAmount) || 0;
+  const fra = Number(summary.fullRetirementAge) || 67;
+  const breakEvenAge = Number(summary.breakEvenAge) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Optimal Claiming Age',
+      value: `${optimalAge}`,
+      meta: `FRA ${fra}`,
+      tone: optimalAge >= 70 ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Monthly Benefit (PIA)',
+      value: formatCurrency(pia),
+      tone: 'violet',
+    },
+    {
+      title: 'Max Lifetime Benefits',
+      value: formatCurrency(maxLifetime),
+      tone: 'emerald',
+    },
+    {
+      title: 'Break-even Age',
+      value: breakEvenAge > 0 ? `${breakEvenAge}` : '—',
+      meta: breakEvenAge > 0 ? 'vs early claiming' : 'add earnings history',
+      tone: breakEvenAge > 0 ? 'amber' : 'orange',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initSocialSecurityCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const birthDate = formData.get('birthDate') as string;
-      // const birthYear = new Date(birthDate).getFullYear();
-      const fullRetirementAge = parseFloat((formData.get('fullRetirementAge') as string) || '67');
+      const birthDate =
+        (form.elements.namedItem('birthDate') as HTMLInputElement)?.value || '1970-01-01';
 
       const input = {
         personalInfo: {
           birthDate,
-          currentAge: parseInt((formData.get('currentAge') as string) || '65'),
-          fullRetirementAge,
-          lifeExpectancy: parseInt((formData.get('lifeExpectancy') as string) || '85'),
+          currentAge: Math.round(parseNumber(form, 'currentAge')) || 65,
+          fullRetirementAge: parseNumber(form, 'fullRetirementAge') || 67,
+          lifeExpectancy: Math.round(parseNumber(form, 'lifeExpectancy')) || 85,
         },
         earnings: {
-          currentAnnualEarnings: parseFloat(
-            (formData.get('currentAnnualEarnings') as string) || '0'
-          ),
-          averageLifetimeEarnings: formData.get('averageLifetimeEarnings')
-            ? parseFloat(formData.get('averageLifetimeEarnings') as string)
-            : undefined,
+          currentAnnualEarnings: parseNumber(form, 'currentAnnualEarnings'),
+          averageLifetimeEarnings: parseNumber(form, 'averageLifetimeEarnings') || undefined,
         },
-        maritalStatus: (formData.get('maritalStatus') as string) || 'single',
+        maritalStatus:
+          (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'single',
         claimingStrategy: {
-          primaryClaimingAge: parseInt((formData.get('primaryClaimingAge') as string) || '67'),
-          strategy: undefined,
+          primaryClaimingAge: Math.round(parseNumber(form, 'primaryClaimingAge')) || 67,
         },
         goals: {
-          optimizeFor: (formData.get('optimizeFor') as string) || 'maximum-lifetime',
+          optimizeFor:
+            (form.elements.namedItem('optimizeFor') as HTMLSelectElement)?.value ||
+            'maximum-lifetime',
           includeBreakEvenAnalysis: true,
         },
       };
@@ -67,44 +113,28 @@ class SocialSecurityCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to optimize Social Security strategy');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to optimize Social Security strategy'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_social_security', result);
     } catch (error) {
       console.error('Social Security error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to optimize Social Security strategy'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('social-security-results');
-    const contentDiv = document.getElementById('social-security-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Social Security Optimization</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your Social Security strategy analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new SocialSecurityCalculator());
+  document.addEventListener('DOMContentLoaded', initSocialSecurityCalculator);
 } else {
-  new SocialSecurityCalculator();
+  initSocialSecurityCalculator();
 }

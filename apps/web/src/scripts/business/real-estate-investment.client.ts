@@ -2,70 +2,127 @@
  * Real Estate Investment Analyzer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class RealEstateInvestmentAnalyzer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('real-estate-investment-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Real Estate Investment form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const capRate = Number(summary.capRate) || 0;
+  const cashOnCash = Number(summary.cashOnCashReturn) || 0;
+  const monthlyCashFlow = Number(summary.monthlyCashFlow) || 0;
+  const irr = Number(summary.irr) || 0;
+  const annualNoi = Number(summary.annualNOI) || 0;
+
+  const fmtPct = (v: number) => `${(v > 1 ? v : v * 100).toFixed(2)}%`;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Cap Rate',
+      value: fmtPct(capRate),
+      meta: annualNoi ? `NOI ${formatCurrency(annualNoi)}` : undefined,
+      tone: capRate >= 0.06 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Cash-on-Cash',
+      value: fmtPct(cashOnCash),
+      tone: cashOnCash >= 0.08 ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Monthly Cash Flow',
+      value: formatCurrency(monthlyCashFlow),
+      tone: monthlyCashFlow >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'IRR',
+      value: irr ? fmtPct(irr) : '—',
+      meta: irr ? 'hold period return' : 'add projections',
+      tone: irr >= 0.1 ? 'emerald' : 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initRealEstateInvestmentCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const purchasePrice = parseNumber(form, 'purchasePrice');
+      const downPayment = parseNumber(form, 'downPayment');
+      const loanAmount =
+        parseNumber(form, 'loanAmount') || Math.max(0, purchasePrice - downPayment);
 
       const input = {
         propertyInfo: {
-          purchasePrice: parseFloat((formData.get('purchasePrice') as string) || '0'),
-          propertyType: (formData.get('propertyType') as string) || 'residential',
-          squareFeet: formData.get('squareFeet')
-            ? parseFloat(formData.get('squareFeet') as string)
-            : undefined,
-          units: formData.get('units') ? parseInt(formData.get('units') as string) : undefined,
+          purchasePrice,
+          propertyType:
+            (form.elements.namedItem('propertyType') as HTMLSelectElement)?.value || 'residential',
         },
         financing: {
-          downPayment: parseFloat((formData.get('downPayment') as string) || '0'),
-          loanAmount: parseFloat((formData.get('loanAmount') as string) || '0'),
-          interestRate: parseFloat((formData.get('interestRate') as string) || '0'),
-          loanTerm: parseInt((formData.get('loanTerm') as string) || '30'),
-          loanType: (formData.get('loanType') as string) || 'conventional',
+          downPayment,
+          loanAmount,
+          interestRate: parseRate(form, 'interestRate') || 0.07,
+          loanTerm: 30,
+          loanType: 'conventional' as const,
         },
         income: {
-          monthlyRent: parseFloat((formData.get('monthlyRent') as string) || '0'),
-          annualRentIncrease: parseFloat((formData.get('annualRentIncrease') as string) || '0.03'),
-          occupancyRate: parseFloat((formData.get('occupancyRate') as string) || '0.95'),
-          otherIncome: parseFloat((formData.get('otherIncome') as string) || '0'),
+          monthlyRent: parseNumber(form, 'monthlyRent'),
+          annualRentIncrease: 0.03,
+          occupancyRate: 0.95,
+          otherIncome: 0,
         },
         expenses: {
-          propertyTaxes: parseFloat((formData.get('propertyTaxes') as string) || '0'),
-          insurance: parseFloat((formData.get('insurance') as string) || '0'),
-          maintenance: parseFloat((formData.get('maintenance') as string) || '0'),
-          propertyManagement: parseFloat((formData.get('propertyManagement') as string) || '0'),
-          utilities: parseFloat((formData.get('utilities') as string) || '0'),
-          otherExpenses: parseFloat((formData.get('otherExpenses') as string) || '0'),
-          vacancyRate: parseFloat((formData.get('vacancyRate') as string) || '0.05'),
+          propertyTaxes: parseNumber(form, 'propertyTaxes'),
+          insurance: parseNumber(form, 'insurance'),
+          maintenance: 0,
+          propertyManagement: 0,
+          utilities: 0,
+          otherExpenses: 0,
+          vacancyRate: 0.05,
         },
         projections: {
-          holdingPeriod: parseInt((formData.get('holdingPeriod') as string) || '10'),
-          appreciationRate: parseFloat((formData.get('appreciationRate') as string) || '0.03'),
-          saleCosts: parseFloat((formData.get('saleCosts') as string) || '0.06'),
+          holdingPeriod: 10,
+          appreciationRate: 0.03,
+          saleCosts: 0.06,
         },
         analysis: {
           includeCapRate: true,
@@ -82,44 +139,28 @@ class RealEstateInvestmentAnalyzer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze real estate investment');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze real estate investment'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_real_estate_investment', result);
     } catch (error) {
-      console.error('Real Estate Investment error:', error);
+      console.error('Real estate investment error:', error);
       showError(
         error instanceof Error ? error.message : 'Failed to analyze real estate investment'
       );
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('real-estate-investment-results');
-    const contentDiv = document.getElementById('real-estate-investment-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Real Estate Investment Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your real estate investment analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new RealEstateInvestmentAnalyzer());
+  document.addEventListener('DOMContentLoaded', initRealEstateInvestmentCalculator);
 } else {
-  new RealEstateInvestmentAnalyzer();
+  initRealEstateInvestmentCalculator();
 }

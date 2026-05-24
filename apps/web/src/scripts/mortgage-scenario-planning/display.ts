@@ -136,24 +136,24 @@ export function renderSummaryCard(scenario: Scenario, idx: number, isBest: boole
       
       <div class="space-y-3">
         <div>
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Monthly Payment${scenario.hasPMI ? ' + PMI' : ''}</p>
           <p class="text-2xl font-bold ${textColor}">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
-          ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/60' : 'text-slate-500 dark:text-slate-400'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
+          ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
         </div>
         
         <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Interest</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Total Interest</p>
             <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
           </div>
           <div>
-            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Payoff Time</p>
+            <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Payoff Time</p>
             <p class="text-sm font-semibold ${textColor}">${time.display}</p>
           </div>
         </div>
         
         <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
-          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'} mb-1">Total Cost</p>
+          <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Total Cost</p>
           <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
         </div>
       </div>
@@ -344,13 +344,13 @@ export function renderComparisonTable(scenarios: Scenario[], bestScenario: Scena
       <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
         <thead class="bg-slate-50 dark:bg-slate-900/60">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Scenario</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Down Payment</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Rate</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Monthly</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Total Interest</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Total Cost</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Payoff</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Scenario</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Down Payment</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Rate</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Monthly</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Interest</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Cost</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Payoff</th>
           </tr>
         </thead>
         <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
@@ -382,7 +382,7 @@ export function renderComparisonTable(scenarios: Scenario[], bestScenario: Scena
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
                   ${formatCurrency(scenario.totalCost)}
-                  ${scenario.closingCosts > 0 ? `<span class="text-xs text-slate-500">(+${formatCurrency(scenario.closingCosts)} closing)</span>` : ''}
+                  ${scenario.closingCosts > 0 ? `<span class="text-xs fa-help-copy">(+${formatCurrency(scenario.closingCosts)} closing)</span>` : ''}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
                   ${time.display}
@@ -415,11 +415,11 @@ export function renderRefinanceSection(
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
           <thead class="bg-slate-50 dark:bg-slate-900/60">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Scenario</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">New Monthly Payment</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Total Interest</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Total Cost</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase">Payoff Time</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Scenario</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">New Monthly Payment</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Interest</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Cost</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Payoff Time</th>
             </tr>
           </thead>
           <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">

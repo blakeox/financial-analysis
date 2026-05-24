@@ -28,7 +28,7 @@ export const BG_HOVER = 'hover:bg-slate-50 dark:hover:bg-slate-900';
 // Text colors
 export const TEXT_PRIMARY = 'text-slate-900 dark:text-white';
 export const TEXT_SECONDARY = 'text-slate-600 dark:text-slate-400';
-export const TEXT_MUTED = 'text-slate-500 dark:text-slate-500';
+export const TEXT_MUTED = 'text-slate-600 dark:text-slate-400';
 
 // Interactive states
 export const TRANSITION_COLORS = 'transition-colors duration-200';
@@ -48,7 +48,7 @@ export const CARD_ACTION_BTN =
 
 // Input styles
 export const INPUT_BASE =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:placeholder:text-slate-500';
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:placeholder:text-slate-400';
 
 // Shadow utilities
 export const SHADOW_SM = 'shadow-sm';

@@ -70,7 +70,7 @@ export const buttonVariants = {
  * Common input field classes.
  */
 export const inputClasses =
-  'flex h-11 w-full rounded-2xl border border-slate-200 bg-white/95 px-4 text-sm text-slate-900 shadow-[0_1px_2px_rgba(9,14,36,0.03)] transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-violet-400';
+  'flex h-11 w-full rounded-2xl border border-slate-200 bg-white/95 px-4 text-sm text-slate-900 shadow-[0_1px_2px_rgba(9,14,36,0.03)] transition-[border-color,box-shadow,background-color] placeholder:text-slate-500 focus:border-violet-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-violet-400';
 
 export const inputStateClasses = {
   default: '',
@@ -102,7 +102,7 @@ export const cardVariants = {
  */
 export const badgeVariants = {
   default:
-    'border border-slate-200 bg-white/80 text-slate-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300',
+    'border border-slate-200 bg-white/80 text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300',
   primary:
     'border border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/70 dark:bg-violet-950/40 dark:text-violet-200',
   success:
@@ -132,6 +132,14 @@ export const textColors = {
   success: 'text-emerald-600 dark:text-emerald-300',
   danger: 'text-rose-600 dark:text-rose-300',
   warning: 'text-amber-600 dark:text-amber-300',
-  muted: 'text-slate-500 dark:text-slate-400',
+  /** Secondary/helper copy — WCAG AA on white and dark shell backgrounds. */
+  muted: 'text-slate-600 dark:text-slate-400',
   accent: 'text-violet-600 dark:text-violet-300',
+} as const;
+
+/** Semantic copy sizes built on accessible muted/secondary colors. */
+export const copyClasses = {
+  muted: textColors.muted,
+  helper: `text-sm ${textColors.muted}`,
+  caption: `text-xs ${textColors.muted}`,
 } as const;

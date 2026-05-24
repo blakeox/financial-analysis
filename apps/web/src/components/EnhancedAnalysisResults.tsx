@@ -6,14 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@financial-analysis/ui';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { normalizeAnalysisResultEventDetail } from '../scripts/analysis/analysis-event-contract';
 import { FinancialAnalysisEngine } from '../scripts/analysis/financial-analysis-engine';
-
-declare global {
-  interface Window {
-    injectAnalysisData?: (data: Record<string, unknown>) => void;
-  }
-}
 
 // Define DetailedAnalysis interface locally since it's not exported
 interface DetailedAnalysis {
@@ -57,211 +52,86 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   modelData,
   className = '',
 }) => {
-  console.log('EnhancedAnalysisResults component mounted', { modelType, modelData, className });
-
   const [analysis, setAnalysis] = useState<DetailedAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('summary');
-
-  // Debug activeTab changes
-  useEffect(() => {
-    console.log('Active tab changed to:', activeTab);
-  }, [activeTab]);
-
-  // Debug component mount
-  useEffect(() => {
-    console.log('EnhancedAnalysisResults mounted with props:', { modelType, modelData });
-  }, []);
-
-  // Add a direct data injection method for debugging
-  useEffect(() => {
-    // Expose a global method for direct data injection
-    window.injectAnalysisData = (data: Record<string, unknown>) => {
-      console.log('EnhancedAnalysisResults: Direct data injection called with:', data);
-      setCurrentModelData(data);
-      generateAnalysis();
-    };
-
-    // Also listen for any custom events that might be missed
-    const handleAnyAnalysisEvent = (event: CustomEvent) => {
-      console.log(
-        'EnhancedAnalysisResults: Received any analysis event:',
-        event.type,
-        event.detail
-      );
-      if (event.detail && typeof event.detail === 'object') {
-        setCurrentModelData(event.detail as Record<string, unknown>);
-        generateAnalysis();
-      }
-    };
-
-    // Listen for multiple event types
-    const eventTypes = [
-      'analysis-result-updated',
-      'data-updated',
-      'amortization-analysis-ready',
-      'analysis-data-ready',
-      'calculator-completed',
-    ];
-
-    eventTypes.forEach((eventType) => {
-      document.addEventListener(eventType, handleAnyAnalysisEvent as EventListener);
-      window.addEventListener(eventType, handleAnyAnalysisEvent as EventListener);
-    });
-
-    return () => {
-      eventTypes.forEach((eventType) => {
-        document.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
-        window.removeEventListener(eventType, handleAnyAnalysisEvent as EventListener);
-      });
-      delete window.injectAnalysisData;
-    };
-  }, []);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [currentModelData, setCurrentModelData] = useState<Record<string, unknown>>(modelData);
 
-  // Don't set sample data - wait for real data from the calculator
+  const generateAnalysis = useCallback(
+    async (data: Record<string, unknown>) => {
+      if (!data || Object.keys(data).length === 0) {
+        return;
+      }
+
+      if (
+        typeof data === 'object' &&
+        'summary' in data &&
+        'insights' in data &&
+        Array.isArray((data as unknown as DetailedAnalysis).insights)
+      ) {
+        setAnalysis(data as unknown as DetailedAnalysis);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const detailedAnalysis = FinancialAnalysisEngine.analyzeForModelType(modelType, data);
+        setAnalysis(detailedAnalysis);
+      } catch (error) {
+        console.error('Error generating analysis:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [modelType]
+  );
 
   useEffect(() => {
     if (modelData && Object.keys(modelData).length > 0) {
-      setCurrentModelData(modelData);
-      generateAnalysis();
+      void generateAnalysis(modelData);
     }
-  }, [modelData, modelType]);
+  }, [modelData, generateAnalysis]);
 
-  // Listen for analysis result updates
   useEffect(() => {
-    const handleAnalysisUpdate = (event: CustomEvent) => {
-      console.log('EnhancedAnalysisResults: Received analysis update event', event.detail);
-      const { modelType: updatedModelType, result: updatedResult } = event.detail;
-      console.log('EnhancedAnalysisResults: Model type match?', updatedModelType === modelType);
-      if (updatedModelType === modelType) {
-        console.log('EnhancedAnalysisResults: Updating model data', updatedResult);
-        setCurrentModelData(updatedResult);
-        generateAnalysis();
-      } else {
-        console.log('EnhancedAnalysisResults: Model type mismatch, ignoring event');
-      }
+    const handleAnalysisUpdate = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const normalized = normalizeAnalysisResultEventDetail(event.detail);
+      if (!normalized || normalized.modelType !== modelType) return;
+
+      const payload =
+        normalized.result && typeof normalized.result === 'object'
+          ? (normalized.result as Record<string, unknown>)
+          : { value: normalized.result };
+
+      void generateAnalysis(payload);
     };
 
-    const handleDataUpdate = (event: CustomEvent) => {
-      console.log('EnhancedAnalysisResults: Received direct data update event', event.detail);
-      setCurrentModelData(event.detail);
-      generateAnalysis();
+    const handleDataUpdate = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      if (!event.detail || typeof event.detail !== 'object') return;
+      void generateAnalysis(event.detail as Record<string, unknown>);
     };
 
-    const handleGlobalAnalysisReady = (event: CustomEvent) => {
-      console.log('EnhancedAnalysisResults: Received global analysis ready event', event.detail);
-      if (modelType === 'amortization') {
-        setCurrentModelData(event.detail);
-        generateAnalysis();
-      }
+    const handleAmortizationReady = (event: Event) => {
+      if (!(event instanceof CustomEvent) || modelType !== 'amortization') return;
+      if (!event.detail || typeof event.detail !== 'object') return;
+      void generateAnalysis(event.detail as Record<string, unknown>);
     };
 
-    console.log('EnhancedAnalysisResults: Setting up event listeners for modelType:', modelType);
-    document.addEventListener('analysis-result-updated', handleAnalysisUpdate as EventListener);
+    document.addEventListener('analysis-result-updated', handleAnalysisUpdate);
     document.addEventListener('data-updated', handleDataUpdate as EventListener);
-    window.addEventListener(
-      'amortization-analysis-ready',
-      handleGlobalAnalysisReady as EventListener
-    );
+    window.addEventListener('analysis-result-updated', handleAnalysisUpdate);
+    window.addEventListener('amortization-analysis-ready', handleAmortizationReady);
 
     return () => {
-      console.log('EnhancedAnalysisResults: Cleaning up event listeners');
-      document.removeEventListener(
-        'analysis-result-updated',
-        handleAnalysisUpdate as EventListener
-      );
+      document.removeEventListener('analysis-result-updated', handleAnalysisUpdate);
       document.removeEventListener('data-updated', handleDataUpdate as EventListener);
-      window.removeEventListener(
-        'amortization-analysis-ready',
-        handleGlobalAnalysisReady as EventListener
-      );
+      window.removeEventListener('analysis-result-updated', handleAnalysisUpdate);
+      window.removeEventListener('amortization-analysis-ready', handleAmortizationReady);
     };
-  }, [modelType]);
-
-  const generateAnalysis = async () => {
-    console.log('EnhancedAnalysisResults: generateAnalysis called', {
-      currentModelData,
-      modelType,
-    });
-
-    if (!currentModelData || Object.keys(currentModelData).length === 0) {
-      console.log('EnhancedAnalysisResults: No model data, skipping analysis');
-      return;
-    }
-
-    if (
-      typeof currentModelData === 'object' &&
-      'summary' in currentModelData &&
-      'insights' in currentModelData &&
-      Array.isArray((currentModelData as unknown as DetailedAnalysis).insights)
-    ) {
-      console.log('EnhancedAnalysisResults: Using provided comprehensive analysis payload');
-      setAnalysis(currentModelData as unknown as DetailedAnalysis);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      let detailedAnalysis: DetailedAnalysis;
-
-      switch (modelType) {
-        case 'amortization':
-          detailedAnalysis = FinancialAnalysisEngine.analyzeAmortization({
-            principal: Number(currentModelData.principal) || 0,
-            annualRate: Number(currentModelData.annualRate) || 0,
-            termMonths: Number(currentModelData.termMonths) || 0,
-            extraPayment: Number(currentModelData.extraPayment) || 0,
-            monthlyPayment: Number(currentModelData.monthlyPayment) || undefined,
-            totalInterest: Number(currentModelData.totalInterest) || undefined,
-            totalPayments: Number(currentModelData.totalPayments) || undefined,
-          });
-          break;
-
-        case 'lease':
-          detailedAnalysis = FinancialAnalysisEngine.analyzeLease({
-            principal: Number(currentModelData.principal) || 0,
-            annualRate: Number(currentModelData.annualRate) || 0,
-            termMonths: Number(currentModelData.termMonths) || 0,
-            residualValue: Number(currentModelData.residualValue) || 0,
-            monthlyPayment: Number(currentModelData.monthlyPayment) || undefined,
-            totalCost: Number(currentModelData.totalCost) || undefined,
-          });
-          break;
-
-        case 'investment-portfolio':
-          detailedAnalysis = FinancialAnalysisEngine.analyzeInvestmentPortfolio({
-            currentValue: Number(currentModelData.currentValue) || 0,
-            monthlyContribution: Number(currentModelData.monthlyContribution) || 0,
-            expectedReturn: Number(currentModelData.expectedReturn) || 0,
-            timeHorizon: Number(currentModelData.timeHorizon) || 0,
-            riskTolerance:
-              (currentModelData.riskTolerance as 'conservative' | 'moderate' | 'aggressive') ||
-              'moderate',
-          });
-          break;
-
-        default:
-          // Fallback for other model types
-          detailedAnalysis = {
-            summary: currentModelData,
-            insights: [],
-            recommendations: [],
-            riskAssessment: { overallRisk: 'low', factors: [] },
-            optimizationOpportunities: [],
-          };
-      }
-
-      setAnalysis(detailedAnalysis);
-    } catch (error) {
-      console.error('Error generating analysis:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [modelType, generateAnalysis]);
 
   const formatCurrency = (value: unknown): string => {
     if (typeof value === 'number') {
@@ -631,7 +501,6 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Tab clicked:', tab.id);
                       setActiveTab(tab.id);
                     }}
                     variant={activeTab === tab.id ? 'primary' : 'outline'}
@@ -713,7 +582,6 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Tab clicked:', tab.id);
                     setActiveTab(tab.id);
                   }}
                   variant={activeTab === tab.id ? 'primary' : 'outline'}

@@ -2,56 +2,103 @@
  * FIRE Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class FIRECalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('fire-calculator-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('FIRE Calculator form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+  const yearsToFire =
+    summary.yearsToFIRE ??
+    (record.yearsToFIRE && typeof record.yearsToFIRE === 'object'
+      ? (record.yearsToFIRE as Record<string, unknown>).years
+      : record.yearsToFIRE);
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const onTrack = Boolean(summary.onTrack);
+  const fireNumber = Number(summary.fireNumber ?? record.fireNumber) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'FIRE Number',
+      value: formatCurrency(fireNumber),
+      meta: 'portfolio target',
+      tone: 'primary',
+      spanCols: 2,
+    },
+    {
+      title: 'Years to FIRE',
+      value: typeof yearsToFire === 'number' ? yearsToFire.toFixed(1) : '—',
+      meta: summary.projectedRetirementAge
+        ? `retire around age ${summary.projectedRetirementAge}`
+        : undefined,
+      tone: onTrack ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Savings Gap',
+      value: formatCurrency(Number(summary.savingsNeeded) || 0),
+      meta: onTrack ? 'On track' : 'Additional savings needed',
+      tone: onTrack ? 'emerald' : 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initFireCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
-
-      const formData = new FormData(this.form);
 
       const input = {
         currentSituation: {
-          age: parseInt((formData.get('age') as string) || '30'),
-          currentSavings: parseFloat((formData.get('currentSavings') as string) || '0'),
-          annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-          annualExpenses: parseFloat((formData.get('annualExpenses') as string) || '0'),
-          monthlySavings: parseFloat((formData.get('monthlySavings') as string) || '0'),
+          age: Math.round(parseNumber(form, 'age')) || 30,
+          currentSavings: parseNumber(form, 'currentSavings'),
+          annualIncome: parseNumber(form, 'annualIncome'),
+          annualExpenses: parseNumber(form, 'annualExpenses'),
+          monthlySavings: parseNumber(form, 'monthlySavings'),
         },
         fireGoals: {
-          targetAge: parseInt((formData.get('targetAge') as string) || '65'),
-          annualExpensesInRetirement: parseFloat(
-            (formData.get('annualExpensesInRetirement') as string) || '0'
-          ),
-          safeWithdrawalRate: parseFloat((formData.get('safeWithdrawalRate') as string) || '0.04'),
-          fireType: (formData.get('fireType') as string) || 'traditional',
+          targetAge: Math.round(parseNumber(form, 'targetAge')) || 65,
+          annualExpensesInRetirement: parseNumber(form, 'annualExpensesInRetirement'),
+          safeWithdrawalRate: parseNumber(form, 'safeWithdrawalRate') / 100 || 0.04,
+          fireType: 'traditional',
         },
         assumptions: {
-          expectedReturn: parseFloat((formData.get('expectedReturn') as string) || '0.07'),
-          inflationRate: parseFloat((formData.get('inflationRate') as string) || '0.03'),
-          incomeGrowth: parseFloat((formData.get('incomeGrowth') as string) || '0.03'),
-          expenseReduction: parseFloat((formData.get('expenseReduction') as string) || '0'),
+          expectedReturn: parseNumber(form, 'expectedReturn') / 100 || 0.07,
+          inflationRate: 0.03,
+          incomeGrowth: 0.03,
+          expenseReduction: 0,
         },
         analysis: {
           includeProjections: true,
@@ -67,42 +114,28 @@ class FIRECalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to calculate FIRE');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to calculate FIRE');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_fire_calculator', result);
+
+      document.getElementById('results')?.classList.remove('hidden');
     } catch (error) {
       console.error('FIRE Calculator error:', error);
       showError(error instanceof Error ? error.message : 'Failed to calculate FIRE');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('fire-calculator-results');
-    const contentDiv = document.getElementById('fire-calculator-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">FIRE Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your FIRE calculation is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new FIRECalculator());
-} else {
-  new FIRECalculator();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFireCalculator);
+  } else {
+    initFireCalculator();
+  }
 }

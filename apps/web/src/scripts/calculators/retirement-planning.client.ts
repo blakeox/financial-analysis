@@ -1,136 +1,152 @@
 /**
  * Retirement Planning Engine Client Script
- * Handles retirement planning analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class RetirementPlanningCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('retirement-planning-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Retirement planning form not found');
-      return;
-    }
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  return {
+    personalInfo: {
+      age: Math.round(parseNumber(form, 'age')) || 35,
+      retirementAge: Math.round(parseNumber(form, 'retirementAge')) || 65,
+      lifeExpectancy: Math.round(parseNumber(form, 'lifeExpectancy')) || 85,
+      maritalStatus:
+        (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'married',
+      dependents: 0,
+    },
+    currentAccounts: [
+      {
+        type: '401k',
+        balance: parseNumber(form, 'currentBalance') || 50000,
+        annualContribution: parseNumber(form, 'annualContribution') || 20000,
+        employerMatch: 0.5,
+        expectedReturn: 0.07,
+      },
+    ],
+    income: {
+      currentAnnual: parseNumber(form, 'currentAnnual'),
+      expectedGrowthRate: parseRate(form, 'expectedGrowthRate'),
+      socialSecurity: parseNumber(form, 'socialSecurity') || undefined,
+    },
+    expenses: {
+      currentAnnual: parseNumber(form, 'currentAnnualExpenses'),
+      retirementAnnual: parseNumber(form, 'retirementAnnualExpenses'),
+      inflationRate: parseRate(form, 'inflationRate') || 0.03,
+    },
+    goals: {
+      targetRetirementIncome: parseNumber(form, 'targetRetirementIncome'),
+      riskTolerance:
+        (form.elements.namedItem('riskTolerance') as HTMLSelectElement)?.value || 'moderate',
+      taxStrategy: 'balanced',
+    },
+  };
+}
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('retirement-planning-results');
+  const contentDiv = document.getElementById('retirement-planning-results-content');
 
-  private async handleSubmit(e: Event): Promise<void> {
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const readiness = Number(summary.retirementReadinessScore) || 0;
+  const projected = Number(summary.projectedRetirementBalance) || 0;
+  const yearsToRetirement = Number(summary.yearsToRetirement) || 0;
+  const incomeNeeds = Number(summary.retirementIncomeNeeds) || 0;
+  const currentBalance = Number(summary.currentTotalBalance) || 0;
+
+  contentDiv.innerHTML = `<div class="grid grid-cols-1 gap-4">${renderMetricCards([
+    {
+      title: 'Readiness Score',
+      value: `${readiness}/100`,
+      meta: readiness >= 80 ? 'on track' : readiness >= 60 ? 'needs work' : 'critical gap',
+      tone: readiness >= 80 ? 'emerald' : readiness >= 60 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Years to Retirement',
+      value: `${yearsToRetirement}`,
+      tone: 'violet',
+    },
+    {
+      title: 'Projected Balance',
+      value: formatCurrency(projected),
+      meta: `current ${formatCurrency(currentBalance)}`,
+      tone: 'emerald',
+    },
+    {
+      title: 'Annual Income Need',
+      value: formatCurrency(incomeNeeds),
+      meta: 'in retirement',
+      tone: 'violet',
+    },
+  ])}</div>`;
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initRetirementPlanningCalculator(): void {
+  const form = document.getElementById('retirement-planning-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-retirement-planning', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze retirement planning');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze retirement planning'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_retirement_planning', result);
     } catch (error) {
       console.error('Retirement planning error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze retirement planning');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      personalInfo: {
-        age: parseInt((formData.get('age') as string) || '35'),
-        retirementAge: parseInt((formData.get('retirementAge') as string) || '65'),
-        lifeExpectancy: parseInt((formData.get('lifeExpectancy') as string) || '85'),
-        maritalStatus: (formData.get('maritalStatus') as string) || 'married',
-        dependents: 0,
-      },
-      currentAccounts: [
-        {
-          type: '401k',
-          balance: 50000,
-          annualContribution: 20000,
-          employerMatch: 0.5,
-          expectedReturn: 0.07,
-        },
-      ],
-      income: {
-        currentAnnual: parseFloat((formData.get('currentAnnual') as string) || '0'),
-        expectedGrowthRate: parseFloat((formData.get('expectedGrowthRate') as string) || '0') / 100,
-        socialSecurity: formData.get('socialSecurity')
-          ? parseFloat(formData.get('socialSecurity') as string)
-          : undefined,
-      },
-      expenses: {
-        currentAnnual: parseFloat((formData.get('currentAnnualExpenses') as string) || '0'),
-        retirementAnnual: parseFloat((formData.get('retirementAnnualExpenses') as string) || '0'),
-        inflationRate: parseFloat((formData.get('inflationRate') as string) || '0') / 100,
-      },
-      goals: {
-        targetRetirementIncome: parseFloat(
-          (formData.get('targetRetirementIncome') as string) || '0'
-        ),
-        riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-        taxStrategy: 'balanced',
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('retirement-planning-results');
-    const contentDiv = document.getElementById('retirement-planning-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Retirement Planning Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your retirement planning analysis is complete. Use the AI assistant to get detailed recommendations and strategies.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered retirement planning recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new RetirementPlanningCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initRetirementPlanningCalculator);
 } else {
-  new RetirementPlanningCalculator();
+  initRetirementPlanningCalculator();
 }

@@ -3,6 +3,8 @@
  * Cost-plus, value-based, competitive pricing optimization
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -141,25 +143,20 @@ function displayResults(result: PricingResult, input: PricingInput): void {
     { name: 'Competitive', data: result.competitive, icon: '🎯' },
   ];
 
-  summaryCards.innerHTML =
-    strategies
-      .map(
-        (s) => `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">${s.icon} ${s.name}</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(s.data.price)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${s.data.margin.toFixed(1)}% margin</p>
-    </div>
-  `
-      )
-      .join('') +
-    `
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">⭐ Optimal Price</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.optimal.price)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${formatCurrency(result.optimal.profit)}/mo profit</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    ...strategies.map((s) => ({
+      title: `${s.icon} ${s.name}`,
+      value: formatCurrency(s.data.price),
+      meta: `${s.data.margin.toFixed(1)}% margin`,
+      tone: 'violet' as const,
+    })),
+    {
+      title: 'Optimal Price',
+      value: formatCurrency(result.optimal.price),
+      meta: `${formatCurrency(result.optimal.profit)}/mo profit`,
+      tone: 'emerald',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
@@ -276,6 +273,7 @@ function initializePricingStrategy(): void {
 
       const result = calculatePricing(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_pricing_strategy', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {
