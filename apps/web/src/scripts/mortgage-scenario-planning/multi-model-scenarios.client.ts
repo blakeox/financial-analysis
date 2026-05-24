@@ -705,8 +705,7 @@ export class MultiModelScenarioManager {
    * Select a financial scenario
    */
   public selectScenario(scenarioId: string): void {
-    const scenario = this.scenarios.get(scenarioId);
-    if (!scenario) {
+    if (!this.scenarios.has(scenarioId)) {
       console.error(`Scenario ${scenarioId} not found`);
       return;
     }
@@ -715,7 +714,7 @@ export class MultiModelScenarioManager {
 
     // All scenarios on analysis page should go to journey pages (multi-step)
     // Business calculators are standalone tools accessed from /models/business
-    window.location.href = `/journey/${scenarioId}`;
+    window.location.assign(`/journey/${encodeURIComponent(scenarioId)}`);
   }
 
   /**
