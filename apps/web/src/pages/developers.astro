@@ -264,6 +264,11 @@ const result: AmortizationResult = await response.json();</code></pre>
     <script is:inline>
       // Code tab switching
       document.addEventListener('DOMContentLoaded', () => {
+        // Scrollable <pre> panels need tabindex for keyboard access (axe scrollable-region-focusable).
+        document.querySelectorAll('pre.fa-prompt-panel').forEach((panel) => {
+          panel.setAttribute('tabindex', '0');
+        });
+
         const tabs = document.querySelectorAll('.code-tab');
         const blocks = document.querySelectorAll('.code-block');
 
