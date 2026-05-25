@@ -44,7 +44,8 @@ jobs:
         with:
           results_file: results.sarif
           results_format: sarif
-          publish_results: true
+          # GitHub Security tab only (webapp publish fails SHA verification for codeql-action pins).
+          publish_results: false
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@dc73d59c2d7bd4f8194098a91219eeee6d8a1719 # v4
