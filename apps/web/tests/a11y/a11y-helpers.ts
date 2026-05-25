@@ -19,7 +19,7 @@ export function formatViolations(
 export async function expectNoA11yViolations(page: Page, path: string): Promise<void> {
   const response = await page.goto(path);
   expect(response?.ok(), `expected ${path} to return 2xx`).toBeTruthy();
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
 
   const accessibilityScanResults = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'])
@@ -33,7 +33,7 @@ export async function expectNoA11yViolations(page: Page, path: string): Promise<
 
 export async function expectNoColorContrastViolations(page: Page, path: string): Promise<void> {
   await page.goto(path);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
 
   const contrastResults = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
 
