@@ -4,6 +4,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -12,6 +13,9 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
   keywords="investment portfolio, portfolio analysis, portfolio rebalancing, asset allocation, diversification, investment strategy, portfolio optimization"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -78,6 +82,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       { label: 'Investment Portfolio' },
     ]}
   >
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
     <!-- Investment Portfolio Form -->
     <div class="fa-card p-6 mb-8">
       <h2 class="fa-panel-title mb-6">
@@ -222,11 +230,16 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       <h2 class="fa-panel-title text-xl mb-4">
         Portfolio Analysis Results
       </h2>
+      <div id="portfolio-summary-cards" class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6"></div>
       <div id="portfolio-results-content" class="space-y-4"></div>
     </div>
 
     <!-- AdSense -->
     <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="investment-portfolio" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="investment-portfolio" />

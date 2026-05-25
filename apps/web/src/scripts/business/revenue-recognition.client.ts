@@ -2,50 +2,103 @@
  * Revenue Recognition Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class RevenueRecognitionCalculator {
-  private form: HTMLFormElement | null = null;
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  constructor() {
-    this.init();
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private init(): void {
-    this.form = document.getElementById('revenue-recognition-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Revenue Recognition form not found');
-      return;
-    }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Contract Value',
+      value: formatCurrency(Number(summary.totalContractValue) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Recognized',
+      value: formatCurrency(Number(summary.totalRevenueRecognized) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Deferred',
+      value: formatCurrency(Number(summary.totalDeferredRevenue) || 0),
+      tone: 'amber',
+    },
+    {
+      title: 'Compliance',
+      value: String(summary.complianceStatus ?? '—'),
+      tone: summary.complianceStatus === 'compliant' ? 'emerald' : 'orange',
+    },
+  ]);
 
-  private async handleSubmit(e: Event): Promise<void> {
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initRevenueRecognitionCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-      const contractsJson = formData.get('contracts') as string;
-      const contracts = contractsJson ? JSON.parse(contractsJson) : [];
+      const industry = (form.elements.namedItem('industry') as HTMLInputElement)?.value || 'saas';
+      const revenueModel =
+        (form.elements.namedItem('revenueModel') as HTMLSelectElement)?.value || 'subscription';
+      const contractValue = 600000;
 
       const input = {
         companyInfo: {
-          industry: (formData.get('industry') as string) || '',
-          revenueModel: (formData.get('revenueModel') as string) || 'service',
-          accountingStandard: (formData.get('accountingStandard') as string) || 'asc-606',
+          industry,
+          revenueModel,
+          accountingStandard: 'asc-606',
         },
-        contracts,
+        contracts: [
+          {
+            contractId: 'C-001',
+            contractValue,
+            contractStartDate: '2024-01-01',
+            contractEndDate: '2025-12-31',
+            performanceObligations: [
+              {
+                obligationId: 'PO-1',
+                standaloneSellingPrice: contractValue,
+                fulfillmentMethod: 'over-time',
+                fulfillmentPeriod: { startDate: '2024-01-01', endDate: '2025-12-31' },
+              },
+            ],
+            paymentTerms: { upfrontPayment: 0, milestonePayments: [] },
+          },
+        ],
         analysis: {
-          includeRevenueSchedule: formData.get('includeRevenueSchedule') !== 'false',
-          includeDeferredRevenue: formData.get('includeDeferredRevenue') !== 'false',
-          includeContractAssetAnalysis: formData.get('includeContractAssetAnalysis') !== 'false',
-          includeComplianceCheck: formData.get('includeComplianceCheck') !== 'false',
-          projectionPeriod: parseInt((formData.get('projectionPeriod') as string) || '5'),
+          includeRevenueSchedule: true,
+          includeDeferredRevenue: true,
+          includeContractAssetAnalysis: true,
+          includeComplianceCheck: true,
+          projectionPeriod: 5,
         },
       };
 
@@ -56,42 +109,26 @@ class RevenueRecognitionCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze revenue recognition');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze revenue recognition'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_revenue_recognition', result);
     } catch (error) {
       console.error('Revenue Recognition error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze revenue recognition');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('revenue-recognition-results');
-    const contentDiv = document.getElementById('revenue-recognition-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Revenue Recognition Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your revenue recognition analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new RevenueRecognitionCalculator());
+  document.addEventListener('DOMContentLoaded', initRevenueRecognitionCalculator);
 } else {
-  new RevenueRecognitionCalculator();
+  initRevenueRecognitionCalculator();
 }

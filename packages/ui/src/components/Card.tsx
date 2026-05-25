@@ -28,9 +28,14 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, children, ...props }, ref) => (
-    <h3
+type CardTitleProps = React.HTMLAttributes<HTMLHeadingElement> & {
+  /** Heading level for accessible outline (default h2 — typical after a page h1). */
+  as?: 'h2' | 'h3' | 'h4';
+};
+
+const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
+  ({ className, children, as: Heading = 'h2', ...props }, ref) => (
+    <Heading
       ref={ref}
       className={cn(
         'text-2xl font-semibold leading-none tracking-[-0.03em] text-slate-950 dark:text-white',
@@ -39,7 +44,7 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
       {...props}
     >
       {children}
-    </h3>
+    </Heading>
   )
 );
 

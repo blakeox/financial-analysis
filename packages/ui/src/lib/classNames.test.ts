@@ -187,7 +187,7 @@ describe('classNames', () => {
   describe('badgeVariants', () => {
     it('has default variant', () => {
       expect(badgeVariants.default).toContain('border');
-      expect(badgeVariants.default).toContain('text-slate-600');
+      expect(badgeVariants.default).toContain('text-slate-700');
     });
 
     it('has primary variant', () => {
@@ -276,7 +276,7 @@ describe('classNames', () => {
     });
 
     it('has muted text color', () => {
-      expect(textColors.muted).toBe('text-slate-500 dark:text-slate-400');
+      expect(textColors.muted).toBe('text-slate-600 dark:text-slate-400');
     });
 
     it('has accent text color', () => {

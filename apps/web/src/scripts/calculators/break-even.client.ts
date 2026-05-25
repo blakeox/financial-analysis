@@ -5,6 +5,8 @@
  * margin of safety, and target profit scenarios.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -225,28 +227,34 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
     return;
   }
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Break-Even Units</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.breakEven.units.toLocaleString()}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">units to cover costs</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Break-Even Revenue</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.breakEven.revenue)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">minimum revenue</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Contribution Margin</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.breakEven.contributionMarginRatio.toFixed(1)}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${formatCurrency(result.breakEven.contributionMargin)}/unit</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Margin of Safety</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${input.currentSalesUnits ? result.marginOfSafety.percentage.toFixed(1) + '%' : 'N/A'}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">${input.currentSalesUnits ? result.marginOfSafety.units.toLocaleString() + ' units buffer' : 'Enter current sales'}</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Break-Even Units',
+      value: result.breakEven.units.toLocaleString(),
+      meta: 'units to cover costs',
+      tone: 'violet',
+    },
+    {
+      title: 'Break-Even Revenue',
+      value: formatCurrency(result.breakEven.revenue),
+      meta: 'minimum revenue',
+      tone: 'emerald',
+    },
+    {
+      title: 'Contribution Margin',
+      value: `${result.breakEven.contributionMarginRatio.toFixed(1)}%`,
+      meta: `${formatCurrency(result.breakEven.contributionMargin)}/unit`,
+      tone: 'violet',
+    },
+    {
+      title: 'Margin of Safety',
+      value: input.currentSalesUnits ? `${result.marginOfSafety.percentage.toFixed(1)}%` : 'N/A',
+      meta: input.currentSalesUnits
+        ? `${result.marginOfSafety.units.toLocaleString()} units buffer`
+        : 'Enter current sales',
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <!-- Break-Even Chart -->
@@ -703,6 +711,7 @@ function initializeBreakEven(): void {
 
       const result = calculateBreakEven(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_break_even', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

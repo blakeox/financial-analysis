@@ -603,6 +603,11 @@ const isEmbedded = variant === 'embedded';
     outline: none;
     border-color: var(--vscode-focusBorder, #007acc);
   }
+
+  .chat-input:focus-visible {
+    outline: 2px solid var(--vscode-focusBorder, #007acc);
+    outline-offset: 2px;
+  }
   
   .chat-input::placeholder {
     color: var(--vscode-input-placeholderForeground, #888888);

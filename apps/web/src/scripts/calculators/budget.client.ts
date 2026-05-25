@@ -2,7 +2,9 @@ import type { BudgetResult } from '@financial-analysis/analysis';
 import { BudgetEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
-import { formatCurrency, formatPercentSimple } from '../../utils/calculator-utilities';
+import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import { formatCurrency, formatPercentSimple, hideError } from '../../utils/calculator-utilities';
 
 type OptimizationGoal = 'maximize_savings' | 'reduce_debt' | 'balance' | 'reduce_discretionary';
 
@@ -114,26 +116,30 @@ export const displayResults = (result: BudgetResult, emergencyFundAmount: number
   );
 
   // Render summary cards with emergency fund
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Monthly Income</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.incomeSummary.totalMonthlyIncome)}</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Monthly Expenses</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.expenseSummary.totalMonthlyExpenses)}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Net Income</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.metrics.monthlyNetIncome)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${emergencyFund.monthsOfExpenses.toFixed(1)} months saved</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Savings Rate</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatPercent(result.metrics.savingsRate)}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Emergency fund: ${emergencyFund.percentComplete.toFixed(0)}%</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Monthly Income',
+      value: formatCurrency(result.incomeSummary.totalMonthlyIncome),
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Expenses',
+      value: formatCurrency(result.expenseSummary.totalMonthlyExpenses),
+      tone: 'emerald',
+    },
+    {
+      title: 'Net Income',
+      value: formatCurrency(result.metrics.monthlyNetIncome),
+      meta: `${emergencyFund.monthsOfExpenses.toFixed(1)} months saved`,
+      tone: 'violet',
+    },
+    {
+      title: 'Savings Rate',
+      value: formatPercent(result.metrics.savingsRate),
+      meta: `Emergency fund: ${emergencyFund.percentComplete.toFixed(0)}%`,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed breakdown
   const { needs, wants, savings } = result.budgetRuleAnalysis;
@@ -305,6 +311,7 @@ const initBudgetPage = () => {
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    clearCalculatorFormErrors(form);
 
     // Show loading state
     const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
@@ -406,7 +413,7 @@ const initBudgetPage = () => {
       );
     } catch (error) {
       console.error('Budget calculation error:', error);
-      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+      handleCalculatorFormError(form, error);
     } finally {
       // Reset button state
       if (calculateBtn) {
@@ -421,6 +428,8 @@ const initBudgetPage = () => {
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      clearCalculatorFormErrors(form);
+      hideError();
       const resultsSection = document.getElementById('results-section');
       const resultsContainer = document.getElementById('results-container');
       const summaryCards = document.getElementById('summary-cards');

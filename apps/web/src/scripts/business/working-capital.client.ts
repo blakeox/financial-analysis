@@ -2,68 +2,93 @@
  * Working Capital Optimizer Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class WorkingCapitalOptimizer {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('working-capital-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Working Capital form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const netWc = Number(summary.workingCapital) || 0;
+  const currentRatio = Number(summary.currentRatio) || 0;
+  const quickRatio = Number(summary.quickRatio) || 0;
+  const ccc = Number(summary.cashConversionCycle) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Net Working Capital',
+      value: formatCurrency(netWc),
+      tone: netWc >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'Current Ratio',
+      value: `${currentRatio.toFixed(2)}x`,
+      meta: currentRatio >= 1.5 ? 'strong' : currentRatio >= 1 ? 'adequate' : 'tight',
+      tone: currentRatio >= 1.5 ? 'emerald' : currentRatio >= 1 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Quick Ratio',
+      value: `${quickRatio.toFixed(2)}x`,
+      tone: 'violet',
+    },
+    {
+      title: 'Cash Conversion',
+      value: ccc ? `${ccc.toFixed(0)} days` : '—',
+      tone: ccc > 60 ? 'amber' : 'emerald',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initWorkingCapitalCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
-
       const input = {
-        companyInfo: {
-          industry: (formData.get('industry') as string) || undefined,
-          annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
-        },
+        companyInfo: { annualRevenue: parseNumber(form, 'annualRevenue') },
         currentAssets: {
-          cash: parseFloat((formData.get('cash') as string) || '0'),
-          accountsReceivable: parseFloat((formData.get('accountsReceivable') as string) || '0'),
-          inventory: parseFloat((formData.get('inventory') as string) || '0'),
-          otherCurrentAssets: parseFloat((formData.get('otherCurrentAssets') as string) || '0'),
+          cash: parseNumber(form, 'cash'),
+          accountsReceivable: parseNumber(form, 'accountsReceivable'),
+          inventory: parseNumber(form, 'inventory'),
         },
         currentLiabilities: {
-          accountsPayable: parseFloat((formData.get('accountsPayable') as string) || '0'),
-          shortTermDebt: parseFloat((formData.get('shortTermDebt') as string) || '0'),
-          accruedExpenses: parseFloat((formData.get('accruedExpenses') as string) || '0'),
-          otherCurrentLiabilities: parseFloat(
-            (formData.get('otherCurrentLiabilities') as string) || '0'
-          ),
+          accountsPayable: parseNumber(form, 'accountsPayable'),
+          shortTermDebt: parseNumber(form, 'shortTermDebt'),
         },
-        operatingMetrics: {
-          daysSalesOutstanding: formData.get('daysSalesOutstanding')
-            ? parseFloat(formData.get('daysSalesOutstanding') as string)
-            : undefined,
-          daysPayableOutstanding: formData.get('daysPayableOutstanding')
-            ? parseFloat(formData.get('daysPayableOutstanding') as string)
-            : undefined,
-          daysInventoryOutstanding: formData.get('daysInventoryOutstanding')
-            ? parseFloat(formData.get('daysInventoryOutstanding') as string)
-            : undefined,
-          inventoryTurnover: formData.get('inventoryTurnover')
-            ? parseFloat(formData.get('inventoryTurnover') as string)
-            : undefined,
-        },
+        operatingMetrics: {},
         analysis: {
           includeCashConversionCycle: true,
           includeOptimization: true,
@@ -78,42 +103,26 @@ class WorkingCapitalOptimizer {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to optimize working capital');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze working capital'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_working_capital', result);
     } catch (error) {
-      console.error('Working Capital error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to optimize working capital');
+      console.error('Working capital error:', error);
+      showError(error instanceof Error ? error.message : 'Failed to analyze working capital');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('working-capital-results');
-    const contentDiv = document.getElementById('working-capital-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Working Capital Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your working capital optimization is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new WorkingCapitalOptimizer());
+  document.addEventListener('DOMContentLoaded', initWorkingCapitalCalculator);
 } else {
-  new WorkingCapitalOptimizer();
+  initWorkingCapitalCalculator();
 }

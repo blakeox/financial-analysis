@@ -2,41 +2,90 @@
  * DSCR Calculator Client Script
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class DSCRCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('calculator-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Calculator form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const ratio = Number(record.ratio) || 0;
+  const status = String(record.status ?? 'unknown');
+  const margin = Number(record.margin) || 0;
+  const targetRatio = Number(record.targetRatio) || 1.25;
+  const breakdown =
+    record.breakdown && typeof record.breakdown === 'object'
+      ? (record.breakdown as Record<string, unknown>)
+      : {};
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const toneForStatus =
+    status === 'excellent' || status === 'good'
+      ? 'emerald'
+      : status === 'marginal'
+        ? 'amber'
+        : 'orange';
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'DSCR',
+      value: `${ratio.toFixed(2)}x`,
+      meta: status.replace(/-/g, ' '),
+      tone: toneForStatus,
+    },
+    {
+      title: 'Target',
+      value: `${targetRatio}x`,
+      meta: 'typical lender minimum',
+      tone: 'violet',
+    },
+    {
+      title: 'vs Target',
+      value: margin >= 0 ? `+${margin.toFixed(2)}x` : `${margin.toFixed(2)}x`,
+      meta: margin >= 0 ? 'above target' : 'below target',
+      tone: margin >= 0 ? 'emerald' : 'orange',
+    },
+    {
+      title: 'EBITDA',
+      value: `$${Number(breakdown.ebitda || 0).toLocaleString()}`,
+      meta: 'annual',
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initDscrCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const newLoanPayment = parseNumber(form, 'newLoanPayment');
       const input = {
-        ebitda: parseFloat((formData.get('ebitda') as string) || '0'),
-        annualDebtService: parseFloat((formData.get('annualDebtService') as string) || '0'),
-        existingDebtService: parseFloat((formData.get('existingDebtService') as string) || '0'),
-        newLoanPayment: formData.get('newLoanPayment')
-          ? parseFloat(formData.get('newLoanPayment') as string)
-          : undefined,
+        ebitda: parseNumber(form, 'ebitda'),
+        annualDebtService: parseNumber(form, 'annualDebtService'),
+        existingDebtService: parseNumber(form, 'existingDebtService'),
+        newLoanPayment: newLoanPayment > 0 ? newLoanPayment : undefined,
       };
 
       const response = await fetch('/api/analyze-dscr', {
@@ -46,41 +95,24 @@ class DSCRCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to calculate DSCR');
+        const error = await response.json().catch(() => ({}));
+        throw new Error((error as { message?: string }).message || 'Failed to calculate DSCR');
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_dscr', result);
     } catch (error) {
       console.error('DSCR error:', error);
       showError(error instanceof Error ? error.message : 'Failed to calculate DSCR');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    resultsDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">DSCR Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your DSCR analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new DSCRCalculator());
+  document.addEventListener('DOMContentLoaded', initDscrCalculator);
 } else {
-  new DSCRCalculator();
+  initDscrCalculator();
 }

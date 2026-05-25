@@ -62,7 +62,7 @@ describe('auto-loan.client', () => {
       );
 
       const badTerm = buildFormData({ loanTerm: '0' });
-      expect(() => parseAutoLoanInput(badTerm)).toThrow('Please enter a valid loan term.');
+      expect(() => parseAutoLoanInput(badTerm)).toThrow('Please enter a valid vehicle loan term.');
     });
   });
 

@@ -1,150 +1,173 @@
 /**
  * Insurance Needs Calculator Client Script
- * Handles insurance needs analysis and form interactions
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-interface InsuranceNeedsInput {
-  personalInfo: {
-    age: number;
-    maritalStatus: string;
-    dependents: number;
-    annualIncome: number;
-    netWorth: number;
-    healthStatus: string;
-    occupation?: string;
-    hobbies?: string[];
-  };
-  currentCoverage: {
-    lifeInsurance: number;
-    disabilityInsurance: number;
-    longTermCareInsurance: number;
-  };
-  goals: {
-    incomeReplacementYears: number;
-    educationFunding: number;
-    debtPayoff: number;
-    finalExpenses: number;
-    riskTolerance: string;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  const annualIncome = parseNumber(form, 'annualIncome');
+  const netWorth = parseNumber(form, 'netWorth');
+  const debtPayoff = parseNumber(form, 'debtPayoff');
+  const lifeCoverage = parseNumber(form, 'lifeInsurance');
+  const disabilityCoverage = parseNumber(form, 'disabilityInsurance');
+  const ltcCoverage = parseNumber(form, 'longTermCareInsurance');
+  const incomeReplacementYears = Math.round(parseNumber(form, 'incomeReplacementYears')) || 10;
+  const replacementRatio = Math.min(1, Math.max(0.5, incomeReplacementYears / 15));
+
+  return {
+    personalInfo: {
+      age: Math.round(parseNumber(form, 'age')) || 35,
+      maritalStatus:
+        (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'single',
+      dependents: Math.round(parseNumber(form, 'dependents')),
+      employmentStatus: 'employed',
+      healthStatus: (form.elements.namedItem('healthStatus') as HTMLSelectElement)?.value || 'good',
+      annualIncome,
+      monthlyExpenses: annualIncome > 0 ? annualIncome / 12 : 0,
+    },
+    currentInsurance: {
+      lifeInsurance: {
+        termLife: { coverage: lifeCoverage, termYears: 20, monthlyPremium: 0 },
+        wholeLife: { coverage: 0, cashValue: 0, monthlyPremium: 0 },
+      },
+      disabilityInsurance: {
+        shortTerm: {
+          coverage: disabilityCoverage,
+          waitingPeriod: 0,
+          benefitPeriod: 0,
+          monthlyPremium: 0,
+        },
+        longTerm: { coverage: 0, waitingPeriod: 90, benefitPeriod: 0, monthlyPremium: 0 },
+      },
+      longTermCare: {
+        coverage: ltcCoverage,
+        dailyBenefit: 0,
+        benefitPeriod: 0,
+        eliminationPeriod: 90,
+        monthlyPremium: 0,
+      },
+      healthInsurance: { monthlyPremium: 0, deductible: 0, outOfPocketMax: 0 },
+    },
+    financialSituation: {
+      totalAssets: netWorth,
+      totalDebts: debtPayoff,
+      emergencyFund: netWorth * 0.1,
+      retirementSavings: netWorth * 0.35,
+      otherIncome: 0,
+      socialSecurityBenefit: 0,
+    },
+    goals: {
+      incomeReplacementRatio: replacementRatio,
+      debtPayoffGoal: debtPayoff > 0,
+      educationFunding: parseNumber(form, 'educationFunding'),
+      retirementGoal: 0,
+      legacyGoal: parseNumber(form, 'finalExpenses'),
+    },
+    analysis: {
+      includeLifeInsurance: true,
+      includeDisabilityInsurance: true,
+      includeLongTermCare: true,
+      includeHealthInsurance: false,
+    },
   };
 }
 
-class InsuranceNeedsCalculator {
-  private form: HTMLFormElement | null = null;
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('insurance-results');
+  const contentDiv = document.getElementById('insurance-results-content');
+  if (!resultsDiv || !contentDiv) return;
 
-  constructor() {
-    this.init();
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.insuranceSummary && typeof record.insuranceSummary === 'object'
+      ? (record.insuranceSummary as Record<string, unknown>)
+      : {};
 
-  private init(): void {
-    this.form = document.getElementById('insurance-needs-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Insurance needs form not found');
-      return;
-    }
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Recommended Coverage',
+      value: formatCurrency(Number(summary.totalRecommendedCoverage) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Coverage Gap',
+      value: formatCurrency(Number(summary.totalCoverageGap) || 0),
+      meta: Number(summary.totalCoverageGap) > 0 ? 'underinsured' : 'on track',
+      tone: Number(summary.totalCoverageGap) > 0 ? 'orange' : 'emerald',
+    },
+    {
+      title: 'Monthly Premiums',
+      value: formatCurrency(Number(summary.totalMonthlyPremiums) || 0),
+      tone: 'amber',
+    },
+    {
+      title: 'Insurance Health',
+      value: `${Number(summary.insuranceHealthScore) || 0}/100`,
+      tone:
+        Number(summary.insuranceHealthScore) >= 70
+          ? 'emerald'
+          : Number(summary.insuranceHealthScore) >= 50
+            ? 'amber'
+            : 'orange',
+    },
+  ]);
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
-  private async handleSubmit(e: Event): Promise<void> {
+function initInsuranceNeedsCalculator(): void {
+  const form = document.getElementById('insurance-needs-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-insurance-needs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze insurance needs');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze insurance needs'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_insurance_needs', result);
     } catch (error) {
       console.error('Insurance needs error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze insurance needs');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): InsuranceNeedsInput {
-    return {
-      personalInfo: {
-        age: parseInt((formData.get('age') as string) || '35'),
-        maritalStatus: (formData.get('maritalStatus') as string) || 'single',
-        dependents: parseInt((formData.get('dependents') as string) || '0'),
-        annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-        netWorth: parseFloat((formData.get('netWorth') as string) || '0'),
-        healthStatus: (formData.get('healthStatus') as string) || 'good',
-        occupation: undefined,
-        hobbies: [],
-      },
-      currentCoverage: {
-        lifeInsurance: parseFloat((formData.get('lifeInsurance') as string) || '0'),
-        disabilityInsurance: parseFloat((formData.get('disabilityInsurance') as string) || '0'),
-        longTermCareInsurance: parseFloat((formData.get('longTermCareInsurance') as string) || '0'),
-      },
-      goals: {
-        incomeReplacementYears: parseInt(
-          (formData.get('incomeReplacementYears') as string) || '10'
-        ),
-        educationFunding: parseFloat((formData.get('educationFunding') as string) || '0'),
-        debtPayoff: parseFloat((formData.get('debtPayoff') as string) || '0'),
-        finalExpenses: parseFloat((formData.get('finalExpenses') as string) || '10000'),
-        riskTolerance: 'moderate',
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('insurance-results');
-    const contentDiv = document.getElementById('insurance-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Insurance Needs Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your insurance needs analysis is complete. Use the AI assistant to get detailed recommendations and coverage gap analysis.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered insurance recommendations based on your specific situation.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new InsuranceNeedsCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initInsuranceNeedsCalculator);
 } else {
-  new InsuranceNeedsCalculator();
+  initInsuranceNeedsCalculator();
 }

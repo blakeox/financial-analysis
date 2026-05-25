@@ -26,17 +26,22 @@ describe('analysis-results', () => {
     expect(getAllAnalysisResults()).toEqual({ analyze_auto: { status: 'ok' } });
   });
 
-  it('syncs DOM dataset and emits event when storing', () => {
+  it('syncs DOM dataset and emits event with modelType when storing', () => {
     const listener = vi.fn();
     window.addEventListener('analysis-result-updated', listener);
 
-    storeAnalysisResult('analyze_auto', { result: 123 });
+    storeAnalysisResult('analyze_debt_payoff', { result: 123 });
 
     const resultsNode = document.getElementById('results');
-    expect(resultsNode?.getAttribute('data-tool-name')).toBe('analyze_auto');
+    expect(resultsNode?.getAttribute('data-tool-name')).toBe('analyze_debt_payoff');
+    expect(resultsNode?.getAttribute('data-model-type')).toBe('debt-payoff');
     expect(resultsNode?.getAttribute('data-analysis-result')).toBe(JSON.stringify({ result: 123 }));
-    expect(listener).toHaveBeenCalledTimes(1);
-    expect(listener.mock.calls[0][0]).toHaveProperty('detail.result');
+    expect(listener).toHaveBeenCalled();
+    expect(listener.mock.calls[0][0].detail).toEqual({
+      toolName: 'analyze_debt_payoff',
+      modelType: 'debt-payoff',
+      result: { result: 123 },
+    });
   });
 
   it('clears a specific result and removes DOM data attributes', () => {
@@ -47,6 +52,7 @@ describe('analysis-results', () => {
     expect(getAnalysisResult('analyze_auto')).toBeNull();
     const resultsNode = document.getElementById('results');
     expect(resultsNode?.getAttribute('data-tool-name')).toBeNull();
+    expect(resultsNode?.getAttribute('data-model-type')).toBeNull();
     expect(resultsNode?.getAttribute('data-analysis-result')).toBeNull();
   });
 

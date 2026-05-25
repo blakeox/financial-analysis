@@ -1,123 +1,151 @@
 /**
  * Financial Journey Client Script
- * Handles financial journey planning and form interactions
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class FinancialJourneyCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function mapInvestmentRisk(tolerance: string): 'conservative' | 'moderate' | 'aggressive' {
+  if (tolerance === 'conservative' || tolerance === 'aggressive') return tolerance;
+  return 'moderate';
+}
 
-  private init(): void {
-    this.form = document.getElementById('financial-journey-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Financial journey form not found');
-      return;
-    }
+function buildInput(form: HTMLFormElement): Record<string, unknown> {
+  const annualIncome = parseNumber(form, 'annualIncome');
+  const monthlyExpenses = parseNumber(form, 'monthlyExpenses');
+  const totalDebt = parseNumber(form, 'totalDebt');
+  const emergencyFund = parseNumber(form, 'emergencyFund');
+  const retirementSavings = parseNumber(form, 'retirementSavings');
+  const otherAssets = parseNumber(form, 'otherAssets');
+  const riskTolerance =
+    (form.elements.namedItem('riskTolerance') as HTMLSelectElement)?.value || 'moderate';
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  return {
+    personalInfo: {
+      age: Math.round(parseNumber(form, 'age')) || 35,
+      maritalStatus:
+        (form.elements.namedItem('maritalStatus') as HTMLSelectElement)?.value || 'single',
+      dependents: Math.round(parseNumber(form, 'dependents')),
+      employmentStatus:
+        (form.elements.namedItem('employmentStatus') as HTMLSelectElement)?.value || 'employed',
+      annualIncome,
+      monthlyExpenses,
+    },
+    currentFinancials: {
+      totalAssets: emergencyFund + retirementSavings + otherAssets,
+      totalDebts: totalDebt,
+      emergencyFund,
+      monthlySavings: Math.max(0, annualIncome / 12 - monthlyExpenses),
+    },
+    financialGoals: {
+      shortTermGoals: [],
+      mediumTermGoals: [],
+      longTermGoals: [],
+    },
+    journeyStage: 'getting-started',
+    analysis: {
+      includeCrossModelAnalysis: true,
+      includeProgressTracking: true,
+      includeMilestoneAnalysis: true,
+      includeActionPlan: true,
+      includeRiskAssessment: true,
+      timeHorizon: Math.round(parseNumber(form, 'timeHorizon')) || 10,
+    },
+    riskTolerance: {
+      investmentRisk: mapInvestmentRisk(riskTolerance),
+      debtTolerance: 'medium',
+      emergencyTolerance: 'medium',
+    },
+  };
+}
 
-  private async handleSubmit(e: Event): Promise<void> {
+function displayResults(result: unknown): void {
+  const resultsDiv = document.getElementById('journey-results');
+  const contentDiv = document.getElementById('journey-results-content');
+  if (!resultsDiv || !contentDiv) return;
+
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const overview =
+    record.journeyOverview && typeof record.journeyOverview === 'object'
+      ? (record.journeyOverview as Record<string, unknown>)
+      : {};
+
+  const health = Number(overview.overallFinancialHealth) || 0;
+  const progress = Number(overview.progressPercentage) || 0;
+
+  contentDiv.innerHTML = renderMetricCards([
+    {
+      title: 'Health Score',
+      value: `${health}/100`,
+      tone: health >= 70 ? 'emerald' : health >= 50 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Current Stage',
+      value: String(overview.currentStage ?? '—').replace(/-/g, ' '),
+      tone: 'primary',
+    },
+    {
+      title: 'Next Stage',
+      value: String(overview.nextStage ?? '—').replace(/-/g, ' '),
+      tone: 'violet',
+    },
+    {
+      title: 'Progress',
+      value: `${progress.toFixed(0)}%`,
+      meta: String(overview.estimatedTimeToNextStage ?? '').slice(0, 28),
+      tone: 'emerald',
+    },
+  ]);
+
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initFinancialJourneyCalculator(): void {
+  const form = document.getElementById('financial-journey-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (!this.form) return;
 
     try {
       showLoading();
       hideError();
 
-      const formData = new FormData(this.form);
-      const input = this.buildInput(formData);
-
-      // Call API endpoint
       const response = await fetch('/api/analyze-financial-journey', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildInput(form)),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze financial journey');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze financial journey'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_financial_journey', result);
     } catch (error) {
       console.error('Financial journey error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze financial journey');
     } finally {
       hideLoading();
     }
-  }
-
-  private buildInput(formData: FormData): Record<string, unknown> {
-    return {
-      personalInfo: {
-        age: parseInt((formData.get('age') as string) || '35'),
-        maritalStatus: (formData.get('maritalStatus') as string) || 'single',
-        dependents: parseInt((formData.get('dependents') as string) || '0'),
-        employmentStatus: (formData.get('employmentStatus') as string) || 'employed',
-        education: 'bachelors',
-      },
-      currentFinancials: {
-        annualIncome: parseFloat((formData.get('annualIncome') as string) || '0'),
-        monthlyExpenses: parseFloat((formData.get('monthlyExpenses') as string) || '0'),
-        totalDebt: parseFloat((formData.get('totalDebt') as string) || '0'),
-        emergencyFund: parseFloat((formData.get('emergencyFund') as string) || '0'),
-        retirementSavings: parseFloat((formData.get('retirementSavings') as string) || '0'),
-        otherAssets: parseFloat((formData.get('otherAssets') as string) || '0'),
-      },
-      goals: {
-        shortTerm: [],
-        mediumTerm: [],
-        longTerm: [],
-        riskTolerance: (formData.get('riskTolerance') as string) || 'moderate',
-        timeHorizon: parseInt((formData.get('timeHorizon') as string) || '10'),
-      },
-    };
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('journey-results');
-    const contentDiv = document.getElementById('journey-results-content');
-
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-
-    // Format and display results
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Financial Journey Plan</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your financial journey plan is complete. Use the AI assistant to get detailed recommendations and next steps.
-          </p>
-        </div>
-        <div class="fa-script-copy-muted">
-          <p>💡 <strong>Tip:</strong> Click the chat icon to get AI-powered financial journey recommendations and personalized action plans.</p>
-        </div>
-      </div>
-    `;
-
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new FinancialJourneyCalculator();
-  });
+  document.addEventListener('DOMContentLoaded', initFinancialJourneyCalculator);
 } else {
-  new FinancialJourneyCalculator();
+  initFinancialJourneyCalculator();
 }

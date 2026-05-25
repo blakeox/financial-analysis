@@ -125,7 +125,7 @@ const structuredData = {
         Quick Start
       </h2>
       <div class="fa-card p-6 mb-6">
-        <h3 class="fa-panel-title mb-3 text-xl">1. Get Your API Key</h3>
+        <h2 class="fa-panel-title mb-3 text-xl">1. Get Your API Key</h2>
         <p class="fa-scenario-copy mb-4">Sign up for a free developer account to get your API key:</p>
         <a
           href="/api/signup"
@@ -136,26 +136,30 @@ const structuredData = {
       </div>
 
       <div class="fa-card p-6 mb-6">
-        <h3 class="fa-panel-title mb-3 text-xl">2. Make Your First Request</h3>
+        <h2 class="fa-panel-title mb-3 text-xl">2. Make Your First Request</h2>
 
         <!-- Language Tabs -->
-        <div class="fa-segmented-control mb-4" role="tablist">
+        <div class="fa-segmented-control mb-4" role="group" aria-label="Code example language">
           <button
+            type="button"
             class="code-tab fa-segmented-button-active"
-            data-lang="curl">cURL</button
-          >
+            data-lang="curl"
+            aria-pressed="true">cURL</button>
           <button
+            type="button"
             class="code-tab fa-segmented-button"
-            data-lang="javascript">JavaScript</button
-          >
+            data-lang="javascript"
+            aria-pressed="false">JavaScript</button>
           <button
+            type="button"
             class="code-tab fa-segmented-button"
-            data-lang="python">Python</button
-          >
+            data-lang="python"
+            aria-pressed="false">Python</button>
           <button
+            type="button"
             class="code-tab fa-segmented-button"
-            data-lang="typescript">TypeScript</button
-          >
+            data-lang="typescript"
+            aria-pressed="false">TypeScript</button>
         </div>
 
         <!-- cURL -->
@@ -260,6 +264,11 @@ const result: AmortizationResult = await response.json();</code></pre>
     <script is:inline>
       // Code tab switching
       document.addEventListener('DOMContentLoaded', () => {
+        // Scrollable <pre> panels need tabindex for keyboard access (axe scrollable-region-focusable).
+        document.querySelectorAll('pre.fa-prompt-panel').forEach((panel) => {
+          panel.setAttribute('tabindex', '0');
+        });
+
         const tabs = document.querySelectorAll('.code-tab');
         const blocks = document.querySelectorAll('.code-block');
 
@@ -269,7 +278,9 @@ const result: AmortizationResult = await response.json();</code></pre>
 
             // Update tab styles
             tabs.forEach((t) => {
-              if (t.dataset.lang === lang) {
+              const isActive = t.dataset.lang === lang;
+              t.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+              if (isActive) {
                 t.classList.remove('fa-segmented-button');
                 t.classList.add('fa-segmented-button-active');
               } else {

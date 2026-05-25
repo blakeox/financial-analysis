@@ -3,11 +3,15 @@ import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import PageHero from '../components/site/PageHero.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
 import Layout from '../layouts/Layout.astro';
+import { getCalculatorSitemapLinksByCategory } from '../calculators/sitemap-links';
 
 const title = "Site Map | Fanalyx";
 const description = "Complete directory of all Fanalyx financial calculators, tools, and resources. Find the financial calculator you need quickly.";
 const keywords = "sitemap, financial calculators directory, all calculators, fanalyx tools, financial tools list";
 const noindex = true; // Avoid duplicate content with XML sitemap
+
+const { personal: personalCalculatorLinks, business: businessCalculatorLinks } =
+  getCalculatorSitemapLinksByCategory();
 
 // Define site sections
 const sections = [
@@ -23,38 +27,12 @@ const sections = [
   {
     title: "Personal Finance Tools",
     icon: "👤",
-    links: [
-      { name: "Mortgage Calculator", href: "/calculator/mortgage", description: "Calculate monthly mortgage payments" },
-      { name: "Auto Loan Calculator", href: "/calculator/auto-loan", description: "Vehicle financing calculations" },
-      { name: "Retirement Calculator", href: "/calculator/retirement", description: "Plan your retirement savings" },
-      { name: "Debt Payoff Calculator", href: "/calculator/debt-payoff", description: "Snowball & avalanche strategies" },
-      { name: "Savings Goal Calculator", href: "/calculator/savings-goal", description: "Reach your savings targets" },
-      { name: "Student Loan Calculator", href: "/calculator/student-loans", description: "Education loan planning" },
-      { name: "Budget Planner", href: "/calculator/budget", description: "50/30/20 and custom budgets" },
-      { name: "Emergency Fund Calculator", href: "/calculator/emergency-fund", description: "Calculate emergency savings needs" },
-      { name: "Net Worth Calculator", href: "/calculator/net-worth", description: "Track your total net worth" },
-      { name: "Insurance Needs Calculator", href: "/calculator/insurance-needs", description: "Life insurance coverage analysis" },
-      { name: "College Savings Calculator", href: "/calculator/college-savings", description: "529 plan projections" },
-      { name: "Tax Withholding Calculator", href: "/calculator/tax-withholding", description: "Optimize W-4 withholdings" },
-      { name: "Social Security Calculator", href: "/calculator/social-security", description: "Estimate SS benefits" },
-      { name: "Roth Conversion Calculator", href: "/calculator/roth-conversion", description: "IRA to Roth analysis" },
-    ]
+    links: personalCalculatorLinks,
   },
   {
     title: "Business Finance Tools",
     icon: "🏢",
-    links: [
-      { name: "Commercial Property Loan", href: "/calculator/commercial-property-loan", description: "Business building loans" },
-      { name: "Equipment Lease Calculator", href: "/calculator/equipment-lease", description: "Lease vs buy analysis" },
-      { name: "EBITDA Forecasting", href: "/ebitda-forecasting", description: "Business valuation projections" },
-      { name: "Lease Analysis", href: "/lease-analysis", description: "Comprehensive lease comparison" },
-      { name: "Commercial Real Estate", href: "/commercial-real-estate-lease", description: "NNN & CAM calculations" },
-      { name: "Amortization Calculator", href: "/amortization", description: "Detailed payment schedules" },
-      { name: "Cash Flow Calculator", href: "/calculator/cash-flow", description: "Business cash flow analysis" },
-      { name: "Break-Even Calculator", href: "/calculator/break-even", description: "Find your break-even point" },
-      { name: "ROI Calculator", href: "/calculator/roi", description: "Return on investment analysis" },
-      { name: "Startup Runway Calculator", href: "/calculator/startup-runway", description: "Runway & burn rate" },
-    ]
+    links: businessCalculatorLinks,
   },
   {
     title: "Financial Journeys",

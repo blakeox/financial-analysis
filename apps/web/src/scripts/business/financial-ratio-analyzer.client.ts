@@ -1,128 +1,154 @@
 /**
- * Financial Ratio Analyzer Calculator Client Script
+ * Financial Ratio Analyzer Client Script
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
 
-class FinancialRatioAnalyzerCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('financial-ratio-analyzer-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Financial Ratio Analyzer form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const currentRatio = Number(summary.currentRatio) || 0;
+  const quickRatio = Number(summary.quickRatio) || 0;
+  const roe = Number(summary.roe) || 0;
+  const roePct = roe > 1 ? roe : roe * 100;
+  const debtToEquity = Number(summary.debtToEquity) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Current Ratio',
+      value: `${currentRatio.toFixed(2)}x`,
+      tone: currentRatio >= 1.5 ? 'emerald' : currentRatio >= 1 ? 'amber' : 'orange',
+    },
+    {
+      title: 'Quick Ratio',
+      value: `${quickRatio.toFixed(2)}x`,
+      tone: 'violet',
+    },
+    {
+      title: 'ROE',
+      value: `${roePct.toFixed(1)}%`,
+      tone: roePct >= 15 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Debt / Equity',
+      value: `${debtToEquity.toFixed(2)}x`,
+      tone: debtToEquity > 2 ? 'orange' : 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initFinancialRatioAnalyzer(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const currentAssets = parseNumber(form, 'currentAssets');
+      const totalAssets = parseNumber(form, 'totalAssets');
+      const currentLiabilities = parseNumber(form, 'currentLiabilities');
+      const totalLiabilities = parseNumber(form, 'totalLiabilities');
+      const totalEquity = parseNumber(form, 'totalEquity');
+      const revenue = parseNumber(form, 'revenue');
+      const netIncome = parseNumber(form, 'netIncome');
+      const cogs = revenue * 0.6;
 
       const input = {
+        companyInfo: {},
         financialStatements: {
           balanceSheet: {
-            currentAssets: parseFloat((formData.get('currentAssets') as string) || '0'),
-            totalAssets: parseFloat((formData.get('totalAssets') as string) || '0'),
-            currentLiabilities: parseFloat((formData.get('currentLiabilities') as string) || '0'),
-            totalLiabilities: parseFloat((formData.get('totalLiabilities') as string) || '0'),
-            totalEquity: parseFloat((formData.get('totalEquity') as string) || '0'),
-            cash: parseFloat((formData.get('cash') as string) || '0'),
-            accountsReceivable: parseFloat((formData.get('accountsReceivable') as string) || '0'),
-            inventory: parseFloat((formData.get('inventory') as string) || '0'),
-            accountsPayable: parseFloat((formData.get('accountsPayable') as string) || '0'),
-            shortTermDebt: parseFloat((formData.get('shortTermDebt') as string) || '0'),
-            longTermDebt: parseFloat((formData.get('longTermDebt') as string) || '0'),
+            currentAssets,
+            totalAssets,
+            currentLiabilities,
+            totalLiabilities,
+            totalEquity,
+            cash: currentAssets * 0.15,
+            accountsReceivable: currentAssets * 0.35,
+            inventory: currentAssets * 0.25,
+            accountsPayable: currentLiabilities * 0.5,
+            shortTermDebt: currentLiabilities * 0.3,
+            longTermDebt: Math.max(0, totalLiabilities - currentLiabilities),
           },
           incomeStatement: {
-            revenue: parseFloat((formData.get('revenue') as string) || '0'),
-            costOfGoodsSold: parseFloat((formData.get('costOfGoodsSold') as string) || '0'),
-            grossProfit: parseFloat((formData.get('grossProfit') as string) || '0'),
-            operatingExpenses: parseFloat((formData.get('operatingExpenses') as string) || '0'),
-            ebitda: parseFloat((formData.get('ebitda') as string) || '0'),
-            ebit: parseFloat((formData.get('ebit') as string) || '0'),
-            netIncome: parseFloat((formData.get('netIncome') as string) || '0'),
-            interestExpense: parseFloat((formData.get('interestExpense') as string) || '0'),
-            taxExpense: parseFloat((formData.get('taxExpense') as string) || '0'),
+            revenue,
+            costOfGoodsSold: cogs,
+            grossProfit: revenue - cogs,
+            operatingExpenses: revenue - cogs - netIncome,
+            ebitda: netIncome * 1.15,
+            ebit: netIncome * 1.05,
+            netIncome,
           },
           cashFlowStatement: {
-            operatingCashFlow: parseFloat((formData.get('operatingCashFlow') as string) || '0'),
-            capitalExpenditures: parseFloat((formData.get('capitalExpenditures') as string) || '0'),
-            freeCashFlow: parseFloat((formData.get('freeCashFlow') as string) || '0'),
+            operatingCashFlow: netIncome * 1.1,
+            capitalExpenditures: revenue * 0.05,
+            freeCashFlow: netIncome,
           },
         },
-        marketData: {
-          sharePrice: parseFloat((formData.get('sharePrice') as string) || '0'),
-          sharesOutstanding: parseFloat((formData.get('sharesOutstanding') as string) || '0'),
-          industryAverages: formData.get('industryAverages')
-            ? JSON.parse(formData.get('industryAverages') as string)
-            : undefined,
-        },
+        marketData: {},
         analysis: {
-          includeLiquidityRatios: formData.get('includeLiquidityRatios') !== 'false',
-          includeProfitabilityRatios: formData.get('includeProfitabilityRatios') !== 'false',
-          includeEfficiencyRatios: formData.get('includeEfficiencyRatios') !== 'false',
-          includeLeverageRatios: formData.get('includeLeverageRatios') !== 'false',
-          includeMarketRatios: formData.get('includeMarketRatios') !== 'false',
-          includeBenchmarking: formData.get('includeBenchmarking') !== 'false',
+          includeLiquidityRatios: true,
+          includeProfitabilityRatios: true,
+          includeEfficiencyRatios: true,
+          includeLeverageRatios: true,
+          includeMarketRatios: false,
+          includeBenchmarking: true,
         },
       };
 
-      const response = await fetch('/api/analyze-financial-ratios', {
+      const response = await fetch('/api/analyze-financial-ratio-analyzer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze financial ratios');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze financial ratios'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_financial_ratio_analyzer', result);
     } catch (error) {
-      console.error('Financial Ratio Analyzer error:', error);
+      console.error('Financial ratio analyzer error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze financial ratios');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('financial-ratio-analyzer-results');
-    const contentDiv = document.getElementById('financial-ratio-analyzer-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Financial Ratio Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your financial ratio analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new FinancialRatioAnalyzerCalculator());
+  document.addEventListener('DOMContentLoaded', initFinancialRatioAnalyzer);
 } else {
-  new FinancialRatioAnalyzerCalculator();
+  initFinancialRatioAnalyzer();
 }

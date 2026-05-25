@@ -285,8 +285,8 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
                   <span class="fa-chip fa-chip-accent capitalize">${key.tier}</span>
                 </div>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">${key.metadata?.description || 'API Key'}</p>
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
-                ${key.lastUsedAt ? `<p class="text-xs text-slate-500 dark:text-slate-400">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
+                <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
+                ${key.lastUsedAt ? `<p class="text-xs text-slate-600 dark:text-slate-400">Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}</p>` : ''}
               </div>
             </div>
           </div>

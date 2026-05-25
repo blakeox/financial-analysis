@@ -14,11 +14,12 @@ import type {
   AdditionalCosts,
   ExtractedLeaseData,
 } from '@financial-analysis/analysis';
+import { escapeHtml } from '../lib/escape-html';
 import { formatCurrency, formatPercentage } from '../lib/formatters';
 import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
 import { parsers } from '../lib/formUtils';
-import { cn, textColors } from '../lib/classNames';
+import { cn, copyClasses, textColors } from '../lib/classNames';
 
 // Extend Window interface for analysis results storage
 declare global {
@@ -28,6 +29,7 @@ declare global {
 }
 
 interface LeaseAnalysisDashboardProps {
+  /** Wire to `storeAnalysisResult('analyze_lease', …)` (e.g. lease-analysis-dashboard-host) for chat + workflow rail. */
   onAnalyze?: (result: EnhancedLeaseAnalysisResult) => void;
   hideAnalyzeButton?: boolean;
   hideScenarioCard?: boolean;
@@ -283,7 +285,7 @@ function LeaseDocumentUpload({
             ) : uploadedFile ? (
               <div className="text-slate-700 dark:text-slate-300">
                 <svg
-                  className="mx-auto mb-2 h-12 w-12 text-slate-500 dark:text-slate-400"
+                  className={cn('mx-auto mb-2 h-12 w-12', copyClasses.muted)}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -464,7 +466,7 @@ function LeaseExtractionPreview({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Basic Terms</h4>
+            <h3 className="font-semibold text-slate-900 dark:text-white">Basic Terms</h3>
             <div className="space-y-2 text-sm">
               {extractedData.leaseType && (
                 <div className="flex justify-between">
@@ -498,7 +500,7 @@ function LeaseExtractionPreview({
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Additional Costs</h4>
+            <h3 className="font-semibold text-slate-900 dark:text-white">Additional Costs</h3>
             <div className="space-y-2 text-sm">
               {extractedData.cam && (
                 <div className="flex justify-between">
@@ -543,9 +545,9 @@ function LeaseExtractionPreview({
         {extractedData.extractedSections &&
           Object.values(extractedData.extractedSections).some((section) => section) && (
             <div className="space-y-3">
-              <h4 className="font-semibold text-slate-900 dark:text-white">
+              <h3 className="font-semibold text-slate-900 dark:text-white">
                 Key Document Sections
-              </h4>
+              </h3>
               <div className="space-y-3">
                 {extractedData.extractedSections.financialTerms && (
                   <div className="rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/80">
@@ -638,7 +640,7 @@ function ScenarioResultCard({ scenarioKey, result, baseTotalCost }: ScenarioResu
     <div className={theme.container}>
       <div className="flex items-center mb-3">
         <div className={`h-3 w-3 rounded-full mr-2 ${theme.accent}`} />
-        <h4 className={`font-semibold ${theme.heading}`}>{theme.label}</h4>
+        <h3 className={`font-semibold ${theme.heading}`}>{theme.label}</h3>
       </div>
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
@@ -1092,16 +1094,6 @@ export function LeaseAnalysisDashboard({
       prevFormDataRef.current = { ...formData };
       prevResultRef.current = analysisResult;
 
-      // Store result for chat panel integration
-      if (typeof window !== 'undefined' && window.analysisResults) {
-        window.analysisResults['analyze_lease'] = analysisResult;
-        window.dispatchEvent(
-          new CustomEvent('analysis-result-updated', {
-            detail: { toolName: 'analyze_lease', result: analysisResult },
-          })
-        );
-      }
-
       onAnalyze?.(analysisResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -1309,6 +1301,8 @@ export function LeaseAnalysisDashboard({
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
+    const html = (value: string) => escapeHtml(value);
+
     printWindow.document.write(`
       <html>
         <head>
@@ -1327,33 +1321,33 @@ export function LeaseAnalysisDashboard({
         </head>
         <body>
           <h1>Lease Analysis Report</h1>
-          <p>Generated on ${new Date().toLocaleDateString()}</p>
+          <p>Generated on ${html(new Date().toLocaleDateString())}</p>
           
           <h2>Financial Summary</h2>
           <div class="summary">
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.averageMonthlyPayment)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.averageMonthlyPayment))}</div>
               <div>Avg Monthly Payment</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.totalCost)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.totalCost))}</div>
               <div>Total Cost</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatCurrency(result.metrics.presentValue)}</div>
+              <div class="metric-value">${html(formatCurrency(result.metrics.presentValue))}</div>
               <div>Present Value</div>
             </div>
             <div class="metric">
-              <div class="metric-value">${formatPercentage(result.metrics.effectiveAnnualRate)}</div>
+              <div class="metric-value">${html(formatPercentage(result.metrics.effectiveAnnualRate))}</div>
               <div>Effective Rate</div>
             </div>
           </div>
 
           <h2>Risk Assessment</h2>
           <table class="table">
-            <tr><td>Flexibility Score</td><td>${result.riskAnalysis.flexibilityScore}/100</td></tr>
-            <tr><td>Early Termination Cost</td><td>${formatCurrency(result.riskAnalysis.earlyTerminationCost)}</td></tr>
-            <tr><td>Renewal Risk</td><td>${result.riskAnalysis.renewalRisk}</td></tr>
+            <tr><td>Flexibility Score</td><td>${html(String(result.riskAnalysis.flexibilityScore))}/100</td></tr>
+            <tr><td>Early Termination Cost</td><td>${html(formatCurrency(result.riskAnalysis.earlyTerminationCost))}</td></tr>
+            <tr><td>Renewal Risk</td><td>${html(result.riskAnalysis.renewalRisk)}</td></tr>
           </table>
 
           ${
@@ -1361,12 +1355,12 @@ export function LeaseAnalysisDashboard({
               ? `
             <h2>Lease vs Buy Comparison</h2>
             <div class="recommendation">
-              <strong>Recommendation: ${result.leaseVsBuy.recommendation.toUpperCase()}</strong>
+              <strong>Recommendation: ${html(result.leaseVsBuy.recommendation.toUpperCase())}</strong>
             </div>
             <table class="table">
               <tr><th>Option</th><th>Total Cost</th><th>Monthly Payment</th></tr>
-              <tr><td>Lease</td><td>${formatCurrency(result.leaseVsBuy.leaseOption.totalCost)}</td><td>${formatCurrency(result.leaseVsBuy.leaseOption.monthlyPayment)}</td></tr>
-              <tr><td>Buy</td><td>${formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost)}</td><td>${formatCurrency(result.leaseVsBuy.buyOption.loanPayment)}</td></tr>
+              <tr><td>Lease</td><td>${html(formatCurrency(result.leaseVsBuy.leaseOption.totalCost))}</td><td>${html(formatCurrency(result.leaseVsBuy.leaseOption.monthlyPayment))}</td></tr>
+              <tr><td>Buy</td><td>${html(formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost))}</td><td>${html(formatCurrency(result.leaseVsBuy.buyOption.loanPayment))}</td></tr>
             </table>
           `
               : ''
@@ -1380,11 +1374,11 @@ export function LeaseAnalysisDashboard({
               .map(
                 (payment) => `
               <tr>
-                <td>${payment.month}</td>
-                <td>${formatCurrency(payment.escalatedPayment)}</td>
-                <td>${formatCurrency(payment.additionalCosts.total)}</td>
-                <td>${formatCurrency(payment.totalPayment)}</td>
-                <td>${formatCurrency(payment.cumulativePaid)}</td>
+                <td>${html(String(payment.month))}</td>
+                <td>${html(formatCurrency(payment.escalatedPayment))}</td>
+                <td>${html(formatCurrency(payment.additionalCosts.total))}</td>
+                <td>${html(formatCurrency(payment.totalPayment))}</td>
+                <td>${html(formatCurrency(payment.cumulativePaid))}</td>
               </tr>
             `
               )
@@ -2107,7 +2101,7 @@ export function LeaseAnalysisDashboard({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <p className={cn('text-xs sm:text-sm mb-4', copyClasses.muted)}>
               Compare optimistic, conservative, and pessimistic scenarios based on your current
               lease terms.
             </p>
@@ -2138,25 +2132,25 @@ export function LeaseAnalysisDashboard({
               <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Key Insights</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Risk Range:</span>
+                  <span className={copyClasses.muted}>Risk Range:</span>
                   <span className="ml-2 font-medium text-slate-900 dark:text-white">
                     {scenarioSummary.riskRangeText}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Best Case Savings:</span>
+                  <span className={copyClasses.muted}>Best Case Savings:</span>
                   <span className="ml-2 font-medium text-emerald-600 dark:text-emerald-300">
                     {scenarioSummary.bestCaseSavings}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Worst Case Impact:</span>
+                  <span className={copyClasses.muted}>Worst Case Impact:</span>
                   <span className="ml-2 font-medium text-rose-600 dark:text-rose-300">
                     {scenarioSummary.worstCaseImpact}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-600 dark:text-slate-400">Confidence Level:</span>
+                  <span className={copyClasses.muted}>Confidence Level:</span>
                   <span className="ml-2 font-medium text-slate-900 dark:text-white">
                     Medium-High
                   </span>
@@ -2210,17 +2204,15 @@ export function LeaseAnalysisDashboard({
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white">
+                      <h3 className="font-medium text-slate-900 dark:text-white">
                         {template.name}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                        {template.description}
-                      </p>
+                      </h3>
+                      <p className={cn('mt-1', copyClasses.helper)}>{template.description}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">
                           {template.category}
                         </span>
-                        <span className="text-xs text-slate-500">
+                        <span className={cn('text-xs', textColors.muted)}>
                           {template.formData.baseRent
                             ? `$${template.formData.baseRent.toLocaleString()}/mo`
                             : ''}
@@ -2275,9 +2267,9 @@ export function LeaseAnalysisDashboard({
             <CardContent>
               <div className="space-y-3">
                 {savedAnalyses.length === 0 ? (
-                  <div className="text-center py-6 text-slate-500 dark:text-slate-400">
+                  <div className={cn('text-center py-6', copyClasses.muted)}>
                     <svg
-                      className="w-12 h-12 mx-auto mb-2 opacity-50"
+                      className={cn('w-12 h-12 mx-auto mb-2', copyClasses.muted)}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -2310,16 +2302,16 @@ export function LeaseAnalysisDashboard({
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="font-medium text-slate-900 dark:text-white">
+                            <h3 className="font-medium text-slate-900 dark:text-white">
                               {analysis.name}
-                            </h4>
+                            </h3>
                             {analysis.description && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                              <p className={cn('mt-1', copyClasses.helper)}>
                                 {analysis.description}
                               </p>
                             )}
                             <div className="flex items-center gap-2 mt-2">
-                              <span className="text-xs text-slate-500">
+                              <span className={cn('text-xs', textColors.muted)}>
                                 {new Date(analysis.savedAt).toLocaleDateString()}
                               </span>
                               {analysis.result && (
@@ -2337,7 +2329,7 @@ export function LeaseAnalysisDashboard({
                               e.stopPropagation();
                               deleteAnalysis(analysis.id);
                             }}
-                            className="text-slate-400 hover:text-rose-600 p-1"
+                            className="text-slate-600 hover:text-rose-600 p-1 dark:text-slate-400"
                             title="Delete analysis"
                           >
                             <svg
@@ -2511,9 +2503,7 @@ export function LeaseAnalysisDashboard({
                     max="360"
                   />
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
-                      Advanced options
-                    </span>
+                    <span className={copyClasses.helper}>Advanced options</span>
                     <Button type="button" onClick={() => setShowAdvanced((v) => !v)} size="sm">
                       {showAdvanced ? 'Hide' : 'Show'} Advanced
                     </Button>
@@ -2527,25 +2517,19 @@ export function LeaseAnalysisDashboard({
                   <CardContent className="py-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                          Total Cost
-                        </span>
+                        <span className={copyClasses.helper}>Total Cost</span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.totalCost)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                          Present Value
-                        </span>
+                        <span className={copyClasses.helper}>Present Value</span>
                         <span className="font-medium">
                           {formatCurrency(result.metrics.presentValue)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                          Effective Annual Rate
-                        </span>
+                        <span className={copyClasses.helper}>Effective Annual Rate</span>
                         <span className="font-medium">
                           {formatPercentage(result.metrics.effectiveAnnualRate)}
                         </span>
@@ -3233,7 +3217,7 @@ export function LeaseAnalysisDashboard({
                     </tbody>
                   </table>
                   {result.schedule.length > 12 && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 text-center">
+                    <p className={cn('mt-3 text-center', copyClasses.helper)}>
                       Showing first 12 months of {result.schedule.length} month schedule
                     </p>
                   )}
@@ -3256,7 +3240,7 @@ export function LeaseAnalysisDashboard({
                           : 'border-slate-300'
                       }`}
                     >
-                      <h4 className="font-semibold mb-2">Lease Option</h4>
+                      <h3 className="font-semibold mb-2">Lease Option</h3>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           Total Cost: {formatCurrency(result.leaseVsBuy.leaseOption.totalCost)}
@@ -3275,7 +3259,7 @@ export function LeaseAnalysisDashboard({
                           : 'border-slate-300'
                       }`}
                     >
-                      <h4 className="font-semibold mb-2">Buy Option</h4>
+                      <h3 className="font-semibold mb-2">Buy Option</h3>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           Total Cost: {formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost)}
@@ -3325,7 +3309,7 @@ export function LeaseAnalysisDashboard({
 
                   {result.insights.recommendations.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="font-semibold mb-2">Recommendations:</h4>
+                      <h3 className="font-semibold mb-2">Recommendations:</h3>
                       <ul className="space-y-1">
                         {result.insights.recommendations.map((rec, index) => (
                           <li
@@ -3352,9 +3336,9 @@ export function LeaseAnalysisDashboard({
                 <div className="space-y-6">
                   {/* Executive Summary */}
                   <div className="p-4 bg-violet-50 dark:bg-violet-950/20 rounded-lg">
-                    <h4 className="font-semibold text-violet-900 dark:text-violet-200 mb-2">
+                    <h3 className="font-semibold text-violet-900 dark:text-violet-200 mb-2">
                       Executive Summary
-                    </h4>
+                    </h3>
                     <p className="text-sm text-violet-800 dark:text-violet-300">
                       This {formData.leaseType.replace('-', ' ')} lease for{' '}
                       {formatCurrency(result.metrics.totalCost)}
@@ -3385,27 +3369,25 @@ export function LeaseAnalysisDashboard({
                       <div className="text-2xl font-bold text-slate-900 dark:text-white">
                         {formatPercentage(result.riskAnalysis.flexibilityScore / 100)}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        Flexibility Score
-                      </div>
+                      <div className={copyClasses.helper}>Flexibility Score</div>
                     </div>
                     <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded">
                       <div className="text-2xl font-bold text-slate-900 dark:text-white">
                         {Math.round(formData.termMonths / 12)} yr
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Lease Term</div>
+                      <div className={copyClasses.helper}>Lease Term</div>
                     </div>
                     <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/60 rounded">
                       <div className="text-2xl font-bold text-slate-900 dark:text-white">
                         {formatCurrency(result.metrics.costPerYear)}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Annual Cost</div>
+                      <div className={copyClasses.helper}>Annual Cost</div>
                     </div>
                   </div>
 
                   {/* Financial Insights */}
                   <div>
-                    <h4 className="font-semibold mb-3">Financial Analysis</h4>
+                    <h3 className="font-semibold mb-3">Financial Analysis</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center">
                         <span>Total Cost</span>
@@ -3438,9 +3420,9 @@ export function LeaseAnalysisDashboard({
 
                   {/* Strategic Recommendations */}
                   <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
-                    <h4 className="font-semibold text-emerald-900 dark:text-emerald-200 mb-2">
+                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-200 mb-2">
                       Strategic Recommendations
-                    </h4>
+                    </h3>
                     <ul className="text-sm text-emerald-800 dark:text-emerald-300 space-y-1">
                       {result.riskAnalysis.renewalRisk === 'high' && (
                         <li>• Consider negotiating renewal options due to high renewal risk</li>

@@ -5,6 +5,8 @@
  * versus investing it, considering interest rates, returns, and risk.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCard, renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -311,28 +313,34 @@ function displayResults(result: InvestVsDebtResult, input: InvestVsDebtInput): v
     result.hybrid.endingWealth
   );
 
-  summaryCards.innerHTML = `
-    <div class="fa-metric-card fa-metric-card-info">
-      <h5 class="text-sm font-medium">Pay Debt First</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.payOffDebt.endingWealth)}</p>
-      ${result.payOffDebt.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
-    </div>
-    <div class="fa-metric-card fa-metric-card-success">
-      <h5 class="text-sm font-medium">Invest First</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.invest.endingWealth)}</p>
-      ${result.invest.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
-    </div>
-    <div class="fa-metric-card fa-metric-card-accent">
-      <h5 class="text-sm font-medium">Hybrid (50/50)</h5>
-      <p class="text-2xl font-bold">${formatCurrency(result.hybrid.endingWealth)}</p>
-      ${result.hybrid.endingWealth === bestWealth ? '<p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Best Math</p>' : ''}
-    </div>
-    <div class="fa-metric-card fa-metric-card-warning">
-      <h5 class="text-sm font-medium">Recommended</h5>
-      <p class="text-lg font-bold">${result.recommendation.riskAdjustedWinner}</p>
-      <p class="mt-1 text-xs">Risk-adjusted</p>
-    </div>
-  `;
+  summaryCards.innerHTML =
+    renderMetricCards([
+      {
+        title: 'Pay Debt First',
+        value: formatCurrency(result.payOffDebt.endingWealth),
+        meta: result.payOffDebt.endingWealth === bestWealth ? 'Best math' : undefined,
+        tone: 'violet',
+      },
+      {
+        title: 'Invest First',
+        value: formatCurrency(result.invest.endingWealth),
+        meta: result.invest.endingWealth === bestWealth ? 'Best math' : undefined,
+        tone: 'emerald',
+      },
+      {
+        title: 'Hybrid (50/50)',
+        value: formatCurrency(result.hybrid.endingWealth),
+        meta: result.hybrid.endingWealth === bestWealth ? 'Best math' : undefined,
+        tone: 'violet',
+      },
+    ]) +
+    renderMetricCard({
+      title: 'Recommended',
+      value: result.recommendation.riskAdjustedWinner,
+      meta: 'Risk-adjusted',
+      tone: 'orange',
+      valueClassName: 'fa-metric-card-value text-lg',
+    });
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->
@@ -540,6 +548,7 @@ function initializeInvestVsDebt(): void {
 
       const result = compareStrategies(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_invest_vs_payoff_debt', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

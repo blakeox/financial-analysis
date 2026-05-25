@@ -8,6 +8,7 @@ import type { UnitEconomicsInput, UnitEconomicsResult } from '@financial-analysi
 import { UnitEconomicsEngine } from '@financial-analysis/analysis';
 import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 
 type CohortAnalysisRow = UnitEconomicsResult['cohortAnalysis'][number];
@@ -96,38 +97,44 @@ export const displayResults = (result: UnitEconomicsResult): void => {
   resultsSection?.classList.remove('hidden');
 
   // Populate summary cards
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">LTV:CAC Ratio</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.ltvToCacRatio.toFixed(2)}:1</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Target: 3:1 or better</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Customer LTV</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.ltv)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Lifetime value per customer</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">CAC</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.cac)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Customer acquisition cost</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Payback Period</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.paybackPeriodMonths.toFixed(1)} mo</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Months to recover CAC</p>
-    </div>
-    <div class="bg-pink-50 dark:bg-pink-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-pink-900 dark:text-pink-100">Monthly Churn</h5>
-      <p class="text-2xl font-bold text-pink-600 dark:text-pink-400">${result.churnRate.toFixed(1)}%</p>
-      <p class="text-xs text-pink-700 dark:text-pink-300 mt-1">Target: <5%</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Gross Margin</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.grossMarginPercent.toFixed(1)}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Target: 70%+</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'LTV:CAC Ratio',
+      value: `${result.ltvToCacRatio.toFixed(2)}:1`,
+      meta: 'Target: 3:1 or better',
+      tone: result.ltvToCacRatio >= 3 ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Customer LTV',
+      value: formatCurrency(result.ltv),
+      meta: 'Lifetime value per customer',
+      tone: 'emerald',
+    },
+    {
+      title: 'CAC',
+      value: formatCurrency(result.cac),
+      meta: 'Customer acquisition cost',
+      tone: 'violet',
+    },
+    {
+      title: 'Payback Period',
+      value: `${result.paybackPeriodMonths.toFixed(1)} mo`,
+      meta: 'Months to recover CAC',
+      tone: 'orange',
+    },
+    {
+      title: 'Monthly Churn',
+      value: `${result.churnRate.toFixed(1)}%`,
+      meta: 'Target: <5%',
+      tone: result.churnRate <= 5 ? 'violet' : 'amber',
+    },
+    {
+      title: 'Gross Margin',
+      value: `${result.grossMarginPercent.toFixed(1)}%`,
+      meta: 'Target: 70%+',
+      tone: 'violet',
+    },
+  ]);
 
   // Overall health indicator
   const healthColors = {
@@ -422,7 +429,7 @@ export const initUnitEconomicsCalculator = (): void => {
       const result = UnitEconomicsEngine.analyze(input);
 
       // Store result for AI assistant
-      storeAnalysisResult('unit-economics', result);
+      storeAnalysisResult('analyze_unit_economics', result);
 
       // Display results
       displayResults(result);

@@ -1,10 +1,10 @@
 ---
 import AdSense from '../components/AdSense.astro';
-import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -13,6 +13,9 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
   keywords="DCF analysis, discounted cash flow, business valuation, WACC, terminal value, free cash flow, NPV, business valuation calculator, financial modeling"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -79,22 +82,29 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
       { label: 'DCF Analysis' },
     ]}
   >
-    <SurfaceCard className="mb-8">
-      <p class="fa-meta-copy mb-4">
-        Use the DCF Valuation calculator to perform comprehensive discounted cash flow analysis.
-      </p>
-      <a href="/calculator/dcf-valuation" class="fa-button-primary">
-        Open DCF Valuation Calculator
-        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </a>
-    </SurfaceCard>
+    <div id="results" class="hidden" aria-hidden="true"></div>
 
-    <!-- AdSense -->
-    <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
+        <SurfaceCard className="mb-8">
+          <p class="fa-meta-copy mb-4">
+            Use the DCF Valuation calculator to perform comprehensive discounted cash flow analysis
+            with WACC, terminal value, and sensitivity views.
+          </p>
+          <a href="/calculator/dcf-valuation" class="fa-button-primary inline-flex items-center">
+            Open DCF Valuation Calculator
+            <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"
+              ></path>
+            </svg>
+          </a>
+        </SurfaceCard>
+
+        <!-- AdSense -->
+        <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="dcf-valuation" />
+    </div>
   </ToolPageShell>
-
-  <ClientScriptLoader client:load slot="pageScripts" name="dcf-valuation" />
 </Layout>

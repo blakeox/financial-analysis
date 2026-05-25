@@ -206,7 +206,7 @@ export class UserPreferencesManager {
   }
 }
 
-// Quick Access Utilities
+// Quick access helpers (UI removed in Phase 4; storage API kept for a future rail widget)
 export function getQuickAccessCalculators(): {
   favorites: CalculatorConfig[];
   recent: CalculatorConfig[];

@@ -4,6 +4,7 @@ import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 import StructuredData from '../components/StructuredData.astro';
 import Layout from '../layouts/Layout.astro';
 import ToolPageShell from '../components/site/ToolPageShell.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 ---
 
 <Layout
@@ -12,6 +13,9 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
   keywords="business loan, expansion loan, commercial loan, SBA loan, business financing, debt capacity, DSCR, business cash flow, loan analysis, commercial lending"
   canonical={Astro.url.href}
   type="article"
+
+  showChat={false}
+  showToolAnalysis={false}
 >
   <!-- Structured Data for SEO -->
   <StructuredData
@@ -78,6 +82,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
       { label: 'Business Expansion Loan' },
     ]}
   >
+    <div id="results" class="hidden" aria-hidden="true"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+      <div class="space-y-8">
     <!-- Business Expansion Loan Form -->
     <div class="fa-card p-6 mb-8">
       <h2 class="fa-panel-title mb-6">Business Information</h2>
@@ -504,6 +512,10 @@ import ToolPageShell from '../components/site/ToolPageShell.astro';
 
     <!-- AdSense -->
     <AdSense slot="0123456789" format="horizontal" className="mt-8" />
+      </div>
+
+      <WorkflowSupportRail modelType="business-expansion-loan" />
+    </div>
   </ToolPageShell>
 
   <ClientScriptLoader client:load slot="pageScripts" name="business-expansion-loan" />

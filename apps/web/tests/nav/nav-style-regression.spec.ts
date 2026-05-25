@@ -33,7 +33,7 @@ test.describe('Navbar styling regression', () => {
     expect(expectedBorders).toContain(navStyles?.borderBottomColor ?? '');
 
     const brandStyles = await page.evaluate(() => {
-      const mark = document.querySelector('#site-nav .brand-mark');
+      const mark = document.querySelector('#site-nav .fa-shell-brand-mark');
       if (!mark) {
         return null;
       }

@@ -5,6 +5,8 @@
  * for various business loan types.
  */
 
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
   formatCurrency,
@@ -430,28 +432,33 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
 
   const eligibleLoans = Object.values(result.loanEligibility).filter((l) => l.eligible);
 
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">DSCR</h5>
-      <p class="text-2xl font-bold ${result.dscr >= 1.25 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${result.dscr.toFixed(2)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${result.dscr >= 1.25 ? '✓ Strong' : '❌ Too low'}</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Qualified Loans</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${eligibleLoans.length}/4</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">loan types available</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Best Option</h5>
-      <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${result.bestOption}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">${eligibleLoans.length > 0 ? 'Recommended' : 'Improve financials'}</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Est. Payment</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${formatCurrency(result.estimatedMonthlyPayment)}</p>
-      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">per month</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'DSCR',
+      value: result.dscr.toFixed(2),
+      meta: result.dscr >= 1.25 ? 'Strong' : 'Below target',
+      tone: result.dscr >= 1.25 ? 'emerald' : 'amber',
+    },
+    {
+      title: 'Qualified Loans',
+      value: `${eligibleLoans.length}/4`,
+      meta: 'loan types available',
+      tone: 'emerald',
+    },
+    {
+      title: 'Best Option',
+      value: result.bestOption,
+      meta: eligibleLoans.length > 0 ? 'Recommended' : 'Improve financials',
+      tone: 'violet',
+      valueClassName: 'fa-metric-card-value text-lg',
+    },
+    {
+      title: 'Est. Payment',
+      value: formatCurrency(result.estimatedMonthlyPayment),
+      meta: 'per month',
+      tone: 'orange',
+    },
+  ]);
 
   resultsContainer.innerHTML = `
     <!-- Loan Eligibility -->
@@ -490,7 +497,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
             
             <div class="bg-slate-50 dark:bg-slate-900 rounded p-3">
               <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Requirements:</p>
-              <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+              <ul class="text-xs fa-help-copy space-y-1">
                 ${loan.requirements.map((req) => `<li>• ${req}</li>`).join('')}
               </ul>
             </div>
@@ -500,11 +507,11 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
                 ? `
               <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span class="text-slate-600 dark:text-slate-400">Est. Rate:</span>
+                  <span class="fa-help-copy">Est. Rate:</span>
                   <span class="font-semibold ml-2">${loan.estimatedRate.toFixed(2)}%</span>
                 </div>
                 <div>
-                  <span class="text-slate-600 dark:text-slate-400">Est. Term:</span>
+                  <span class="fa-help-copy">Est. Term:</span>
                   <span class="font-semibold ml-2">${loan.estimatedTermYears} years</span>
                 </div>
               </div>
@@ -526,7 +533,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">DSCR</h4>
+          <h4 class="text-sm font-semibold fa-meta-copy mb-2">DSCR</h4>
           <p class="text-3xl font-bold ${result.dscr >= 1.5 ? 'text-emerald-600 dark:text-emerald-400' : result.dscr >= 1.25 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.dscr.toFixed(2)}</p>
           <p class="fa-script-note mt-2">Debt Service Coverage Ratio</p>
           <p class="text-xs mt-1">${result.dscr >= 1.5 ? '✓ Excellent (≥1.5)' : result.dscr >= 1.25 ? '✓ Acceptable (≥1.25)' : '❌ Too Low (<1.25)'}</p>
@@ -536,7 +543,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
           input.collateralValue > 0
             ? `
         <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">LTV Ratio</h4>
+          <h4 class="text-sm font-semibold fa-meta-copy mb-2">LTV Ratio</h4>
           <p class="text-3xl font-bold ${result.ltv <= 75 ? 'text-emerald-600 dark:text-emerald-400' : result.ltv <= 90 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.ltv.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Loan-to-Value Ratio</p>
           <p class="text-xs mt-1">${result.ltv <= 75 ? '✓ Excellent (≤75%)' : result.ltv <= 90 ? '✓ Acceptable (≤90%)' : '❌ Too High (>90%)'}</p>
@@ -546,7 +553,7 @@ function displayResults(result: LoanQualifierResult, input: LoanQualifierInput):
         }
         
         <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Debt-to-Income</h4>
+          <h4 class="text-sm font-semibold fa-meta-copy mb-2">Debt-to-Income</h4>
           <p class="text-3xl font-bold ${result.debtToIncome <= 30 ? 'text-emerald-600 dark:text-emerald-400' : result.debtToIncome <= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-rose-600 dark:text-rose-400'}">${result.debtToIncome.toFixed(1)}%</p>
           <p class="fa-script-note mt-2">Total Debt / Revenue</p>
           <p class="text-xs mt-1">${result.debtToIncome <= 30 ? '✓ Healthy (<30%)' : result.debtToIncome <= 50 ? '⚠️ Moderate (30-50%)' : '❌ High (>50%)'}</p>
@@ -634,6 +641,7 @@ function initializeLoanQualifier(): void {
 
       const result = calculateLoanQualification(input);
       displayResults(result, input);
+      storeAnalysisResult('analyze_business_loan_qualifier', result);
 
       window.dispatchEvent(
         new CustomEvent('calculator-completed', {

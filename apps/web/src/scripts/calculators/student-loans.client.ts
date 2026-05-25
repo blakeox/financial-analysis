@@ -1,6 +1,7 @@
 import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import { formatCurrency, formatPercent } from '../../utils/calculator-utilities';
 
@@ -294,24 +295,28 @@ export const displayResults = (result: StudentLoanResult, insights?: ExtendedIns
   const weightedAverageRate = formatPercent(result.input.weightedAverageRate);
 
   // Render summary cards
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Balance</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.input.totalBalance)}</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Monthly Payment</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.summary.averageMonthlyPayment)}</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Interest</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.summary.totalInterestPaid)}</p>
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Payoff Time</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.summary.totalMonthsToPayoff} months</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Total Balance',
+      value: formatCurrency(result.input.totalBalance),
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Payment',
+      value: formatCurrency(result.summary.averageMonthlyPayment),
+      tone: 'emerald',
+    },
+    {
+      title: 'Total Interest',
+      value: formatCurrency(result.summary.totalInterestPaid),
+      tone: 'violet',
+    },
+    {
+      title: 'Payoff Time',
+      value: `${result.summary.totalMonthsToPayoff} months`,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
@@ -408,7 +413,7 @@ export const displayResults = (result: StudentLoanResult, insights?: ExtendedIns
         <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
           <div class="flex items-center justify-between mb-2">
             <h4 class="font-semibold text-slate-900 dark:text-white">${label}</h4>
-            <span class="text-sm ${program.eligible ? 'text-emerald-600' : 'text-slate-500'}">
+            <span class="text-sm ${program.eligible ? 'text-emerald-600' : 'fa-help-copy'}">
               ${program.eligible ? 'Eligible' : 'Not Eligible'}
             </span>
           </div>

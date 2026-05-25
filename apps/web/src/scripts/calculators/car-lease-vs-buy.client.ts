@@ -2,77 +2,127 @@
  * Car Lease vs Buy Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CarLeaseVsBuyCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('car-lease-vs-buy-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Car Lease vs Buy form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const betterOption = String(summary.betterOption ?? 'lease');
+  const costDifference = Number(summary.costDifference) || 0;
+  const leaseTotal = Number(summary.leaseTotalCost) || 0;
+  const purchaseTotal = Number(summary.purchaseTotalCost) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Better Option',
+      value: betterOption === 'lease' ? 'Lease' : 'Buy',
+      meta: `saves ${formatCurrency(costDifference)}`,
+      tone: 'emerald',
+    },
+    {
+      title: 'Lease Total Cost',
+      value: formatCurrency(leaseTotal),
+      tone: betterOption === 'lease' ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Purchase Total Cost',
+      value: formatCurrency(purchaseTotal),
+      tone: betterOption === 'buy' ? 'emerald' : 'violet',
+    },
+    {
+      title: 'Cost Difference',
+      value: formatCurrency(costDifference),
+      tone: 'amber',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCarLeaseVsBuyCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const msrp = parseNumber(form, 'msrp');
+      const negotiatedPrice = parseNumber(form, 'negotiatedPrice') || msrp;
+      const leaseTerm = Math.round(parseNumber(form, 'leaseTerm')) || 36;
+      const loanTerm = Math.round(parseNumber(form, 'loanTerm')) || 60;
 
       const input = {
         vehicleInfo: {
-          msrp: parseFloat((formData.get('msrp') as string) || '0'),
-          negotiatedPrice: parseFloat((formData.get('negotiatedPrice') as string) || '0'),
-          residualValue: parseFloat((formData.get('residualValue') as string) || '0'),
+          msrp,
+          negotiatedPrice,
+          residualValue: negotiatedPrice * 0.5,
         },
         leaseTerms: {
-          leaseTerm: parseInt((formData.get('leaseTerm') as string) || '36'),
-          downPayment: parseFloat((formData.get('leaseDownPayment') as string) || '0'),
-          monthlyPayment: parseFloat((formData.get('monthlyPayment') as string) || '0'),
-          moneyFactor: parseFloat((formData.get('moneyFactor') as string) || '0.001'),
-          residualPercentage: parseFloat((formData.get('residualPercentage') as string) || '0.5'),
-          mileageAllowance: parseFloat((formData.get('mileageAllowance') as string) || '12000'),
-          excessMileageFee: parseFloat((formData.get('excessMileageFee') as string) || '0.25'),
+          leaseTerm,
+          downPayment: 0,
+          monthlyPayment: parseNumber(form, 'monthlyPayment'),
+          moneyFactor: 0.001,
+          residualPercentage: 0.5,
+          mileageAllowance: 12000,
+          excessMileageFee: 0.25,
         },
         purchaseTerms: {
-          loanTerm: parseInt((formData.get('loanTerm') as string) || '60'),
-          downPayment: parseFloat((formData.get('purchaseDownPayment') as string) || '0'),
-          interestRate: parseFloat((formData.get('interestRate') as string) || '0.05'),
-          salesTaxRate: parseFloat((formData.get('salesTaxRate') as string) || '0.08'),
+          loanTerm,
+          downPayment: 0,
+          interestRate: parseRate(form, 'interestRate'),
+          salesTaxRate: 0.08,
         },
         ownershipCosts: {
-          annualInsurance: parseFloat((formData.get('annualInsurance') as string) || '0'),
-          annualMaintenance: parseFloat((formData.get('annualMaintenance') as string) || '0'),
-          annualRepairs: parseFloat((formData.get('annualRepairs') as string) || '0'),
-          fuelCost: parseFloat((formData.get('fuelCost') as string) || '0'),
-          expectedOwnershipYears: parseInt(
-            (formData.get('expectedOwnershipYears') as string) || '6'
-          ),
+          annualInsurance: parseNumber(form, 'annualInsurance'),
+          annualMaintenance: 0,
+          annualRepairs: 0,
+          fuelCost: 0,
+          expectedOwnershipYears: 6,
         },
         financialAssumptions: {
-          opportunityCostRate: parseFloat(
-            (formData.get('opportunityCostRate') as string) || '0.07'
-          ),
-          expectedDepreciation: parseFloat(
-            (formData.get('expectedDepreciation') as string) || '0.15'
-          ),
+          opportunityCostRate: 0.07,
+          expectedDepreciation: 0.15,
         },
         analysis: {
-          analysisPeriod: parseInt((formData.get('analysisPeriod') as string) || '3'),
-          includeTaxBenefits: formData.get('includeTaxBenefits') !== 'false',
-          includeEarlyTermination: formData.get('includeEarlyTermination') === 'true',
+          analysisPeriod: Math.max(1, Math.round(leaseTerm / 12)),
+          includeTaxBenefits: true,
+          includeEarlyTermination: false,
         },
       };
 
@@ -83,42 +133,26 @@ class CarLeaseVsBuyCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze car lease vs buy');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze car lease vs buy'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_car_lease_vs_buy', result);
     } catch (error) {
-      console.error('Car Lease vs Buy error:', error);
+      console.error('Car lease vs buy error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze car lease vs buy');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('car-lease-vs-buy-results');
-    const contentDiv = document.getElementById('car-lease-vs-buy-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Car Lease vs Buy Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your car lease vs buy analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CarLeaseVsBuyCalculator());
+  document.addEventListener('DOMContentLoaded', initCarLeaseVsBuyCalculator);
 } else {
-  new CarLeaseVsBuyCalculator();
+  initCarLeaseVsBuyCalculator();
 }

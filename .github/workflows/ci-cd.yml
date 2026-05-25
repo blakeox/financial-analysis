@@ -1,9 +1,11 @@
 name: CI Pipeline
 
 on:
-  # Main-only: PR/dev gates run via ci.yml, pull-request.yml, and e2e-web.yml
+  # Full pipeline on main push; security job also runs on PRs for CodeQL config parity.
   push:
     branches: [main]
+  pull_request:
+    branches: [main, dev]
   workflow_dispatch:
 
 # Default, least-privilege permissions for all jobs; override per-job when needed
@@ -20,6 +22,7 @@ jobs:
   # Quality Checks
   quality:
     name: Code Quality
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -45,6 +48,7 @@ jobs:
   # Workspace Tests
   test:
     name: Workspace Tests
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -64,6 +68,7 @@ jobs:
   # Build
   build:
     name: Build
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [quality, test]
@@ -103,6 +108,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [quality]
+    if: >-
+      github.event_name == 'pull_request' ||
+      ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.quality.result == 'success')
     permissions:
       contents: read
       actions: read

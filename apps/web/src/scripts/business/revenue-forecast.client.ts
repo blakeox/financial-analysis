@@ -12,6 +12,7 @@ import type {
 import { RevenueForecastEngine } from '@financial-analysis/analysis';
 import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 
 type RevenueForecastMonth = RevenueForecastResult['monthlyForecasts'][number];
@@ -98,23 +99,27 @@ export const displayResults = (result: RevenueForecastResult): void => {
   resultsSection?.classList.remove('hidden');
 
   // Populate summary cards
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 col-span-2">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Forecast Revenue</h5>
-      <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.summary.totalForecastRevenue)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Next ${result.monthlyForecasts.length} months</p>
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Avg Monthly Revenue</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.summary.averageMonthlyRevenue)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Mean per month</p>
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Total Growth</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${result.summary.totalGrowth.toFixed(1)}%</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">CMGR: ${result.summary.compoundMonthlyGrowthRate.toFixed(2)}%</p>
-    </div>
-  `;
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Total Forecast Revenue',
+      value: formatCurrency(result.summary.totalForecastRevenue),
+      meta: `Next ${result.monthlyForecasts.length} months`,
+      tone: 'primary',
+      spanCols: 2,
+    },
+    {
+      title: 'Avg Monthly Revenue',
+      value: formatCurrency(result.summary.averageMonthlyRevenue),
+      meta: 'Mean per month',
+      tone: 'emerald',
+    },
+    {
+      title: 'Total Growth',
+      value: `${result.summary.totalGrowth.toFixed(1)}%`,
+      meta: `CMGR: ${result.summary.compoundMonthlyGrowthRate.toFixed(2)}%`,
+      tone: 'violet',
+    },
+  ]);
 
   // Build detailed results
   resultsContainer.innerHTML = `
@@ -339,7 +344,7 @@ export const initRevenueForecastCalculator = (): void => {
       const result = RevenueForecastEngine.analyze(input);
 
       // Store result for AI assistant
-      storeAnalysisResult('revenue-forecast', result);
+      storeAnalysisResult('analyze_revenue_forecast', result);
 
       // Display results
       displayResults(result);
@@ -363,10 +368,75 @@ export const initRevenueForecastCalculator = (): void => {
   registerChatButton('#revenue-forecast-chat-button', 'Revenue Forecast Calculator');
 };
 
+function renderRevenueStreamFields(streamIndex: number): string {
+  return `
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg" id="stream-${streamIndex}">
+      <div>
+        <label class="fa-field-label mb-1">Stream Name</label>
+        <input type="text" name="stream-name-${streamIndex}"
+          class="fa-input-surface w-full"
+          placeholder="e.g., Subscriptions" required>
+      </div>
+      <div>
+        <label class="fa-field-label mb-1">Monthly Revenue</label>
+        <input type="number" name="stream-revenue-${streamIndex}"
+          class="fa-input-surface w-full"
+          placeholder="10000" step="100" required>
+      </div>
+      <div>
+        <label class="fa-field-label mb-1">Growth Rate (%)</label>
+        <input type="number" name="stream-growth-${streamIndex}"
+          class="fa-input-surface w-full"
+          placeholder="15" step="1" value="10" required>
+      </div>
+      <div>
+        <label class="fa-field-label mb-1">Seasonality</label>
+        <select name="stream-seasonality-${streamIndex}" class="fa-input-surface w-full">
+          <option value="none">None</option>
+          <option value="retail">Retail (Q4 peak)</option>
+          <option value="b2b">B2B (Summer low)</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Inject revenue stream UI when using the template calculator form.
+ */
+function ensureRevenueStreamsDom(): void {
+  const form = document.getElementById('calculator-form');
+  if (!form || document.getElementById('revenue-streams-container')) return;
+
+  const buttonRow = form.querySelector('#calculate-btn')?.closest('.flex');
+  const block = document.createElement('div');
+  block.className = 'mb-6 space-y-4';
+  block.innerHTML = `
+    <div>
+      <h2 class="fa-scenario-title mb-2">Revenue Streams</h2>
+      <p class="fa-help-copy mb-4">Add at least one stream. You can model up to ten.</p>
+      <div id="revenue-streams-container" class="space-y-4">
+        ${renderRevenueStreamFields(0)}
+      </div>
+      <button type="button" id="add-stream-btn" class="fa-button-secondary mt-4">
+        + Add Revenue Stream
+      </button>
+    </div>
+  `;
+
+  if (buttonRow) {
+    form.insertBefore(block, buttonRow);
+  } else {
+    form.appendChild(block);
+  }
+}
+
 /**
  * Setup dynamic revenue stream addition
  */
 function setupDynamicStreams(): void {
+  ensureRevenueStreamsDom();
+
   const addStreamBtn = document.getElementById('add-stream-btn');
   const streamsContainer = document.getElementById('revenue-streams-container');
 
@@ -381,53 +451,17 @@ function setupDynamicStreams(): void {
     }
 
     const streamDiv = document.createElement('div');
-    streamDiv.className =
-      'grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg';
-    streamDiv.id = `stream-${streamCount}`;
-
-    streamDiv.innerHTML = `
-      <div>
-        <label class="fa-field-label mb-1">
-          Stream Name
-        </label>
-        <input type="text" name="stream-name-${streamCount}" 
-          class="fa-input-surface w-full"
-          placeholder="e.g., Subscriptions" required>
-      </div>
-      <div>
-        <label class="fa-field-label mb-1">
-          Monthly Revenue
-        </label>
-        <input type="number" name="stream-revenue-${streamCount}" 
-          class="fa-input-surface w-full"
-          placeholder="10000" step="100" required>
-      </div>
-      <div>
-        <label class="fa-field-label mb-1">
-          Growth Rate (%)
-        </label>
-        <input type="number" name="stream-growth-${streamCount}" 
-          class="fa-input-surface w-full"
-          placeholder="15" step="1" value="10" required>
-      </div>
-      <div>
-        <label class="fa-field-label mb-1">
-          Seasonality
-        </label>
-        <select name="stream-seasonality-${streamCount}"
-          class="fa-input-surface w-full">
-          <option value="none">None</option>
-          <option value="retail">Retail (Q4 peak)</option>
-          <option value="b2b">B2B (Summer low)</option>
-        </select>
-      </div>
-      <div class="md:col-span-4 flex justify-end">
-        <button type="button" onclick="document.getElementById('stream-${streamCount}')?.remove()"
+    streamDiv.innerHTML = `${renderRevenueStreamFields(streamCount)}
+      <div class="flex justify-end -mt-2 mb-2">
+        <button type="button" data-remove-stream="stream-${streamCount}"
           class="text-sm text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300">
           Remove Stream
         </button>
-      </div>
-    `;
+      </div>`;
+    const removeBtn = streamDiv.querySelector('[data-remove-stream]');
+    removeBtn?.addEventListener('click', () => {
+      document.getElementById(`stream-${streamCount}`)?.remove();
+    });
 
     streamsContainer.appendChild(streamDiv);
     streamCount++;

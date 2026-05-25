@@ -2,67 +2,107 @@
  * Charitable Giving Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class CharitableGivingCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('charitable-giving-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Charitable Giving form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const taxSavings = Number(record.totalTaxSavings) || 0;
+  const impact =
+    record.projectedImpact && typeof record.projectedImpact === 'object'
+      ? (record.projectedImpact as Record<string, unknown>)
+      : {};
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Tax Savings',
+      value: formatCurrency(taxSavings),
+      meta: 'estimated federal benefit',
+      tone: 'emerald',
+    },
+    {
+      title: 'Immediate Benefit',
+      value: formatCurrency(Number(impact.immediateTaxBenefit) || taxSavings),
+      tone: 'violet',
+    },
+    {
+      title: 'Giving Method',
+      value: String(record.optimalGivingStrategy ?? 'Optimized').slice(0, 24),
+      meta: 'see full strategy below',
+      tone: 'amber',
+    },
+    {
+      title: 'Estate Impact',
+      value: formatCurrency(Number(impact.estateTaxReduction) || 0),
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initCharitableGivingCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const annualGiving = parseNumber(form, 'annualGivingAmount');
+      const filingStatus =
+        (form.elements.namedItem('filingStatus') as HTMLSelectElement)?.value || 'single';
+      const agi = Math.max(annualGiving * 10, 100000);
 
       const input = {
         personalInfo: {
-          age: parseInt((formData.get('age') as string) || '45'),
-          filingStatus: (formData.get('filingStatus') as string) || 'single',
-          adjustedGrossIncome: parseFloat((formData.get('adjustedGrossIncome') as string) || '0'),
+          age: Math.round(parseNumber(form, 'age')) || 45,
+          filingStatus,
+          adjustedGrossIncome: agi,
         },
         taxInfo: {
-          federalTaxRate: parseFloat((formData.get('federalTaxRate') as string) || '0.22'),
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
-          itemizeDeductions: formData.get('itemizeDeductions') === 'true',
-          standardDeduction: parseFloat((formData.get('standardDeduction') as string) || '14600'),
+          federalTaxRate: parseRate(form, 'federalTaxRate') || 0.22,
+          stateTaxRate: 0,
+          itemizeDeductions: annualGiving > 14600,
+          standardDeduction: filingStatus === 'married-joint' ? 29200 : 14600,
         },
         givingDetails: {
-          annualGivingAmount: parseFloat((formData.get('annualGivingAmount') as string) || '0'),
-          givingMethod: (formData.get('givingMethod') as string) || 'cash',
-          appreciatedAssetDetails: formData.get('appreciatedAssetDetails')
-            ? JSON.parse(formData.get('appreciatedAssetDetails') as string)
-            : undefined,
-          qcdDetails: formData.get('qcdDetails')
-            ? JSON.parse(formData.get('qcdDetails') as string)
-            : undefined,
+          annualGivingAmount: annualGiving,
+          givingMethod:
+            (form.elements.namedItem('givingMethod') as HTMLSelectElement)?.value || 'cash',
         },
-        strategy: {
-          optimizeFor: (formData.get('optimizeFor') as string) || 'max-tax-benefit',
-          bunchingStrategy: formData.get('bunchingStrategy') === 'true',
-          includeEstatePlanning: formData.get('includeEstatePlanning') === 'true',
-        },
-        analysis: {
-          compareMethods: formData.get('compareMethods') !== 'false',
-          includeMultiYearProjection: formData.get('includeMultiYearProjection') !== 'false',
-          projectionYears: parseInt((formData.get('projectionYears') as string) || '5'),
-        },
+        strategy: { optimizeFor: 'max-tax-benefit' as const },
+        analysis: { compareMethods: true, includeMultiYearProjection: true, projectionYears: 5 },
       };
 
       const response = await fetch('/api/analyze-charitable-giving', {
@@ -72,42 +112,26 @@ class CharitableGivingCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze charitable giving');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze charitable giving'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_charitable_giving', result);
     } catch (error) {
       console.error('Charitable Giving error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze charitable giving');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('charitable-giving-results');
-    const contentDiv = document.getElementById('charitable-giving-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Charitable Giving Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your charitable giving analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CharitableGivingCalculator());
+  document.addEventListener('DOMContentLoaded', initCharitableGivingCalculator);
 } else {
-  new CharitableGivingCalculator();
+  initCharitableGivingCalculator();
 }

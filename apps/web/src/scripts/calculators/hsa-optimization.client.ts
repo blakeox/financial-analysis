@@ -2,75 +2,120 @@
  * HSA Optimization Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class HSAOptimizationCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function parseRate(form: HTMLFormElement, name: string): number {
+  const pct = parseNumber(form, name);
+  return pct > 1 ? pct / 100 : pct;
+}
 
-  private init(): void {
-    this.form = document.getElementById('hsa-optimization-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('HSA Optimization form not found');
-      return;
-    }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
+
+  const taxSavings = Number(summary.totalTaxSavings) || 0;
+  const maxContribution = Number(summary.maxContribution) || 0;
+  const currentContribution = Number(summary.currentContribution) || 0;
+  const projectedBalance = Number(summary.projectedBalanceAtRetirement) || 0;
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Annual Tax Savings',
+      value: formatCurrency(taxSavings),
+      meta: 'triple tax advantage',
+      tone: 'emerald',
+    },
+    {
+      title: 'Your Contribution',
+      value: formatCurrency(currentContribution),
+      tone: 'violet',
+    },
+    {
+      title: 'Contribution Limit',
+      value: formatCurrency(maxContribution),
+      meta:
+        maxContribution > currentContribution
+          ? `${formatCurrency(maxContribution - currentContribution)} headroom`
+          : 'at limit',
+      tone: 'amber',
+    },
+    {
+      title: 'Balance at Retirement',
+      value: formatCurrency(projectedBalance),
+      tone: 'violet',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initHsaOptimizationCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const age = Math.round(parseNumber(form, 'age')) || 40;
+      const annualContribution = parseNumber(form, 'annualContribution');
 
       const input = {
         personalInfo: {
-          age: parseInt((formData.get('age') as string) || '35'),
-          filingStatus: (formData.get('filingStatus') as string) || 'single',
-          currentHSABalance: parseFloat((formData.get('currentHSABalance') as string) || '0'),
-        },
-        contributionLimits: {
-          individualLimit: parseFloat((formData.get('individualLimit') as string) || '4150'),
-          familyLimit: parseFloat((formData.get('familyLimit') as string) || '8300'),
-          catchUpContribution: parseFloat(
-            (formData.get('catchUpContribution') as string) || '1000'
-          ),
-          currentYear: parseInt(
-            (formData.get('currentYear') as string) || new Date().getFullYear().toString()
-          ),
+          age,
+          filingStatus:
+            (form.elements.namedItem('filingStatus') as HTMLSelectElement)?.value || 'single',
+          currentHSABalance: 0,
         },
         hsaDetails: {
-          annualContribution: parseFloat((formData.get('annualContribution') as string) || '0'),
-          employerContribution: parseFloat((formData.get('employerContribution') as string) || '0'),
-          investmentReturn: parseFloat((formData.get('investmentReturn') as string) || '0.07'),
-          accountFees: parseFloat((formData.get('accountFees') as string) || '0'),
+          annualContribution,
+          employerContribution: 0,
+          investmentReturn: 0.07,
+          accountFees: 0,
         },
         medicalExpenses: {
-          annualMedicalExpenses: parseFloat(
-            (formData.get('annualMedicalExpenses') as string) || '0'
-          ),
-          expectedRetirementMedicalCosts: parseFloat(
-            (formData.get('expectedRetirementMedicalCosts') as string) || '0'
-          ),
-          yearsUntilRetirement: parseInt((formData.get('yearsUntilRetirement') as string) || '30'),
+          annualMedicalExpenses: 0,
+          expectedRetirementMedicalCosts: 0,
+          yearsUntilRetirement: Math.max(0, 65 - age),
         },
         strategy: {
-          optimizeFor: (formData.get('optimizeFor') as string) || 'hybrid',
-          useForCurrentExpenses: formData.get('useForCurrentExpenses') === 'true',
-          saveReceipts: formData.get('saveReceipts') !== 'false',
+          optimizeFor: 'hybrid' as const,
+          useForCurrentExpenses: false,
+          saveReceipts: true,
         },
         taxInfo: {
-          federalTaxRate: parseFloat((formData.get('federalTaxRate') as string) || '0.22'),
-          stateTaxRate: parseFloat((formData.get('stateTaxRate') as string) || '0'),
-          ficaTaxRate: parseFloat((formData.get('ficaTaxRate') as string) || '0.0765'),
+          federalTaxRate: parseRate(form, 'federalTaxRate') || 0.22,
+          stateTaxRate: 0,
+          ficaTaxRate: 0.0765,
         },
       };
 
@@ -81,42 +126,26 @@ class HSAOptimizationCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze HSA optimization');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze HSA optimization'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_hsa_optimization', result);
     } catch (error) {
-      console.error('HSA Optimization error:', error);
+      console.error('HSA optimization error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze HSA optimization');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('hsa-optimization-results');
-    const contentDiv = document.getElementById('hsa-optimization-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">HSA Optimization Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your HSA optimization analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new HSAOptimizationCalculator());
+  document.addEventListener('DOMContentLoaded', initHsaOptimizationCalculator);
 } else {
-  new HSAOptimizationCalculator();
+  initHsaOptimizationCalculator();
 }

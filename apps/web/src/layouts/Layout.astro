@@ -5,6 +5,7 @@ import ChatPanel from '../components/ChatPanel.astro';
 import ToolAnalysisPanel from '../components/ToolAnalysisPanel.tsx';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
+import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
 export interface Props {
   title: string;
@@ -208,5 +209,6 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     {showToolAnalysis && <ToolAnalysisPanel client:only="react" currentContext={currentContext} />}
 
     <slot name="pageScripts" />
+    <ClientScriptLoader client:load name="a11y-interactive-cards" />
   </body>
 </html>

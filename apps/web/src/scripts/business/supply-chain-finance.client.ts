@@ -2,69 +2,154 @@
  * Supply Chain Finance Calculator Client Script
  */
 
-import { hideError, hideLoading, showError, showLoading } from '../../utils/calculator-utilities';
+import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  formatCurrency,
+  hideError,
+  hideLoading,
+  showError,
+  showLoading,
+} from '../../utils/calculator-utilities';
 
-class SupplyChainFinanceCalculator {
-  private form: HTMLFormElement | null = null;
+function parseNumber(form: HTMLFormElement, name: string): number {
+  const raw = (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+  const parsed = Number.parseFloat(raw.replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
-  constructor() {
-    this.init();
-  }
+function displayResults(result: unknown): void {
+  const summaryCards = document.getElementById('summary-cards');
+  const resultsContainer = document.getElementById('results-container');
+  const resultsSection = document.getElementById('results-section');
 
-  private init(): void {
-    this.form = document.getElementById('supply-chain-finance-form') as HTMLFormElement;
-    if (!this.form) {
-      console.error('Supply Chain Finance form not found');
-      return;
-    }
+  if (!summaryCards || !resultsContainer || !resultsSection) return;
 
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
-  }
+  const record = result && typeof result === 'object' ? (result as Record<string, unknown>) : {};
+  const summary =
+    record.summary && typeof record.summary === 'object'
+      ? (record.summary as Record<string, unknown>)
+      : record;
 
-  private async handleSubmit(e: Event): Promise<void> {
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Cash Flow Uplift',
+      value: formatCurrency(Number(summary.cashFlowImprovement) || 0),
+      tone: 'emerald',
+    },
+    {
+      title: 'Program Savings',
+      value: formatCurrency(Number(summary.totalSavings) || 0),
+      tone: 'violet',
+    },
+    {
+      title: 'Cash Conversion',
+      value: `${Number(summary.optimizedCycle ?? summary.currentCashConversionCycle) || 0} days`,
+      tone: 'amber',
+    },
+    {
+      title: 'Best Program',
+      value: String(summary.recommendedFinancing ?? '—').slice(0, 20),
+      tone: 'orange',
+    },
+  ]);
+
+  resultsContainer.classList.remove('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initSupplyChainFinanceCalculator(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement | null;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!this.form) return;
+    const calculateBtn = document.getElementById('calculate-btn') as HTMLButtonElement | null;
 
     try {
-      showLoading();
+      showLoading(calculateBtn ?? undefined);
       hideError();
 
-      const formData = new FormData(this.form);
+      const annualRevenue = parseNumber(form, 'annualRevenue');
+      const accountsPayable = parseNumber(form, 'accountsPayable');
+      const accountsReceivable = parseNumber(form, 'accountsReceivable');
+      const inventory = parseNumber(form, 'inventory');
+      const dso =
+        accountsReceivable > 0 && annualRevenue > 0
+          ? (accountsReceivable / annualRevenue) * 365
+          : 45;
+      const dpo =
+        accountsPayable > 0 && annualRevenue > 0 ? (accountsPayable / annualRevenue) * 365 : 30;
+      const dio = inventory > 0 && annualRevenue > 0 ? (inventory / annualRevenue) * 365 : 60;
+      const ccc = dso + dio - dpo;
 
       const input = {
         companyInfo: {
-          companyName: (formData.get('companyName') as string) || '',
-          industry: (formData.get('industry') as string) || '',
-          annualRevenue: parseFloat((formData.get('annualRevenue') as string) || '0'),
+          companyName: (form.elements.namedItem('companyName') as HTMLInputElement)?.value || '',
+          industry: 'general',
+          annualRevenue,
+          paymentTerms: 30,
         },
         supplyChain: {
-          accountsPayable: parseFloat((formData.get('accountsPayable') as string) || '0'),
-          accountsReceivable: parseFloat((formData.get('accountsReceivable') as string) || '0'),
-          inventory: parseFloat((formData.get('inventory') as string) || '0'),
-          averagePaymentTerms: parseInt((formData.get('averagePaymentTerms') as string) || '30'),
-          averageCollectionTerms: parseInt(
-            (formData.get('averageCollectionTerms') as string) || '30'
-          ),
+          suppliers: [
+            {
+              annualPurchaseVolume: accountsPayable * 4,
+              paymentTerms: 30,
+              averageInvoiceAmount: accountsPayable / 12,
+              invoicesPerMonth: 12,
+            },
+          ],
+          customers: [
+            {
+              annualSalesVolume: annualRevenue,
+              paymentTerms: 30,
+              averageInvoiceAmount: accountsReceivable / 12 || annualRevenue / 24,
+              invoicesPerMonth: 12,
+            },
+          ],
+        },
+        workingCapital: {
+          accountsReceivable,
+          accountsPayable,
+          inventory,
+          daysSalesOutstanding: dso,
+          daysPayableOutstanding: dpo,
+          daysInventoryOutstanding: dio,
+          cashConversionCycle: ccc,
         },
         financingOptions: {
           dynamicDiscounting: {
-            enabled: formData.get('dynamicDiscountingEnabled') === 'true',
-            discountRate: parseFloat((formData.get('discountRate') as string) || '0.02'),
+            enabled: true,
+            discountRate: 0.02,
+            earlyPaymentDays: 10,
+            annualVolume: accountsPayable * 4,
           },
           reverseFactoring: {
-            enabled: formData.get('reverseFactoringEnabled') === 'true',
-            financingRate: parseFloat((formData.get('financingRate') as string) || '0.08'),
+            enabled: true,
+            financingRate: 0.08,
+            programFee: 0.01,
+            annualVolume: accountsPayable * 2,
           },
-          inventoryFinancing: {
-            enabled: formData.get('inventoryFinancingEnabled') === 'true',
-            financingRate: parseFloat((formData.get('inventoryFinancingRate') as string) || '0.1'),
+          supplyChainFinance: {
+            enabled: false,
+            financingRate: 0.06,
+            programFee: 0.005,
+            annualVolume: 0,
           },
         },
+        costOfCapital: {
+          costOfDebt: 0.08,
+          costOfEquity: 0.12,
+          wacc: 0.1,
+          opportunityCostRate: 0.07,
+        },
         analysis: {
-          includeWorkingCapital: formData.get('includeWorkingCapital') !== 'false',
-          includeCashFlow: formData.get('includeCashFlow') !== 'false',
-          includeCostBenefit: formData.get('includeCostBenefit') !== 'false',
-          includeScenarioAnalysis: formData.get('includeScenarioAnalysis') !== 'false',
+          includeWorkingCapitalOptimization: true,
+          includeFinancingComparison: true,
+          includeCashFlowImpact: true,
+          includeSupplierBenefits: true,
+          includeRiskAnalysis: true,
         },
       };
 
@@ -75,42 +160,26 @@ class SupplyChainFinanceCalculator {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to analyze supply chain finance');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          (error as { message?: string }).message || 'Failed to analyze supply chain finance'
+        );
       }
 
       const result = await response.json();
-      this.displayResults(result);
+      displayResults(result);
+      storeAnalysisResult('analyze_supply_chain_finance', result);
     } catch (error) {
       console.error('Supply Chain Finance error:', error);
       showError(error instanceof Error ? error.message : 'Failed to analyze supply chain finance');
     } finally {
-      hideLoading();
+      hideLoading(calculateBtn ?? undefined);
     }
-  }
-
-  private displayResults(_result: unknown): void {
-    const resultsDiv = document.getElementById('supply-chain-finance-results');
-    const contentDiv = document.getElementById('supply-chain-finance-results-content');
-    if (!resultsDiv || !contentDiv) return;
-
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = `
-      <div class="space-y-4">
-        <div class="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Supply Chain Finance Analysis</h3>
-          <p class="text-slate-700 dark:text-slate-300">
-            Your supply chain finance analysis is complete. Use the AI assistant to get detailed recommendations.
-          </p>
-        </div>
-      </div>
-    `;
-    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  });
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new SupplyChainFinanceCalculator());
+  document.addEventListener('DOMContentLoaded', initSupplyChainFinanceCalculator);
 } else {
-  new SupplyChainFinanceCalculator();
+  initSupplyChainFinanceCalculator();
 }

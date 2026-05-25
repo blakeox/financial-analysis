@@ -6,9 +6,12 @@
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
+import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   formatCurrencyWhole as formatCurrency,
   formatPercentSimple as formatPercent,
+  hideError,
 } from '../../utils/calculator-utilities';
 
 interface RetirementInputs {
@@ -242,31 +245,57 @@ const displayResults = (result: RetirementResults): void => {
       : `-${formatPercent(Math.abs(cumulativeInflationPercent))}`;
 
   // Render summary cards with enhanced data
-  summaryCards.innerHTML = `
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Retirement Balance</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.projectedBalanceAtRetirement)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Real (today): ${formatCurrency(result.inflationAdjustedBalance)}</p>
-      ${result.afterTaxBalance ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">After-tax: ${formatCurrency(result.afterTaxBalance)}</p>` : ''}
-    </div>
-    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Monthly Income</h5>
-      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.monthlyRetirementIncome)}</p>
-      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Real (today): ${formatCurrency(result.realMonthlyIncome)}</p>
-      ${result.afterTaxMonthlyIncome ? `<p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">After-tax: ${formatCurrency(result.afterTaxMonthlyIncome)}</p>` : ''}
-    </div>
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Replacement Ratio</h5>
-      <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatPercent(result.replacementRatio * 100)}</p>
-      <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">Real (today): ${formatPercent(result.realReplacementRatio * 100)}</p>
-      ${result.employerMatchTotal ? `<p class="text-xs text-violet-700 dark:text-violet-300 mt-1">+${formatCurrency(result.employerMatchTotal)} match</p>` : ''}
-    </div>
-    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-      <h5 class="text-sm font-medium text-orange-900 dark:text-orange-100">Years to Retirement</h5>
-      <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${result.yearsToRetirement}</p>
-      ${result.catchUpContributionsTotal ? `<p class="text-xs text-orange-700 dark:text-orange-300 mt-1">+${formatCurrency(result.catchUpContributionsTotal)} catch-up</p>` : ''}
-    </div>
-  `;
+  const retirementBalanceMeta = [
+    `Real (today): ${formatCurrency(result.inflationAdjustedBalance)}`,
+    result.afterTaxBalance ? `After-tax: ${formatCurrency(result.afterTaxBalance)}` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const monthlyIncomeMeta = [
+    `Real (today): ${formatCurrency(result.realMonthlyIncome)}`,
+    result.afterTaxMonthlyIncome
+      ? `After-tax: ${formatCurrency(result.afterTaxMonthlyIncome)}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const replacementMeta = [
+    `Real (today): ${formatPercent(result.realReplacementRatio * 100)}`,
+    result.employerMatchTotal ? `+${formatCurrency(result.employerMatchTotal)} match` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  summaryCards.innerHTML = renderMetricCards([
+    {
+      title: 'Retirement Balance',
+      value: formatCurrency(result.projectedBalanceAtRetirement),
+      meta: retirementBalanceMeta,
+      tone: 'violet',
+    },
+    {
+      title: 'Monthly Income',
+      value: formatCurrency(result.monthlyRetirementIncome),
+      meta: monthlyIncomeMeta,
+      tone: 'emerald',
+    },
+    {
+      title: 'Replacement Ratio',
+      value: formatPercent(result.replacementRatio * 100),
+      meta: replacementMeta,
+      tone: 'violet',
+    },
+    {
+      title: 'Years to Retirement',
+      value: String(result.yearsToRetirement),
+      meta: result.catchUpContributionsTotal
+        ? `+${formatCurrency(result.catchUpContributionsTotal)} catch-up`
+        : undefined,
+      tone: 'orange',
+    },
+  ]);
 
   // Render detailed breakdown
   resultsContainer.innerHTML = `
@@ -528,6 +557,7 @@ const initRetirementPage = (): void => {
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    clearCalculatorFormErrors(form);
 
     // Show loading state
     const calculateBtn = document.querySelector<HTMLButtonElement>('#calculate-btn');
@@ -622,7 +652,7 @@ const initRetirementPage = (): void => {
       );
     } catch (error) {
       console.error('Retirement calculation error:', error);
-      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+      handleCalculatorFormError(form, error);
     } finally {
       // Reset button state
       if (calculateBtn) {
@@ -637,6 +667,8 @@ const initRetirementPage = (): void => {
   if (resetBtn instanceof HTMLButtonElement) {
     resetBtn.addEventListener('click', () => {
       form.reset();
+      clearCalculatorFormErrors(form);
+      hideError();
       const resultsSection = document.getElementById('results-section');
       const resultsContainer = document.getElementById('results-container');
       const summaryCards = document.getElementById('summary-cards');
