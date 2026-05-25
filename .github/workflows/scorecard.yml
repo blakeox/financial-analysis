@@ -47,6 +47,7 @@ jobs:
           publish_results: true
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@dc73d59c2d7bd4f8194098a91219eeee6d8a1719 # v4
+        # v4 tag required here: Scorecard webapp rejects mismatched SHAs for upload-sarif.
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
