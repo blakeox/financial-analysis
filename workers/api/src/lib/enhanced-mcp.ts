@@ -193,9 +193,7 @@ export async function handleEnhancedMCPRequest(
       errorCode: MCP_ERROR_CODES.INTERNAL_ERROR,
     };
 
-    const mcpError = createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'Internal server error', {
-      originalError: error instanceof Error ? error.message : String(error),
-    });
+    const mcpError = createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'Internal server error');
 
     logError(requestContext, new Error(error instanceof Error ? error.message : String(error)));
 
