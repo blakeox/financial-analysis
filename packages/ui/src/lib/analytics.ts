@@ -290,7 +290,6 @@ class AnalyticsTracker {
       action: 'error',
       metadata: {
         message: error.message,
-        stack: error.stack,
         ...context,
       },
       timestamp: Date.now(),

@@ -384,7 +384,7 @@ class ChatPanel {
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 11a.75.75 0 110-1.5.75.75 0 010 1.5zm.75-3.25a.75.75 0 01-1.5 0V5a.75.75 0 011.5 0v2.75z" fill="currentColor"/>
       </svg>
-      <span>Context switched to <strong>${label}</strong></span>
+      <span>Context switched to <strong>${this.escapeHtmlText(label)}</strong></span>
     `;
 
     this.messages.appendChild(notification);
@@ -430,7 +430,7 @@ class ChatPanel {
                 if (item.action) {
                   return `<button type="button" class="suggested-prompt" data-chat-action="${item.action}" data-kind="${item.kind ?? 'secondary'}">${item.label}</button>`;
                 }
-                return `<button type="button" class="suggested-prompt" data-suggested-prompt="${this.escapeHtmlAttribute(item.prompt ?? item.label)}" data-kind="${item.kind ?? 'secondary'}">${item.label}</button>`;
+                return `<button type="button" class="suggested-prompt" data-suggested-prompt="${this.escapeHtmlAttribute(item.prompt ?? item.label)}" data-kind="${item.kind ?? 'secondary'}">${this.escapeHtmlText(item.label)}</button>`;
               })
               .join('')}
           </div>
@@ -438,9 +438,9 @@ class ChatPanel {
         : '';
 
     systemMessage.innerHTML = `
-      <p>${intro}</p>
+      <p>${this.escapeHtmlText(intro)}</p>
       <ul>
-        ${examples.map((ex) => `<li>"${ex}"</li>`).join('')}
+        ${examples.map((ex) => `<li>"${this.escapeHtmlText(ex)}"</li>`).join('')}
       </ul>
       ${promptButtons}
       ${toolsSection}
@@ -527,6 +527,10 @@ class ChatPanel {
       .replace(/"/g, '&quot;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  private escapeHtmlText(value: string): string {
+    return this.escapeHtmlAttribute(value).replace(/'/g, '&#39;');
   }
 
   private hasAnalysisOutputs(): boolean {

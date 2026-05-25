@@ -6,12 +6,29 @@
 // Security constants - match client-side limits
 export const MAX_MESSAGE_LENGTH = 2000;
 export const MAX_REQUEST_BODY_SIZE = 50_000; // 50KB max request body
-export const DANGEROUS_PATTERNS = [
-  /<script[^>]*>.*?<\/script>/gi,
-  /<iframe[^>]*>.*?<\/iframe>/gi,
-  /javascript:/gi,
-  /on\w+\s*=/gi, // Event handlers like onclick=, onload=, etc.
-];
+const DANGEROUS_MARKERS = [
+  '<script',
+  '</script',
+  '<iframe',
+  'javascript:',
+  'onerror=',
+  'onclick=',
+  'onload=',
+] as const;
+
+function stripDangerousMarkers(message: string): string {
+  let sanitized = message;
+  for (const marker of DANGEROUS_MARKERS) {
+    let lower = sanitized.toLowerCase();
+    let index = lower.indexOf(marker);
+    while (index !== -1) {
+      sanitized = sanitized.slice(0, index) + sanitized.slice(index + marker.length);
+      lower = sanitized.toLowerCase();
+      index = lower.indexOf(marker);
+    }
+  }
+  return sanitized;
+}
 
 /**
  * Validation result with detailed error information
@@ -58,11 +75,7 @@ export function validateChatMessage(message: string | null | undefined): Validat
     };
   }
 
-  // Sanitize message - remove dangerous patterns
-  let sanitized = trimmedMessage;
-  for (const pattern of DANGEROUS_PATTERNS) {
-    sanitized = sanitized.replace(pattern, '');
-  }
+  let sanitized = stripDangerousMarkers(trimmedMessage);
 
   // Check for control characters (except newlines and tabs)
   // eslint-disable-next-line no-control-regex

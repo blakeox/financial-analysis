@@ -412,7 +412,6 @@ export class ErrorTracker {
   static trackError(error: Error, context?: string): void {
     const errorData = {
       message: error.message,
-      stack: error.stack,
       context,
       timestamp: new Date(),
       userAgent: navigator.userAgent,
