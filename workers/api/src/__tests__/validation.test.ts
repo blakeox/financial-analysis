@@ -75,10 +75,10 @@ describe('validateChatMessage', () => {
   });
 
   it('should sanitize event handlers', () => {
-    const malicious = '<div onclick="alert(1)">Click me</div>';
+    const malicious = '<div onmouseover="alert(1)">Click me</div>';
     const result = validateChatMessage(malicious);
     expect(result.valid).toBe(true);
-    expect(result.sanitizedValue).not.toContain('onclick=');
+    expect(result.sanitizedValue).not.toContain('onmouseover=');
   });
 
   it('should remove control characters', () => {

@@ -11,10 +11,8 @@ const DANGEROUS_MARKERS = [
   '</script',
   '<iframe',
   'javascript:',
-  'onerror=',
-  'onclick=',
-  'onload=',
 ] as const;
+const DANGEROUS_PATTERNS = [/on\w+\s*=/gi] as const;
 
 function stripDangerousMarkers(message: string): string {
   let sanitized = message;
@@ -26,6 +24,9 @@ function stripDangerousMarkers(message: string): string {
       lower = sanitized.toLowerCase();
       index = lower.indexOf(marker);
     }
+  }
+  for (const pattern of DANGEROUS_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '');
   }
   return sanitized;
 }
