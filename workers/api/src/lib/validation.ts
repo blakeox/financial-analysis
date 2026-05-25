@@ -11,8 +11,31 @@ const DANGEROUS_MARKERS = [
   '</script',
   '<iframe',
   'javascript:',
+  'onabort=',
+  'onblur=',
+  'onchange=',
+  'onclick=',
+  'onerror=',
+  'onfocus=',
+  'onkeydown=',
+  'onkeypress=',
+  'onkeyup=',
+  'onload=',
+  'onmousedown=',
+  'onmouseenter=',
+  'onmouseleave=',
+  'onmousemove=',
+  'onmouseout=',
+  'onmouseover=',
+  'onmouseup=',
+  'onreset=',
+  'onresize=',
+  'onscroll=',
+  'onselect=',
+  'onsubmit=',
+  'ontoggle=',
+  'onwheel=',
 ] as const;
-const DANGEROUS_PATTERNS = [/on\w+\s*=/gi] as const;
 
 function stripDangerousMarkers(message: string): string {
   let sanitized = message;
@@ -24,9 +47,6 @@ function stripDangerousMarkers(message: string): string {
       lower = sanitized.toLowerCase();
       index = lower.indexOf(marker);
     }
-  }
-  for (const pattern of DANGEROUS_PATTERNS) {
-    sanitized = sanitized.replace(pattern, '');
   }
   return sanitized;
 }
