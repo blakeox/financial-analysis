@@ -286,20 +286,16 @@ export function getPreviousModelState(
     return undefined;
   }
 
-  // Extract parameters from the match (this is a simplified parser)
   const params: Record<string, unknown> = {};
-  const paramMatches = modelMatch[0].match(/(\w+):\s*([^,]+)/g);
-
-  if (paramMatches) {
-    const boundedMatches = paramMatches.slice(0, 50);
-    boundedMatches.forEach((match) => {
-      const [, key, value] = match.match(/(\w+):\s*([^,]+)/) || [];
-      if (key && value) {
-        // Try to parse as number, otherwise keep as string
-        const numValue = parseFloat(value);
-        params[key] = isNaN(numValue) ? value.trim() : numValue;
-      }
-    });
+  const segments = modelMatch[0].split(',').slice(0, 50);
+  for (const segment of segments) {
+    const colon = segment.indexOf(':');
+    if (colon === -1) continue;
+    const key = segment.slice(0, colon).trim();
+    const value = segment.slice(colon + 1).trim();
+    if (!key || !value) continue;
+    const numValue = parseFloat(value);
+    params[key] = Number.isNaN(numValue) ? value : numValue;
   }
 
   return Object.keys(params).length > 0 ? params : undefined;

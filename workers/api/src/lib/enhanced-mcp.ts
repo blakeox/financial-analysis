@@ -174,7 +174,7 @@ export async function handleEnhancedMCPRequest(
           id: 'unknown',
           error: {
             code: error.code,
-            message: error.message,
+            message: 'Request failed',
           },
         }),
         {
@@ -201,7 +201,10 @@ export async function handleEnhancedMCPRequest(
       JSON.stringify({
         jsonrpc: '2.0',
         id: 'unknown',
-        error: mcpError,
+        error: {
+          code: mcpError.code,
+          message: 'Internal server error',
+        },
       }),
       {
         status: 500,

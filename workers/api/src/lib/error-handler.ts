@@ -35,7 +35,7 @@ export function withErrorHandler(handler: RouteHandler) {
           return new Response(
             JSON.stringify({
               error: {
-                message: error.message,
+                message: 'Content-Type must be application/json',
                 code: 'INVALID_CONTENT_TYPE',
               },
             }),
@@ -60,7 +60,7 @@ export function withErrorHandler(handler: RouteHandler) {
       }
 
       if (isDevelopment && error instanceof Error) {
-        console.error('Internal error:', error.message, error.stack);
+        console.error('Internal error:', error);
       }
 
       return new Response(
