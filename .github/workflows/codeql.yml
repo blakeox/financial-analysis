@@ -57,7 +57,7 @@ jobs:
             steps.skip.outputs.skip_ci != 'true' &&
             steps.paths.outputs.code == 'true'
           )
-        uses: github/codeql-action/init@f0489abddd4e5e9dff53ed28a45b1d6f88978a1b # v4
+        uses: github/codeql-action/init@dc73d59c2d7bd4f8194098a91219eeee6d8a1719 # v4
         with:
           languages: javascript-typescript
 
@@ -67,4 +67,4 @@ jobs:
             steps.skip.outputs.skip_ci != 'true' &&
             steps.paths.outputs.code == 'true'
           )
-        uses: github/codeql-action/analyze@f0489abddd4e5e9dff53ed28a45b1d6f88978a1b # v4
+        uses: github/codeql-action/analyze@dc73d59c2d7bd4f8194098a91219eeee6d8a1719 # v4
