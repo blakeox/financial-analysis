@@ -6,6 +6,17 @@ import SurfaceCard from '../components/site/SurfaceCard.astro';
 import StructuredData from '../components/StructuredData.astro';
 import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 import Layout from '../layouts/Layout.astro';
+import { getJourneyData } from '../utils/journeyData';
+
+const journeyDashboardMetadata = Object.fromEntries(
+  Object.entries(getJourneyData()).map(([scenarioId, journey]) => [
+    scenarioId,
+    {
+      name: journey.name,
+      totalSteps: journey.models.length,
+    },
+  ])
+);
 ---
 
 <Layout
@@ -158,10 +169,17 @@ import Layout from '../layouts/Layout.astro';
 
   <AdSense slot="728x90" className="mt-8" />
 
-  <script is:inline>
+  <script define:vars={{ journeyDashboardMetadata }} is:inline>
+    const JOURNEY_STORAGE_PREFIX = 'fanalyx-journey-state-';
+    const RECENT_CALCULATION_KEYS = ['fanalyx-recent-calculations', 'fanalyx_calculation_history'];
+
     function safeSameOriginPath(url) {
+      const normalizedUrl = String(url ?? '').trim();
+      if (!normalizedUrl) return null;
+      if (normalizedUrl.startsWith('#')) return normalizedUrl;
+
       try {
-        const resolved = new URL(String(url), window.location.origin);
+        const resolved = new URL(normalizedUrl, window.location.origin);
         if (resolved.origin !== window.location.origin) return null;
         if (!resolved.pathname.startsWith('/')) return null;
         return `${resolved.pathname}${resolved.search}`;
@@ -178,31 +196,133 @@ import Layout from '../layouts/Layout.astro';
       container.append(paragraph);
     }
 
+    function readJsonStorageItem(key, fallback) {
+      try {
+        const rawValue = localStorage.getItem(key);
+        return rawValue ? JSON.parse(rawValue) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function formatSlugLabel(value) {
+      return String(value || '')
+        .split('-')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    }
+
+    function getTimestampValue(value) {
+      if (typeof value === 'number') return value;
+      const parsed = new Date(value || 0).getTime();
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function getLatestJourneyTimestamp(journeyData) {
+      const collectedEntries = Object.values(journeyData?.collectedData || {});
+      const timestamps = collectedEntries
+        .map((entry) => entry?.completedAt || entry?.timestamp || null)
+        .filter(Boolean)
+        .map((timestamp) => getTimestampValue(timestamp))
+        .filter((timestamp) => timestamp > 0);
+
+      timestamps.push(
+        getTimestampValue(journeyData?.completedAt),
+        getTimestampValue(journeyData?.lastUpdated)
+      );
+
+      return Math.max(...timestamps, 0);
+    }
+
+    function getStoredJourneys() {
+      const journeys = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(JOURNEY_STORAGE_PREFIX)) continue;
+
+        const journeyData = readJsonStorageItem(key, {});
+        const scenarioId = key.slice(JOURNEY_STORAGE_PREFIX.length);
+        const metadata = journeyDashboardMetadata[scenarioId] || {};
+        const collectedData = journeyData?.collectedData || {};
+        const completedSteps = Object.keys(collectedData).length;
+        const totalSteps = Number(journeyData?.totalSteps) || metadata.totalSteps || completedSteps || 0;
+        const currentStep = Number(journeyData?.currentStep)
+          || (totalSteps > 0
+            ? journeyData?.completed
+              ? totalSteps
+              : Math.min(totalSteps, Math.max(completedSteps + 1, 1))
+            : completedSteps);
+
+        if (completedSteps === 0 && !journeyData?.completed) {
+          continue;
+        }
+
+        journeys.push({
+          scenarioId,
+          scenario:
+            journeyData?.scenario || journeyData?.scenarioName || metadata.name || formatSlugLabel(scenarioId),
+          completedSteps,
+          currentStep,
+          totalSteps,
+          lastUpdated: getLatestJourneyTimestamp(journeyData) || Date.now(),
+          raw: journeyData,
+        });
+      }
+
+      journeys.sort((a, b) => b.lastUpdated - a.lastUpdated);
+      return journeys;
+    }
+
+    function getStoredCalculations() {
+      const calculations = [];
+      const seen = new Set();
+
+      for (const key of RECENT_CALCULATION_KEYS) {
+        const storedItems = readJsonStorageItem(key, []);
+        if (!Array.isArray(storedItems)) continue;
+
+        for (const item of storedItems) {
+          if (!item || typeof item !== 'object') continue;
+
+          const title =
+            item.title
+            || item.name
+            || (item.calculatorId ? formatSlugLabel(item.calculatorId) : null)
+            || (item.type ? formatSlugLabel(item.type) : null);
+
+          if (!title) continue;
+
+          const normalized = {
+            title,
+            timestamp: item.timestamp || Date.now(),
+            url:
+              typeof item.url === 'string' && item.url
+                ? item.url
+                : item.calculatorId
+                  ? `/calculator/${encodeURIComponent(item.calculatorId)}`
+                  : null,
+            summary: typeof item.summary === 'string' ? item.summary : null,
+            raw: item,
+          };
+
+          const dedupeKey = `${normalized.title}:${normalized.timestamp}:${normalized.url || ''}`;
+          if (seen.has(dedupeKey)) continue;
+          seen.add(dedupeKey);
+          calculations.push(normalized);
+        }
+      }
+
+      calculations.sort((a, b) => getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp));
+      return calculations;
+    }
+
     function updateActiveJourneys() {
       const container = document.getElementById('active-journeys-container');
       if (!container) return;
 
-      const journeys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith('journey-')) continue;
-
-        try {
-          const journeyData = JSON.parse(localStorage.getItem(key) || '{}');
-          if (journeyData && journeyData.scenario) {
-            journeys.push({
-              scenario: journeyData.scenario,
-              progress: journeyData.progress || 0,
-              currentStep: journeyData.currentStep || 0,
-              totalSteps: journeyData.totalSteps || 0,
-              lastUpdated: journeyData.lastUpdated || new Date().toISOString(),
-            });
-          }
-        } catch (e) {
-          console.error('Error parsing journey data:', e);
-        }
-      }
-
+      const journeys = getStoredJourneys();
       if (journeys.length === 0) {
         setEmptyState(
           container,
@@ -214,7 +334,7 @@ import Layout from '../layouts/Layout.astro';
       container.replaceChildren();
       for (const journey of journeys) {
         const progressPercent = journey.totalSteps
-          ? Math.round((journey.currentStep / journey.totalSteps) * 100)
+          ? Math.round((journey.completedSteps / journey.totalSteps) * 100)
           : 0;
 
         const card = document.createElement('div');
@@ -247,7 +367,7 @@ import Layout from '../layouts/Layout.astro';
         meta.textContent = `Step ${journey.currentStep} of ${journey.totalSteps}`;
 
         const link = document.createElement('a');
-        const journeyPath = safeSameOriginPath(`/journey/${encodeURIComponent(journey.scenario)}`);
+        const journeyPath = safeSameOriginPath(`/journey/${encodeURIComponent(journey.scenarioId)}`);
         link.href = journeyPath || '/financial-journey';
         link.className = 'text-sm text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block';
         link.textContent = 'Continue journey →';
@@ -261,29 +381,7 @@ import Layout from '../layouts/Layout.astro';
       const container = document.getElementById('recent-calculations-container');
       if (!container) return;
 
-      const recentCalculations = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith('calc-')) continue;
-
-        try {
-          const calcData = JSON.parse(localStorage.getItem(key) || '{}');
-          if (calcData && calcData.title) {
-            recentCalculations.push({
-              title: calcData.title,
-              timestamp: calcData.timestamp || new Date().toISOString(),
-              url: calcData.url || '#',
-            });
-          }
-        } catch (e) {
-          console.error('Error parsing calculation data:', e);
-        }
-      }
-
-      recentCalculations.sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-
+      const recentCalculations = getStoredCalculations();
       if (recentCalculations.length === 0) {
         setEmptyState(
           container,
@@ -321,21 +419,116 @@ import Layout from '../layouts/Layout.astro';
       if (!container) return;
 
       const recommendations = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith('recommendation-')) continue;
+      const seen = new Set();
 
-        try {
-          const recData = JSON.parse(localStorage.getItem(key) || '{}');
-          if (recData && recData.text) {
-            recommendations.push({
-              text: recData.text,
-              priority: recData.priority || 'medium',
-              timestamp: recData.timestamp || new Date().toISOString(),
-            });
+      function pushRecommendation(text, priority = 'medium', timestamp = Date.now()) {
+        const normalizedText = String(text || '').replace(/\s+/g, ' ').trim();
+        if (!normalizedText) return;
+
+        const dedupeKey = normalizedText.toLowerCase();
+        if (seen.has(dedupeKey)) return;
+        seen.add(dedupeKey);
+
+        recommendations.push({
+          text: normalizedText,
+          priority,
+          timestamp,
+        });
+      }
+
+      function collectRecommendationFields(value, fallbackTimestamp) {
+        if (!value || typeof value !== 'object') return;
+
+        if (typeof value.recommendation === 'string') {
+          pushRecommendation(
+            value.recommendation,
+            value.priority || 'high',
+            value.timestamp || fallbackTimestamp
+          );
+        }
+
+        if (typeof value.reasoning === 'string') {
+          pushRecommendation(
+            value.reasoning,
+            value.priority || 'medium',
+            value.timestamp || fallbackTimestamp
+          );
+        }
+
+        if (Array.isArray(value.recommendations)) {
+          for (const item of value.recommendations) {
+            if (typeof item === 'string') {
+              pushRecommendation(item, value.priority || 'medium', value.timestamp || fallbackTimestamp);
+              continue;
+            }
+
+            if (item && typeof item === 'object') {
+              pushRecommendation(
+                item.content || item.title || item.text,
+                item.priority || value.priority || 'medium',
+                item.timestamp || value.timestamp || fallbackTimestamp
+              );
+            }
           }
-        } catch (e) {
-          console.error('Error parsing recommendation data:', e);
+        }
+
+        if (Array.isArray(value.nextSteps)) {
+          for (const item of value.nextSteps) {
+            if (typeof item === 'string') {
+              pushRecommendation(item, 'medium', fallbackTimestamp);
+              continue;
+            }
+
+            if (item && typeof item === 'object') {
+              pushRecommendation(
+                item.content || item.task || item.title,
+                item.priority || 'medium',
+                item.timestamp || fallbackTimestamp
+              );
+            }
+          }
+        }
+      }
+
+      for (const journey of getStoredJourneys()) {
+        const collectedEntries = Object.values(journey.raw?.collectedData || {});
+        for (const entry of collectedEntries) {
+          collectRecommendationFields(entry, journey.lastUpdated);
+        }
+
+        const remainingSteps = Math.max(journey.totalSteps - journey.completedSteps, 0);
+        if (!journey.raw?.completed && remainingSteps > 0) {
+          pushRecommendation(
+            `Continue your ${journey.scenario} journey to complete the remaining ${remainingSteps} step${remainingSteps === 1 ? '' : 's'}.`,
+            'high',
+            journey.lastUpdated
+          );
+        } else if (journey.raw?.completed) {
+          pushRecommendation(
+            `Review your completed ${journey.scenario} journey and turn its analysis into your next financial action.`,
+            'medium',
+            journey.lastUpdated
+          );
+        }
+      }
+
+      for (const calc of getStoredCalculations()) {
+        collectRecommendationFields(calc.raw, calc.timestamp);
+        collectRecommendationFields(calc.raw?.result, calc.timestamp);
+        collectRecommendationFields(calc.raw?.results, calc.timestamp);
+
+        if (calc.summary) {
+          pushRecommendation(
+            `Revisit ${calc.title} and refine your assumptions: ${calc.summary}`,
+            'medium',
+            calc.timestamp
+          );
+        } else {
+          pushRecommendation(
+            `Revisit ${calc.title} to compare another scenario and keep your analysis current.`,
+            'low',
+            calc.timestamp
+          );
         }
       }
 
@@ -343,7 +536,7 @@ import Layout from '../layouts/Layout.astro';
         const priorityOrder = { high: 3, medium: 2, low: 1 };
         return (
           (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0) ||
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp)
         );
       });
 
