@@ -7,7 +7,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  security-events: write
 
 concurrency:
   group: pr-checks-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -58,6 +57,10 @@ jobs:
     needs: gate
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
     steps:
       - name: Skipped (skip-ci or docs-only)
         if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'

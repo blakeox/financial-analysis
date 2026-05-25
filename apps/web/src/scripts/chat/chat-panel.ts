@@ -1015,12 +1015,8 @@ class ChatPanel {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
 
-    // Sanitize user messages to prevent XSS
-    if (type === 'user') {
-      contentDiv.textContent = content; // Use textContent for user messages (auto-escapes)
-    } else {
-      contentDiv.innerHTML = content; // Assistant messages can have formatted HTML
-    }
+    contentDiv.textContent = content;
+    contentDiv.style.whiteSpace = 'pre-wrap';
 
     messageDiv.appendChild(contentDiv);
     this.messages.appendChild(messageDiv);
@@ -1041,8 +1037,8 @@ class ChatPanel {
     if (lastMessage && lastMessage.classList.contains('assistant')) {
       const contentDiv = lastMessage.querySelector('.message-content');
       if (contentDiv) {
-        // Simple formatting for streaming text
-        contentDiv.innerHTML = content.replace(/\n/g, '<br>');
+        contentDiv.textContent = content;
+        (contentDiv as HTMLElement).style.whiteSpace = 'pre-wrap';
         this.messages.scrollTop = this.messages.scrollHeight;
       }
     }

@@ -50,14 +50,17 @@ async function sha256(message: string): Promise<string> {
  */
 export function generateApiKey(isTest = false): string {
   const prefix = isTest ? 'fk_test_' : 'fk_live_';
-  const randomBytes = crypto.getRandomValues(new Uint8Array(24));
   const base62Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const maxUnbiased = Math.floor(256 / base62Chars.length) * base62Chars.length;
 
   let key = '';
-  for (let i = 0; i < 32; i++) {
-    const byte = randomBytes[i % 24];
-    if (byte !== undefined) {
-      key += base62Chars[byte % 62];
+  while (key.length < 32) {
+    const bytes = crypto.getRandomValues(new Uint8Array(32));
+    for (const byte of bytes) {
+      if (key.length >= 32) break;
+      if (byte < maxUnbiased) {
+        key += base62Chars[byte % base62Chars.length];
+      }
     }
   }
 
@@ -256,10 +259,18 @@ export async function validateApiKey(request: Request, env: Env): Promise<AuthRe
     allHeaders: Object.fromEntries(request.headers.entries()),
   });
 
+  const isTrustedFanalyxUrl = (value: string | null): boolean => {
+    if (!value) return false;
+    try {
+      const hostname = new URL(value).hostname;
+      return hostname === 'fanalyx.com' || hostname.endsWith('.fanalyx.com');
+    } catch {
+      return false;
+    }
+  };
+
   const isInternalRequest =
-    origin === 'https://fanalyx.com' ||
-    referer?.includes('fanalyx.com') ||
-    internalRequestHeader === 'true';
+    isTrustedFanalyxUrl(origin) || isTrustedFanalyxUrl(referer) || internalRequestHeader === 'true';
 
   console.log('Internal request check:', { isInternalRequest });
 
