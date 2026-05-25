@@ -138,8 +138,7 @@ export default {
         return new Response(apiRes.body, { status: apiRes.status, headers });
       } catch (error) {
         console.error('API proxy error:', error);
-        const details = error instanceof Error ? error.message : String(error);
-        return new Response(JSON.stringify({ error: 'API proxy failed', details }), {
+        return new Response(JSON.stringify({ error: 'API proxy failed' }), {
           status: 502,
           headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },
         });

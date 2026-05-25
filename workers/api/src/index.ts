@@ -291,7 +291,8 @@ export function getPreviousModelState(
   const paramMatches = modelMatch[0].match(/(\w+):\s*([^,]+)/g);
 
   if (paramMatches) {
-    paramMatches.forEach((match) => {
+    const boundedMatches = paramMatches.slice(0, 50);
+    boundedMatches.forEach((match) => {
       const [, key, value] = match.match(/(\w+):\s*([^,]+)/) || [];
       if (key && value) {
         // Try to parse as number, otherwise keep as string

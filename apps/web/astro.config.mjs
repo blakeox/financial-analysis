@@ -24,8 +24,18 @@ export default defineConfig({
       lastmod: new Date(),
       // Custom priority and changefreq based on page importance
       serialize(item) {
+        let isHomepage = false;
+        try {
+          const parsed = new URL(item.url);
+          isHomepage =
+            parsed.hostname === 'fanalyx.com' &&
+            (parsed.pathname === '/' || parsed.pathname === '');
+        } catch {
+          isHomepage = false;
+        }
+
         // Homepage - highest priority
-        if (item.url === 'https://fanalyx.com/' || item.url.endsWith('fanalyx.com/')) {
+        if (isHomepage) {
           item.priority = 1.0;
           item.changefreq = 'daily';
         }

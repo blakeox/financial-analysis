@@ -77,7 +77,7 @@ class ChatAnalyticsCollector {
   }
 
   private generateSessionId(): string {
-    return `chat_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    return `chat_${crypto.randomUUID()}`;
   }
 
   private setupEventListeners(): void {

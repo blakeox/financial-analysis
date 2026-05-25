@@ -86,7 +86,7 @@ jobs:
 
       - name: Create or update GitHub Issue
         if: failure() && steps.precheck.outputs.skip != 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -126,8 +126,13 @@ jobs:
             const existing = issues.find(i => i.title.startsWith('R2 quota alert'));
 
             if (existing) {
-              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body });
-              core.info(`Commented on existing issue #${existing.number}`);
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.info(`Updated existing issue #${existing.number}`);
             } else {
               const created = await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
               core.info(`Created issue #${created.data.number}`);

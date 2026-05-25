@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Detect skip-ci label
         id: skip
@@ -64,7 +64,7 @@ jobs:
 
       - name: Detect path changes
         id: paths
-        uses: dorny/paths-filter@v4
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4
         with:
           filters: .github/path-filters.yml
 
@@ -103,7 +103,7 @@ jobs:
 
       - name: Upload smoke matrix Playwright artifacts
         if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-smoke-matrix-artifacts
           path: |
@@ -117,7 +117,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -141,7 +141,7 @@ jobs:
 
       - name: Upload smoke Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-smoke-artifacts
           path: |
@@ -155,7 +155,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -179,7 +179,7 @@ jobs:
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-smoke-matrix-artifacts
           path: |
@@ -197,7 +197,7 @@ jobs:
         project: [chromium, firefox, webkit, mobile-safari]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -225,7 +225,7 @@ jobs:
 
       - name: Upload full matrix Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-full-${{ matrix.project }}
           path: |
@@ -239,7 +239,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -259,7 +259,7 @@ jobs:
 
       - name: Upload flake repro Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-flake-repro
           path: |

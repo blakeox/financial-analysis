@@ -15,6 +15,9 @@ on:
     - cron: '0 6 * * 1'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: coverage-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -48,7 +51,7 @@ jobs:
 
       - name: Upload coverage (Codecov)
         if: steps.codecov.outputs.enabled == 'true'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         with:
           files: packages/analysis/coverage/coverage-final.json
           fail_ci_if_error: false
@@ -61,7 +64,7 @@ jobs:
 
       - name: Upload analysis coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: analysis-coverage
           path: packages/analysis/coverage
@@ -71,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
@@ -95,7 +98,7 @@ jobs:
 
       - name: Upload web coverage (Codecov)
         if: steps.codecov.outputs.enabled == 'true'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         with:
           files: apps/web/coverage/vitest/lcov.info
           fail_ci_if_error: false
@@ -108,7 +111,7 @@ jobs:
 
       - name: Upload web coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: web-coverage
           path: apps/web/coverage/vitest

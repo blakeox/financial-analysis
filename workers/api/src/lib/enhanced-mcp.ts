@@ -135,7 +135,7 @@ export async function handleEnhancedMCPRequest(
       const mcpError = createMCPError(
         MCP_ERROR_CODES.INVALID_REQUEST,
         'Invalid request format',
-        error.issues
+        env.ENVIRONMENT === 'development' ? error.issues : undefined
       );
 
       logWarn(requestContext, 'MCP request validation failed', {
@@ -172,7 +172,10 @@ export async function handleEnhancedMCPRequest(
         JSON.stringify({
           jsonrpc: '2.0',
           id: 'unknown',
-          error,
+          error: {
+            code: error.code,
+            message: error.message,
+          },
         }),
         {
           status: getStatusCodeForMCPError(error.code),
