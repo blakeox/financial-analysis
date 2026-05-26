@@ -20,8 +20,11 @@ runs:
       run: |
         set -euo pipefail
         if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
           BASE="${{ github.event.pull_request.base.sha }}"
+          if ! git rev-parse "$BASE^{commit}" >/dev/null 2>&1; then
+            echo "::error::Base commit $BASE not available; set fetch-depth: 0 on actions/checkout"
+            exit 1
+          fi
         elif [[ "${{ github.event_name }}" == "push" ]] && git rev-parse HEAD~1 >/dev/null 2>&1; then
           BASE="HEAD~1"
         else
