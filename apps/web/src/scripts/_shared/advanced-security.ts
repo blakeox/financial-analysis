@@ -57,7 +57,7 @@ export interface SecurityEvent {
 export interface ThreatPattern {
   id: string;
   name: string;
-  pattern: RegExp;
+  detector: (input: string) => string[];
   severity: SecurityEvent['severity'];
   description: string;
   enabled: boolean;
@@ -99,6 +99,56 @@ const SECURITY_MARKERS = [
   'onload=',
 ] as const;
 
+const SQL_ACTION_MARKERS = [
+  ' union ',
+  ' select ',
+  ' insert ',
+  ' update ',
+  ' delete ',
+  ' drop ',
+  ' create ',
+  ' alter ',
+  ' exec ',
+  ' execute ',
+] as const;
+const SQL_CLAUSE_MARKERS = [' from ', ' into ', ' where ', ' set ', ' values '] as const;
+const PATH_TRAVERSAL_MARKERS = ['../', '..\\', '..%2f', '..%5c'] as const;
+const XSS_SCRIPT_MARKERS = ['<script', '</script'] as const;
+
+function hasAnyMarker(input: string, markers: readonly string[]): boolean {
+  const lower = input.toLowerCase();
+  return markers.some((marker) => lower.includes(marker));
+}
+
+function detectSqlInjectionMatches(input: string): string[] {
+  const normalized = ` ${input.toLowerCase()} `;
+  if (
+    SQL_ACTION_MARKERS.some((marker) => normalized.includes(marker)) &&
+    SQL_CLAUSE_MARKERS.some((marker) => normalized.includes(marker))
+  ) {
+    return ['sql-pattern'];
+  }
+  return [];
+}
+
+function detectXssScriptMatches(input: string): string[] {
+  return hasAnyMarker(input, XSS_SCRIPT_MARKERS) ? ['xss-script'] : [];
+}
+
+function detectCommandInjectionMatches(input: string): string[] {
+  const suspiciousChars = [';', '&', '|', '`', '$', '(', ')', '{', '}', '[', ']', '\\'];
+  return suspiciousChars.some((token) => input.includes(token)) ? ['command-pattern'] : [];
+}
+
+function detectPathTraversalMatches(input: string): string[] {
+  return hasAnyMarker(input, PATH_TRAVERSAL_MARKERS) ? ['path-traversal'] : [];
+}
+
+function detectLdapInjectionMatches(input: string): string[] {
+  const suspiciousChars = ['(', ')', '=', '*', '!', '&', '|'];
+  return suspiciousChars.some((token) => input.includes(token)) ? ['ldap-pattern'] : [];
+}
+
 function stripSecurityMarkers(input: string): string {
   let sanitized = input;
   for (const marker of SECURITY_MARKERS) {
@@ -116,7 +166,7 @@ function stripSecurityMarkers(input: string): string {
 function escapeSanitizedHtmlEntities(input: string): string {
   let result = '';
   for (let i = 0; i < input.length; i++) {
-    const ch = input[i]!;
+    const ch = input.charAt(i);
     switch (ch) {
       case '&':
         result += '&amp;';
@@ -144,7 +194,7 @@ function collapseSanitizedWhitespace(input: string): string {
   let result = '';
   let pendingSpace = false;
   for (let i = 0; i < input.length; i++) {
-    const ch = input[i]!;
+    const ch = input.charAt(i);
     if (ch === ' ' || ch === '\n' || ch === '\t' || ch === '\r') {
       if (result.length > 0) {
         pendingSpace = true;
@@ -225,15 +275,15 @@ export class AdvancedSecurityManager {
 
       for (const pattern of this.threatPatterns.filter((p) => p.enabled)) {
         const matches = [
-          ...bodyText.matchAll(pattern.pattern),
-          ...urlText.matchAll(pattern.pattern),
-          ...headerText.matchAll(pattern.pattern),
+          ...pattern.detector(bodyText),
+          ...pattern.detector(urlText),
+          ...pattern.detector(headerText),
         ];
 
         for (const match of matches) {
           threats.push({
             pattern,
-            match: match[0],
+            match,
           });
 
           this.logSecurityEvent({
@@ -243,7 +293,7 @@ export class AdvancedSecurityManager {
             details: {
               patternId: pattern.id,
               patternName: pattern.name,
-              match: match[0],
+              match,
               description: pattern.description,
             },
             userAgent: request.userAgent,
@@ -602,8 +652,7 @@ export class AdvancedSecurityManager {
       {
         id: 'sql-injection',
         name: 'SQL Injection',
-        pattern:
-          /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b.*\b(from|into|where|set|values)\b)/i,
+        detector: detectSqlInjectionMatches,
         severity: 'critical',
         description: 'Potential SQL injection attack',
         enabled: true,
@@ -611,7 +660,7 @@ export class AdvancedSecurityManager {
       {
         id: 'xss-script',
         name: 'XSS Script Injection',
-        pattern: /<script[^>]*>.*?<\/script>/i,
+        detector: detectXssScriptMatches,
         severity: 'high',
         description: 'Potential XSS script injection',
         enabled: true,
@@ -619,7 +668,7 @@ export class AdvancedSecurityManager {
       {
         id: 'command-injection',
         name: 'Command Injection',
-        pattern: /[;&|`$(){}[\]\\]/,
+        detector: detectCommandInjectionMatches,
         severity: 'high',
         description: 'Potential command injection',
         enabled: true,
@@ -627,7 +676,7 @@ export class AdvancedSecurityManager {
       {
         id: 'path-traversal',
         name: 'Path Traversal',
-        pattern: /\.\.\/|\.\.\\|\.\.%2f|\.\.%5c/i,
+        detector: detectPathTraversalMatches,
         severity: 'high',
         description: 'Potential path traversal attack',
         enabled: true,
@@ -635,7 +684,7 @@ export class AdvancedSecurityManager {
       {
         id: 'ldap-injection',
         name: 'LDAP Injection',
-        pattern: /[()=*!&|]/,
+        detector: detectLdapInjectionMatches,
         severity: 'medium',
         description: 'Potential LDAP injection',
         enabled: true,

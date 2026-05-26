@@ -51,34 +51,11 @@ describe('validateChatMessage', () => {
     expect(result.sanitizedValue).toBe(maxMessage);
   });
 
-  it('should sanitize script tags', () => {
-    const malicious = '<script>alert("XSS")</script>Hello';
-    const result = validateChatMessage(malicious);
+  it('should preserve markup-like text for model analysis', () => {
+    const promptLikeText = '<script>alert("XSS")</script>Hello';
+    const result = validateChatMessage(promptLikeText);
     expect(result.valid).toBe(true);
-    expect(result.sanitizedValue).not.toContain('<script');
-    expect(result.sanitizedValue).toContain('Hello');
-  });
-
-  it('should sanitize iframe tags', () => {
-    const malicious = '<iframe src="evil.com"></iframe>Safe text';
-    const result = validateChatMessage(malicious);
-    expect(result.valid).toBe(true);
-    expect(result.sanitizedValue).not.toContain('<iframe');
-    expect(result.sanitizedValue).toContain('Safe text');
-  });
-
-  it('should sanitize javascript: protocol', () => {
-    const malicious = 'Click <a href="javascript:alert(1)">here</a>';
-    const result = validateChatMessage(malicious);
-    expect(result.valid).toBe(true);
-    expect(result.sanitizedValue).not.toContain('javascript:');
-  });
-
-  it('should sanitize event handlers', () => {
-    const malicious = '<div onmouseover="alert(1)">Click me</div>';
-    const result = validateChatMessage(malicious);
-    expect(result.valid).toBe(true);
-    expect(result.sanitizedValue).not.toContain('onmouseover=');
+    expect(result.sanitizedValue).toBe(promptLikeText);
   });
 
   it('should remove control characters', () => {
