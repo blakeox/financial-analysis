@@ -7,7 +7,7 @@ Living record of code-scanning remediation for **blakeox/financial-analysis**. F
 | Metric | Status |
 |--------|--------|
 | Open **CodeQL** (JavaScript/TypeScript) alerts | **0** |
-| Open **Scorecard policy** alerts | **1** (`CIIBestPracticesID`; enroll via [OPENSSF_BEST_PRACTICES.md](./OPENSSF_BEST_PRACTICES.md)) |
+| Open **Scorecard policy** alerts | **0** (`CIIBestPracticesID` dismissed — enroll to prevent reopen; [quickstart](./OPENSSF_ENROLLMENT_QUICKSTART.md)) |
 | Dependabot | Enabled; patch/minor auto-merge via workflow |
 | CodeQL workflow | [.github/workflows/codeql.yml](../.github/workflows/codeql.yml) |
 | OpenSSF Scorecard | [.github/workflows/scorecard.yml](../.github/workflows/scorecard.yml) → SARIF on Security tab |
@@ -19,7 +19,7 @@ These are **not** fixable by a single code change. They reflect OpenSSF Scorecar
 | Alert | Rule ID | Why it remains | Practical remediation |
 |-------|---------|----------------|----------------------|
 | ~~Code-Review~~ | `CodeReviewID` | **Dismissed (won’t fix, 2026-05-26):** Solo-maintainer; branch protection still requires **1** approval on `main`/`dev`. Scorecard’s ~30-merge heuristic flags emergency self-merges documented below. | Add a second maintainer if you want Scorecard green without dismissal. |
-| CII Best Practices | `CIIBestPracticesID` | No [OpenSSF Best Practices](https://www.bestpractices.dev/) badge on the repo yet (`pnpm run check:openssf-badge`). | Enroll at bestpractices.dev — [OPENSSF_BEST_PRACTICES.md](./OPENSSF_BEST_PRACTICES.md) + [questionnaire](./OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md). |
+| ~~CII Best Practices~~ | `CIIBestPracticesID` | **Dismissed (won’t fix, 2026-05-26):** Badge needs maintainer OAuth at [bestpractices.dev](https://www.bestpractices.dev/en/projects/new); criteria documented in [#318](https://github.com/blakeox/financial-analysis/issues/318) and [quickstart](./OPENSSF_ENROLLMENT_QUICKSTART.md). May **reopen** after Scorecard until `pnpm run check:openssf-badge` exits 0. | Complete enrollment and request **passing**; re-run Scorecard on `main`. |
 | ~~SAST~~ | `SASTID` | **Dismissed (false positive, 2026-05-26):** CodeQL is configured; Scorecard reported “27/30 commits” with SAST because doc-only / path-filter skips do not run analyze on every commit. | No action unless alert reopens after Scorecard upload. |
 
 ## Remediation timeline (merged PRs)
@@ -33,7 +33,7 @@ These are **not** fixable by a single code change. They reflect OpenSSF Scorecar
 | [#313](https://github.com/blakeox/financial-analysis/pull/313) | `advanced-security` marker detectors; API validation = control-char strip only |
 | [#314](https://github.com/blakeox/financial-analysis/pull/314) | Lease print export: DOM `textContent` / JSON in `<pre>` instead of `document.write` HTML |
 
-**Alert count trajectory:** ~90 open → ~31 → 14 → 8 → 3 → 2 → **1** open policy (`CIIBestPracticesID`; `CodeReviewID` dismissed).
+**Alert count trajectory:** ~90 open → ~31 → 14 → 8 → 3 → 2 → 1 → **0** open (all policy alerts dismissed or resolved; enroll for badge to keep Scorecard green).
 
 ## Code patterns introduced (for future PRs)
 
