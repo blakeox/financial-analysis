@@ -7,7 +7,7 @@ Living record of code-scanning remediation for **blakeox/financial-analysis**. F
 | Metric | Status |
 |--------|--------|
 | Open **CodeQL** (JavaScript/TypeScript) alerts | **0** |
-| Open **Scorecard policy** alerts | **2** (organizational / process; no file path) |
+| Open **Scorecard policy** alerts | **1** (`CIIBestPracticesID`; enroll via [OPENSSF_BEST_PRACTICES.md](./OPENSSF_BEST_PRACTICES.md)) |
 | Dependabot | Enabled; patch/minor auto-merge via workflow |
 | CodeQL workflow | [.github/workflows/codeql.yml](../.github/workflows/codeql.yml) |
 | OpenSSF Scorecard | [.github/workflows/scorecard.yml](../.github/workflows/scorecard.yml) → SARIF on Security tab |
@@ -18,7 +18,7 @@ These are **not** fixable by a single code change. They reflect OpenSSF Scorecar
 
 | Alert | Rule ID | Why it remains | Practical remediation |
 |-------|---------|----------------|----------------------|
-| Code-Review | `CodeReviewID` | Scorecard inspects ~30 recent merges for **human** approvals. Solo-maintainer merges (temporary `required_approving_review_count: 0` via [branch-protection sync](../scripts/sync-branch-protection.mjs)) do not satisfy “second person reviewed.” | Add a second maintainer/reviewer for security-sensitive PRs; keep branch protection at **1** required review when not self-merging. |
+| ~~Code-Review~~ | `CodeReviewID` | **Dismissed (won’t fix, 2026-05-26):** Solo-maintainer; branch protection still requires **1** approval on `main`/`dev`. Scorecard’s ~30-merge heuristic flags emergency self-merges documented below. | Add a second maintainer if you want Scorecard green without dismissal. |
 | CII Best Practices | `CIIBestPracticesID` | No [OpenSSF Best Practices](https://www.bestpractices.dev/) badge on the repo. | Enroll at bestpractices.dev and work toward **passing** (documented process). |
 | ~~SAST~~ | `SASTID` | **Dismissed (false positive, 2026-05-26):** CodeQL is configured; Scorecard reported “27/30 commits” with SAST because doc-only / path-filter skips do not run analyze on every commit. | No action unless alert reopens after Scorecard upload. |
 
@@ -33,7 +33,7 @@ These are **not** fixable by a single code change. They reflect OpenSSF Scorecar
 | [#313](https://github.com/blakeox/financial-analysis/pull/313) | `advanced-security` marker detectors; API validation = control-char strip only |
 | [#314](https://github.com/blakeox/financial-analysis/pull/314) | Lease print export: DOM `textContent` / JSON in `<pre>` instead of `document.write` HTML |
 
-**Alert count trajectory:** ~90 open → ~31 → 14 → 8 → 3 → **2** open policy (`CodeReviewID`, `CIIBestPracticesID`).
+**Alert count trajectory:** ~90 open → ~31 → 14 → 8 → 3 → 2 → **1** open policy (`CIIBestPracticesID`; `CodeReviewID` dismissed).
 
 ## Code patterns introduced (for future PRs)
 
@@ -76,6 +76,7 @@ This unblocks delivery but **hurts** Scorecard **Code-Review** until a second hu
 
 ## Related docs
 
+- [OPENSSF_BEST_PRACTICES.md](./OPENSSF_BEST_PRACTICES.md) — badge enrollment checklist (clears `CIIBestPracticesID`)
 - [SECURITY.md](../SECURITY.md) — reporting vulnerabilities
 - [PHASE2_SECURITY_IMPROVEMENTS.md](./PHASE2_SECURITY_IMPROVEMENTS.md) / [PHASE3_SECURITY_IMPROVEMENTS.md](./PHASE3_SECURITY_IMPROVEMENTS.md) — feature-era security notes
 - [CHAT_SECURITY_ROADMAP.md](./CHAT_SECURITY_ROADMAP.md) — chat-specific roadmap
