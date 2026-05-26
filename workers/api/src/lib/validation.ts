@@ -145,6 +145,50 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
   return { valid: true };
 }
 
+const SQL_VERBS = ['union', 'select', 'drop', 'insert', 'update', 'delete'] as const;
+const SQL_CLAUSES = ['from', 'where'] as const;
+const XSS_MARKERS = [
+  '<script',
+  '<iframe',
+  'javascript:',
+  'onerror=',
+  'onclick=',
+  'onload=',
+] as const;
+const SHELL_TOKENS = [' bash', ' sh', 'cmd', 'exec'] as const;
+
+function includesInsensitive(value: string, fragment: string): boolean {
+  return value.toLowerCase().includes(fragment.toLowerCase());
+}
+
+function detectSqlInjection(input: string): boolean {
+  const hasVerb = SQL_VERBS.some((verb) => includesInsensitive(input, verb));
+  if (!hasVerb) return false;
+  return SQL_CLAUSES.some((clause) => includesInsensitive(input, clause));
+}
+
+function detectNoSqlInjection(input: string): boolean {
+  const lower = input.toLowerCase();
+  return lower.includes('$where') || (lower.includes('$') && lower.includes('{'));
+}
+
+function detectXssAttempt(input: string): boolean {
+  const lower = input.toLowerCase();
+  return XSS_MARKERS.some((marker) => lower.includes(marker));
+}
+
+function detectPathTraversal(input: string): boolean {
+  return input.includes('../') || input.includes('..\\');
+}
+
+function detectCommandInjection(input: string): boolean {
+  const hasMeta =
+    input.includes(';') || input.includes('|') || input.includes('`') || input.includes('$');
+  if (!hasMeta) return false;
+  const lower = input.toLowerCase();
+  return SHELL_TOKENS.some((token) => lower.includes(token));
+}
+
 /**
  * Detect potentially malicious input patterns
  * @param input - String to analyze
@@ -153,32 +197,23 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
 export function detectThreats(input: string): string[] {
   const threats: string[] = [];
 
-  // SQL injection patterns
-  if (
-    /(\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b).*(\bFROM\b|\bWHERE\b)/i.test(
-      input
-    )
-  ) {
+  if (detectSqlInjection(input)) {
     threats.push('SQL_INJECTION');
   }
 
-  // NoSQL injection patterns
-  if (/\$\w+\s*:\s*{/.test(input) || /\{\s*\$\w+/.test(input)) {
+  if (detectNoSqlInjection(input)) {
     threats.push('NOSQL_INJECTION');
   }
 
-  // XSS patterns (already sanitized, but log if detected)
-  if (/<script|<iframe|javascript:|on\w+\s*=/i.test(input)) {
+  if (detectXssAttempt(input)) {
     threats.push('XSS_ATTEMPT');
   }
 
-  // Path traversal
-  if (/\.\.\/|\.\.\\/.test(input)) {
+  if (detectPathTraversal(input)) {
     threats.push('PATH_TRAVERSAL');
   }
 
-  // Command injection
-  if (/[;&|`$]/.test(input) && /(\bsh\b|\bbash\b|\bcmd\b|\bexec\b)/i.test(input)) {
+  if (detectCommandInjection(input)) {
     threats.push('COMMAND_INJECTION');
   }
 

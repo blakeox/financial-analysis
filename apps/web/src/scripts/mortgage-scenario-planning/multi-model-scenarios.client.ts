@@ -7,6 +7,21 @@
 
 import { enhanceInteractiveScenarioCards } from '../a11y/interactive-cards.client';
 
+function toSafeSameOriginHref(url: string): string {
+  try {
+    const resolved = new URL(url, window.location.href);
+    if (resolved.protocol !== 'http:' && resolved.protocol !== 'https:') {
+      return '#';
+    }
+    if (resolved.origin !== window.location.origin) {
+      return '#';
+    }
+    return `${resolved.pathname}${resolved.search}${resolved.hash}`;
+  } catch {
+    return '#';
+  }
+}
+
 export interface ScenarioModel {
   id: string;
   name: string;
@@ -796,7 +811,7 @@ export class MultiModelScenarioManager {
         actions.appendChild(badge);
       }
       const link = document.createElement('a');
-      link.href = model.url;
+      link.href = toSafeSameOriginHref(model.url);
       link.className = 'fa-button-info-compact';
       link.textContent = isCompleted ? 'Review' : 'Start';
       actions.appendChild(link);

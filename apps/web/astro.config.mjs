@@ -24,12 +24,12 @@ export default defineConfig({
       lastmod: new Date(),
       // Custom priority and changefreq based on page importance
       serialize(item) {
+        let pathname = '/';
         let isHomepage = false;
         try {
           const parsed = new URL(item.url);
-          isHomepage =
-            parsed.hostname === 'fanalyx.com' &&
-            (parsed.pathname === '/' || parsed.pathname === '');
+          pathname = parsed.pathname;
+          isHomepage = parsed.hostname === 'fanalyx.com' && (pathname === '/' || pathname === '');
         } catch {
           isHomepage = false;
         }
@@ -41,25 +41,28 @@ export default defineConfig({
         }
         // Main category pages
         else if (
-          item.url.includes('/models') ||
-          item.url.includes('/journey') ||
-          item.url.includes('/developers')
+          pathname === '/models' ||
+          pathname.startsWith('/models/') ||
+          pathname === '/journey' ||
+          pathname.startsWith('/journey/') ||
+          pathname === '/developers' ||
+          pathname.startsWith('/developers/')
         ) {
           item.priority = 0.9;
           item.changefreq = 'weekly';
         }
         // Calculator pages
         else if (
-          item.url.includes('/calculator/') ||
-          item.url.includes('/lease-analysis') ||
-          item.url.includes('/ebitda-forecasting') ||
-          item.url.includes('/commercial-real-estate')
+          pathname.startsWith('/calculator/') ||
+          pathname === '/lease-analysis' ||
+          pathname.startsWith('/ebitda-forecasting') ||
+          pathname.startsWith('/commercial-real-estate')
         ) {
           item.priority = 0.8;
           item.changefreq = 'weekly';
         }
         // Journey and step pages
-        else if (item.url.includes('/journey/') || item.url.includes('/step/')) {
+        else if (pathname.startsWith('/journey/') || pathname.startsWith('/step/')) {
           item.priority = 0.7;
           item.changefreq = 'monthly';
         }

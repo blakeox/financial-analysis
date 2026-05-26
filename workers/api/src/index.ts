@@ -278,16 +278,17 @@ export function getPreviousModelState(
   // Simple parsing of model states - in production this would be more robust
   const modelStatesText = memoryContext.modelStates;
 
-  // Look for the specific model type in the states
   const modelType = toolName.replace('analyze_', '');
-  const modelMatch = modelStatesText.match(new RegExp(`${modelType}[^\\n]*`));
-
-  if (!modelMatch) {
+  const lineStart = modelStatesText.indexOf(modelType);
+  if (lineStart === -1) {
     return undefined;
   }
+  const lineEnd = modelStatesText.indexOf('\n', lineStart);
+  const modelLine =
+    lineEnd === -1 ? modelStatesText.slice(lineStart) : modelStatesText.slice(lineStart, lineEnd);
 
   const params: Record<string, unknown> = {};
-  const segments = modelMatch[0].split(',').slice(0, 50);
+  const segments = modelLine.split(',').slice(0, 50);
   for (const segment of segments) {
     const colon = segment.indexOf(':');
     if (colon === -1) continue;

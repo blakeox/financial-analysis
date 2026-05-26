@@ -428,7 +428,7 @@ class ChatPanel {
             ${suggestedPrompts
               .map((item) => {
                 if (item.action) {
-                  return `<button type="button" class="suggested-prompt" data-chat-action="${item.action}" data-kind="${item.kind ?? 'secondary'}">${item.label}</button>`;
+                  return `<button type="button" class="suggested-prompt" data-chat-action="${this.escapeHtmlAttribute(item.action)}" data-kind="${item.kind ?? 'secondary'}">${this.escapeHtmlText(item.label)}</button>`;
                 }
                 return `<button type="button" class="suggested-prompt" data-suggested-prompt="${this.escapeHtmlAttribute(item.prompt ?? item.label)}" data-kind="${item.kind ?? 'secondary'}">${this.escapeHtmlText(item.label)}</button>`;
               })

@@ -132,15 +132,11 @@ export async function handleEnhancedMCPRequest(
         errorCode: MCP_ERROR_CODES.INVALID_REQUEST,
       };
 
-      const mcpError = createMCPError(
-        MCP_ERROR_CODES.INVALID_REQUEST,
-        'Invalid request format',
-        env.ENVIRONMENT === 'development' ? error.issues : undefined
-      );
+      const mcpError = createMCPError(MCP_ERROR_CODES.INVALID_REQUEST, 'Invalid request format');
 
       logWarn(requestContext, 'MCP request validation failed', {
         ...metrics,
-        errors: error.issues,
+        issueCount: error.issues.length,
       });
 
       return new Response(
