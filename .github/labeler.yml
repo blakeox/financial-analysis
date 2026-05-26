@@ -1,3 +1,4 @@
+# Implemented by .github/actions/pr-path-labeler (see pr-labeler.yml).
 frontend:
   - changed-files:
       - any-glob-to-any-file: 'apps/web/**'
