@@ -2,9 +2,20 @@
 
 Guide for clearing Scorecard alert `CIIBestPracticesID` by enrolling **financial-analysis** at [OpenSSF Best Practices](https://www.bestpractices.dev/).
 
+## Check status (CLI)
+
+```bash
+pnpm run check:openssf-badge
+# JSON: node scripts/check-openssf-badge.mjs --json
+```
+
+Exit **0** when a passing, silver, or gold badge exists for this repo; **1** if not enrolled yet.
+
+**Tracking:** [GitHub issue #318](https://github.com/blakeox/financial-analysis/issues/318)
+
 ## Enroll the project
 
-1. Sign in at [bestpractices.dev](https://www.bestpractices.dev/) (GitHub OAuth).
+1. Sign in at [bestpractices.dev](https://www.bestpractices.dev/) (GitHub OAuth) — **Log in with GitHub** on [New project](https://www.bestpractices.dev/en/projects/new).
 2. **Create project** → [New project](https://www.bestpractices.dev/en/projects/new).
 3. Set **Project URL** to: `https://github.com/blakeox/financial-analysis`
 4. Work through the questionnaire using [OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md](./OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md) (criterion-by-criterion answers) and the evidence table below.
