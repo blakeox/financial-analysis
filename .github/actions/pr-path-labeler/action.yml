@@ -1,0 +1,48 @@
+name: PR path labeler
+description: Apply path-based PR labels (replaces actions/labeler when codeload downloads fail)
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        PR="${{ github.event.pull_request.number }}"
+        BASE="${{ github.event.pull_request.base.sha }}"
+
+        if ! git rev-parse "$BASE^{commit}" >/dev/null 2>&1; then
+          echo "::error::Base commit unavailable; set fetch-depth: 0 on actions/checkout"
+          exit 1
+        fi
+
+        mapfile -t files < <(git diff --name-only "$BASE" HEAD)
+        declare -A labels=()
+
+        for f in "${files[@]}"; do
+          [[ -z "$f" ]] && continue
+          case "$f" in
+            apps/web/*|packages/ui/*) labels[frontend]=1 ;;
+          esac
+          case "$f" in
+            workers/*) labels[backend]=1 ;;
+          esac
+          case "$f" in
+            packages/analysis/*) labels[analysis]=1 ;;
+          esac
+          case "$f" in
+            packages/tools/*) labels[tools]=1 ;;
+          esac
+          case "$f" in
+            .github/workflows/*|.github/actions/*) labels[github-actions]=1 ;;
+          esac
+        done
+
+        if [[ ${#labels[@]} -eq 0 ]]; then
+          echo "No path labels to apply."
+          exit 0
+        fi
+
+        joined=$(IFS=,; echo "${!labels[*]}")
+        echo "Applying labels: $joined"
+        gh pr edit "$PR" --repo "${{ github.repository }}" --add-label "$joined"
