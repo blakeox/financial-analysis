@@ -14,7 +14,6 @@ import type {
   AdditionalCosts,
   ExtractedLeaseData,
 } from '@financial-analysis/analysis';
-import { escapeHtml } from '../lib/escape-html';
 import { formatCurrency, formatPercentage } from '../lib/formatters';
 import { validateFile } from '../lib/validation';
 import { useLocalStorage } from '../lib/hooks';
@@ -1297,98 +1296,36 @@ export function LeaseAnalysisDashboard({
   const exportToPDF = async () => {
     if (!result) return;
 
-    // Create PDF export using browser's print functionality
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
+    const doc = printWindow.document;
+    doc.title = 'Lease Analysis Report';
+    doc.body.style.fontFamily = 'Arial, sans-serif';
+    doc.body.style.margin = '20px';
 
-    const escaped = (value: string) => escapeHtml(value);
+    const heading = doc.createElement('h1');
+    heading.textContent = 'Lease Analysis Report';
+    doc.body.appendChild(heading);
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Lease Analysis Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1, h2 { color: #2563eb; }
-            .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
-            .metric { text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
-            .metric-value { font-size: 24px; font-weight: bold; color: #2563eb; }
-            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            .table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-            .table th { background-color: #f3f4f6; }
-            .recommendation { background-color: #dbeafe; padding: 15px; border-radius: 8px; margin: 20px 0; }
-          </style>
-        </head>
-        <body>
-          <h1>Lease Analysis Report</h1>
-          <p>Generated on ${escaped(new Date().toLocaleDateString())}</p>
-          
-          <h2>Financial Summary</h2>
-          <div class="summary">
-            <div class="metric">
-              <div class="metric-value">${escaped(formatCurrency(result.metrics.averageMonthlyPayment))}</div>
-              <div>Avg Monthly Payment</div>
-            </div>
-            <div class="metric">
-              <div class="metric-value">${escaped(formatCurrency(result.metrics.totalCost))}</div>
-              <div>Total Cost</div>
-            </div>
-            <div class="metric">
-              <div class="metric-value">${escaped(formatCurrency(result.metrics.presentValue))}</div>
-              <div>Present Value</div>
-            </div>
-            <div class="metric">
-              <div class="metric-value">${escaped(formatPercentage(result.metrics.effectiveAnnualRate))}</div>
-              <div>Effective Rate</div>
-            </div>
-          </div>
+    const generated = doc.createElement('p');
+    generated.textContent = `Generated on ${new Date().toLocaleDateString()}`;
+    doc.body.appendChild(generated);
 
-          <h2>Risk Assessment</h2>
-          <table class="table">
-            <tr><td>Flexibility Score</td><td>${escaped(String(result.riskAnalysis.flexibilityScore))}/100</td></tr>
-            <tr><td>Early Termination Cost</td><td>${escaped(formatCurrency(result.riskAnalysis.earlyTerminationCost))}</td></tr>
-            <tr><td>Renewal Risk</td><td>${escaped(result.riskAnalysis.renewalRisk)}</td></tr>
-          </table>
+    const reportPre = doc.createElement('pre');
+    reportPre.style.whiteSpace = 'pre-wrap';
+    reportPre.style.fontFamily = 'monospace';
+    reportPre.textContent = JSON.stringify(
+      {
+        financialSummary: result.metrics,
+        riskAssessment: result.riskAnalysis,
+        leaseVsBuy: result.leaseVsBuy ?? null,
+        first12Payments: result.schedule.slice(0, 12),
+      },
+      null,
+      2
+    );
+    doc.body.appendChild(reportPre);
 
-          ${
-            result.leaseVsBuy
-              ? `
-            <h2>Lease vs Buy Comparison</h2>
-            <div class="recommendation">
-              <strong>Recommendation: ${escaped(result.leaseVsBuy.recommendation.toUpperCase())}</strong>
-            </div>
-            <table class="table">
-              <tr><th>Option</th><th>Total Cost</th><th>Monthly Payment</th></tr>
-              <tr><td>Lease</td><td>${escaped(formatCurrency(result.leaseVsBuy.leaseOption.totalCost))}</td><td>${escaped(formatCurrency(result.leaseVsBuy.leaseOption.monthlyPayment))}</td></tr>
-              <tr><td>Buy</td><td>${escaped(formatCurrency(result.leaseVsBuy.buyOption.totalLoanCost))}</td><td>${escaped(formatCurrency(result.leaseVsBuy.buyOption.loanPayment))}</td></tr>
-            </table>
-          `
-              : ''
-          }
-
-          <h2>Payment Schedule (First 12 Months)</h2>
-          <table class="table">
-            <tr><th>Month</th><th>Base Payment</th><th>Additional Costs</th><th>Total Payment</th><th>Cumulative</th></tr>
-            ${result.schedule
-              .slice(0, 12)
-              .map(
-                (payment) => `
-              <tr>
-                <td>${escaped(String(payment.month))}</td>
-                <td>${escaped(formatCurrency(payment.escalatedPayment))}</td>
-                <td>${escaped(formatCurrency(payment.additionalCosts.total))}</td>
-                <td>${escaped(formatCurrency(payment.totalPayment))}</td>
-                <td>${escaped(formatCurrency(payment.cumulativePaid))}</td>
-              </tr>
-            `
-              )
-              .join('')}
-          </table>
-        </body>
-      </html>
-    `);
-
-    printWindow.document.close();
     printWindow.print();
   };
 
