@@ -723,7 +723,7 @@ export class AdvancedSecurityManager {
    * Generate unique event ID
    */
   private generateEventId(): string {
-    return `sec_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    return `sec_${crypto.randomUUID()}`;
   }
 
   /**

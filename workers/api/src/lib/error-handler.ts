@@ -11,13 +11,14 @@ export function withErrorHandler(handler: RouteHandler) {
     try {
       return await handler(request, env);
     } catch (error) {
-      console.error('API Error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('API Error:', errorMessage);
 
       const isDevelopment = env.ENVIRONMENT === 'development';
 
       if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
         if (isDevelopment) {
-          console.error('Validation error:', error);
+          console.error('Validation error:', errorMessage);
         }
         return new Response(
           JSON.stringify({
@@ -60,7 +61,7 @@ export function withErrorHandler(handler: RouteHandler) {
       }
 
       if (isDevelopment && error instanceof Error) {
-        console.error('Internal error:', error);
+        console.error('Internal error:', errorMessage);
       }
 
       return new Response(

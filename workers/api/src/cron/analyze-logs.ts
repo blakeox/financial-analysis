@@ -61,7 +61,8 @@ async function parseLogFile(content: string): Promise<LogEntry[]> {
       const entry = JSON.parse(line) as LogEntry;
       entries.push(entry);
     } catch (error) {
-      console.error('Failed to parse log line:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Failed to parse log line:', message);
     }
   }
 
@@ -316,7 +317,8 @@ export async function handleDailyLogAnalysis(env: Env): Promise<Response> {
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Log analysis failed:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Log analysis failed:', message);
     return new Response(
       JSON.stringify({
         error: 'Analysis failed',
