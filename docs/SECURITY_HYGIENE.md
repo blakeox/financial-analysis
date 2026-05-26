@@ -19,7 +19,7 @@ These are **not** fixable by a single code change. They reflect OpenSSF Scorecar
 | Alert | Rule ID | Why it remains | Practical remediation |
 |-------|---------|----------------|----------------------|
 | ~~Code-Review~~ | `CodeReviewID` | **Dismissed (won’t fix, 2026-05-26):** Solo-maintainer; branch protection still requires **1** approval on `main`/`dev`. Scorecard’s ~30-merge heuristic flags emergency self-merges documented below. | Add a second maintainer if you want Scorecard green without dismissal. |
-| CII Best Practices | `CIIBestPracticesID` | No [OpenSSF Best Practices](https://www.bestpractices.dev/) badge on the repo. | Enroll at bestpractices.dev and work toward **passing** (documented process). |
+| CII Best Practices | `CIIBestPracticesID` | No [OpenSSF Best Practices](https://www.bestpractices.dev/) badge on the repo yet (`pnpm run check:openssf-badge`). | Enroll at bestpractices.dev — [OPENSSF_BEST_PRACTICES.md](./OPENSSF_BEST_PRACTICES.md) + [questionnaire](./OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md). |
 | ~~SAST~~ | `SASTID` | **Dismissed (false positive, 2026-05-26):** CodeQL is configured; Scorecard reported “27/30 commits” with SAST because doc-only / path-filter skips do not run analyze on every commit. | No action unless alert reopens after Scorecard upload. |
 
 ## Remediation timeline (merged PRs)

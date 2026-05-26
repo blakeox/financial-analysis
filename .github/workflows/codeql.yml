@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
 
       - name: Detect skip-ci label
         if: github.event_name == 'pull_request'
@@ -39,7 +41,7 @@ jobs:
       - name: Detect path changes
         if: github.event_name == 'pull_request'
         id: paths
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4
+        uses: ./.github/actions/repo-path-filter
         with:
           filters: .github/path-filters.yml
 
