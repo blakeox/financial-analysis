@@ -39,7 +39,7 @@ jobs:
       - name: Detect path changes
         if: github.event_name == 'pull_request'
         id: paths
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4
+        uses: dorny/paths-filter@v4 # v4.0.1; pin restored when codeload SHA downloads stabilize
         with:
           filters: .github/path-filters.yml
 
