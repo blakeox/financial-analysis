@@ -6,12 +6,21 @@
 // Security constants - match client-side limits
 export const MAX_MESSAGE_LENGTH = 2000;
 export const MAX_REQUEST_BODY_SIZE = 50_000; // 50KB max request body
-export const DANGEROUS_PATTERNS = [
-  /<script[^>]*>.*?<\/script>/gi,
-  /<iframe[^>]*>.*?<\/iframe>/gi,
-  /javascript:/gi,
-  /on\w+\s*=/gi, // Event handlers like onclick=, onload=, etc.
-];
+
+function stripControlCharacters(value: string): string {
+  let result = '';
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code === 9 || code === 10 || code === 13) {
+      result += value[i]!;
+      continue;
+    }
+    if (code >= 32 && code !== 127) {
+      result += value[i]!;
+    }
+  }
+  return result;
+}
 
 /**
  * Validation result with detailed error information
@@ -58,20 +67,7 @@ export function validateChatMessage(message: string | null | undefined): Validat
     };
   }
 
-  // Sanitize message - remove dangerous patterns
-  let sanitized = trimmedMessage;
-  for (const pattern of DANGEROUS_PATTERNS) {
-    sanitized = sanitized.replace(pattern, '');
-  }
-
-  // Check for control characters (except newlines and tabs)
-  // eslint-disable-next-line no-control-regex
-  const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(sanitized);
-  if (hasControlChars) {
-    // Remove control characters
-    // eslint-disable-next-line no-control-regex
-    sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-  }
+  const sanitized = stripControlCharacters(trimmedMessage);
 
   return {
     valid: true,
@@ -111,6 +107,41 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
   return { valid: true };
 }
 
+const XSS_MARKERS = ['<script', '<iframe', 'javascript:'] as const;
+const SQL_VERB_PATTERN = /\b(?:union|select|drop|insert|update|delete)\b/i;
+const SQL_CLAUSE_PATTERN = /\b(?:from|where)\b/i;
+const NOSQL_OPERATOR_PATTERN = /\$[a-z_]\w*\s*:\s*{|\{\s*\$[a-z_]\w*/i;
+const XSS_EVENT_HANDLER_PATTERN = /\bon\w+\s*=/i;
+const SHELL_TOKEN_PATTERN = /\b(?:bash|sh|cmd|exec)\b/i;
+
+function detectSqlInjection(input: string): boolean {
+  const hasVerb = SQL_VERB_PATTERN.test(input);
+  if (!hasVerb) return false;
+  return SQL_CLAUSE_PATTERN.test(input);
+}
+
+function detectNoSqlInjection(input: string): boolean {
+  return /\$where/i.test(input) || NOSQL_OPERATOR_PATTERN.test(input);
+}
+
+function detectXssAttempt(input: string): boolean {
+  const lower = input.toLowerCase();
+  return (
+    XSS_MARKERS.some((marker) => lower.includes(marker)) || XSS_EVENT_HANDLER_PATTERN.test(input)
+  );
+}
+
+function detectPathTraversal(input: string): boolean {
+  return input.includes('../') || input.includes('..\\');
+}
+
+function detectCommandInjection(input: string): boolean {
+  const hasMeta =
+    input.includes(';') || input.includes('|') || input.includes('`') || input.includes('$');
+  if (!hasMeta) return false;
+  return SHELL_TOKEN_PATTERN.test(input);
+}
+
 /**
  * Detect potentially malicious input patterns
  * @param input - String to analyze
@@ -119,32 +150,23 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
 export function detectThreats(input: string): string[] {
   const threats: string[] = [];
 
-  // SQL injection patterns
-  if (
-    /(\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b).*(\bFROM\b|\bWHERE\b)/i.test(
-      input
-    )
-  ) {
+  if (detectSqlInjection(input)) {
     threats.push('SQL_INJECTION');
   }
 
-  // NoSQL injection patterns
-  if (/\$\w+\s*:\s*{/.test(input) || /\{\s*\$\w+/.test(input)) {
+  if (detectNoSqlInjection(input)) {
     threats.push('NOSQL_INJECTION');
   }
 
-  // XSS patterns (already sanitized, but log if detected)
-  if (/<script|<iframe|javascript:|on\w+\s*=/i.test(input)) {
+  if (detectXssAttempt(input)) {
     threats.push('XSS_ATTEMPT');
   }
 
-  // Path traversal
-  if (/\.\.\/|\.\.\\/.test(input)) {
+  if (detectPathTraversal(input)) {
     threats.push('PATH_TRAVERSAL');
   }
 
-  // Command injection
-  if (/[;&|`$]/.test(input) && /(\bsh\b|\bbash\b|\bcmd\b|\bexec\b)/i.test(input)) {
+  if (detectCommandInjection(input)) {
     threats.push('COMMAND_INJECTION');
   }
 

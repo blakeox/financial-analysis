@@ -132,15 +132,11 @@ export async function handleEnhancedMCPRequest(
         errorCode: MCP_ERROR_CODES.INVALID_REQUEST,
       };
 
-      const mcpError = createMCPError(
-        MCP_ERROR_CODES.INVALID_REQUEST,
-        'Invalid request format',
-        error.issues
-      );
+      const mcpError = createMCPError(MCP_ERROR_CODES.INVALID_REQUEST, 'Invalid request format');
 
       logWarn(requestContext, 'MCP request validation failed', {
         ...metrics,
-        errors: error.issues,
+        issueCount: error.issues.length,
       });
 
       return new Response(
@@ -172,7 +168,10 @@ export async function handleEnhancedMCPRequest(
         JSON.stringify({
           jsonrpc: '2.0',
           id: 'unknown',
-          error,
+          error: {
+            code: error.code,
+            message: 'Request failed',
+          },
         }),
         {
           status: getStatusCodeForMCPError(error.code),
@@ -190,9 +189,7 @@ export async function handleEnhancedMCPRequest(
       errorCode: MCP_ERROR_CODES.INTERNAL_ERROR,
     };
 
-    const mcpError = createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'Internal server error', {
-      originalError: error instanceof Error ? error.message : String(error),
-    });
+    const mcpError = createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'Internal server error');
 
     logError(requestContext, new Error(error instanceof Error ? error.message : String(error)));
 
@@ -200,7 +197,10 @@ export async function handleEnhancedMCPRequest(
       JSON.stringify({
         jsonrpc: '2.0',
         id: 'unknown',
-        error: mcpError,
+        error: {
+          code: mcpError.code,
+          message: 'Internal server error',
+        },
       }),
       {
         status: 500,

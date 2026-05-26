@@ -1,0 +1,73 @@
+name: Repo path filter
+description: Git diff path filters for CI (replaces dorny/paths-filter when codeload is unavailable)
+inputs:
+  filters-file:
+    description: Unused; kept for drop-in compatibility with dorny/paths-filter call sites
+    required: false
+    default: .github/path-filters.yml
+outputs:
+  code:
+    description: Non-documentation code paths changed
+    value: ${{ steps.filter.outputs.code }}
+  web:
+    description: Web stack paths changed
+    value: ${{ steps.filter.outputs.web }}
+runs:
+  using: composite
+  steps:
+    - id: filter
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if ! git rev-parse "$BASE^{commit}" >/dev/null 2>&1; then
+            echo "::error::Base commit $BASE not available; set fetch-depth: 0 on actions/checkout"
+            exit 1
+          fi
+        elif [[ "${{ github.event_name }}" == "push" ]] && git rev-parse HEAD~1 >/dev/null 2>&1; then
+          BASE="HEAD~1"
+        else
+          echo "code=true" >> "$GITHUB_OUTPUT"
+          echo "web=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        mapfile -t files < <(git diff --name-only "$BASE" HEAD)
+
+        code=false
+        web=false
+        is_doc_only() {
+          local f="$1"
+          [[ "$f" =~ \.md$ ]] && return 0
+          [[ "$f" == docs/* ]] && return 0
+          [[ "$f" == .github/ISSUE_TEMPLATE/* ]] && return 0
+          [[ "$f" == .github/PULL_REQUEST_TEMPLATE.md ]] && return 0
+          [[ "$f" == .github/chatmodes/* ]] && return 0
+          [[ "$f" == LICENSE ]] && return 0
+          [[ "$f" == CODE_OF_CONDUCT.md ]] && return 0
+          [[ "$f" == SECURITY.md ]] && return 0
+          return 1
+        }
+        is_web_path() {
+          local f="$1"
+          [[ "$f" == apps/web/* ]] && return 0
+          [[ "$f" == packages/ui/* ]] && return 0
+          [[ "$f" == packages/analysis/* ]] && return 0
+          [[ "$f" == pnpm-lock.yaml ]] && return 0
+          [[ "$f" == package.json ]] && return 0
+          [[ "$f" == pnpm-workspace.yaml ]] && return 0
+          return 1
+        }
+
+        for f in "${files[@]}"; do
+          if ! is_doc_only "$f"; then
+            code=true
+          fi
+          if is_web_path "$f"; then
+            web=true
+          fi
+        done
+
+        echo "code=$code" >> "$GITHUB_OUTPUT"
+        echo "web=$web" >> "$GITHUB_OUTPUT"

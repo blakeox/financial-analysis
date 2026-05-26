@@ -8,48 +8,70 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) =>
-        !page.includes('/debug') &&
-        !page.includes('/models-old') &&
-        !page.includes('/models-clean') &&
-        !page.includes('/test-') &&
-        !page.includes('/_') &&
-        !page.endsWith('/sitemap') && // Exclude HTML sitemap (we have XML sitemap)
-        !page.includes('/ai-field-demo') &&
-        !page.includes('/analytics') &&
-        !page.includes('/dashboard') &&
-        !page.includes('/my-financial-dashboard'),
+      filter: (page) => {
+        let pathname = page;
+        try {
+          pathname = new URL(page).pathname;
+        } catch {
+          return false;
+        }
+        return (
+          !pathname.startsWith('/debug') &&
+          !pathname.startsWith('/models-old') &&
+          !pathname.startsWith('/models-clean') &&
+          !pathname.startsWith('/test-') &&
+          !pathname.includes('/_') &&
+          pathname !== '/sitemap' &&
+          !pathname.startsWith('/ai-field-demo') &&
+          !pathname.startsWith('/analytics') &&
+          !pathname.startsWith('/dashboard') &&
+          !pathname.startsWith('/my-financial-dashboard')
+        );
+      },
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),
       // Custom priority and changefreq based on page importance
       serialize(item) {
+        let pathname = '/';
+        let isHomepage = false;
+        try {
+          const parsed = new URL(item.url);
+          pathname = parsed.pathname;
+          isHomepage = parsed.hostname === 'fanalyx.com' && (pathname === '/' || pathname === '');
+        } catch {
+          isHomepage = false;
+        }
+
         // Homepage - highest priority
-        if (item.url === 'https://fanalyx.com/' || item.url.endsWith('fanalyx.com/')) {
+        if (isHomepage) {
           item.priority = 1.0;
           item.changefreq = 'daily';
         }
         // Main category pages
         else if (
-          item.url.includes('/models') ||
-          item.url.includes('/journey') ||
-          item.url.includes('/developers')
+          pathname === '/models' ||
+          pathname.startsWith('/models/') ||
+          pathname === '/journey' ||
+          pathname.startsWith('/journey/') ||
+          pathname === '/developers' ||
+          pathname.startsWith('/developers/')
         ) {
           item.priority = 0.9;
           item.changefreq = 'weekly';
         }
         // Calculator pages
         else if (
-          item.url.includes('/calculator/') ||
-          item.url.includes('/lease-analysis') ||
-          item.url.includes('/ebitda-forecasting') ||
-          item.url.includes('/commercial-real-estate')
+          pathname.startsWith('/calculator/') ||
+          pathname === '/lease-analysis' ||
+          pathname.startsWith('/ebitda-forecasting') ||
+          pathname.startsWith('/commercial-real-estate')
         ) {
           item.priority = 0.8;
           item.changefreq = 'weekly';
         }
         // Journey and step pages
-        else if (item.url.includes('/journey/') || item.url.includes('/step/')) {
+        else if (pathname.startsWith('/journey/') || pathname.startsWith('/step/')) {
           item.priority = 0.7;
           item.changefreq = 'monthly';
         }

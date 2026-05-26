@@ -78,8 +78,14 @@ export function validateRequired(value: string | undefined, fieldName: string): 
  * @returns True if valid, false otherwise
  */
 export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  for (let i = 0; i < email.length; i++) {
+    const code = email.charCodeAt(i);
+    if (code <= 32 || code === 127) return false;
+  }
+  const at = email.indexOf('@');
+  if (at <= 0 || at !== email.lastIndexOf('@')) return false;
+  const dot = email.indexOf('.', at + 1);
+  return dot > at + 1 && dot < email.length - 1;
 }
 
 /**

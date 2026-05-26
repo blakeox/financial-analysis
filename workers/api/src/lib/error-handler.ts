@@ -11,17 +11,20 @@ export function withErrorHandler(handler: RouteHandler) {
     try {
       return await handler(request, env);
     } catch (error) {
-      console.error('API Error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('API Error:', errorMessage);
 
       const isDevelopment = env.ENVIRONMENT === 'development';
 
       if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+        if (isDevelopment) {
+          console.error('Validation error:', errorMessage);
+        }
         return new Response(
           JSON.stringify({
             error: {
               message: 'Validation error',
               code: 'VALIDATION_ERROR',
-              ...(isDevelopment && { details: error }),
             },
           }),
           { status: 400, headers: buildDefaultHeaders(env) }
@@ -33,7 +36,7 @@ export function withErrorHandler(handler: RouteHandler) {
           return new Response(
             JSON.stringify({
               error: {
-                message: error.message,
+                message: 'Content-Type must be application/json',
                 code: 'INVALID_CONTENT_TYPE',
               },
             }),
@@ -57,13 +60,15 @@ export function withErrorHandler(handler: RouteHandler) {
         }
       }
 
+      if (isDevelopment && error instanceof Error) {
+        console.error('Internal error:', errorMessage);
+      }
+
       return new Response(
         JSON.stringify({
           error: {
-            message:
-              isDevelopment && error instanceof Error ? error.message : 'Internal server error',
+            message: 'Internal server error',
             code: 'INTERNAL_ERROR',
-            ...(isDevelopment && error instanceof Error && { stack: error.stack }),
           },
         }),
         { status: 500, headers: buildDefaultHeaders(env) }
