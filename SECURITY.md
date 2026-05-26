@@ -47,3 +47,8 @@ We will coordinate disclosure with you after a fix is available.
 - Report dependency vulnerabilities via Dependabot PRs or private advisory
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md#security--privacy) for additional project security guidelines.
+
+## Supply-chain posture
+
+- Code scanning hygiene: [docs/SECURITY_HYGIENE.md](./docs/SECURITY_HYGIENE.md)
+- OpenSSF Best Practices badge (enrollment): [docs/OPENSSF_BEST_PRACTICES.md](./docs/OPENSSF_BEST_PRACTICES.md) and [questionnaire cheat sheet](./docs/OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md)

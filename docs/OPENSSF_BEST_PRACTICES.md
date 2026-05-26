@@ -7,7 +7,7 @@ Guide for clearing Scorecard alert `CIIBestPracticesID` by enrolling **financial
 1. Sign in at [bestpractices.dev](https://www.bestpractices.dev/) (GitHub OAuth).
 2. **Create project** → [New project](https://www.bestpractices.dev/en/projects/new).
 3. Set **Project URL** to: `https://github.com/blakeox/financial-analysis`
-4. Work through the questionnaire; use the evidence table below for quick answers.
+4. Work through the questionnaire using [OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md](./OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md) (criterion-by-criterion answers) and the evidence table below.
 5. When criteria are satisfied, request **passing** (then silver/gold if desired).
 6. Add the badge to [README.md](../README.md) (replace `PROJECT_ID`):
 
