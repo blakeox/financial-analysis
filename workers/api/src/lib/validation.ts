@@ -6,36 +6,6 @@
 // Security constants - match client-side limits
 export const MAX_MESSAGE_LENGTH = 2000;
 export const MAX_REQUEST_BODY_SIZE = 50_000; // 50KB max request body
-const DANGEROUS_MARKERS = [
-  '<script',
-  '</script',
-  '<iframe',
-  'javascript:',
-  'onabort=',
-  'onblur=',
-  'onchange=',
-  'onclick=',
-  'onerror=',
-  'onfocus=',
-  'onkeydown=',
-  'onkeypress=',
-  'onkeyup=',
-  'onload=',
-  'onmousedown=',
-  'onmouseenter=',
-  'onmouseleave=',
-  'onmousemove=',
-  'onmouseout=',
-  'onmouseover=',
-  'onmouseup=',
-  'onreset=',
-  'onresize=',
-  'onscroll=',
-  'onselect=',
-  'onsubmit=',
-  'ontoggle=',
-  'onwheel=',
-] as const;
 
 function stripControlCharacters(value: string): string {
   let result = '';
@@ -50,20 +20,6 @@ function stripControlCharacters(value: string): string {
     }
   }
   return result;
-}
-
-function stripDangerousMarkers(message: string): string {
-  let sanitized = message;
-  for (const marker of DANGEROUS_MARKERS) {
-    let lower = sanitized.toLowerCase();
-    let index = lower.indexOf(marker);
-    while (index !== -1) {
-      sanitized = sanitized.slice(0, index) + sanitized.slice(index + marker.length);
-      lower = sanitized.toLowerCase();
-      index = lower.indexOf(marker);
-    }
-  }
-  return sanitized;
 }
 
 /**
@@ -111,8 +67,7 @@ export function validateChatMessage(message: string | null | undefined): Validat
     };
   }
 
-  let sanitized = stripDangerousMarkers(trimmedMessage);
-  sanitized = stripControlCharacters(sanitized);
+  const sanitized = stripControlCharacters(trimmedMessage);
 
   return {
     valid: true,
