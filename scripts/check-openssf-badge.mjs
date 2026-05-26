@@ -45,7 +45,8 @@ if (jsonOut) {
 if (!project) {
   console.log(`No Best Practices project found for ${expectedRepoUrl}.`);
   console.log('Enroll: https://www.bestpractices.dev/en/projects/new');
-  console.log('Guide: docs/OPENSSF_BEST_PRACTICES.md');
+  console.log('Quickstart: docs/OPENSSF_ENROLLMENT_QUICKSTART.md');
+  console.log('Tracking: https://github.com/blakeox/financial-analysis/issues/318');
   process.exit(1);
 }
 

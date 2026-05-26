@@ -467,7 +467,7 @@ Note on COMMIT_SHA:
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
 - [Security hygiene (maintainers)](./docs/SECURITY_HYGIENE.md)
-- [OpenSSF Best Practices enrollment](./docs/OPENSSF_BEST_PRACTICES.md)
+- [OpenSSF Best Practices enrollment](./docs/OPENSSF_BEST_PRACTICES.md) — [quickstart](./docs/OPENSSF_ENROLLMENT_QUICKSTART.md) (clears last Security policy alert)
 - [OpenSSF Best Practices questionnaire](./docs/OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md)
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Agent Guidelines](./AGENT.md)
