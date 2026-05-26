@@ -13,6 +13,8 @@ Exit **0** when a passing, silver, or gold badge exists for this repo; **1** if 
 
 **Tracking:** [GitHub issue #318](https://github.com/blakeox/financial-analysis/issues/318)
 
+**Quick path:** [OPENSSF_ENROLLMENT_QUICKSTART.md](./OPENSSF_ENROLLMENT_QUICKSTART.md) (~10 minutes, requires your GitHub login).
+
 ## Enroll the project
 
 1. Sign in at [bestpractices.dev](https://www.bestpractices.dev/) (GitHub OAuth) — **Log in with GitHub** on [New project](https://www.bestpractices.dev/en/projects/new).
