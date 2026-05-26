@@ -468,6 +468,7 @@ Note on COMMIT_SHA:
 - [Security Policy](./SECURITY.md)
 - [Security hygiene (maintainers)](./docs/SECURITY_HYGIENE.md)
 - [OpenSSF Best Practices enrollment](./docs/OPENSSF_BEST_PRACTICES.md)
+- [OpenSSF Best Practices questionnaire](./docs/OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md)
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)
