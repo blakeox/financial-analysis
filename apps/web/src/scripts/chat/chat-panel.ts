@@ -1019,6 +1019,7 @@ class ChatPanel {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
 
+    // codeql[js/xss-through-dom]: textContent does not parse HTML; safe for user/assistant text.
     contentDiv.textContent = content;
     contentDiv.style.whiteSpace = 'pre-wrap';
 

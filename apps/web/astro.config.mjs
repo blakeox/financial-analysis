@@ -8,17 +8,26 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) =>
-        !page.includes('/debug') &&
-        !page.includes('/models-old') &&
-        !page.includes('/models-clean') &&
-        !page.includes('/test-') &&
-        !page.includes('/_') &&
-        !page.endsWith('/sitemap') && // Exclude HTML sitemap (we have XML sitemap)
-        !page.includes('/ai-field-demo') &&
-        !page.includes('/analytics') &&
-        !page.includes('/dashboard') &&
-        !page.includes('/my-financial-dashboard'),
+      filter: (page) => {
+        let pathname = page;
+        try {
+          pathname = new URL(page).pathname;
+        } catch {
+          return false;
+        }
+        return (
+          !pathname.startsWith('/debug') &&
+          !pathname.startsWith('/models-old') &&
+          !pathname.startsWith('/models-clean') &&
+          !pathname.startsWith('/test-') &&
+          !pathname.includes('/_') &&
+          pathname !== '/sitemap' &&
+          !pathname.startsWith('/ai-field-demo') &&
+          !pathname.startsWith('/analytics') &&
+          !pathname.startsWith('/dashboard') &&
+          !pathname.startsWith('/my-financial-dashboard')
+        );
+      },
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),

@@ -50,21 +50,8 @@ async function sha256(message: string): Promise<string> {
  */
 export function generateApiKey(isTest = false): string {
   const prefix = isTest ? 'fk_test_' : 'fk_live_';
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const alphabetSize = alphabet.length;
-  const maxUnbiased = Math.floor(256 / alphabetSize) * alphabetSize;
-
-  let key = '';
-  while (key.length < 32) {
-    const bytes = crypto.getRandomValues(new Uint8Array(32));
-    for (const byte of bytes) {
-      if (key.length >= 32) break;
-      if (byte < maxUnbiased) {
-        key += alphabet.charAt(byte % alphabetSize);
-      }
-    }
-  }
-
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  const key = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
   return prefix + key;
 }
 
@@ -262,11 +249,19 @@ export async function validateApiKey(request: Request, env: Env): Promise<AuthRe
 
   const isProduction = env.ENVIRONMENT === 'production';
 
+  const isFanalyxHostname = (hostname: string): boolean => {
+    const parts = hostname.toLowerCase().split('.');
+    if (parts.length !== 2 && parts.length !== 3) {
+      return false;
+    }
+    return parts[parts.length - 2] === 'fanalyx' && parts[parts.length - 1] === 'com';
+  };
+
   const isTrustedFanalyxUrl = (value: string | null): boolean => {
     if (!value) return false;
     try {
       const hostname = new URL(value).hostname;
-      if (hostname === 'fanalyx.com' || hostname.endsWith('.fanalyx.com')) {
+      if (isFanalyxHostname(hostname)) {
         return true;
       }
       return !isProduction && (hostname === 'localhost' || hostname === '127.0.0.1');
