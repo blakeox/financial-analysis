@@ -145,36 +145,28 @@ export function validateRequestSize(contentLength: string | null): ValidationRes
   return { valid: true };
 }
 
-const SQL_VERBS = ['union', 'select', 'drop', 'insert', 'update', 'delete'] as const;
-const SQL_CLAUSES = ['from', 'where'] as const;
-const XSS_MARKERS = [
-  '<script',
-  '<iframe',
-  'javascript:',
-  'onerror=',
-  'onclick=',
-  'onload=',
-] as const;
-const SHELL_TOKENS = [' bash', ' sh', 'cmd', 'exec'] as const;
-
-function includesInsensitive(value: string, fragment: string): boolean {
-  return value.toLowerCase().includes(fragment.toLowerCase());
-}
+const XSS_MARKERS = ['<script', '<iframe', 'javascript:'] as const;
+const SQL_VERB_PATTERN = /\b(?:union|select|drop|insert|update|delete)\b/i;
+const SQL_CLAUSE_PATTERN = /\b(?:from|where)\b/i;
+const NOSQL_OPERATOR_PATTERN = /\$[a-z_]\w*\s*:\s*{|\{\s*\$[a-z_]\w*/i;
+const XSS_EVENT_HANDLER_PATTERN = /\bon\w+\s*=/i;
+const SHELL_TOKEN_PATTERN = /\b(?:bash|sh|cmd|exec)\b/i;
 
 function detectSqlInjection(input: string): boolean {
-  const hasVerb = SQL_VERBS.some((verb) => includesInsensitive(input, verb));
+  const hasVerb = SQL_VERB_PATTERN.test(input);
   if (!hasVerb) return false;
-  return SQL_CLAUSES.some((clause) => includesInsensitive(input, clause));
+  return SQL_CLAUSE_PATTERN.test(input);
 }
 
 function detectNoSqlInjection(input: string): boolean {
-  const lower = input.toLowerCase();
-  return lower.includes('$where') || (lower.includes('$') && lower.includes('{'));
+  return /\$where/i.test(input) || NOSQL_OPERATOR_PATTERN.test(input);
 }
 
 function detectXssAttempt(input: string): boolean {
   const lower = input.toLowerCase();
-  return XSS_MARKERS.some((marker) => lower.includes(marker));
+  return (
+    XSS_MARKERS.some((marker) => lower.includes(marker)) || XSS_EVENT_HANDLER_PATTERN.test(input)
+  );
 }
 
 function detectPathTraversal(input: string): boolean {
@@ -185,8 +177,7 @@ function detectCommandInjection(input: string): boolean {
   const hasMeta =
     input.includes(';') || input.includes('|') || input.includes('`') || input.includes('$');
   if (!hasMeta) return false;
-  const lower = input.toLowerCase();
-  return SHELL_TOKENS.some((token) => lower.includes(token));
+  return SHELL_TOKEN_PATTERN.test(input);
 }
 
 /**

@@ -159,6 +159,11 @@ describe('detectThreats', () => {
     expect(threats).toContain('XSS_ATTEMPT');
   });
 
+  it('should detect event handler XSS attempts', () => {
+    const threats = detectThreats('<div onmouseover="alert(1)">Hover me</div>');
+    expect(threats).toContain('XSS_ATTEMPT');
+  });
+
   it('should detect path traversal', () => {
     const threats = detectThreats('../../etc/passwd');
     expect(threats).toContain('PATH_TRAVERSAL');
@@ -189,5 +194,20 @@ describe('detectThreats', () => {
   it('should handle numeric data without false positives', () => {
     const threats = detectThreats('Loan amount is $250,000 with 15 year term');
     expect(threats).toEqual([]);
+  });
+
+  it('should avoid SQL false positives from plain English words', () => {
+    const threats = detectThreats('The dropdown from the menu was updated yesterday');
+    expect(threats).not.toContain('SQL_INJECTION');
+  });
+
+  it('should avoid NoSQL false positives from currency and braces', () => {
+    const threats = detectThreats('Use {$500} as the placeholder in the template');
+    expect(threats).not.toContain('NOSQL_INJECTION');
+  });
+
+  it('should avoid command injection false positives from shell substrings', () => {
+    const threats = detectThreats('The executive should review the $500 expense report');
+    expect(threats).not.toContain('COMMAND_INJECTION');
   });
 });

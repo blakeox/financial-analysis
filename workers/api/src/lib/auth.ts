@@ -260,13 +260,16 @@ export async function validateApiKey(request: Request, env: Env): Promise<AuthRe
     allHeaders: Object.fromEntries(request.headers.entries()),
   });
 
-  const trustedFanalyxHosts = new Set(['fanalyx.com', 'www.fanalyx.com', 'localhost', '127.0.0.1']);
+  const isProduction = env.ENVIRONMENT === 'production';
 
   const isTrustedFanalyxUrl = (value: string | null): boolean => {
     if (!value) return false;
     try {
       const hostname = new URL(value).hostname;
-      return trustedFanalyxHosts.has(hostname);
+      if (hostname === 'fanalyx.com' || hostname.endsWith('.fanalyx.com')) {
+        return true;
+      }
+      return !isProduction && (hostname === 'localhost' || hostname === '127.0.0.1');
     } catch {
       return false;
     }
