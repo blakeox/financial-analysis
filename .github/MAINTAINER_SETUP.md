@@ -60,6 +60,8 @@ Default required checks: **PR gate**, **Secret scan**, **CI gate**, **Build and 
 
 Optional: add the repo to the [OpenSSF Scorecard dashboard](https://scorecard.dev/) for public score tracking.
 
+**Hygiene log:** [docs/SECURITY_HYGIENE.md](../docs/SECURITY_HYGIENE.md) — remediation PR history, remaining policy alerts (`CodeReviewID`, `CIIBestPracticesID`, `SASTID`), and re-run commands.
+
 ## 6. Deploy and monitors
 
 | Secret / setting | Used by |
