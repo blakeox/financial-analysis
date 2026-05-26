@@ -31,7 +31,7 @@ jobs:
 
       - name: Detect non-doc code changes
         id: filter
-        uses: dorny/paths-filter@v4 # v4.0.1; pin restored when codeload SHA downloads stabilize
+        uses: ./.github/actions/repo-path-filter
         with:
           filters: .github/path-filters.yml
 
