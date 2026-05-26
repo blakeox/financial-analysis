@@ -10,7 +10,7 @@ Advanced financial analysis tooling with LLM-powered insights, built with modern
 
 ## Open Source
 
-This project is open source under the [MIT License](./LICENSE). Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) and [Security Policy](./SECURITY.md) before participating.
+This project is open source under the [MIT License](./LICENSE). Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) and [Security Policy](./SECURITY.md) before participating. Maintainers: [security hygiene log](./docs/SECURITY_HYGIENE.md) and [OpenSSF Best Practices enrollment](./docs/OPENSSF_BEST_PRACTICES.md).
 
 ## 🚀 Features
 
@@ -466,6 +466,9 @@ Note on COMMIT_SHA:
 - [Deployment Guide](./docs/DEPLOYMENT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
+- [Security hygiene (maintainers)](./docs/SECURITY_HYGIENE.md)
+- [OpenSSF Best Practices enrollment](./docs/OPENSSF_BEST_PRACTICES.md) — [quickstart](./docs/OPENSSF_ENROLLMENT_QUICKSTART.md) (clears last Security policy alert)
+- [OpenSSF Best Practices questionnaire](./docs/OPENSSF_BEST_PRACTICES_QUESTIONNAIRE.md)
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Agent Guidelines](./AGENT.md)
 - [Environment Setup](./.env.example)

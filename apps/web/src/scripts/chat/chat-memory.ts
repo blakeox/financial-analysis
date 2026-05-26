@@ -396,7 +396,7 @@ class ChatMemoryManager {
    * Generate unique session ID
    */
   private generateSessionId(): string {
-    const randomSuffix = Math.random().toString(36).slice(2, 11);
+    const randomSuffix = crypto.randomUUID().replace(/-/g, '').slice(0, 9);
     return `session_${Date.now()}_${randomSuffix}`;
   }
 

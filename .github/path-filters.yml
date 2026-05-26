@@ -1,4 +1,4 @@
-# Shared filters for dorny/paths-filter (ci.yml, pull-request.yml).
+# Shared path rules for repo-path-filter (ci.yml, pull-request.yml).
 # Doc-only paths align with ci.yml push paths-ignore.
 code:
   - '**'

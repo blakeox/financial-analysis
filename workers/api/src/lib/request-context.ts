@@ -137,7 +137,6 @@ export function logError(
   console.error(
     createLogEntry(context, 'error', error.message, {
       error: error.name,
-      stack: error.stack,
       ...metadata,
     })
   );

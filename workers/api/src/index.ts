@@ -278,27 +278,25 @@ export function getPreviousModelState(
   // Simple parsing of model states - in production this would be more robust
   const modelStatesText = memoryContext.modelStates;
 
-  // Look for the specific model type in the states
   const modelType = toolName.replace('analyze_', '');
-  const modelMatch = modelStatesText.match(new RegExp(`${modelType}[^\\n]*`));
-
-  if (!modelMatch) {
+  const lineStart = modelStatesText.indexOf(modelType);
+  if (lineStart === -1) {
     return undefined;
   }
+  const lineEnd = modelStatesText.indexOf('\n', lineStart);
+  const modelLine =
+    lineEnd === -1 ? modelStatesText.slice(lineStart) : modelStatesText.slice(lineStart, lineEnd);
 
-  // Extract parameters from the match (this is a simplified parser)
   const params: Record<string, unknown> = {};
-  const paramMatches = modelMatch[0].match(/(\w+):\s*([^,]+)/g);
-
-  if (paramMatches) {
-    paramMatches.forEach((match) => {
-      const [, key, value] = match.match(/(\w+):\s*([^,]+)/) || [];
-      if (key && value) {
-        // Try to parse as number, otherwise keep as string
-        const numValue = parseFloat(value);
-        params[key] = isNaN(numValue) ? value.trim() : numValue;
-      }
-    });
+  const segments = modelLine.split(',').slice(0, 50);
+  for (const segment of segments) {
+    const colon = segment.indexOf(':');
+    if (colon === -1) continue;
+    const key = segment.slice(0, colon).trim();
+    const value = segment.slice(colon + 1).trim();
+    if (!key || !value) continue;
+    const numValue = parseFloat(value);
+    params[key] = Number.isNaN(numValue) ? value : numValue;
   }
 
   return Object.keys(params).length > 0 ? params : undefined;

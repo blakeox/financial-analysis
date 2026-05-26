@@ -39,7 +39,7 @@ pnpm run dev           # Astro build + web worker (8788) + API (8787)
 - **Workflow map:** [.github/workflows/README.md](.github/workflows/README.md)
 - **Maintainer setup:** [.github/MAINTAINER_SETUP.md](.github/MAINTAINER_SETUP.md) (Codecov, Dependabot workflows, branch protection sync)
 - **`main` push only:** `ci-cd.yml` (artifacts)
-- **Security:** OpenSSF Scorecard in `scorecard.yml` (weekly + Security tab SARIF)
+- **Security:** OpenSSF Scorecard in `scorecard.yml` (weekly + Security tab SARIF); maintainer log in [docs/SECURITY_HYGIENE.md](./docs/SECURITY_HYGIENE.md)
 - **Never commit:** Finder duplicates (`file 2`), flat Playwright specs, or `tests/utils/nav.ts` (use `tests/_shared/`)
 
 ## Before opening a PR

@@ -7,7 +7,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  security-events: write
 
 concurrency:
   group: pr-checks-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -22,7 +21,9 @@ jobs:
       code_changed: ${{ steps.filter.outputs.code }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
 
       - name: Detect skip-ci label
         id: skip
@@ -32,7 +33,7 @@ jobs:
 
       - name: Detect non-doc code changes
         id: filter
-        uses: dorny/paths-filter@v4
+        uses: ./.github/actions/repo-path-filter
         with:
           filters: .github/path-filters.yml
 
@@ -47,7 +48,7 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Check for duplicate files
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
@@ -58,6 +59,10 @@ jobs:
     needs: gate
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
     steps:
       - name: Skipped (skip-ci or docs-only)
         if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
@@ -65,11 +70,11 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Dependency review
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/dependency-review-action@v5
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
         with:
           fail-on-severity: high
           comment-summary-in-pr: always
@@ -85,12 +90,12 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
 
       - name: TruffleHog OSS
         if: needs.gate.outputs.skip_ci != 'true'
-        uses: trufflesecurity/trufflehog@v3.95.3
+        uses: trufflesecurity/trufflehog@37b77001d0174ebec2fcca2bd83ff83a6d45a3ab # v3.95.3
         with:
           extra_args: --only-verified

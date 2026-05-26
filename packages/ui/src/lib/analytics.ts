@@ -99,7 +99,7 @@ class AnalyticsTracker {
     const key = 'fanalyx_session_id';
     let sessionId = sessionStorage.getItem(key);
     if (!sessionId) {
-      sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      sessionId = `sess_${crypto.randomUUID()}`;
       sessionStorage.setItem(key, sessionId);
     }
     return sessionId;
@@ -111,7 +111,7 @@ class AnalyticsTracker {
     const key = 'fanalyx_visitor_id';
     let visitorId = localStorage.getItem(key);
     if (!visitorId) {
-      visitorId = `vis_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      visitorId = `vis_${crypto.randomUUID()}`;
       localStorage.setItem(key, visitorId);
     }
     return visitorId;
@@ -290,7 +290,6 @@ class AnalyticsTracker {
       action: 'error',
       metadata: {
         message: error.message,
-        stack: error.stack,
         ...context,
       },
       timestamp: Date.now(),
