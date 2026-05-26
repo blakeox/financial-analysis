@@ -34,6 +34,21 @@ describe('validateApiKey', () => {
     expect(result.keyInfo?.tier).toBe('internal');
   });
 
+  it('rejects multi-level fanalyx-looking hostnames', async () => {
+    const request = new Request('https://api.fanalyx.com/v1/chat', {
+      headers: {
+        Origin: 'https://www.app.fanalyx.com',
+      },
+    });
+
+    const result = await validateApiKey(request, {
+      ENVIRONMENT: 'production',
+    } as Env);
+
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe('MISSING_KEY');
+  });
+
   it('continues to trust fanalyx subdomains', async () => {
     const request = new Request('https://api.fanalyx.com/v1/chat', {
       headers: {

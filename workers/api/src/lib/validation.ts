@@ -37,6 +37,21 @@ const DANGEROUS_MARKERS = [
   'onwheel=',
 ] as const;
 
+function stripControlCharacters(value: string): string {
+  let result = '';
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code === 9 || code === 10 || code === 13) {
+      result += value[i]!;
+      continue;
+    }
+    if (code >= 32 && code !== 127) {
+      result += value[i]!;
+    }
+  }
+  return result;
+}
+
 function stripDangerousMarkers(message: string): string {
   let sanitized = message;
   for (const marker of DANGEROUS_MARKERS) {
@@ -97,15 +112,7 @@ export function validateChatMessage(message: string | null | undefined): Validat
   }
 
   let sanitized = stripDangerousMarkers(trimmedMessage);
-
-  // Check for control characters (except newlines and tabs)
-  // eslint-disable-next-line no-control-regex
-  const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(sanitized);
-  if (hasControlChars) {
-    // Remove control characters
-    // eslint-disable-next-line no-control-regex
-    sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-  }
+  sanitized = stripControlCharacters(sanitized);
 
   return {
     valid: true,
