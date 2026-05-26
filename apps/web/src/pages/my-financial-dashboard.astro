@@ -1,293 +1,587 @@
 ---
+import AdSense from '../components/AdSense.astro';
 import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import PageHero from '../components/site/PageHero.astro';
 import SurfaceCard from '../components/site/SurfaceCard.astro';
+import StructuredData from '../components/StructuredData.astro';
+import WorkflowSupportRail from '../components/WorkflowSupportRail.astro';
 import Layout from '../layouts/Layout.astro';
 import { getJourneyData } from '../utils/journeyData';
-import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
 
-const title = 'My Financial Dashboard - Your Complete Financial Picture';
-const description = 'Track your progress across all financial journeys and recent calculations';
-const journeyData = getJourneyData();
+const journeyDashboardMetadata = Object.fromEntries(
+  Object.entries(getJourneyData()).map(([scenarioId, journey]) => [
+    scenarioId,
+    {
+      name: journey.name,
+      totalSteps: journey.models.length,
+    },
+  ])
+);
 ---
 
-<Layout title={title} description={description} keywords="financial dashboard, personal finance tracker, journey progress" noindex={true}>
-  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Financial Dashboard' }]} />
+<Layout
+  title="My Financial Dashboard - Personal Finance Overview | Fanalyx"
+  description="View your active financial journeys, recent calculations, and personalized recommendations. Track your progress across all financial planning tools in one unified dashboard."
+  keywords="financial dashboard, personal finance dashboard, financial overview, journey tracking, financial progress, financial recommendations"
+  canonical={Astro.url.href}
+  type="article"
+  showChat={false}
+  showToolAnalysis={false}
+>
+  <StructuredData
+    type="breadcrumb"
+    breadcrumbs={[
+      { name: 'Home', url: '/' },
+      { name: 'My Financial Dashboard', url: '/my-financial-dashboard' },
+    ]}
+  />
+
+  <StructuredData
+    type="software"
+    softwareApp={{
+      name: 'My Financial Dashboard',
+      description:
+        'Unified dashboard for tracking active financial journeys, recent calculations, and personalized recommendations across all financial planning tools.',
+      category: 'FinanceApplication',
+      rating: 4.7,
+      ratingCount: 95,
+    }}
+  />
+
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'My Financial Dashboard' },
+    ]}
+  />
 
   <div class="fa-page-shell">
+    <div class="max-w-7xl mx-auto">
       <PageHero
-        eyebrow="Personal dashboard"
+        eyebrow="Overview"
         title="My Financial Dashboard"
-        description="Your complete financial planning overview across active journeys and recent calculations."
+        description="Track your active journeys, recent calculations, and personalized recommendations in one place."
       />
 
-        <div class="fa-highlight-card mb-6">
-          <div class="flex items-start">
-            <svg class="w-5 h-5 text-violet-600 dark:text-violet-300 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-            </svg>
-            <div>
-              <h2 class="fa-callout-title-info mb-1">Privacy First</h2>
-              <p class="fa-callout-copy-info">
-                All your data is stored locally in your browser. We don't collect, store, or transmit any personal information to our servers.
-              </p>
-            </div>
-          </div>
-        </div>
+      <div id="results" class="hidden" aria-hidden="true"></div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
-          <SurfaceCard>
-            <h2 class="fa-panel-title mb-6">Active Journeys</h2>
-            
-            <!-- Journey Cards -->
-            <div id="active-journeys" class="space-y-4">
-              {Object.entries(journeyData).slice(0, 3).map(([journeyId, journey]) => (
-                <div class="fa-subcard hover:shadow-md transition-shadow">
-                  <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                      <span class="text-3xl">{journey.icon}</span>
-                    </div>
-                    <div class="ml-4 flex-1">
-                      <div class="flex items-center justify-between mb-2">
-                        <h3 class="fa-scenario-title">{journey.name}</h3>
-                         <a href={`/journey/${journeyId}`} 
-                           class="fa-inline-link text-sm">
-                          View →
-                        </a>
-                      </div>
-                      <p class="fa-meta-copy mb-3">{journey.description}</p>
-                      
-                      <!-- Progress Bar -->
-                      <div class="mb-2">
-                        <div class="flex items-center justify-between mb-1">
-                          <span class="fa-meta-copy text-xs">Progress</span>
-                          <span class="fa-meta-copy text-xs" id={`progress-${journeyId}`}>0%</span>
-                        </div>
-                        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
-                          <div class="bg-violet-600 h-2 rounded-full transition-all duration-300" 
-                               style="width: 0%" 
-                               id={`progress-bar-${journeyId}`}></div>
-                        </div>
-                      </div>
-                      
-                      <!-- Journey Info -->
-                      <div class="flex items-center space-x-4 fa-meta-copy text-xs">
-                        <span>{journey.models.length} steps</span>
-                        <span>{journey.complexity}</span>
-                        <span>{journey.duration}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <!-- Start New Journey -->
-            <div class="mt-6">
-              <a href="/journey" 
-                 class="fa-button-secondary w-full justify-center">
-                <span>+ Start a New Journey</span>
-              </a>
-            </div>
-          </SurfaceCard>
-
-          <SurfaceCard className="mt-6">
-            <h2 class="fa-panel-title mb-6">Recent Calculations</h2>
-            
-            <div id="recent-calculations" class="space-y-3">
-              <div class="text-center py-8 fa-meta-copy">
-                <span class="text-4xl mb-2 block">📈</span>
-                <p>No recent calculations yet</p>
-                <a href="/models" class="fa-inline-link mt-2 inline-block">
-                  Explore Calculators →
-                </a>
-              </div>
-            </div>
-          </SurfaceCard>
-        </div>
-
-        <div class="lg:col-span-1">
-          <SurfaceCard className="mb-6">
-            <h2 class="fa-panel-title mb-4">Quick Actions</h2>
-            <div class="space-y-3">
-              <a href="/models" 
-                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
-                <span class="text-2xl mr-3">🧮</span>
-                <div>
-                  <div class="fa-scenario-title">Use a Calculator</div>
-                  <div class="fa-meta-copy text-sm">Quick calculations</div>
-                </div>
-              </a>
-              
-              <a href="/journey" 
-                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
-                <span class="text-2xl mr-3">🗺️</span>
-                <div>
-                  <div class="fa-scenario-title">Start a Journey</div>
-                  <div class="fa-meta-copy text-sm">Complete planning</div>
-                </div>
-              </a>
-              
-              <a href="/models/personal" 
-                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
-                <span class="text-2xl mr-3">💼</span>
-                <div>
-                  <div class="fa-scenario-title">Personal Finance</div>
-                  <div class="fa-meta-copy text-sm">Personal tools</div>
-                </div>
-              </a>
-              
-              <a href="/models/business" 
-                 class="fa-subcard flex items-center transition-colors hover:-translate-y-0.5">
-                <span class="text-2xl mr-3">🏢</span>
-                <div>
-                  <div class="fa-scenario-title">Business Finance</div>
-                  <div class="fa-meta-copy text-sm">Business tools</div>
-                </div>
-              </a>
-            </div>
-          </SurfaceCard>
-
-          <SurfaceCard>
-            <h2 class="fa-panel-title mb-4 flex items-center">
-              <span class="text-2xl mr-2">🤖</span>
-              AI Recommendations
-            </h2>
-            
-            <div id="ai-recommendations" class="space-y-3">
-              <div class="fa-list-copy text-sm">
-                <div class="flex items-start">
-                  <span class="text-lg mr-2">💡</span>
-                  <p>Complete your first journey to get personalized AI recommendations</p>
-                </div>
-              </div>
-            </div>
-          </SurfaceCard>
-        </div>
-      </div>
-  </div>
-</Layout>
-
-<ClientScriptLoader client:load slot="pageScripts" name="dashboard-personal" />
-
-<script type="application/json" id="journey-data" is:inline>
-  {JSON.stringify(journeyData)}
-</script>
-
-<script is:inline>
-  // Dashboard personalization logic
-  // NOTE: This dashboard is READ-ONLY. It only displays data from localStorage.
-  // No new data is stored here. All storage happens on individual calculator/journey pages.
-  if (typeof window !== 'undefined') {
-    const journeyDataEl = document.getElementById('journey-data');
-    const journeyMap = journeyDataEl ? JSON.parse(journeyDataEl.textContent || '{}') : {};
-
-    function updateDashboard() {
-      // Load active journeys from existing localStorage (read-only)
-      const activeJourneys = {};
-      const allJourneyIds = Object.keys(journeyMap);
-      
-      allJourneyIds.forEach(journeyId => {
-        const journeyState = localStorage.getItem(`fanalyx-journey-state-${journeyId}`);
-        if (journeyState) {
-          const state = JSON.parse(journeyState);
-          if (state.progress && state.progress.completed && state.progress.completed.length > 0) {
-            const totalSteps = journeyMap[journeyId]?.models.length || 1;
-            activeJourneys[journeyId] = {
-              progress: (state.progress.completed.length / totalSteps) * 100,
-              lastUpdated: state.lastUpdated
-            };
-          }
-        }
-      });
-
-      // Update progress bars
-      Object.entries(activeJourneys).forEach(([journeyId, data]) => {
-        const progressBar = document.getElementById(`progress-bar-${journeyId}`);
-        const progressText = document.getElementById(`progress-${journeyId}`);
-        if (progressBar && progressText) {
-          progressBar.style.width = `${data.progress}%`;
-          progressText.textContent = `${Math.round(data.progress)}%`;
-        }
-      });
-
-      // Load recent calculations from localStorage
-      const recentCalculations = JSON.parse(localStorage.getItem('fanalyx-recent-calculations') || '[]');
-      const recentContainer = document.getElementById('recent-calculations');
-      
-      if (recentContainer && recentCalculations.length > 0) {
-        recentContainer.innerHTML = recentCalculations.slice(0, 5).map(calc => `
-          <div class="fa-subcard flex items-center justify-between">
-            <div class="flex items-center">
-              <span class="text-2xl mr-3">${calc.icon || '🧮'}</span>
+      <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+        <div class="space-y-6">
+          <SurfaceCard className="mb-0">
+            <div class="flex items-start gap-3">
+              <svg
+                class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                ></path>
+              </svg>
               <div>
-                <div class="fa-scenario-title">${calc.title}</div>
-                <div class="fa-meta-copy text-sm">${new Date(calc.timestamp).toLocaleDateString()}</div>
+                <h2 class="fa-panel-title mb-2">Privacy & Data Storage</h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                  All your financial data is stored locally in your browser. We never send your
+                  personal financial information to our servers. Your data stays private and secure
+                  on your device.
+                </p>
               </div>
             </div>
-            <a href="${calc.url}" class="fa-inline-link text-sm">View →</a>
-          </div>
-        `).join('');
-      }
+          </SurfaceCard>
 
-      // Generate AI recommendations
-      generateAIRecommendations(activeJourneys, recentCalculations);
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+              <SurfaceCard>
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="fa-panel-title">Active Financial Journeys</h2>
+                  <a href="/financial-journey" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                    Start New Journey
+                  </a>
+                </div>
+                <div id="active-journeys-container" class="space-y-4">
+                  <p class="text-slate-600 dark:text-slate-400 text-center py-8">
+                    No active journeys yet. Start your first financial journey to begin tracking your progress.
+                  </p>
+                </div>
+              </SurfaceCard>
+
+              <SurfaceCard>
+                <h2 class="fa-panel-title mb-4">Recent Calculations</h2>
+                <div id="recent-calculations-container" class="space-y-4">
+                  <p class="text-slate-600 dark:text-slate-400 text-center py-8">
+                    No recent calculations. Use any calculator to see your history here.
+                  </p>
+                </div>
+              </SurfaceCard>
+            </div>
+
+            <div class="space-y-6">
+              <SurfaceCard>
+                <h2 class="fa-panel-title mb-4">Quick Actions</h2>
+                <div class="space-y-3">
+                  <a
+                    href="/financial-journey"
+                    class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center font-medium transition-colors"
+                  >
+                    Start Financial Journey
+                  </a>
+                  <a
+                    href="/models/personal"
+                    class="block w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg text-center font-medium transition-colors"
+                  >
+                    Browse Personal Models
+                  </a>
+                  <a
+                    href="/models/business"
+                    class="block w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg text-center font-medium transition-colors"
+                  >
+                    Browse Business Models
+                  </a>
+                </div>
+              </SurfaceCard>
+
+              <SurfaceCard>
+                <h2 class="fa-panel-title mb-4">AI Recommendations</h2>
+                <div id="ai-recommendations-container" class="space-y-3">
+                  <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Complete a financial journey or calculation to receive personalized recommendations.
+                  </p>
+                </div>
+              </SurfaceCard>
+            </div>
+          </div>
+        </div>
+
+        <WorkflowSupportRail
+          modelType="financial-journey"
+          resultsTitle="Saved activity"
+          analysisTitle="Journey insights"
+          showImpactSummary={false}
+        />
+      </div>
+    </div>
+  </div>
+
+  <AdSense slot="728x90" className="mt-8" />
+
+  <script define:vars={{ journeyDashboardMetadata }} is:inline>
+    const JOURNEY_STORAGE_PREFIX = 'fanalyx-journey-state-';
+    const RECENT_CALCULATION_KEYS = ['fanalyx-recent-calculations', 'fanalyx_calculation_history'];
+
+    function safeSameOriginPath(url) {
+      const normalizedUrl = String(url ?? '').trim();
+      if (!normalizedUrl) return null;
+      if (normalizedUrl.startsWith('#')) return normalizedUrl;
+
+      try {
+        const resolved = new URL(normalizedUrl, window.location.origin);
+        if (resolved.origin !== window.location.origin) return null;
+        if (!resolved.pathname.startsWith('/')) return null;
+        return `${resolved.pathname}${resolved.search}`;
+      } catch {
+        return null;
+      }
     }
 
-    function generateAIRecommendations(activeJourneys, recentCalculations) {
-      const recommendationsContainer = document.getElementById('ai-recommendations');
-      if (!recommendationsContainer) return;
+    function setEmptyState(container, message) {
+      container.replaceChildren();
+      const paragraph = document.createElement('p');
+      paragraph.className = 'text-slate-600 dark:text-slate-400 text-center py-8';
+      paragraph.textContent = message;
+      container.append(paragraph);
+    }
+
+    function readJsonStorageItem(key, fallback) {
+      try {
+        const rawValue = localStorage.getItem(key);
+        return rawValue ? JSON.parse(rawValue) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function formatSlugLabel(value) {
+      return String(value || '')
+        .split('-')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    }
+
+    function getTimestampValue(value) {
+      if (typeof value === 'number') return value;
+      const parsed = new Date(value || 0).getTime();
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function getLatestJourneyTimestamp(journeyData) {
+      const collectedEntries = Object.values(journeyData?.collectedData || {});
+      const timestamps = collectedEntries
+        .map((entry) => entry?.completedAt || entry?.timestamp || null)
+        .filter(Boolean)
+        .map((timestamp) => getTimestampValue(timestamp))
+        .filter((timestamp) => timestamp > 0);
+
+      timestamps.push(
+        getTimestampValue(journeyData?.completedAt),
+        getTimestampValue(journeyData?.lastUpdated)
+      );
+
+      return Math.max(...timestamps, 0);
+    }
+
+    function getStoredJourneys() {
+      const journeys = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(JOURNEY_STORAGE_PREFIX)) continue;
+
+        const journeyData = readJsonStorageItem(key, {});
+        const scenarioId = key.slice(JOURNEY_STORAGE_PREFIX.length);
+        const metadata = journeyDashboardMetadata[scenarioId] || {};
+        const collectedData = journeyData?.collectedData || {};
+        const completedSteps = Object.keys(collectedData).length;
+        const totalSteps = Number(journeyData?.totalSteps) || metadata.totalSteps || completedSteps || 0;
+        const currentStep = Number(journeyData?.currentStep)
+          || (totalSteps > 0
+            ? journeyData?.completed
+              ? totalSteps
+              : Math.min(totalSteps, Math.max(completedSteps + 1, 1))
+            : completedSteps);
+
+        if (completedSteps === 0 && !journeyData?.completed) {
+          continue;
+        }
+
+        journeys.push({
+          scenarioId,
+          scenario:
+            journeyData?.scenario || journeyData?.scenarioName || metadata.name || formatSlugLabel(scenarioId),
+          completedSteps,
+          currentStep,
+          totalSteps,
+          lastUpdated: getLatestJourneyTimestamp(journeyData) || Date.now(),
+          raw: journeyData,
+        });
+      }
+
+      journeys.sort((a, b) => b.lastUpdated - a.lastUpdated);
+      return journeys;
+    }
+
+    function getStoredCalculations() {
+      const calculations = [];
+      const seen = new Set();
+
+      for (const key of RECENT_CALCULATION_KEYS) {
+        const storedItems = readJsonStorageItem(key, []);
+        if (!Array.isArray(storedItems)) continue;
+
+        for (const item of storedItems) {
+          if (!item || typeof item !== 'object') continue;
+
+          const title =
+            item.title
+            || item.name
+            || (item.calculatorId ? formatSlugLabel(item.calculatorId) : null)
+            || (item.type ? formatSlugLabel(item.type) : null);
+
+          if (!title) continue;
+
+          const normalized = {
+            title,
+            timestamp: item.timestamp || Date.now(),
+            url:
+              typeof item.url === 'string' && item.url
+                ? item.url
+                : item.calculatorId
+                  ? `/calculator/${encodeURIComponent(item.calculatorId)}`
+                  : null,
+            summary: typeof item.summary === 'string' ? item.summary : null,
+            raw: item,
+          };
+
+          const dedupeKey = `${normalized.title}:${normalized.timestamp}:${normalized.url || ''}`;
+          if (seen.has(dedupeKey)) continue;
+          seen.add(dedupeKey);
+          calculations.push(normalized);
+        }
+      }
+
+      calculations.sort((a, b) => getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp));
+      return calculations;
+    }
+
+    function updateActiveJourneys() {
+      const container = document.getElementById('active-journeys-container');
+      if (!container) return;
+
+      const journeys = getStoredJourneys();
+      if (journeys.length === 0) {
+        setEmptyState(
+          container,
+          'No active journeys yet. Start your first financial journey to begin tracking your progress.'
+        );
+        return;
+      }
+
+      container.replaceChildren();
+      for (const journey of journeys) {
+        const progressPercent = journey.totalSteps
+          ? Math.round((journey.completedSteps / journey.totalSteps) * 100)
+          : 0;
+
+        const card = document.createElement('div');
+        card.className =
+          'p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors';
+
+        const header = document.createElement('div');
+        header.className = 'flex items-center justify-between mb-2';
+
+        const title = document.createElement('h3');
+        title.className = 'font-semibold text-slate-900 dark:text-white';
+        title.textContent = journey.scenario;
+
+        const percent = document.createElement('span');
+        percent.className = 'text-sm text-slate-600 dark:text-slate-400';
+        percent.textContent = `${progressPercent}%`;
+
+        header.append(title, percent);
+
+        const track = document.createElement('div');
+        track.className = 'w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-2';
+
+        const fill = document.createElement('div');
+        fill.className = 'bg-blue-600 h-2 rounded-full transition-all';
+        fill.style.width = `${progressPercent}%`;
+        track.append(fill);
+
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-slate-600 dark:text-slate-400';
+        meta.textContent = `Step ${journey.currentStep} of ${journey.totalSteps}`;
+
+        const link = document.createElement('a');
+        const journeyPath = safeSameOriginPath(`/journey/${encodeURIComponent(journey.scenarioId)}`);
+        link.href = journeyPath || '/financial-journey';
+        link.className = 'text-sm text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block';
+        link.textContent = 'Continue journey →';
+
+        card.append(header, track, meta, link);
+        container.append(card);
+      }
+    }
+
+    function updateRecentCalculations() {
+      const container = document.getElementById('recent-calculations-container');
+      if (!container) return;
+
+      const recentCalculations = getStoredCalculations();
+      if (recentCalculations.length === 0) {
+        setEmptyState(
+          container,
+          'No recent calculations. Use any calculator to see your history here.'
+        );
+        return;
+      }
+
+      container.replaceChildren();
+      for (const calc of recentCalculations.slice(0, 5)) {
+        const card = document.createElement('div');
+        card.className =
+          'p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors';
+
+        const title = document.createElement('p');
+        title.className = 'font-medium text-slate-900 dark:text-white mb-1';
+        title.textContent = calc.title;
+
+        const time = document.createElement('p');
+        time.className = 'text-xs text-slate-600 dark:text-slate-400 mb-2';
+        time.textContent = new Date(calc.timestamp).toLocaleString();
+
+        const link = document.createElement('a');
+        link.href = safeSameOriginPath(calc.url) || '#';
+        link.className = 'text-sm text-blue-600 dark:text-blue-400 hover:underline';
+        link.textContent = 'View analysis →';
+
+        card.append(title, time, link);
+        container.append(card);
+      }
+    }
+
+    function updateAIRecommendations() {
+      const container = document.getElementById('ai-recommendations-container');
+      if (!container) return;
 
       const recommendations = [];
-      
-      // Check for incomplete journeys
-      const incompleteJourneys = Object.entries(activeJourneys).filter(([_, data]) => data.progress < 100);
-      
-      if (incompleteJourneys.length > 0) {
-        incompleteJourneys.slice(0, 2).forEach(([journeyId, data]) => {
-          const journey = journeyMap[journeyId];
-          if (!journey) return;
-          recommendations.push({
-            type: 'journey',
-            text: `Complete your ${journey.name} (${Math.round(100 - data.progress)}% remaining)`,
-            action: `/journey/${journeyId}`,
-            icon: journey.icon
-          });
-        });
-      } else {
+      const seen = new Set();
+
+      function pushRecommendation(text, priority = 'medium', timestamp = Date.now()) {
+        const normalizedText = String(text || '').replace(/\s+/g, ' ').trim();
+        if (!normalizedText) return;
+
+        const dedupeKey = normalizedText.toLowerCase();
+        if (seen.has(dedupeKey)) return;
+        seen.add(dedupeKey);
+
         recommendations.push({
-          type: 'journey',
-          text: 'Start a new financial planning journey',
-          action: '/journey',
-          icon: '🗺️'
+          text: normalizedText,
+          priority,
+          timestamp,
         });
       }
 
-      // Recommendations based on recent calculations
-      if (recentCalculations.length === 0) {
-        recommendations.push({
-          type: 'action',
-          text: 'Try your first calculator',
-          action: '/models',
-          icon: '🧮'
-        });
+      function collectRecommendationFields(value, fallbackTimestamp) {
+        if (!value || typeof value !== 'object') return;
+
+        if (typeof value.recommendation === 'string') {
+          pushRecommendation(
+            value.recommendation,
+            value.priority || 'high',
+            value.timestamp || fallbackTimestamp
+          );
+        }
+
+        if (typeof value.reasoning === 'string') {
+          pushRecommendation(
+            value.reasoning,
+            value.priority || 'medium',
+            value.timestamp || fallbackTimestamp
+          );
+        }
+
+        if (Array.isArray(value.recommendations)) {
+          for (const item of value.recommendations) {
+            if (typeof item === 'string') {
+              pushRecommendation(item, value.priority || 'medium', value.timestamp || fallbackTimestamp);
+              continue;
+            }
+
+            if (item && typeof item === 'object') {
+              pushRecommendation(
+                item.content || item.title || item.text,
+                item.priority || value.priority || 'medium',
+                item.timestamp || value.timestamp || fallbackTimestamp
+              );
+            }
+          }
+        }
+
+        if (Array.isArray(value.nextSteps)) {
+          for (const item of value.nextSteps) {
+            if (typeof item === 'string') {
+              pushRecommendation(item, 'medium', fallbackTimestamp);
+              continue;
+            }
+
+            if (item && typeof item === 'object') {
+              pushRecommendation(
+                item.content || item.task || item.title,
+                item.priority || 'medium',
+                item.timestamp || fallbackTimestamp
+              );
+            }
+          }
+        }
       }
 
-      recommendationsContainer.innerHTML = recommendations.map(rec => `
-        <div class="fa-subcard flex items-start hover:shadow-md transition-shadow">
-          <span class="text-2xl mr-3">${rec.icon}</span>
-          <div class="flex-1">
-            <p class="fa-list-copy">${rec.text}</p>
-            <a href="${rec.action}" class="fa-inline-link text-xs mt-1 inline-block">
-              Go there →
-            </a>
-          </div>
-        </div>
-      `).join('');
+      for (const journey of getStoredJourneys()) {
+        const collectedEntries = Object.values(journey.raw?.collectedData || {});
+        for (const entry of collectedEntries) {
+          collectRecommendationFields(entry, journey.lastUpdated);
+        }
+
+        const remainingSteps = Math.max(journey.totalSteps - journey.completedSteps, 0);
+        if (!journey.raw?.completed && remainingSteps > 0) {
+          pushRecommendation(
+            `Continue your ${journey.scenario} journey to complete the remaining ${remainingSteps} step${remainingSteps === 1 ? '' : 's'}.`,
+            'high',
+            journey.lastUpdated
+          );
+        } else if (journey.raw?.completed) {
+          pushRecommendation(
+            `Review your completed ${journey.scenario} journey and turn its analysis into your next financial action.`,
+            'medium',
+            journey.lastUpdated
+          );
+        }
+      }
+
+      for (const calc of getStoredCalculations()) {
+        collectRecommendationFields(calc.raw, calc.timestamp);
+        collectRecommendationFields(calc.raw?.result, calc.timestamp);
+        collectRecommendationFields(calc.raw?.results, calc.timestamp);
+
+        if (calc.summary) {
+          pushRecommendation(
+            `Revisit ${calc.title} and refine your assumptions: ${calc.summary}`,
+            'medium',
+            calc.timestamp
+          );
+        } else {
+          pushRecommendation(
+            `Revisit ${calc.title} to compare another scenario and keep your analysis current.`,
+            'low',
+            calc.timestamp
+          );
+        }
+      }
+
+      recommendations.sort((a, b) => {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        return (
+          (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0) ||
+          getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp)
+        );
+      });
+
+      if (recommendations.length === 0) {
+        container.replaceChildren();
+        const paragraph = document.createElement('p');
+        paragraph.className = 'text-sm text-slate-600 dark:text-slate-400';
+        paragraph.textContent =
+          'Complete a financial journey or calculation to receive personalized recommendations.';
+        container.append(paragraph);
+        return;
+      }
+
+      container.replaceChildren();
+      for (const rec of recommendations.slice(0, 3)) {
+        const card = document.createElement('div');
+        card.className = 'p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg';
+
+        const text = document.createElement('p');
+        text.className = 'text-sm text-slate-900 dark:text-white';
+        text.textContent = rec.text;
+
+        const badge = document.createElement('span');
+        badge.className = 'text-xs text-blue-600 dark:text-blue-400 mt-1 inline-block';
+        badge.textContent = `${rec.priority} priority`;
+
+        card.append(text, badge);
+        container.append(card);
+      }
     }
 
-    // Initialize dashboard
-    document.addEventListener('DOMContentLoaded', updateDashboard);
-  }
-</script>
+    function updateDashboard() {
+      updateActiveJourneys();
+      updateRecentCalculations();
+      updateAIRecommendations();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateDashboard);
+    } else {
+      updateDashboard();
+    }
+
+    window.addEventListener('storage', updateDashboard);
+    document.addEventListener('journey-progress-updated', updateDashboard);
+    setInterval(updateDashboard, 5000);
+  </script>
+</Layout>
