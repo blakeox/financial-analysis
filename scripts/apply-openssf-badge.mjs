@@ -13,10 +13,19 @@ const root = join(__dirname, '..');
 const readmePath = join(root, 'README.md');
 const dryRun = process.argv.includes('--dry-run');
 
-const raw = execFileSync('node', ['scripts/check-openssf-badge.mjs', '--json'], {
-  cwd: root,
-  encoding: 'utf8',
-});
+let raw;
+try {
+  raw = execFileSync('node', ['scripts/check-openssf-badge.mjs', '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+} catch (error) {
+  if (typeof error?.stdout === 'string' && error.stdout.trim()) {
+    raw = error.stdout;
+  } else {
+    throw error;
+  }
+}
 const { project } = JSON.parse(raw);
 if (!project?.id) {
   console.error('No enrolled project at passing tier. Run: pnpm run check:openssf-badge');
