@@ -34,6 +34,7 @@
     "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "check:openssf-badge": "node scripts/check-openssf-badge.mjs",
+    "apply:openssf-badge": "node scripts/apply-openssf-badge.mjs",
     "report:knip": "knip --no-exit-code",
     "report:knip:production": "knip --production --no-exit-code",
     "check:duplicates:files": "node scripts/check-repo-duplicates.mjs --files-only",

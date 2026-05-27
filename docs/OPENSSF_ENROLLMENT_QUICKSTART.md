@@ -18,10 +18,10 @@ Clears Security alert `CIIBestPracticesID` (#84). Full detail: [OPENSSF_BEST_PRA
 
 7. Copy **project ID** from the badge URL: `https://www.bestpractices.dev/projects/<ID>/`
 
-8. Add to [README.md](../README.md) (after the Scorecard badge line):
+8. Add the README badge (after the Scorecard line), or run:
 
-   ```markdown
-   [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/PROJECT_ID/badge)](https://www.bestpractices.dev/projects/PROJECT_ID)
+   ```bash
+   pnpm run apply:openssf-badge
    ```
 
 9. Verify locally:
