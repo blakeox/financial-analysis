@@ -706,13 +706,22 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
             meta: "in today's dollars",
             tone: 'emerald',
           },
-          {
-            title: 'Real Difference',
-            value: formatCurrency(Math.abs(realDifference)),
-            meta: `${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)`,
-            tone: 'violet',
-          },
         ])}
+        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
+          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">
+            Real Difference
+          </h5>
+          <p
+            class="text-xl font-bold ${realDifference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}"
+          >
+            ${formatCurrency(Math.abs(realDifference))}
+          </p>
+          <p
+            class="mt-1 text-xs ${realDifference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'}"
+          >
+            ${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)
+          </p>
+        </div>
       </div>
     </div>
     
