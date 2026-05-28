@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
@@ -30,27 +31,11 @@ if (!currentScenario) {
 
 const currentStep = currentScenario.models.find(m => m.id === 'initial-capital-investment');
 const currentStepOrder = currentStep?.order || 1;
-const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
-const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
-
-// Journey navigation data
-const journeyNav = {
+const { journeyNav } = buildJourneyNavFromOrder({
+  currentScenario,
   scenarioId: scenario!,
-  scenarioName: currentScenario.name,
-  currentStep: currentStepOrder,
-  totalSteps: currentScenario.models.length,
-  nextStep: nextStep ? {
-    id: nextStep.id,
-    name: nextStep.name,
-    url: `/journey/${scenario}/step/${nextStep.id}`
-  } : null,
-  previousStep: previousStep ? {
-    id: previousStep.id,
-    name: previousStep.name,
-    url: `/journey/${scenario}/step/${previousStep.id}`
-  } : null,
-  journeyOverviewUrl: `/journey/${scenario}`
-};
+  currentStepOrder,
+});
 
 // SEO-optimized content
 const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;

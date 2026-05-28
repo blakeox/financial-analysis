@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
@@ -14,26 +15,11 @@ if (!currentScenario) {
 
 const currentStep = currentScenario.models.find(m => m.id === 'make-decision');
 const currentStepOrder = currentStep?.order || 5;
-const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
-const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
-
-const journeyNav = {
+const { journeyNav } = buildJourneyNavFromOrder({
+  currentScenario,
   scenarioId: 'invest-vs-payoff-debt',
-  scenarioName: currentScenario.name,
-  currentStep: currentStepOrder,
-  totalSteps: currentScenario.models.length,
-  nextStep: nextStep ? {
-    id: nextStep.id,
-    name: nextStep.name,
-    url: `/journey/invest-vs-payoff-debt/step/${nextStep.id}`
-  } : null,
-  previousStep: previousStep ? {
-    id: previousStep.id,
-    name: previousStep.name,
-    url: `/journey/invest-vs-payoff-debt/step/${previousStep.id}`
-  } : null,
-  journeyOverviewUrl: '/journey/invest-vs-payoff-debt'
-};
+  currentStepOrder,
+});
 
 const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;

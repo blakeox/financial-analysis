@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
@@ -14,30 +15,11 @@ if (!currentScenario) {
 
 const currentStep = currentScenario.models.find(m => m.id === 'replacement-options');
 const currentStepOrder = currentStep?.order || 3;
-const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
-const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
-
-const journeyNav = {
+const { journeyNav } = buildJourneyNavFromOrder({
+  currentScenario,
   scenarioId: 'auto-lease-decision',
-  scenarioName: currentScenario.name,
-  currentStep: currentStepOrder,
-  totalSteps: currentScenario.models.length,
-  nextStep: nextStep
-    ? {
-        id: nextStep.id,
-        name: nextStep.name,
-        url: `/journey/auto-lease-decision/step/${nextStep.id}`,
-      }
-    : null,
-  previousStep: previousStep
-    ? {
-        id: previousStep.id,
-        name: previousStep.name,
-        url: `/journey/auto-lease-decision/step/${previousStep.id}`,
-      }
-    : null,
-  journeyOverviewUrl: '/journey/auto-lease-decision',
-};
+  currentStepOrder,
+});
 
 const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
