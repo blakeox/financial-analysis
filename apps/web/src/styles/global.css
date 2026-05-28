@@ -116,6 +116,10 @@
     padding: 2rem 1rem 5rem;
   }
 
+  .fa-workflow-grid {
+    @apply grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)];
+  }
+
   .fa-page-shell-narrow {
     margin: 0 auto;
     max-width: 64rem;

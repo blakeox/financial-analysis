@@ -23,6 +23,8 @@ Prefer extending an existing tier over inventing one-off Tailwind blocks in clie
 
 Same rail pattern as calculators; step scripts write into `#summary-cards` when showing KPIs.
 
+**Layout:** wrap main + sidebar/rail columns in `.fa-workflow-grid` (form column + tips/rail). Calculator-backed fallback steps use `JourneyCalculatorPage`, which already uses this grid with `WorkflowSupportRail`.
+
 ### Standalone tool page (`ToolPageShell` + client script)
 
 Use when a model has a dedicated URL outside `/calculator/*` (e.g. `/bond-pricing`, `/cash-flow-analysis`, `/commercial-real-estate-lease`).

@@ -36,9 +36,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   />
 
   <div class="fa-page-shell">
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="fa-workflow-grid">
         <!-- Main Content -->
-        <div class="lg:col-span-3">
+        <div class="space-y-6">
           <JourneyStepHero
             icon="🛡️"
             title={currentStep?.name ?? 'Current step'}
@@ -193,7 +193,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
+        <div class="space-y-6">
           <div class="fa-card p-5 mb-6">
             <h3 class="fa-scenario-title mb-4">💡 Why This Matters</h3>
             <div class="space-y-4 fa-list-copy">
