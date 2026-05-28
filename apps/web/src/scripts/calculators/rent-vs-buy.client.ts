@@ -6,6 +6,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
@@ -628,26 +629,28 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Buying Advantages</h4>
-          <ul class="space-y-2 fa-script-copy-strong">
+        ${renderInsightCard({
+          title: 'Buying Advantages',
+          html: true,
+          content: `<ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Home appreciation: ${formatCurrency(result.buy.breakdown.appreciation)}</li>
             <li>✓ Tax savings: ${formatCurrency(result.buy.breakdown.taxBenefits)}${!result.buy.breakdown.shouldItemize ? ' ⚠️' : ''}</li>
             <li>✓ Equity built: ${formatCurrency(result.buy.equity)}</li>
             <li>✓ Invested savings: ${formatCurrency(result.buy.breakdown.opportunityCost)}</li>
             ${result.comparison.breakEvenYear ? `<li>✓ Break-even in year ${result.comparison.breakEvenYear}</li>` : '<li>⚠️ No break-even in analysis period</li>'}
-          </ul>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Renting Advantages</h4>
-          <ul class="space-y-2 fa-script-copy-strong">
+          </ul>`,
+        })}
+        ${renderInsightCard({
+          title: 'Renting Advantages',
+          tone: 'success',
+          html: true,
+          content: `<ul class="space-y-2 fa-script-copy-strong">
             <li>✓ Invested capital: ${formatCurrency(result.rent.equity)}</li>
             <li>✓ Flexibility: Easy to move</li>
             <li>✓ No maintenance costs</li>
             <li>✓ No closing/selling costs</li>
-          </ul>
-        </div>
+          </ul>`,
+        })}
       </div>
     </div>
     
@@ -690,21 +693,26 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       <p class="fa-script-copy-muted mb-4">Real purchasing power after ${input.yearsToAnalyze} years:</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Real Net Position (Buy)</h5>
-          <p class="text-xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(buyRealNetPosition)}</p>
-          <p class="text-xs text-violet-700 dark:text-violet-300 mt-1">in today's dollars</p>
-        </div>
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-emerald-900 dark:text-emerald-100">Real Net Position (Rent)</h5>
-          <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(rentRealNetPosition)}</p>
-          <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">in today's dollars</p>
-        </div>
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">Real Difference</h5>
-          <p class="text-xl font-bold ${realDifference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}">${formatCurrency(Math.abs(realDifference))}</p>
-          <p class="text-xs ${realDifference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'} mt-1">${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)</p>
-        </div>
+        ${renderMetricCards([
+          {
+            title: 'Real Net Position (Buy)',
+            value: formatCurrency(buyRealNetPosition),
+            meta: "in today's dollars",
+            tone: 'violet',
+          },
+          {
+            title: 'Real Net Position (Rent)',
+            value: formatCurrency(rentRealNetPosition),
+            meta: "in today's dollars",
+            tone: 'emerald',
+          },
+          {
+            title: 'Real Difference',
+            value: formatCurrency(Math.abs(realDifference)),
+            meta: `${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)`,
+            tone: 'violet',
+          },
+        ])}
       </div>
     </div>
     

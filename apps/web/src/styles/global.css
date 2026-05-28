@@ -1522,6 +1522,22 @@
     color: #d1d5db;
   }
 
+  .fa-table-row-highlight {
+    background-color: rgb(245 243 255);
+  }
+
+  .dark .fa-table-row-highlight {
+    background-color: rgb(76 29 149 / 0.1);
+  }
+
+  .fa-model-card-selected {
+    background-color: rgb(245 243 255);
+  }
+
+  .dark .fa-model-card-selected {
+    background-color: rgb(76 29 149 / 0.2);
+  }
+
   .fa-highlight-card {
     background: linear-gradient(180deg, rgba(247, 244, 255, 0.9), rgba(255, 255, 255, 0.95));
     border: 1px solid rgba(109, 74, 255, 0.16);

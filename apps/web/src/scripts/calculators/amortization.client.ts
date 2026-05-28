@@ -868,7 +868,7 @@ export const renderSchedule = (
       const interest = toCurrency(entry.interest);
       const balance = toCurrency(entry.balance);
       const cumulativeInterest = toCurrency(entry.cumulativeInterest);
-      const highlightClass = month % 12 === 0 ? 'bg-violet-50 dark:bg-violet-900/10' : '';
+      const highlightClass = month % 12 === 0 ? 'fa-table-row-highlight' : '';
 
       return `
         <tr class="${highlightClass}">

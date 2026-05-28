@@ -7,6 +7,7 @@
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   formatCurrencyWhole as formatCurrency,
@@ -501,26 +502,38 @@ const displayResults = (result: RetirementResults): void => {
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Retirement Readiness</h4>
-          <p class="text-violet-800 dark:text-violet-200">${result.replacementRatio >= 0.8 ? "Excellent! You're on track for a comfortable retirement." : result.replacementRatio >= 0.6 ? 'Good progress! Consider increasing contributions to reach 80% replacement ratio.' : 'Consider increasing your savings rate to improve retirement readiness.'}</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Savings Strategy</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">${result.savingsRate >= 15 ? "Great savings rate! You're following the 15% rule." : 'Consider increasing your savings rate to at least 15% of income for better retirement security.'}</p>
-        </div>
-        
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Time Advantage</h4>
-          <p class="text-violet-800 dark:text-violet-200">${result.yearsToRetirement >= 20 ? 'You have plenty of time to benefit from compound growth.' : result.yearsToRetirement >= 10 ? 'Time is still on your side for building wealth.' : 'Consider maximizing contributions and potentially adjusting retirement timeline.'}</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Retirement Readiness',
+          content:
+            result.replacementRatio >= 0.8
+              ? "Excellent! You're on track for a comfortable retirement."
+              : result.replacementRatio >= 0.6
+                ? 'Good progress! Consider increasing contributions to reach 80% replacement ratio.'
+                : 'Consider increasing your savings rate to improve retirement readiness.',
+        })}
+        ${renderInsightCard({
+          title: 'Savings Strategy',
+          tone: 'success',
+          content:
+            result.savingsRate >= 15
+              ? "Great savings rate! You're following the 15% rule."
+              : 'Consider increasing your savings rate to at least 15% of income for better retirement security.',
+        })}
+        ${renderInsightCard({
+          title: 'Time Advantage',
+          content:
+            result.yearsToRetirement >= 20
+              ? 'You have plenty of time to benefit from compound growth.'
+              : result.yearsToRetirement >= 10
+                ? 'Time is still on your side for building wealth.'
+                : 'Consider maximizing contributions and potentially adjusting retirement timeline.',
+        })}
       </div>
     </div>
 
-    <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg shadow-lg p-6 mb-8 border border-violet-200 dark:border-violet-800">
-      <h3 class="text-xl font-semibold text-violet-900 dark:text-violet-100 mb-4">Inflation Impact</h3>
-      <p class="text-sm text-violet-800 dark:text-violet-200 mb-4">
+    <div class="fa-highlight-card mb-8">
+      <h3 class="fa-script-title text-xl mb-4">Inflation Impact</h3>
+      <p class="fa-script-copy-muted text-sm mb-4">
         Figures adjusted using a ${formattedInflationImpact} cumulative inflation factor over ${result.yearsToRetirement} years.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

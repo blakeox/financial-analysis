@@ -1,0 +1,111 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  icon?: string;
+  backHref?: string;
+  backLabel?: string;
+  badgeText?: string;
+  badgeTone?: 'blue' | 'slate';
+  currentStep?: number;
+  totalSteps?: number;
+  scenarioName?: string;
+  supportingText?: string;
+  progressLabel?: string;
+}
+
+const {
+  title,
+  description,
+  icon,
+  backHref,
+  backLabel,
+  badgeText,
+  badgeTone = 'blue',
+  currentStep,
+  totalSteps,
+  scenarioName,
+  supportingText,
+  progressLabel = 'Journey progress',
+} = Astro.props as Props;
+
+const badgeClasses = badgeTone === 'slate' ? 'fa-chip fa-chip-muted' : 'fa-chip fa-chip-accent';
+const showBack = Boolean(backHref && backLabel);
+const showProgress =
+  typeof currentStep === 'number' &&
+  typeof totalSteps === 'number' &&
+  totalSteps > 0;
+const progress =
+  showProgress && totalSteps
+    ? Math.min(100, Math.max(0, (currentStep / totalSteps) * 100))
+    : 0;
+---
+
+<section class="fa-card p-6">
+  {
+    showBack && (
+      <div class="mb-4 flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+        <a href={backHref} class="fa-shell-link-accent inline-flex items-center gap-2">
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          {backLabel}
+        </a>
+      </div>
+    )
+  }
+
+  <div class="flex items-start gap-4">
+    {icon && <span class="mt-0.5 text-3xl">{icon}</span>}
+    <div class="min-w-0 flex-1">
+      {
+        showProgress && (
+          <span class="fa-eyebrow">Step {currentStep} of {totalSteps}</span>
+        )
+      }
+      <h1 class:list={['fa-model-title text-2xl', showProgress ? 'mt-4' : '']}>{title}</h1>
+      <p class="fa-scenario-copy mt-2 text-sm">{description}</p>
+      {scenarioName && <p class="fa-meta-copy mt-2 text-sm">{scenarioName}</p>}
+      {
+        badgeText && (
+          <div class="mt-3">
+            <span class={badgeClasses}>{badgeText}</span>
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    supportingText && (
+      <p class="fa-list-copy mt-5 text-sm">{supportingText}</p>
+    )
+  }
+
+  {
+    showProgress && (
+      <div class="fa-progress-panel mt-6 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="fa-scenario-title text-sm">{progressLabel}</h2>
+          <span class="fa-list-copy text-sm">{Math.round(progress)}% complete</span>
+        </div>
+        <div class="fa-progress-track mt-3">
+          <div class="fa-progress-bar" style={`width: ${progress}%`} />
+        </div>
+      </div>
+    )
+  }
+
+  <slot />
+</section>

@@ -47,6 +47,12 @@ KPI tiles in `#summary-cards` should use the shared HTML helper, not ad hoc `bg-
 
 **TypeScript:** `renderMetricCard` / `renderMetricCards` in `apps/web/src/scripts/_shared/metric-card-html.ts`
 
+Prose insight blocks (not KPIs) use `renderInsightCard()` from `apps/web/src/scripts/_shared/insight-card-html.ts` (`fa-highlight-card` or `fa-callout-*`).
+
+Structured detail sections use `renderResultPanel()` / `renderResultRow()` from `apps/web/src/scripts/_shared/result-panel-html.ts`.
+
+Workflow page heroes (calculators + journeys) share `WorkflowHero.astro`; `WorkflowPageIntro` and `JourneyStepHero` are thin wrappers.
+
 ```ts
 import { renderMetricCards } from '../_shared/metric-card-html';
 

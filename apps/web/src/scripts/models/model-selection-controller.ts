@@ -47,12 +47,7 @@ type WindowWithSelection = Window &
     openChatPanel?: () => void;
   };
 
-const SELECTED_CLASSES = [
-  'ring-2',
-  'ring-violet-500',
-  'bg-violet-50',
-  'dark:bg-violet-900/20',
-] as const;
+const SELECTED_CLASSES = ['ring-2', 'ring-violet-500', 'fa-model-card-selected'] as const;
 const HOVER_CLASSES = ['ring', 'ring-offset-1', 'ring-violet-200'] as const;
 const STATUS_AVAILABLE_CLASSES = [
   'bg-emerald-100',

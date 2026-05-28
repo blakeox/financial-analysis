@@ -28,3 +28,25 @@ ruleTester.run('prefer-accessible-muted-text', plugin.rules['prefer-accessible-m
 });
 
 console.log('fa-a11y ESLint rule tests passed');
+
+ruleTester.run('no-adhoc-violet-metric-blocks', plugin.rules['no-adhoc-violet-metric-blocks'], {
+  valid: [
+    {
+      code: `const html = renderMetricCards([{ title: 'A', value: '1', tone: 'violet' }]);`,
+      filename: '/repo/apps/web/src/scripts/calculators/example.client.ts',
+    },
+    {
+      code: `const cls = 'bg-violet-500 rounded-full';`,
+      filename: '/repo/apps/web/src/scripts/calculators/example.client.ts',
+    },
+  ],
+  invalid: [
+    {
+      code: `const html = \`<div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4"></div>\`;`,
+      filename: '/repo/apps/web/src/scripts/calculators/example.client.ts',
+      errors: [{ messageId: 'adhocVioletMetric' }],
+    },
+  ],
+});
+
+console.log('fa-a11y no-adhoc-violet-metric-blocks tests passed');

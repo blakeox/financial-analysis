@@ -6,6 +6,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
@@ -269,15 +270,16 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
           <span class="font-bold text-rose-600 dark:text-rose-400">${formatCurrency(result.taxes.totalTaxes)}</span>
         </div>
         
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-3 mt-4">
-          <div class="flex justify-between items-center">
-            <span class="font-semibold text-violet-900 dark:text-violet-100">Quarterly Estimated Tax Payment</span>
+        ${renderInsightCard({
+          className: 'mt-4',
+          title: 'Quarterly Estimated Tax Payment',
+          html: true,
+          content: `<div class="flex justify-between items-center">
+            <span class="font-semibold">Quarterly estimated tax</span>
             <span class="text-xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.taxes.quarterlyEstimated)}</span>
           </div>
-          <p class="text-xs text-violet-700 dark:text-violet-300 mt-2">
-            💡 Pay by: Apr 15, Jun 15, Sep 15, Jan 15 to avoid penalties
-          </p>
-        </div>
+          <p class="fa-script-note mt-2">💡 Pay by: Apr 15, Jun 15, Sep 15, Jan 15 to avoid penalties</p>`,
+        })}
       </div>
     </div>
     
@@ -322,23 +324,26 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
-          <p class="fa-script-copy-muted mb-1">Gross Hourly</p>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">${formatCurrency(result.gross.hourlyRate)}</p>
-          <p class="fa-script-note mt-1">Before expenses & taxes</p>
-        </div>
-        
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <p class="fa-script-copy-muted mb-1">Net Hourly</p>
-          <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">${formatCurrency(result.netIncome.hourlyNetRate)}</p>
-          <p class="fa-script-note mt-1">After expenses</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <p class="fa-script-copy-muted mb-1">True Hourly Rate</p>
-          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(result.afterTax.hourlyAfterTaxRate)}</p>
-          <p class="fa-script-note mt-1">After all taxes</p>
-        </div>
+        ${renderMetricCards([
+          {
+            title: 'Gross Hourly',
+            value: formatCurrency(result.gross.hourlyRate),
+            meta: 'Before expenses & taxes',
+            tone: 'surface',
+          },
+          {
+            title: 'Net Hourly',
+            value: formatCurrency(result.netIncome.hourlyNetRate),
+            meta: 'After expenses',
+            tone: 'violet',
+          },
+          {
+            title: 'True Hourly Rate',
+            value: formatCurrency(result.afterTax.hourlyAfterTaxRate),
+            meta: 'After all taxes',
+            tone: 'emerald',
+          },
+        ])}
       </div>
       
       <div class="mt-4 p-4 bg-gradient-to-r from-violet-50 to-emerald-50 dark:from-violet-900/20 dark:to-emerald-900/20 rounded-lg">
@@ -356,14 +361,15 @@ function displayResults(result: SideHustleResult, input: SideHustleInput): void 
       </h2>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Equivalent W-2 Salary</h4>
-          <p class="text-3xl font-bold text-violet-600 dark:text-violet-400 mb-2">${formatCurrency(result.comparison.w2Equivalent)}</p>
+        ${renderInsightCard({
+          title: 'Equivalent W-2 Salary',
+          html: true,
+          content: `<p class="text-3xl font-bold text-violet-600 dark:text-violet-400 mb-2">${formatCurrency(result.comparison.w2Equivalent)}</p>
           <p class="fa-script-copy-strong">
             A W-2 job paying ${formatCurrency(result.comparison.w2Equivalent)}/year would give you similar take-home pay
             (but you'd only pay ~7.65% FICA instead of 15.3% SE tax)
-          </p>
-        </div>
+          </p>`,
+        })}
         
         <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
           <h4 class="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Don't Forget Benefits!</h4>

@@ -1,3 +1,5 @@
+import { renderMetricCards } from '../_shared/metric-card-html';
+
 const formatCurrency = (value: number): string =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -195,30 +197,23 @@ const initMortgageComparison = async () => {
         <div class="bg-white dark:bg-slate-700 rounded-lg p-6 mb-4">
           <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">📊 Side-by-Side Comparison</h4>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-violet-600 dark:text-violet-400 mb-1">
-                ${formatCurrency(Math.abs(monthlySavings))}
-              </div>
-              <div class="fa-script-copy-muted">
-                Monthly ${monthlySavings >= 0 ? 'Savings' : 'Difference'}
-              </div>
-            </div>
-            <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                ${formatCurrency(Math.abs(totalInterestSavings))}
-              </div>
-              <div class="fa-script-copy-muted">
-                Interest ${totalInterestSavings >= 0 ? 'Saved' : 'Difference'}
-              </div>
-            </div>
-            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 text-center">
-              <div class="text-2xl font-bold text-violet-600 dark:text-violet-400 mb-1">
-                ${formatCurrency(Math.abs(totalCostSavings))}
-              </div>
-              <div class="fa-script-copy-muted">
-                Total ${totalCostSavings >= 0 ? 'Saved' : 'Difference'}
-              </div>
-            </div>
+            ${renderMetricCards([
+              {
+                title: `Monthly ${monthlySavings >= 0 ? 'Savings' : 'Difference'}`,
+                value: formatCurrency(Math.abs(monthlySavings)),
+                tone: 'violet',
+              },
+              {
+                title: `Interest ${totalInterestSavings >= 0 ? 'Saved' : 'Difference'}`,
+                value: formatCurrency(Math.abs(totalInterestSavings)),
+                tone: 'emerald',
+              },
+              {
+                title: `Total ${totalCostSavings >= 0 ? 'Saved' : 'Difference'}`,
+                value: formatCurrency(Math.abs(totalCostSavings)),
+                tone: 'violet',
+              },
+            ])}
           </div>
         </div>
 

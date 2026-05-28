@@ -120,8 +120,47 @@ const preferAccessibleMutedText = {
   },
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
+const noAdhocVioletMetricBlocks = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Discourage ad hoc bg-violet-50 metric/insight blocks in client scripts; use renderMetricCards or renderInsightCard',
+    },
+    messages: {
+      adhocVioletMetric:
+        'Avoid ad hoc `bg-violet-50` blocks in client scripts. Use renderMetricCards() from metric-card-html.ts or renderInsightCard() from insight-card-html.ts.',
+    },
+    schema: [],
+  },
+  create(context) {
+    const filename = context.filename ?? '';
+    if (!filename.includes('/apps/web/src/scripts/')) return {};
+    if (filename.includes('/__tests__/')) return {};
+
+    function inspectString(node, raw) {
+      if (typeof raw !== 'string') return;
+      if (!/\bbg-violet-50\b/.test(raw)) return;
+      context.report({ node, messageId: 'adhocVioletMetric' });
+    }
+
+    return {
+      Literal(node) {
+        if (typeof node.value === 'string') {
+          inspectString(node, node.value);
+        }
+      },
+      TemplateElement(node) {
+        inspectString(node, node.value.raw);
+      },
+    };
+  },
+};
+
 module.exports = {
   rules: {
     'prefer-accessible-muted-text': preferAccessibleMutedText,
+    'no-adhoc-violet-metric-blocks': noAdhocVioletMetricBlocks,
   },
 };

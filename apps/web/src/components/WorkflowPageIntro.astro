@@ -1,4 +1,6 @@
 ---
+import WorkflowHero from './WorkflowHero.astro';
+
 export interface Props {
   backHref: string;
   backLabel: string;
@@ -9,45 +11,7 @@ export interface Props {
   badgeTone?: 'blue' | 'slate';
 }
 
-const {
-  backHref,
-  backLabel,
-  title,
-  description,
-  icon,
-  badgeText,
-  badgeTone = 'blue',
-} = Astro.props as Props;
-
-const badgeClasses = badgeTone === 'slate' ? 'fa-chip fa-chip-muted' : 'fa-chip fa-chip-accent';
+const props = Astro.props as Props;
 ---
 
-<section class="fa-card p-6">
-  <div class="mb-4 flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-    <a href={backHref} class="fa-shell-link-accent inline-flex items-center gap-2">
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-      </svg>
-      {backLabel}
-    </a>
-  </div>
-
-  <div class="flex items-start gap-4">
-    {icon && <span class="mt-0.5 text-3xl">{icon}</span>}
-    <div class="min-w-0 flex-1">
-      <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{title}</h1>
-      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
-      {
-        badgeText && (
-          <div class="mt-3">
-            <span class={`${badgeClasses}`}>{badgeText}</span>
-          </div>
-        )
-      }
-    </div>
-  </div>
-</section>
+<WorkflowHero {...props} />

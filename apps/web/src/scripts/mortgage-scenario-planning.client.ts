@@ -24,6 +24,7 @@ import {
   hideError,
 } from '../utils/calculator-utilities';
 import { postAnalysisRequest } from './analysis-api';
+import { renderMetricCards } from './_shared/metric-card-html';
 
 declare global {
   interface Window {
@@ -763,39 +764,39 @@ function displayResults(scenarios: Scenario[]): void {
               
               <!-- Detailed Comparison Metrics -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Monthly Payment</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}</p>
-                  <p class="fa-script-note">
-                    ${
+                ${renderMetricCards([
+                  {
+                    title: 'Monthly Payment',
+                    value: formatCurrency(
+                      Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment)
+                    ),
+                    meta:
                       baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment
-                        ? `Option A pays less per month`
-                        : `Option B pays less per month`
-                    }
-                  </p>
-                </div>
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Total Interest</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
-                  <p class="fa-script-note">
-                    ${
+                        ? 'Option A pays less per month'
+                        : 'Option B pays less per month',
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'Total Interest',
+                    value: formatCurrency(
+                      Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest)
+                    ),
+                    meta:
                       baseScenarios[0].totalInterest < baseScenarios[1].totalInterest
-                        ? `Option A pays less interest`
-                        : `Option B pays less interest`
-                    }
-                  </p>
-                </div>
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Payoff Timeline</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo</p>
-                  <p class="fa-script-note">
-                    ${
+                        ? 'Option A pays less interest'
+                        : 'Option B pays less interest',
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'Payoff Timeline',
+                    value: `${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo`,
+                    meta:
                       baseScenarios[0].payoffMonths < baseScenarios[1].payoffMonths
-                        ? `Option A pays off faster`
-                        : `Option B pays off faster`
-                    }
-                  </p>
-                </div>
+                        ? 'Option A pays off faster'
+                        : 'Option B pays off faster',
+                    tone: 'violet',
+                  },
+                ])}
               </div>
               
               <!-- Detailed Comparison Write-up -->
@@ -857,18 +858,20 @@ function displayResults(scenarios: Scenario[]): void {
                 Refinancing after 5 years ${findRefinanceSavings(baseScenarios[0], refinanceScenarios[0])}.
               </p>
               <div class="grid grid-cols-2 gap-3">
-                <div class="p-3 bg-violet-50 dark:bg-violet-900/20 rounded">
-                  <p class="fa-script-note mb-1">Potential Savings</p>
-                  <p class="text-lg font-bold text-violet-600 dark:text-violet-400">
-                    ${formatCurrency(Math.max(0, baseScenarios[0].totalCost - refinanceScenarios[0].totalCost))}
-                  </p>
-                </div>
-                <div class="p-3 bg-violet-50 dark:bg-violet-900/20 rounded">
-                  <p class="fa-script-note mb-1">ROI from Refinancing</p>
-                  <p class="text-lg font-bold text-violet-600 dark:text-violet-400">
-                    ${((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}%
-                  </p>
-                </div>
+                ${renderMetricCards([
+                  {
+                    title: 'Potential Savings',
+                    value: formatCurrency(
+                      Math.max(0, baseScenarios[0].totalCost - refinanceScenarios[0].totalCost)
+                    ),
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'ROI from Refinancing',
+                    value: `${((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}%`,
+                    tone: 'violet',
+                  },
+                ])}
               </div>
               <p class="fa-script-note mt-3">
                 ⚠️ Note: This doesn't include refinancing closing costs, which typically range from 2-5% of the loan amount.
@@ -1285,14 +1288,18 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         
         <!-- Cost Breakdown -->
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-3">
-            <p class="fa-script-note mb-1">Total Interest</p>
-            <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatCurrency(scenario.totalInterest)}</p>
-          </div>
-          <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-3">
-            <p class="fa-script-note mb-1">Total Cost</p>
-            <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatCurrency(scenario.totalCost)}</p>
-          </div>
+          ${renderMetricCards([
+            {
+              title: 'Total Interest',
+              value: formatCurrency(scenario.totalInterest),
+              tone: 'violet',
+            },
+            {
+              title: 'Total Cost',
+              value: formatCurrency(scenario.totalCost),
+              tone: 'violet',
+            },
+          ])}
         </div>
         
         <!-- Timeline -->

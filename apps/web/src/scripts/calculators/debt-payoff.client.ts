@@ -3,6 +3,7 @@ import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { formatCurrency, hideError, parseNumber } from '../../utils/calculator-utilities';
 
@@ -408,15 +409,20 @@ export const displayResults = (
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Best Strategy</h4>
-          <p class="text-violet-800 dark:text-violet-200">${primary.strategy === 'avalanche' ? 'Avalanche method saves more money in interest' : 'Snowball method provides psychological motivation'}</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Savings Summary</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">${describeSavings(result, primary.strategy) || 'Review the comparison above to choose your preferred strategy.'}</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Best Strategy',
+          content:
+            primary.strategy === 'avalanche'
+              ? 'Avalanche method saves more money in interest'
+              : 'Snowball method provides psychological motivation',
+        })}
+        ${renderInsightCard({
+          title: 'Savings Summary',
+          tone: 'success',
+          content:
+            describeSavings(result, primary.strategy) ||
+            'Review the comparison above to choose your preferred strategy.',
+        })}
       </div>
     </div>
   `;
