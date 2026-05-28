@@ -55,6 +55,8 @@ Workflow page heroes (calculators + journeys) share `WorkflowHero.astro`; `Workf
 
 Journey steps should use `JourneyStepNavigation.astro` for back/next/complete CTA rows instead of inline per-page navigation markup.
 
+**Journey routing:** `journeyStepRouting.ts` and `journeyStepAvailability.ts` decide when a model link stays on a marketing/tool URL vs. the journey shell (`/journey/{scenario}/step/{id}`). Calculator-backed steps without a dedicated `.astro` page use the `[stepId].astro` fallback (`JourneyCalculatorPage`). Known tool-only handoffs (e.g. `/ebitda-forecasting`, `/bond-pricing`) stay on their original URLs and are listed in `journey-routing-contract.test.ts`.
+
 ```ts
 import { renderMetricCards } from '../_shared/metric-card-html';
 

@@ -5,7 +5,7 @@ import {
   canRenderJourneyFallbackStep,
   getJourneyModelHref,
 } from '../../../../utils/journeyStepAvailability';
-import { getCalculatorIdFromModelUrl } from '../../../../utils/journeyStepRouting';
+import { resolveJourneyStepCalculatorId } from '../../../../utils/journeyStepAvailability';
 
 export async function getStaticPaths() {
   const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
@@ -41,7 +41,9 @@ if (!currentModel) {
 const stepNumber = currentModel.order;
 const nextStep = currentScenario.models.find(model => model.order === stepNumber + 1);
 const previousStep = currentScenario.models.find(model => model.order === stepNumber - 1);
-const calculatorId = getCalculatorIdFromModelUrl(currentModel.url) ?? currentModel.id;
+const calculatorId =
+  resolveJourneyStepCalculatorId(scenario!, currentModel.id, currentModel.url) ??
+  currentModel.id;
 if (!canRenderJourneyFallbackStep(scenario!, currentModel.id, currentModel.url)) {
   throw new Error(`Unsupported journey fallback step: ${scenario}/${stepId}`);
 }

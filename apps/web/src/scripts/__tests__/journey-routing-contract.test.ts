@@ -5,7 +5,10 @@ import {
   canRenderJourneyFallbackStep,
   getJourneyModelHref,
 } from '../../utils/journeyStepAvailability';
-import { isJourneyStepUrl } from '../../utils/journeyStepRouting';
+import {
+  JOURNEY_STEP_IDS_WITH_DEDICATED_PAGES,
+  isJourneyStepUrl,
+} from '../../utils/journeyStepRouting';
 
 describe('journey routing contract', () => {
   it('resolves model hrefs without routing unsupported tools into journey shell', () => {
@@ -51,9 +54,30 @@ describe('journey routing contract', () => {
         'business-expansion-loan:comprehensive-analysis',
         'business-growth:ebitda-forecasting',
         'project-finance-journey:bond-pricing',
-        'project-finance-journey:cash-flow-analysis',
-        'project-finance-journey:dcf-valuation',
       ].sort()
     );
+  });
+
+  it('covers journey-native step urls without dedicated pages via fallback', () => {
+    const journeyData = getJourneyData();
+    const missingFallback: string[] = [];
+
+    for (const [scenarioId, scenario] of Object.entries(journeyData)) {
+      for (const model of scenario.models) {
+        if (!isJourneyStepUrl(model.url)) {
+          continue;
+        }
+
+        if (JOURNEY_STEP_IDS_WITH_DEDICATED_PAGES.has(model.id)) {
+          continue;
+        }
+
+        if (!canRenderJourneyFallbackStep(scenarioId, model.id, model.url)) {
+          missingFallback.push(`${scenarioId}:${model.id}`);
+        }
+      }
+    }
+
+    expect(missingFallback).toEqual([]);
   });
 });

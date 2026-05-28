@@ -10,7 +10,9 @@ import {
   getCalculatorIdFromModelUrl,
   getJourneyStepHref,
   isJourneyStepUrl,
+  resolveJourneyStepCalculatorId,
   shouldGenerateFallbackStep,
+  usesJourneyFallbackRoute,
 } from '../../utils/journeyStepRouting';
 
 describe('journeyStepRouting', () => {
@@ -25,6 +27,15 @@ describe('journeyStepRouting', () => {
     expect(shouldGenerateFallbackStep('/journey/auto-lease-decision/step/lease-profile')).toBe(
       false
     );
+    expect(
+      usesJourneyFallbackRoute('/journey/auto-lease-decision/step/lease-profile', 'lease-profile')
+    ).toBe(false);
+    expect(
+      usesJourneyFallbackRoute(
+        '/journey/ma-analysis-journey/step/acquisition-analysis',
+        'acquisition-analysis'
+      )
+    ).toBe(true);
   });
 
   it('maps model links to journey step hrefs', () => {
@@ -52,6 +63,36 @@ describe('journeyStepRouting', () => {
     expect(
       canRenderJourneyFallbackStep('business-growth', 'ebitda-forecasting', '/ebitda-forecasting')
     ).toBe(false);
+    expect(
+      canRenderJourneyFallbackStep('project-finance-journey', 'dcf-valuation', '/dcf-analysis')
+    ).toBe(true);
+    expect(
+      canRenderJourneyFallbackStep(
+        'ma-analysis-journey',
+        'acquisition-analysis',
+        '/journey/ma-analysis-journey/step/acquisition-analysis'
+      )
+    ).toBe(true);
+  });
+
+  it('resolves calculator ids from marketing paths and journey model ids', () => {
+    expect(
+      resolveJourneyStepCalculatorId('project-finance-journey', 'dcf-valuation', '/dcf-analysis')
+    ).toBe('dcf-valuation');
+    expect(
+      resolveJourneyStepCalculatorId(
+        'ma-analysis-journey',
+        'acquisition-analysis',
+        '/journey/ma-analysis-journey/step/acquisition-analysis'
+      )
+    ).toBe('ma');
+    expect(
+      resolveJourneyStepCalculatorId(
+        'family-planning',
+        'family-budget',
+        '/journey/family-planning/step/family-budget'
+      )
+    ).toBe('mortgage');
   });
 
   it('keeps unsupported tool links on their original routes', () => {

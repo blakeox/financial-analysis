@@ -1,10 +1,8 @@
-import { CALCULATOR_CONFIGS } from '../calculators/calculator-configs';
-import { getJourneyCalculatorConfig } from './journeyCalculatorConfigs';
 import {
-  getCalculatorIdFromModelUrl,
   getJourneyStepHref,
   isJourneyStepUrl,
-  shouldGenerateFallbackStep,
+  resolveJourneyStepCalculatorId,
+  usesJourneyFallbackRoute,
 } from './journeyStepRouting';
 
 export function canRenderJourneyFallbackStep(
@@ -12,22 +10,15 @@ export function canRenderJourneyFallbackStep(
   modelId: string,
   modelUrl: string
 ): boolean {
-  if (!shouldGenerateFallbackStep(modelUrl)) {
+  if (!usesJourneyFallbackRoute(modelUrl, modelId)) {
     return false;
   }
 
-  const calculatorId = getCalculatorIdFromModelUrl(modelUrl);
-  if (!calculatorId) {
-    return false;
-  }
-
-  return Boolean(
-    CALCULATOR_CONFIGS[calculatorId] || getJourneyCalculatorConfig(scenarioId, modelId)
-  );
+  return resolveJourneyStepCalculatorId(scenarioId, modelId, modelUrl) !== null;
 }
 
 export function getJourneyModelHref(scenarioId: string, modelId: string, modelUrl: string): string {
-  if (isJourneyStepUrl(modelUrl)) {
+  if (isJourneyStepUrl(modelUrl) && !canRenderJourneyFallbackStep(scenarioId, modelId, modelUrl)) {
     return modelUrl;
   }
 
@@ -37,3 +28,5 @@ export function getJourneyModelHref(scenarioId: string, modelId: string, modelUr
 
   return modelUrl;
 }
+
+export { resolveJourneyStepCalculatorId } from './journeyStepRouting';
