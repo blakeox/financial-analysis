@@ -53,6 +53,8 @@ Structured detail sections use `renderResultPanel()` / `renderResultRow()` from 
 
 Workflow page heroes (calculators + journeys) share `WorkflowHero.astro`; `WorkflowPageIntro` and `JourneyStepHero` are thin wrappers.
 
+Journey steps should use `JourneyStepNavigation.astro` for back/next/complete CTA rows instead of inline per-page navigation markup.
+
 ```ts
 import { renderMetricCards } from '../_shared/metric-card-html';
 

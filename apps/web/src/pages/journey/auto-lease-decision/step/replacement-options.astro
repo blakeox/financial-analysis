@@ -3,6 +3,7 @@ import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
+import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['auto-lease-decision'];
@@ -247,46 +248,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               <p id="optionsRecommendation" class="fa-result-emphasis mt-4"></p>
             </div>
           </div>
-
-          <!-- Navigation -->
-          <div class="fa-card p-6 mb-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                {journeyNav.previousStep ? (
-                  <a href={journeyNav.previousStep.url} class="fa-button-secondary">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Previous: {journeyNav.previousStep.name}
-                  </a>
-                ) : (
-                  <a href={journeyNav.journeyOverviewUrl} class="fa-button-secondary">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Back to Journey
-                  </a>
-                )}
-              </div>
-              <div class="flex items-center space-x-4">
-                {journeyNav.nextStep ? (
-                  <a href={journeyNav.nextStep.url} onclick="window.location.assign(this.href); return false;" class="fa-button-primary">
-                    Next: {journeyNav.nextStep.name}
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
-                ) : (
-                  <a href={`/journey-analysis/${journeyNav.scenarioId}`} class="fa-button-primary">
-                    Complete Journey
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+          <JourneyStepNavigation
+            scenarioId={journeyNav.scenarioId}
+            journeyOverviewUrl={journeyNav.journeyOverviewUrl}
+            previousStep={journeyNav.previousStep}
+            nextStep={journeyNav.nextStep}
+          />
         </div>
 
         <!-- Sidebar -->
