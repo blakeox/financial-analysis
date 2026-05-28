@@ -5,6 +5,7 @@ import PageHero from '../../components/site/PageHero.astro';
 import SurfaceCard from '../../components/site/SurfaceCard.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getJourneyData } from '../../utils/journeyData';
+import { getJourneyModelHref } from '../../utils/journeyStepAvailability';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -23,9 +24,6 @@ if (!currentScenario) {
 
 const baseUrl = 'https://fanalyx.com';
 const currentUrl = `${baseUrl}/journey/${scenario}`;
-
-const getModelStepHref = (model: { id: string; url: string }) =>
-  model.url.startsWith('/journey/') ? model.url : `/journey/${scenario}/step/${model.id}`;
 
 // JSON-LD Structured Data for SEO
 const structuredData = {
@@ -115,7 +113,10 @@ const structuredData = {
         <h3 class="fa-panel-title mb-6">Analysis Models</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentScenario.models.map((model, index) => (
-            <a href={getModelStepHref(model)} class="fa-card block p-6 transition-transform duration-200 hover:-translate-y-1">
+            <a
+              href={getJourneyModelHref(scenario!, model.id, model.url)}
+              class="fa-card block p-6 transition-transform duration-200 hover:-translate-y-1"
+            >
               <div class="flex items-start mb-4">
                 <div class="fa-chip fa-chip-accent h-8 w-8 justify-center rounded-full p-0 mr-3">
                   {index + 1}

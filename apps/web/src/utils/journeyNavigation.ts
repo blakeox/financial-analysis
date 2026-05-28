@@ -1,4 +1,5 @@
 import type { JourneyScenario } from './journeyData';
+import { getJourneyModelHref } from './journeyStepAvailability';
 
 interface StepLink {
   id: string;
@@ -40,14 +41,14 @@ export function buildJourneyNavFromOrder({
         ? {
             id: nextStep.id,
             name: nextStep.name,
-            url: `/journey/${scenarioId}/step/${nextStep.id}`,
+            url: getJourneyModelHref(scenarioId, nextStep.id, nextStep.url),
           }
         : null,
       previousStep: previousStep
         ? {
             id: previousStep.id,
             name: previousStep.name,
-            url: `/journey/${scenarioId}/step/${previousStep.id}`,
+            url: getJourneyModelHref(scenarioId, previousStep.id, previousStep.url),
           }
         : null,
       journeyOverviewUrl: `/journey/${scenarioId}`,

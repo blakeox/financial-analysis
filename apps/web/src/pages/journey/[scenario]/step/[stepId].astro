@@ -1,6 +1,11 @@
 ---
 import JourneyCalculatorPage from '../../../../components/JourneyCalculatorPage.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import {
+  canRenderJourneyFallbackStep,
+  getJourneyModelHref,
+} from '../../../../utils/journeyStepAvailability';
+import { getCalculatorIdFromModelUrl } from '../../../../utils/journeyStepRouting';
 
 export async function getStaticPaths() {
   const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
@@ -9,7 +14,7 @@ export async function getStaticPaths() {
   // Generate fallback step pages for models that still point to calculator routes.
   for (const [scenarioId, scenario] of Object.entries(journeyData)) {
     for (const model of scenario.models) {
-      if (!model.url.startsWith('/journey/')) {
+      if (canRenderJourneyFallbackStep(scenarioId, model.id, model.url)) {
         paths.push({
           params: { scenario: scenarioId, stepId: model.id },
         });
@@ -36,24 +41,9 @@ if (!currentModel) {
 const stepNumber = currentModel.order;
 const nextStep = currentScenario.models.find(model => model.order === stepNumber + 1);
 const previousStep = currentScenario.models.find(model => model.order === stepNumber - 1);
-
-function getCalculatorIdFromModelUrl(modelUrl: string): string {
-  const segments = modelUrl.split('/').filter(Boolean);
-
-  if (segments.length === 0) {
-    throw new Error(`Invalid model url: ${modelUrl}`);
-  }
-
-  if (segments[0] === 'calculator') {
-    return segments[1] ?? '';
-  }
-
-  return segments[0] ?? '';
-}
-
-const calculatorId = getCalculatorIdFromModelUrl(currentModel.url);
-if (!calculatorId) {
-  throw new Error(`Unable to derive calculator id from model url: ${currentModel.url}`);
+const calculatorId = getCalculatorIdFromModelUrl(currentModel.url) ?? currentModel.id;
+if (!canRenderJourneyFallbackStep(scenario!, currentModel.id, currentModel.url)) {
+  throw new Error(`Unsupported journey fallback step: ${scenario}/${stepId}`);
 }
 
 // Journey navigation data
@@ -66,14 +56,14 @@ const journeyNav = {
     ? {
         id: nextStep.id,
         name: nextStep.name,
-        url: `/journey/${scenario}/step/${nextStep.id}`,
+        url: getJourneyModelHref(scenario!, nextStep.id, nextStep.url),
       }
     : null,
   previousStep: previousStep
     ? {
         id: previousStep.id,
         name: previousStep.name,
-        url: `/journey/${scenario}/step/${previousStep.id}`,
+        url: getJourneyModelHref(scenario!, previousStep.id, previousStep.url),
       }
     : null,
   journeyOverviewUrl: `/journey/${scenario}`,
