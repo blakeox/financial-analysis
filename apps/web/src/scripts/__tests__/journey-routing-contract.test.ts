@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
+import { listJourneyFallbackSteps } from '../../utils/journeyFallbackSteps';
 import { getJourneyData } from '../../utils/journeyData';
 import {
   canRenderJourneyFallbackStep,
   getJourneyModelHref,
+  resolveJourneyStepCalculatorId,
 } from '../../utils/journeyStepAvailability';
 import {
   JOURNEY_STEP_IDS_WITH_DEDICATED_PAGES,
@@ -79,5 +81,22 @@ describe('journey routing contract', () => {
     }
 
     expect(missingFallback).toEqual([]);
+  });
+
+  it('lists only non-dedicated steps for static fallback generation', () => {
+    const fallbackSteps = listJourneyFallbackSteps();
+
+    expect(fallbackSteps.length).toBeGreaterThan(0);
+
+    for (const { scenarioId, modelId } of fallbackSteps) {
+      expect(JOURNEY_STEP_IDS_WITH_DEDICATED_PAGES.has(modelId)).toBe(false);
+
+      const model = getJourneyData()[scenarioId]?.models.find((entry) => entry.id === modelId);
+      if (!model) {
+        throw new Error(`Missing model ${scenarioId}:${modelId}`);
+      }
+      expect(canRenderJourneyFallbackStep(scenarioId, modelId, model.url)).toBe(true);
+      expect(resolveJourneyStepCalculatorId(scenarioId, modelId, model.url)).toBeTruthy();
+    }
   });
 });

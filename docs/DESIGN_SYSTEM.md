@@ -31,7 +31,7 @@ Use when a model has a dedicated URL outside `/calculator/*` (e.g. `/bond-pricin
 
 - **Layout:** `showChat={false}` and `showToolAnalysis={false}` — chat lives in `WorkflowSupportRail`.
 - **Hook:** hidden `<div id="results" aria-hidden="true">` for `storeAnalysisResult` metadata.
-- **Grid:** `xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]` with form/dashboard in the left column.
+- **Grid:** `.fa-workflow-grid` with form/dashboard in the left column.
 - **Rail:** `<WorkflowSupportRail modelType="…" />` where `modelType` matches `ANALYSIS_ENGINE_MODEL_TYPES` (use overrides like `cca-valuation` for `analyze_cca_valuation`).
 - **Client:** call `storeAnalysisResult('analyze_<kebab>', payload)` after each successful run; use `renderMetricCards()` for in-page KPIs when applicable.
 - **Lease dashboard:** mount via `lease-analysis-dashboard-host.client.ts` so `persistLeaseAnalysisResult()` wires `analyze_lease` correctly.
