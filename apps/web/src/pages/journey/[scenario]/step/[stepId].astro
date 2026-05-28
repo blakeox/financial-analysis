@@ -4,20 +4,57 @@ import { getJourneyData } from '../../../../utils/journeyData';
 
 export async function getStaticPaths() {
   const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
+  const journeyData = getJourneyData();
 
-  // All journeys now use the new descriptive step format with dedicated pages
-  // This file is kept for backward compatibility but no longer generates paths
+  // Generate fallback step pages for models that still point to calculator routes.
+  for (const [scenarioId, scenario] of Object.entries(journeyData)) {
+    for (const model of scenario.models) {
+      if (!model.url.startsWith('/journey/')) {
+        paths.push({
+          params: { scenario: scenarioId, stepId: model.id },
+        });
+      }
+    }
+  }
+
   return paths;
 }
 
 const { scenario, stepId } = Astro.params;
 const journeyData = getJourneyData();
 const currentScenario = journeyData[scenario!];
-const stepNumber = parseInt(stepId!.split('-')[0]);
-const modelId = stepId!.split('-').slice(1).join('-');
-const currentModel = currentScenario.models.find(m => m.id === modelId);
-const nextStep = currentScenario.models[stepNumber];
-const previousStep = currentScenario.models[stepNumber - 2];
+
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+const currentModel = currentScenario.models.find(m => m.id === stepId);
+if (!currentModel) {
+  throw new Error(`Step not found in scenario ${scenario}: ${stepId}`);
+}
+
+const stepNumber = currentModel.order;
+const nextStep = currentScenario.models.find(model => model.order === stepNumber + 1);
+const previousStep = currentScenario.models.find(model => model.order === stepNumber - 1);
+
+function getCalculatorIdFromModelUrl(modelUrl: string): string {
+  const segments = modelUrl.split('/').filter(Boolean);
+
+  if (segments.length === 0) {
+    throw new Error(`Invalid model url: ${modelUrl}`);
+  }
+
+  if (segments[0] === 'calculator') {
+    return segments[1] ?? '';
+  }
+
+  return segments[0] ?? '';
+}
+
+const calculatorId = getCalculatorIdFromModelUrl(currentModel.url);
+if (!calculatorId) {
+  throw new Error(`Unable to derive calculator id from model url: ${currentModel.url}`);
+}
 
 // Journey navigation data
 const journeyNav = {
@@ -25,17 +62,21 @@ const journeyNav = {
   scenarioName: currentScenario.name,
   currentStep: stepNumber,
   totalSteps: currentScenario.models.length,
-  nextStep: nextStep ? {
-    id: nextStep.id,
-    name: nextStep.name,
-    url: `/journey/${scenario}/step/${stepNumber + 1}-${nextStep.id}`
-  } : null,
-  previousStep: previousStep ? {
-    id: previousStep.id,
-    name: previousStep.name,
-    url: `/journey/${scenario}/step/${stepNumber - 1}-${previousStep.id}`
-  } : null,
-  journeyOverviewUrl: `/journey/${scenario}`
+  nextStep: nextStep
+    ? {
+        id: nextStep.id,
+        name: nextStep.name,
+        url: `/journey/${scenario}/step/${nextStep.id}`,
+      }
+    : null,
+  previousStep: previousStep
+    ? {
+        id: previousStep.id,
+        name: previousStep.name,
+        url: `/journey/${scenario}/step/${previousStep.id}`,
+      }
+    : null,
+  journeyOverviewUrl: `/journey/${scenario}`,
 };
 
 // SEO-optimized content
@@ -44,7 +85,7 @@ const seoDescription = `${currentModel?.description} This is step ${stepNumber} 
 ---
 
 <JourneyCalculatorPage 
-  calculatorId={modelId!}
+  calculatorId={calculatorId}
   title={seoTitle}
   description={seoDescription}
   journeyNav={journeyNav}
