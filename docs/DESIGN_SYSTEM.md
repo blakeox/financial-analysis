@@ -39,7 +39,9 @@ apps/web/src/styles/
 ├── base.css         # body, skip-link
 ├── components.css   # @import hub for fa-* partials
 └── components/
-    ├── spine.css    # core fa-* (cards, buttons, forms, workflow)
+    ├── spine.css    # layout, cards, workflow, typography copy
+    ├── buttons.css  # fa-button-*, fa-actions
+    ├── forms.css    # fa-field-*, fa-input-surface, fa-form-*
     ├── home.css     # fa-home-* landing page typography
     └── navbar.css   # #site-nav.modern-nav scoped styles
 ```

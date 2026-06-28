@@ -6,6 +6,12 @@ import type {
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
 import { renderMetricCard } from '../_shared/metric-card-html';
 import {
+  renderDataTableCell,
+  renderLegendItem,
+  renderSectionHeading,
+  spineCopyClasses,
+} from '../_shared/spine-html';
+import {
   coerceNumber,
   formatCurrency,
   hideError,
@@ -764,26 +770,17 @@ export const renderChart = (
   target.innerHTML = `
     <div class="space-y-5">
       <!-- Enhanced Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 fa-panel-divider">
         <div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Amortization Schedule Visualization</h3>
+          ${renderSectionHeading('Amortization Schedule Visualization', 'mb-1')}
           <p class="fa-script-copy-muted">Track payment breakdown and remaining balance over time</p>
         </div>
         
         <!-- Enhanced Legend -->
-        <div class="flex flex-wrap items-center gap-5 text-sm bg-slate-50 dark:bg-slate-900/60/50 px-4 py-3 rounded-lg">
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.principal}"></div>
-            <span class="font-semibold text-slate-700 dark:text-slate-300">Principal</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.interest}"></div>
-            <span class="font-semibold text-slate-700 dark:text-slate-300">Interest</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded" style="background-color: ${CHART_COLORS.balance}"></div>
-            <span class="font-semibold text-slate-700 dark:text-slate-300">Balance</span>
-          </div>
+        <div class="fa-subcard flex flex-wrap items-center gap-5 text-sm px-4 py-3">
+          ${renderLegendItem('Principal', { swatchStyle: `background-color: ${CHART_COLORS.principal}` })}
+          ${renderLegendItem('Interest', { swatchStyle: `background-color: ${CHART_COLORS.interest}` })}
+          ${renderLegendItem('Balance', { swatchStyle: `background-color: ${CHART_COLORS.balance}` })}
         </div>
       </div>
       
@@ -841,7 +838,7 @@ export const renderChart = (
       <!-- Enhanced Chart Footer -->
       <div class="text-center pt-2">
         <p class="fa-script-copy-muted">
-          <span class="font-semibold text-slate-700 dark:text-slate-300">${totalMonths} months</span> complete schedule • 
+          <span class="${spineCopyClasses.listCopyStrong}">${totalMonths} months</span> complete schedule • 
           <span class="font-medium text-emerald-600 dark:text-emerald-400">Left:</span> Payment components (Principal & Interest) • 
           <span class="font-medium text-violet-600 dark:text-violet-400">Right:</span> Remaining loan balance
         </p>
@@ -872,12 +869,12 @@ export const renderSchedule = (
 
       return `
         <tr class="${highlightClass}">
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">${month}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-slate-900 dark:text-slate-100">${payment}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-orange-600 dark:text-orange-400">${interest}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">${balance}</td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-right fa-help-copy">${cumulativeInterest}</td>
+          ${renderDataTableCell(String(month))}
+          ${renderDataTableCell(payment, 'right')}
+          <td class="${spineCopyClasses.dataTableCell} text-right text-emerald-600 dark:text-emerald-400">${principal}</td>
+          <td class="${spineCopyClasses.dataTableCell} text-right text-orange-600 dark:text-orange-400">${interest}</td>
+          ${renderDataTableCell(`<span class="font-medium">${balance}</span>`, 'right')}
+          <td class="${spineCopyClasses.dataTableCell} text-right fa-help-copy">${cumulativeInterest}</td>
         </tr>
       `;
     })

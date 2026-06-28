@@ -11,13 +11,7 @@ type OptimizationGoal = 'maximize_savings' | 'reduce_debt' | 'balance' | 'reduce
 type IncomeType = 'salary' | 'business' | 'investment' | 'rental' | 'other';
 
 type ExpenseType =
-  | 'housing'
-  | 'food'
-  | 'transportation'
-  | 'utilities'
-  | 'insurance'
-  | 'entertainment'
-  | 'other';
+  'housing' | 'food' | 'transportation' | 'utilities' | 'insurance' | 'entertainment' | 'other';
 
 // Emergency Fund Progress Tracker
 interface EmergencyFundProgress {

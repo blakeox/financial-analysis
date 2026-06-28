@@ -17,7 +17,7 @@
   "apps/web/src/scripts/business/saas-metrics.client.ts": 26,
   "apps/web/src/scripts/business/side-hustle-income.client.ts": 12,
   "apps/web/src/scripts/business/unit-economics.client.ts": 52,
-  "apps/web/src/scripts/calculators/amortization.client.ts": 18,
+  "apps/web/src/scripts/calculators/amortization.client.ts": 2,
   "apps/web/src/scripts/calculators/auto-loan.client.ts": 10,
   "apps/web/src/scripts/calculators/break-even.client.ts": 33,
   "apps/web/src/scripts/calculators/budget.client.ts": 21,

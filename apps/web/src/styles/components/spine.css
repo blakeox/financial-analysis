@@ -117,108 +117,6 @@
     color: #d2ccdf;
   }
 
-  .fa-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .fa-button-primary,
-  .fa-button-secondary,
-  .fa-button-success {
-    align-items: center;
-    border-radius: var(--fa-radius-lg);
-    display: inline-flex;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    justify-content: center;
-    min-height: 3.25rem;
-    padding: 0.9rem 1.25rem;
-    transition: all 180ms ease;
-  }
-
-  .fa-button-primary {
-    background: var(--fa-brand-gradient);
-    box-shadow: var(--fa-brand-shadow);
-    color: var(--fa-text-on-brand);
-  }
-
-  .fa-button-primary:hover {
-    box-shadow: var(--fa-brand-shadow-hover);
-    transform: translateY(-1px);
-  }
-
-  .fa-button-success-state {
-    background: linear-gradient(135deg, #16a66a, #0f7d50);
-    border-color: transparent;
-    color: white;
-  }
-
-  .fa-button-success {
-    background: var(--fa-success-gradient);
-    box-shadow: var(--fa-success-shadow);
-    color: var(--fa-text-on-brand);
-    transform: translateZ(0);
-  }
-
-  .fa-button-success:hover {
-    background: linear-gradient(135deg, var(--fa-success-hover), #047857);
-    box-shadow: var(--fa-success-shadow-hover);
-    transform: translateY(-1px);
-  }
-
-  .fa-button-info-compact {
-    align-items: center;
-    background: var(--fa-brand-gradient);
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 24px rgba(109, 74, 255, 0.18);
-    color: var(--fa-text-on-brand);
-    display: inline-flex;
-    font-size: 0.875rem;
-    font-weight: 600;
-    justify-content: center;
-    padding: 0.25rem 0.75rem;
-    transition: all 180ms ease;
-  }
-
-  .fa-button-info-compact:hover {
-    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
-    box-shadow: 0 14px 28px rgba(109, 74, 255, 0.24);
-    transform: translateY(-1px);
-  }
-
-  .fa-button-info-md {
-    align-items: center;
-    background: var(--fa-brand-gradient);
-    border-radius: 0.875rem;
-    box-shadow: 0 12px 28px rgba(109, 74, 255, 0.22);
-    color: var(--fa-text-on-brand);
-    display: inline-flex;
-    font-weight: 600;
-    justify-content: center;
-    padding: 0.5rem 1rem;
-    transition: all 180ms ease;
-  }
-
-  .fa-button-info-md:hover {
-    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
-    box-shadow: 0 16px 32px rgba(109, 74, 255, 0.26);
-    transform: translateY(-1px);
-  }
-
-  .fa-button-success-state:hover {
-    background: linear-gradient(135deg, #16a66a, #0f7d50);
-    color: white;
-  }
-
-  .fa-field-error {
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
-  }
-
   .fa-metric-card {
     border-radius: 0.5rem;
     padding: 1rem;
@@ -563,51 +461,6 @@
     }
   }
 
-  .fa-button-secondary {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-gray-200);
-    color: var(--color-gray-900);
-    box-shadow: 0 12px 28px rgba(9, 14, 36, 0.08);
-  }
-
-  .fa-button-secondary:hover {
-    border-color: rgba(109, 74, 255, 0.28);
-    box-shadow: 0 16px 36px rgba(9, 14, 36, 0.12);
-    transform: translateY(-1px);
-  }
-
-  .dark .fa-button-secondary {
-    background: rgba(35, 41, 71, 0.92);
-    border-color: rgba(94, 100, 120, 0.64);
-    color: white;
-  }
-
-  .dark .fa-button-secondary:hover {
-    background: rgba(35, 41, 71, 1);
-    border-color: rgba(159, 130, 255, 0.28);
-    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.32);
-  }
-
-  .fa-button-light {
-    background: white;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 999px;
-    color: var(--color-primary-700);
-    display: inline-flex;
-    font-weight: 700;
-    justify-content: center;
-    padding: 0.95rem 1.5rem;
-    transition:
-      transform 180ms ease,
-      box-shadow 180ms ease,
-      background 180ms ease;
-  }
-
-  .fa-button-light:hover {
-    box-shadow: 0 18px 40px rgba(9, 14, 36, 0.18);
-    transform: translateY(-1px);
-  }
-
   .fa-accordion summary::-webkit-details-marker {
     display: none;
   }
@@ -643,28 +496,6 @@
       top: 2.2rem;
       width: 2.5rem;
     }
-  }
-
-  .fa-button-ghost-light {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.72);
-    border-radius: 999px;
-    color: white;
-    display: inline-flex;
-    font-weight: 700;
-    justify-content: center;
-    padding: 0.95rem 1.5rem;
-    transition:
-      transform 180ms ease,
-      background 180ms ease,
-      color 180ms ease,
-      border-color 180ms ease;
-  }
-
-  .fa-button-ghost-light:hover {
-    background: white;
-    color: var(--color-primary-700);
-    transform: translateY(-1px);
   }
 
   .fa-shell-brand-mark {
@@ -895,29 +726,6 @@
     width: 3rem;
   }
 
-  .fa-input-surface {
-    background: white;
-    border: 1px solid rgba(210, 204, 223, 0.92);
-    border-radius: 0.9rem;
-    color: var(--color-gray-900);
-    min-height: 2.75rem;
-    padding: 0.65rem 0.9rem;
-    transition:
-      border-color 180ms ease,
-      box-shadow 180ms ease,
-      background 180ms ease;
-  }
-
-  .fa-input-surface::placeholder {
-    color: var(--color-gray-500);
-  }
-
-  .fa-input-surface:focus {
-    border-color: rgba(109, 74, 255, 0.34);
-    box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.14);
-    outline: none;
-  }
-
   .dark .fa-shell-nav-link {
     color: #d2ccdf;
   }
@@ -1005,16 +813,6 @@
 
   .dark .fa-avatar-badge {
     border-color: var(--color-gray-800);
-  }
-
-  .dark .fa-input-surface {
-    background: rgba(35, 41, 71, 0.92);
-    border-color: rgba(94, 100, 120, 0.64);
-    color: white;
-  }
-
-  .dark .fa-input-surface::placeholder {
-    color: var(--color-gray-500);
   }
 
   .fa-card {
@@ -1109,22 +907,12 @@
     color: #cbd5e1;
   }
 
-  /** Color-only muted copy — pair with text-sm / text-xs */
   .fa-copy-muted {
     color: var(--color-gray-600);
   }
 
   .dark .fa-copy-muted {
     color: #cbd5e1;
-  }
-
-  .fa-form-label {
-    color: var(--color-gray-700);
-    font-weight: 600;
-  }
-
-  .dark .fa-form-label {
-    color: var(--color-gray-300);
   }
 
   .fa-price-display {
@@ -1524,14 +1312,6 @@
     background: rgba(55, 65, 81, 0.8);
   }
 
-  .fa-help-copy-interactive:hover {
-    color: var(--color-gray-700);
-  }
-
-  .dark .fa-help-copy-interactive:hover {
-    color: #e5e7eb;
-  }
-
   .fa-data-table {
     border: 1px solid var(--color-gray-300);
     border-collapse: collapse;
@@ -1769,27 +1549,6 @@
 
   .dark .fa-panel-title {
     color: #fff;
-  }
-
-  .fa-field-label {
-    color: var(--color-gray-700);
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .dark .fa-field-label {
-    color: var(--color-gray-300);
-  }
-
-  .fa-help-copy {
-    color: var(--color-gray-600);
-    font-size: 0.75rem;
-    line-height: 1.5;
-  }
-
-  .dark .fa-help-copy {
-    color: #cbd5e1;
   }
 
   .fa-list-copy {

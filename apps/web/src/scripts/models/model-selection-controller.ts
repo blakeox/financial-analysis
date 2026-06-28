@@ -329,17 +329,13 @@ export function initializeModelSelection(
   const featuresListElement = doc.getElementById('selected-model-features');
   const statusBadgeElement = doc.getElementById('selected-model-status');
   const ctaElement = doc.getElementById('selected-model-cta') as
-    | HTMLAnchorElement
-    | HTMLButtonElement
-    | null;
+    HTMLAnchorElement | HTMLButtonElement | null;
 
   const modelCards = Array.from(doc.querySelectorAll<HTMLElement>('.model-card'));
   const cardElements = modelCards.map<ModelCardElements>((root) => ({
     root,
     ctaButton: root.querySelector('[data-model-cta]') as
-      | HTMLAnchorElement
-      | HTMLButtonElement
-      | null,
+      HTMLAnchorElement | HTMLButtonElement | null,
   }));
   const cardElementLookup = new Map<string, ModelCardElements>();
 

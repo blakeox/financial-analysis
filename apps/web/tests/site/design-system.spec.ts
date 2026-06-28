@@ -21,4 +21,13 @@ test.describe('Design system page', () => {
     await expect(page.getByRole('button', { name: /Switch to (light|dark)/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Rail card' })).toBeVisible();
   });
+
+  test('matches light-mode visual baseline', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/developers/design-system');
+    await page.locator('.fa-page-shell').waitFor({ state: 'visible' });
+    await expect(page.locator('.fa-page-shell')).toHaveScreenshot('design-system-light.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
 });

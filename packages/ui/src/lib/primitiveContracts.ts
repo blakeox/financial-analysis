@@ -46,9 +46,7 @@ export const primitiveContracts = {
 } as const;
 
 export type ButtonVariant =
-  | (typeof primitiveContracts.button.variants)[number]
-  | 'danger'
-  | 'tertiary';
+  (typeof primitiveContracts.button.variants)[number] | 'danger' | 'tertiary';
 export type ButtonSize = (typeof primitiveContracts.button.sizes)[number];
 export type CardVariant = (typeof primitiveContracts.card.variants)[number];
 export type InputState = (typeof primitiveContracts.input.states)[number];

@@ -29,10 +29,7 @@ export const collectRevenueStreams = (formData: FormData, maxStreams: number): R
     const currentMonthlyRevenue = parseNumber(formData.get(`stream-revenue-${i}`));
     const growthRate = parseNumber(formData.get(`stream-growth-${i}`));
     const seasonality = formData.get(`stream-seasonality-${i}`) as
-      | 'none'
-      | 'retail'
-      | 'b2b'
-      | 'custom';
+      'none' | 'retail' | 'b2b' | 'custom';
 
     if (
       name &&
