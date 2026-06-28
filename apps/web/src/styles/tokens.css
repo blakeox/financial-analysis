@@ -1,0 +1,132 @@
+/* Fanalyx design tokens — single source of truth for both fa-* CSS and React class strings */
+
+:root {
+  /* Brand palette (maps to Tailwind violet scale) */
+  --color-primary-50: #f7f4ff;
+  --color-primary-100: #efe9ff;
+  --color-primary-200: #ddd2ff;
+  --color-primary-300: #c3adff;
+  --color-primary-400: #9f82ff;
+  --color-primary-500: #6d4aff;
+  --color-primary-600: #5636e8;
+  --color-primary-700: #4328bb;
+  --color-primary-800: #311e86;
+  --color-primary-900: #211657;
+  --color-primary-950: #160b38;
+
+  /* Neutral palette (purple-tinted grays) */
+  --color-gray-50: #fafaff;
+  --color-gray-100: #f7f4ff;
+  --color-gray-200: #e7e4f2;
+  --color-gray-300: #d2ccdf;
+  --color-gray-400: #b0aabe;
+  --color-gray-500: #5e6478;
+  --color-gray-600: #5e6478;
+  --color-gray-700: #40465d;
+  --color-gray-800: #232947;
+  --color-gray-900: #090e24;
+  --color-gray-950: #050816;
+
+  /* Semantic aliases */
+  --fa-brand: var(--color-primary-500);
+  --fa-brand-hover: var(--color-primary-600);
+  --fa-brand-active: var(--color-primary-700);
+  --fa-brand-light: var(--color-primary-50);
+  --fa-brand-shadow: 0 14px 32px rgba(109, 74, 255, 0.28);
+  --fa-brand-shadow-hover: 0 18px 40px rgba(109, 74, 255, 0.34);
+  --fa-brand-shadow-active: 0 12px 24px rgba(109, 74, 255, 0.24);
+  --fa-brand-gradient: linear-gradient(135deg, var(--fa-brand), var(--fa-brand-hover));
+
+  --fa-success: #16a34a;
+  --fa-success-hover: #15803d;
+  --fa-success-shadow: 0 12px 28px rgba(16, 185, 129, 0.24);
+  --fa-success-shadow-hover: 0 16px 36px rgba(16, 185, 129, 0.3);
+  --fa-success-gradient: linear-gradient(135deg, #16a34a, #059669);
+
+  --fa-danger: #e11d48;
+  --fa-danger-shadow: 0 12px 28px rgba(225, 29, 72, 0.22);
+  --fa-danger-shadow-hover: 0 16px 36px rgba(225, 29, 72, 0.28);
+
+  --fa-warning: #f59e0b;
+  --fa-warning-shadow: 0 12px 28px rgba(245, 158, 11, 0.22);
+
+  /* Surfaces */
+  --fa-surface: #ffffff;
+  --fa-surface-elevated: rgba(255, 255, 255, 0.95);
+  --fa-surface-subtle: #fafaff;
+  --fa-surface-muted: rgba(255, 255, 255, 0.92);
+
+  /* Text */
+  --fa-text-primary: var(--color-gray-900);
+  --fa-text-secondary: var(--color-gray-600);
+  --fa-text-muted: #475569;
+  --fa-text-on-brand: #ffffff;
+
+  /* Radius & shadow */
+  --fa-radius-md: 0.9rem;
+  --fa-radius-lg: 1rem;
+  --fa-radius-xl: 1.5rem;
+  --fa-radius-2xl: 1.75rem;
+  --fa-shadow-card: 0 18px 50px rgba(9, 14, 36, 0.07);
+  --fa-shadow-elevated: 0 24px 60px rgba(9, 14, 36, 0.1);
+
+  /* Typography */
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-serif: 'Fraunces', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+
+  /* Layout */
+  --chat-panel-active-width: 0px;
+  --chat-panel-top-offset: 0px;
+
+  /* Homepage aliases (used by fa-home-* classes inside .landing-page) */
+  --color-navy: #090e24;
+  --color-deep-navy: #050816;
+  --color-purple: #6d4aff;
+  --color-purple-dark: #5636e8;
+  --color-purple-light: #eee9ff;
+  --color-lavender: #f7f4ff;
+  --color-white: #ffffff;
+  --color-off-white: #fafaff;
+  --color-border: #e7e4f2;
+  --color-muted-text: #5e6478;
+  --color-soft-text: #5e6478;
+  --color-success: #047857;
+}
+
+.dark {
+  --color-gray-500: #9ca3af;
+
+  --fa-surface: #050816;
+  --fa-surface-elevated: rgba(5, 8, 22, 0.85);
+  --fa-surface-subtle: #090e24;
+  --fa-surface-muted: rgba(35, 41, 71, 0.92);
+
+  --fa-text-primary: #ffffff;
+  --fa-text-secondary: #cbd5e1;
+  --fa-text-muted: #94a3b8;
+
+  --fa-shadow-card: 0 18px 50px rgba(2, 6, 23, 0.28);
+  --fa-shadow-elevated: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Tailwind v4 theme bridge — enables bg-brand, text-text-muted, etc. */
+@theme {
+  --color-brand: var(--fa-brand);
+  --color-brand-hover: var(--fa-brand-hover);
+  --color-brand-active: var(--fa-brand-active);
+  --color-brand-light: var(--fa-brand-light);
+  --color-surface: var(--fa-surface);
+  --color-surface-elevated: var(--fa-surface-elevated);
+  --color-surface-subtle: var(--fa-surface-subtle);
+  --color-text-muted: var(--fa-text-muted);
+  --color-text-primary: var(--fa-text-primary);
+  --color-text-secondary: var(--fa-text-secondary);
+  --radius-card: var(--fa-radius-xl);
+  --radius-card-lg: var(--fa-radius-2xl);
+  --shadow-card: var(--fa-shadow-card);
+  --shadow-elevated: var(--fa-shadow-elevated);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}

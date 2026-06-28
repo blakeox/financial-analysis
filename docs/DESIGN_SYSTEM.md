@@ -2,14 +2,43 @@
 
 This document describes how visual patterns are split between the Astro app and the shared React UI package, and which primitives to use for new work.
 
+**Live catalog:** [/developers/design-system](/developers/design-system) (buttons, badges, callouts, metric cards, both tiers).
+
 ## Two tiers
 
 | Tier | Location | Use for |
 |------|----------|---------|
-| **App spine (`fa-*`)** | `apps/web/src/styles/global.css` | Calculator template pages, client-script HTML, Astro layouts, workflow rail |
+| **App spine (`fa-*`)** | `apps/web/src/styles/` (`tokens.css`, `components.css`, imported by `global.css`) | Calculator template pages, client-script HTML, Astro layouts, workflow rail |
 | **React components** | `@financial-analysis/ui` | Islands, dashboards, forms with validation props, charts |
 
 Prefer extending an existing tier over inventing one-off Tailwind blocks in client scripts.
+
+## Design tokens
+
+Single source of truth: `apps/web/src/styles/tokens.css`
+
+- **Semantic vars:** `--fa-brand`, `--fa-brand-shadow`, `--fa-text-muted`, `--fa-shadow-card`, etc.
+- **Palette:** `--color-primary-*`, `--color-gray-*` (purple-tinted brand)
+- **Tailwind bridge:** `@theme` block exposes `bg-brand`, `text-text-muted`, `shadow-card`, etc.
+
+React class strings in `packages/ui/src/lib/classNames.ts` reference the same token shadows (e.g. `var(--fa-brand-shadow)`). Change brand purple once in `tokens.css` to update both tiers.
+
+**Token change checklist:**
+
+1. Edit `apps/web/src/styles/tokens.css`
+2. Update `REQUIRED_CONTRAST_PAIRS` in `packages/ui/src/lib/a11y-contrast.ts` if text colors change
+3. Run `pnpm run test:layout` in `apps/web` and `pnpm run verify` at repo root
+
+## CSS file layout
+
+```
+apps/web/src/styles/
+├── global.css       # @import hub (tailwindcss + partials)
+├── tokens.css       # :root, .dark, @theme
+├── utilities.css    # gpu, safe-bottom, bg-linear-to-r, etc.
+├── base.css         # body, skip-link
+└── components.css   # all fa-* classes
+```
 
 ## Page archetypes
 
@@ -92,11 +121,19 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#form-validation-styling). Summary:
 
 Use for interactive islands:
 
-- **Forms:** `CurrencyField`, `PercentField`, `Input`, `Select` — `inputStateClasses.error`, `textColors.muted` for helper text
+- **Primitives:** `Button`, `Card`, `Badge`, `Callout`, `Input`, `Select`, `Tabs`
+- **Forms:** `CurrencyField`, `PercentField` — `inputStateClasses.error`, `textColors.muted` for helper text
 - **Metrics:** `EnhancedMetricCard`, charts under `packages/ui/src/components/charts/`
-- **Contrast:** `textColors.muted` from `ui-constants`; do not use bare `text-slate-400` on light surfaces (enforced by `check-a11y-contrast.mjs` and ESLint `fa-a11y/prefer-accessible-muted-text`)
+- **Contrast:** `textColors.muted` from `classNames.ts`; do not use bare `text-slate-400` on light surfaces (enforced by `check-a11y-contrast.mjs` and ESLint `fa-a11y/prefer-accessible-muted-text`)
+
+Variant contracts live in `packages/ui/src/lib/primitiveContracts.ts` with enforcement tests.
 
 Documented further in `packages/ui/docs/financial-forms.mdx`.
+
+## Styling exceptions
+
+- **`ChatPanel.astro`** uses a VS Code–inspired sub-theme (~700 lines scoped CSS). Intentionally separate from Fanalyx brand tokens.
+- **Homepage** (`.landing-page` in `index.astro`) may scope additional aliases; shared homepage typography uses `fa-home-*` classes backed by tokens in `tokens.css`.
 
 ## Analysis results events
 
@@ -104,7 +141,7 @@ Client scripts that persist results for the rail should use `dispatchAnalysisRes
 
 ## When to add new `fa-*` classes
 
-Add to `global.css` when:
+Add to `apps/web/src/styles/components.css` (via the `@layer components` block) when:
 
 - Three or more pages/scripts repeat the same pattern, or
 - The pattern is part of the calculator/journey spine (rail, KPI grid, callouts)

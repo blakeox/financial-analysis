@@ -85,6 +85,7 @@ type ScriptLoaderMap = {
   'investment-portfolio': () => Promise<unknown>;
   'retirement-planning': () => Promise<unknown>;
   'roth-vs-traditional-ira': () => Promise<unknown>;
+  'calculator-quick-access': () => Promise<unknown>;
 };
 
 const scriptLoaders: ScriptLoaderMap = {
@@ -188,6 +189,7 @@ const scriptLoaders: ScriptLoaderMap = {
   'field-highlighting': () => import('../scripts/_shared/field-highlighting.client.ts'),
   'dashboard-personal': () => import('../scripts/_shared/dashboard-personal.client.ts'),
   'a11y-interactive-cards': () => import('../scripts/a11y/interactive-cards.client.ts'),
+  'calculator-quick-access': () => import('../scripts/calculator-quick-access.client.ts'),
 };
 
 export type ClientScriptName = keyof typeof scriptLoaders;

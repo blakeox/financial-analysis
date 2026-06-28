@@ -1,0 +1,51 @@
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 80% 10%, rgba(109, 74, 255, 0.08), transparent 28%),
+      linear-gradient(180deg, #ffffff 0%, #fafaff 100%);
+    color: var(--color-gray-900);
+    font-family: var(--font-sans);
+    padding-right: var(--chat-panel-active-width, 0px);
+    transition: padding-right 0.3s ease;
+  }
+
+  body.chat-panel-open {
+    overflow-x: hidden;
+  }
+
+  html[data-dev-font-sans='system'] {
+    --font-sans:
+      ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  }
+
+  /* Visually hidden skip links that appear on focus */
+  .skip-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-120%);
+    background: var(--color-gray-800);
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline: 2px solid transparent;
+    transition: transform 0.25s ease;
+    z-index: 60;
+    text-decoration: none;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+  .dark .skip-link {
+    background: var(--color-gray-900);
+  }
+}
