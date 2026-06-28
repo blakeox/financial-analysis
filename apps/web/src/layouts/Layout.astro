@@ -212,3 +212,17 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     <ClientScriptLoader client:load name="a11y-interactive-cards" />
   </body>
 </html>
+
+<script>
+  import { enhanceScrollablePromptPanels } from '../scripts/a11y/scrollable-prompt-panels.ts';
+
+  const runScrollablePromptPanelEnhancement = () => enhanceScrollablePromptPanels();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runScrollablePromptPanelEnhancement, {
+      once: true,
+    });
+  } else {
+    runScrollablePromptPanelEnhancement();
+  }
+  document.addEventListener('astro:page-load', runScrollablePromptPanelEnhancement);
+</script>
