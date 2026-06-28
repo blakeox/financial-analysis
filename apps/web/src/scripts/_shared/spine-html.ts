@@ -22,6 +22,33 @@ export const spineCopyClasses = {
   dataTableHeader: 'fa-data-table-header',
 } as const;
 
+export type HealthLevel = 'excellent' | 'good' | 'needs-improvement' | 'critical';
+
+export function healthBannerClass(level: HealthLevel): string {
+  const map: Record<HealthLevel, string> = {
+    excellent: 'fa-callout-success mb-6 p-6',
+    good: 'fa-highlight-card mb-6 p-6',
+    'needs-improvement': 'fa-callout-warning mb-6 p-6',
+    critical: 'fa-callout-danger mb-6 p-6',
+  };
+  return map[level];
+}
+
+export type BenchmarkStatus = 'good' | 'warning' | 'poor';
+
+export function benchmarkStatusChipClass(status: BenchmarkStatus): string {
+  const map: Record<BenchmarkStatus, string> = {
+    good: 'fa-chip fa-chip-success',
+    warning: 'fa-chip fa-chip-warning',
+    poor: 'fa-chip fa-chip-danger',
+  };
+  return map[status];
+}
+
+export function scenarioCardClass(isHighlighted: boolean): string {
+  return isHighlighted ? 'fa-subcard border-2 border-emerald-500' : 'fa-subcard';
+}
+
 export type ChipVariant = 'accent' | 'success' | 'warning' | 'danger' | 'muted';
 
 export function chipClass(variant: ChipVariant): string {

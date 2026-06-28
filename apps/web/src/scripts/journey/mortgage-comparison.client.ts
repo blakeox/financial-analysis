@@ -1,4 +1,5 @@
 import { renderMetricCards } from '../_shared/metric-card-html';
+import { renderKeyValueRow, scenarioCardClass } from '../_shared/spine-html';
 
 const formatCurrency = (value: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -123,79 +124,45 @@ const initMortgageComparison = async () => {
 
       comparisonContent.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div class="bg-white dark:bg-slate-700 rounded-lg p-6 border-2 ${
-            winner === 'scenario1' ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'
-          }">
+          <div class="${scenarioCardClass(winner === 'scenario1')}">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💼 Scenario 1</h4>
+              <h4 class="fa-panel-title">💼 Scenario 1</h4>
               ${winner === 'scenario1' ? '<span class="fa-badge-success">Best Value</span>' : ''}
             </div>
             <div class="space-y-3 text-sm">
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Down Payment:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1Down)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Loan Amount:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1Principal)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Rate:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${(scenario1Rate * 100).toFixed(2)}%</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Monthly Payment:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1.monthlyPayment)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Total Interest:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario1.totalInterest)}</span>
-              </div>
-              <div class="flex justify-between pt-2 border-t border-slate-300 dark:border-slate-700">
-                <span class="text-slate-900 dark:text-white font-semibold">Total Cost:</span>
-                <span class="font-bold text-lg text-slate-900 dark:text-white">${formatCurrency(scenario1TotalCost)}</span>
+              ${renderKeyValueRow('Down Payment:', formatCurrency(scenario1Down))}
+              ${renderKeyValueRow('Loan Amount:', formatCurrency(scenario1Principal))}
+              ${renderKeyValueRow('Rate:', `${(scenario1Rate * 100).toFixed(2)}%`)}
+              ${renderKeyValueRow('Monthly Payment:', formatCurrency(scenario1.monthlyPayment))}
+              ${renderKeyValueRow('Total Interest:', formatCurrency(scenario1.totalInterest))}
+              <div class="flex justify-between pt-2 fa-panel-divider">
+                <span class="fa-list-copy-strong">Total Cost:</span>
+                <span class="font-bold text-lg fa-list-copy-strong">${formatCurrency(scenario1TotalCost)}</span>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-700 rounded-lg p-6 border-2 ${
-            winner === 'scenario2' ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-700'
-          }">
+          <div class="${scenarioCardClass(winner === 'scenario2')}">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-slate-900 dark:text-white">💰 Scenario 2</h4>
+              <h4 class="fa-panel-title">💰 Scenario 2</h4>
               ${winner === 'scenario2' ? '<span class="fa-badge-success">Best Value</span>' : ''}
             </div>
             <div class="space-y-3 text-sm">
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Down Payment:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2Down)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Loan Amount:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2Principal)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Rate:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${(scenario2Rate * 100).toFixed(2)}%</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Monthly Payment:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2.monthlyPayment)}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-600 dark:text-slate-300">Total Interest:</span>
-                <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(scenario2.totalInterest)}</span>
-              </div>
-              <div class="flex justify-between pt-2 border-t border-slate-300 dark:border-slate-700">
-                <span class="text-slate-900 dark:text-white font-semibold">Total Cost:</span>
-                <span class="font-bold text-lg text-slate-900 dark:text-white">${formatCurrency(scenario2TotalCost)}</span>
+              ${renderKeyValueRow('Down Payment:', formatCurrency(scenario2Down))}
+              ${renderKeyValueRow('Loan Amount:', formatCurrency(scenario2Principal))}
+              ${renderKeyValueRow('Rate:', `${(scenario2Rate * 100).toFixed(2)}%`)}
+              ${renderKeyValueRow('Monthly Payment:', formatCurrency(scenario2.monthlyPayment))}
+              ${renderKeyValueRow('Total Interest:', formatCurrency(scenario2.totalInterest))}
+              <div class="flex justify-between pt-2 fa-panel-divider">
+                <span class="fa-list-copy-strong">Total Cost:</span>
+                <span class="font-bold text-lg fa-list-copy-strong">${formatCurrency(scenario2TotalCost)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-700 rounded-lg p-6 mb-4">
-          <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">📊 Side-by-Side Comparison</h4>
+        <div class="fa-subcard mb-4">
+          <h4 class="fa-panel-title mb-4">📊 Side-by-Side Comparison</h4>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             ${renderMetricCards([
               {
@@ -217,7 +184,7 @@ const initMortgageComparison = async () => {
           </div>
         </div>
 
-        <div class="bg-linear-to-r from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-emerald-200 dark:border-emerald-700">
+        <div class="fa-callout-success">
           <div class="flex items-start">
             <div class="shrink-0">
               <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,10 +192,10 @@ const initMortgageComparison = async () => {
               </svg>
             </div>
             <div class="ml-4">
-              <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              <h4 class="fa-panel-title mb-2">
                 💡 Recommendation: ${winnerText}
               </h4>
-              <p class="text-slate-700 dark:text-slate-300">
+              <p class="fa-list-copy">
                 ${winnerReason}
               </p>
             </div>

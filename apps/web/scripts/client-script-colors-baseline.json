@@ -11,12 +11,10 @@
   "apps/web/src/scripts/business/ma-analysis-simple.client.ts": 13,
   "apps/web/src/scripts/business/ma-analysis.client.ts": 12,
   "apps/web/src/scripts/business/pricing-strategy.client.ts": 2,
-  "apps/web/src/scripts/business/revenue-forecast.client.ts": 38,
   "apps/web/src/scripts/business/risk-management-simple.client.ts": 13,
   "apps/web/src/scripts/business/risk-management.client.ts": 17,
   "apps/web/src/scripts/business/saas-metrics.client.ts": 26,
   "apps/web/src/scripts/business/side-hustle-income.client.ts": 12,
-  "apps/web/src/scripts/business/unit-economics.client.ts": 52,
   "apps/web/src/scripts/calculators/amortization.client.ts": 2,
   "apps/web/src/scripts/calculators/break-even.client.ts": 33,
   "apps/web/src/scripts/calculators/budget.client.ts": 21,
@@ -31,9 +29,8 @@
   "apps/web/src/scripts/calculators/student-loans.client.ts": 17,
   "apps/web/src/scripts/journey/goal-planning.client.ts": 11,
   "apps/web/src/scripts/journey/journey-analysis.client.ts": 21,
-  "apps/web/src/scripts/journey/mortgage-comparison.client.ts": 43,
   "apps/web/src/scripts/journey/retirement-start.client.ts": 14,
   "apps/web/src/scripts/lease/equipment-lease.client.ts": 17,
   "apps/web/src/scripts/mortgage-scenario-planning/multi-model-scenarios.client.ts": 8,
-  "apps/web/src/scripts/mortgage-scenario-planning.client.ts": 52
+  "apps/web/src/scripts/mortgage-scenario-planning.client.ts": 4
 }
