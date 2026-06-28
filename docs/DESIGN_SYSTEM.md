@@ -37,7 +37,11 @@ apps/web/src/styles/
 ├── tokens.css       # :root, .dark, @theme
 ├── utilities.css    # gpu, safe-bottom, bg-linear-to-r, etc.
 ├── base.css         # body, skip-link
-└── components.css   # all fa-* classes
+├── components.css   # @import hub for fa-* partials
+└── components/
+    ├── spine.css    # core fa-* (cards, buttons, forms, workflow)
+    ├── home.css     # fa-home-* landing page typography
+    └── navbar.css   # #site-nav.modern-nav scoped styles
 ```
 
 ## Page archetypes
@@ -150,5 +154,6 @@ Otherwise use `@financial-analysis/ui` components or existing Tailwind utilities
 
 ## Related checks
 
-- `apps/web/scripts/check-a11y-contrast.mjs`, `check-a11y-patterns.mjs`, `check-calculator-hrefs.mjs` (via `pnpm run test:layout` in `apps/web`)
+- `apps/web/scripts/check-a11y-contrast.mjs`, `check-a11y-patterns.mjs`, `check-client-script-colors.mjs` (baseline — blocks new raw Tailwind colors in `.client.ts` HTML output), `check-calculator-hrefs.mjs` (via `pnpm run test:layout` in `apps/web`)
 - Playwright a11y: `tests/a11y/`
+- Design system catalog: `tests/site/design-system.spec.ts`
