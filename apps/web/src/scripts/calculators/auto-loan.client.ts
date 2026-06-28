@@ -4,6 +4,7 @@ import { storeAnalysisResult } from '../analysis/analysis-results';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { renderResultPanel, renderResultRow } from '../_shared/result-panel-html';
+import { renderDataTableCell, renderDataTableHeaderCell } from '../_shared/spine-html';
 import {
   parseNumber,
   formatCurrency,
@@ -293,24 +294,24 @@ export const renderAutoLoanResults = (
 
   const earlyPayoffHtml = `
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-          <thead class="bg-slate-50 dark:bg-slate-900/60">
+        <table class="fa-data-table min-w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
+              ${renderDataTableHeaderCell('Payoff Time')}
+              ${renderDataTableHeaderCell('Remaining Balance', 'right')}
+              ${renderDataTableHeaderCell('Interest Saved', 'right')}
             </tr>
           </thead>
-          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody>
             ${earlyPayoffScenarios
               .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;
                 const yearsLabel = `${years} year${years !== 1 ? 's' : ''}`;
                 return `
                 <tr>
-                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${yearsLabel}</td>
-                  <td class="px-4 py-2 text-sm text-right text-slate-900 dark:text-white">${formatCurrency(scenario.remainingBalance)}</td>
-                  <td class="px-4 py-2 text-sm text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(scenario.interestSaved)}</td>
+                  ${renderDataTableCell(yearsLabel)}
+                  ${renderDataTableCell(formatCurrency(scenario.remainingBalance), 'right')}
+                  <td class="fa-data-table-cell text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(scenario.interestSaved)}</td>
                 </tr>
               `;
               })

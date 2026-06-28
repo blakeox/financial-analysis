@@ -52,3 +52,27 @@ export function renderDataTableCell(content: string, align: 'left' | 'right' = '
   const alignClass = align === 'right' ? ' text-right' : '';
   return `<td class="${spineCopyClasses.dataTableCell}${alignClass}">${content}</td>`;
 }
+
+export function renderDataTableHeaderCell(label: string, align: 'left' | 'right' = 'left'): string {
+  const alignClass = align === 'right' ? ' text-right' : '';
+  return `<th class="${spineCopyClasses.dataTableHeader}${alignClass}">${label}</th>`;
+}
+
+export function renderProgressBar(percent: number): string {
+  const width = Math.min(100, Math.max(0, percent));
+  return `<div class="fa-progress-track h-2 w-full"><div class="fa-progress-bar" style="width: ${width}%"></div></div>`;
+}
+
+export function renderKeyValueRow(label: string, value: string): string {
+  return `<div class="flex justify-between gap-4">
+    <span class="${spineCopyClasses.scriptCopyMuted}">${label}</span>
+    <span class="${spineCopyClasses.scriptCopyStrong}">${value}</span>
+  </div>`;
+}
+
+export function renderTimelineRow(label: string, value: string): string {
+  return `<div class="flex justify-between items-center py-2 fa-panel-divider">
+    <span class="${spineCopyClasses.listCopyStrong}">${label}</span>
+    <span class="${spineCopyClasses.scriptCopyMuted}">${value}</span>
+  </div>`;
+}

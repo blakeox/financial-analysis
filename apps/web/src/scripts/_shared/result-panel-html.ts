@@ -2,6 +2,8 @@
  * HTML helpers for structured result sections in calculator detail panels.
  */
 
+import { spineCopyClasses } from './spine-html';
+
 export interface ResultPanelOptions {
   title: string;
   bodyHtml: string;
@@ -20,8 +22,8 @@ export function renderResultPanel({
 }
 
 export function renderResultRow(label: string, value: string): string {
-  return `<div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-      <span class="fa-script-copy-subtle">${label}</span>
-      <span class="fa-script-copy-strong font-semibold">${value}</span>
+  return `<div class="flex justify-between items-center py-2 fa-panel-divider">
+      <span class="${spineCopyClasses.scriptCopySubtle}">${label}</span>
+      <span class="${spineCopyClasses.scriptCopyStrong} font-semibold">${value}</span>
     </div>`;
 }

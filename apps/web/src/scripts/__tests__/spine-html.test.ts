@@ -3,8 +3,10 @@ import {
   chipClass,
   renderChip,
   renderDataTableCell,
+  renderDataTableHeaderCell,
+  renderKeyValueRow,
   renderLegendItem,
-  renderSectionHeading,
+  renderProgressBar,
   spineCopyClasses,
 } from '../_shared/spine-html';
 
@@ -27,8 +29,12 @@ describe('spine-html', () => {
     expect(html).toContain('background-color: #6d4aff');
   });
 
-  it('renders section headings and table cells', () => {
-    expect(renderSectionHeading('Summary')).toContain('fa-panel-title text-xl');
+  it('renders progress bars and table helpers', () => {
+    expect(renderProgressBar(75)).toContain('fa-progress-track');
     expect(renderDataTableCell('42', 'right')).toContain('fa-data-table-cell text-right');
+    expect(renderDataTableHeaderCell('Amount', 'right')).toContain(
+      'fa-data-table-header text-right'
+    );
+    expect(renderKeyValueRow('Label', 'Value')).toContain('fa-script-copy-muted');
   });
 });
