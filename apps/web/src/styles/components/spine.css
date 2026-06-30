@@ -46,13 +46,31 @@
   }
 
   .fa-page-hero {
+    -webkit-backdrop-filter: var(--fa-surface-blur);
+    backdrop-filter: var(--fa-surface-blur);
     background:
-      radial-gradient(circle at top right, rgba(109, 74, 255, 0.14), transparent 38%),
-      rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-gray-200);
-    border-radius: 2rem;
-    box-shadow: 0 18px 50px rgba(9, 14, 36, 0.08);
+      radial-gradient(circle at top right, rgba(109, 74, 255, 0.12), transparent 40%),
+      var(--fa-surface-elevated);
+    border: 1px solid var(--fa-border-default);
+    border-radius: var(--fa-radius-2xl);
+    box-shadow: var(--fa-shadow-card);
     padding: 2rem 1.5rem;
+  }
+
+  .dark .fa-page-hero {
+    background:
+      radial-gradient(circle at top right, rgba(109, 74, 255, 0.18), transparent 42%),
+      var(--fa-surface-muted);
+    border-color: var(--fa-border-default);
+    box-shadow: var(--fa-shadow-card);
+  }
+
+  .dark .fa-display {
+    color: var(--fa-text-primary);
+  }
+
+  .dark .fa-body-lg {
+    color: var(--fa-text-secondary);
   }
 
   .fa-page-hero-center {
@@ -118,8 +136,12 @@
   }
 
   .fa-metric-card {
-    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--fa-radius-lg);
     padding: 1rem;
+    transition:
+      box-shadow 180ms ease,
+      transform 180ms ease;
   }
 
   .fa-metric-card-title {
@@ -224,8 +246,9 @@
   }
 
   .fa-metric-card-surface {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 1px 2px rgba(9, 14, 36, 0.06);
+    background: var(--fa-surface-elevated);
+    border: 1px solid var(--fa-border-subtle);
+    box-shadow: var(--fa-shadow-soft);
   }
 
   .fa-metric-card-surface .fa-metric-card-title {
@@ -301,7 +324,9 @@
   }
 
   .dark .fa-metric-card-surface {
-    background: rgb(2 6 23 / 0.4);
+    background: rgba(35, 41, 71, 0.72);
+    border-color: var(--fa-border-default);
+    box-shadow: var(--fa-shadow-soft);
   }
 
   .dark .fa-metric-card-surface .fa-metric-card-title {
@@ -321,20 +346,22 @@
   }
 
   .fa-rail-card {
+    -webkit-backdrop-filter: var(--fa-surface-blur);
+    backdrop-filter: var(--fa-surface-blur);
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-gray-200);
-    border-radius: 1.75rem;
-    box-shadow: 0 18px 50px rgba(9, 14, 36, 0.07);
+    background: var(--fa-surface-elevated);
+    border: 1px solid var(--fa-border-default);
+    border-radius: var(--fa-radius-2xl);
+    box-shadow: var(--fa-shadow-card);
   }
 
   .fa-rail-card-header {
-    border-bottom: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--fa-border-subtle);
     padding: 1rem 1.25rem;
   }
 
   .fa-rail-card-title {
-    color: var(--color-gray-900);
+    color: var(--fa-text-primary);
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
@@ -352,16 +379,17 @@
   }
 
   .dark .fa-rail-card {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
+    background: var(--fa-surface-muted);
+    border-color: var(--fa-border-default);
+    box-shadow: var(--fa-shadow-card);
   }
 
   .dark .fa-rail-card-header {
-    border-bottom-color: rgb(51 65 85);
+    border-bottom-color: var(--fa-border-default);
   }
 
   .dark .fa-rail-card-title {
-    color: white;
+    color: var(--fa-text-primary);
   }
 
   .dark .fa-rail-card-copy {
@@ -816,20 +844,37 @@
   }
 
   .fa-card {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-gray-200);
-    border-radius: 1.75rem;
-    box-shadow: 0 18px 50px rgba(9, 14, 36, 0.07);
+    -webkit-backdrop-filter: var(--fa-surface-blur);
+    backdrop-filter: var(--fa-surface-blur);
+    background: var(--fa-surface-elevated);
+    border: 1px solid var(--fa-border-default);
+    border-radius: var(--fa-radius-2xl);
+    box-shadow: var(--fa-shadow-card);
     padding: 1.5rem;
   }
 
+  .dark .fa-card {
+    background: var(--fa-surface-muted);
+    border-color: var(--fa-border-default);
+    box-shadow: var(--fa-shadow-card);
+  }
+
   .fa-card-elevated {
-    box-shadow: 0 24px 80px rgba(17, 24, 39, 0.12);
+    box-shadow: var(--fa-shadow-elevated);
   }
 
   .fa-card-featured {
-    border: 2px solid rgba(109, 74, 255, 0.36);
-    box-shadow: 0 22px 55px rgba(109, 74, 255, 0.1);
+    border: 2px solid rgba(109, 74, 255, 0.32);
+    box-shadow:
+      var(--fa-shadow-card),
+      0 0 0 1px rgba(109, 74, 255, 0.08);
+  }
+
+  .dark .fa-card-featured {
+    border-color: rgba(159, 130, 255, 0.38);
+    box-shadow:
+      var(--fa-shadow-card),
+      0 0 0 1px rgba(159, 130, 255, 0.12);
   }
 
   .fa-card-interactive {
@@ -840,14 +885,23 @@
   }
 
   .fa-card-interactive:hover {
-    transform: translateY(-4px);
+    box-shadow: var(--fa-shadow-elevated);
+    transform: translateY(-3px);
+  }
+
+  .fa-card-interactive:focus-within {
+    box-shadow: var(--fa-shadow-elevated), var(--fa-focus-ring);
   }
 
   .fa-card-title {
-    color: var(--color-gray-900);
+    color: var(--fa-text-primary);
     font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.03em;
+  }
+
+  .dark .fa-card-title {
+    color: var(--fa-text-primary);
   }
 
   .fa-card-copy {
@@ -1097,11 +1151,6 @@
   .dark .fa-callout-danger {
     background: rgba(127, 29, 29, 0.28);
     color: #fecaca;
-  }
-
-  .fa-metric-card {
-    border-radius: 1rem;
-    padding: 1rem;
   }
 
   .fa-metric-card-info {
@@ -1896,15 +1945,19 @@
   }
 
   .fa-subcard {
-    background: rgba(250, 250, 255, 0.72);
-    border: 1px solid var(--color-gray-200);
-    border-radius: 1rem;
+    -webkit-backdrop-filter: var(--fa-surface-blur);
+    backdrop-filter: var(--fa-surface-blur);
+    background: rgba(250, 250, 255, 0.78);
+    border: 1px solid var(--fa-border-subtle);
+    border-radius: var(--fa-radius-lg);
+    box-shadow: var(--fa-shadow-soft);
     padding: 1rem;
   }
 
   .dark .fa-subcard {
-    background: rgba(35, 41, 71, 0.72);
-    border-color: rgba(94, 100, 120, 0.45);
+    background: rgba(35, 41, 71, 0.78);
+    border-color: var(--fa-border-default);
+    box-shadow: var(--fa-shadow-soft);
   }
 
   .fa-segmented-control {

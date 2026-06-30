@@ -21,9 +21,9 @@
     color: var(--color-gray-500);
   }
 
-  .fa-input-surface:focus {
+  .fa-input-surface:focus-visible {
     border-color: rgba(109, 74, 255, 0.34);
-    box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.14);
+    box-shadow: var(--fa-focus-ring);
     outline: none;
   }
 

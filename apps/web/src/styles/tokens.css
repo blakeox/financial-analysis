@@ -67,8 +67,16 @@
   --fa-radius-lg: 1rem;
   --fa-radius-xl: 1.5rem;
   --fa-radius-2xl: 1.75rem;
-  --fa-shadow-card: 0 18px 50px rgba(9, 14, 36, 0.07);
-  --fa-shadow-elevated: 0 24px 60px rgba(9, 14, 36, 0.1);
+  --fa-shadow-soft: 0 1px 2px rgba(9, 14, 36, 0.04), 0 6px 18px rgba(9, 14, 36, 0.05);
+  --fa-shadow-card: 0 1px 2px rgba(9, 14, 36, 0.04), 0 12px 40px rgba(9, 14, 36, 0.07);
+  --fa-shadow-elevated: 0 2px 4px rgba(9, 14, 36, 0.05), 0 20px 56px rgba(9, 14, 36, 0.1);
+
+  /* Borders & focus */
+  --fa-border-subtle: rgba(231, 228, 242, 0.82);
+  --fa-border-default: var(--color-gray-200);
+  --fa-focus-ring-color: rgba(109, 74, 255, 0.34);
+  --fa-focus-ring: 0 0 0 3px var(--fa-focus-ring-color);
+  --fa-surface-blur: blur(14px) saturate(1.06);
 
   /* Typography */
   --font-sans:
@@ -107,8 +115,12 @@
   --fa-text-secondary: #cbd5e1;
   --fa-text-muted: #94a3b8;
 
-  --fa-shadow-card: 0 18px 50px rgba(2, 6, 23, 0.28);
-  --fa-shadow-elevated: 0 24px 60px rgba(0, 0, 0, 0.3);
+  --fa-border-subtle: rgba(64, 70, 93, 0.55);
+  --fa-border-default: rgba(94, 100, 120, 0.52);
+  --fa-focus-ring-color: rgba(159, 130, 255, 0.42);
+  --fa-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.18), 0 6px 18px rgba(0, 0, 0, 0.22);
+  --fa-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.28);
+  --fa-shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.24), 0 20px 56px rgba(0, 0, 0, 0.32);
 }
 
 /* Tailwind v4 theme bridge — enables bg-brand, text-text-muted, etc. */

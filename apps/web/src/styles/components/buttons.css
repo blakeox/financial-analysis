@@ -22,6 +22,18 @@
     transition: all 180ms ease;
   }
 
+  .fa-button-primary:focus-visible,
+  .fa-button-secondary:focus-visible,
+  .fa-button-success:focus-visible,
+  .fa-button-ghost-light:focus-visible {
+    box-shadow: var(--fa-focus-ring);
+    outline: none;
+  }
+
+  .fa-button-primary:focus-visible {
+    box-shadow: var(--fa-brand-shadow), var(--fa-focus-ring);
+  }
+
   .fa-button-primary {
     background: var(--fa-brand-gradient);
     box-shadow: var(--fa-brand-shadow);
