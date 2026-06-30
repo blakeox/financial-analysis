@@ -169,9 +169,9 @@ describe('classNames', () => {
   describe('cardClasses', () => {
     it('contains expected card styling classes', () => {
       expect(cardClasses).toContain('bg-white/95');
-      expect(cardClasses).toContain('rounded-[1.5rem]');
+      expect(cardClasses).toContain('rounded-[var(--fa-radius-2xl)]');
       expect(cardClasses).toContain('border');
-      expect(cardClasses).toContain('shadow-[0_18px_50px_rgba(9,14,36,0.07)]');
+      expect(cardClasses).toContain('shadow-[var(--fa-shadow-card)]');
     });
 
     it('includes dark mode variants', () => {

@@ -75,7 +75,7 @@ describe('amortization.client', () => {
     const rows = tableBody?.querySelectorAll('tr') ?? [];
     expect(rows.length).toBeGreaterThan(0);
     const twelfthRow = rows[11];
-    expect(twelfthRow?.className).toContain('bg-violet-50');
+    expect(twelfthRow?.className).toContain('fa-table-row-highlight');
   });
 
   it('handleSuccess stores results and reveals container', () => {

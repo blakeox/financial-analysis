@@ -47,17 +47,17 @@ export const buttonSizeClasses = {
  */
 export const buttonVariants = {
   primary:
-    'bg-linear-to-r from-violet-600 to-violet-700 text-white shadow-[0_14px_32px_rgba(109,74,255,0.28)] hover:-translate-y-px hover:shadow-[0_18px_40px_rgba(109,74,255,0.34)] active:translate-y-0 active:shadow-[0_12px_24px_rgba(109,74,255,0.24)]',
+    'bg-linear-to-r from-violet-600 to-violet-700 text-white shadow-[var(--fa-brand-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-brand-shadow-hover)] active:translate-y-0 active:shadow-[var(--fa-brand-shadow-active)]',
   secondary:
     'border border-slate-200 bg-white/90 text-slate-900 shadow-sm hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:hover:border-slate-600 dark:hover:bg-slate-900',
   success:
-    'bg-linear-to-r from-emerald-600 to-emerald-700 text-white shadow-[0_12px_28px_rgba(16,185,129,0.24)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(16,185,129,0.3)] active:translate-y-0',
+    'bg-linear-to-r from-emerald-600 to-emerald-700 text-white shadow-[var(--fa-success-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-success-shadow-hover)] active:translate-y-0',
   danger:
-    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[0_12px_28px_rgba(225,29,72,0.22)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(225,29,72,0.28)] active:translate-y-0',
+    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[var(--fa-danger-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-danger-shadow-hover)] active:translate-y-0',
   destructive:
-    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[0_12px_28px_rgba(225,29,72,0.22)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(225,29,72,0.28)] active:translate-y-0',
+    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[var(--fa-danger-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-danger-shadow-hover)] active:translate-y-0',
   warning:
-    'bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-[0_12px_28px_rgba(245,158,11,0.22)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(245,158,11,0.28)] active:translate-y-0',
+    'bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-[var(--fa-warning-shadow)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(245,158,11,0.28)] active:translate-y-0',
   outline:
     'border border-slate-200 bg-transparent text-slate-700 hover:border-violet-200 hover:bg-violet-50/70 hover:text-violet-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-violet-800 dark:hover:bg-violet-950/40 dark:hover:text-violet-200',
   ghost:
@@ -84,14 +84,14 @@ export const inputStateClasses = {
  * Common card classes.
  */
 export const cardClasses =
-  'rounded-[1.5rem] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[0_18px_50px_rgba(9,14,36,0.07)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100';
+  'rounded-[var(--fa-radius-2xl)] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[var(--fa-shadow-card)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100';
 
 export const cardVariants = {
   default: cardClasses,
   elevated:
-    'rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(9,14,36,0.1)] p-6 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100',
+    'rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[var(--fa-shadow-elevated)] p-6 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100',
   interactive:
-    'rounded-[1.5rem] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[0_18px_50px_rgba(9,14,36,0.07)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(9,14,36,0.11)] dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100',
+    'rounded-[var(--fa-radius-2xl)] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[var(--fa-shadow-card)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[var(--fa-shadow-elevated)] dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100',
   rail: 'rounded-[1.75rem] border border-slate-200/80 bg-white/88 p-6 text-slate-900 shadow-[0_28px_72px_rgba(9,14,36,0.12)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/88 dark:text-slate-100',
   subtle:
     'rounded-[1.35rem] border border-slate-200/70 bg-slate-50/85 p-5 text-slate-900 shadow-[0_8px_24px_rgba(9,14,36,0.04)] dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-100',
@@ -142,4 +142,15 @@ export const copyClasses = {
   muted: textColors.muted,
   helper: `text-sm ${textColors.muted}`,
   caption: `text-xs ${textColors.muted}`,
+} as const;
+
+/**
+ * Callout/alert surface classes — mirrors fa-callout-* in apps/web global.css.
+ * Requires app CSS bundle (fa-* classes) when used outside Storybook.
+ */
+export const calloutVariants = {
+  info: 'fa-callout-info',
+  success: 'fa-callout-success',
+  warning: 'fa-callout-warning',
+  error: 'fa-callout-danger',
 } as const;

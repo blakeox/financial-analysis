@@ -114,10 +114,7 @@ export default function AnalysisClient() {
       // Helper function to set form values safely
       const setFormValue = (id: string, value: string | number) => {
         const element = document.getElementById(id) as
-          | HTMLInputElement
-          | HTMLSelectElement
-          | HTMLTextAreaElement
-          | null;
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
         if (element && value !== '' && !Number.isNaN(value)) {
           element.value = String(value);
         }
@@ -233,9 +230,7 @@ export default function AnalysisClient() {
         if (startDate) payload.startDate = startDate;
 
         const paymentFrequency = String(formData.get('paymentFrequency') ?? 'monthly') as
-          | 'monthly'
-          | 'biweekly'
-          | 'weekly';
+          'monthly' | 'biweekly' | 'weekly';
         if (paymentFrequency !== 'monthly') payload.paymentFrequency = paymentFrequency;
 
         const extraMonthlyPayment = getOptionalNumber('extraMonthlyPayment');

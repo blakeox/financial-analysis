@@ -232,8 +232,8 @@ export const displayResults = (result: BusinessValuationResult): void => {
     ${
       result.insights.length > 0
         ? `
-      <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
+      <div class="fa-highlight-card mb-6">
+        <h4 class="fa-script-title text-lg mb-4">📊 Key Insights</h4>
         <ul class="space-y-2">
           ${result.insights
             .map(

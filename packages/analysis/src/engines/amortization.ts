@@ -49,10 +49,7 @@ export interface AmortizationAnalysisResult {
 }
 
 export type AmortizationMilestoneId =
-  | 'highest-interest-share'
-  | 'principal-takeover'
-  | 'halfway-balance'
-  | 'final-payment';
+  'highest-interest-share' | 'principal-takeover' | 'halfway-balance' | 'final-payment';
 
 export interface AmortizationMilestone {
   id: AmortizationMilestoneId;

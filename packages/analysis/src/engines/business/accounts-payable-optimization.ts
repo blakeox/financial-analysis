@@ -135,8 +135,7 @@ export class AccountsPayableOptimizer {
     payables: AccountsPayableOptimizationInput['payables'],
     terms: AccountsPayableOptimizationInput['paymentTerms'],
     discounts:
-      | { discounts: Array<{ vendor: string | undefined; recommendation: string }> }
-      | undefined
+      { discounts: Array<{ vendor: string | undefined; recommendation: string }> } | undefined
   ): {
     schedule: Array<{
       invoiceNumber: string;

@@ -326,33 +326,25 @@ export class UnitEconomicsEngine {
         your: ltvCacRatio,
         target: 3.0,
         status: (ltvCacRatio >= 3 ? 'good' : ltvCacRatio >= 2 ? 'warning' : 'poor') as
-          | 'good'
-          | 'warning'
-          | 'poor',
+          'good' | 'warning' | 'poor',
       },
       payback: {
         your: paybackMonths,
         target: 12,
         status: (paybackMonths <= 12 ? 'good' : paybackMonths <= 18 ? 'warning' : 'poor') as
-          | 'good'
-          | 'warning'
-          | 'poor',
+          'good' | 'warning' | 'poor',
       },
       churn: {
         your: churnRate,
         target: 5,
         status: (churnRate <= 5 ? 'good' : churnRate <= 7 ? 'warning' : 'poor') as
-          | 'good'
-          | 'warning'
-          | 'poor',
+          'good' | 'warning' | 'poor',
       },
       grossMargin: {
         your: grossMargin,
         target: 70,
         status: (grossMargin >= 70 ? 'good' : grossMargin >= 60 ? 'warning' : 'poor') as
-          | 'good'
-          | 'warning'
-          | 'poor',
+          'good' | 'warning' | 'poor',
       },
     };
   }

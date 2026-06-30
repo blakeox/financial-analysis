@@ -1,5 +1,9 @@
 // UI Components
 export { Button } from './components/Button';
+export { Badge } from './components/Badge';
+export type { BadgeProps, BadgeVariant } from './components/Badge';
+export { Callout } from './components/Callout';
+export type { CalloutProps, CalloutVariant } from './components/Callout';
 export {
   Card,
   CardContent,
@@ -91,6 +95,7 @@ export {
   cardClasses,
   cardVariants,
   badgeVariants,
+  calloutVariants,
   gridLayouts,
   textColors,
   copyClasses,

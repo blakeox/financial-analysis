@@ -1,0 +1,87 @@
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 82% 8%, rgba(109, 74, 255, 0.09), transparent 30%),
+      radial-gradient(circle at 12% 92%, rgba(109, 74, 255, 0.04), transparent 26%),
+      linear-gradient(180deg, var(--fa-surface) 0%, var(--fa-surface-subtle) 100%);
+    color: var(--fa-text-primary);
+    font-family: var(--font-sans);
+    padding-right: var(--chat-panel-active-width, 0px);
+    transition: padding-right 0.3s ease;
+  }
+
+  .dark body {
+    background:
+      radial-gradient(circle at 18% 0%, rgba(109, 74, 255, 0.14), transparent 34%),
+      radial-gradient(circle at 88% 96%, rgba(86, 54, 232, 0.08), transparent 28%),
+      linear-gradient(180deg, var(--color-gray-950) 0%, var(--color-gray-900) 100%);
+    color: var(--fa-text-primary);
+  }
+
+  ::selection {
+    background: rgba(109, 74, 255, 0.2);
+    color: var(--color-gray-900);
+  }
+
+  .dark ::selection {
+    background: rgba(159, 130, 255, 0.32);
+    color: #ffffff;
+  }
+
+  body.chat-panel-open {
+    overflow-x: hidden;
+  }
+
+  html[data-dev-font-sans='system'] {
+    --font-sans:
+      ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  }
+
+  /* Visually hidden skip links that appear on focus */
+  .skip-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-120%);
+    background: var(--color-gray-800);
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline: 2px solid transparent;
+    transition: transform 0.25s ease;
+    z-index: 60;
+    text-decoration: none;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+  .dark .skip-link {
+    background: var(--color-gray-900);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .fa-card-interactive:hover,
+    .fa-button-primary:hover,
+    .fa-button-secondary:hover,
+    .fa-button-success:hover,
+    .fa-shell-icon-button:hover {
+      transform: none;
+    }
+  }
+}

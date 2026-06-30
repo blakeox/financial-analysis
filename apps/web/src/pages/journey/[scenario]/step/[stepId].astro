@@ -1,50 +1,53 @@
 ---
 import JourneyCalculatorPage from '../../../../components/JourneyCalculatorPage.astro';
+import { listJourneyFallbackSteps } from '../../../../utils/journeyFallbackSteps';
 import { getJourneyData } from '../../../../utils/journeyData';
+import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
+import {
+  canRenderJourneyFallbackStep,
+  resolveJourneyStepCalculatorId,
+} from '../../../../utils/journeyStepAvailability';
 
 export async function getStaticPaths() {
-  const paths: Array<{ params: { scenario: string; stepId: string } }> = [];
-
-  // All journeys now use the new descriptive step format with dedicated pages
-  // This file is kept for backward compatibility but no longer generates paths
-  return paths;
+  return listJourneyFallbackSteps().map(({ scenarioId, modelId }) => ({
+    params: { scenario: scenarioId, stepId: modelId },
+  }));
 }
 
 const { scenario, stepId } = Astro.params;
 const journeyData = getJourneyData();
 const currentScenario = journeyData[scenario!];
-const stepNumber = parseInt(stepId!.split('-')[0]);
-const modelId = stepId!.split('-').slice(1).join('-');
-const currentModel = currentScenario.models.find(m => m.id === modelId);
-const nextStep = currentScenario.models[stepNumber];
-const previousStep = currentScenario.models[stepNumber - 2];
 
-// Journey navigation data
-const journeyNav = {
+if (!currentScenario) {
+  throw new Error(`Journey not found: ${scenario}`);
+}
+
+const currentModel = currentScenario.models.find(m => m.id === stepId);
+if (!currentModel) {
+  throw new Error(`Step not found in scenario ${scenario}: ${stepId}`);
+}
+
+if (!canRenderJourneyFallbackStep(scenario!, currentModel.id, currentModel.url)) {
+  throw new Error(`Unsupported journey fallback step: ${scenario}/${stepId}`);
+}
+
+const calculatorId =
+  resolveJourneyStepCalculatorId(scenario!, currentModel.id, currentModel.url) ??
+  currentModel.id;
+
+const { journeyNav } = buildJourneyNavFromOrder({
+  currentScenario,
   scenarioId: scenario!,
-  scenarioName: currentScenario.name,
-  currentStep: stepNumber,
-  totalSteps: currentScenario.models.length,
-  nextStep: nextStep ? {
-    id: nextStep.id,
-    name: nextStep.name,
-    url: `/journey/${scenario}/step/${stepNumber + 1}-${nextStep.id}`
-  } : null,
-  previousStep: previousStep ? {
-    id: previousStep.id,
-    name: previousStep.name,
-    url: `/journey/${scenario}/step/${stepNumber - 1}-${previousStep.id}`
-  } : null,
-  journeyOverviewUrl: `/journey/${scenario}`
-};
+  currentStepOrder: currentModel.order,
+});
 
 // SEO-optimized content
-const seoTitle = `${currentModel?.name} - Step ${stepNumber} of ${currentScenario.name}`;
-const seoDescription = `${currentModel?.description} This is step ${stepNumber} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
+const seoTitle = `${currentModel.name} - Step ${currentModel.order} of ${currentScenario.name}`;
+const seoDescription = `${currentModel.description} This is step ${currentModel.order} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
 <JourneyCalculatorPage 
-  calculatorId={modelId!}
+  calculatorId={calculatorId}
   title={seoTitle}
   description={seoDescription}
   journeyNav={journeyNav}

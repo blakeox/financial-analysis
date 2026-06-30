@@ -11,7 +11,7 @@ describe('Calculator Results Snapshots', () => {
     it('should generate consistent summary card HTML', () => {
       const generateSummaryCard = (title: string, value: string, subtitle?: string) => {
         return `
-          <div class="bg-violet-50 dark:bg-violet-950/20 rounded-lg p-4">
+          <div class="fa-metric-card-violet rounded-lg p-4">
             <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">${title}</h5>
             <p class="text-2xl font-bold text-violet-600 dark:text-violet-300">${value}</p>
             ${subtitle ? `<p class="mt-1 text-xs text-violet-700 dark:text-violet-300">${subtitle}</p>` : ''}

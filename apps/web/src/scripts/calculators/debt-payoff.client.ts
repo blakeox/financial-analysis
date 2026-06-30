@@ -3,7 +3,15 @@ import { DebtPayoffEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { registerChatButton } from '../chat/chat-actions';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
+import {
+  renderKeyValueRow,
+  renderProgressBar,
+  renderSectionHeading,
+  renderTimelineRow,
+  spineCopyClasses,
+} from '../_shared/spine-html';
 import { formatCurrency, hideError, parseNumber } from '../../utils/calculator-utilities';
 
 // Currency formatter for displaying monetary values
@@ -288,49 +296,47 @@ export const displayResults = (
       creditScore
         ? `
     <!-- Credit Score Impact -->
-    <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
-      <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+    <div class="fa-highlight-card p-6 mb-6">
+      <h3 class="fa-panel-title text-xl mb-2 flex items-center gap-2">
         <span>📈</span> Credit Score Impact Projection
       </h3>
       <p class="fa-script-copy-muted mb-4">Estimated improvement as you pay off debt</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 text-center">
+        <div class="fa-subcard text-center">
           <p class="fa-script-copy-muted mb-1">Current Estimate</p>
           <p class="text-3xl font-bold ${creditScore.currentEstimate < 650 ? 'text-rose-600 dark:text-rose-400' : creditScore.currentEstimate < 700 ? 'text-yellow-600 dark:text-yellow-400' : 'text-emerald-600 dark:text-emerald-400'}">${creditScore.currentEstimate}</p>
           <p class="fa-script-note mt-1">${creditScore.currentEstimate < 580 ? 'Poor' : creditScore.currentEstimate < 650 ? 'Fair' : creditScore.currentEstimate < 700 ? 'Good' : 'Excellent'}</p>
         </div>
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 text-center flex items-center justify-center">
+        <div class="fa-subcard text-center flex items-center justify-center">
           <div>
             <p class="fa-script-copy-muted mb-1">Projected Improvement</p>
             <p class="text-3xl font-bold text-violet-600 dark:text-violet-400">+${creditScore.projectedImprovement}</p>
             <p class="fa-script-note mt-1">points</p>
           </div>
         </div>
-        <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 text-center">
+        <div class="fa-subcard text-center">
           <p class="fa-script-copy-muted mb-1">Debt-Free Score</p>
           <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">${creditScore.finalEstimate}</p>
           <p class="fa-script-note mt-1">Excellent</p>
         </div>
       </div>
       
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4">
-        <h4 class="font-semibold text-slate-900 dark:text-white mb-3">Key Factors</h4>
+      <div class="fa-subcard">
+        <h4 class="${spineCopyClasses.panelTitle} mb-3">Key Factors</h4>
         <div class="space-y-3">
           <div>
             <div class="flex justify-between text-sm mb-1">
                <span class="fa-script-copy-muted">Credit Utilization</span>
-              <span class="font-semibold">${creditScore.factors.creditUtilization.current}% → ${creditScore.factors.creditUtilization.projected}%</span>
+              <span class="${spineCopyClasses.scriptCopyStrong}">${creditScore.factors.creditUtilization.current}% → ${creditScore.factors.creditUtilization.projected}%</span>
             </div>
-            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-              <div class="bg-violet-600 h-2 rounded-full" style="width: ${Math.min(100, creditScore.factors.creditUtilization.current)}%"></div>
-            </div>
+            ${renderProgressBar(creditScore.factors.creditUtilization.current)}
              <p class="fa-script-note mt-1">${creditScore.factors.creditUtilization.impact}</p>
           </div>
           <div>
             <div class="flex justify-between text-sm mb-1">
                <span class="fa-script-copy-muted">Payment History</span>
-              <span class="font-semibold">${creditScore.factors.paymentHistory.current}% → ${creditScore.factors.paymentHistory.projected}%</span>
+              <span class="${spineCopyClasses.scriptCopyStrong}">${creditScore.factors.paymentHistory.current}% → ${creditScore.factors.paymentHistory.projected}%</span>
             </div>
              <p class="fa-script-note">${creditScore.factors.paymentHistory.impact}</p>
           </div>
@@ -341,82 +347,64 @@ export const displayResults = (
         : ''
     }
     
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Strategy Comparison</h3>
+    <div class="fa-card p-6 mb-8">
+      ${renderSectionHeading('Strategy Comparison', 'mb-6')}
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-          <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Avalanche Method</h4>
+        <div class="fa-subcard">
+          <h4 class="fa-panel-title mb-4">Avalanche Method</h4>
           <div class="space-y-3">
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Time to Payoff:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A'}</span>
-            </div>
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Total Interest:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalInterestPaid) : 'N/A'}</span>
-            </div>
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Total Paid:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${avalancheSummary ? toCurrency(avalancheSummary.totalAmountPaid) : 'N/A'}</span>
-            </div>
+            ${renderKeyValueRow('Time to Payoff:', avalancheSummary ? formatMonths(avalancheSummary.totalMonthsToPayoff) : 'N/A')}
+            ${renderKeyValueRow('Total Interest:', avalancheSummary ? toCurrency(avalancheSummary.totalInterestPaid) : 'N/A')}
+            ${renderKeyValueRow('Total Paid:', avalancheSummary ? toCurrency(avalancheSummary.totalAmountPaid) : 'N/A')}
           </div>
           <p class="fa-script-copy-muted mt-3">Pays highest interest debts first</p>
         </div>
         
-        <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-          <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Snowball Method</h4>
+        <div class="fa-subcard">
+          <h4 class="fa-panel-title mb-4">Snowball Method</h4>
           <div class="space-y-3">
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Time to Payoff:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A'}</span>
-            </div>
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Total Interest:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalInterestPaid) : 'N/A'}</span>
-            </div>
-            <div class="flex justify-between">
-               <span class="fa-script-copy-muted">Total Paid:</span>
-              <span class="font-semibold text-slate-900 dark:text-white">${snowballSummary ? toCurrency(snowballSummary.totalAmountPaid) : 'N/A'}</span>
-            </div>
+            ${renderKeyValueRow('Time to Payoff:', snowballSummary ? formatMonths(snowballSummary.totalMonthsToPayoff) : 'N/A')}
+            ${renderKeyValueRow('Total Interest:', snowballSummary ? toCurrency(snowballSummary.totalInterestPaid) : 'N/A')}
+            ${renderKeyValueRow('Total Paid:', snowballSummary ? toCurrency(snowballSummary.totalAmountPaid) : 'N/A')}
           </div>
           <p class="fa-script-copy-muted mt-3">Pays smallest debts first</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Payoff Timeline</h3>
+    <div class="fa-card p-6 mb-8">
+      ${renderSectionHeading('Payoff Timeline', 'mb-6')}
       
       <div class="space-y-3">
         ${primary.debtSummaries
           .slice()
           .sort((a: DebtSummary, b: DebtSummary) => a.monthsToPayoff - b.monthsToPayoff)
-          .map(
-            (debt: DebtSummary, index: number) => `
-            <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-              <span class="font-medium text-slate-900 dark:text-white">${index + 1}. ${debt.name}</span>
-              <span class="fa-script-copy-muted">${formatMonths(debt.monthsToPayoff)}</span>
-            </div>
-          `
+          .map((debt: DebtSummary, index: number) =>
+            renderTimelineRow(`${index + 1}. ${debt.name}`, formatMonths(debt.monthsToPayoff))
           )
           .join('')}
       </div>
     </div>
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
+    <div class="fa-card p-6">
+      ${renderSectionHeading('Recommendations', 'mb-6')}
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Best Strategy</h4>
-          <p class="text-violet-800 dark:text-violet-200">${primary.strategy === 'avalanche' ? 'Avalanche method saves more money in interest' : 'Snowball method provides psychological motivation'}</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Savings Summary</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">${describeSavings(result, primary.strategy) || 'Review the comparison above to choose your preferred strategy.'}</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Best Strategy',
+          content:
+            primary.strategy === 'avalanche'
+              ? 'Avalanche method saves more money in interest'
+              : 'Snowball method provides psychological motivation',
+        })}
+        ${renderInsightCard({
+          title: 'Savings Summary',
+          tone: 'success',
+          content:
+            describeSavings(result, primary.strategy) ||
+            'Review the comparison above to choose your preferred strategy.',
+        })}
       </div>
     </div>
   `;

@@ -3,6 +3,9 @@
  * Handles AI analysis generation and display of journey results
  */
 
+import { renderInsightCard } from '../_shared/insight-card-html';
+import { renderMetricCards } from '../_shared/metric-card-html';
+
 interface JourneyAnalysisData {
   scenarioId: string;
   scenarioName: string;
@@ -77,18 +80,23 @@ class JourneyAnalysisManager {
 
     summaryContainer.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-violet-600 dark:text-violet-400">${completedSteps}/${totalSteps}</div>
-          <div class="text-sm text-violet-800 dark:text-violet-200">Steps Completed</div>
-        </div>
-        <div class="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${this.analysisData.scenarioName}</div>
-          <div class="text-sm text-emerald-800 dark:text-emerald-200">Journey Type</div>
-        </div>
-        <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-          <div class="text-2xl font-bold text-violet-600 dark:text-violet-400">${completionPercentage}%</div>
-          <div class="text-sm text-violet-800 dark:text-violet-200">Complete</div>
-        </div>
+        ${renderMetricCards([
+          {
+            title: 'Steps Completed',
+            value: `${completedSteps}/${totalSteps}`,
+            tone: 'violet',
+          },
+          {
+            title: 'Journey Type',
+            value: this.analysisData.scenarioName,
+            tone: 'emerald',
+          },
+          {
+            title: 'Complete',
+            value: `${completionPercentage}%`,
+            tone: 'violet',
+          },
+        ])}
       </div>
       
       <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg">
@@ -206,10 +214,11 @@ class JourneyAnalysisManager {
 
     analysisContainer.innerHTML = `
       <div class="prose dark:prose-invert max-w-none">
-        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg mb-6">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Executive Summary</h4>
-          <p class="text-violet-800 dark:text-violet-200">${analysis.summary}</p>
-        </div>
+        ${renderInsightCard({
+          className: 'mb-6',
+          title: 'Executive Summary',
+          content: analysis.summary,
+        })}
         
         <div class="space-y-4">
           <h4 class="font-semibold text-slate-900 dark:text-white">Key Recommendations</h4>
