@@ -158,7 +158,7 @@ const renderScheduleTable = (schedule: LeaseScheduleEntry[], target: HTMLElement
 
   const rows = schedule
     .map((entry) => {
-      const highlightClass = entry.month % 12 === 0 ? 'bg-violet-50 dark:bg-violet-900/10' : '';
+      const highlightClass = entry.month % 12 === 0 ? 'fa-table-row-highlight' : '';
       return `
         <tr class="${highlightClass}">
           <td class="px-4 py-2 text-sm text-slate-900 dark:text-slate-100">${entry.month}</td>

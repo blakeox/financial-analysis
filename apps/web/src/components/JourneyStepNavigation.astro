@@ -1,0 +1,132 @@
+---
+export interface JourneyNavStep {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface Props {
+  scenarioId: string;
+  journeyOverviewUrl: string;
+  previousStep?: JourneyNavStep | null;
+  nextStep?: JourneyNavStep | null;
+  /** Shown when there is no next step (or when completeOnly is true). */
+  completeLabel?: string;
+  /** Always show the complete CTA (final steps). */
+  completeOnly?: boolean;
+  /** When false, omit the forward CTA if nextStep is missing. */
+  showCompleteWhenNoNext?: boolean;
+  /** Legacy auto-lease workaround for client script navigation. */
+  forceAssignNavigation?: boolean;
+  className?: string;
+}
+
+const {
+  scenarioId,
+  journeyOverviewUrl,
+  previousStep = null,
+  nextStep = null,
+  completeLabel = 'Complete Journey',
+  completeOnly = false,
+  showCompleteWhenNoNext = true,
+  forceAssignNavigation = false,
+  className = 'mb-6',
+} = Astro.props;
+
+const completeHref = `/journey-analysis/${scenarioId}`;
+const nextAssignAttrs = forceAssignNavigation
+  ? { onclick: 'window.location.assign(this.href); return false;' }
+  : {};
+---
+
+<section class:list={['fa-card p-6', className]}>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-center">
+      {
+        previousStep ? (
+          <a href={previousStep.url} class="fa-button-secondary">
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Previous: {previousStep.name}
+          </a>
+        ) : (
+          <a href={journeyOverviewUrl} class="fa-button-secondary">
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Journey
+          </a>
+        )
+      }
+    </div>
+
+    <div class="flex items-center">
+      {
+        completeOnly || (!nextStep && showCompleteWhenNoNext) ? (
+          <a href={completeHref} class="fa-button-primary">
+            {completeLabel}
+            <svg
+              class="w-4 h-4 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </a>
+        ) : nextStep ? (
+          <a
+            href={nextStep.url}
+            class="fa-button-primary"
+            {...nextAssignAttrs}
+          >
+            Next: {nextStep.name}
+            <svg
+              class="w-4 h-4 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        ) : null
+      }
+    </div>
+  </div>
+</section>

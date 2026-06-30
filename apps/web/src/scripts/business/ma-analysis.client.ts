@@ -199,24 +199,13 @@ function buildMAInput(form: HTMLFormElement): Record<string, unknown> {
     getFieldValue(form, 'expectedClosingDate') || formatDateYYYYMMDD(addDays(today, 90));
 
   const transactionType = (getFieldValue(form, 'transactionType') || 'acquisition') as
-    | 'merger'
-    | 'acquisition'
-    | 'divestiture'
-    | 'spin-off'
-    | 'joint-venture';
+    'merger' | 'acquisition' | 'divestiture' | 'spin-off' | 'joint-venture';
 
   const transactionStructure = (getFieldValue(form, 'transactionStructure') || 'mixed') as
-    | 'cash'
-    | 'stock'
-    | 'mixed'
-    | 'asset-purchase'
-    | 'stock-purchase';
+    'cash' | 'stock' | 'mixed' | 'asset-purchase' | 'stock-purchase';
 
   const transactionStatus = (getFieldValue(form, 'transactionStatus') || 'announced') as
-    | 'announced'
-    | 'pending'
-    | 'completed'
-    | 'terminated';
+    'announced' | 'pending' | 'completed' | 'terminated';
 
   const acquirerSharesOutstanding = parseNumberField(form, 'acquirerSharesOutstanding', 0);
   const acquirerCurrentPrice = parseNumberField(form, 'acquirerCurrentPrice', 0);

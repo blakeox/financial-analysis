@@ -1,8 +1,10 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import { getJourneyData } from '../../../../utils/journeyData';
+import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
+import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -30,27 +32,11 @@ if (!currentScenario) {
 // Find retirement-start step in this journey
 const currentStep = currentScenario.models.find(m => m.id === 'retirement-start');
 const currentStepOrder = currentStep?.order || 4;
-const nextStep = currentScenario.models.find(m => m.order === currentStepOrder + 1);
-const previousStep = currentScenario.models.find(m => m.order === currentStepOrder - 1);
-
-// Journey navigation data
-const journeyNav = {
+const { journeyNav } = buildJourneyNavFromOrder({
+  currentScenario,
   scenarioId: scenario!,
-  scenarioName: currentScenario.name,
-  currentStep: currentStepOrder,
-  totalSteps: currentScenario.models.length,
-  nextStep: nextStep ? {
-    id: nextStep.id,
-    name: nextStep.name,
-    url: `/journey/${scenario}/step/${nextStep.id}`
-  } : null,
-  previousStep: previousStep ? {
-    id: previousStep.id,
-    name: previousStep.name,
-    url: `/journey/${scenario}/step/${previousStep.id}`
-  } : null,
-  journeyOverviewUrl: `/journey/${scenario}`
-};
+  currentStepOrder,
+});
 
 // SEO-optimized content
 const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentScenario.name}`;
@@ -68,9 +54,9 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   />
 
   <div class="fa-page-shell">
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="fa-workflow-grid">
         <!-- Main Content -->
-        <div class="lg:col-span-3">
+        <div class="space-y-6">
           <JourneyStepHero
             icon="🚀"
             title={currentStep?.name ?? 'Current step'}
@@ -297,63 +283,16 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               </div>
             </div>
           </div>
-
-          <!-- Journey Navigation -->
-          <div class="fa-journey-nav-panel">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                {journeyNav.previousStep ? (
-                  <a 
-                    href={journeyNav.previousStep.url}
-                    class="fa-button-secondary"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Previous: {journeyNav.previousStep.name}
-                  </a>
-                ) : (
-                  <a 
-                    href={journeyNav.journeyOverviewUrl}
-                    class="fa-button-secondary"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Back to Journey
-                  </a>
-                )}
-              </div>
-
-              <div class="flex items-center space-x-4">
-                {journeyNav.nextStep ? (
-                  <a 
-                    href={journeyNav.nextStep.url}
-                    class="fa-button-success flex-1 sm:flex-none"
-                  >
-                    Next: {journeyNav.nextStep.name}
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
-                ) : (
-                  <a 
-                    href={`/journey-analysis/${journeyNav.scenarioId}`}
-                    class="fa-button-success flex-1 sm:flex-none"
-                  >
-                    Complete Journey
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+          <JourneyStepNavigation
+            scenarioId={journeyNav.scenarioId}
+            journeyOverviewUrl={journeyNav.journeyOverviewUrl}
+            previousStep={journeyNav.previousStep}
+            nextStep={journeyNav.nextStep}
+          />
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
+        <div class="space-y-6">
           <div class="fa-card p-5 mb-6">
             <h3 class="fa-scenario-title mb-4">🚀 Why Start Early?</h3>
             <div class="space-y-4 fa-list-copy">

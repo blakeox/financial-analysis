@@ -68,6 +68,16 @@ module.exports = [
     },
   },
 
+  // Design-system metric/insight blocks in client scripts
+  {
+    files: ['apps/web/src/scripts/**/*.ts'],
+    ignores: ['apps/web/src/scripts/**/__tests__/**'],
+    plugins: { 'fa-a11y': faA11y },
+    rules: {
+      'fa-a11y/no-adhoc-violet-metric-blocks': 'error',
+    },
+  },
+
   // Astro files (non type-aware)
   {
     files: ['**/*.astro'],

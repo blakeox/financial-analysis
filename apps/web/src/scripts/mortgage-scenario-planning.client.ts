@@ -24,6 +24,8 @@ import {
   hideError,
 } from '../utils/calculator-utilities';
 import { postAnalysisRequest } from './analysis-api';
+import { renderMetricCards } from './_shared/metric-card-html';
+import { scenarioCardClass } from './_shared/spine-html';
 
 declare global {
   interface Window {
@@ -606,8 +608,8 @@ function displayResults(scenarios: Scenario[]): void {
                     : 'text-rose-600 dark:text-rose-400';
 
               return `
-              <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-2 ${isAffordable ? 'border-emerald-300 dark:border-emerald-700' : 'border-yellow-300 dark:border-yellow-700'}">
-                <h4 class="font-semibold text-slate-900 dark:text-white mb-3">${scenario.name}</h4>
+              <div class="fa-subcard p-4 border-2 ${isAffordable ? 'border-emerald-500' : 'border-yellow-500'}">
+                <h4 class="fa-panel-title mb-3">${scenario.name}</h4>
                 <div class="space-y-3">
                   <div class="flex justify-between items-center">
                     <span class="fa-script-copy-muted">Monthly Payment</span>
@@ -621,7 +623,7 @@ function displayResults(scenarios: Scenario[]): void {
                     <span class="fa-script-copy-muted">Comfort Level</span>
                     <span class="font-semibold ${colorClass}">${comfortLevel}</span>
                   </div>
-                  <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <div class="pt-2 fa-panel-divider-top">
                     <p class="fa-script-note">
                       ${
                         isAffordable
@@ -644,7 +646,7 @@ function displayResults(scenarios: Scenario[]): void {
     ${renderPaymentBreakdownChart(baseScenarios)}
     
     <!-- Base Scenarios Detailed Comparison -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📋</span> Original Scenarios Comparison
       </h2>
@@ -666,23 +668,23 @@ function displayResults(scenarios: Scenario[]): void {
       refinanceScenarios.length > 0
         ? `
       <!-- Refinance Scenarios Comparison -->
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+      <div class="fa-card p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Updated Scenarios with Refinancing</h2>
         <p class="fa-script-copy-muted mb-4">
           These scenarios assume you refinance after 5 years at the new rate.
         </p>
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead class="bg-slate-50 dark:bg-slate-900/60">
+          <table class="fa-data-table min-w-full">
+            <thead>
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Scenario</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">New Monthly Payment</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Interest</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Total Cost</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase">Payoff Time</th>
+                <th class="fa-data-table-header text-left text-xs uppercase">Scenario</th>
+                <th class="fa-data-table-header text-right text-xs uppercase">New Monthly Payment</th>
+                <th class="fa-data-table-header text-right text-xs uppercase">Total Interest</th>
+                <th class="fa-data-table-header text-right text-xs uppercase">Total Cost</th>
+                <th class="fa-data-table-header text-right text-xs uppercase">Payoff Time</th>
               </tr>
             </thead>
-            <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
+            <tbody>
               ${refinanceScenarios
                 .map((scenario) => {
                   const isBest =
@@ -740,15 +742,15 @@ function displayResults(scenarios: Scenario[]): void {
             baseScenarios.length === 2
               ? `
             <!-- Options Comparison - Lead with this -->
-            <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-5 border-2 border-violet-300 dark:border-violet-600">
-              <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <div class="fa-subcard p-5 border-2 border-violet-500">
+              <h4 class="fa-panel-title mb-4 flex items-center gap-2">
                 <span>⚖️</span> Comparing Your Options
               </h4>
               
               <!-- Cost Difference Summary -->
               <div class="bg-linear-to-r from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
-                  <h5 class="font-semibold text-slate-900 dark:text-white">Total Cost Over Loan Life</h5>
+                  <h5 class="fa-panel-title">Total Cost Over Loan Life</h5>
                   <span class="text-2xl font-bold ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? 'text-emerald-600' : 'text-rose-600'}">
                     ${baseScenarios[0].totalCost < baseScenarios[1].totalCost ? '▼' : '▲'} ${formatCurrency(Math.abs(baseScenarios[0].totalCost - baseScenarios[1].totalCost))}
                   </span>
@@ -763,44 +765,44 @@ function displayResults(scenarios: Scenario[]): void {
               
               <!-- Detailed Comparison Metrics -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Monthly Payment</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment))}</p>
-                  <p class="fa-script-note">
-                    ${
+                ${renderMetricCards([
+                  {
+                    title: 'Monthly Payment',
+                    value: formatCurrency(
+                      Math.abs(baseScenarios[0].monthlyPayment - baseScenarios[1].monthlyPayment)
+                    ),
+                    meta:
                       baseScenarios[0].monthlyPayment < baseScenarios[1].monthlyPayment
-                        ? `Option A pays less per month`
-                        : `Option B pays less per month`
-                    }
-                  </p>
-                </div>
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Total Interest</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest))}</p>
-                  <p class="fa-script-note">
-                    ${
+                        ? 'Option A pays less per month'
+                        : 'Option B pays less per month',
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'Total Interest',
+                    value: formatCurrency(
+                      Math.abs(baseScenarios[0].totalInterest - baseScenarios[1].totalInterest)
+                    ),
+                    meta:
                       baseScenarios[0].totalInterest < baseScenarios[1].totalInterest
-                        ? `Option A pays less interest`
-                        : `Option B pays less interest`
-                    }
-                  </p>
-                </div>
-                <div class="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <p class="text-xs font-medium fa-help-copy uppercase mb-2">Payoff Timeline</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white mb-1">${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo</p>
-                  <p class="fa-script-note">
-                    ${
+                        ? 'Option A pays less interest'
+                        : 'Option B pays less interest',
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'Payoff Timeline',
+                    value: `${Math.abs(baseScenarios[0].payoffMonths - baseScenarios[1].payoffMonths)} mo`,
+                    meta:
                       baseScenarios[0].payoffMonths < baseScenarios[1].payoffMonths
-                        ? `Option A pays off faster`
-                        : `Option B pays off faster`
-                    }
-                  </p>
-                </div>
+                        ? 'Option A pays off faster'
+                        : 'Option B pays off faster',
+                    tone: 'violet',
+                  },
+                ])}
               </div>
               
               <!-- Detailed Comparison Write-up -->
-              <div class="bg-linear-to-r from-slate-50 to-slate-50 dark:from-slate-900 dark:to-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
-                <h5 class="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+              <div class="fa-subcard p-4">
+                <h5 class="fa-panel-title mb-3 flex items-center gap-2">
                   <span>📝</span> Understanding the Tradeoffs
                 </h5>
                 <div class="space-y-3 fa-script-copy-strong">
@@ -816,7 +818,7 @@ function displayResults(scenarios: Scenario[]): void {
           }
           
           <!-- Best Value Analysis -->
-          <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-emerald-500">
+          <div class="fa-subcard p-4 border-l-4 border-emerald-500">
             <h4 class="font-semibold text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-2">
               <span>✓</span> Recommended Option
             </h4>
@@ -849,7 +851,7 @@ function displayResults(scenarios: Scenario[]): void {
             refinanceScenarios.length > 0
               ? `
             <!-- Refinancing Analysis -->
-            <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-4 border-l-4 border-violet-500">
+            <div class="fa-subcard p-4 border-l-4 border-violet-500">
               <h4 class="font-semibold text-violet-600 dark:text-violet-400 mb-2 flex items-center gap-2">
                 <span>🔄</span> Refinancing Analysis
               </h4>
@@ -857,18 +859,20 @@ function displayResults(scenarios: Scenario[]): void {
                 Refinancing after 5 years ${findRefinanceSavings(baseScenarios[0], refinanceScenarios[0])}.
               </p>
               <div class="grid grid-cols-2 gap-3">
-                <div class="p-3 bg-violet-50 dark:bg-violet-900/20 rounded">
-                  <p class="fa-script-note mb-1">Potential Savings</p>
-                  <p class="text-lg font-bold text-violet-600 dark:text-violet-400">
-                    ${formatCurrency(Math.max(0, baseScenarios[0].totalCost - refinanceScenarios[0].totalCost))}
-                  </p>
-                </div>
-                <div class="p-3 bg-violet-50 dark:bg-violet-900/20 rounded">
-                  <p class="fa-script-note mb-1">ROI from Refinancing</p>
-                  <p class="text-lg font-bold text-violet-600 dark:text-violet-400">
-                    ${((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}%
-                  </p>
-                </div>
+                ${renderMetricCards([
+                  {
+                    title: 'Potential Savings',
+                    value: formatCurrency(
+                      Math.max(0, baseScenarios[0].totalCost - refinanceScenarios[0].totalCost)
+                    ),
+                    tone: 'violet',
+                  },
+                  {
+                    title: 'ROI from Refinancing',
+                    value: `${((1 - refinanceScenarios[0].totalCost / baseScenarios[0].totalCost) * 100).toFixed(1)}%`,
+                    tone: 'violet',
+                  },
+                ])}
               </div>
               <p class="fa-script-note mt-3">
                 ⚠️ Note: This doesn't include refinancing closing costs, which typically range from 2-5% of the loan amount.
@@ -899,8 +903,8 @@ function displayResults(scenarios: Scenario[]): void {
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-2">
-            <h4 class="font-semibold text-sm text-slate-900 dark:text-white">✓ Factors Included</h4>
-            <ul class="text-xs text-slate-700 dark:text-slate-300 space-y-1 list-disc list-inside">
+            <h4 class="fa-panel-title text-sm">✓ Factors Included</h4>
+            <ul class="fa-help-copy space-y-1 list-disc list-inside">
               <li>Principal and interest payments</li>
               <li>Total interest over loan term</li>
               <li>Impact of extra payments</li>
@@ -909,8 +913,8 @@ function displayResults(scenarios: Scenario[]): void {
           </div>
           
           <div class="space-y-2">
-            <h4 class="font-semibold text-sm text-slate-900 dark:text-white">⚠️ Not Included</h4>
-            <ul class="text-xs text-slate-700 dark:text-slate-300 space-y-1 list-disc list-inside">
+            <h4 class="fa-panel-title text-sm">⚠️ Not Included</h4>
+            <ul class="fa-help-copy space-y-1 list-disc list-inside">
               <li>Property taxes and insurance (PITI)</li>
               <li>PMI (if down payment < 20%)</li>
               <li>HOA fees or maintenance costs</li>
@@ -919,7 +923,7 @@ function displayResults(scenarios: Scenario[]): void {
           </div>
         </div>
         
-        <div class="mt-4 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+        <div class="mt-4 p-3 fa-subcard">
           <p class="fa-script-note">
             <strong>Pro Tip:</strong> Your actual monthly housing payment will be higher when including taxes, insurance, and other costs. 
             Budget for 20-30% more than the mortgage payment shown here.
@@ -1158,7 +1162,7 @@ function renderPaymentBreakdownChart(scenarios: Scenario[]): string {
   }, 100);
 
   return `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
+    <div class="fa-card p-6 mb-6">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
         <span>📊</span> Visual Payment Breakdown
       </h2>
@@ -1183,11 +1187,9 @@ function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): st
     ? 'bg-gradient-to-br from-emerald-600 to-emerald-600'
     : idx === 0
       ? 'bg-gradient-to-br from-violet-600 to-violet-600'
-      : 'bg-white/90 dark:bg-slate-950/40';
-  const textColor = isBest || idx === 0 ? 'text-white' : 'text-slate-900 dark:text-white';
-  const borderClass = isBest
-    ? 'border-4 border-emerald-400 shadow-2xl'
-    : 'border border-slate-300 dark:border-slate-700 shadow-lg';
+      : 'fa-card';
+  const textColor = isBest || idx === 0 ? 'text-white' : 'fa-list-copy-strong';
+  const borderClass = isBest ? 'border-4 border-emerald-400 shadow-2xl' : 'fa-subcard shadow-lg';
   const time = formatTimeDisplay(scenario.payoffMonths);
 
   return `
@@ -1202,7 +1204,7 @@ function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): st
             ${scenario.hasPMI ? `<p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'}">${formatCurrency(scenario.monthlyPayment)} + ${formatCurrency(scenario.pmiMonthly)} PMI</p>` : ''}
           </div>
         
-        <div class="grid grid-cols-2 gap-3 pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
+        <div class="grid grid-cols-2 gap-3 pt-3 fa-panel-divider-top ${isBest || idx === 0 ? 'border-white/20' : ''}">
           <div>
             <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Total Interest</p>
             <p class="text-sm font-semibold ${textColor}">${formatCurrency(scenario.totalInterest)}</p>
@@ -1213,7 +1215,7 @@ function renderSummaryCard(scenario: Scenario, idx: number, isBest: boolean): st
           </div>
         </div>
         
-        <div class="pt-3 border-t ${isBest || idx === 0 ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}">
+        <div class="pt-3 fa-panel-divider-top ${isBest || idx === 0 ? 'border-white/20' : ''}">
           <p class="text-xs ${isBest || idx === 0 ? 'text-white/80' : 'fa-help-copy'} mb-1">Total Cost</p>
           <p class="text-xl font-bold ${textColor}">${formatCurrency(scenario.totalCost)}</p>
         </div>
@@ -1227,15 +1229,15 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
   const downPercent = calculateDownPaymentPercent(scenario);
 
   return `
-    <div class="border-2 ${isBest ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/10' : 'border-slate-200 dark:border-slate-800'} rounded-lg p-5">
+    <div class="${scenarioCardClass(isBest)} p-5">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-slate-900 dark:text-white">${scenario.name}</h3>
+        <h3 class="fa-panel-title">${scenario.name}</h3>
         ${isBest ? '<span class="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold">✓ BEST</span>' : ''}
       </div>
       
       <div class="space-y-4">
         <!-- Loan Details -->
-        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+        <div class="fa-subcard p-4">
           <h4 class="text-xs font-semibold fa-help-copy uppercase mb-3">Loan Details</h4>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
@@ -1266,7 +1268,7 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         <!-- Payment Information -->
         <div>
           <h4 class="text-xs font-semibold fa-help-copy uppercase mb-3">Monthly Payment</h4>
-          <p class="text-3xl font-bold text-slate-900 dark:text-white mb-1">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
+          <p class="text-3xl font-bold fa-list-copy-strong mb-1">${formatCurrency(scenario.monthlyPaymentWithPMI)}</p>
           ${
             scenario.hasPMI
               ? `
@@ -1285,14 +1287,18 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
         
         <!-- Cost Breakdown -->
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-3">
-            <p class="fa-script-note mb-1">Total Interest</p>
-            <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatCurrency(scenario.totalInterest)}</p>
-          </div>
-          <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-3">
-            <p class="fa-script-note mb-1">Total Cost</p>
-            <p class="text-lg font-bold text-violet-600 dark:text-violet-400">${formatCurrency(scenario.totalCost)}</p>
-          </div>
+          ${renderMetricCards([
+            {
+              title: 'Total Interest',
+              value: formatCurrency(scenario.totalInterest),
+              tone: 'violet',
+            },
+            {
+              title: 'Total Cost',
+              value: formatCurrency(scenario.totalCost),
+              tone: 'violet',
+            },
+          ])}
         </div>
         
         <!-- Timeline -->
@@ -1300,7 +1306,7 @@ function renderDetailedScenarioCard(scenario: Scenario, isBest: boolean): string
           <div class="flex items-center justify-between">
             <div>
               <p class="fa-script-note mb-1">Payoff Timeline</p>
-              <p class="text-xl font-bold text-slate-900 dark:text-white">${time.years} years ${time.months} months</p>
+              <p class="text-xl font-bold fa-list-copy-strong">${time.years} years ${time.months} months</p>
               <p class="fa-script-note mt-1">${scenario.payoffMonths} total payments</p>
             </div>
             <div class="text-4xl">⏱️</div>
@@ -1435,10 +1441,10 @@ function generateRecommendations(
 
     if (s1DownPercent < 20 || s2DownPercent < 20) {
       recommendations.push(`
-        <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+        <div class="flex gap-3 p-3 fa-subcard">
           <div class="text-2xl">🏦</div>
           <div>
-            <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Consider 20% Down Payment</p>
+            <p class="fa-panel-title text-sm mb-1">Consider 20% Down Payment</p>
             <p class="fa-script-note">
               Putting down at least 20% helps you avoid PMI (Private Mortgage Insurance), which can add $50-$200+ to your monthly payment.
             </p>
@@ -1452,10 +1458,10 @@ function generateRecommendations(
   const hasExtraPayments = baseScenarios.some((s) => s.extraPayment > 0);
   if (!hasExtraPayments) {
     recommendations.push(`
-      <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+      <div class="flex gap-3 p-3 fa-subcard">
         <div class="text-2xl">💰</div>
         <div>
-          <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Make Extra Payments</p>
+          <p class="fa-panel-title text-sm mb-1">Make Extra Payments</p>
           <p class="fa-script-note">
             Even small extra payments (like $100/month) can save tens of thousands in interest and shave years off your mortgage.
           </p>
@@ -1470,10 +1476,10 @@ function generateRecommendations(
     Math.abs(baseScenarios[0].rate - baseScenarios[1].rate) >= 0.25
   ) {
     recommendations.push(`
-      <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+      <div class="flex gap-3 p-3 fa-subcard">
         <div class="text-2xl">📉</div>
         <div>
-          <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Shop Around for Rates</p>
+          <p class="fa-panel-title text-sm mb-1">Shop Around for Rates</p>
           <p class="fa-script-note">
             Even a 0.25% difference in rates can save you thousands. Compare rates from at least 3-5 different lenders.
           </p>
@@ -1484,10 +1490,10 @@ function generateRecommendations(
 
   // Emergency fund
   recommendations.push(`
-    <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+    <div class="flex gap-3 p-3 fa-subcard">
       <div class="text-2xl">🛡️</div>
       <div>
-        <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Maintain Emergency Fund</p>
+        <p class="fa-panel-title text-sm mb-1">Maintain Emergency Fund</p>
         <p class="fa-script-note">
           Keep 3-6 months of expenses in savings before and after buying. Homeownership comes with unexpected costs.
         </p>
@@ -1500,10 +1506,10 @@ function generateRecommendations(
     const savings = baseScenarios[0].totalCost - refinanceScenarios[0].totalCost;
     if (savings > 10000) {
       recommendations.push(`
-        <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg">
+        <div class="flex gap-3 p-3 fa-subcard">
           <div class="text-2xl">🔄</div>
           <div>
-            <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Monitor Refinancing Opportunities</p>
+            <p class="fa-panel-title text-sm mb-1">Monitor Refinancing Opportunities</p>
             <p class="fa-script-note">
               If rates drop by 0.5%+, refinancing could save you ${formatCurrency(savings)}. Watch the market closely.
             </p>
@@ -1517,10 +1523,10 @@ function generateRecommendations(
     const bestYears = Math.floor(bestScenario.payoffMonths / 12);
     const remainingMonths = bestScenario.payoffMonths % 12;
     recommendations.push(`
-      <div class="flex gap-3 p-3 bg-white/90 dark:bg-slate-950/40 rounded-lg border border-emerald-200 dark:border-emerald-700">
+      <div class="flex gap-3 p-3 fa-subcard border border-emerald-500">
         <div class="text-2xl">✅</div>
         <div>
-          <p class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Lean Into ${bestScenario.name}</p>
+          <p class="fa-panel-title text-sm mb-1">Lean Into ${bestScenario.name}</p>
           <p class="fa-script-note">
             This option pairs a ${formatCurrency(bestScenario.monthlyPayment)} monthly payment with a total cost of ${formatCurrency(bestScenario.totalCost)}
             and pays off in about ${bestYears} years${remainingMonths ? ` ${remainingMonths} months` : ''}. Build your plan around these numbers.

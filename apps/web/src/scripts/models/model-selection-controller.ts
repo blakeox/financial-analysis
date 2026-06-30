@@ -47,12 +47,7 @@ type WindowWithSelection = Window &
     openChatPanel?: () => void;
   };
 
-const SELECTED_CLASSES = [
-  'ring-2',
-  'ring-violet-500',
-  'bg-violet-50',
-  'dark:bg-violet-900/20',
-] as const;
+const SELECTED_CLASSES = ['ring-2', 'ring-violet-500', 'fa-model-card-selected'] as const;
 const HOVER_CLASSES = ['ring', 'ring-offset-1', 'ring-violet-200'] as const;
 const STATUS_AVAILABLE_CLASSES = [
   'bg-emerald-100',
@@ -334,17 +329,13 @@ export function initializeModelSelection(
   const featuresListElement = doc.getElementById('selected-model-features');
   const statusBadgeElement = doc.getElementById('selected-model-status');
   const ctaElement = doc.getElementById('selected-model-cta') as
-    | HTMLAnchorElement
-    | HTMLButtonElement
-    | null;
+    HTMLAnchorElement | HTMLButtonElement | null;
 
   const modelCards = Array.from(doc.querySelectorAll<HTMLElement>('.model-card'));
   const cardElements = modelCards.map<ModelCardElements>((root) => ({
     root,
     ctaButton: root.querySelector('[data-model-cta]') as
-      | HTMLAnchorElement
-      | HTMLButtonElement
-      | null,
+      HTMLAnchorElement | HTMLButtonElement | null,
   }));
   const cardElementLookup = new Map<string, ModelCardElements>();
 

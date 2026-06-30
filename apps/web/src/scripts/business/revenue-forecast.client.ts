@@ -13,6 +13,7 @@ import { RevenueForecastEngine } from '@financial-analysis/analysis';
 import { formatCurrency, parseNumber } from '../../utils/calculator-utilities';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { renderMetricCards } from '../_shared/metric-card-html';
+import { renderProgressBar } from '../_shared/spine-html';
 import { registerChatButton } from '../chat/chat-actions';
 
 type RevenueForecastMonth = RevenueForecastResult['monthlyForecasts'][number];
@@ -29,10 +30,7 @@ export const collectRevenueStreams = (formData: FormData, maxStreams: number): R
     const currentMonthlyRevenue = parseNumber(formData.get(`stream-revenue-${i}`));
     const growthRate = parseNumber(formData.get(`stream-growth-${i}`));
     const seasonality = formData.get(`stream-seasonality-${i}`) as
-      | 'none'
-      | 'retail'
-      | 'b2b'
-      | 'custom';
+      'none' | 'retail' | 'b2b' | 'custom';
 
     if (
       name &&
@@ -124,40 +122,40 @@ export const displayResults = (result: RevenueForecastResult): void => {
   // Build detailed results
   resultsContainer.innerHTML = `
     <!-- Monthly Forecast Table -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Monthly Revenue Forecast</h4>
+    <div class="fa-subcard mb-6">
+      <h4 class="fa-panel-title mb-4">Monthly Revenue Forecast</h4>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
-              <th class="text-left py-2 px-3 text-slate-700 dark:text-slate-300">Month</th>
+            <tr class="fa-panel-divider">
+              <th class="fa-data-table-header text-left">Month</th>
               ${Object.keys(result.monthlyForecasts[0].revenueByStream)
                 .map(
                   (stream) => `
-                <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${stream}</th>
+                <th class="fa-data-table-cell text-right">${stream}</th>
               `
                 )
                 .join('')}
-              <th class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">Total</th>
-              ${result.customerMetrics ? '<th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Customers</th>' : ''}
-              <th class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">Growth</th>
+              <th class="fa-data-table-cell text-right fa-script-copy-strong">Total</th>
+              ${result.customerMetrics ? '<th class="fa-data-table-cell text-right">Customers</th>' : ''}
+              <th class="fa-data-table-cell text-right">Growth</th>
             </tr>
           </thead>
           <tbody>
             ${result.monthlyForecasts
               .map(
                 (month: RevenueForecastMonth) => `
-              <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                <td class="py-2 px-3 text-slate-900 dark:text-white font-medium">${month.month}. ${month.monthName}</td>
+              <tr class="fa-panel-divider">
+                <td class="fa-data-table-cell font-medium">${month.month}. ${month.monthName}</td>
                 ${Object.values(month.revenueByStream)
                   .map(
                     (rev) => `
-                  <td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
+                  <td class="fa-data-table-cell text-right">${formatCurrency(typeof rev === 'number' ? rev : 0)}</td>
                 `
                   )
                   .join('')}
-                <td class="text-right py-2 px-3 text-slate-900 dark:text-white font-semibold">${formatCurrency(month.totalRevenue)}</td>
-                ${month.customers !== undefined ? `<td class="text-right py-2 px-3 text-slate-700 dark:text-slate-300">${month.customers.toFixed(0)}</td>` : ''}
+                <td class="fa-data-table-cell text-right fa-script-copy-strong">${formatCurrency(month.totalRevenue)}</td>
+                ${month.customers !== undefined ? `<td class="fa-data-table-cell text-right">${month.customers.toFixed(0)}</td>` : ''}
                 <td class="text-right py-2 px-3 ${month.growthVsPreviousMonth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                   ${month.growthVsPreviousMonth >= 0 ? '+' : ''}${month.growthVsPreviousMonth.toFixed(1)}%
                 </td>
@@ -165,18 +163,18 @@ export const displayResults = (result: RevenueForecastResult): void => {
             `
               )
               .join('')}
-            <tr class="border-t-2 border-slate-300 dark:border-slate-700 font-semibold">
-              <td class="py-3 px-3 text-slate-900 dark:text-white">TOTAL</td>
+            <tr class="fa-panel-divider-top font-semibold">
+              <td class="fa-data-table-cell fa-script-copy-strong">TOTAL</td>
               ${result.streamBreakdown
                 .map(
                   (stream: RevenueForecastStreamSummary) => `
-                <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${formatCurrency(stream.totalRevenue)}</td>
+                <td class="fa-data-table-cell text-right fa-script-copy-strong">${formatCurrency(stream.totalRevenue)}</td>
               `
                 )
                 .join('')}
-              <td class="text-right py-3 px-3 text-slate-900 dark:text-white text-lg">${formatCurrency(result.summary.totalForecastRevenue)}</td>
-              ${result.customerMetrics ? `<td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</td>` : ''}
-              <td class="text-right py-3 px-3 text-slate-900 dark:text-white">${result.summary.totalGrowth.toFixed(1)}%</td>
+              <td class="fa-data-table-cell text-right text-lg fa-script-copy-strong">${formatCurrency(result.summary.totalForecastRevenue)}</td>
+              ${result.customerMetrics ? `<td class="fa-data-table-cell text-right fa-script-copy-strong">${result.customerMetrics.endingCustomers.toFixed(0)}</td>` : ''}
+              <td class="fa-data-table-cell text-right fa-script-copy-strong">${result.summary.totalGrowth.toFixed(1)}%</td>
             </tr>
           </tbody>
         </table>
@@ -188,8 +186,8 @@ export const displayResults = (result: RevenueForecastResult): void => {
     </div>
     
     <!-- Stream Breakdown -->
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
-      <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Revenue Stream Breakdown</h4>
+    <div class="fa-subcard mb-6">
+      <h4 class="fa-panel-title mb-4">Revenue Stream Breakdown</h4>
       <div class="space-y-4">
         ${result.streamBreakdown
           .map((stream: RevenueForecastStreamSummary) => {
@@ -197,12 +195,10 @@ export const displayResults = (result: RevenueForecastResult): void => {
             return `
             <div>
               <div class="flex justify-between mb-2">
-                <span class="font-medium text-slate-900 dark:text-white">${stream.name}</span>
-                <span class="text-slate-700 dark:text-slate-300">${formatCurrency(stream.totalRevenue)} (${stream.percentOfTotal.toFixed(1)}%)</span>
+                <span class="fa-list-copy-strong">${stream.name}</span>
+                <span class="fa-list-copy">${formatCurrency(stream.totalRevenue)} (${stream.percentOfTotal.toFixed(1)}%)</span>
               </div>
-              <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                <div class="bg-gradient-to-r from-violet-500 to-violet-500 h-3 rounded-full transition-all duration-500" style="width: ${widthPercent}%"></div>
-              </div>
+              ${renderProgressBar(widthPercent)}
               <div class="flex justify-between mt-1 fa-script-note">
                 <span>Avg: ${formatCurrency(stream.avgMonthlyRevenue)}/mo</span>
                 <span class="${stream.growth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
@@ -220,12 +216,12 @@ export const displayResults = (result: RevenueForecastResult): void => {
     ${
       result.customerMetrics
         ? `
-      <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg p-6 border border-slate-200 dark:border-slate-800 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Customer Growth Analysis</h4>
+      <div class="fa-subcard mb-6">
+        <h4 class="fa-panel-title mb-4">Customer Growth Analysis</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <p class="fa-script-copy-muted">Ending Customers</p>
-            <p class="text-2xl font-bold text-slate-900 dark:text-white">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
+            <p class="text-2xl font-bold fa-list-copy-strong">${result.customerMetrics.endingCustomers.toFixed(0)}</p>
           </div>
           <div>
             <p class="fa-script-copy-muted">Net Growth</p>
@@ -251,13 +247,13 @@ export const displayResults = (result: RevenueForecastResult): void => {
     ${
       result.insights.length > 0
         ? `
-      <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4 text-violet-900 dark:text-violet-100">📊 Key Insights</h4>
+      <div class="fa-highlight-card mb-6">
+        <h4 class="fa-script-title text-lg mb-4">📊 Key Insights</h4>
         <ul class="space-y-2">
           ${result.insights
             .map(
               (insight: string) => `
-            <li class="text-slate-700 dark:text-slate-300">${insight}</li>
+            <li class="fa-list-copy">${insight}</li>
           `
             )
             .join('')}
@@ -297,7 +293,7 @@ export const displayResults = (result: RevenueForecastResult): void => {
           ${result.recommendations
             .map(
               (rec: string) => `
-            <li class="text-slate-700 dark:text-slate-300">${rec}</li>
+            <li class="fa-list-copy">${rec}</li>
           `
             )
             .join('')}
@@ -370,7 +366,7 @@ export const initRevenueForecastCalculator = (): void => {
 
 function renderRevenueStreamFields(streamIndex: number): string {
   return `
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-900/60/50 rounded-lg" id="stream-${streamIndex}">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 fa-subcard" id="stream-${streamIndex}">
       <div>
         <label class="fa-field-label mb-1">Stream Name</label>
         <input type="text" name="stream-name-${streamIndex}"

@@ -1,0 +1,76 @@
+---
+import Breadcrumbs from '../../components/site/Breadcrumbs.astro';
+import PageHero from '../../components/site/PageHero.astro';
+import DesignSystemShowcase from '../../components/DesignSystemShowcase';
+import Layout from '../../layouts/Layout.astro';
+
+const title = 'Design System | Fanalyx';
+const description =
+  'Visual reference for Fanalyx design tokens, fa-* app spine classes, and @financial-analysis/ui React primitives.';
+---
+
+<Layout title={title} description={description} canonical={Astro.url.href} noindex={true}>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Developers', href: '/developers' },
+      { label: 'Design System' },
+    ]}
+  />
+
+  <div class="fa-page-shell">
+    <PageHero
+      eyebrow="Design system"
+      title="Fanalyx visual language"
+      description="Two tiers: fa-* CSS for calculator/workflow pages, React components for interactive islands. Tokens live in apps/web/src/styles/tokens.css."
+    />
+
+    <section class="fa-card mb-10">
+      <h2 class="fa-card-title">App spine buttons (fa-*)</h2>
+      <p class="fa-card-copy">Used in Astro pages and client-script HTML output.</p>
+      <div class="fa-actions !mt-4">
+        <button type="button" class="fa-button-primary">Primary</button>
+        <button type="button" class="fa-button-secondary">Secondary</button>
+        <button type="button" class="fa-button-success">Success</button>
+        <button type="button" class="fa-button-ghost-light">Ghost light</button>
+      </div>
+    </section>
+
+    <section class="fa-card mb-10">
+      <h2 class="fa-card-title">Callouts (fa-*)</h2>
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="fa-callout-info">
+          <p class="fa-callout-title-info">Info</p>
+          <p class="fa-callout-copy-info">Use for neutral guidance and tips.</p>
+        </div>
+        <div class="fa-callout-success">
+          <p class="fa-callout-title-success">Success</p>
+          <p class="fa-callout-copy-success">Use after a successful save or run.</p>
+        </div>
+        <div class="fa-callout-warning">
+          <strong>Warning</strong> — Assumptions may not match your situation.
+        </div>
+        <div class="fa-callout-danger">
+          <p class="fa-callout-title-danger">Error</p>
+          <p class="fa-callout-copy-danger">Validation failed — check required fields.</p>
+        </div>
+      </div>
+    </section>
+
+    <DesignSystemShowcase client:visible />
+
+    <section class="fa-prose-card mt-12">
+      <h2>Token files</h2>
+      <ul>
+        <li><code>apps/web/src/styles/tokens.css</code> — semantic CSS variables + Tailwind @theme</li>
+        <li><code>packages/ui/src/lib/classNames.ts</code> — React class strings (uses token shadows)</li>
+        <li><code>apps/web/src/styles/components.css</code> — fa-* component classes</li>
+      </ul>
+      <h3>Styling exceptions</h3>
+      <p>
+        <code>ChatPanel.astro</code> intentionally uses a VS Code–inspired sub-theme with scoped CSS.
+        It is separate from the Fanalyx brand spine documented here.
+      </p>
+    </section>
+  </div>
+</Layout>

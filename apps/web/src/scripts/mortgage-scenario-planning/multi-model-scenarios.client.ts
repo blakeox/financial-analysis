@@ -824,8 +824,7 @@ export class MultiModelScenarioManager {
     container.appendChild(modelsSection);
 
     const workflowSection = document.createElement('div');
-    workflowSection.className =
-      'bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg p-4';
+    workflowSection.className = 'fa-highlight-card border border-violet-200 dark:border-violet-700';
 
     const workflowTitle = document.createElement('h5');
     workflowTitle.className = 'font-medium text-violet-900 dark:text-violet-300 mb-2';

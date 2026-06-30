@@ -5,6 +5,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import {
@@ -231,20 +232,19 @@ const displayResults = (result: MAResults): void => {
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Transaction Assessment</h4>
-          <p class="text-violet-800 dark:text-violet-200">The ${formatPercent(result.premiumPercentage)} premium suggests ${result.premiumPercentage > 20 ? 'aggressive' : 'reasonable'} pricing for the target company.</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">EPS Impact</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">The transaction is ${result.epsAccretionPercentage >= 0 ? 'accretive' : 'dilutive'} to earnings, with a ${formatPercent(Math.abs(result.epsAccretionPercentage))} impact on EPS.</p>
-        </div>
-        
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Synergy Value</h4>
-          <p class="text-violet-800 dark:text-violet-200">Total synergies of ${formatCurrency(result.totalSynergies)} represent ${formatPercent((result.totalSynergies / result.transactionValue) * 100)} of the transaction value.</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Transaction Assessment',
+          content: `The ${formatPercent(result.premiumPercentage)} premium suggests ${result.premiumPercentage > 20 ? 'aggressive' : 'reasonable'} pricing for the target company.`,
+        })}
+        ${renderInsightCard({
+          title: 'EPS Impact',
+          tone: 'success',
+          content: `The transaction is ${result.epsAccretionPercentage >= 0 ? 'accretive' : 'dilutive'} to earnings, with a ${formatPercent(Math.abs(result.epsAccretionPercentage))} impact on EPS.`,
+        })}
+        ${renderInsightCard({
+          title: 'Synergy Value',
+          content: `Total synergies of ${formatCurrency(result.totalSynergies)} represent ${formatPercent((result.totalSynergies / result.transactionValue) * 100)} of the transaction value.`,
+        })}
       </div>
     </div>
   `;
