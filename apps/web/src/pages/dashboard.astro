@@ -128,8 +128,7 @@ const keywords = "api dashboard, developer portal, api usage, api management, fi
   // Load API keys and usage
   async function loadDashboardData() {
     if (!customerId) {
-      // No customer ID - redirect to get started
-      window.location.href = '/developers';
+      renderNoKeys();
       return;
     }
 

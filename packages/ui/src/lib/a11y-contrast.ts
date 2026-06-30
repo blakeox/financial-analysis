@@ -48,6 +48,9 @@ export const REQUIRED_CONTRAST_PAIRS = [
   { name: 'body copy on white', foreground: '#5e6478', background: '#ffffff' },
   { name: 'help copy on white', foreground: '#5e6478', background: '#ffffff' },
   { name: 'placeholder on white', foreground: '#64748b', background: '#ffffff' },
+  { name: 'brand text on brand button', foreground: '#ffffff', background: '#6d4aff' },
+  { name: 'primary text on light surface', foreground: '#090e24', background: '#ffffff' },
+  { name: 'primary text on dark surface', foreground: '#ffffff', background: '#050816' },
 ] as const;
 
 export function validateRequiredContrastPairs(): string[] {

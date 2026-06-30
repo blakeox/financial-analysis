@@ -2,14 +2,49 @@
 
 This document describes how visual patterns are split between the Astro app and the shared React UI package, and which primitives to use for new work.
 
+**Live catalog:** [/developers/design-system](/developers/design-system) (buttons, badges, callouts, metric cards, both tiers).
+
 ## Two tiers
 
 | Tier | Location | Use for |
 |------|----------|---------|
-| **App spine (`fa-*`)** | `apps/web/src/styles/global.css` | Calculator template pages, client-script HTML, Astro layouts, workflow rail |
+| **App spine (`fa-*`)** | `apps/web/src/styles/` (`tokens.css`, `components.css`, imported by `global.css`) | Calculator template pages, client-script HTML, Astro layouts, workflow rail |
 | **React components** | `@financial-analysis/ui` | Islands, dashboards, forms with validation props, charts |
 
 Prefer extending an existing tier over inventing one-off Tailwind blocks in client scripts.
+
+## Design tokens
+
+Single source of truth: `apps/web/src/styles/tokens.css`
+
+- **Semantic vars:** `--fa-brand`, `--fa-brand-shadow`, `--fa-text-muted`, `--fa-shadow-card`, etc.
+- **Palette:** `--color-primary-*`, `--color-gray-*` (purple-tinted brand)
+- **Tailwind bridge:** `@theme` block exposes `bg-brand`, `text-text-muted`, `shadow-card`, etc.
+
+React class strings in `packages/ui/src/lib/classNames.ts` reference the same token shadows (e.g. `var(--fa-brand-shadow)`). Change brand purple once in `tokens.css` to update both tiers.
+
+**Token change checklist:**
+
+1. Edit `apps/web/src/styles/tokens.css`
+2. Update `REQUIRED_CONTRAST_PAIRS` in `packages/ui/src/lib/a11y-contrast.ts` if text colors change
+3. Run `pnpm run test:layout` in `apps/web` and `pnpm run verify` at repo root
+
+## CSS file layout
+
+```
+apps/web/src/styles/
+├── global.css       # @import hub (tailwindcss + partials)
+├── tokens.css       # :root, .dark, @theme
+├── utilities.css    # gpu, safe-bottom, bg-linear-to-r, etc.
+├── base.css         # body, skip-link
+├── components.css   # @import hub for fa-* partials
+└── components/
+    ├── spine.css    # layout, cards, workflow, typography copy
+    ├── buttons.css  # fa-button-*, fa-actions
+    ├── forms.css    # fa-field-*, fa-input-surface, fa-form-*
+    ├── home.css     # fa-home-* landing page typography
+    └── navbar.css   # #site-nav.modern-nav scoped styles
+```
 
 ## Page archetypes
 
@@ -23,13 +58,15 @@ Prefer extending an existing tier over inventing one-off Tailwind blocks in clie
 
 Same rail pattern as calculators; step scripts write into `#summary-cards` when showing KPIs.
 
+**Layout:** wrap main + sidebar/rail columns in `.fa-workflow-grid` (form column + tips/rail). Calculator-backed fallback steps use `JourneyCalculatorPage`, which already uses this grid with `WorkflowSupportRail`.
+
 ### Standalone tool page (`ToolPageShell` + client script)
 
 Use when a model has a dedicated URL outside `/calculator/*` (e.g. `/bond-pricing`, `/cash-flow-analysis`, `/commercial-real-estate-lease`).
 
 - **Layout:** `showChat={false}` and `showToolAnalysis={false}` — chat lives in `WorkflowSupportRail`.
 - **Hook:** hidden `<div id="results" aria-hidden="true">` for `storeAnalysisResult` metadata.
-- **Grid:** `xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]` with form/dashboard in the left column.
+- **Grid:** `.fa-workflow-grid` with form/dashboard in the left column.
 - **Rail:** `<WorkflowSupportRail modelType="…" />` where `modelType` matches `ANALYSIS_ENGINE_MODEL_TYPES` (use overrides like `cca-valuation` for `analyze_cca_valuation`).
 - **Client:** call `storeAnalysisResult('analyze_<kebab>', payload)` after each successful run; use `renderMetricCards()` for in-page KPIs when applicable.
 - **Lease dashboard:** mount via `lease-analysis-dashboard-host.client.ts` so `persistLeaseAnalysisResult()` wires `analyze_lease` correctly.
@@ -46,6 +83,16 @@ KPI tiles in `#summary-cards` should use the shared HTML helper, not ad hoc `bg-
 **CSS:** `.fa-metric-card`, tone modifiers (`fa-metric-card-violet`, `emerald`, `orange`, `primary`, `surface`), `.fa-metric-card-title`, `.fa-metric-card-value`, `.fa-metric-card-value-lg`, `.fa-metric-card-meta`
 
 **TypeScript:** `renderMetricCard` / `renderMetricCards` in `apps/web/src/scripts/_shared/metric-card-html.ts`
+
+Prose insight blocks (not KPIs) use `renderInsightCard()` from `apps/web/src/scripts/_shared/insight-card-html.ts` (`fa-highlight-card` or `fa-callout-*`).
+
+Structured detail sections use `renderResultPanel()` / `renderResultRow()` from `apps/web/src/scripts/_shared/result-panel-html.ts`.
+
+Workflow page heroes (calculators + journeys) share `WorkflowHero.astro`; `WorkflowPageIntro` and `JourneyStepHero` are thin wrappers.
+
+Journey steps should use `JourneyStepNavigation.astro` for back/next/complete CTA rows instead of inline per-page navigation markup.
+
+**Journey routing:** `journeyStepRouting.ts` and `journeyStepAvailability.ts` decide when a model link stays on a marketing/tool URL vs. the journey shell (`/journey/{scenario}/step/{id}`). Calculator-backed steps without a dedicated `.astro` page use the `[stepId].astro` fallback (`JourneyCalculatorPage`). Known tool-only handoffs (e.g. `/ebitda-forecasting`, `/bond-pricing`) stay on their original URLs and are listed in `journey-routing-contract.test.ts`.
 
 ```ts
 import { renderMetricCards } from '../_shared/metric-card-html';
@@ -80,11 +127,19 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#form-validation-styling). Summary:
 
 Use for interactive islands:
 
-- **Forms:** `CurrencyField`, `PercentField`, `Input`, `Select` — `inputStateClasses.error`, `textColors.muted` for helper text
+- **Primitives:** `Button`, `Card`, `Badge`, `Callout`, `Input`, `Select`, `Tabs`
+- **Forms:** `CurrencyField`, `PercentField` — `inputStateClasses.error`, `textColors.muted` for helper text
 - **Metrics:** `EnhancedMetricCard`, charts under `packages/ui/src/components/charts/`
-- **Contrast:** `textColors.muted` from `ui-constants`; do not use bare `text-slate-400` on light surfaces (enforced by `check-a11y-contrast.mjs` and ESLint `fa-a11y/prefer-accessible-muted-text`)
+- **Contrast:** `textColors.muted` from `classNames.ts`; do not use bare `text-slate-400` on light surfaces (enforced by `check-a11y-contrast.mjs` and ESLint `fa-a11y/prefer-accessible-muted-text`)
+
+Variant contracts live in `packages/ui/src/lib/primitiveContracts.ts` with enforcement tests.
 
 Documented further in `packages/ui/docs/financial-forms.mdx`.
+
+## Styling exceptions
+
+- **`ChatPanel.astro`** uses a VS Code–inspired sub-theme (~700 lines scoped CSS). Intentionally separate from Fanalyx brand tokens.
+- **Homepage** (`.landing-page` in `index.astro`) may scope additional aliases; shared homepage typography uses `fa-home-*` classes backed by tokens in `tokens.css`.
 
 ## Analysis results events
 
@@ -92,7 +147,7 @@ Client scripts that persist results for the rail should use `dispatchAnalysisRes
 
 ## When to add new `fa-*` classes
 
-Add to `global.css` when:
+Add to `apps/web/src/styles/components.css` (via the `@layer components` block) when:
 
 - Three or more pages/scripts repeat the same pattern, or
 - The pattern is part of the calculator/journey spine (rail, KPI grid, callouts)
@@ -101,5 +156,6 @@ Otherwise use `@financial-analysis/ui` components or existing Tailwind utilities
 
 ## Related checks
 
-- `apps/web/scripts/check-a11y-contrast.mjs`, `check-a11y-patterns.mjs`, `check-calculator-hrefs.mjs` (via `pnpm run test:layout` in `apps/web`)
+- `apps/web/scripts/check-a11y-contrast.mjs`, `check-a11y-patterns.mjs`, `check-client-script-colors.mjs` (baseline — blocks new raw Tailwind colors in `.client.ts` HTML output), `check-calculator-hrefs.mjs` (via `pnpm run test:layout` in `apps/web`)
 - Playwright a11y: `tests/a11y/`
+- Design system catalog: `tests/site/design-system.spec.ts`

@@ -2,12 +2,7 @@ import React from 'react';
 import { badgeVariants, cn, textColors } from '../lib/classNames';
 
 export type ModuleType =
-  | 'financials'
-  | 'employees'
-  | 'expenses'
-  | 'scenario'
-  | 'fixed-assets'
-  | 'leases';
+  'financials' | 'employees' | 'expenses' | 'scenario' | 'fixed-assets' | 'leases';
 
 export interface ModuleDefinition {
   id: ModuleType;

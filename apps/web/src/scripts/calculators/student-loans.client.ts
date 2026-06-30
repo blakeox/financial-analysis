@@ -1,6 +1,7 @@
 import type { StudentLoanResult } from '@financial-analysis/analysis';
 import { StudentLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import { formatCurrency, formatPercent } from '../../utils/calculator-utilities';
@@ -383,20 +384,21 @@ export const displayResults = (result: StudentLoanResult, insights?: ExtendedIns
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Recommendations</h3>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Payment Strategy</h4>
-          <p class="text-violet-800 dark:text-violet-200">Consider making extra payments to reduce total interest paid and payoff time.</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Refinancing Options</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">If you have good credit, consider refinancing to a lower interest rate to save money over time.</p>
-        </div>
-        
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Income-Driven Plans</h4>
-          <p class="text-violet-800 dark:text-violet-200">If you're struggling with payments, consider income-driven repayment plans that cap payments based on your income.</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Payment Strategy',
+          content: 'Consider making extra payments to reduce total interest paid and payoff time.',
+        })}
+        ${renderInsightCard({
+          title: 'Refinancing Options',
+          tone: 'success',
+          content:
+            'If you have good credit, consider refinancing to a lower interest rate to save money over time.',
+        })}
+        ${renderInsightCard({
+          title: 'Income-Driven Plans',
+          content:
+            "If you're struggling with payments, consider income-driven repayment plans that cap payments based on your income.",
+        })}
       </div>
     </div>
     ${

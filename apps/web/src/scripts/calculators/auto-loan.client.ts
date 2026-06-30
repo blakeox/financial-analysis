@@ -3,6 +3,8 @@ import { AutoLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
 import { renderMetricCards } from '../_shared/metric-card-html';
+import { renderResultPanel, renderResultRow } from '../_shared/result-panel-html';
+import { renderDataTableCell, renderDataTableHeaderCell } from '../_shared/spine-html';
 import {
   parseNumber,
   formatCurrency,
@@ -260,110 +262,73 @@ export const renderAutoLoanResults = (
     Number.parseFloat(costBreakdown.gapInsurance) +
     Number.parseFloat(costBreakdown.extendedWarranty);
 
-  resultsContainer.innerHTML = `
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Cost Breakdown</h3>
-      
-      <div class="space-y-4">
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Vehicle Price</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.vehiclePrice)}</span>
-        </div>
-        
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Down Payment</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.downPayment)}</span>
-        </div>
-        
-        ${
-          Number.isFinite(netTradeIn) && netTradeIn !== 0
-            ? `
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Trade-in Value</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}</span>
-        </div>
-        `
-            : ''
-        }
-        
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Sales Tax</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.salesTax)}</span>
-        </div>
-        
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Fees</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(Number.isFinite(totalFees) ? totalFees : 0)}</span>
-        </div>
-        
-        <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-          <span class="text-slate-700 dark:text-slate-300">Amount Financed</span>
-          <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(costBreakdown.amountFinanced)}</span>
-        </div>
-      </div>
-    </div>
+  const tradeInRow =
+    Number.isFinite(netTradeIn) && netTradeIn !== 0
+      ? renderResultRow(
+          'Trade-in Value',
+          `${formatCurrency(Math.abs(netTradeIn))}${netTradeIn < 0 ? ' (negative equity)' : ''}`
+        )
+      : '';
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6 mb-8">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Loan Summary</h3>
-      
+  const costBreakdownHtml = `
+      <div class="space-y-4">
+        ${renderResultRow('Vehicle Price', formatCurrency(costBreakdown.vehiclePrice))}
+        ${renderResultRow('Down Payment', formatCurrency(costBreakdown.downPayment))}
+        ${tradeInRow}
+        ${renderResultRow('Sales Tax', formatCurrency(costBreakdown.salesTax))}
+        ${renderResultRow('Fees', formatCurrency(Number.isFinite(totalFees) ? totalFees : 0))}
+        ${renderResultRow('Amount Financed', formatCurrency(costBreakdown.amountFinanced))}
+      </div>`;
+
+  const loanSummaryHtml = `
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-            <span class="text-slate-700 dark:text-slate-300">Total Payments</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.totalPayments)}</span>
-          </div>
-          
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-            <span class="text-slate-700 dark:text-slate-300">Effective APR</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.aprEffective))}</span>
-          </div>
+          ${renderResultRow('Total Payments', formatCurrency(summary.totalPayments))}
+          ${renderResultRow('Effective APR', formatPercent(Number.parseFloat(summary.aprEffective)))}
         </div>
-        
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-            <span class="text-slate-700 dark:text-slate-300">Loan-to-Value</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatPercent(Number.parseFloat(summary.loanToValue) / 100)}</span>
-          </div>
-          
-          <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-800">
-            <span class="text-slate-700 dark:text-slate-300">Cost per Mile</span>
-            <span class="font-semibold text-slate-900 dark:text-white">${formatCurrency(summary.costPerMile)}</span>
-          </div>
+          ${renderResultRow('Loan-to-Value', formatPercent(Number.parseFloat(summary.loanToValue) / 100))}
+          ${renderResultRow('Cost per Mile', formatCurrency(summary.costPerMile))}
         </div>
-      </div>
-    </div>
+      </div>`;
 
-    <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Early Payoff Scenarios</h3>
-      
+  const earlyPayoffHtml = `
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-          <thead class="bg-slate-50 dark:bg-slate-900/60">
+        <table class="fa-data-table min-w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Payoff Time</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remaining Balance</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Interest Saved</th>
+              ${renderDataTableHeaderCell('Payoff Time')}
+              ${renderDataTableHeaderCell('Remaining Balance', 'right')}
+              ${renderDataTableHeaderCell('Interest Saved', 'right')}
             </tr>
           </thead>
-          <tbody class="bg-white/90 dark:bg-slate-950/40 divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody>
             ${earlyPayoffScenarios
               .map((scenario: AutoLoanResult['earlyPayoffScenarios'][number]) => {
                 const years = scenario.monthsPaid / 12;
                 const yearsLabel = `${years} year${years !== 1 ? 's' : ''}`;
                 return `
                 <tr>
-                  <td class="px-4 py-2 text-sm text-slate-900 dark:text-white">${yearsLabel}</td>
-                  <td class="px-4 py-2 text-sm text-right text-slate-900 dark:text-white">${formatCurrency(scenario.remainingBalance)}</td>
-                  <td class="px-4 py-2 text-sm text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(scenario.interestSaved)}</td>
+                  ${renderDataTableCell(yearsLabel)}
+                  ${renderDataTableCell(formatCurrency(scenario.remainingBalance), 'right')}
+                  <td class="fa-data-table-cell text-right text-emerald-600 dark:text-emerald-400">${formatCurrency(scenario.interestSaved)}</td>
                 </tr>
               `;
               })
               .join('')}
           </tbody>
         </table>
-      </div>
-    </div>
-  `;
+      </div>`;
+
+  resultsContainer.innerHTML = [
+    renderResultPanel({ title: 'Cost Breakdown', bodyHtml: costBreakdownHtml }),
+    renderResultPanel({ title: 'Loan Summary', bodyHtml: loanSummaryHtml }),
+    renderResultPanel({
+      title: 'Early Payoff Scenarios',
+      bodyHtml: earlyPayoffHtml,
+      className: '',
+    }),
+  ].join('');
 };
 
 const initAutoLoanPage = (): void => {

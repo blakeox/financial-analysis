@@ -8,7 +8,7 @@ import ClientScriptLoader from './ClientScriptLoader.tsx';
 import type { ClientScriptName } from './ClientScriptLoader.tsx';
 import WorkflowPageIntro from './WorkflowPageIntro.astro';
 import WorkflowProgressStrip from './WorkflowProgressStrip.astro';
-import WorkflowStepNavigation from './WorkflowStepNavigation.astro';
+import JourneyStepNavigation from './JourneyStepNavigation.astro';
 import WorkflowSupportRail from './WorkflowSupportRail.astro';
 import { hasAnalysisEngine } from '../scripts/analysis/analysis-event-contract.ts';
 
@@ -96,7 +96,7 @@ const journeyContextScript = `
   />
 
   <div class="fa-page-shell">
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+    <div class="fa-workflow-grid">
       <div class="space-y-6">
         <WorkflowPageIntro
           backHref={backHref}
@@ -197,13 +197,11 @@ const journeyContextScript = `
 
         {
           journeyNav && (
-            <WorkflowStepNavigation
-              helperText="Move forward once the recalculated result looks right."
-              backLabel="Back to Journey"
-              backHref={journeyNav.journeyOverviewUrl}
+            <JourneyStepNavigation
+              scenarioId={journeyNav.scenarioId}
+              journeyOverviewUrl={journeyNav.journeyOverviewUrl}
               previousStep={journeyNav.previousStep}
               nextStep={journeyNav.nextStep}
-              completeHref={`/journey-analysis/${journeyNav.scenarioId}`}
             />
           )
         }

@@ -1,0 +1,77 @@
+@layer components {
+  .fa-field-error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  }
+
+  .fa-input-surface {
+    background: white;
+    border: 1px solid rgba(210, 204, 223, 0.92);
+    border-radius: 0.9rem;
+    color: var(--color-gray-900);
+    min-height: 2.75rem;
+    padding: 0.65rem 0.9rem;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background 180ms ease;
+  }
+
+  .fa-input-surface::placeholder {
+    color: var(--color-gray-500);
+  }
+
+  .fa-input-surface:focus-visible {
+    border-color: rgba(109, 74, 255, 0.34);
+    box-shadow: var(--fa-focus-ring);
+    outline: none;
+  }
+
+  .dark .fa-input-surface {
+    background: rgba(35, 41, 71, 0.92);
+    border-color: rgba(94, 100, 120, 0.64);
+    color: white;
+  }
+
+  .dark .fa-input-surface::placeholder {
+    color: var(--color-gray-500);
+  }
+
+  .fa-form-label {
+    color: var(--color-gray-700);
+    font-weight: 600;
+  }
+
+  .dark .fa-form-label {
+    color: var(--color-gray-300);
+  }
+
+  .fa-help-copy-interactive:hover {
+    color: var(--color-gray-700);
+  }
+
+  .dark .fa-help-copy-interactive:hover {
+    color: #e5e7eb;
+  }
+
+  .fa-field-label {
+    color: var(--color-gray-700);
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .dark .fa-field-label {
+    color: var(--color-gray-300);
+  }
+
+  .fa-help-copy {
+    color: var(--color-gray-600);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .dark .fa-help-copy {
+    color: #cbd5e1;
+  }
+}

@@ -5,6 +5,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { registerChatButton } from '../chat/chat-actions';
 import {
@@ -454,20 +455,32 @@ const displayResults = (result: SavingsGoalResults): void => {
       <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">Key Insights</h3>
       
       <div class="space-y-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Timeline Analysis</h4>
-          <p class="text-violet-800 dark:text-violet-200">${result.yearsToGoal <= 5 ? 'Great! You can reach your goal in a reasonable timeframe.' : result.yearsToGoal <= 10 ? 'Your goal is achievable with consistent saving.' : 'Consider increasing your monthly contribution or adjusting your timeline.'}</p>
-        </div>
-        
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">Contribution Strategy</h4>
-          <p class="text-emerald-800 dark:text-emerald-200">${result.totalContributions > result.totalInterestEarned ? 'Your contributions are the primary driver of growth.' : 'Investment returns are significantly boosting your savings.'}</p>
-        </div>
-        
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h4 class="font-semibold text-violet-900 dark:text-violet-100 mb-2">Optimization Tips</h4>
-          <p class="text-violet-800 dark:text-violet-200">${result.effectiveAnnualReturn > 5 ? 'Your return assumptions are optimistic - consider conservative planning.' : result.effectiveAnnualReturn < 2 ? 'Consider higher-return investments or increasing contributions.' : 'Your return assumptions are reasonable for long-term planning.'}</p>
-        </div>
+        ${renderInsightCard({
+          title: 'Timeline Analysis',
+          content:
+            result.yearsToGoal <= 5
+              ? 'Great! You can reach your goal in a reasonable timeframe.'
+              : result.yearsToGoal <= 10
+                ? 'Your goal is achievable with consistent saving.'
+                : 'Consider increasing your monthly contribution or adjusting your timeline.',
+        })}
+        ${renderInsightCard({
+          title: 'Contribution Strategy',
+          tone: 'success',
+          content:
+            result.totalContributions > result.totalInterestEarned
+              ? 'Your contributions are the primary driver of growth.'
+              : 'Investment returns are significantly boosting your savings.',
+        })}
+        ${renderInsightCard({
+          title: 'Optimization Tips',
+          content:
+            result.effectiveAnnualReturn > 5
+              ? 'Your return assumptions are optimistic - consider conservative planning.'
+              : result.effectiveAnnualReturn < 2
+                ? 'Consider higher-return investments or increasing contributions.'
+                : 'Your return assumptions are reasonable for long-term planning.',
+        })}
       </div>
     </div>
   `;

@@ -193,18 +193,23 @@ function displayResults(result: EquipmentLeaseResult) {
     comparisonContainer.innerHTML = `
       <h3 class="text-lg font-semibold mb-4">Lease vs Buy Comparison</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-          <div class="text-sm text-violet-600 dark:text-violet-400 font-medium">Lease Total Cost</div>
-          <div class="text-2xl font-bold text-violet-900 dark:text-violet-100">$${result.leaseVsBuy.leaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-          <div class="text-sm text-orange-600 dark:text-orange-400 font-medium">Purchase Total Cost</div>
-          <div class="text-2xl font-bold text-orange-900 dark:text-orange-100">$${result.leaseVsBuy.purchaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
-          <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Savings (${result.leaseVsBuy.savings > 0 ? 'Lease' : 'Buy'})</div>
-          <div class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">$${Math.abs(result.leaseVsBuy.savings).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
+        ${renderMetricCards([
+          {
+            title: 'Lease Total Cost',
+            value: `$${result.leaseVsBuy.leaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+            tone: 'violet',
+          },
+          {
+            title: 'Purchase Total Cost',
+            value: `$${result.leaseVsBuy.purchaseTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+            tone: 'orange',
+          },
+          {
+            title: `Savings (${result.leaseVsBuy.savings > 0 ? 'Lease' : 'Buy'})`,
+            value: `$${Math.abs(result.leaseVsBuy.savings).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+            tone: 'emerald',
+          },
+        ])}
       </div>
       <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
         <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">

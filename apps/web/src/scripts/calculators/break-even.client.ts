@@ -6,6 +6,7 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
@@ -306,11 +307,10 @@ function displayResults(result: BreakEvenResult, input: BreakEvenInput): void {
             </div>
           </div>
           
-          <div class="mt-4 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-            <p class="text-sm text-violet-800 dark:text-violet-200">
-              💡 <strong>What this means:</strong> You need to sell ${result.breakEven.units.toLocaleString()} units at ${formatCurrency(input.sellingPricePerUnit)} each to cover your ${formatCurrency(input.fixedCosts)} in fixed costs.
-            </p>
-          </div>
+          ${renderInsightCard({
+            className: 'mt-4',
+            content: `💡 <strong>What this means:</strong> You need to sell ${result.breakEven.units.toLocaleString()} units at ${formatCurrency(input.sellingPricePerUnit)} each to cover your ${formatCurrency(input.fixedCosts)} in fixed costs.`,
+          })}
         </div>
       </div>
     </div>

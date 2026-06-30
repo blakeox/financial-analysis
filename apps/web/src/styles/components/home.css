@@ -1,0 +1,174 @@
+@layer components {
+  .fa-home-emphasis-list {
+    color: var(--color-navy);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .fa-home-page {
+    color: var(--color-navy);
+  }
+
+  .fa-home-card-title {
+    color: var(--color-navy);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .fa-home-card-copy {
+    color: var(--color-muted-text);
+    font-size: 0.875rem;
+    line-height: 1.75;
+  }
+
+  .fa-home-greeting {
+    color: var(--color-navy);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .fa-home-wordmark {
+    color: var(--color-navy);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .fa-home-muted-copy {
+    color: var(--color-muted-text);
+    font-size: 0.875rem;
+  }
+
+  .fa-home-muted-copy-tight {
+    color: var(--color-muted-text);
+    font-size: 0.75rem;
+  }
+
+  .fa-home-support-copy {
+    color: var(--color-soft-text);
+    font-size: 0.875rem;
+  }
+
+  .fa-home-browser-pill {
+    background: var(--color-off-white);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    color: var(--color-muted-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .fa-home-chat-question {
+    color: var(--color-navy);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+  }
+
+  .fa-home-kicker {
+    color: var(--color-soft-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .fa-home-kicker-compact {
+    color: var(--color-soft-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .fa-home-stat-value {
+    color: var(--color-navy);
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  .fa-home-stat-meta {
+    color: var(--color-muted-text);
+    font-size: 0.75rem;
+  }
+
+  .fa-home-explainer-title {
+    color: var(--color-navy);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .fa-home-disclaimer {
+    color: var(--color-muted-text);
+    font-size: 0.875rem;
+    line-height: 1.75;
+  }
+
+  .fa-home-cta-copy {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 1rem;
+    line-height: 2rem;
+  }
+
+  .fa-home-input {
+    background: white;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.125rem;
+    color: var(--color-navy);
+    min-height: 58px;
+    outline: none;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+  }
+
+  .fa-home-input::placeholder {
+    color: var(--color-soft-text);
+  }
+
+  .fa-home-cta-note {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.875rem;
+  }
+
+  .fa-home-footer-heading {
+    color: var(--color-soft-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .fa-home-footer-list {
+    color: var(--color-muted-text);
+    font-size: 0.875rem;
+  }
+
+  .fa-home-hero-copy {
+    color: var(--color-muted-text);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .fa-home-placeholder-card {
+    color: var(--color-soft-text);
+    font-size: 0.875rem;
+  }
+
+  .fa-model-card-chip {
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .fa-model-card-cta {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 1rem;
+  }
+}
