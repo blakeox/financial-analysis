@@ -7,7 +7,7 @@
   "allow_force_pushes": false,
   "allow_deletions": false,
   "required_pull_request_reviews": {
-    "required_approving_review_count": 1,
+    "required_approving_review_count": 0,
     "dismiss_stale_reviews": true,
     "require_code_owner_reviews": false
   },
@@ -23,6 +23,7 @@
     ]
   },
   "notes": [
+    "required_approving_review_count is 0 for solo-maintainer flow (GitHub never allows self-approval).",
     "All checks run on every PR. Doc-only and workers-only PRs skip heavy steps but still report success.",
     "E2E smoke runs Playwright when web paths change; CodeQL runs when non-doc code changes.",
     "Push to main/dev with doc-only paths still skips ci.yml via paths-ignore on push."
