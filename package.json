@@ -51,7 +51,7 @@
     "deploy:api:production": "cd workers/api && pnpm run deploy:production",
     "deploy:web:preview": "cd workers/web && pnpm run deploy:preview",
     "deploy:web:production": "cd workers/web && pnpm run deploy:production",
-    "deploy:all": "pnpm run deploy:api && pnpm run deploy:web",
+    "deploy:all": "pnpm run deploy:api:production && pnpm run deploy:web:production",
     "install:all": "pnpm install",
     "prepare": "lefthook install",
     "test:e2e:hmr:web": "pnpm --filter @financial-analysis/web run test:e2e:hmr"

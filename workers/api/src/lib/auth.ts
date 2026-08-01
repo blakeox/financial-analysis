@@ -31,6 +31,8 @@ export interface AuthResult {
   errorCode?: 'MISSING_KEY' | 'INVALID_KEY' | 'REVOKED_KEY' | 'QUOTA_EXCEEDED' | 'RATE_LIMITED';
 }
 
+const INTERNAL_API_TOKEN_HEADER = 'x-internal-api-token';
+
 /**
  * Generate a SHA-256 hash of the API key for storage
  */
@@ -184,8 +186,8 @@ async function checkRateLimit(
     };
   } catch (error) {
     console.error('Error checking rate limit:', error);
-    // On error, allow the request but log
-    return { allowed: true, remaining: keyInfo.rateLimitPerSec };
+    // Fail closed when the abuse-control store is unavailable.
+    return { allowed: false, remaining: 0 };
   }
 }
 
@@ -226,8 +228,8 @@ async function checkMonthlyQuota(
     };
   } catch (error) {
     console.error('Error checking monthly quota:', error);
-    // On error, allow the request
-    return { allowed: true, used: 0, limit: keyInfo.monthlyQuota };
+    // Fail closed when the billing/quota store is unavailable.
+    return { allowed: false, used: keyInfo.monthlyQuota, limit: keyInfo.monthlyQuota };
   }
 }
 
@@ -235,45 +237,12 @@ async function checkMonthlyQuota(
  * Validate API key and enforce rate limits/quotas
  */
 export async function validateApiKey(request: Request, env: Env): Promise<AuthResult> {
-  // Allow internal requests from the web worker
-  const origin = request.headers.get('origin');
-  const referer = request.headers.get('referer');
-  const internalRequestHeader = request.headers.get('x-internal-request');
-
-  console.log('API Auth Debug:', {
-    origin,
-    referer,
-    internalRequestHeader,
-    allHeaders: Object.fromEntries(request.headers.entries()),
-  });
-
-  const isProduction = env.ENVIRONMENT === 'production';
-
-  const isFanalyxHostname = (hostname: string): boolean => {
-    const parts = hostname.toLowerCase().split('.');
-    if (parts.length !== 2 && parts.length !== 3) {
-      return false;
-    }
-    return parts[parts.length - 2] === 'fanalyx' && parts[parts.length - 1] === 'com';
-  };
-
-  const isTrustedFanalyxUrl = (value: string | null): boolean => {
-    if (!value) return false;
-    try {
-      const hostname = new URL(value).hostname;
-      if (isFanalyxHostname(hostname)) {
-        return true;
-      }
-      return !isProduction && (hostname === 'localhost' || hostname === '127.0.0.1');
-    } catch {
-      return false;
-    }
-  };
-
+  // Browser-controlled origin, referer, and marker headers are not credentials.
+  // Only the web worker, which runs with a secret binding, may use this path.
+  const configuredInternalToken = env.INTERNAL_API_TOKEN;
+  const suppliedInternalToken = request.headers.get(INTERNAL_API_TOKEN_HEADER);
   const isInternalRequest =
-    isTrustedFanalyxUrl(origin) || isTrustedFanalyxUrl(referer) || internalRequestHeader === 'true';
-
-  console.log('Internal request check:', { isInternalRequest });
+    Boolean(configuredInternalToken) && suppliedInternalToken === configuredInternalToken;
 
   if (isInternalRequest) {
     const mockKeyInfo: ApiKeyInfo = {
