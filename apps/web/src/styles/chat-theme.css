@@ -412,6 +412,17 @@
   border-top: 1px solid var(--vscode-sideBar-border, #333);
 }
 
+/* Embedded (light) surface: VS Code gray fallbacks fail WCAG on white (#dddddd). */
+.chat-panel[data-chat-variant='embedded'] .thinking-indicator {
+  color: var(--fa-text-muted);
+  border-top-color: rgb(226 232 240);
+}
+
+.dark .chat-panel[data-chat-variant='embedded'] .thinking-indicator {
+  color: var(--fa-text-muted);
+  border-top-color: rgb(51 65 85);
+}
+
 .thinking-dots {
   display: flex;
   gap: 4px;
@@ -423,6 +434,10 @@
   border-radius: 50%;
   background: var(--vscode-button-background, #007acc);
   animation: thinking 1.4s infinite ease-in-out;
+}
+
+.chat-panel[data-chat-variant='embedded'] .thinking-dots span {
+  background: var(--fa-brand);
 }
 
 .thinking-dots span:nth-child(1) {
@@ -447,7 +462,13 @@
 
 .thinking-text {
   font-size: 12px;
-  opacity: 0.8;
+  color: inherit;
+}
+
+.chat-panel[data-chat-variant='embedded'] .thinking-text {
+  /* Solid muted token — no opacity fade (keeps ≥4.5:1 on white). */
+  opacity: 1;
+  color: var(--fa-text-muted);
 }
 
 .chat-input-container {
