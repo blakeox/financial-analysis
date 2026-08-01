@@ -230,8 +230,10 @@ export const renderAutoLoanResults = (
         )
       : null;
 
+  const totalCostNum = Number(summary.totalCost) || 0;
+  const totalInterestNum = Number(summary.totalInterest) || 0;
   const interestShare =
-    summary.totalCost > 0 ? ((summary.totalInterest / summary.totalCost) * 100).toFixed(1) : '0.0';
+    totalCostNum > 0 ? ((totalInterestNum / totalCostNum) * 100).toFixed(1) : '0.0';
 
   summaryCards.innerHTML = `${renderTheAnswer({
     label: 'Monthly payment',
