@@ -7,6 +7,10 @@ on:
         description: Confirm this is an intentional production redeploy from main
         required: true
         type: boolean
+      commit_sha:
+        description: Optional known-good main SHA for a controlled rollback; blank deploys current main
+        required: false
+        type: string
 
 concurrency:
   group: deploy-production
@@ -24,10 +28,24 @@ jobs:
       name: production
       url: https://fanalyx.com
     env:
-      COMMIT_SHA: ${{ github.sha }}
+      COMMIT_SHA: ${{ inputs.commit_sha || github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ inputs.commit_sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify deployment SHA is a main commit
+        run: |
+          set -euo pipefail
+          [[ "${COMMIT_SHA}" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "commit_sha must be a 40-character lowercase commit SHA" >&2
+            exit 1
+          }
+          test "$(git rev-parse HEAD)" = "${COMMIT_SHA}"
+          git fetch origin main --no-tags
+          git merge-base --is-ancestor "${COMMIT_SHA}" FETCH_HEAD
 
       - name: Verify Cloudflare deployment credentials
         env:
@@ -55,7 +73,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           COMMIT_SHA: ${{ env.COMMIT_SHA }}
         run: |
-          pnpm dlx wrangler deploy --env=production --var COMMIT_SHA:${COMMIT_SHA}
+          pnpm dlx wrangler deploy --env=production --var COMMIT_SHA:"${COMMIT_SHA}"
 
       - name: Deploy Web (production)
         working-directory: workers/web
@@ -64,4 +82,42 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           COMMIT_SHA: ${{ env.COMMIT_SHA }}
         run: |
-          pnpm dlx wrangler deploy --env=production --var COMMIT_SHA:${COMMIT_SHA}
+          pnpm dlx wrangler deploy --env=production --var COMMIT_SHA:"${COMMIT_SHA}"
+
+      - name: Smoke-test production deployment
+        env:
+          API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
+          EXPECTED_SHA: ${{ env.COMMIT_SHA }}
+          WEB_URL: https://fanalyx.com
+        run: |
+          set -euo pipefail
+
+          fetch_json() {
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --retry 5 \
+              --retry-all-errors \
+              --retry-delay 2 \
+              --connect-timeout 10 \
+              --max-time 30 \
+              "$1"
+          }
+
+          web_version="$(fetch_json "${WEB_URL}/version")"
+          jq -e --arg sha "${EXPECTED_SHA}" \
+            '.environment == "production" and .commit == $sha' <<<"${web_version}" >/dev/null
+
+          api_health="$(fetch_json "${API_URL}/health")"
+          jq -e \
+            '.status == "ok" and .environment == "production"' <<<"${api_health}" >/dev/null
+
+          api_version="$(fetch_json "${API_URL}/version")"
+          jq -e --arg sha "${EXPECTED_SHA}" \
+            '.environment == "production" and .commit == $sha' <<<"${api_version}" >/dev/null
+
+          openapi="$(fetch_json "${WEB_URL}/openapi.json")"
+          jq -e '.openapi | strings | length > 0' <<<"${openapi}" >/dev/null
+
+          echo "Production smoke checks passed for ${EXPECTED_SHA}"
