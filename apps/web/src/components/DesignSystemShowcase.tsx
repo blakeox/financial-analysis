@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Badge,
   Button,
@@ -11,7 +11,11 @@ import {
 } from '@financial-analysis/ui';
 import { renderTheAnswer } from '../scripts/_shared/answer-html';
 import { renderAssumptionChips } from '../scripts/_shared/assumption-chip-html';
-import { renderComparePair, renderCompareToggle } from '../scripts/_shared/compare-html';
+import {
+  bindCompareToggle,
+  renderComparePair,
+  renderCompareToggle,
+} from '../scripts/_shared/compare-html';
 import { renderMetricCard } from '../scripts/_shared/metric-card-html';
 
 function toggleTheme(): boolean {
@@ -24,9 +28,15 @@ function toggleTheme(): boolean {
 
 export default function DesignSystemShowcase() {
   const [dark, setDark] = useState(false);
+  const compareRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains('dark'));
+  }, []);
+
+  useEffect(() => {
+    if (!compareRootRef.current) return;
+    bindCompareToggle(compareRootRef.current, { group: 'compare' });
   }, []);
 
   const htmlMetricCard = renderMetricCard({
@@ -50,7 +60,8 @@ export default function DesignSystemShowcase() {
   });
 
   const compareToggleHtml = renderCompareToggle([
-    { id: 'a', label: 'Buy', active: true },
+    { id: 'both', label: 'Both', active: true },
+    { id: 'a', label: 'Buy' },
     { id: 'b', label: 'Rent' },
   ]);
 
@@ -67,6 +78,7 @@ export default function DesignSystemShowcase() {
       metricHtml: '<p class="fa-answer-value fa-tabular-nums !text-2xl">$61,400</p>',
       bodyHtml: '<p class="fa-meta-copy !mt-2">Invested down payment + rent path</p>',
     },
+    group: 'compare',
   });
 
   return (
@@ -244,8 +256,10 @@ export default function DesignSystemShowcase() {
         <p className="fa-meta-copy mb-4">
           Lightweight dual-column compare with segmented toggle (catalog stub).
         </p>
-        <div dangerouslySetInnerHTML={{ __html: compareToggleHtml }} />
-        <div className="mt-4" dangerouslySetInnerHTML={{ __html: comparePairHtml }} />
+        <div ref={compareRootRef}>
+          <div dangerouslySetInnerHTML={{ __html: compareToggleHtml }} />
+          <div className="mt-4" dangerouslySetInnerHTML={{ __html: comparePairHtml }} />
+        </div>
       </section>
 
       <section>

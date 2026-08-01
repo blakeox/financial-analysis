@@ -8,7 +8,7 @@
 import { storeAnalysisResult } from '../analysis/analysis-results';
 import { renderTheAnswer } from '../_shared/answer-html';
 import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
-import { renderComparePair } from '../_shared/compare-html';
+import { bindCompareToggle, renderComparePair, renderCompareToggle } from '../_shared/compare-html';
 import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
@@ -566,6 +566,15 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       document.getElementById('results-container')?.scrollIntoView({ behavior: 'smooth' });
     });
 
+  const compareToggle = renderCompareToggle(
+    [
+      { id: 'both', label: 'Both', active: true },
+      { id: 'a', label: 'Buy' },
+      { id: 'b', label: 'Rent' },
+    ],
+    { name: 'rent-buy' }
+  );
+
   const compareBlock = renderComparePair({
     a: {
       eyebrow: 'Scenario A',
@@ -580,9 +589,11 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       bodyHtml: `<p class="fa-meta-copy !mt-0">Monthly rent path · Invested ${formatCurrency(result.rent.equity)}</p>`,
     },
     className: 'mb-6',
+    group: 'rent-buy',
   });
 
   resultsContainer.innerHTML = `
+    <div class="mb-4">${compareToggle}</div>
     ${compareBlock}
     <!-- Recommendation -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
@@ -591,13 +602,13 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       </h2>
       <p class="text-slate-700 dark:text-slate-300">${result.comparison.recommendation}</p>
     </div>
-    
+
     <!-- Side-by-Side Comparison -->
     <div class="bg-white/90 dark:bg-slate-950/40 rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
         <span>📊</span> ${input.yearsToAnalyze}-Year Comparison
       </h2>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Buying -->
         <div class="border-2 border-violet-300 dark:border-violet-700 rounded-lg p-4">
@@ -833,6 +844,8 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
       </p>
     </div>
   `;
+
+  bindCompareToggle(resultsContainer, { group: 'rent-buy' });
 
   resultsSection.classList.remove('hidden');
 }

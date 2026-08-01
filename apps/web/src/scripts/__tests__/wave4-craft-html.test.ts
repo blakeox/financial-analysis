@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderTheAnswer } from '../_shared/answer-html';
 import { renderAssumptionChip, renderAssumptionChips } from '../_shared/assumption-chip-html';
-import { renderComparePair, renderCompareToggle } from '../_shared/compare-html';
+import { bindCompareToggle, renderComparePair, renderCompareToggle } from '../_shared/compare-html';
 
 describe('answer-html', () => {
   it('renders The Answer with value, meaning, and tabular class', () => {
@@ -54,10 +54,42 @@ describe('compare-html', () => {
     const pair = renderComparePair({
       a: { title: 'Buy', bodyHtml: '<p>buy</p>' },
       b: { title: 'Rent', bodyHtml: '<p>rent</p>' },
+      group: 'compare',
     });
     expect(pair).toContain('fa-compare-col-a');
     expect(pair).toContain('fa-compare-col-b');
+    expect(pair).toContain('data-compare-panel="a"');
+    expect(pair).toContain('data-compare-root="compare"');
     expect(pair).toContain('Buy');
     expect(pair).toContain('Rent');
+  });
+
+  it('bindCompareToggle updates pressed state and panel visibility', () => {
+    document.body.innerHTML = `
+      ${renderCompareToggle([
+        { id: 'both', label: 'Both', active: true },
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+      ])}
+      ${renderComparePair({
+        a: { title: 'Buy', bodyHtml: '<p>buy</p>' },
+        b: { title: 'Rent', bodyHtml: '<p>rent</p>' },
+        group: 'compare',
+      })}
+    `;
+
+    bindCompareToggle(document.body, { group: 'compare' });
+
+    const buyPanel = document.querySelector<HTMLElement>('[data-compare-panel="a"]');
+    const rentPanel = document.querySelector<HTMLElement>('[data-compare-panel="b"]');
+    expect(buyPanel?.hidden).toBe(false);
+    expect(rentPanel?.hidden).toBe(false);
+
+    document.querySelector<HTMLButtonElement>('[data-compare-option="a"]')?.click();
+    expect(buyPanel?.hidden).toBe(false);
+    expect(rentPanel?.hidden).toBe(true);
+    expect(document.querySelector('[data-compare-option="a"]')?.getAttribute('aria-pressed')).toBe(
+      'true'
+    );
   });
 });

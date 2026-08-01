@@ -2340,6 +2340,10 @@
     .fa-compare {
       grid-template-columns: 1fr 1fr;
     }
+
+    .fa-compare:has([data-compare-panel][hidden]) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .fa-compare-toggle {

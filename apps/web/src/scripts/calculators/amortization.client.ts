@@ -867,7 +867,7 @@ export const renderChart = (
             
             <!-- Axis titles with color coding - positioned far from axis to avoid overlap -->
             <text x="${padding.left - 95}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(-90, ${padding.left - 95}, ${chartHeight / 2})" font-size="15px" font-weight="700" fill="${CHART_COLORS.text}" class="dark:fill-gray-200">Monthly Payment ($)</text>
-            <text x="${chartWidth - padding.right + 95}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding.right + 95}, ${chartHeight / 2})" font-size="15px" font-weight="700" fill="${CHART_COLORS.balance}" class="dark:fill-blue-400">Remaining Balance ($)</text>
+            <text x="${chartWidth - padding.right + 95}" y="${chartHeight / 2}" text-anchor="middle" transform="rotate(90, ${chartWidth - padding.right + 95}, ${chartHeight / 2})" font-size="15px" font-weight="700" fill="${CHART_COLORS.balance}">Remaining Balance ($)</text>
           </svg>
         </div>
       </div>
