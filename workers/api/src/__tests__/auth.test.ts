@@ -5,7 +5,7 @@ import type { Env } from '../types';
 
 describe('validateApiKey', () => {
   it('does not trust localhost origins in production', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         Origin: 'http://localhost:3000',
       },
@@ -20,7 +20,7 @@ describe('validateApiKey', () => {
   });
 
   it('does not trust localhost origins outside production', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         Origin: 'http://localhost:3000',
       },
@@ -35,7 +35,7 @@ describe('validateApiKey', () => {
   });
 
   it('rejects multi-level fanalyx-looking hostnames', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         Origin: 'https://www.app.fanalyx.com',
       },
@@ -50,7 +50,7 @@ describe('validateApiKey', () => {
   });
 
   it('does not trust fanalyx subdomains', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         Origin: 'https://app.fanalyx.com',
       },
@@ -65,7 +65,7 @@ describe('validateApiKey', () => {
   });
 
   it('accepts a valid server-to-server token', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         'x-internal-api-token': 'server-secret',
       },
@@ -81,7 +81,7 @@ describe('validateApiKey', () => {
   });
 
   it('rejects spoofed internal markers and invalid server tokens', async () => {
-    const request = new Request('https://api.fanalyx.com/v1/chat', {
+    const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {
         'x-internal-request': 'true',
         'x-internal-api-token': 'wrong-secret',

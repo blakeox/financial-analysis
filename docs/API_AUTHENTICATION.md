@@ -242,7 +242,7 @@ Response:
 ### cURL Example
 
 ```bash
-curl -X POST https://api.fanalyx.com/v1/api/analysis/amortization \
+curl -X POST https://fanalyx.com/v1/api/analysis/amortization \
   -H "Authorization: Bearer fk_live_ABC123..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -255,7 +255,7 @@ curl -X POST https://api.fanalyx.com/v1/api/analysis/amortization \
 ### JavaScript Example
 
 ```javascript
-const response = await fetch('https://api.fanalyx.com/v1/api/analysis/amortization', {
+const response = await fetch('https://fanalyx.com/v1/api/analysis/amortization', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer fk_live_ABC123...',
@@ -278,7 +278,7 @@ console.log(data.monthlyPayment);
 import requests
 
 response = requests.post(
-    'https://api.fanalyx.com/v1/api/analysis/amortization',
+    'https://fanalyx.com/v1/api/analysis/amortization',
     headers={
         'Authorization': 'Bearer fk_live_ABC123...',
         'Content-Type': 'application/json',
