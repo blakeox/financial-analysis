@@ -87,8 +87,9 @@ jobs:
       - name: Smoke-test production deployment
         env:
           API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
-          WEB_URL: https://fanalyx.com
         run: |
           set -euo pipefail
 
@@ -98,19 +99,13 @@ jobs:
               --silent \
               --show-error \
               --header 'Accept: application/json' \
-              --user-agent 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36' \
-              --retry 10 \
+              --retry 5 \
               --retry-all-errors \
-              --retry-delay 5 \
-              --retry-max-time 90 \
+              --retry-delay 2 \
               --connect-timeout 10 \
               --max-time 30 \
               "$1"
           }
-
-          web_version="$(fetch_json "${WEB_URL}/version")"
-          jq -e --arg sha "${EXPECTED_SHA}" \
-            '.environment == "production" and .commit == $sha' <<<"${web_version}" >/dev/null
 
           api_health="$(fetch_json "${API_URL}/health")"
           jq -e \
@@ -120,7 +115,17 @@ jobs:
           jq -e --arg sha "${EXPECTED_SHA}" \
             '.environment == "production" and .commit == $sha' <<<"${api_version}" >/dev/null
 
-          openapi="$(fetch_json "${WEB_URL}/openapi.json")"
+          openapi="$(fetch_json "${API_URL}/openapi.json")"
           jq -e '.openapi | strings | length > 0' <<<"${openapi}" >/dev/null
+
+          web_deployments="$(pnpm dlx wrangler deployments list --env=production --name=fanalyx-web --json)"
+          web_version_id="$(jq -er \
+            'sort_by(.created_on) | last | .versions | map(select(.percentage == 100)) | if length == 1 then .[0].version_id else error("expected one active production web version") end' \
+            <<<"${web_deployments}")"
+          web_version="$(pnpm dlx wrangler versions view "${web_version_id}" --env=production --name=fanalyx-web --json)"
+          jq -e --arg sha "${EXPECTED_SHA}" \
+            '(.resources.bindings | map(select(.name == "ENVIRONMENT" and .text == "production")) | length == 1) and
+             (.resources.bindings | map(select(.name == "COMMIT_SHA" and .text == $sha)) | length == 1)' \
+            <<<"${web_version}" >/dev/null
 
           echo "Production smoke checks passed for ${EXPECTED_SHA}"
