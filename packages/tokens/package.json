@@ -1,0 +1,16 @@
+{
+  "name": "@financial-analysis/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fanalyx design tokens — CSS custom properties (single source of truth)",
+  "exports": {
+    "./tokens.css": "./tokens.css"
+  },
+  "files": [
+    "tokens.css",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ]
+}

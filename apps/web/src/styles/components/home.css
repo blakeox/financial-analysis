@@ -29,8 +29,9 @@
   }
 
   .fa-home-wordmark {
-    color: var(--color-navy);
-    font-size: 1.125rem;
+    color: var(--fa-text-primary);
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
     font-weight: 600;
     letter-spacing: -0.03em;
   }
@@ -84,7 +85,9 @@
 
   .fa-home-stat-value {
     color: var(--color-navy);
+    font-family: var(--fa-font-numeric, var(--font-sans));
     font-size: 1.875rem;
+    font-variant-numeric: tabular-nums lining-nums;
     font-weight: 600;
     letter-spacing: -0.04em;
   }

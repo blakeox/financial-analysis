@@ -1,12 +1,24 @@
-# macOS Finder duplicate copies (e.g. "file 2.md", "config 2.yml")
+# macOS Finder duplicate copies (e.g. "file 2.md", "tokens 3.css", "config 2.yml")
+* [2-9]
+* [2-9].*
 * 2
 * 2.*
+* 3
+* 3.*
 * 2.md
 * 2.yml
 * 2.ts
 * 2.json
 * 2.tsbuildinfo
+* 3.md
+* 3.yml
+* 3.ts
+* 3.json
+* 3.astro
+* 3.css
+* 3.tsx
 .nvmrc 2
+.nvmrc 3
 
 # Dependencies
 node_modules/

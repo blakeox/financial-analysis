@@ -20,8 +20,8 @@ const SKIP_DIRS = new Set([
   '.pnpm-store',
 ]);
 
-/** macOS Finder duplicate suffix: "file 2.md", ".nvmrc 2", etc. */
-const FINDER_DUPLICATE = / 2(\.[^./]+)?$/;
+/** macOS Finder duplicate suffix: "file 2.md", "tokens 3.css", ".nvmrc 2", etc. */
+const FINDER_DUPLICATE = / \d+(\.[^./]+)?$/;
 
 function walkFinderPaths(dir, paths = [], { skipNodeModules = true } = {}) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {

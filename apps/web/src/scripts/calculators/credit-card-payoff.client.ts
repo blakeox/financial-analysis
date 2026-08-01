@@ -6,6 +6,8 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderTheAnswer } from '../_shared/answer-html';
+import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   coerceNumber,
@@ -287,33 +289,56 @@ function displayResults(result: CreditCardResult, input: CreditCardInput): void 
     current.totalInterest < best.totalInterest ? current : best
   );
 
-  summaryCards.innerHTML = renderMetricCards([
-    {
-      title: 'Your Plan',
-      value: `${result.currentStrategy.monthsToPayoff} mo`,
-      meta: `${formatCurrency(result.currentStrategy.totalInterest)} interest`,
-      tone: 'violet',
+  summaryCards.innerHTML = `${renderTheAnswer({
+    label: 'Months to payoff',
+    value: `${result.currentStrategy.monthsToPayoff}`,
+    meaning: `Your plan clears the balance in ${result.currentStrategy.monthsToPayoff} months with ${formatCurrency(result.currentStrategy.totalInterest)} in interest. Best path (${bestStrategy.name}) can save ${formatCurrency(result.recommendation.savings)}.`,
+    assumptions: [
+      {
+        label: formatCurrency(input.balance),
+        fieldName: 'balance',
+        title: 'Card balance',
+      },
+      {
+        label: `${input.interestRate}% APR`,
+        fieldName: 'interestRate',
+        title: 'Interest rate',
+      },
+    ],
+    cta: {
+      label: 'See recommended strategy',
+      attrs: 'data-action="scroll-cc-strategy"',
     },
-    {
-      title: 'Best Strategy',
-      value: bestStrategy.name,
-      meta: `Save ${formatCurrency(result.recommendation.savings)}`,
-      tone: 'emerald',
-      valueClassName: 'fa-metric-card-value text-lg',
-    },
-    {
-      title: 'Utilization',
-      value: `${result.utilization.current.toFixed(0)}%`,
-      meta: `→ ${result.utilization.after6Months.toFixed(0)}% in 6mo`,
-      tone: result.utilization.current > 50 ? 'amber' : 'violet',
-    },
-    {
-      title: 'Min Payment Trap',
-      value: `${result.minimumOnly.monthsToPayoff} mo`,
-      meta: `${formatCurrency(result.minimumOnly.totalInterest)} interest`,
-      tone: 'orange',
-    },
-  ]);
+  })}
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      ${renderMetricCards([
+        {
+          title: 'Best Strategy',
+          value: bestStrategy.name,
+          meta: `Save ${formatCurrency(result.recommendation.savings)}`,
+          tone: 'emerald',
+          valueClassName: 'fa-metric-card-value text-lg',
+        },
+        {
+          title: 'Utilization',
+          value: `${result.utilization.current.toFixed(0)}%`,
+          meta: `→ ${result.utilization.after6Months.toFixed(0)}% in 6mo`,
+          tone: result.utilization.current > 50 ? 'amber' : 'violet',
+        },
+        {
+          title: 'Min Payment Trap',
+          value: `${result.minimumOnly.monthsToPayoff} mo`,
+          meta: `${formatCurrency(result.minimumOnly.totalInterest)} interest`,
+          tone: 'orange',
+        },
+      ])}
+    </div>`;
+  bindAssumptionChipClicks(summaryCards);
+  summaryCards
+    .querySelector('[data-action="scroll-cc-strategy"]')
+    ?.addEventListener('click', () => {
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    });
 
   resultsContainer.innerHTML = `
     <!-- Recommendation -->

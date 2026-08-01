@@ -1,11 +1,12 @@
 ---
-import { Footer } from '@financial-analysis/ui';
 import SEO from '../components/SEO.astro';
 import ChatPanel from '../components/ChatPanel.astro';
 import ToolAnalysisPanel from '../components/ToolAnalysisPanel.tsx';
 import '../styles/global.css';
 import ModernNavBar from '../components/ModernNavBar.astro';
+import SiteFooter from '../components/site/Footer.astro';
 import ClientScriptLoader from '../components/ClientScriptLoader.tsx';
+import { THEME_BOOT_INLINE } from '../scripts/_shared/theme';
 
 export interface Props {
   title: string;
@@ -144,14 +145,8 @@ const currentContext = getCurrentContext(Astro.url.pathname);
       )
     }
 
-    <!-- Tailwind CSS -->
-    <script is:inline>
-      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-        document.documentElement.classList.toggle('dark', localStorage.getItem('theme') === 'dark');
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-      }
-    </script>
+    <!-- Theme FOUC boot — keep in sync via THEME_BOOT_INLINE (#376) -->
+    <script is:inline set:html={THEME_BOOT_INLINE} />
     <slot name="head" />
 
     {/* Fonts: production preconnect + stylesheet to avoid @import blocking */}
@@ -200,7 +195,7 @@ const currentContext = getCurrentContext(Astro.url.pathname);
     </main>
 
     <!-- Footer -->
-    {showFooter && <Footer client:only="react" />}
+    {showFooter && <SiteFooter />}
 
     <!-- Chat Panel -->
     {showChat && <ChatPanel />}

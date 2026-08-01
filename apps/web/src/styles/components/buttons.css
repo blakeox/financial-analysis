@@ -8,7 +8,11 @@
 
   .fa-button-primary,
   .fa-button-secondary,
-  .fa-button-success {
+  .fa-button-success,
+  .fa-button-danger,
+  .fa-button-warning,
+  .fa-button-outline,
+  .fa-button-ghost {
     align-items: center;
     border-radius: var(--fa-radius-lg);
     display: inline-flex;
@@ -25,6 +29,10 @@
   .fa-button-primary:focus-visible,
   .fa-button-secondary:focus-visible,
   .fa-button-success:focus-visible,
+  .fa-button-danger:focus-visible,
+  .fa-button-warning:focus-visible,
+  .fa-button-outline:focus-visible,
+  .fa-button-ghost:focus-visible,
   .fa-button-ghost-light:focus-visible {
     box-shadow: var(--fa-focus-ring);
     outline: none;
@@ -46,9 +54,9 @@
   }
 
   .fa-button-success-state {
-    background: linear-gradient(135deg, #16a66a, #0f7d50);
+    background: var(--fa-success-gradient);
     border-color: transparent;
-    color: white;
+    color: var(--fa-text-on-brand);
   }
 
   .fa-button-success {
@@ -64,11 +72,56 @@
     transform: translateY(-1px);
   }
 
+  .fa-button-danger {
+    background: var(--fa-danger-gradient, linear-gradient(135deg, var(--fa-danger), #be123c));
+    box-shadow: var(--fa-danger-shadow);
+    color: var(--fa-text-on-brand);
+  }
+
+  .fa-button-danger:hover {
+    box-shadow: var(--fa-danger-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .fa-button-warning {
+    background: var(--fa-warning-gradient, linear-gradient(135deg, var(--fa-warning), #d97706));
+    box-shadow: var(--fa-warning-shadow);
+    color: var(--color-gray-950);
+  }
+
+  .fa-button-warning:hover {
+    box-shadow: var(--fa-warning-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .fa-button-outline {
+    background: transparent;
+    border: 1px solid var(--fa-border-default);
+    color: var(--fa-text-secondary);
+  }
+
+  .fa-button-outline:hover {
+    background: color-mix(in srgb, var(--fa-brand) 8%, transparent);
+    border-color: color-mix(in srgb, var(--fa-brand) 28%, transparent);
+    color: var(--fa-brand-active);
+  }
+
+  .fa-button-ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--fa-text-secondary);
+  }
+
+  .fa-button-ghost:hover {
+    background: color-mix(in srgb, var(--fa-text-primary) 6%, transparent);
+    color: var(--fa-text-primary);
+  }
+
   .fa-button-info-compact {
     align-items: center;
     background: var(--fa-brand-gradient);
     border-radius: 0.75rem;
-    box-shadow: 0 10px 24px rgba(109, 74, 255, 0.18);
+    box-shadow: var(--fa-brand-shadow);
     color: var(--fa-text-on-brand);
     display: inline-flex;
     font-size: 0.875rem;
@@ -79,8 +132,8 @@
   }
 
   .fa-button-info-compact:hover {
-    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
-    box-shadow: 0 14px 28px rgba(109, 74, 255, 0.24);
+    background: linear-gradient(135deg, var(--fa-brand-hover), var(--fa-brand-active));
+    box-shadow: var(--fa-brand-shadow-hover);
     transform: translateY(-1px);
   }
 
@@ -88,7 +141,7 @@
     align-items: center;
     background: var(--fa-brand-gradient);
     border-radius: 0.875rem;
-    box-shadow: 0 12px 28px rgba(109, 74, 255, 0.22);
+    box-shadow: var(--fa-brand-shadow);
     color: var(--fa-text-on-brand);
     display: inline-flex;
     font-weight: 600;
@@ -98,46 +151,34 @@
   }
 
   .fa-button-info-md:hover {
-    background: linear-gradient(135deg, #5b3df5, #4c2fd4);
-    box-shadow: 0 16px 32px rgba(109, 74, 255, 0.26);
+    background: linear-gradient(135deg, var(--fa-brand-hover), var(--fa-brand-active));
+    box-shadow: var(--fa-brand-shadow-hover);
     transform: translateY(-1px);
   }
 
   .fa-button-success-state:hover {
-    background: linear-gradient(135deg, #16a66a, #0f7d50);
-    color: white;
+    background: var(--fa-success-gradient);
+    color: var(--fa-text-on-brand);
   }
 
   .fa-button-secondary {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid var(--color-gray-200);
-    color: var(--color-gray-900);
-    box-shadow: 0 12px 28px rgba(9, 14, 36, 0.08);
+    background: var(--fa-surface-muted);
+    border: 1px solid var(--fa-border-default);
+    color: var(--fa-text-primary);
+    box-shadow: var(--fa-shadow-soft);
   }
 
   .fa-button-secondary:hover {
-    border-color: rgba(109, 74, 255, 0.28);
-    box-shadow: 0 16px 36px rgba(9, 14, 36, 0.12);
+    border-color: color-mix(in srgb, var(--fa-brand) 28%, transparent);
+    box-shadow: var(--fa-shadow-card);
     transform: translateY(-1px);
   }
 
-  .dark .fa-button-secondary {
-    background: rgba(35, 41, 71, 0.92);
-    border-color: rgba(94, 100, 120, 0.64);
-    color: white;
-  }
-
-  .dark .fa-button-secondary:hover {
-    background: rgba(35, 41, 71, 1);
-    border-color: rgba(159, 130, 255, 0.28);
-    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.32);
-  }
-
   .fa-button-light {
-    background: white;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 999px;
-    color: var(--color-primary-700);
+    background: var(--fa-surface);
+    border: 1px solid color-mix(in srgb, var(--fa-surface) 40%, transparent);
+    border-radius: var(--fa-radius-pill);
+    color: var(--fa-brand-active);
     display: inline-flex;
     font-weight: 700;
     justify-content: center;
@@ -149,15 +190,15 @@
   }
 
   .fa-button-light:hover {
-    box-shadow: 0 18px 40px rgba(9, 14, 36, 0.18);
+    box-shadow: var(--fa-shadow-elevated);
     transform: translateY(-1px);
   }
 
   .fa-button-ghost-light {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.72);
-    border-radius: 999px;
-    color: white;
+    border: 1px solid color-mix(in srgb, var(--fa-surface) 72%, transparent);
+    border-radius: var(--fa-radius-pill);
+    color: var(--fa-text-on-brand);
     display: inline-flex;
     font-weight: 700;
     justify-content: center;
@@ -170,8 +211,8 @@
   }
 
   .fa-button-ghost-light:hover {
-    background: white;
-    color: var(--color-primary-700);
+    background: var(--fa-surface);
+    color: var(--fa-brand-active);
     transform: translateY(-1px);
   }
 }

@@ -3,6 +3,8 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderTheAnswer } from '../_shared/answer-html';
+import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
   formatCurrency,
@@ -41,30 +43,64 @@ function displayResults(result: unknown): void {
   const breakEvenMonths = Number(summary.breakEvenMonths) || 0;
   const newPayment = Number(summary.newMonthlyPayment) || 0;
 
-  summaryCards.innerHTML = renderMetricCards([
-    {
-      title: 'Monthly Savings',
-      value: formatCurrency(Math.abs(monthlySavings)),
-      meta: monthlySavings >= 0 ? 'vs current payment' : 'payment increase',
-      tone: monthlySavings > 0 ? 'emerald' : 'amber',
+  const savingsAbs = Math.abs(monthlySavings);
+  const meaning =
+    monthlySavings >= 0
+      ? breakEvenMonths > 0
+        ? `You save this each month versus your current payment — break-even in about ${breakEvenMonths} months.`
+        : 'You save this each month versus your current payment.'
+      : 'Your new payment is higher by this amount each month — review term and closing costs.';
+
+  summaryCards.innerHTML = `${renderTheAnswer({
+    label: monthlySavings >= 0 ? 'Monthly savings' : 'Monthly increase',
+    value: formatCurrency(savingsAbs),
+    meaning,
+    assumptions: [
+      ...(breakEvenMonths > 0
+        ? [
+            {
+              label: `${breakEvenMonths} mo BE`,
+              fieldName: 'closingCosts',
+              title: 'Break-even vs closing costs',
+            },
+          ]
+        : []),
+      {
+        label: formatCurrency(newPayment),
+        title: 'New monthly payment',
+      },
+    ],
+    cta: {
+      label: 'Review net benefit',
+      attrs: 'data-action="scroll-refi-detail"',
     },
-    {
-      title: 'New Payment',
-      value: formatCurrency(newPayment),
-      tone: 'violet',
-    },
-    {
-      title: 'Break-even',
-      value: breakEvenMonths > 0 ? `${breakEvenMonths} mo` : '—',
-      meta: breakEvenMonths > 0 ? 'to recover closing costs' : 'add cost details',
-      tone: breakEvenMonths > 0 && breakEvenMonths <= 24 ? 'emerald' : 'orange',
-    },
-    {
-      title: 'Net Benefit',
-      value: formatCurrency(netBenefit),
-      tone: netBenefit > 0 ? 'emerald' : 'amber',
-    },
-  ]);
+  })}
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      ${renderMetricCards([
+        {
+          title: 'New Payment',
+          value: formatCurrency(newPayment),
+          tone: 'violet',
+        },
+        {
+          title: 'Break-even',
+          value: breakEvenMonths > 0 ? `${breakEvenMonths} mo` : '—',
+          meta: breakEvenMonths > 0 ? 'to recover closing costs' : 'add cost details',
+          tone: breakEvenMonths > 0 && breakEvenMonths <= 24 ? 'emerald' : 'orange',
+        },
+        {
+          title: 'Net Benefit',
+          value: formatCurrency(netBenefit),
+          tone: netBenefit > 0 ? 'emerald' : 'amber',
+        },
+      ])}
+    </div>`;
+  bindAssumptionChipClicks(summaryCards);
+  summaryCards
+    .querySelector('[data-action="scroll-refi-detail"]')
+    ?.addEventListener('click', () => {
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 
   resultsContainer.classList.remove('hidden');
   resultsSection.classList.remove('hidden');

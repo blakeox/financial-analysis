@@ -50,3 +50,30 @@ ruleTester.run('no-adhoc-violet-metric-blocks', plugin.rules['no-adhoc-violet-me
 });
 
 console.log('fa-a11y no-adhoc-violet-metric-blocks tests passed');
+
+ruleTester.run('no-violet-in-ui-primitives', plugin.rules['no-violet-in-ui-primitives'], {
+  valid: [
+    {
+      code: `export const buttonVariants = { primary: 'fa-button-primary' };`,
+      filename: '/repo/packages/ui/src/lib/classNames.ts',
+    },
+    {
+      code: `const cls = 'bg-violet-50';`,
+      filename: '/repo/packages/ui/src/components/LeaseAnalysisDashboard.tsx',
+    },
+  ],
+  invalid: [
+    {
+      code: `export const bad = 'bg-violet-500 text-white';`,
+      filename: '/repo/packages/ui/src/lib/classNames.ts',
+      errors: [{ messageId: 'violetFreelance' }],
+    },
+    {
+      code: `const x = 'hover:bg-violet-700';`,
+      filename: '/repo/packages/ui/src/components/Button.tsx',
+      errors: [{ messageId: 'violetFreelance' }],
+    },
+  ],
+});
+
+console.log('fa-a11y no-violet-in-ui-primitives tests passed');

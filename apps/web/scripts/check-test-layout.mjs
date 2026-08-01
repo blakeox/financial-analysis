@@ -10,8 +10,8 @@ const APP_ROOT = resolve(SCRIPT_DIR, '..');
 const TEST_ROOT = join(APP_ROOT, 'tests');
 const TEST_FILE_PATTERN = /\.(spec|test)\.ts$/;
 
-/** macOS Finder duplicate suffix: "file 2.md", etc. */
-const FINDER_DUPLICATE = / 2(\.[^./]+)?$/;
+/** macOS Finder duplicate suffix: "file 2.md", "spec 3.ts", etc. */
+const FINDER_DUPLICATE = / \d+(\.[^./]+)?$/;
 
 const FORBIDDEN_DUPLICATE_MODULES = [
   {

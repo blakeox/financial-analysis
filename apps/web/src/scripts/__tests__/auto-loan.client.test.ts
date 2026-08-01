@@ -89,7 +89,8 @@ describe('auto-loan.client', () => {
       const summaryCards = document.getElementById('summary-cards');
       expect(summaryCards).toBeTruthy();
       expect(summaryCards?.innerHTML).toContain('$'); // Contains currency values
-      expect(summaryCards?.innerHTML).toContain('Monthly Payment');
+      expect(summaryCards?.innerHTML).toMatch(/Monthly payment/);
+      expect(summaryCards?.innerHTML).toContain('fa-answer');
     });
 
     it('handles zero trade-in values', () => {

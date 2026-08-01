@@ -1,11 +1,14 @@
 import {
+  Badge,
   Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  textColors,
 } from '@financial-analysis/ui';
+import type { BadgeVariant } from '@financial-analysis/ui';
 import React, { useCallback, useEffect, useState } from 'react';
 import { normalizeAnalysisResultEventDetail } from '../scripts/analysis/analysis-event-contract';
 import { FinancialAnalysisEngine } from '../scripts/analysis/financial-analysis-engine';
@@ -159,29 +162,33 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
     return String(value);
   };
 
-  const getImpactColor = (impact: 'low' | 'medium' | 'high'): string => {
+  const getImpactVariant = (impact: 'low' | 'medium' | 'high'): BadgeVariant => {
     switch (impact) {
       case 'high':
-        return 'text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/20';
+        return 'danger';
       case 'medium':
-        return 'text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/20';
+        return 'warning';
       case 'low':
-        return 'text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/20';
-      default:
-        return 'fa-chip-muted';
+        return 'success';
+      default: {
+        const _exhaustive: never = impact;
+        return _exhaustive;
+      }
     }
   };
 
-  const getPriorityColor = (priority: 'low' | 'medium' | 'high'): string => {
+  const getPriorityVariant = (priority: 'low' | 'medium' | 'high'): BadgeVariant => {
     switch (priority) {
       case 'high':
-        return 'text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/20';
+        return 'danger';
       case 'medium':
-        return 'text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/20';
+        return 'warning';
       case 'low':
-        return 'text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/20';
-      default:
-        return 'fa-chip-muted';
+        return 'success';
+      default: {
+        const _exhaustive: never = priority;
+        return _exhaustive;
+      }
     }
   };
 
@@ -190,38 +197,32 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
     const summaryEntries = Object.entries(analysis.summary);
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {summaryEntries.map(([key, value]) => (
-          <Card
-            key={key}
-            variant="interactive"
-            className="bg-linear-to-br from-violet-50 to-emerald-50 dark:from-violet-950/25 dark:to-emerald-950/20"
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="fa-meta-copy text-sm capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </p>
-                  <p className="fa-panel-title text-2xl">
-                    {key.toLowerCase().includes('rate') ||
-                    key.toLowerCase().includes('percentage') ||
-                    key.toLowerCase().includes('ratio')
-                      ? formatPercentage(value)
-                      : key.toLowerCase().includes('amount') ||
-                          key.toLowerCase().includes('payment') ||
-                          key.toLowerCase().includes('cost') ||
-                          key.toLowerCase().includes('value')
-                        ? formatCurrency(value)
-                        : formatNumber(value)}
-                  </p>
-                </div>
-                <div className="fa-icon-tile fa-icon-tile-lg fa-icon-tile-info">
-                  <span className="text-xl">{getSummaryIcon(key)}</span>
-                </div>
+          <div key={key} className="fa-metric-card fa-metric-card-surface">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="fa-metric-card-title capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </p>
+                <p className="fa-metric-card-value">
+                  {key.toLowerCase().includes('rate') ||
+                  key.toLowerCase().includes('percentage') ||
+                  key.toLowerCase().includes('ratio')
+                    ? formatPercentage(value)
+                    : key.toLowerCase().includes('amount') ||
+                        key.toLowerCase().includes('payment') ||
+                        key.toLowerCase().includes('cost') ||
+                        key.toLowerCase().includes('value')
+                      ? formatCurrency(value)
+                      : formatNumber(value)}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="fa-icon-tile fa-icon-tile-lg fa-icon-tile-info">
+                <span className="text-xl">{getSummaryIcon(key)}</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -273,21 +274,16 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         </h3>
         <div className="space-y-3">
           {analysis.insights.map((insight, index) => (
-            <div
-              key={index}
-              className={`p-4 rounded-lg border-l-4 ${getImpactColor(insight.impact)}`}
-            >
+            <div key={index} className="fa-callout-info border-l-4 p-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h4 className="fa-scenario-title mb-1">{insight.title}</h4>
                   <p className="fa-list-copy">{insight.description}</p>
                 </div>
                 <div className="ml-4 flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getImpactColor(insight.impact)}`}
-                  >
+                  <Badge variant={getImpactVariant(insight.impact)}>
                     {insight.impact.toUpperCase()}
-                  </span>
+                  </Badge>
                   {insight.actionable && <span className="fa-chip fa-chip-accent">ACTIONABLE</span>}
                 </div>
               </div>
@@ -313,21 +309,19 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               <div className="flex items-start justify-between mb-2">
                 <h4 className="fa-scenario-title">{recommendation.title}</h4>
                 <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(recommendation.priority)}`}
-                  >
+                  <Badge variant={getPriorityVariant(recommendation.priority)}>
                     {recommendation.priority.toUpperCase()}
-                  </span>
+                  </Badge>
                   <span className="fa-chip fa-chip-muted">
                     {recommendation.category.toUpperCase()}
                   </span>
                 </div>
               </div>
               <p className="fa-list-copy mb-2">{recommendation.description}</p>
-              <div className="flex items-center justify-between fa-meta-copy text-sm">
+              <div className={`flex items-center justify-between text-sm ${textColors.muted}`}>
                 <span>Effort: {recommendation.effort}</span>
                 {recommendation.potentialSavings && (
-                  <span className="font-medium text-emerald-600 dark:text-emerald-300">
+                  <span className={`font-medium ${textColors.success}`}>
                     Potential Savings: {formatCurrency(recommendation.potentialSavings)}
                   </span>
                 )}
@@ -351,11 +345,9 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         <div className="fa-subcard p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="fa-scenario-title">Overall Risk Level</h4>
-            <span
-              className={`fa-chip-status ${getImpactColor(analysis.riskAssessment.overallRisk)}`}
-            >
+            <Badge variant={getImpactVariant(analysis.riskAssessment.overallRisk)}>
               {analysis.riskAssessment.overallRisk.toUpperCase()}
-            </span>
+            </Badge>
           </div>
           <div className="space-y-2">
             {analysis.riskAssessment.factors.map((factor, index) => (
@@ -365,11 +357,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
               >
                 <span className="fa-list-copy">{factor.factor}</span>
                 <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getImpactColor(factor.risk)}`}
-                  >
-                    {factor.risk.toUpperCase()}
-                  </span>
+                  <Badge variant={getImpactVariant(factor.risk)}>{factor.risk.toUpperCase()}</Badge>
                 </div>
               </div>
             ))}
@@ -390,10 +378,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
         </h3>
         <div className="space-y-3">
           {analysis.optimizationOpportunities.map((opportunity, index) => (
-            <div
-              key={index}
-              className="rounded-lg border border-emerald-200 bg-linear-to-r from-emerald-50 to-violet-50 p-4 dark:border-emerald-800 dark:from-emerald-950/20 dark:to-violet-950/20"
-            >
+            <div key={index} className="fa-callout-success p-4">
               <h4 className="fa-scenario-title mb-2">{opportunity.area}</h4>
               <p className="fa-list-copy mb-3">{opportunity.description}</p>
               <div className="grid grid-cols-3 gap-4 text-sm">
@@ -416,7 +401,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
                 </div>
                 <div>
                   <span className="fa-meta-copy">Improvement:</span>
-                  <p className="font-medium text-emerald-600 dark:text-emerald-300">
+                  <p className={`font-medium ${textColors.success}`}>
                     {formatCurrency(opportunity.potentialImprovement)}
                   </p>
                 </div>
@@ -438,10 +423,13 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
   if (isLoading) {
     return (
-      <Card variant="elevated" className={`shadow-lg ${className}`}>
+      <Card variant="elevated" className={className}>
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+            <div
+              className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--fa-brand)] border-t-transparent"
+              aria-hidden="true"
+            />
             <span className="ml-3 fa-meta-copy">Generating analysis...</span>
           </div>
         </CardContent>
@@ -452,7 +440,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
   if (!analysis) {
     return (
       <div className={`enhanced-analysis-results ${className}`}>
-        <Card variant="elevated" className="shadow-lg">
+        <Card variant="elevated">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
@@ -533,7 +521,7 @@ export const EnhancedAnalysisResults: React.FC<EnhancedAnalysisResultsProps> = (
 
   return (
     <div className={`enhanced-analysis-results ${className}`} data-enhanced-analysis="true">
-      <Card variant="elevated" className="shadow-lg">
+      <Card variant="elevated">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>

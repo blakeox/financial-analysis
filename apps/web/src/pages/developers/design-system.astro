@@ -3,10 +3,42 @@ import Breadcrumbs from '../../components/site/Breadcrumbs.astro';
 import PageHero from '../../components/site/PageHero.astro';
 import DesignSystemShowcase from '../../components/DesignSystemShowcase';
 import Layout from '../../layouts/Layout.astro';
+import { renderTheAnswer } from '../../scripts/_shared/answer-html';
+import { renderComparePair, renderCompareToggle } from '../../scripts/_shared/compare-html';
 
 const title = 'Design System | Fanalyx';
 const description =
   'Visual reference for Fanalyx design tokens, fa-* app spine classes, and @financial-analysis/ui React primitives.';
+
+const answerDemo = renderTheAnswer({
+  label: 'Monthly payment',
+  value: '$2,147',
+  meaning: 'What you pay each month at 6.5% over 30 years.',
+  assumptions: [
+    { label: '30y', fieldName: 'termYears', title: 'Loan term' },
+    { label: '6.5%', fieldName: 'rate', title: 'Interest rate' },
+    { label: '$350k', fieldName: 'principal', title: 'Principal' },
+  ],
+  cta: { label: 'View amortization', href: '#summary-cards' },
+});
+
+const compareToggleDemo = renderCompareToggle([
+  { id: 'a', label: 'Keep loan', active: true },
+  { id: 'b', label: 'Refinance' },
+]);
+
+const comparePairDemo = renderComparePair({
+  a: {
+    eyebrow: 'Scenario A',
+    title: 'Keep loan',
+    bodyHtml: '<p class="fa-tabular-nums">$2,147 / mo</p>',
+  },
+  b: {
+    eyebrow: 'Scenario B',
+    title: 'Refinance',
+    bodyHtml: '<p class="fa-tabular-nums">$1,892 / mo</p>',
+  },
+});
 ---
 
 <Layout title={title} description={description} canonical={Astro.url.href} noindex={true}>
@@ -22,7 +54,7 @@ const description =
     <PageHero
       eyebrow="Design system"
       title="Fanalyx visual language"
-      description="Two tiers: fa-* CSS for calculator/workflow pages, React components for interactive islands. Tokens live in apps/web/src/styles/tokens.css."
+      description="Two tiers: fa-* CSS for calculator/workflow pages, React components for interactive islands. Tokens live in @financial-analysis/tokens."
     />
 
     <section class="fa-card mb-10">
@@ -57,18 +89,102 @@ const description =
       </div>
     </section>
 
+    <section class="fa-card mb-10">
+      <h2 class="fa-card-title">Heroes</h2>
+      <p class="fa-card-copy">
+        Marketing pages use <code>PageHero</code> (<code>fa-page-hero</code>). Calculators and journey
+        steps use <code>WorkflowHero</code> (via <code>WorkflowPageIntro</code> /
+        <code>JourneyStepHero</code>).
+      </p>
+      <div class="mt-6 space-y-8">
+        <div class="fa-page-hero">
+          <p class="fa-eyebrow">Marketing</p>
+          <h3 class="fa-display !mt-0 text-3xl">PageHero sample</h3>
+          <p class="fa-body-lg">Catalog and product pages — Fraunces display, not a workflow card.</p>
+        </div>
+        <div class="fa-card p-6">
+          <p class="fa-eyebrow">Workflow</p>
+          <h3 class="fa-model-title text-2xl">WorkflowHero sample</h3>
+          <p class="fa-scenario-copy mt-2 text-sm">
+            Calculator / journey stage title lives inside a card with optional progress.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="fa-card mb-10">
+      <h2 class="fa-card-title">The Answer + assumptions + compare</h2>
+      <p class="fa-card-copy">
+        Signature craft (#410–#415): one hero metric with tabular lining figures, assumption chips,
+        and optional A/B compare. Helpers:
+        <code>answer-html.ts</code>, <code>assumption-chip-html.ts</code>, <code>compare-html.ts</code>.
+      </p>
+      <div class="mt-6 space-y-8">
+        <div set:html={answerDemo} />
+        <div>
+          <p class="fa-meta-copy mb-3 text-sm">Tabular nums utility</p>
+          <p class="fa-tabular-nums text-2xl font-semibold text-[var(--fa-text-primary)]">
+            $1,234,567.89
+          </p>
+        </div>
+        <div>
+          <p class="fa-meta-copy mb-3 text-sm">Compare toggle</p>
+          <div set:html={compareToggleDemo} />
+          <div class="mt-4" set:html={comparePairDemo} />
+        </div>
+      </div>
+    </section>
+
+    <section class="fa-card mb-10">
+      <h2 class="fa-card-title">Data table (fa-*)</h2>
+      <p class="fa-card-copy">
+        Use <code>fa-data-table</code> + header/cell classes. Wrap wide tables in a focusable
+        scroll region (<code>role="region"</code> / React <code>ScrollableRegion</code>).
+      </p>
+      <div
+        class="mt-4 overflow-x-auto"
+        role="region"
+        aria-label="Design system sample data table"
+        tabindex="0"
+      >
+        <table class="fa-data-table min-w-full">
+          <thead>
+            <tr>
+              <th class="fa-data-table-header text-left text-xs uppercase">Month</th>
+              <th class="fa-data-table-header text-right text-xs uppercase">Payment</th>
+              <th class="fa-data-table-header text-right text-xs uppercase">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fa-data-table-cell">1</td>
+              <td class="fa-data-table-cell text-right">$1,842</td>
+              <td class="fa-data-table-cell text-right">$348,158</td>
+            </tr>
+            <tr>
+              <td class="fa-data-table-cell">2</td>
+              <td class="fa-data-table-cell text-right">$1,842</td>
+              <td class="fa-data-table-cell text-right">$346,310</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <DesignSystemShowcase client:visible />
 
     <section class="fa-prose-card mt-12">
       <h2>Token files</h2>
       <ul>
-        <li><code>apps/web/src/styles/tokens.css</code> — semantic CSS variables + Tailwind @theme</li>
-        <li><code>packages/ui/src/lib/classNames.ts</code> — React class strings (uses token shadows)</li>
+        <li><code>@financial-analysis/tokens</code> (<code>packages/tokens/tokens.css</code>) — semantic CSS variables + Tailwind @theme</li>
+        <li><code>packages/ui/src/lib/classNames.ts</code> — React class strings (uses token shadows / status)</li>
         <li><code>apps/web/src/styles/components.css</code> — fa-* component classes</li>
+        <li><code>apps/web/src/styles/chat-theme.css</code> — chat third-tier VS Code sub-theme</li>
+        <li><code>apps/web/src/styles/a11y-forced-colors.css</code> — forced-colors / prefers-contrast</li>
       </ul>
       <h3>Styling exceptions</h3>
       <p>
-        <code>ChatPanel.astro</code> intentionally uses a VS Code–inspired sub-theme with scoped CSS.
+        <code>ChatPanel.astro</code> loads <code>chat-theme.css</code> (VS Code–inspired third tier).
         It is separate from the Fanalyx brand spine documented here.
       </p>
     </section>

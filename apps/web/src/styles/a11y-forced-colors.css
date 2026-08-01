@@ -1,0 +1,85 @@
+/**
+ * Forced-colors / Windows High Contrast overrides for spine primitives.
+ * Imported from global.css — keep minimal; prefer currentColor borders so the
+ * OS palette remains authoritative.
+ */
+
+@media (forced-colors: active) {
+  .fa-button-primary,
+  .fa-button-secondary,
+  .fa-button-success,
+  .fa-button-ghost-light,
+  .fa-button-ghost {
+    border: 1px solid currentColor;
+    forced-color-adjust: none;
+  }
+
+  .fa-input-surface,
+  .fa-input,
+  input.fa-input-surface,
+  select.fa-input-surface,
+  textarea.fa-input-surface {
+    border: 1px solid currentColor;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .fa-callout-info,
+  .fa-callout-success,
+  .fa-callout-warning,
+  .fa-callout-danger {
+    border: 1px solid currentColor;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .fa-card,
+  .fa-rail-card,
+  .fa-subcard,
+  .fa-answer,
+  .fa-compare-col {
+    border: 1px solid currentColor;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .field-highlight {
+    animation: none !important;
+    border: 3px solid Highlight !important;
+    box-shadow: none !important;
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .fa-assumption-chip,
+  .fa-assumption-chip-static {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  .fa-progress-bar {
+    background: Highlight !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .fa-button-primary,
+  .fa-button-secondary,
+  .fa-button-success,
+  .fa-button-ghost-light,
+  .fa-button-ghost {
+    border-width: 2px;
+  }
+
+  .fa-input-surface,
+  .fa-card,
+  .fa-rail-card,
+  .fa-callout-info,
+  .fa-callout-success,
+  .fa-callout-warning,
+  .fa-callout-danger {
+    border-width: 2px;
+  }
+}
