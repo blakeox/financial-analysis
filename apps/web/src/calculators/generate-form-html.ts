@@ -34,7 +34,7 @@ export function generateFormHTMLWithValidation(fields: FormFieldConfig[]): strin
       <div class="flex items-center gap-3">
         <span id="mode-label-basic" class="fa-switch-label-active">Basic</span>
         <button type="button" id="mode-toggle" role="switch" aria-checked="false" aria-label="Toggle advanced mode"
-          class="fa-switch-inactive relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          class="fa-switch-inactive relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:shadow-[var(--fa-focus-ring)]">
           <span class="fa-switch-knob-inactive pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
         </button>
         <span id="mode-label-advanced" class="fa-switch-label-inactive">Advanced</span>
@@ -111,7 +111,7 @@ function generateFieldHTMLWithValidation(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="fa-checkbox">`;
       break;
   }
 
@@ -257,7 +257,7 @@ function generateFieldHTML(field: FormFieldConfig): string {
       inputHTML += '</select>';
       break;
     case 'checkbox':
-      inputHTML = `<input type="checkbox" ${baseAttrs} class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-violet-300">`;
+      inputHTML = `<input type="checkbox" ${baseAttrs} class="fa-checkbox">`;
       break;
   }
 

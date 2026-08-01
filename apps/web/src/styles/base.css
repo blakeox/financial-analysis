@@ -8,30 +8,47 @@
 
   body {
     background:
-      radial-gradient(circle at 82% 8%, rgba(109, 74, 255, 0.09), transparent 30%),
-      radial-gradient(circle at 12% 92%, rgba(109, 74, 255, 0.04), transparent 26%),
+      radial-gradient(circle at 82% 8%, var(--fa-brand-glow), transparent 30%),
+      radial-gradient(circle at 12% 92%, var(--fa-brand-glow-soft), transparent 26%),
       linear-gradient(180deg, var(--fa-surface) 0%, var(--fa-surface-subtle) 100%);
     color: var(--fa-text-primary);
     font-family: var(--font-sans);
     padding-right: var(--chat-panel-active-width, 0px);
-    transition: padding-right 0.3s ease;
+    transition: padding-right var(--fa-duration-slow) var(--fa-ease-standard);
+  }
+
+  /* Optional ambient grain — ~2% via --fa-surface-grain; off under forced-colors (#416) */
+  body::before {
+    background: var(--fa-surface-grain);
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+  }
+
+  @media (forced-colors: active) {
+    body::before {
+      content: none;
+      display: none;
+    }
   }
 
   .dark body {
     background:
-      radial-gradient(circle at 18% 0%, rgba(109, 74, 255, 0.14), transparent 34%),
-      radial-gradient(circle at 88% 96%, rgba(86, 54, 232, 0.08), transparent 28%),
+      radial-gradient(circle at 18% 0%, var(--fa-brand-glow), transparent 34%),
+      radial-gradient(circle at 88% 96%, var(--fa-brand-glow-soft), transparent 28%),
       linear-gradient(180deg, var(--color-gray-950) 0%, var(--color-gray-900) 100%);
     color: var(--fa-text-primary);
   }
 
   ::selection {
-    background: rgba(109, 74, 255, 0.2);
+    background: color-mix(in srgb, var(--fa-brand) 20%, transparent);
     color: var(--color-gray-900);
   }
 
   .dark ::selection {
-    background: rgba(159, 130, 255, 0.32);
+    background: color-mix(in srgb, var(--color-primary-400) 32%, transparent);
     color: #ffffff;
   }
 
@@ -55,11 +72,11 @@
     color: #fff;
     padding: 0.5rem 0.75rem;
     border-radius: 0 0 0.5rem 0;
-    font-size: 0.875rem;
+    font-size: var(--fa-fs-sm);
     font-weight: 500;
     outline: 2px solid transparent;
-    transition: transform 0.25s ease;
-    z-index: 60;
+    transition: transform var(--fa-duration-slow) var(--fa-ease-standard);
+    z-index: var(--fa-z-skip-link);
     text-decoration: none;
   }
   .skip-link:focus {
@@ -71,6 +88,10 @@
     background: var(--color-gray-900);
   }
 
+  /*
+   * Reduced motion: kill decorative transforms/animations on fa-* hover surfaces.
+   * Keep essential opacity/color transitions usable via short duration clamp below.
+   */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -80,8 +101,43 @@
     .fa-button-primary:hover,
     .fa-button-secondary:hover,
     .fa-button-success:hover,
-    .fa-shell-icon-button:hover {
-      transform: none;
+    .fa-button-success-state:hover,
+    .fa-button-light:hover,
+    .fa-button-ghost-light:hover,
+    .fa-button-info-compact:hover,
+    .fa-button-info-md:hover,
+    .fa-shell-icon-button:hover,
+    .fa-model-card:hover,
+    .fa-accordion[open] .fa-accordion-chevron {
+      transform: none !important;
+    }
+
+    .fa-accordion-chevron,
+    .fa-card-interactive,
+    .fa-button-primary,
+    .fa-button-secondary,
+    .fa-button-success,
+    .fa-button-light,
+    .fa-button-ghost-light,
+    .fa-model-card,
+    .fa-shell-icon-button,
+    .fa-progress-bar,
+    .field-highlight,
+    .fa-answer-reveal .fa-answer-value {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    .fa-answer-reveal .fa-answer-value {
+      animation: none !important;
+      letter-spacing: -0.03em;
+      opacity: 1;
+    }
+
+    .field-highlight {
+      animation: none !important;
+      outline: 2px solid var(--fa-brand);
     }
   }
 }

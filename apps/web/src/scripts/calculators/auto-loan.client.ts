@@ -1,6 +1,8 @@
 import type { AutoLoanInput, AutoLoanResult } from '@financial-analysis/analysis';
 import { AutoLoanEngine } from '@financial-analysis/analysis';
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderTheAnswer } from '../_shared/answer-html';
+import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import { renderResultPanel, renderResultRow } from '../_shared/result-panel-html';
@@ -228,31 +230,49 @@ export const renderAutoLoanResults = (
         )
       : null;
 
-  // Render summary cards with TCO
-  summaryCards.innerHTML = renderMetricCards([
-    {
-      title: 'Monthly Payment',
-      value: formatCurrency(summary.monthlyPayment),
-      meta: tco ? `TCO: ${formatCurrency(tco.totals.monthlyTCO)}/mo` : undefined,
-      tone: 'violet',
+  const totalCostNum = Number(summary.totalCost) || 0;
+  const totalInterestNum = Number(summary.totalInterest) || 0;
+  const interestShare =
+    totalCostNum > 0 ? ((totalInterestNum / totalCostNum) * 100).toFixed(1) : '0.0';
+
+  summaryCards.innerHTML = `${renderTheAnswer({
+    label: 'Monthly payment',
+    value: formatCurrency(summary.monthlyPayment),
+    meaning: tco
+      ? `Loan payment only — full ownership runs about ${formatCurrency(tco.totals.monthlyTCO)}/mo including insurance, fuel, and maintenance.`
+      : `You pay this each month over ${termMonths} months (${interestShare}% of total loan cost is interest).`,
+    assumptions: [{ label: `${termMonths} mo`, fieldName: 'loanTerm', title: 'Loan term' }],
+    cta: {
+      label: 'View loan breakdown',
+      attrs: 'data-action="scroll-auto-loan-detail"',
     },
-    {
-      title: 'Total Interest',
-      value: formatCurrency(summary.totalInterest),
-      tone: 'emerald',
-    },
-    {
-      title: 'Total Cost',
-      value: formatCurrencyWhole(summary.totalCost),
-      meta: tco ? `With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}` : undefined,
-      tone: 'violet',
-    },
-    {
-      title: tco ? 'Cost Per Mile' : 'Loan Term',
-      value: tco ? formatCurrency(tco.totals.costPerMile) : `${termMonths} months`,
-      tone: 'orange',
-    },
-  ]);
+  })}
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      ${renderMetricCards([
+        {
+          title: 'Total Interest',
+          value: formatCurrency(summary.totalInterest),
+          tone: 'emerald',
+        },
+        {
+          title: 'Total Cost',
+          value: formatCurrencyWhole(summary.totalCost),
+          meta: tco ? `With ownership: ${formatCurrency(tco.totals.totalOverLoanTerm)}` : undefined,
+          tone: 'violet',
+        },
+        {
+          title: tco ? 'Cost Per Mile' : 'Loan Term',
+          value: tco ? formatCurrency(tco.totals.costPerMile) : `${termMonths} months`,
+          tone: 'orange',
+        },
+      ])}
+    </div>`;
+  bindAssumptionChipClicks(summaryCards);
+  summaryCards
+    .querySelector('[data-action="scroll-auto-loan-detail"]')
+    ?.addEventListener('click', () => {
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    });
 
   // Render detailed breakdown
   const netTradeIn = Number.parseFloat(costBreakdown.netTradeIn);

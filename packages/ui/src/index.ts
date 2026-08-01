@@ -1,4 +1,11 @@
-// UI Components
+/**
+ * Root barrel for `@financial-analysis/ui`.
+ *
+ * Prefer `@financial-analysis/ui/primitives` for new islands.
+ * Feature dashboards below remain temporarily for apps/web — see `SLIM.md` (#374).
+ */
+
+// —— Primitives (also on ./primitives) ——
 export { Button } from './components/Button';
 export { Badge } from './components/Badge';
 export type { BadgeProps, BadgeVariant } from './components/Badge';
@@ -13,29 +20,29 @@ export {
   CardTitle,
 } from './components/Card';
 export { ErrorBoundary } from './components/ErrorBoundary';
+/** @deprecated Prefer `apps/web/src/components/site/Footer.astro` (#374). */
 export { Footer } from './components/Footer';
 export { Input } from './components/Input';
+export { FieldShell, fieldDescribedBy } from './components/FieldShell';
+export type { FieldShellProps, FieldShellHelperTone } from './components/FieldShell';
 export { CurrencyField, PercentField, FormActions } from './components/financial-forms';
 export type {
   CurrencyFieldProps,
   PercentFieldProps,
   FormActionsProps,
 } from './components/financial-forms';
+export { Select } from './components/Select';
+export type { SelectProps } from './components/Select';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
 export { ValidatedInput, ValidatedNumberInput } from './components/ValidatedField';
-/** Production chat UI is `apps/web/src/components/ChatPanel.astro`; this export is for tests/tooling only. */
-export { ChatPanel } from './components/ChatPanel';
+
+// —— Feature composites (deferred move to apps/web — SLIM.md) ——
 export { StorageUsageCard } from './components/StorageUsageCard';
 export { AnalyticsDashboard } from './components/AnalyticsDashboard';
 export type { AnalyticsDashboardProps } from './components/AnalyticsDashboard';
-export { Select } from './components/Select';
-export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
 export { LeaseAnalysisDashboard } from './components/LeaseAnalysisDashboard';
-
-// Amortization Components
 export { AmortizationResults } from './components/AmortizationResults';
 export type { AmortizationResultsProps } from './components/AmortizationResults';
-
-// EBITDA Forecasting Components
 export { FinancialsInputForm } from './components/FinancialsInputForm';
 export type {
   MonthlyFinancialsData,
@@ -62,10 +69,10 @@ export type { FixedAssetData, FixedAssetsManagerProps } from './components/Fixed
 export { LeasesManager } from './components/LeasesManager';
 export type { LeaseData, LeasesManagerProps } from './components/LeasesManager';
 
-// Chart Components
+// —— Charts (brand defaults via chartColors) ——
 export * from './components/charts';
 
-// Utilities
+// —— Utilities ——
 export { cn } from './lib/utils';
 export { buildScenarioPayload } from './lib/ebitdaPayload';
 export {
@@ -92,18 +99,19 @@ export {
   buttonVariants,
   inputClasses,
   inputStateClasses,
+  numericInputClasses,
   cardClasses,
   cardVariants,
   badgeVariants,
   calloutVariants,
   gridLayouts,
   textColors,
+  statusSurfaces,
   copyClasses,
 } from './lib/classNames';
 export { primitiveContracts, primitiveOwnership } from './lib/primitiveContracts';
 export type { ButtonVariant, ButtonSize, CardVariant, InputState } from './lib/primitiveContracts';
 
-// Custom Hooks
 export {
   useHydrated,
   useApiData,
@@ -115,7 +123,6 @@ export {
   useAsync,
 } from './lib/hooks';
 
-// Form Utilities
 export {
   createChangeHandler,
   createFieldHandler,
@@ -128,7 +135,7 @@ export {
 } from './lib/formUtils';
 export type { DashboardScenarioConfig } from './lib/ebitdaPayload';
 
-// Analytics and Monitoring
+/** @deprecated Prefer apps/web analytics host after #374 move. */
 export {
   initAnalytics,
   getAnalytics,
@@ -146,6 +153,7 @@ export type {
   PageAnalytics,
 } from './lib/analytics';
 
+/** @deprecated Prefer apps/web after #374 move. */
 export { getApiMonitor, monitoredFetch, monitoredFetchWithRetry } from './lib/api-monitor';
 export type { ApiCallMetrics, ApiAnalysis, EndpointStats } from './lib/api-monitor';
 

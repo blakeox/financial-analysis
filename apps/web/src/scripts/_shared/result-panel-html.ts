@@ -24,6 +24,6 @@ export function renderResultPanel({
 export function renderResultRow(label: string, value: string): string {
   return `<div class="flex justify-between items-center py-2 fa-panel-divider">
       <span class="${spineCopyClasses.scriptCopySubtle}">${label}</span>
-      <span class="${spineCopyClasses.scriptCopyStrong} font-semibold">${value}</span>
+      <span class="${spineCopyClasses.scriptCopyStrong} font-semibold fa-tabular-nums">${value}</span>
     </div>`;
 }

@@ -393,23 +393,25 @@ const { links = [], currentPath = '/', brand = 'Financial Analysis' } = Astro.pr
         }
       } catch {}
     }
-    // Theme toggle
+    // Theme toggle — logic mirrors apps/web/src/scripts/_shared/theme.ts (#376)
+    const THEME_KEY = 'theme';
     const applyTheme = (mode) => {
-      const root = document.documentElement;
       const dark =
         mode === 'dark' ||
         (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      root.classList.toggle('dark', dark);
+      document.documentElement.classList.toggle('dark', dark);
+      return dark;
     };
-    const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
-    if (stored) applyTheme(stored);
+    const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(THEME_KEY) : null;
+    if (stored === 'dark' || stored === 'light') applyTheme(stored);
     themeToggle?.addEventListener(
       'click',
       () => {
-        const root = document.documentElement;
-        const dark = root.classList.contains('dark');
+        const dark = document.documentElement.classList.contains('dark');
         const next = dark ? 'light' : 'dark';
-        localStorage.setItem('theme', next);
+        try {
+          localStorage.setItem(THEME_KEY, next);
+        } catch {}
         applyTheme(next);
         announce(`Theme switched to ${next}`);
       },

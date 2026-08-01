@@ -59,7 +59,8 @@ describe('amortization.client', () => {
 
     renderSummaryCards(result, input.termMonths, container);
 
-    expect(container?.innerHTML).toMatch(/Monthly Payment/);
+    expect(container?.innerHTML).toMatch(/Monthly payment/);
+    expect(container?.innerHTML).toContain('fa-answer');
     expect(container?.innerHTML).toMatch(/Total Interest/);
   });
 
@@ -91,6 +92,7 @@ describe('amortization.client', () => {
     handleSuccess(result, input);
 
     expect(document.getElementById('results-container')?.classList.contains('hidden')).toBe(false);
-    expect(document.getElementById('summary-cards')?.innerHTML).toMatch(/Monthly Payment/);
+    expect(document.getElementById('summary-cards')?.innerHTML).toMatch(/Monthly payment/);
+    expect(document.getElementById('summary-cards')?.innerHTML).toContain('fa-answer');
   });
 });

@@ -5,6 +5,7 @@ import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
+import WorkflowSupportRail from '../../../../components/WorkflowSupportRail.astro';
 
 const journeyData = getJourneyData();
 const currentScenario = journeyData['auto-lease-decision'];
@@ -25,7 +26,7 @@ const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentSc
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} showChat={false} showToolAnalysis={false}>
   <Breadcrumbs
     items={[
       { label: 'Home', href: '/' },
@@ -191,11 +192,12 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
             journeyOverviewUrl={journeyNav.journeyOverviewUrl}
             previousStep={journeyNav.previousStep}
             nextStep={journeyNav.nextStep}
+            forceAssignNavigation={true}
           />
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
+        <WorkflowSupportRail modelType="lease-vs-buyout">
+          <div slot="tips" class="space-y-4">
           <div class="fa-card p-5">
             <h3 class="fa-scenario-title mb-3">Guardrails</h3>
             <ul class="fa-list-copy !mt-0 space-y-2">
@@ -212,7 +214,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               <li><a href="/calculator/risk-management" class="text-teal-700 dark:text-teal-300 hover:underline">Risk review</a> for emergency fund and payment safety.</li>
             </ul>
           </div>
-        </div>
+          </div>
+        </WorkflowSupportRail>
       </div>
   </div>
 </Layout>

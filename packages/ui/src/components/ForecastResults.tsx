@@ -7,6 +7,7 @@ import {
   WaterfallChart,
   StackedBarChart,
   EnhancedMetricCard,
+  chartColors,
   type WaterfallDataPoint,
 } from './charts';
 import { cn, textColors } from '../lib/classNames';
@@ -192,9 +193,9 @@ export function ForecastResults({ results, showDetails = true }: ForecastResults
   }));
 
   const expenseStacks = [
-    { dataKey: 'cogs', name: 'COGS', color: '#ef4444' },
-    { dataKey: 'opex', name: 'Operating', color: '#f59e0b' },
-    { dataKey: 'employees', name: 'Employees', color: '#3b82f6' },
+    { dataKey: 'cogs', name: 'COGS', color: chartColors.negative },
+    { dataKey: 'opex', name: 'Operating', color: chartColors.series3 },
+    { dataKey: 'employees', name: 'Employees', color: chartColors.series1 },
   ];
 
   return (

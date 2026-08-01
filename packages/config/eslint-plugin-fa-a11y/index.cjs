@@ -158,9 +158,51 @@ const noAdhocVioletMetricBlocks = {
   },
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
+const noVioletInUiPrimitives = {
+  meta: {
+    type: 'problem',
+    docs: {
+      description:
+        'Disallow Tailwind violet-* freelancing in UI primitive class strings; use fa-* / tokens',
+    },
+    messages: {
+      violetFreelance:
+        'Avoid `violet-*` in UI primitives. Compose `fa-*` spine classes or `var(--fa-*)` tokens instead.',
+    },
+    schema: [],
+  },
+  create(context) {
+    const filename = context.filename ?? '';
+    const inPrimitiveSurface =
+      /\/packages\/ui\/src\/(lib\/classNames\.ts|components\/(Button|Badge|Card|Callout|Input|FieldShell|Select|ErrorBoundary)\.tsx)$/.test(
+        filename
+      );
+    if (!inPrimitiveSurface) return {};
+
+    function inspect(node, raw) {
+      if (typeof raw !== 'string') return;
+      if (!/\b(?:bg|text|border|from|to|ring|outline|shadow|decoration|accent|fill|stroke)?-?violet-\d{2,3}\b/.test(raw) && !/\bviolet-\d{2,3}\b/.test(raw)) {
+        return;
+      }
+      context.report({ node, messageId: 'violetFreelance' });
+    }
+
+    return {
+      Literal(node) {
+        if (typeof node.value === 'string') inspect(node, node.value);
+      },
+      TemplateElement(node) {
+        inspect(node, node.value.raw);
+      },
+    };
+  },
+};
+
 module.exports = {
   rules: {
     'prefer-accessible-muted-text': preferAccessibleMutedText,
     'no-adhoc-violet-metric-blocks': noAdhocVioletMetricBlocks,
+    'no-violet-in-ui-primitives': noVioletInUiPrimitives,
   },
 };

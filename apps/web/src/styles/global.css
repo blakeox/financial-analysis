@@ -1,5 +1,6 @@
 @import 'tailwindcss';
-@import './tokens.css';
+@import '@financial-analysis/tokens/tokens.css';
 @import './utilities.css';
 @import './base.css';
 @import './components.css';
+@import './a11y-forced-colors.css';

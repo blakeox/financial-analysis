@@ -51,6 +51,8 @@ module.exports = [
     plugins: { 'fa-a11y': faA11y },
     rules: {
       'fa-a11y/prefer-accessible-muted-text': 'error',
+      'fa-a11y/no-adhoc-violet-metric-blocks': 'error',
+      'fa-a11y/no-violet-in-ui-primitives': 'error',
     },
   },
   {

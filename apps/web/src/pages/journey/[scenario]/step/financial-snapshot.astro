@@ -5,6 +5,7 @@ import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
+import WorkflowSupportRail from '../../../../components/WorkflowSupportRail.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -43,7 +44,7 @@ const seoTitle = `${currentStep?.name} - Step ${currentStepOrder} of ${currentSc
 const seoDescription = `${currentStep?.description} This is step ${currentStepOrder} of ${currentScenario.models.length} in the ${currentScenario.name} financial journey.`;
 ---
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} showChat={false} showToolAnalysis={false}>
   <Breadcrumbs
     items={[
       { label: 'Home', href: '/' },
@@ -288,8 +289,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
           />
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
+        <WorkflowSupportRail modelType="financial-snapshot">
+          <div slot="tips" class="space-y-4">
           <div class="fa-card p-5 mb-6">
             <h3 class="fa-scenario-title text-lg mb-4">💡 Tips</h3>
             <div class="space-y-4 fa-list-copy">
@@ -312,7 +313,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
               This snapshot will help us create personalized strategies for your debt, savings, and investment goals.
             </p>
           </div>
-        </div>
+          </div>
+        </WorkflowSupportRail>
       </div>
   </div>
 

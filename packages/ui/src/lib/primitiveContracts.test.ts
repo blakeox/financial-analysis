@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import { Callout } from '../components/Callout';
-import { badgeVariants, buttonVariants, calloutVariants } from '../lib/classNames';
+import {
+  badgeVariants,
+  buttonVariants,
+  calloutVariants,
+  cardVariants,
+  inputClasses,
+  statusSurfaces,
+} from '../lib/classNames';
 import {
   primitiveContracts,
   primitiveOwnership,
@@ -11,6 +18,14 @@ import {
   type CardVariant,
   type InputState,
 } from './primitiveContracts';
+
+function assertsBrandSurface(classString: string, hint: string) {
+  expect(classString).toBeTruthy();
+  expect(
+    classString.includes(hint) || classString.includes('var(--fa-') || classString.includes('fa-'),
+    `expected brand surface (${hint} / fa-* / var(--fa-*)): ${classString}`
+  ).toBe(true);
+}
 
 describe('primitiveContracts', () => {
   it('defines shared ownership for reusable primitives', () => {
@@ -33,44 +48,44 @@ describe('primitiveContracts', () => {
       'ghost',
       'success',
       'warning',
-      'destructive',
+      'danger',
     ]);
     expect(primitiveContracts.button.states).toContain('loading');
   });
 
-  it('enumerates canonical card and state contracts', () => {
-    expect(primitiveContracts.card.variants).toContain('interactive');
-    expect(primitiveContracts.state.variants).toContain('error');
-    expect(primitiveContracts.state.variants).toContain('success');
-  });
-
-  it('maps button contract variants to classNames (plus legacy aliases)', () => {
+  it('maps button contract variants to fa-button-* classNames (plus legacy aliases)', () => {
     for (const variant of primitiveContracts.button.variants) {
-      expect(buttonVariants[variant]).toBeTruthy();
+      assertsBrandSurface(buttonVariants[variant], primitiveContracts.button.brandClassPrefix);
     }
-    expect(buttonVariants.danger).toBeTruthy();
-    expect(buttonVariants.tertiary).toBeTruthy();
+    expect(buttonVariants.destructive).toBe(buttonVariants.danger);
+    expect(buttonVariants.tertiary).toBe(buttonVariants.ghost);
   });
 
-  it('maps badge contract variants to classNames and exports a component', () => {
+  it('maps card / badge / callout contracts to fa-* surfaces', () => {
+    for (const variant of primitiveContracts.card.variants) {
+      assertsBrandSurface(cardVariants[variant], 'fa-card');
+    }
     for (const variant of primitiveContracts.badge.variants) {
-      expect(badgeVariants[variant]).toBeTruthy();
+      assertsBrandSurface(badgeVariants[variant], primitiveContracts.badge.brandClassPrefix);
+    }
+    for (const variant of primitiveContracts.callout.variants) {
+      const cls = calloutVariants[variant === 'error' ? 'error' : variant];
+      assertsBrandSurface(cls, 'fa-callout-');
     }
     expect(Badge.displayName).toBe('Badge');
+    expect(Callout.displayName).toBe('Callout');
   });
 
-  it('maps callout contract variants to classNames and exports a component', () => {
-    const calloutClassByVariant = {
-      info: calloutVariants.info,
-      success: calloutVariants.success,
-      warning: calloutVariants.warning,
-      error: calloutVariants.error,
-    } as const;
+  it('keeps input classes on fa tokens', () => {
+    expect(inputClasses).toContain('var(--fa-');
+  });
 
-    for (const variant of primitiveContracts.callout.variants) {
-      expect(calloutClassByVariant[variant]).toBeTruthy();
-    }
-    expect(Callout.displayName).toBe('Callout');
+  it('documents state UX as Callout/statusSurfaces (no vaporware components)', () => {
+    expect(primitiveContracts.state.realizedVia.error).toContain('calloutVariants.error');
+    expect(primitiveContracts.state.realizedVia.success).toContain('statusSurfaces.success');
+    assertsBrandSurface(calloutVariants.error, 'fa-callout-');
+    assertsBrandSurface(statusSurfaces.danger, 'var(--fa-');
+    assertsBrandSurface(statusSurfaces.success, 'var(--fa-');
   });
 
   it('exports strongly typed variant aliases', () => {

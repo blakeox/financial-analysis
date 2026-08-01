@@ -19,7 +19,7 @@ describe('validateApiKey', () => {
     expect(result.errorCode).toBe('MISSING_KEY');
   });
 
-  it('trusts localhost origins outside production', async () => {
+  it('does not trust localhost origins outside production', async () => {
     const request = new Request('https://api.fanalyx.com/v1/chat', {
       headers: {
         Origin: 'http://localhost:3000',
@@ -30,8 +30,8 @@ describe('validateApiKey', () => {
       ENVIRONMENT: 'development',
     } as Env);
 
-    expect(result.success).toBe(true);
-    expect(result.keyInfo?.tier).toBe('internal');
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe('MISSING_KEY');
   });
 
   it('rejects multi-level fanalyx-looking hostnames', async () => {
@@ -49,7 +49,7 @@ describe('validateApiKey', () => {
     expect(result.errorCode).toBe('MISSING_KEY');
   });
 
-  it('continues to trust fanalyx subdomains', async () => {
+  it('does not trust fanalyx subdomains', async () => {
     const request = new Request('https://api.fanalyx.com/v1/chat', {
       headers: {
         Origin: 'https://app.fanalyx.com',
@@ -60,7 +60,40 @@ describe('validateApiKey', () => {
       ENVIRONMENT: 'production',
     } as Env);
 
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe('MISSING_KEY');
+  });
+
+  it('accepts a valid server-to-server token', async () => {
+    const request = new Request('https://api.fanalyx.com/v1/chat', {
+      headers: {
+        'x-internal-api-token': 'server-secret',
+      },
+    });
+
+    const result = await validateApiKey(request, {
+      ENVIRONMENT: 'production',
+      INTERNAL_API_TOKEN: 'server-secret',
+    } as Env);
+
     expect(result.success).toBe(true);
     expect(result.keyInfo?.tier).toBe('internal');
+  });
+
+  it('rejects spoofed internal markers and invalid server tokens', async () => {
+    const request = new Request('https://api.fanalyx.com/v1/chat', {
+      headers: {
+        'x-internal-request': 'true',
+        'x-internal-api-token': 'wrong-secret',
+      },
+    });
+
+    const result = await validateApiKey(request, {
+      ENVIRONMENT: 'production',
+      INTERNAL_API_TOKEN: 'server-secret',
+    } as Env);
+
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe('MISSING_KEY');
   });
 });

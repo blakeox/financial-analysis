@@ -85,6 +85,89 @@ describe('Storage endpoints', () => {
     ctx = makeCtx();
   });
 
+  it('rejects unauthenticated credential and document routes in production', async () => {
+    env.ENVIRONMENT = 'production';
+    const requests = [
+      new Request('https://example.com/v1/keys'),
+      new Request('https://example.com/v1/storage/status'),
+      new Request('https://example.com/v1/api/extract/lease-text', { method: 'POST' }),
+      new Request('https://example.com/v1/stripe/create-checkout', { method: 'POST' }),
+      new Request('https://example.com/v1/admin/circuit-breakers'),
+    ];
+
+    for (const request of requests) {
+      const response = await api.fetch(request, env, ctx);
+      expect(response.status).toBe(401);
+    }
+  });
+
+  it('rejects oversized JSON bodies before extraction parsing', async () => {
+    env.ANALYSIS_MAX_JSON_BYTES = String(32);
+    const payload = JSON.stringify({ text: 'x'.repeat(80) });
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/extract/lease-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(413);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('BODY_TOO_LARGE');
+  });
+
+  it('applies the configured object limit to multipart lease uploads', async () => {
+    const form = new FormData();
+    form.append('file', new File(['x'.repeat(4000)], 'lease.txt', { type: 'text/plain' }));
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/upload/lease', { method: 'POST', body: form }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(413);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('FILE_TOO_LARGE');
+  });
+
+  it('enforces the quota lock on multipart lease uploads', async () => {
+    await env.SESSIONS.put('quota:bytes', '4900');
+    const form = new FormData();
+    form.append('file', new File(['x'.repeat(200)], 'lease.txt', { type: 'text/plain' }));
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/upload/lease', { method: 'POST', body: form }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(403);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('SOFT_LIMIT');
+  });
+
+  it('rejects direct extraction file data above the object limit', async () => {
+    const payload = JSON.stringify({
+      fileData: btoa('x'.repeat(4000)),
+      fileName: 'lease.txt',
+    });
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/extract/lease-direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(413);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('FILE_TOO_LARGE');
+  });
+
   it('returns storage status with configured bucket', async () => {
     const res = await api.fetch(new Request('https://example.com/v1/storage/status'), env, ctx);
     expect(res.status).toBe(200);

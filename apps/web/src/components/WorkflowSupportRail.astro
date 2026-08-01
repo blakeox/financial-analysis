@@ -21,6 +21,9 @@ const showImpact = showImpactSummary ?? hasAnalysisEngine(modelType);
 ---
 
 <aside class="space-y-4 xl:sticky xl:top-24">
+  <!-- Journey tip cards / guidance — optional; calculators leave this empty -->
+  <slot name="tips" />
+
   <ChatPanel variant="embedded" />
 
   <section id="results-section" class="fa-rail-card hidden">
